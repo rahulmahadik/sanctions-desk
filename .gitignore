@@ -7,3 +7,5 @@ logs/
 *.pem
 *.key
 .claude/
+# Private scratch: run logs, notes. Never commit.
+internal/
