@@ -15,3 +15,6 @@ node_modules/
 dist/
 coverage/
 *.tsbuildinfo
+
+# Local assistant instructions (kept on disk, not published)
+CLAUDE.md
