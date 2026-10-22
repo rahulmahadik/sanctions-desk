@@ -26,7 +26,10 @@
     "check:zetaris": "uv run python scripts/check_zetaris.py",
     "check:nemotron": "uv run python scripts/check_nemotron.py",
     "lint:voice": "node scripts/lint-voice.mjs",
-    "receipt:pubkey": "tsx tools/receipt-pubkey.ts"
+    "receipt:pubkey": "tsx tools/receipt-pubkey.ts",
+    "data:fetch": "tsx data/scripts/fetch.ts",
+    "data:normalise": "tsx data/scripts/normalise.ts",
+    "data:diff": "tsx data/scripts/diff.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.2",

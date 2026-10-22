@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Hand-built fixture in the structure of OFAC's Advanced XML. All parties are fictional. -->
+<Sanctions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="3" xmlns="https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/ADVANCED_XML">
+  <DateOfIssue CalendarTypeID="1"><Year>2026</Year><Month>10</Month><Day>21</Day></DateOfIssue>
+  <ReferenceValueSets>
+    <AliasTypeValues>
+      <AliasType ID="1400">A.K.A.</AliasType>
+      <AliasType ID="1401">F.K.A.</AliasType>
+      <AliasType ID="1403">Name</AliasType>
+    </AliasTypeValues>
+    <CountryValues>
+      <Country ID="11171" ISO2="RU">Russia</Country>
+      <Country ID="11143" ISO2="IR">Iran</Country>
+      <Country ID="11200" ISO2="AE">United Arab Emirates</Country>
+      <Country ID="11300" ISO2="ZZ">Nowhere</Country>
+    </CountryValues>
+    <FeatureTypeValues>
+      <FeatureType ID="1" FeatureTypeGroupID="1">Vessel Call Sign</FeatureType>
+      <FeatureType ID="8" FeatureTypeGroupID="1">Birthdate</FeatureType>
+      <FeatureType ID="9" FeatureTypeGroupID="1">Place of Birth</FeatureType>
+      <FeatureType ID="10" FeatureTypeGroupID="1">Nationality Country</FeatureType>
+      <FeatureType ID="13" FeatureTypeGroupID="1">SWIFT/BIC</FeatureType>
+      <FeatureType ID="25" FeatureTypeGroupID="1">Location</FeatureType>
+      <FeatureType ID="224" FeatureTypeGroupID="1">Gender</FeatureType>
+      <FeatureType ID="365" FeatureTypeGroupID="1">Nationality of Registration</FeatureType>
+    </FeatureTypeValues>
+    <IDRegDocTypeValues>
+      <IDRegDocType ID="1571">Passport</IDRegDocType>
+      <IDRegDocType ID="1585">Registration ID</IDRegDocType>
+      <IDRegDocType ID="1596">Tax ID No.</IDRegDocType>
+    </IDRegDocTypeValues>
+    <ListValues>
+      <List ID="1550">SDN List</List>
+      <List ID="91512">Consolidated List</List>
+    </ListValues>
+    <LocPartTypeValues>
+      <LocPartType ID="1451">ADDRESS1</LocPartType>
+      <LocPartType ID="1454">CITY</LocPartType>
+      <LocPartType ID="1456">POSTAL CODE</LocPartType>
+    </LocPartTypeValues>
+    <NamePartTypeValues>
+      <NamePartType ID="1520">Last Name</NamePartType>
+      <NamePartType ID="1521">First Name</NamePartType>
+      <NamePartType ID="1525">Entity Name</NamePartType>
+    </NamePartTypeValues>
+    <PartySubTypeValues>
+      <PartySubType ID="1" PartyTypeID="4">Vessel</PartySubType>
+      <PartySubType ID="2" PartyTypeID="4">Aircraft</PartySubType>
+      <PartySubType ID="3" PartyTypeID="2">Unknown</PartySubType>
+      <PartySubType ID="4" PartyTypeID="1">Unknown</PartySubType>
+    </PartySubTypeValues>
+    <RelationTypeValues>
+      <RelationType ID="15003" Symmetrical="false">Owned or Controlled By</RelationType>
+    </RelationTypeValues>
+    <ScriptValues>
+      <Script ID="160" ScriptCode="Arab">Arabic</Script>
+      <Script ID="220" ScriptCode="Cyrl">Cyrillic</Script>
+      <Script ID="215" ScriptCode="Latin">Latin</Script>
+    </ScriptValues>
+  </ReferenceValueSets>
+  <Locations>
+    <Location ID="500">
+      <LocationAreaCode AreaCodeID="1" />
+      <LocationCountry CountryID="11171" CountryRelevanceID="1413" />
+      <LocationPart LocPartTypeID="1454"><LocationPartValue Primary="true"><Comment /><Value>Moscow</Value></LocationPartValue></LocationPart>
+      <LocationPart LocPartTypeID="1451"><LocationPartValue Primary="true"><Comment /><Value>1 Test Street</Value></LocationPartValue></LocationPart>
+      <LocationPart LocPartTypeID="1456"><LocationPartValue Primary="true"><Comment /><Value>101000</Value></LocationPartValue></LocationPart>
+    </Location>
+    <Location ID="501"><LocationCountry CountryID="11171" CountryRelevanceID="1413" /></Location>
+    <Location ID="502"><LocationCountry CountryID="11200" CountryRelevanceID="1413" /></Location>
+    <Location ID="503"><LocationCountry CountryID="11300" CountryRelevanceID="1413" /></Location>
+  </Locations>
+  <IDRegDocuments>
+    <IDRegDocument ID="9001" IDRegDocTypeID="1571" IdentityID="2001" IssuedBy-CountryID="11171" ValidityID="1">
+      <Comment /><IDRegistrationNo>P1234567</IDRegistrationNo><IssuingAuthority /><DocumentedNameReference DocumentedNameID="3001" />
+    </IDRegDocument>
+    <IDRegDocument ID="9002" IDRegDocTypeID="1596" IdentityID="2002" IssuedBy-CountryID="11171" ValidityID="1">
+      <Comment /><IDRegistrationNo>7700000001</IDRegistrationNo><IssuingAuthority /><DocumentedNameReference DocumentedNameID="3002" />
+    </IDRegDocument>
+    <IDRegDocument ID="9003" IDRegDocTypeID="1585" IdentityID="2002" IssuedBy-CountryID="11171" ValidityID="2">
+      <Comment /><IDRegistrationNo>REG-42</IDRegistrationNo><IssuingAuthority /><DocumentedNameReference DocumentedNameID="3002" />
+    </IDRegDocument>
+    <IDRegDocument ID="9004" IDRegDocTypeID="1585" IdentityID="2002"><Comment /><IDRegistrationNo /><IssuingAuthority /></IDRegDocument>
+  </IDRegDocuments>
+  <DistinctParties>
+    <DistinctParty FixedRef="1001">
+      <Comment>Fictional test person with a year-only birth date.</Comment>
+      <Profile ID="1001" PartySubTypeID="4">
+        <Identity ID="2001" FixedRef="1001" Primary="true" False="false">
+          <Alias FixedRef="1001" AliasTypeID="1403" Primary="true" LowQuality="false">
+            <DocumentedName ID="3001" FixedRef="1001" DocNameStatusID="1">
+              <DocumentedNamePart><NamePartValue NamePartGroupID="4001" ScriptID="215" ScriptStatusID="1" Acronym="false">PETROV</NamePartValue></DocumentedNamePart>
+              <DocumentedNamePart><NamePartValue NamePartGroupID="4002" ScriptID="215" ScriptStatusID="1" Acronym="false">Ivan Ivanovich</NamePartValue></DocumentedNamePart>
+            </DocumentedName>
+          </Alias>
+          <Alias FixedRef="1001" AliasTypeID="1400" Primary="false" LowQuality="false">
+            <DocumentedName ID="3003" FixedRef="1001" DocNameStatusID="2">
+              <DocumentedNamePart><NamePartValue NamePartGroupID="4003" ScriptID="220" ScriptStatusID="1" Acronym="false">ПЕТРОВ</NamePartValue></DocumentedNamePart>
+              <DocumentedNamePart><NamePartValue NamePartGroupID="4004" ScriptID="220" ScriptStatusID="1" Acronym="false">Иван Иванович</NamePartValue></DocumentedNamePart>
+            </DocumentedName>
+          </Alias>
+          <Alias FixedRef="1001" AliasTypeID="1400" Primary="false" LowQuality="true">
+            <DocumentedName ID="3004" FixedRef="1001" DocNameStatusID="2">
+              <DocumentedNamePart><NamePartValue NamePartGroupID="4005" ScriptID="215" ScriptStatusID="1" Acronym="false">Vanya P</NamePartValue></DocumentedNamePart>
+            </DocumentedName>
+          </Alias>
+          <Alias FixedRef="1001" AliasTypeID="1401" Primary="false" LowQuality="false">
+            <DocumentedName ID="3005" FixedRef="1001" DocNameStatusID="2">
+              <DocumentedNamePart><NamePartValue NamePartGroupID="4006" ScriptID="215" ScriptStatusID="1" Acronym="false">Ivan Petrovich</NamePartValue></DocumentedNamePart>
+            </DocumentedName>
+          </Alias>
+          <NamePartGroups>
+            <MasterNamePartGroup><NamePartGroup ID="4001" NamePartTypeID="1520" /></MasterNamePartGroup>
+            <MasterNamePartGroup><NamePartGroup ID="4002" NamePartTypeID="1521" /></MasterNamePartGroup>
+          </NamePartGroups>
+        </Identity>
+        <Feature ID="7001" FeatureTypeID="8">
+          <FeatureVersion ID="8001" ReliabilityID="1"><Comment />
+            <DatePeriod CalendarTypeID="1">
+              <Start Approximate="false"><From><Year>1971</Year><Month>1</Month><Day>1</Day></From><To><Year>1971</Year><Month>1</Month><Day>1</Day></To></Start>
+              <End Approximate="false"><From><Year>1971</Year><Month>12</Month><Day>31</Day></From><To><Year>1971</Year><Month>12</Month><Day>31</Day></To></End>
+            </DatePeriod>
+          </FeatureVersion>
+        </Feature>
+        <Feature ID="7002" FeatureTypeID="8">
+          <FeatureVersion ID="8002" ReliabilityID="1"><Comment />
+            <DatePeriod CalendarTypeID="1">
+              <Start Approximate="true"><From><Year>1972</Year><Month>3</Month><Day>2</Day></From><To><Year>1972</Year><Month>3</Month><Day>2</Day></To></Start>
+              <End Approximate="true"><From><Year>1972</Year><Month>3</Month><Day>2</Day></From><To><Year>1972</Year><Month>3</Month><Day>2</Day></To></End>
+            </DatePeriod>
+          </FeatureVersion>
+        </Feature>
+        <Feature ID="7003" FeatureTypeID="9"><FeatureVersion ID="8003"><Comment /><VersionDetail DetailTypeID="1432">Leningrad</VersionDetail></FeatureVersion></Feature>
+        <Feature ID="7004" FeatureTypeID="10"><FeatureVersion ID="8004"><Comment /><VersionDetail DetailTypeID="1433" /><VersionLocation LocationID="501" /></FeatureVersion></Feature>
+        <Feature ID="7005" FeatureTypeID="25"><FeatureVersion ID="8005"><Comment /><VersionLocation LocationID="500" /></FeatureVersion></Feature>
+        <Feature ID="7006" FeatureTypeID="224"><FeatureVersion ID="8006"><Comment /><VersionDetail DetailTypeID="1431" DetailReferenceID="91526" /></FeatureVersion></Feature>
+      </Profile>
+    </DistinctParty>
+    <DistinctParty FixedRef="1002">
+      <Comment />
+      <Profile ID="1002" PartySubTypeID="3">
+        <Identity ID="2002" FixedRef="1002" Primary="true" False="false">
+          <Alias FixedRef="1002" AliasTypeID="1403" Primary="true" LowQuality="false">
+            <DocumentedName ID="3002" FixedRef="1002" DocNameStatusID="1">
+              <DocumentedNamePart><NamePartValue NamePartGroupID="4010" ScriptID="215" ScriptStatusID="1" Acronym="false">PETROV TRADING LLC</NamePartValue></DocumentedNamePart>
+            </DocumentedName>
+          </Alias>
+          <NamePartGroups><MasterNamePartGroup><NamePartGroup ID="4010" NamePartTypeID="1525" /></MasterNamePartGroup></NamePartGroups>
+        </Identity>
+        <Feature ID="7010" FeatureTypeID="365"><FeatureVersion ID="8010"><Comment /><VersionDetail DetailTypeID="1433" /><VersionLocation LocationID="502" /></FeatureVersion></Feature>
+        <Feature ID="7011" FeatureTypeID="13"><FeatureVersion ID="8011"><Comment /><VersionDetail DetailTypeID="1432">PETRRUMM</VersionDetail></FeatureVersion></Feature>
+        <Feature ID="7012" FeatureTypeID="25"><FeatureVersion ID="8012"><Comment /><VersionLocation LocationID="503" /></FeatureVersion></Feature>
+      </Profile>
+    </DistinctParty>
+    <DistinctParty FixedRef="1003">
+      <Comment />
+      <Profile ID="1003" PartySubTypeID="1">
+        <Identity ID="2003" FixedRef="1003" Primary="true" False="false">
+          <Alias FixedRef="1003" AliasTypeID="1403" Primary="true" LowQuality="false">
+            <DocumentedName ID="3006" FixedRef="1003" DocNameStatusID="1">
+              <DocumentedNamePart><NamePartValue NamePartGroupID="4020" ScriptID="215" ScriptStatusID="1" Acronym="false">TEST VESSEL</NamePartValue></DocumentedNamePart>
+            </DocumentedName>
+          </Alias>
+        </Identity>
+        <Feature ID="7020" FeatureTypeID="1"><FeatureVersion ID="8020"><Comment /><VersionDetail DetailTypeID="1432">CALL123</VersionDetail></FeatureVersion></Feature>
+      </Profile>
+    </DistinctParty>
+    <DistinctParty FixedRef="1004">
+      <Comment>Has no sanctions entry, so it is not a listed party.</Comment>
+      <Profile ID="1004" PartySubTypeID="4">
+        <Identity ID="2004" FixedRef="1004" Primary="true" False="false">
+          <Alias FixedRef="1004" AliasTypeID="1403" Primary="true" LowQuality="false">
+            <DocumentedName ID="3007" FixedRef="1004" DocNameStatusID="1">
+              <DocumentedNamePart><NamePartValue NamePartGroupID="4030" ScriptID="215" ScriptStatusID="1" Acronym="false">Nobody Listed</NamePartValue></DocumentedNamePart>
+            </DocumentedName>
+          </Alias>
+        </Identity>
+      </Profile>
+    </DistinctParty>
+    <DistinctParty FixedRef="1005">
+      <Comment />
+      <Profile ID="1005" PartySubTypeID="4">
+        <Identity ID="2005" FixedRef="1005" Primary="true" False="false">
+          <Alias FixedRef="1005" AliasTypeID="1403" Primary="true" LowQuality="false">
+            <DocumentedName ID="3010" FixedRef="1005" DocNameStatusID="1">
+              <DocumentedNamePart><NamePartValue NamePartGroupID="4040" ScriptID="215" ScriptStatusID="1" Acronym="false">AL-TEST</NamePartValue></DocumentedNamePart>
+              <DocumentedNamePart><NamePartValue NamePartGroupID="4041" ScriptID="215" ScriptStatusID="1" Acronym="false">Muhammad</NamePartValue></DocumentedNamePart>
+            </DocumentedName>
+            <DocumentedName ID="3011" FixedRef="1005" DocNameStatusID="2">
+              <DocumentedNamePart><NamePartValue NamePartGroupID="4042" ScriptID="160" ScriptStatusID="1" Acronym="false">محمد التست</NamePartValue></DocumentedNamePart>
+            </DocumentedName>
+          </Alias>
+          <NamePartGroups>
+            <MasterNamePartGroup><NamePartGroup ID="4040" NamePartTypeID="1520" /></MasterNamePartGroup>
+            <MasterNamePartGroup><NamePartGroup ID="4041" NamePartTypeID="1521" /></MasterNamePartGroup>
+          </NamePartGroups>
+        </Identity>
+      </Profile>
+    </DistinctParty>
+  </DistinctParties>
+  <ProfileRelationships>
+    <ProfileRelationship ID="6001" From-ProfileID="1002" To-ProfileID="1001" RelationTypeID="15003" RelationQualityID="1" Former="false" SanctionsEntryID="1002"><Comment /></ProfileRelationship>
+    <ProfileRelationship ID="6002" From-ProfileID="9999" To-ProfileID="1001" RelationTypeID="15003" RelationQualityID="1" Former="true" SanctionsEntryID="9999"><Comment /></ProfileRelationship>
+  </ProfileRelationships>
+  <SanctionsEntries>
+    <SanctionsEntry ID="1001" ProfileID="1001" ListID="1550">
+      <EntryEvent ID="1" EntryEventTypeID="1" LegalBasisID="1"><Comment /><Date CalendarTypeID="1"><Year>2022</Year><Month>3</Month><Day>1</Day></Date></EntryEvent>
+      <EntryEvent ID="2" EntryEventTypeID="1" LegalBasisID="2"><Comment /><Date CalendarTypeID="1"><Year>2021</Year><Month>6</Month><Day>15</Day></Date></EntryEvent>
+      <SanctionsMeasure ID="1" SanctionsTypeID="1"><Comment>RUSSIA-EO14024</Comment></SanctionsMeasure>
+      <SanctionsMeasure ID="2" SanctionsTypeID="1"><Comment>SDGT</Comment></SanctionsMeasure>
+      <SanctionsMeasure ID="3" SanctionsTypeID="1706"><DatePeriod CalendarTypeID="1" /></SanctionsMeasure>
+    </SanctionsEntry>
+    <SanctionsEntry ID="1002" ProfileID="1002" ListID="1550"><SanctionsMeasure ID="4" SanctionsTypeID="1"><Comment>IRAN</Comment></SanctionsMeasure></SanctionsEntry>
+    <SanctionsEntry ID="1003" ProfileID="1003" ListID="91512"><SanctionsMeasure ID="5" SanctionsTypeID="1"><Comment>VESSEL</Comment></SanctionsMeasure></SanctionsEntry>
+    <SanctionsEntry ID="1005" ProfileID="1005" ListID="1550"><SanctionsMeasure ID="6" SanctionsTypeID="1"><Comment>SDGT</Comment></SanctionsMeasure></SanctionsEntry>
+  </SanctionsEntries>
+</Sanctions>

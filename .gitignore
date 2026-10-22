@@ -18,3 +18,7 @@ coverage/
 
 # Local assistant instructions (kept on disk, not published)
 CLAUDE.md
+
+# Raw and normalised list downloads (large, reproducible with npm run data:fetch)
+data/raw/
+data/normalised/
