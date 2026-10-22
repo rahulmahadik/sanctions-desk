@@ -25,7 +25,8 @@
     "verify": "uv run python scripts/verify_setup.py",
     "check:zetaris": "uv run python scripts/check_zetaris.py",
     "check:nemotron": "uv run python scripts/check_nemotron.py",
-    "lint:voice": "node scripts/lint-voice.mjs"
+    "lint:voice": "node scripts/lint-voice.mjs",
+    "receipt:pubkey": "tsx tools/receipt-pubkey.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.2",

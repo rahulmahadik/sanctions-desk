@@ -4,6 +4,7 @@ export * from "./events.js";
 export * from "./generator.js";
 export * from "./hashing.js";
 export * from "./http.js";
+export * from "./metrics.js";
 export * from "./modes.js";
 export * from "./policy.js";
 export * from "./policy-store.js";

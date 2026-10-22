@@ -43,6 +43,8 @@ const ConfigSchema = z.strictObject({
   nightshift: z.strictObject({
     baseUrl: z.url(),
     appId: nonEmpty,
+    /** App id used for evaluation runs. Nightshift's response cache is per app, so evals use their own. */
+    evalAppId: nonEmpty,
     scope: nonEmpty,
     requestTimeoutMs: positiveInt,
     /** Each lane is pinned to an explicit mode. meterless/auto is rejected. */
@@ -97,6 +99,7 @@ const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "ZETARIS_API_KEY", path: ["zetaris", "apiKey"], kind: "string" },
   { env: "METERLESS_BASE_URL", path: ["nightshift", "baseUrl"], kind: "string" },
   { env: "METERLESS_APP_ID", path: ["nightshift", "appId"], kind: "string" },
+  { env: "METERLESS_EVAL_APP_ID", path: ["nightshift", "evalAppId"], kind: "string" },
   { env: "METERLESS_RUNTIME_TOKEN", path: ["nightshift", "runtimeToken"], kind: "string" },
   { env: "METERLESS_MODEL_FAST", path: ["nightshift", "models", "fast"], kind: "string" },
   { env: "METERLESS_MODEL_DEEP", path: ["nightshift", "models", "deep"], kind: "string" },
@@ -168,6 +171,11 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
   return { ...config, logging: { ...config.logging, dir: resolveProjectPath(config.logging.dir) } };
 }
 
+/** The same configuration, but model calls use the evaluation app id so they never share a cache with live use. */
+export function forEvaluation(cfg: Config): Config {
+  return { ...cfg, nightshift: { ...cfg.nightshift, appId: cfg.nightshift.evalAppId } };
+}
+
 /** Every secret value in the config, for the log redactor. */
 export function secretValues(cfg: Config): string[] {
   return [cfg.zetaris.apiKey, cfg.nightshift.runtimeToken]
@@ -184,6 +192,7 @@ export function describeConfig(cfg: Config) {
     nightshift: {
       baseUrl: cfg.nightshift.baseUrl,
       appId: cfg.nightshift.appId,
+      evalAppId: cfg.nightshift.evalAppId,
       models: cfg.nightshift.models,
       receiptKeysPinned: cfg.nightshift.receiptPublicKeys.length,
       runtimeTokenSet: cfg.nightshift.runtimeToken !== undefined,

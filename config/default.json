@@ -26,7 +26,8 @@
       "deep": "meterless/deep",
       "judge": "meterless/judge"
     },
-    "receiptPublicKeys": []
+    "receiptPublicKeys": [],
+    "evalAppId": "sanctions-desk-eval"
   },
   "ollama": {
     "baseUrl": "http://localhost:11434/v1",
