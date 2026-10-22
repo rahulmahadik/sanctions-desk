@@ -18,11 +18,11 @@ No Meterless source code is included in this repository yet.
 
 ## Public data sources
 
-| Data                                  | Publisher         | Terms                                           |
-| ------------------------------------- | ----------------- | ----------------------------------------------- |
-| OFAC SDN and consolidated lists       | US Treasury, OFAC | Public domain / CC0 per the OFAC data catalogue |
-| UN Security Council consolidated list | United Nations    | Public list, no key required                    |
-| GLEIF LEI records and relationships   | GLEIF             | Licence to be confirmed                         |
+| Data                                  | Publisher         | Terms                                                                                                                                             |
+| ------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OFAC SDN and consolidated lists       | US Treasury, OFAC | Public domain / CC0 per the OFAC data catalogue                                                                                                   |
+| UN Security Council consolidated list | United Nations    | Public list, no key required                                                                                                                      |
+| GLEIF LEI records and relationships   | GLEIF             | CC0 1.0. "The data available through the Access Service are provided under the CC0 licence" (https://www.gleif.org/en/meta/lei-data-terms-of-use) |
 
 All customer, payment and ownership data in this project is synthetic and labelled as such.
 

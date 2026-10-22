@@ -180,6 +180,30 @@ describe("dead routes", () => {
     expect(other.sentModels()).toEqual(["meterless/fast"]);
   });
 
+  it("treats a cloud 'Function not found' as dead, whether it arrives as 502 or 404", async () => {
+    const body = {
+      error: {
+        message: `404: {"status":404,"title":"Not Found","detail":"Function 'ac74040f-9fc9-4c5e-ac74-279ba5161d69': Not Found for account 'x'"}`,
+      },
+    };
+    for (const status of [502, 404]) {
+      const { generate, sentModels } = nightshift([jsonResponse(body, status), jsonResponse(nightshiftReply("ok"))]);
+      const result = await generate({ prompt: "x", lane: "deep" });
+      expect(result.deadRoutes).toEqual([{ model: "meterless/deep", status, code: "function_not_found" }]);
+      expect(sentModels()).toEqual(["meterless/deep", "meterless/judge"]);
+    }
+  });
+
+  it("does not treat an unrelated 404 or 502 as a dead route", async () => {
+    for (const status of [404, 502]) {
+      const { generate, sentModels } = nightshift([jsonResponse({ error: { message: "upstream timeout" } }, status)]);
+      const error = await refuse(generate({ prompt: "x" }));
+      expect(error.type).toBe("http_error");
+      expect(error.recoverable).toBe(true);
+      expect(sentModels()).toEqual(["meterless/fast"]);
+    }
+  });
+
   it("picks the next mode in lane order, wrapping around, and starts from fast for an unlisted mode", async () => {
     const order = async (req: { lane?: "fast" | "deep" | "judge"; model?: string }) => {
       const { generate, sentModels } = nightshift([jsonResponse({}, 410), jsonResponse(nightshiftReply("ok"))]);

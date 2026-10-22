@@ -13,7 +13,7 @@ import type { Secret } from "./secret.js";
  *   Nightshift (primary)  ->  Ollama (backup)  ->  fallback-rules (sample mode only)
  *
  * Nightshift is always called with a pinned mode (meterless/fast, meterless/deep, ...), never
- * meterless/auto. If a mode is dead (HTTP 410, or 400 class_no_route) the next configured mode is
+ * meterless/auto. If a mode is dead (HTTP 410, 400 class_no_route, or a cloud "Function not found") the next configured mode is
  * tried once; after that the call fails over to Ollama. Every attempt is reported with the mode we
  * requested and the model the runtime says answered.
  */
@@ -168,10 +168,17 @@ async function sendToNightshift(opts: NightshiftOptions, req: GenerateRequest, m
   }
 }
 
-/** HTTP 410 (model retired) and 400 class_no_route both mean this mode has no route. */
+/**
+ * The cloud function behind a mode no longer exists. Nightshift passes the upstream refusal on, often
+ * wrapped in a 502, as text like: 404: {"status":404,"title":"Not Found","detail":"Function '<id>': Not Found ..."}.
+ */
+const FUNCTION_NOT_FOUND = /Function\s+'[^']*'\s*:?\s*Not Found/i;
+
+/** HTTP 410 (model retired), 400 class_no_route and a cloud "Function not found" all mean this mode has no route. */
 function deadRouteOf(model: string, status: number, text: string): DeadRoute | undefined {
   if (status === 410) return { model, status };
   if (status === 400 && text.includes("class_no_route")) return { model, status, code: "class_no_route" };
+  if (status >= 400 && FUNCTION_NOT_FOUND.test(text)) return { model, status, code: "function_not_found" };
   return undefined;
 }
 
