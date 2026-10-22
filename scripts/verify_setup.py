@@ -15,6 +15,7 @@ ENV_PATH = ROOT / ".env"
 PROMPT = "Reply with the single word: ready"
 CHAT_TIMEOUT = 90
 REQUIRED_CONTAINERS = ["postgres", "driver", "api", "ui", "ai-datasteward"]
+OPTIONAL_CONTAINERS = {"ai-datasteward"}
 
 counts = {"PASS": 0, "FAIL": 0, "WARN": 0}
 
@@ -78,7 +79,10 @@ def check_containers() -> None:
         pat = re.compile(rf"(^|[-_]){re.escape(kw)}([-_]\d+)?$")
         match = [(n, s) for n, s in (r + [""] * (2 - len(r)) for r in rows) if pat.search(n)]
         if not match:
-            report("FAIL", f"container {kw}", "not running")
+            if kw in OPTIONAL_CONTAINERS:
+                report("WARN", f"container {kw}", "not running; optional (not defined in the hackathon compose bundle)")
+            else:
+                report("FAIL", f"container {kw}", "not running")
             continue
         name, status = match[0]
         if not status.startswith("Up"):
@@ -132,7 +136,7 @@ def check_zetaris(env: dict) -> None:
 
 # chat helper
 def chat(base: str, model: str, headers: dict):
-    """Return (ok, answered_model, seconds, error)."""
+    """Return (ok, answered_model, seconds, error, kind). kind is 'local'/'cloud' when the runtime says so."""
     url = base.rstrip("/") + "/chat/completions"
     hdrs = {"Content-Type": "application/json", **headers}
     payload = {"model": model, "messages": [{"role": "user", "content": PROMPT}]}
@@ -141,10 +145,12 @@ def chat(base: str, model: str, headers: dict):
         try:
             body = json.loads(text)
             body["choices"][0]["message"]
-            return True, body.get("model", "?"), secs, ""
+            route = (body.get("meterless") or {}).get("winning_route") or {}
+            answered = (body.get("meterless") or {}).get("routed_model") or body.get("model", "?")
+            return True, answered, secs, "", route.get("kind")
         except (ValueError, KeyError, IndexError, TypeError, AttributeError):
             pass
-    return False, "", secs, err(status, text)
+    return False, "", secs, err(status, text), None
 
 
 # 3 + 4. Nightshift
@@ -172,24 +178,41 @@ def check_nightshift(env: dict) -> None:
     targets = [i for i in ids if "nemotron" in i.lower()]
     if not targets:
         report("FAIL", "nightshift nemotron", "no model id contains 'nemotron'")
+    answered_ok = aliased = cloud = 0
     for mid in targets:
         if "embed" in mid.lower():
             report("WARN", f"nightshift chat {mid}", "skipped: embedding model, not a chat model")
             continue
-        ok, answered, t, e = chat(base, mid, headers)
-        if ok:
-            report("PASS", f"nightshift chat {mid}", f"answered by {answered}, {t:.2f}s")
-        else:
+        ok, answered, t, e, kind = chat(base, mid, headers)
+        if not ok:
             report("FAIL", f"nightshift chat {mid}", f"{e} ({t:.2f}s)")
+            continue
+        answered_ok += 1
+        cloud += kind == "cloud"
+        if answered == mid:
+            report("PASS", f"nightshift chat {mid}", f"requested == answered ({kind or '?'}), {t:.2f}s")
+        else:
+            aliased += 1
+            report("WARN", f"nightshift chat {mid}",
+                   f"aliased: requested {mid}, answered by {answered} ({kind or '?'}), {t:.2f}s")
+    if answered_ok and aliased == answered_ok:
+        report("WARN", "nightshift routing", f"all {answered_ok} requests were answered by a different model than requested")
+    if answered_ok and not cloud:
+        report("WARN", "nightshift cloud lane", "no request was answered by a cloud route; "
+               "attach the cloud lane to app 'sanctions-desk' in Nightshift if you expect one")
+    elif cloud:
+        report("PASS", "nightshift cloud lane", f"{cloud} request(s) answered by a cloud route")
 
 
 # 5. Ollama
 def check_ollama(env: dict) -> None:
     base = env.get("OLLAMA_BASE_URL") or "http://localhost:11434/v1"
     model = env.get("OLLAMA_MODEL") or "nemotron-3.5-lightning:30b"
-    ok, answered, t, e = chat(base, model, {})
-    if ok:
-        report("PASS", f"ollama chat {model}", f"answered by {answered}, {t:.2f}s")
+    ok, answered, t, e, _ = chat(base, model, {})
+    if ok and answered != model:
+        report("WARN", f"ollama chat {model}", f"aliased: requested {model}, answered by {answered}, {t:.2f}s")
+    elif ok:
+        report("PASS", f"ollama chat {model}", f"requested == answered, {t:.2f}s")
     else:
         report("FAIL", f"ollama chat {model}", f"{e} ({t:.2f}s)")
 
@@ -198,13 +221,16 @@ def check_ollama(env: dict) -> None:
 def check_hygiene() -> None:
     rc, out, e = run(["git", "status", "--porcelain"])
     own = "scripts/verify_setup.py"
-    dirty = [l for l in out.splitlines() if l[3:].strip() != own]
+    lines = out.splitlines()
+    dirty = [l for l in lines if l[2:].strip() != own]  # run() strips the first line's leading space
     if rc != 0:
         report("FAIL", "git status", e[:200])
     elif dirty:
         report("FAIL", "git status clean", f"{len(dirty)} change(s): " + "; ".join(dirty[:5]))
-    else:
+    elif lines:
         report("PASS", "git status clean", "ignoring this script itself while uncommitted")
+    else:
+        report("PASS", "git status clean")
     rc, _, _ = run(["git", "check-ignore", "-q", ".env"])
     report("PASS" if rc == 0 else "FAIL", ".env ignored", "" if rc == 0 else "git does not ignore .env")
     # pattern is assembled from pieces so this file does not match its own scan
