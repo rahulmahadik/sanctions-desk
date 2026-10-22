@@ -71,7 +71,7 @@ describe("OFAC advanced XML parser", () => {
 
   it("reads partial and approximate dates of birth", () => {
     const dobs = byEntry(parse().tables.list_dob, "OFAC-1001");
-    expect(dobs.map((d) => [d.dob_value, d.precision, d.is_approximate]).sort()).toEqual([
+    expect(dobs.map((d) => [d.dob_value, d.dob_precision, d.is_approximate]).sort()).toEqual([
       ["1971", "year", false],
       ["1972-03-02", "day", true],
     ]);

@@ -1,0 +1,3922 @@
+[
+  {
+    "identifier_id": "OFAC-10010-i-3b9960fe",
+    "entry_id": "OFAC-10010",
+    "id_type": "passport",
+    "id_number": "101423404",
+    "issuing_country": null,
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-10375-i-8412f48e",
+    "entry_id": "OFAC-10375",
+    "id_type": "passport",
+    "id_number": "H0347417",
+    "issuing_country": "IQ",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-11274-i-777c45d3",
+    "entry_id": "OFAC-11274",
+    "id_type": "national_id",
+    "id_number": "3509900001907",
+    "issuing_country": "TH",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-11274-i-8ed6862e",
+    "entry_id": "OFAC-11274",
+    "id_type": "passport",
+    "id_number": "V487440",
+    "issuing_country": "TH",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-11800-i-88728680",
+    "entry_id": "OFAC-11800",
+    "id_type": "tax_id",
+    "id_number": "LOPD5510214S1",
+    "issuing_country": "MX",
+    "note": "R.F.C."
+  },
+  {
+    "identifier_id": "OFAC-12802-i-3c61dc31",
+    "entry_id": "OFAC-12802",
+    "id_type": "national_id",
+    "id_number": "10101863528",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-12802-i-9e99bc13",
+    "entry_id": "OFAC-12802",
+    "id_type": "registration",
+    "id_number": "103222",
+    "issuing_country": "IR",
+    "note": "Business Registration Document #"
+  },
+  {
+    "identifier_id": "OFAC-13356-i-ea149e53",
+    "entry_id": "OFAC-13356",
+    "id_type": "tax_id",
+    "id_number": "1199542-1-581763",
+    "issuing_country": "PA",
+    "note": "RUC #"
+  },
+  {
+    "identifier_id": "OFAC-15003-i-5757515b",
+    "entry_id": "OFAC-15003",
+    "id_type": "passport",
+    "id_number": "07040059504",
+    "issuing_country": "MX",
+    "note": "Passport (marked fraudulent)"
+  },
+  {
+    "identifier_id": "OFAC-15003-i-8077d945",
+    "entry_id": "OFAC-15003",
+    "id_type": "tax_id",
+    "id_number": "FOAS621023Q97",
+    "issuing_country": "MX",
+    "note": "R.F.C."
+  },
+  {
+    "identifier_id": "OFAC-15003-i-c512b9e4",
+    "entry_id": "OFAC-15003",
+    "id_type": "national_id",
+    "id_number": "FOAS621023HSLLPL04",
+    "issuing_country": "MX",
+    "note": "C.U.R.P."
+  },
+  {
+    "identifier_id": "OFAC-15610-i-429e5d0a",
+    "entry_id": "OFAC-15610",
+    "id_type": "passport",
+    "id_number": "A1447120",
+    "issuing_country": "ML",
+    "note": "Passport (marked fraudulent)"
+  },
+  {
+    "identifier_id": "OFAC-15610-i-eccbfeaa",
+    "entry_id": "OFAC-15610",
+    "id_type": "national_id",
+    "id_number": "47911",
+    "issuing_country": "ML",
+    "note": "Identification Number (marked fraudulent)"
+  },
+  {
+    "identifier_id": "OFAC-16010-i-6a752b2c",
+    "entry_id": "OFAC-16010",
+    "id_type": "national_id",
+    "id_number": "10103669614",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-16010-i-7dd0450a",
+    "entry_id": "OFAC-16010",
+    "id_type": "registration",
+    "id_number": "329465",
+    "issuing_country": "IR",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-16031-i-10f22404",
+    "entry_id": "OFAC-16031",
+    "id_type": "registration",
+    "id_number": "6388",
+    "issuing_country": "IR",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-16031-i-cdcb2d4e",
+    "entry_id": "OFAC-16031",
+    "id_type": "national_id",
+    "id_number": "10100302746",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-16210-i-4f3111fb",
+    "entry_id": "OFAC-16210",
+    "id_type": "tax_id",
+    "id_number": "RIHJ770111DD",
+    "issuing_country": "MX",
+    "note": "R.F.C."
+  },
+  {
+    "identifier_id": "OFAC-16210-i-a49536f2",
+    "entry_id": "OFAC-16210",
+    "id_type": "national_id",
+    "id_number": "RIHJ770111MTSSRN08",
+    "issuing_country": "MX",
+    "note": "C.U.R.P."
+  },
+  {
+    "identifier_id": "OFAC-16210-i-f59a508c",
+    "entry_id": "OFAC-16210",
+    "id_type": "national_id",
+    "id_number": "0844040737482",
+    "issuing_country": "MX",
+    "note": "Credencial electoral"
+  },
+  {
+    "identifier_id": "OFAC-16817-i-2f078e88",
+    "entry_id": "OFAC-16817",
+    "id_type": "passport",
+    "id_number": "E00957550",
+    "issuing_country": "CN",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-16817-i-b02f5e6e",
+    "entry_id": "OFAC-16817",
+    "id_type": "other",
+    "id_number": "5170 3057 1344",
+    "issuing_country": null,
+    "note": "Chinese Commercial Code"
+  },
+  {
+    "identifier_id": "OFAC-16817-i-eecf8cee",
+    "entry_id": "OFAC-16817",
+    "id_type": "national_id",
+    "id_number": "410204197605261014",
+    "issuing_country": "CN",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-16835-i-d532ab9c",
+    "entry_id": "OFAC-16835",
+    "id_type": "registration",
+    "id_number": "72426791",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17013-i-27ce5ef1",
+    "entry_id": "OFAC-17013",
+    "id_type": "swift_bic",
+    "id_number": "VTBRRUMM",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-17013-i-27ce5ef1",
+    "entry_id": "OFAC-17013",
+    "id_type": "swift_bic",
+    "id_number": "VTBRRUMM",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-17013-i-4228ff50",
+    "entry_id": "OFAC-17013",
+    "id_type": "registration",
+    "id_number": "253400V1H6ART1UQ0N98",
+    "issuing_country": null,
+    "note": "Legal Entity Number"
+  },
+  {
+    "identifier_id": "OFAC-17013-i-4228ff50",
+    "entry_id": "OFAC-17013",
+    "id_type": "registration",
+    "id_number": "253400V1H6ART1UQ0N98",
+    "issuing_country": null,
+    "note": "Legal Entity Number"
+  },
+  {
+    "identifier_id": "OFAC-17013-i-7607eb2a",
+    "entry_id": "OFAC-17013",
+    "id_type": "registration",
+    "id_number": "1000",
+    "issuing_country": "RU",
+    "note": "License"
+  },
+  {
+    "identifier_id": "OFAC-17013-i-7607eb2a",
+    "entry_id": "OFAC-17013",
+    "id_type": "registration",
+    "id_number": "1000",
+    "issuing_country": "RU",
+    "note": "License"
+  },
+  {
+    "identifier_id": "OFAC-17013-i-881f83cb",
+    "entry_id": "OFAC-17013",
+    "id_type": "registration",
+    "id_number": "1027739609391",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-17013-i-881f83cb",
+    "entry_id": "OFAC-17013",
+    "id_type": "registration",
+    "id_number": "1027739609391",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-17013-i-8b52f034",
+    "entry_id": "OFAC-17013",
+    "id_type": "registration",
+    "id_number": "00032520",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17013-i-8b52f034",
+    "entry_id": "OFAC-17013",
+    "id_type": "registration",
+    "id_number": "00032520",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17013-i-adf74b3c",
+    "entry_id": "OFAC-17013",
+    "id_type": "tax_id",
+    "id_number": "7702070139",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17013-i-adf74b3c",
+    "entry_id": "OFAC-17013",
+    "id_type": "tax_id",
+    "id_number": "7702070139",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17014-i-5ea266eb",
+    "entry_id": "OFAC-17014",
+    "id_type": "registration",
+    "id_number": "1027700342890",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-17014-i-94eaaf07",
+    "entry_id": "OFAC-17014",
+    "id_type": "swift_bic",
+    "id_number": "RUAGRUMM",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-17014-i-e4e93be3",
+    "entry_id": "OFAC-17014",
+    "id_type": "registration",
+    "id_number": "52750822",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17015-i-57f84137",
+    "entry_id": "OFAC-17015",
+    "id_type": "swift_bic",
+    "id_number": "BFEARUMM",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-17015-i-57f84137",
+    "entry_id": "OFAC-17015",
+    "id_type": "swift_bic",
+    "id_number": "BFEARUMM",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-17015-i-71d30d45",
+    "entry_id": "OFAC-17015",
+    "id_type": "registration",
+    "id_number": "1077711000102",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-17015-i-71d30d45",
+    "entry_id": "OFAC-17015",
+    "id_type": "registration",
+    "id_number": "1077711000102",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-17015-i-be32bc12",
+    "entry_id": "OFAC-17015",
+    "id_type": "tax_id",
+    "id_number": "7750004150",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17015-i-be32bc12",
+    "entry_id": "OFAC-17015",
+    "id_type": "tax_id",
+    "id_number": "7750004150",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17015-i-df8e1f11",
+    "entry_id": "OFAC-17015",
+    "id_type": "registration",
+    "id_number": "00005061",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17015-i-df8e1f11",
+    "entry_id": "OFAC-17015",
+    "id_type": "registration",
+    "id_number": "00005061",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17016-i-04c2c9cd",
+    "entry_id": "OFAC-17016",
+    "id_type": "registration",
+    "id_number": "253400WSS48YWMBUA688",
+    "issuing_country": null,
+    "note": "Legal Entity Number"
+  },
+  {
+    "identifier_id": "OFAC-17016-i-04c2c9cd",
+    "entry_id": "OFAC-17016",
+    "id_type": "registration",
+    "id_number": "253400WSS48YWMBUA688",
+    "issuing_country": null,
+    "note": "Legal Entity Number"
+  },
+  {
+    "identifier_id": "OFAC-17016-i-1ce172b5",
+    "entry_id": "OFAC-17016",
+    "id_type": "swift_bic",
+    "id_number": "GAZPRUMM",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-17016-i-1ce172b5",
+    "entry_id": "OFAC-17016",
+    "id_type": "swift_bic",
+    "id_number": "GAZPRUMM",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-17016-i-6a401b42",
+    "entry_id": "OFAC-17016",
+    "id_type": "tax_id",
+    "id_number": "7744001497",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17016-i-6a401b42",
+    "entry_id": "OFAC-17016",
+    "id_type": "tax_id",
+    "id_number": "7744001497",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17016-i-7048cc5a",
+    "entry_id": "OFAC-17016",
+    "id_type": "registration",
+    "id_number": "1027700167110",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-17016-i-7048cc5a",
+    "entry_id": "OFAC-17016",
+    "id_type": "registration",
+    "id_number": "1027700167110",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-17017-i-a1081343",
+    "entry_id": "OFAC-17017",
+    "id_type": "registration",
+    "id_number": "1027700159497",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-17017-i-a1081343",
+    "entry_id": "OFAC-17017",
+    "id_type": "registration",
+    "id_number": "1027700159497",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-17017-i-ac81359a",
+    "entry_id": "OFAC-17017",
+    "id_type": "registration",
+    "id_number": "29292940",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17017-i-ac81359a",
+    "entry_id": "OFAC-17017",
+    "id_type": "registration",
+    "id_number": "29292940",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17017-i-fcf24bc7",
+    "entry_id": "OFAC-17017",
+    "id_type": "swift_bic",
+    "id_number": "MOSWRUMM",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-17017-i-fcf24bc7",
+    "entry_id": "OFAC-17017",
+    "id_type": "swift_bic",
+    "id_number": "MOSWRUMM",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-17018-i-1390bd3c",
+    "entry_id": "OFAC-17018",
+    "id_type": "registration",
+    "id_number": "1027700132195",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-17018-i-1390bd3c",
+    "entry_id": "OFAC-17018",
+    "id_type": "registration",
+    "id_number": "1027700132195",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-17018-i-cca699a6",
+    "entry_id": "OFAC-17018",
+    "id_type": "swift_bic",
+    "id_number": "SABRRUMM",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-17018-i-cca699a6",
+    "entry_id": "OFAC-17018",
+    "id_type": "swift_bic",
+    "id_number": "SABRRUMM",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-17018-i-ef060843",
+    "entry_id": "OFAC-17018",
+    "id_type": "tax_id",
+    "id_number": "7707083893",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17018-i-ef060843",
+    "entry_id": "OFAC-17018",
+    "id_type": "tax_id",
+    "id_number": "7707083893",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17022-i-057b02a2",
+    "entry_id": "OFAC-17022",
+    "id_type": "registration",
+    "id_number": "00044428",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17022-i-057b02a2",
+    "entry_id": "OFAC-17022",
+    "id_type": "registration",
+    "id_number": "00044428",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17022-i-76475829",
+    "entry_id": "OFAC-17022",
+    "id_type": "tax_id",
+    "id_number": "7706107510",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17022-i-76475829",
+    "entry_id": "OFAC-17022",
+    "id_type": "tax_id",
+    "id_number": "7706107510",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17022-i-ec556229",
+    "entry_id": "OFAC-17022",
+    "id_type": "registration",
+    "id_number": "1027700043502",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-17022-i-ec556229",
+    "entry_id": "OFAC-17022",
+    "id_type": "registration",
+    "id_number": "1027700043502",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-17037-i-7ffe65df",
+    "entry_id": "OFAC-17037",
+    "id_type": "passport",
+    "id_number": "RL1924321",
+    "issuing_country": "LB",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-17037-i-d8670547",
+    "entry_id": "OFAC-17037",
+    "id_type": "passport",
+    "id_number": "RL0877465",
+    "issuing_country": "LB",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-17050-i-74bc7758",
+    "entry_id": "OFAC-17050",
+    "id_type": "national_id",
+    "id_number": "98622424",
+    "issuing_country": "CO",
+    "note": "Cedula No."
+  },
+  {
+    "identifier_id": "OFAC-17250-i-46ba5fa1",
+    "entry_id": "OFAC-17250",
+    "id_type": "tax_id",
+    "id_number": "7736050003",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17250-i-518fdbb1",
+    "entry_id": "OFAC-17250",
+    "id_type": "registration",
+    "id_number": "00040778",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17250-i-bb30fada",
+    "entry_id": "OFAC-17250",
+    "id_type": "registration",
+    "id_number": "1027700070518",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-17260-i-65214c90",
+    "entry_id": "OFAC-17260",
+    "id_type": "tax_id",
+    "id_number": "7704274402",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17260-i-65214c90",
+    "entry_id": "OFAC-17260",
+    "id_type": "tax_id",
+    "id_number": "7704274402",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-17260-i-98418863",
+    "entry_id": "OFAC-17260",
+    "id_type": "registration",
+    "id_number": "94137372",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17260-i-98418863",
+    "entry_id": "OFAC-17260",
+    "id_type": "registration",
+    "id_number": "94137372",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-17260-i-cc754a50",
+    "entry_id": "OFAC-17260",
+    "id_type": "registration",
+    "id_number": "1077799030847",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-17260-i-cc754a50",
+    "entry_id": "OFAC-17260",
+    "id_type": "registration",
+    "id_number": "1077799030847",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18267-i-12c137b7",
+    "entry_id": "OFAC-18267",
+    "id_type": "tax_id",
+    "id_number": "5612002469",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18267-i-12c137b7",
+    "entry_id": "OFAC-18267",
+    "id_type": "tax_id",
+    "id_number": "5612002469",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18267-i-2ac23115",
+    "entry_id": "OFAC-18267",
+    "id_type": "registration",
+    "id_number": "1025601802357",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18267-i-2ac23115",
+    "entry_id": "OFAC-18267",
+    "id_type": "registration",
+    "id_number": "1025601802357",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18269-i-2e7d719f",
+    "entry_id": "OFAC-18269",
+    "id_type": "tax_id",
+    "id_number": "8603089934",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18269-i-2e7d719f",
+    "entry_id": "OFAC-18269",
+    "id_type": "tax_id",
+    "id_number": "8603089934",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18269-i-aadd0df6",
+    "entry_id": "OFAC-18269",
+    "id_type": "registration",
+    "id_number": "1028600940576",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18269-i-aadd0df6",
+    "entry_id": "OFAC-18269",
+    "id_type": "registration",
+    "id_number": "1028600940576",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18273-i-720b5d09",
+    "entry_id": "OFAC-18273",
+    "id_type": "tax_id",
+    "id_number": "2721188289",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18273-i-720b5d09",
+    "entry_id": "OFAC-18273",
+    "id_type": "tax_id",
+    "id_number": "2721188289",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18273-i-d42e9eda",
+    "entry_id": "OFAC-18273",
+    "id_type": "registration",
+    "id_number": "1112721010995",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18273-i-d42e9eda",
+    "entry_id": "OFAC-18273",
+    "id_type": "registration",
+    "id_number": "1112721010995",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18275-i-83cc43ac",
+    "entry_id": "OFAC-18275",
+    "id_type": "registration",
+    "id_number": "1027739088410",
+    "issuing_country": null,
+    "note": "Public Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18278-i-c083c035",
+    "entry_id": "OFAC-18278",
+    "id_type": "registration",
+    "id_number": "1082468004574",
+    "issuing_country": null,
+    "note": "Public Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18283-i-7680ba51",
+    "entry_id": "OFAC-18283",
+    "id_type": "swift_bic",
+    "id_number": "RUDVRUMM",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-18283-i-cbbc47f6",
+    "entry_id": "OFAC-18283",
+    "id_type": "registration",
+    "id_number": "1027739108649",
+    "issuing_country": null,
+    "note": "Public Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18292-i-39d33c8c",
+    "entry_id": "OFAC-18292",
+    "id_type": "registration",
+    "id_number": "1022401153532",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18292-i-39d33c8c",
+    "entry_id": "OFAC-18292",
+    "id_type": "registration",
+    "id_number": "1022401153532",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18292-i-4c905a44",
+    "entry_id": "OFAC-18292",
+    "id_type": "tax_id",
+    "id_number": "2443000518",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18292-i-4c905a44",
+    "entry_id": "OFAC-18292",
+    "id_type": "tax_id",
+    "id_number": "2443000518",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18709-i-ca582f42",
+    "entry_id": "OFAC-18709",
+    "id_type": "tax_id",
+    "id_number": "7707009586",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18709-i-ca582f42",
+    "entry_id": "OFAC-18709",
+    "id_type": "tax_id",
+    "id_number": "7707009586",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18709-i-fea81e40",
+    "entry_id": "OFAC-18709",
+    "id_type": "registration",
+    "id_number": "1027739000728",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18709-i-fea81e40",
+    "entry_id": "OFAC-18709",
+    "id_type": "registration",
+    "id_number": "1027739000728",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18711-i-4c1b926f",
+    "entry_id": "OFAC-18711",
+    "id_type": "registration",
+    "id_number": "1077746365113",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18726-i-bc547492",
+    "entry_id": "OFAC-18726",
+    "id_type": "swift_bic",
+    "id_number": "UGEBGE22",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-18726-i-bc547492",
+    "entry_id": "OFAC-18726",
+    "id_type": "swift_bic",
+    "id_number": "UGEBGE22",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-18727-i-087443e7",
+    "entry_id": "OFAC-18727",
+    "id_type": "registration",
+    "id_number": "FN 117595 i",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18727-i-9af776cc",
+    "entry_id": "OFAC-18727",
+    "id_type": "swift_bic",
+    "id_number": "DOBAATWW",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-18730-i-f35e2466",
+    "entry_id": "OFAC-18730",
+    "id_type": "registration",
+    "id_number": "1097746178232",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18730-i-f35e2466",
+    "entry_id": "OFAC-18730",
+    "id_type": "registration",
+    "id_number": "1097746178232",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18731-i-6122e1d7",
+    "entry_id": "OFAC-18731",
+    "id_type": "registration",
+    "id_number": "5117746058733",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18731-i-6122e1d7",
+    "entry_id": "OFAC-18731",
+    "id_type": "registration",
+    "id_number": "5117746058733",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18737-i-9c651ba3",
+    "entry_id": "OFAC-18737",
+    "id_type": "registration",
+    "id_number": "1045605469744",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18737-i-9c651ba3",
+    "entry_id": "OFAC-18737",
+    "id_type": "registration",
+    "id_number": "1045605469744",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-18740-i-38874ddc",
+    "entry_id": "OFAC-18740",
+    "id_type": "tax_id",
+    "id_number": "7706032060",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18740-i-38874ddc",
+    "entry_id": "OFAC-18740",
+    "id_type": "tax_id",
+    "id_number": "7706032060",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18740-i-50db898b",
+    "entry_id": "OFAC-18740",
+    "id_type": "registration",
+    "id_number": "1027739002510",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18740-i-50db898b",
+    "entry_id": "OFAC-18740",
+    "id_type": "registration",
+    "id_number": "1027739002510",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18750-i-ba6b4fe7",
+    "entry_id": "OFAC-18750",
+    "id_type": "registration",
+    "id_number": "1147746683479",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18750-i-ba6b4fe7",
+    "entry_id": "OFAC-18750",
+    "id_type": "registration",
+    "id_number": "1147746683479",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18750-i-eb9e5509",
+    "entry_id": "OFAC-18750",
+    "id_type": "tax_id",
+    "id_number": "7706810747",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18750-i-eb9e5509",
+    "entry_id": "OFAC-18750",
+    "id_type": "tax_id",
+    "id_number": "7706810747",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18753-i-1f4b944e",
+    "entry_id": "OFAC-18753",
+    "id_type": "registration",
+    "id_number": "B171037",
+    "issuing_country": "LU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18753-i-1f4b944e",
+    "entry_id": "OFAC-18753",
+    "id_type": "registration",
+    "id_number": "B171037",
+    "issuing_country": "LU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18770-i-487a7ab6",
+    "entry_id": "OFAC-18770",
+    "id_type": "tax_id",
+    "id_number": "7710277994",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18770-i-487a7ab6",
+    "entry_id": "OFAC-18770",
+    "id_type": "tax_id",
+    "id_number": "7710277994",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18770-i-afde1f67",
+    "entry_id": "OFAC-18770",
+    "id_type": "registration",
+    "id_number": "1027739000475",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18770-i-afde1f67",
+    "entry_id": "OFAC-18770",
+    "id_type": "registration",
+    "id_number": "1027739000475",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18770-i-c42e70f0",
+    "entry_id": "OFAC-18770",
+    "id_type": "registration",
+    "id_number": "48532918",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-18770-i-c42e70f0",
+    "entry_id": "OFAC-18770",
+    "id_type": "registration",
+    "id_number": "48532918",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-18773-i-7ba47103",
+    "entry_id": "OFAC-18773",
+    "id_type": "tax_id",
+    "id_number": "7704722326",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18773-i-8d8e5dd4",
+    "entry_id": "OFAC-18773",
+    "id_type": "registration",
+    "id_number": "1097746108250",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18773-i-f13abda9",
+    "entry_id": "OFAC-18773",
+    "id_type": "registration",
+    "id_number": "60427973",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-18774-i-22aa12fb",
+    "entry_id": "OFAC-18774",
+    "id_type": "registration",
+    "id_number": "07543117",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-18774-i-22aa12fb",
+    "entry_id": "OFAC-18774",
+    "id_type": "registration",
+    "id_number": "07543117",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-18774-i-8e9d9bdf",
+    "entry_id": "OFAC-18774",
+    "id_type": "tax_id",
+    "id_number": "7719265496",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18774-i-8e9d9bdf",
+    "entry_id": "OFAC-18774",
+    "id_type": "tax_id",
+    "id_number": "7719265496",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18774-i-d4a0d1fb",
+    "entry_id": "OFAC-18774",
+    "id_type": "registration",
+    "id_number": "1037719005873",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18774-i-d4a0d1fb",
+    "entry_id": "OFAC-18774",
+    "id_type": "registration",
+    "id_number": "1037719005873",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18776-i-7a0ebdcc",
+    "entry_id": "OFAC-18776",
+    "id_type": "registration",
+    "id_number": "1097746269785",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18776-i-a23ee3f4",
+    "entry_id": "OFAC-18776",
+    "id_type": "registration",
+    "id_number": "61698405",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-18776-i-f1874ff8",
+    "entry_id": "OFAC-18776",
+    "id_type": "tax_id",
+    "id_number": "7734613934",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18780-i-15660157",
+    "entry_id": "OFAC-18780",
+    "id_type": "registration",
+    "id_number": "1027739228857",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18780-i-cb84bb18",
+    "entry_id": "OFAC-18780",
+    "id_type": "registration",
+    "id_number": "58127923",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-18780-i-ecad48ee",
+    "entry_id": "OFAC-18780",
+    "id_type": "tax_id",
+    "id_number": "7705422452",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18781-i-3058fc8a",
+    "entry_id": "OFAC-18781",
+    "id_type": "tax_id",
+    "id_number": "7718218951",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18781-i-60004211",
+    "entry_id": "OFAC-18781",
+    "id_type": "registration",
+    "id_number": "1027718000221",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18781-i-eaac5929",
+    "entry_id": "OFAC-18781",
+    "id_type": "registration",
+    "id_number": "59067382",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-18782-i-333a8e80",
+    "entry_id": "OFAC-18782",
+    "id_type": "registration",
+    "id_number": "1117746521452",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18782-i-333a8e80",
+    "entry_id": "OFAC-18782",
+    "id_type": "registration",
+    "id_number": "1117746521452",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-18782-i-41d08adb",
+    "entry_id": "OFAC-18782",
+    "id_type": "tax_id",
+    "id_number": "7718852163",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18782-i-41d08adb",
+    "entry_id": "OFAC-18782",
+    "id_type": "tax_id",
+    "id_number": "7718852163",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18782-i-467ee27e",
+    "entry_id": "OFAC-18782",
+    "id_type": "registration",
+    "id_number": "56467052",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-18782-i-467ee27e",
+    "entry_id": "OFAC-18782",
+    "id_type": "registration",
+    "id_number": "56467052",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-18789-i-36262c61",
+    "entry_id": "OFAC-18789",
+    "id_type": "tax_id",
+    "id_number": "7704731673",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18791-i-52234ef4",
+    "entry_id": "OFAC-18791",
+    "id_type": "tax_id",
+    "id_number": "7704729515",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-18848-i-db05a16f",
+    "entry_id": "OFAC-18848",
+    "id_type": "passport",
+    "id_number": "654210025",
+    "issuing_country": "KP",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-19471-i-592119a5",
+    "entry_id": "OFAC-19471",
+    "id_type": "tax_id",
+    "id_number": "7805018099",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19471-i-621504b1",
+    "entry_id": "OFAC-19471",
+    "id_type": "registration",
+    "id_number": "00154312",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19471-i-af2de667",
+    "entry_id": "OFAC-19471",
+    "id_type": "registration",
+    "id_number": "1027804862755",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19544-i-08e2e77b",
+    "entry_id": "OFAC-19544",
+    "id_type": "tax_id",
+    "id_number": "8903019871",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19544-i-18812948",
+    "entry_id": "OFAC-19544",
+    "id_type": "registration",
+    "id_number": "1028900578080",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19544-i-50f0bd05",
+    "entry_id": "OFAC-19544",
+    "id_type": "registration",
+    "id_number": "00153761",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19633-i-8dcade48",
+    "entry_id": "OFAC-19633",
+    "id_type": "tax_id",
+    "id_number": "1600000036",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19633-i-e1fe9aa2",
+    "entry_id": "OFAC-19633",
+    "id_type": "registration",
+    "id_number": "1021603624921",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19633-i-f5710678",
+    "entry_id": "OFAC-19633",
+    "id_type": "registration",
+    "id_number": "00154364",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19635-i-8bd721cc",
+    "entry_id": "OFAC-19635",
+    "id_type": "registration",
+    "id_number": "1037700253470",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19635-i-ad90d25c",
+    "entry_id": "OFAC-19635",
+    "id_type": "tax_id",
+    "id_number": "7736077414",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19635-i-e24a3b85",
+    "entry_id": "OFAC-19635",
+    "id_type": "registration",
+    "id_number": "11453584",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19636-i-5a297bc8",
+    "entry_id": "OFAC-19636",
+    "id_type": "tax_id",
+    "id_number": "8905026850",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19636-i-8fd8905d",
+    "entry_id": "OFAC-19636",
+    "id_type": "registration",
+    "id_number": "1028900706647",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19636-i-bac3ea6b",
+    "entry_id": "OFAC-19636",
+    "id_type": "registration",
+    "id_number": "05751797",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19637-i-9199cc6a",
+    "entry_id": "OFAC-19637",
+    "id_type": "tax_id",
+    "id_number": "5003028148",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19637-i-d9de94eb",
+    "entry_id": "OFAC-19637",
+    "id_type": "registration",
+    "id_number": "1025000658187",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19637-i-f7f61740",
+    "entry_id": "OFAC-19637",
+    "id_type": "registration",
+    "id_number": "23484472",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19640-i-36d85657",
+    "entry_id": "OFAC-19640",
+    "id_type": "tax_id",
+    "id_number": "7810483334",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19640-i-36d85657",
+    "entry_id": "OFAC-19640",
+    "id_type": "tax_id",
+    "id_number": "7810483334",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19640-i-3f82fc19",
+    "entry_id": "OFAC-19640",
+    "id_type": "registration",
+    "id_number": "1077847507759",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19640-i-3f82fc19",
+    "entry_id": "OFAC-19640",
+    "id_type": "registration",
+    "id_number": "1077847507759",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19640-i-7144a13b",
+    "entry_id": "OFAC-19640",
+    "id_type": "registration",
+    "id_number": "82129203",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19640-i-7144a13b",
+    "entry_id": "OFAC-19640",
+    "id_type": "registration",
+    "id_number": "82129203",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19642-i-28d28e92",
+    "entry_id": "OFAC-19642",
+    "id_type": "registration",
+    "id_number": "00153784",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19642-i-56bc422a",
+    "entry_id": "OFAC-19642",
+    "id_type": "registration",
+    "id_number": "1022301190471",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19642-i-6e62a769",
+    "entry_id": "OFAC-19642",
+    "id_type": "tax_id",
+    "id_number": "2308065678",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19647-i-1cb19c21",
+    "entry_id": "OFAC-19647",
+    "id_type": "registration",
+    "id_number": "1027000862954",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19647-i-28ee71e9",
+    "entry_id": "OFAC-19647",
+    "id_type": "tax_id",
+    "id_number": "7017005289",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19647-i-fbfd8dbd",
+    "entry_id": "OFAC-19647",
+    "id_type": "registration",
+    "id_number": "04634954",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19674-i-07c20120",
+    "entry_id": "OFAC-19674",
+    "id_type": "tax_id",
+    "id_number": "6315000291",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19674-i-173d92e8",
+    "entry_id": "OFAC-19674",
+    "id_type": "registration",
+    "id_number": "1026300956505",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19674-i-7f568508",
+    "entry_id": "OFAC-19674",
+    "id_type": "registration",
+    "id_number": "00154306",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19685-i-0ce12e39",
+    "entry_id": "OFAC-19685",
+    "id_type": "registration",
+    "id_number": "1132367004989",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19685-i-5c7338d3",
+    "entry_id": "OFAC-19685",
+    "id_type": "registration",
+    "id_number": "10077966",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19685-i-c7261e11",
+    "entry_id": "OFAC-19685",
+    "id_type": "tax_id",
+    "id_number": "2319070831",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19688-i-284e6fb1",
+    "entry_id": "OFAC-19688",
+    "id_type": "tax_id",
+    "id_number": "6500000930",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19688-i-53089f9c",
+    "entry_id": "OFAC-19688",
+    "id_type": "registration",
+    "id_number": "1032700295650",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19688-i-f75c116c",
+    "entry_id": "OFAC-19688",
+    "id_type": "registration",
+    "id_number": "54545960",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19989-i-3991848d",
+    "entry_id": "OFAC-19989",
+    "id_type": "registration",
+    "id_number": "23333017",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-19989-i-65bc3e4b",
+    "entry_id": "OFAC-19989",
+    "id_type": "registration",
+    "id_number": "1021602843470",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-19989-i-aa9fab27",
+    "entry_id": "OFAC-19989",
+    "id_type": "tax_id",
+    "id_number": "1655006421",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19992-i-304be9b9",
+    "entry_id": "OFAC-19992",
+    "id_type": "tax_id",
+    "id_number": "7840309622",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-19992-i-a43e348f",
+    "entry_id": "OFAC-19992",
+    "id_type": "registration",
+    "id_number": "1047855168140",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-20002-i-99aa3fcd",
+    "entry_id": "OFAC-20002",
+    "id_type": "swift_bic",
+    "id_number": "BMLTUAUK",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-20002-i-a1081343",
+    "entry_id": "OFAC-20002",
+    "id_type": "registration",
+    "id_number": "1027700159497",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-20002-i-ac81359a",
+    "entry_id": "OFAC-20002",
+    "id_type": "registration",
+    "id_number": "29292940",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-20007-i-48a6b889",
+    "entry_id": "OFAC-20007",
+    "id_type": "registration",
+    "id_number": "30162881",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-20007-i-71e2e333",
+    "entry_id": "OFAC-20007",
+    "id_type": "tax_id",
+    "id_number": "7702768727",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-20007-i-acd5b864",
+    "entry_id": "OFAC-20007",
+    "id_type": "registration",
+    "id_number": "1117746628185",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-20295-i-53660fec",
+    "entry_id": "OFAC-20295",
+    "id_type": "registration",
+    "id_number": "1027739027634",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-20295-i-ae3107b0",
+    "entry_id": "OFAC-20295",
+    "id_type": "tax_id",
+    "id_number": "7724199506",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-20301-i-6bb0ce97",
+    "entry_id": "OFAC-20301",
+    "id_type": "tax_id",
+    "id_number": "7736144212",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-20301-i-d720e32e",
+    "entry_id": "OFAC-20301",
+    "id_type": "registration",
+    "id_number": "1027739195692",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-20303-i-7f2916f1",
+    "entry_id": "OFAC-20303",
+    "id_type": "registration",
+    "id_number": "1027739137843",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-20303-i-d8d31052",
+    "entry_id": "OFAC-20303",
+    "id_type": "tax_id",
+    "id_number": "7727057683",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-20621-i-24ac4821",
+    "entry_id": "OFAC-20621",
+    "id_type": "tax_id",
+    "id_number": "7704537299",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-20621-i-c0c91c25",
+    "entry_id": "OFAC-20621",
+    "id_type": "registration",
+    "id_number": "75319328",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-20621-i-cafaeeee",
+    "entry_id": "OFAC-20621",
+    "id_type": "registration",
+    "id_number": "1047796863916",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-20665-i-78091f00",
+    "entry_id": "OFAC-20665",
+    "id_type": "registration",
+    "id_number": "1022304972029",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-20665-i-afcdcf32",
+    "entry_id": "OFAC-20665",
+    "id_type": "tax_id",
+    "id_number": "2356007563",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-20665-i-e313d2d6",
+    "entry_id": "OFAC-20665",
+    "id_type": "registration",
+    "id_number": "26370125",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-20669-i-72c73eee",
+    "entry_id": "OFAC-20669",
+    "id_type": "registration",
+    "id_number": "1022304872754",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-20669-i-823b2cc6",
+    "entry_id": "OFAC-20669",
+    "id_type": "registration",
+    "id_number": "00940708",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-20669-i-c65d0cf7",
+    "entry_id": "OFAC-20669",
+    "id_type": "tax_id",
+    "id_number": "2354003059",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-20671-i-36e2ea9e",
+    "entry_id": "OFAC-20671",
+    "id_type": "tax_id",
+    "id_number": "2344007569",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-20671-i-cf5485d1",
+    "entry_id": "OFAC-20671",
+    "id_type": "registration",
+    "id_number": "00940743",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-20671-i-d01b44ff",
+    "entry_id": "OFAC-20671",
+    "id_type": "registration",
+    "id_number": "1022304420709",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-20678-i-d32427a9",
+    "entry_id": "OFAC-20678",
+    "id_type": "registration",
+    "id_number": "5067847486229",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-20678-i-edd18a49",
+    "entry_id": "OFAC-20678",
+    "id_type": "registration",
+    "id_number": "96782616",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-20679-i-71f40211",
+    "entry_id": "OFAC-20679",
+    "id_type": "registration",
+    "id_number": "1048900851515",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-20679-i-782d2252",
+    "entry_id": "OFAC-20679",
+    "id_type": "registration",
+    "id_number": "73157577",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-20679-i-d3da2da7",
+    "entry_id": "OFAC-20679",
+    "id_type": "tax_id",
+    "id_number": "8911020197",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-20684-i-7b6b2973",
+    "entry_id": "OFAC-20684",
+    "id_type": "registration",
+    "id_number": "27013953",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-20684-i-8426cb5f",
+    "entry_id": "OFAC-20684",
+    "id_type": "tax_id",
+    "id_number": "8901028126",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-20684-i-db7502f6",
+    "entry_id": "OFAC-20684",
+    "id_type": "registration",
+    "id_number": "1138901001194",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-20685-i-9e7a02bc",
+    "entry_id": "OFAC-20685",
+    "id_type": "registration",
+    "id_number": "50101120",
+    "issuing_country": null,
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-20685-i-b8914e4a",
+    "entry_id": "OFAC-20685",
+    "id_type": "registration",
+    "id_number": "1024400511794",
+    "issuing_country": null,
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-20685-i-fb1b0d49",
+    "entry_id": "OFAC-20685",
+    "id_type": "tax_id",
+    "id_number": "4401017834",
+    "issuing_country": null,
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-20903-i-3c2691e5",
+    "entry_id": "OFAC-20903",
+    "id_type": "national_id",
+    "id_number": "76235533",
+    "issuing_country": "CO",
+    "note": "Cedula No."
+  },
+  {
+    "identifier_id": "OFAC-21096-i-c74647f2",
+    "entry_id": "OFAC-21096",
+    "id_type": "registration",
+    "id_number": "79563 (Jalisco)",
+    "issuing_country": "MX",
+    "note": "Folio Mercantil No."
+  },
+  {
+    "identifier_id": "OFAC-22383-i-2498d43f",
+    "entry_id": "OFAC-22383",
+    "id_type": "registration",
+    "id_number": "94473510",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-22383-i-3aa07ade",
+    "entry_id": "OFAC-22383",
+    "id_type": "tax_id",
+    "id_number": "7736536770",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-22383-i-97cf6ab9",
+    "entry_id": "OFAC-22383",
+    "id_type": "registration",
+    "id_number": "1067746400622",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-22389-i-71345e70",
+    "entry_id": "OFAC-22389",
+    "id_type": "registration",
+    "id_number": "00139608",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-22389-i-87252922",
+    "entry_id": "OFAC-22389",
+    "id_type": "tax_id",
+    "id_number": "0278039018",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-22389-i-d42c054d",
+    "entry_id": "OFAC-22389",
+    "id_type": "registration",
+    "id_number": "1020203226230",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-22397-i-598d8b3b",
+    "entry_id": "OFAC-22397",
+    "id_type": "registration",
+    "id_number": "16983393",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-22397-i-aca4d813",
+    "entry_id": "OFAC-22397",
+    "id_type": "registration",
+    "id_number": "1147746651898",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-22397-i-b638e6b5",
+    "entry_id": "OFAC-22397",
+    "id_type": "tax_id",
+    "id_number": "7728881149",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-22689-i-a2954f90",
+    "entry_id": "OFAC-22689",
+    "id_type": "passport",
+    "id_number": "N95873956",
+    "issuing_country": "IR",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-22689-i-ee5c1f79",
+    "entry_id": "OFAC-22689",
+    "id_type": "national_id",
+    "id_number": "038-1-57690-6",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-23143-i-9b212a14",
+    "entry_id": "OFAC-23143",
+    "id_type": "passport",
+    "id_number": "A37899489",
+    "issuing_country": "IR",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-23143-i-a5d1bb53",
+    "entry_id": "OFAC-23143",
+    "id_type": "passport",
+    "id_number": "R24530943",
+    "issuing_country": "IR",
+    "note": "Passport (marked fraudulent)"
+  },
+  {
+    "identifier_id": "OFAC-23189-i-a6673a47",
+    "entry_id": "OFAC-23189",
+    "id_type": "national_id",
+    "id_number": "049474M",
+    "issuing_country": "MT",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-23189-i-b0c21c19",
+    "entry_id": "OFAC-23189",
+    "id_type": "passport",
+    "id_number": "1071341",
+    "issuing_country": "MT",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-23552-i-248559b1",
+    "entry_id": "OFAC-23552",
+    "id_type": "registration",
+    "id_number": "1057803105755",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-23552-i-248559b1",
+    "entry_id": "OFAC-23552",
+    "id_type": "registration",
+    "id_number": "1057803105755",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-23552-i-5ba3c721",
+    "entry_id": "OFAC-23552",
+    "id_type": "tax_id",
+    "id_number": "7810327462",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-23552-i-5ba3c721",
+    "entry_id": "OFAC-23552",
+    "id_type": "tax_id",
+    "id_number": "7810327462",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-23557-i-06977b22",
+    "entry_id": "OFAC-23557",
+    "id_type": "tax_id",
+    "id_number": "7704667322",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-23557-i-12d74599",
+    "entry_id": "OFAC-23557",
+    "id_type": "registration",
+    "id_number": "1077762407580",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-23562-i-473cade2",
+    "entry_id": "OFAC-23562",
+    "id_type": "tax_id",
+    "id_number": "5321059365",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-23562-i-473cade2",
+    "entry_id": "OFAC-23562",
+    "id_type": "tax_id",
+    "id_number": "5321059365",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-23562-i-7ef7f141",
+    "entry_id": "OFAC-23562",
+    "id_type": "registration",
+    "id_number": "1025300788644",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-23562-i-7ef7f141",
+    "entry_id": "OFAC-23562",
+    "id_type": "registration",
+    "id_number": "1025300788644",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-23566-i-0da4f1a9",
+    "entry_id": "OFAC-23566",
+    "id_type": "tax_id",
+    "id_number": "7224019466",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-23566-i-b49d2163",
+    "entry_id": "OFAC-23566",
+    "id_type": "registration",
+    "id_number": "1027200789142",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-23571-i-0876f8e5",
+    "entry_id": "OFAC-23571",
+    "id_type": "registration",
+    "id_number": "1028600581811",
+    "issuing_country": "RU",
+    "note": "Registration ID"
+  },
+  {
+    "identifier_id": "OFAC-23571-i-8f6dde52",
+    "entry_id": "OFAC-23571",
+    "id_type": "tax_id",
+    "id_number": "8602103061",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-23718-i-e41dc7aa",
+    "entry_id": "OFAC-23718",
+    "id_type": "registration",
+    "id_number": "IMO 5990271",
+    "issuing_country": null,
+    "note": "Company Number"
+  },
+  {
+    "identifier_id": "OFAC-23725-i-55e7e674",
+    "entry_id": "OFAC-23725",
+    "id_type": "registration",
+    "id_number": "IMO 5963351",
+    "issuing_country": null,
+    "note": "Company Number"
+  },
+  {
+    "identifier_id": "OFAC-24545-i-10b4025e",
+    "entry_id": "OFAC-24545",
+    "id_type": "swift_bic",
+    "id_number": "AIIFIQBA",
+    "issuing_country": null,
+    "note": "SWIFT/BIC"
+  },
+  {
+    "identifier_id": "OFAC-25042-i-4a9abab3",
+    "entry_id": "OFAC-25042",
+    "id_type": "national_id",
+    "id_number": "10103589144",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-25042-i-cd4c5d33",
+    "entry_id": "OFAC-25042",
+    "id_type": "registration",
+    "id_number": "322430",
+    "issuing_country": "IR",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-25311-i-e1a5517e",
+    "entry_id": "OFAC-25311",
+    "id_type": "vessel_imo",
+    "id_number": "IMO 9167277",
+    "issuing_country": null,
+    "note": "Vessel Registration Identification"
+  },
+  {
+    "identifier_id": "OFAC-25382-i-427e2ccf",
+    "entry_id": "OFAC-25382",
+    "id_type": "vessel_imo",
+    "id_number": "IMO 9165839",
+    "issuing_country": null,
+    "note": "Vessel Registration Identification"
+  },
+  {
+    "identifier_id": "OFAC-25396-i-7a1fba30",
+    "entry_id": "OFAC-25396",
+    "id_type": "registration",
+    "id_number": "11670",
+    "issuing_country": "IR",
+    "note": "Trade License No."
+  },
+  {
+    "identifier_id": "OFAC-26417-i-160233f3",
+    "entry_id": "OFAC-26417",
+    "id_type": "national_id",
+    "id_number": "2516238",
+    "issuing_country": "VE",
+    "note": "Cedula No."
+  },
+  {
+    "identifier_id": "OFAC-26837-i-bb3af12e",
+    "entry_id": "OFAC-26837",
+    "id_type": "registration",
+    "id_number": "253861",
+    "issuing_country": "IR",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-27247-i-001e7545",
+    "entry_id": "OFAC-27247",
+    "id_type": "national_id",
+    "id_number": "1015399085",
+    "issuing_country": "CO",
+    "note": "Cedula No."
+  },
+  {
+    "identifier_id": "OFAC-27247-i-1fc77169",
+    "entry_id": "OFAC-27247",
+    "id_type": "passport",
+    "id_number": "PE098803",
+    "issuing_country": "CO",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-28230-i-722866fb",
+    "entry_id": "OFAC-28230",
+    "id_type": "tax_id",
+    "id_number": "G-20007774-3",
+    "issuing_country": "VE",
+    "note": "RIF #"
+  },
+  {
+    "identifier_id": "OFAC-28389-i-d1272c8a",
+    "entry_id": "OFAC-28389",
+    "id_type": "aircraft_id",
+    "id_number": "YV1005",
+    "issuing_country": null,
+    "note": "Aircraft Tail Number"
+  },
+  {
+    "identifier_id": "OFAC-28525-i-6ea44815",
+    "entry_id": "OFAC-28525",
+    "id_type": "passport",
+    "id_number": "D113169",
+    "issuing_country": "NI",
+    "note": "Passport (marked fraudulent)"
+  },
+  {
+    "identifier_id": "OFAC-29242-i-40e0bde2",
+    "entry_id": "OFAC-29242",
+    "id_type": "passport",
+    "id_number": "KJ0638810",
+    "issuing_country": "HK",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-29242-i-e783155d",
+    "entry_id": "OFAC-29242",
+    "id_type": "national_id",
+    "id_number": "D4118015",
+    "issuing_country": "HK",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-29243-i-4293bf1b",
+    "entry_id": "OFAC-29243",
+    "id_type": "passport",
+    "id_number": "KJ0221326",
+    "issuing_country": "HK",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-29243-i-4b416baa",
+    "entry_id": "OFAC-29243",
+    "id_type": "national_id",
+    "id_number": "G579067A",
+    "issuing_country": "HK",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-29246-i-6f6b7787",
+    "entry_id": "OFAC-29246",
+    "id_type": "national_id",
+    "id_number": "E9963190",
+    "issuing_country": "HK",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-29249-i-1f274641",
+    "entry_id": "OFAC-29249",
+    "id_type": "national_id",
+    "id_number": "D3356664",
+    "issuing_country": "HK",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-29249-i-d074ac93",
+    "entry_id": "OFAC-29249",
+    "id_type": "passport",
+    "id_number": "KJ0505670",
+    "issuing_country": "HK",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-29250-i-9520db32",
+    "entry_id": "OFAC-29250",
+    "id_type": "national_id",
+    "id_number": "G0286787",
+    "issuing_country": "HK",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-29259-i-a5832257",
+    "entry_id": "OFAC-29259",
+    "id_type": "national_id",
+    "id_number": "11010819630903003X",
+    "issuing_country": "CN",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-29260-i-251a300e",
+    "entry_id": "OFAC-29260",
+    "id_type": "national_id",
+    "id_number": "G142458A",
+    "issuing_country": "HK",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-29261-i-6499208c",
+    "entry_id": "OFAC-29261",
+    "id_type": "national_id",
+    "id_number": "440111196308254212",
+    "issuing_country": "CN",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-29261-i-899df783",
+    "entry_id": "OFAC-29261",
+    "id_type": "passport",
+    "id_number": "SE0226769",
+    "issuing_country": "CN",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-29263-i-185d9cad",
+    "entry_id": "OFAC-29263",
+    "id_type": "national_id",
+    "id_number": "340103195410053558",
+    "issuing_country": "CN",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-30322-i-5d0731a7",
+    "entry_id": "OFAC-30322",
+    "id_type": "national_id",
+    "id_number": "D5545251",
+    "issuing_country": "HK",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-30322-i-cd718647",
+    "entry_id": "OFAC-30322",
+    "id_type": "passport",
+    "id_number": "HA1338416",
+    "issuing_country": "HK",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-30343-i-ae482dc0",
+    "entry_id": "OFAC-30343",
+    "id_type": "national_id",
+    "id_number": "D4017081",
+    "issuing_country": "HK",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-30343-i-cdf06097",
+    "entry_id": "OFAC-30343",
+    "id_type": "passport",
+    "id_number": "K06749109",
+    "issuing_country": "HK",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-30934-i-66e22faa",
+    "entry_id": "OFAC-30934",
+    "id_type": "registration",
+    "id_number": "911100001000274544",
+    "issuing_country": "CN",
+    "note": "Unified Social Credit Code (USCC)"
+  },
+  {
+    "identifier_id": "OFAC-30958-i-62b21d3c",
+    "entry_id": "OFAC-30958",
+    "id_type": "registration",
+    "id_number": "91110000717828569P",
+    "issuing_country": "CN",
+    "note": "Unified Social Credit Code (USCC)"
+  },
+  {
+    "identifier_id": "OFAC-30964-i-57a156e1",
+    "entry_id": "OFAC-30964",
+    "id_type": "passport",
+    "id_number": "K05145380",
+    "issuing_country": "HK",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-30964-i-faa36f7b",
+    "entry_id": "OFAC-30964",
+    "id_type": "national_id",
+    "id_number": "C6142328",
+    "issuing_country": "HK",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-30965-i-5dbf6514",
+    "entry_id": "OFAC-30965",
+    "id_type": "passport",
+    "id_number": "K03327564",
+    "issuing_country": "HK",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-30965-i-f7fae126",
+    "entry_id": "OFAC-30965",
+    "id_type": "national_id",
+    "id_number": "K0278408",
+    "issuing_country": "HK",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-30966-i-e60e6b32",
+    "entry_id": "OFAC-30966",
+    "id_type": "passport",
+    "id_number": "K03981162",
+    "issuing_country": "HK",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-32056-i-79772428",
+    "entry_id": "OFAC-32056",
+    "id_type": "registration",
+    "id_number": "9137000016309489X2",
+    "issuing_country": "CN",
+    "note": "Unified Social Credit Code (USCC)"
+  },
+  {
+    "identifier_id": "OFAC-32073-i-da16659f",
+    "entry_id": "OFAC-32073",
+    "id_type": "registration",
+    "id_number": "913300001429112055",
+    "issuing_country": "CN",
+    "note": "Unified Social Credit Code (USCC)"
+  },
+  {
+    "identifier_id": "OFAC-33111-i-3d6ebd12",
+    "entry_id": "OFAC-33111",
+    "id_type": "registration",
+    "id_number": "914403007954257495",
+    "issuing_country": "CN",
+    "note": "Unified Social Credit Code (USCC)"
+  },
+  {
+    "identifier_id": "OFAC-33113-i-0e6e33b6",
+    "entry_id": "OFAC-33113",
+    "id_type": "registration",
+    "id_number": "91120000783342508F",
+    "issuing_country": "CN",
+    "note": "Unified Social Credit Code (USCC)"
+  },
+  {
+    "identifier_id": "OFAC-33701-i-0e80ef63",
+    "entry_id": "OFAC-33701",
+    "id_type": "vessel_imo",
+    "id_number": "IMO 9016571",
+    "issuing_country": null,
+    "note": "Vessel Registration Identification"
+  },
+  {
+    "identifier_id": "OFAC-35199-i-c1067e5b",
+    "entry_id": "OFAC-35199",
+    "id_type": "registration",
+    "id_number": "1027739083921",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-35199-i-e95edc03",
+    "entry_id": "OFAC-35199",
+    "id_type": "tax_id",
+    "id_number": "7735040690",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-35299-i-26d37f5a",
+    "entry_id": "OFAC-35299",
+    "id_type": "national_id",
+    "id_number": "784196536027277",
+    "issuing_country": "AE",
+    "note": "Identification Number"
+  },
+  {
+    "identifier_id": "OFAC-35299-i-b009597c",
+    "entry_id": "OFAC-35299",
+    "id_type": "passport",
+    "id_number": "EP985086",
+    "issuing_country": "BE",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-35299-i-ea6fcda6",
+    "entry_id": "OFAC-35299",
+    "id_type": "passport",
+    "id_number": "50641895930",
+    "issuing_country": "TR",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-35318-i-68ea208f",
+    "entry_id": "OFAC-35318",
+    "id_type": "registration",
+    "id_number": "716708",
+    "issuing_country": "AE",
+    "note": "Business Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-35376-i-57d3e3a1",
+    "entry_id": "OFAC-35376",
+    "id_type": "registration",
+    "id_number": "913501057051504472",
+    "issuing_country": "CN",
+    "note": "Unified Social Credit Code (USCC)"
+  },
+  {
+    "identifier_id": "OFAC-35376-i-fd4e1911",
+    "entry_id": "OFAC-35376",
+    "id_type": "national_id",
+    "id_number": "IMO 4235151",
+    "issuing_country": null,
+    "note": "Identification Number"
+  },
+  {
+    "identifier_id": "OFAC-35754-i-0bd87c69",
+    "entry_id": "OFAC-35754",
+    "id_type": "tax_id",
+    "id_number": "2539039058",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-35754-i-73ef6350",
+    "entry_id": "OFAC-35754",
+    "id_type": "registration",
+    "id_number": "49852298",
+    "issuing_country": "RU",
+    "note": "Government Gazette Number"
+  },
+  {
+    "identifier_id": "OFAC-35754-i-99901837",
+    "entry_id": "OFAC-35754",
+    "id_type": "registration",
+    "id_number": "1022502123995",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-35799-i-727527d7",
+    "entry_id": "OFAC-35799",
+    "id_type": "tax_id",
+    "id_number": "26806",
+    "issuing_country": "SM",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-35860-i-16f962d8",
+    "entry_id": "OFAC-35860",
+    "id_type": "tax_id",
+    "id_number": "5027150429",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-35860-i-6263f242",
+    "entry_id": "OFAC-35860",
+    "id_type": "registration",
+    "id_number": "1095027007008",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-36073-i-cd59dd74",
+    "entry_id": "OFAC-36073",
+    "id_type": "national_id",
+    "id_number": "37937088634",
+    "issuing_country": "TR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-36419-i-81f8baae",
+    "entry_id": "OFAC-36419",
+    "id_type": "registration",
+    "id_number": "1057812752502",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-36419-i-81f8baae",
+    "entry_id": "OFAC-36419",
+    "id_type": "registration",
+    "id_number": "1057812752502",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-36419-i-af93bf22",
+    "entry_id": "OFAC-36419",
+    "id_type": "tax_id",
+    "id_number": "7801392271",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-36419-i-af93bf22",
+    "entry_id": "OFAC-36419",
+    "id_type": "tax_id",
+    "id_number": "7801392271",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-37044-i-9e8d51c4",
+    "entry_id": "OFAC-37044",
+    "id_type": "vessel_imo",
+    "id_number": "IMO 8904410",
+    "issuing_country": null,
+    "note": "Vessel Registration Identification"
+  },
+  {
+    "identifier_id": "OFAC-37790-i-3fa5d06d",
+    "entry_id": "OFAC-37790",
+    "id_type": "tax_id",
+    "id_number": "7704770859",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-37790-i-df387238",
+    "entry_id": "OFAC-37790",
+    "id_type": "registration",
+    "id_number": "1107746989954",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-38284-i-3ce79542",
+    "entry_id": "OFAC-38284",
+    "id_type": "tax_id",
+    "id_number": "2328614173",
+    "issuing_country": "UA",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-38796-i-6780a2ba",
+    "entry_id": "OFAC-38796",
+    "id_type": "tax_id",
+    "id_number": "01322889",
+    "issuing_country": "AM",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-38796-i-a463ec15",
+    "entry_id": "OFAC-38796",
+    "id_type": "registration",
+    "id_number": "290.110.1237526",
+    "issuing_country": "AM",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-40378-i-226778ad",
+    "entry_id": "OFAC-40378",
+    "id_type": "national_id",
+    "id_number": "ZALL650409HSLMRS03",
+    "issuing_country": "MX",
+    "note": "C.U.R.P."
+  },
+  {
+    "identifier_id": "OFAC-41005-i-cfdfaee3",
+    "entry_id": "OFAC-41005",
+    "id_type": "tax_id",
+    "id_number": "773101409430",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-41993-i-77fd90b5",
+    "entry_id": "OFAC-41993",
+    "id_type": "registration",
+    "id_number": "1037739375024",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-41993-i-84283f46",
+    "entry_id": "OFAC-41993",
+    "id_type": "tax_id",
+    "id_number": "7727191914",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-42074-i-065ac0d6",
+    "entry_id": "OFAC-42074",
+    "id_type": "tax_id",
+    "id_number": "666301000031",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-42160-i-83969385",
+    "entry_id": "OFAC-42160",
+    "id_type": "passport",
+    "id_number": "EH970706",
+    "issuing_country": "BE",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-42160-i-be6b150c",
+    "entry_id": "OFAC-42160",
+    "id_type": "passport",
+    "id_number": "EN992200",
+    "issuing_country": "BE",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-42311-i-92e9da1a",
+    "entry_id": "OFAC-42311",
+    "id_type": "registration",
+    "id_number": "IT022428/2014(G)",
+    "issuing_country": null,
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-42336-i-775f283f",
+    "entry_id": "OFAC-42336",
+    "id_type": "passport",
+    "id_number": "EH949960",
+    "issuing_country": "BE",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-42336-i-d5e9dab6",
+    "entry_id": "OFAC-42336",
+    "id_type": "passport",
+    "id_number": "EF346590",
+    "issuing_country": "BE",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-42336-i-f35b04f5",
+    "entry_id": "OFAC-42336",
+    "id_type": "passport",
+    "id_number": "ES992390",
+    "issuing_country": "BE",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-42338-i-5f6c6f61",
+    "entry_id": "OFAC-42338",
+    "id_type": "tax_id",
+    "id_number": "4490288372",
+    "issuing_country": "ZA",
+    "note": "V.A.T. Number"
+  },
+  {
+    "identifier_id": "OFAC-42338-i-90cfc6f1",
+    "entry_id": "OFAC-42338",
+    "id_type": "tax_id",
+    "id_number": "9407308197",
+    "issuing_country": "ZA",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-42338-i-9b3943ab",
+    "entry_id": "OFAC-42338",
+    "id_type": "registration",
+    "id_number": "2018/607460/07",
+    "issuing_country": "ZA",
+    "note": "Commercial Registry Number"
+  },
+  {
+    "identifier_id": "OFAC-43542-i-08d0520e",
+    "entry_id": "OFAC-43542",
+    "id_type": "passport",
+    "id_number": "750643398",
+    "issuing_country": "RU",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-43542-i-8e370024",
+    "entry_id": "OFAC-43542",
+    "id_type": "national_id",
+    "id_number": "2907229130",
+    "issuing_country": "RU",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-43542-i-e5a25bfb",
+    "entry_id": "OFAC-43542",
+    "id_type": "tax_id",
+    "id_number": "402903661126",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-43999-i-222360b9",
+    "entry_id": "OFAC-43999",
+    "id_type": "tax_id",
+    "id_number": "7701922888",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-43999-i-abb64b45",
+    "entry_id": "OFAC-43999",
+    "id_type": "registration",
+    "id_number": "1117746474010",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-44438-i-5a055a26",
+    "entry_id": "OFAC-44438",
+    "id_type": "national_id",
+    "id_number": "A039352",
+    "issuing_country": "MV",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-44438-i-9071a2bf",
+    "entry_id": "OFAC-44438",
+    "id_type": "passport",
+    "id_number": "F0303172",
+    "issuing_country": "MV",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-44462-i-3f8b6b87",
+    "entry_id": "OFAC-44462",
+    "id_type": "registration",
+    "id_number": "IG-0069/T10/2015",
+    "issuing_country": "MV",
+    "note": "Permit Number"
+  },
+  {
+    "identifier_id": "OFAC-44462-i-45d59cd0",
+    "entry_id": "OFAC-44462",
+    "id_type": "registration",
+    "id_number": "C-1063/2014",
+    "issuing_country": "MV",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-44721-i-380c7eb9",
+    "entry_id": "OFAC-44721",
+    "id_type": "registration",
+    "id_number": "1197746757559",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-44721-i-9c14427f",
+    "entry_id": "OFAC-44721",
+    "id_type": "tax_id",
+    "id_number": "9717089129",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-45901-i-37008971",
+    "entry_id": "OFAC-45901",
+    "id_type": "tax_id",
+    "id_number": "B72884711",
+    "issuing_country": "ES",
+    "note": "N.I.F."
+  },
+  {
+    "identifier_id": "OFAC-45901-i-ab151e7b",
+    "entry_id": "OFAC-45901",
+    "id_type": "tax_id",
+    "id_number": "ESB72884711",
+    "issuing_country": "ES",
+    "note": "V.A.T. Number"
+  },
+  {
+    "identifier_id": "OFAC-45918-i-a4c4854f",
+    "entry_id": "OFAC-45918",
+    "id_type": "registration",
+    "id_number": "5177746159542",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-45918-i-ccee598a",
+    "entry_id": "OFAC-45918",
+    "id_type": "tax_id",
+    "id_number": "7726415826",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-45985-i-24e06d66",
+    "entry_id": "OFAC-45985",
+    "id_type": "tax_id",
+    "id_number": "9701221910",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-45985-i-b4990e96",
+    "entry_id": "OFAC-45985",
+    "id_type": "registration",
+    "id_number": "1227700618804",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-46251-i-bf4ca49c",
+    "entry_id": "OFAC-46251",
+    "id_type": "national_id",
+    "id_number": "3549804814",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-46312-i-451a8bac",
+    "entry_id": "OFAC-46312",
+    "id_type": "passport",
+    "id_number": "G1240293",
+    "issuing_country": "IQ",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-46715-i-b97d7a9a",
+    "entry_id": "OFAC-46715",
+    "id_type": "tax_id",
+    "id_number": "761015289955",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-46726-i-6fcf7300",
+    "entry_id": "OFAC-46726",
+    "id_type": "registration",
+    "id_number": "HE 130354",
+    "issuing_country": "CY",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-46726-i-fa4d5d4d",
+    "entry_id": "OFAC-46726",
+    "id_type": "tax_id",
+    "id_number": "CY10130354Y",
+    "issuing_country": "CY",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-46737-i-a9ce64bd",
+    "entry_id": "OFAC-46737",
+    "id_type": "registration",
+    "id_number": "91440300584057093C",
+    "issuing_country": "CN",
+    "note": "Unified Social Credit Code (USCC)"
+  },
+  {
+    "identifier_id": "OFAC-46883-i-3ea15e33",
+    "entry_id": "OFAC-46883",
+    "id_type": "passport",
+    "id_number": "QG963705",
+    "issuing_country": "CA",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-47040-i-85156351",
+    "entry_id": "OFAC-47040",
+    "id_type": "registration",
+    "id_number": "2890985",
+    "issuing_country": "HK",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-47040-i-bc07ee51",
+    "entry_id": "OFAC-47040",
+    "id_type": "national_id",
+    "id_number": "IMO 6357849",
+    "issuing_country": null,
+    "note": "Identification Number"
+  },
+  {
+    "identifier_id": "OFAC-47209-i-3b3d17f1",
+    "entry_id": "OFAC-47209",
+    "id_type": "registration",
+    "id_number": "1027700256616",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-47209-i-ca32e058",
+    "entry_id": "OFAC-47209",
+    "id_type": "tax_id",
+    "id_number": "7718016680",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-47411-i-bd607458",
+    "entry_id": "OFAC-47411",
+    "id_type": "tax_id",
+    "id_number": "5262328687",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-47411-i-f153a489",
+    "entry_id": "OFAC-47411",
+    "id_type": "registration",
+    "id_number": "1155262016755",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-47654-i-0e104e11",
+    "entry_id": "OFAC-47654",
+    "id_type": "tax_id",
+    "id_number": "7329036074",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-47654-i-845b29e9",
+    "entry_id": "OFAC-47654",
+    "id_type": "registration",
+    "id_number": "1217300010960",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-48139-i-658af7d2",
+    "entry_id": "OFAC-48139",
+    "id_type": "registration",
+    "id_number": "3306110",
+    "issuing_country": "HK",
+    "note": "Company Number"
+  },
+  {
+    "identifier_id": "OFAC-48139-i-78dc7e58",
+    "entry_id": "OFAC-48139",
+    "id_type": "national_id",
+    "id_number": "IMO 6431603",
+    "issuing_country": null,
+    "note": "Identification Number"
+  },
+  {
+    "identifier_id": "OFAC-48720-i-47cb6a9f",
+    "entry_id": "OFAC-48720",
+    "id_type": "registration",
+    "id_number": "131454",
+    "issuing_country": "IR",
+    "note": "Chamber of Commerce Number"
+  },
+  {
+    "identifier_id": "OFAC-48720-i-4c58b535",
+    "entry_id": "OFAC-48720",
+    "id_type": "registration",
+    "id_number": "94186",
+    "issuing_country": "IR",
+    "note": "Business Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-48720-i-61a51212",
+    "entry_id": "OFAC-48720",
+    "id_type": "national_id",
+    "id_number": "10101382714",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-48898-i-b990d494",
+    "entry_id": "OFAC-48898",
+    "id_type": "vessel_imo",
+    "id_number": "UFRI",
+    "issuing_country": null,
+    "note": "Vessel Call Sign"
+  },
+  {
+    "identifier_id": "OFAC-48898-i-ce80a4a3",
+    "entry_id": "OFAC-48898",
+    "id_type": "vessel_imo",
+    "id_number": "IMO 7741108",
+    "issuing_country": null,
+    "note": "Vessel Registration Identification"
+  },
+  {
+    "identifier_id": "OFAC-49793-i-41f6755f",
+    "entry_id": "OFAC-49793",
+    "id_type": "registration",
+    "id_number": "N-2021005609",
+    "issuing_country": "MX",
+    "note": "Folio Mercantil No."
+  },
+  {
+    "identifier_id": "OFAC-50056-i-683cbe77",
+    "entry_id": "OFAC-50056",
+    "id_type": "registration",
+    "id_number": "1027100507103",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-50056-i-86fa7118",
+    "entry_id": "OFAC-50056",
+    "id_type": "tax_id",
+    "id_number": "7105008754",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-50416-i-12d9b424",
+    "entry_id": "OFAC-50416",
+    "id_type": "tax_id",
+    "id_number": "2709017223",
+    "issuing_country": "RU",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-50416-i-d5d97505",
+    "entry_id": "OFAC-50416",
+    "id_type": "registration",
+    "id_number": "1202700008917",
+    "issuing_country": "RU",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-50476-i-5e54ef15",
+    "entry_id": "OFAC-50476",
+    "id_type": "drivers_license",
+    "id_number": "M634550610520",
+    "issuing_country": "US",
+    "note": "Driver's License No."
+  },
+  {
+    "identifier_id": "OFAC-50476-i-dfd93ec7",
+    "entry_id": "OFAC-50476",
+    "id_type": "national_id",
+    "id_number": "0032768386",
+    "issuing_country": "HT",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-51786-i-3dfeeb9c",
+    "entry_id": "OFAC-51786",
+    "id_type": "vessel_imo",
+    "id_number": "352002948",
+    "issuing_country": null,
+    "note": "MMSI"
+  },
+  {
+    "identifier_id": "OFAC-51786-i-9ffe832b",
+    "entry_id": "OFAC-51786",
+    "id_type": "vessel_imo",
+    "id_number": "IMO 9378618",
+    "issuing_country": null,
+    "note": "Vessel Registration Identification"
+  },
+  {
+    "identifier_id": "OFAC-51786-i-c7e400d3",
+    "entry_id": "OFAC-51786",
+    "id_type": "vessel_imo",
+    "id_number": "3E4703",
+    "issuing_country": null,
+    "note": "Vessel Call Sign"
+  },
+  {
+    "identifier_id": "OFAC-53330-i-1f3c224a",
+    "entry_id": "OFAC-53330",
+    "id_type": "registration",
+    "id_number": "2855903",
+    "issuing_country": "HK",
+    "note": "Company Number"
+  },
+  {
+    "identifier_id": "OFAC-53330-i-33aadfe3",
+    "entry_id": "OFAC-53330",
+    "id_type": "national_id",
+    "id_number": "IMO 6187322",
+    "issuing_country": null,
+    "note": "Identification Number"
+  },
+  {
+    "identifier_id": "OFAC-53330-i-dc30f740",
+    "entry_id": "OFAC-53330",
+    "id_type": "registration",
+    "id_number": "70990857",
+    "issuing_country": "HK",
+    "note": "Business Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-53333-i-82b82525",
+    "entry_id": "OFAC-53333",
+    "id_type": "vessel_imo",
+    "id_number": "273254900",
+    "issuing_country": null,
+    "note": "MMSI"
+  },
+  {
+    "identifier_id": "OFAC-53333-i-9279933e",
+    "entry_id": "OFAC-53333",
+    "id_type": "vessel_imo",
+    "id_number": "IMO 9720263",
+    "issuing_country": null,
+    "note": "Vessel Registration Identification"
+  },
+  {
+    "identifier_id": "OFAC-53333-i-c1e57ad5",
+    "entry_id": "OFAC-53333",
+    "id_type": "vessel_imo",
+    "id_number": "UBKZ6",
+    "issuing_country": null,
+    "note": "Vessel Call Sign"
+  },
+  {
+    "identifier_id": "OFAC-53633-i-2b813fd0",
+    "entry_id": "OFAC-53633",
+    "id_type": "registration",
+    "id_number": "9144130055556327XA",
+    "issuing_country": "CN",
+    "note": "Unified Social Credit Code (USCC)"
+  },
+  {
+    "identifier_id": "OFAC-54060-i-6f530a17",
+    "entry_id": "OFAC-54060",
+    "id_type": "national_id",
+    "id_number": "201812992K",
+    "issuing_country": "SG",
+    "note": "Identification Number"
+  },
+  {
+    "identifier_id": "OFAC-54060-i-76df0767",
+    "entry_id": "OFAC-54060",
+    "id_type": "registration",
+    "id_number": "254900CSJGVBZ6CA9D24",
+    "issuing_country": null,
+    "note": "Legal Entity Number"
+  },
+  {
+    "identifier_id": "OFAC-54319-i-ac126881",
+    "entry_id": "OFAC-54319",
+    "id_type": "national_id",
+    "id_number": "IMO 6484539",
+    "issuing_country": null,
+    "note": "Identification Number"
+  },
+  {
+    "identifier_id": "OFAC-54376-i-131fedb4",
+    "entry_id": "OFAC-54376",
+    "id_type": "national_id",
+    "id_number": "UIVS940314MSLRZH02",
+    "issuing_country": "MX",
+    "note": "C.U.R.P."
+  },
+  {
+    "identifier_id": "OFAC-54376-i-f41f01da",
+    "entry_id": "OFAC-54376",
+    "id_type": "passport",
+    "id_number": "G34401694",
+    "issuing_country": "MX",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-54495-i-5cd159f4",
+    "entry_id": "OFAC-54495",
+    "id_type": "passport",
+    "id_number": "09050824",
+    "issuing_country": "YE",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-54495-i-ee016f40",
+    "entry_id": "OFAC-54495",
+    "id_type": "passport",
+    "id_number": "03320017",
+    "issuing_country": "YE",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-54840-i-0fb04784",
+    "entry_id": "OFAC-54840",
+    "id_type": "registration",
+    "id_number": "4110923027",
+    "issuing_country": "TR",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-54840-i-f6b11dd9",
+    "entry_id": "OFAC-54840",
+    "id_type": "registration",
+    "id_number": "0411092302700001",
+    "issuing_country": "TR",
+    "note": "Central Registration System Number"
+  },
+  {
+    "identifier_id": "OFAC-54986-i-21fb1b63",
+    "entry_id": "OFAC-54986",
+    "id_type": "vessel_imo",
+    "id_number": "IMO 9531387",
+    "issuing_country": null,
+    "note": "Vessel Registration Identification"
+  },
+  {
+    "identifier_id": "OFAC-54986-i-26fa6bd8",
+    "entry_id": "OFAC-54986",
+    "id_type": "vessel_imo",
+    "id_number": "620525000",
+    "issuing_country": null,
+    "note": "MMSI"
+  },
+  {
+    "identifier_id": "OFAC-54986-i-9a4f917f",
+    "entry_id": "OFAC-54986",
+    "id_type": "vessel_imo",
+    "id_number": "D6A2525",
+    "issuing_country": null,
+    "note": "Vessel Call Sign"
+  },
+  {
+    "identifier_id": "OFAC-55090-i-115b9497",
+    "entry_id": "OFAC-55090",
+    "id_type": "vessel_imo",
+    "id_number": "636020658",
+    "issuing_country": null,
+    "note": "MMSI"
+  },
+  {
+    "identifier_id": "OFAC-55090-i-3de5f36b",
+    "entry_id": "OFAC-55090",
+    "id_type": "vessel_imo",
+    "id_number": "IMO 9254850",
+    "issuing_country": null,
+    "note": "Vessel Registration Identification"
+  },
+  {
+    "identifier_id": "OFAC-55090-i-75132cc5",
+    "entry_id": "OFAC-55090",
+    "id_type": "vessel_imo",
+    "id_number": "5LAB7",
+    "issuing_country": null,
+    "note": "Vessel Call Sign"
+  },
+  {
+    "identifier_id": "OFAC-55285-i-2b81f4bb",
+    "entry_id": "OFAC-55285",
+    "id_type": "passport",
+    "id_number": "X62230778",
+    "issuing_country": "IR",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-55285-i-c43cdaa3",
+    "entry_id": "OFAC-55285",
+    "id_type": "national_id",
+    "id_number": "1282460358",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-55505-i-05287ad2",
+    "entry_id": "OFAC-55505",
+    "id_type": "passport",
+    "id_number": "RV047996",
+    "issuing_country": "VU",
+    "note": "Passport (marked fraudulent)"
+  },
+  {
+    "identifier_id": "OFAC-55505-i-379c7f11",
+    "entry_id": "OFAC-55505",
+    "id_type": "passport",
+    "id_number": "N00081108",
+    "issuing_country": "KH",
+    "note": "Passport (marked fraudulent)"
+  },
+  {
+    "identifier_id": "OFAC-55505-i-73026400",
+    "entry_id": "OFAC-55505",
+    "id_type": "passport",
+    "id_number": "K00395168",
+    "issuing_country": "CY",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-55505-i-c93abe23",
+    "entry_id": "OFAC-55505",
+    "id_type": "national_id",
+    "id_number": "010868617",
+    "issuing_country": "KH",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-55853-i-618a3773",
+    "entry_id": "OFAC-55853",
+    "id_type": "tax_id",
+    "id_number": "L001-901804915",
+    "issuing_country": "KH",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-56305-i-c6076da6",
+    "entry_id": "OFAC-56305",
+    "id_type": "registration",
+    "id_number": "10863",
+    "issuing_country": "IR",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-56305-i-e7baa164",
+    "entry_id": "OFAC-56305",
+    "id_type": "national_id",
+    "id_number": "10530232958",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-56311-i-314db9de",
+    "entry_id": "OFAC-56311",
+    "id_type": "national_id",
+    "id_number": "21098983",
+    "issuing_country": "VE",
+    "note": "Cedula No."
+  },
+  {
+    "identifier_id": "OFAC-56311-i-a1f6c7f2",
+    "entry_id": "OFAC-56311",
+    "id_type": "national_id",
+    "id_number": "1047240759",
+    "issuing_country": "CO",
+    "note": "Cedula No."
+  },
+  {
+    "identifier_id": "OFAC-56339-i-dd985f1e",
+    "entry_id": "OFAC-56339",
+    "id_type": "tax_id",
+    "id_number": "901296366-9",
+    "issuing_country": "CO",
+    "note": "NIT #"
+  },
+  {
+    "identifier_id": "OFAC-56361-i-5e7e4652",
+    "entry_id": "OFAC-56361",
+    "id_type": "passport",
+    "id_number": "YA6011337",
+    "issuing_country": "IT",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-56361-i-f11526df",
+    "entry_id": "OFAC-56361",
+    "id_type": "tax_id",
+    "id_number": "TPLGLC75E22G888F",
+    "issuing_country": "IT",
+    "note": "Tax ID No."
+  },
+  {
+    "identifier_id": "OFAC-56587-i-0d47accd",
+    "entry_id": "OFAC-56587",
+    "id_type": "registration",
+    "id_number": "120806",
+    "issuing_country": "MH",
+    "note": "Business Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-56587-i-a3c8f0f2",
+    "entry_id": "OFAC-56587",
+    "id_type": "national_id",
+    "id_number": "IMO 0017035",
+    "issuing_country": null,
+    "note": "Identification Number"
+  },
+  {
+    "identifier_id": "OFAC-56674-i-50d89bb0",
+    "entry_id": "OFAC-56674",
+    "id_type": "national_id",
+    "id_number": "0451423968",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-56810-i-9d39648d",
+    "entry_id": "OFAC-56810",
+    "id_type": "national_id",
+    "id_number": "RIMC620114HJCVRR04",
+    "issuing_country": "MX",
+    "note": "C.U.R.P."
+  },
+  {
+    "identifier_id": "OFAC-56819-i-72a2ae7c",
+    "entry_id": "OFAC-56819",
+    "id_type": "registration",
+    "id_number": "63646",
+    "issuing_country": "MX",
+    "note": "Folio Mercantil No."
+  },
+  {
+    "identifier_id": "OFAC-56890-i-312f7469",
+    "entry_id": "OFAC-56890",
+    "id_type": "national_id",
+    "id_number": "3359178221",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-57141-i-62917f95",
+    "entry_id": "OFAC-57141",
+    "id_type": "national_id",
+    "id_number": "0055513042",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-57157-i-7a6a3bac",
+    "entry_id": "OFAC-57157",
+    "id_type": "national_id",
+    "id_number": "0049772619",
+    "issuing_country": "IR",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-57349-i-f39fb53c",
+    "entry_id": "OFAC-57349",
+    "id_type": "national_id",
+    "id_number": "CATK910428MSLRRR08",
+    "issuing_country": "MX",
+    "note": "C.U.R.P."
+  },
+  {
+    "identifier_id": "OFAC-57665-i-ea525194",
+    "entry_id": "OFAC-57665",
+    "id_type": "registration",
+    "id_number": "136015",
+    "issuing_country": "MH",
+    "note": "Business Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-57665-i-ffbdadbc",
+    "entry_id": "OFAC-57665",
+    "id_type": "national_id",
+    "id_number": "IMO 0421146",
+    "issuing_country": null,
+    "note": "Identification Number"
+  },
+  {
+    "identifier_id": "OFAC-58039-i-511110ba",
+    "entry_id": "OFAC-58039",
+    "id_type": "national_id",
+    "id_number": "LOGR830611HJCZRD03",
+    "issuing_country": "MX",
+    "note": "C.U.R.P."
+  },
+  {
+    "identifier_id": "OFAC-58343-i-c9e64834",
+    "entry_id": "OFAC-58343",
+    "id_type": "national_id",
+    "id_number": "450722198505062036",
+    "issuing_country": "CN",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-58344-i-39ec5c29",
+    "entry_id": "OFAC-58344",
+    "id_type": "registration",
+    "id_number": "440306113174026",
+    "issuing_country": "CN",
+    "note": "Registration Number"
+  },
+  {
+    "identifier_id": "OFAC-58344-i-50f32090",
+    "entry_id": "OFAC-58344",
+    "id_type": "registration",
+    "id_number": "91440300342827438E",
+    "issuing_country": "CN",
+    "note": "Unified Social Credit Code (USCC)"
+  },
+  {
+    "identifier_id": "OFAC-58432-i-30927746",
+    "entry_id": "OFAC-58432",
+    "id_type": "registration",
+    "id_number": "DMCC-716928",
+    "issuing_country": "AE",
+    "note": "License"
+  },
+  {
+    "identifier_id": "OFAC-58432-i-dcdd3c9b",
+    "entry_id": "OFAC-58432",
+    "id_type": "registration",
+    "id_number": "9845002CDA0EA04BKA17",
+    "issuing_country": null,
+    "note": "Legal Entity Number"
+  },
+  {
+    "identifier_id": "OFAC-58482-i-7af8a33b",
+    "entry_id": "OFAC-58482",
+    "id_type": "national_id",
+    "id_number": "784-1975-3624749-3",
+    "issuing_country": "AE",
+    "note": "National ID No."
+  },
+  {
+    "identifier_id": "OFAC-58482-i-edcc2d64",
+    "entry_id": "OFAC-58482",
+    "id_type": "passport",
+    "id_number": "P6602606",
+    "issuing_country": null,
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-58482-i-f069f369",
+    "entry_id": "OFAC-58482",
+    "id_type": "passport",
+    "id_number": "E96037407",
+    "issuing_country": null,
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-58614-i-921bdd22",
+    "entry_id": "OFAC-58614",
+    "id_type": "registration",
+    "id_number": "9987",
+    "issuing_country": "CU",
+    "note": "Entity Code"
+  },
+  {
+    "identifier_id": "OFAC-58730-i-845fbb60",
+    "entry_id": "OFAC-58730",
+    "id_type": "registration",
+    "id_number": "N-2024010343",
+    "issuing_country": "MX",
+    "note": "Folio Mercantil No."
+  },
+  {
+    "identifier_id": "OFAC-7205-i-1ae5b75b",
+    "entry_id": "OFAC-7205",
+    "id_type": "passport",
+    "id_number": "K754050",
+    "issuing_country": null,
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "OFAC-7205-i-dc3e0562",
+    "entry_id": "OFAC-7205",
+    "id_type": "tax_id",
+    "id_number": "BCHMHT69R13Z352T",
+    "issuing_country": null,
+    "note": "Italian Fiscal Code"
+  },
+  {
+    "identifier_id": "OFAC-7214-i-f36b5a67",
+    "entry_id": "OFAC-7214",
+    "id_type": "national_id",
+    "id_number": "30.654.356",
+    "issuing_country": null,
+    "note": "D.N.I."
+  },
+  {
+    "identifier_id": "OFAC-7257-i-5f17cdb1",
+    "entry_id": "OFAC-7257",
+    "id_type": "passport",
+    "id_number": "E590976",
+    "issuing_country": "TN",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-KPi.025-i-423a7b35",
+    "entry_id": "UN-KPi.025",
+    "id_type": "passport",
+    "id_number": "563120630",
+    "issuing_country": null,
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-KPi.052-i-48207f0f",
+    "entry_id": "UN-KPi.052",
+    "id_type": "passport",
+    "id_number": "654310175",
+    "issuing_country": null,
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-KPi.072-i-23184e99",
+    "entry_id": "UN-KPi.072",
+    "id_type": "passport",
+    "id_number": "472120208",
+    "issuing_country": null,
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-QDi.020-i-34396586",
+    "entry_id": "UN-QDi.020",
+    "id_type": "passport",
+    "id_number": "541939",
+    "issuing_country": "YE",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-QDi.020-i-42012df1",
+    "entry_id": "UN-QDi.020",
+    "id_type": "national_id",
+    "id_number": "216040",
+    "issuing_country": null,
+    "note": "National Identification Number"
+  },
+  {
+    "identifier_id": "UN-QDi.059-i-8e24392b",
+    "entry_id": "UN-QDi.059",
+    "id_type": "passport",
+    "id_number": "456682",
+    "issuing_country": null,
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-QDi.064-i-28e78c8d",
+    "entry_id": "UN-QDi.064",
+    "id_type": "national_id",
+    "id_number": "00319547",
+    "issuing_country": null,
+    "note": "National Identification Number"
+  },
+  {
+    "identifier_id": "UN-QDi.064-i-2b931546",
+    "entry_id": "UN-QDi.064",
+    "id_type": "national_id",
+    "id_number": "SSDSBN68B10Z352F",
+    "issuing_country": null,
+    "note": "National Identification Number"
+  },
+  {
+    "identifier_id": "UN-QDi.064-i-5032daeb",
+    "entry_id": "UN-QDi.064",
+    "id_type": "passport",
+    "id_number": "K929139",
+    "issuing_country": "TN",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-QDi.081-i-44a4eb77",
+    "entry_id": "UN-QDi.081",
+    "id_type": "passport",
+    "id_number": "00085243",
+    "issuing_country": "YE",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-QDi.272-i-0762b2c6",
+    "entry_id": "UN-QDi.272",
+    "id_type": "national_id",
+    "id_number": "35404-1577309-9",
+    "issuing_country": "PK",
+    "note": "National Identification Number"
+  },
+  {
+    "identifier_id": "UN-QDi.299-i-1d13d265",
+    "entry_id": "UN-QDi.299",
+    "id_type": "national_id",
+    "id_number": "0134852",
+    "issuing_country": null,
+    "note": "National Identification Number"
+  },
+  {
+    "identifier_id": "UN-QDi.309-i-113ba0b2",
+    "entry_id": "UN-QDi.309",
+    "id_type": "passport",
+    "id_number": "CV9157521",
+    "issuing_country": "PK",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-QDi.309-i-d91a1332",
+    "entry_id": "UN-QDi.309",
+    "id_type": "national_id",
+    "id_number": "national identity card number 44103-5251752-5",
+    "issuing_country": "PK",
+    "note": "National Identification Number"
+  },
+  {
+    "identifier_id": "UN-QDi.344-i-cd82a7b0",
+    "entry_id": "UN-QDi.344",
+    "id_type": "national_id",
+    "id_number": "Qatar identification number 27763401255",
+    "issuing_country": null,
+    "note": "National Identification Number"
+  },
+  {
+    "identifier_id": "UN-QDi.344-i-e4483484",
+    "entry_id": "UN-QDi.344",
+    "id_type": "passport",
+    "id_number": "01016646",
+    "issuing_country": "QA",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-QDi.360-i-bbbe22fe",
+    "entry_id": "UN-QDi.360",
+    "id_type": "passport",
+    "id_number": "519408086",
+    "issuing_country": "GB",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-SOi.009-i-9ec6bf78",
+    "entry_id": "UN-SOi.009",
+    "id_type": "passport",
+    "id_number": "A1180173",
+    "issuing_country": "KE",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-SOi.009-i-ec092f3c",
+    "entry_id": "UN-SOi.009",
+    "id_type": "national_id",
+    "id_number": "23446085",
+    "issuing_country": null,
+    "note": "National Identification Number"
+  },
+  {
+    "identifier_id": "UN-SOi.010-i-879e3dcd",
+    "entry_id": "UN-SOi.010",
+    "id_type": "national_id",
+    "id_number": "Social Security Number 423-31-3021 (US)",
+    "issuing_country": null,
+    "note": "National Identification Number"
+  },
+  {
+    "identifier_id": "UN-SOi.010-i-ca7bbe65",
+    "entry_id": "UN-SOi.010",
+    "id_type": "passport",
+    "id_number": "403062567 (US)",
+    "issuing_country": null,
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-TAi.060-i-a1ae01df",
+    "entry_id": "UN-TAi.060",
+    "id_type": "passport",
+    "id_number": "D0010402",
+    "issuing_country": "AF",
+    "note": "Passport"
+  },
+  {
+    "identifier_id": "UN-TAi.174-i-ce058346",
+    "entry_id": "UN-TAi.174",
+    "id_type": "national_id",
+    "id_number": "5430312277059",
+    "issuing_country": "PK",
+    "note": "National Identification Number"
+  }
+]

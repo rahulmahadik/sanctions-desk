@@ -95,7 +95,7 @@ export const ListDobRowSchema = z.strictObject({
     .string()
     .regex(/^\d{4}(-\d{2}(-\d{2})?)?$/)
     .nullable(),
-  precision: z.enum(DOB_PRECISIONS),
+  dob_precision: z.enum(DOB_PRECISIONS),
   range_from: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
@@ -227,7 +227,7 @@ export const TABLE_COLUMNS: Record<TableName, readonly string[]> = {
     "is_strong",
   ],
   list_identifier: ["identifier_id", "entry_id", "id_type", "id_number", "issuing_country", "note"],
-  list_dob: ["dob_id", "entry_id", "dob_value", "precision", "range_from", "range_to", "is_approximate"],
+  list_dob: ["dob_id", "entry_id", "dob_value", "dob_precision", "range_from", "range_to", "is_approximate"],
   list_country: ["country_link_id", "entry_id", "country_iso2", "country_name", "role", "place"],
   list_program: ["program_id", "entry_id", "program"],
   list_relationship: ["relationship_id", "from_entry_id", "to_entry_id", "relation_type", "is_former"],

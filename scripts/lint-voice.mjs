@@ -23,6 +23,8 @@ const TEXT_EXTENSIONS = new Set([
   ".txt",
 ]);
 const SKIP_FILES = new Set(["package-lock.json", "uv.lock", "LICENSE", "scripts/lint-voice.mjs"]);
+// Rows copied from public sanctions lists and GLEIF are data, not our wording.
+const SKIP_PREFIXES = ["data/sample/", "data/reference/"];
 
 const RULES = [
   { name: "milestone wording", pattern: /\bmilestones?\b/i },
@@ -38,7 +40,8 @@ const tracked = execFileSync("git", ["ls-files", "-z"], { encoding: "utf8" }).sp
 const problems = [];
 
 for (const file of tracked) {
-  if (SKIP_FILES.has(file) || !TEXT_EXTENSIONS.has(extname(file))) continue;
+  if (SKIP_FILES.has(file) || SKIP_PREFIXES.some((p) => file.startsWith(p)) || !TEXT_EXTENSIONS.has(extname(file)))
+    continue;
   let text;
   try {
     text = readFileSync(file, "utf8");

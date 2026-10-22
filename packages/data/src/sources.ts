@@ -44,6 +44,23 @@ export const GleifConfigSchema = z.strictObject({
 });
 export type GleifConfig = z.infer<typeof GleifConfigSchema>;
 
+const QuotaSchema = z.record(ListIdSchema, z.number().int().nonnegative());
+export const SampleConfigSchema = z.strictObject({
+  outputDir: z.string().min(1),
+  seed: z.string().min(1),
+  label: z.string().min(1),
+  quotas: z.strictObject({
+    individualNonLatin: QuotaSchema,
+    individualPartialDob: QuotaSchema,
+    individualFullDob: QuotaSchema,
+    entity: QuotaSchema,
+    jurisdiction: QuotaSchema,
+    vessel: QuotaSchema,
+  }),
+  ownershipLinks: z.number().int().nonnegative(),
+});
+export type SampleConfig = z.infer<typeof SampleConfigSchema>;
+
 export const DataSourcesConfigSchema = z
   .strictObject({
     userAgent: z.string().min(1),
@@ -52,6 +69,7 @@ export const DataSourcesConfigSchema = z
     normalisedDir: z.string().min(1),
     sources: z.array(DataSourceSchema).min(1),
     gleif: GleifConfigSchema,
+    sample: SampleConfigSchema,
   })
   .refine((c) => new Set(c.sources.map((s) => s.id)).size === c.sources.length, "source ids must be unique");
 export type DataSourcesConfig = z.infer<typeof DataSourcesConfigSchema>;

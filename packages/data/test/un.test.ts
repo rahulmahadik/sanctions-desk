@@ -57,7 +57,7 @@ describe("UN consolidated list parser", () => {
 
   it("reads exact, approximate and between dates of birth and skips empty ones", () => {
     const dobs = forEntry(parse().tables.list_dob, "UN-TST.001");
-    expect(dobs.map((d) => [d.dob_value, d.precision, d.range_from, d.range_to, d.is_approximate])).toEqual(
+    expect(dobs.map((d) => [d.dob_value, d.dob_precision, d.range_from, d.range_to, d.is_approximate])).toEqual(
       expect.arrayContaining([
         ["1953-01-01", "day", null, null, false],
         ["1952", "year", null, null, true],

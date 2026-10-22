@@ -1,0 +1,10 @@
+{
+  "label": "Synthetic data generated for development and demonstration. No real customer, account or payment.",
+  "seed": "sanctions-desk-sample-1:bank#46b027b3",
+  "counts": {
+    "customer": 13,
+    "customer_identifier": 1,
+    "alert": 13,
+    "cases": 13
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "label": "A small deterministic subset of public sanctions lists, for development and tests. Not a complete or current list.",
+  "seed": "sanctions-desk-sample-1",
+  "snapshots": [
+    {
+      "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
+      "list_id": "OFAC",
+      "issued_on": "2026-10-21",
+      "source_url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN_ADVANCED.XML"
+    },
+    {
+      "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
+      "list_id": "OFAC",
+      "issued_on": "2026-10-19",
+      "source_url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/CONS_ADVANCED.XML"
+    },
+    {
+      "snapshot_id": "un-consolidated-2026-10-21-76201a92",
+      "list_id": "UN",
+      "issued_on": "2026-10-21",
+      "source_url": "https://scsanctions.un.org/resources/xml/en/consolidated.xml"
+    }
+  ],
+  "counts": {
+    "list_entry": 366,
+    "list_alias": 1336,
+    "list_identifier": 490,
+    "list_dob": 190,
+    "list_country": 762,
+    "list_program": 472,
+    "list_relationship": 102
+  },
+  "selected_by_rule": {
+    "individualNonLatin": 36,
+    "individualPartialDob": 42,
+    "individualFullDob": 71,
+    "entity": 94,
+    "jurisdiction": 28,
+    "vessel": 4,
+    "ownership": 40
+  }
+}

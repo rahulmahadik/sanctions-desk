@@ -1,0 +1,716 @@
+[
+  {
+    "relationship_id": "OFAC-rel-10569",
+    "from_entry_id": "OFAC-16031",
+    "to_entry_id": "OFAC-16010",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-12517",
+    "from_entry_id": "OFAC-35318",
+    "to_entry_id": "OFAC-35299",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-13230",
+    "from_entry_id": "OFAC-20002",
+    "to_entry_id": "OFAC-17017",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-13449",
+    "from_entry_id": "OFAC-17017",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-13449",
+    "from_entry_id": "OFAC-17017",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-13511",
+    "from_entry_id": "OFAC-37790",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-14435",
+    "from_entry_id": "OFAC-38796",
+    "to_entry_id": "OFAC-35199",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-15962",
+    "from_entry_id": "OFAC-42338",
+    "to_entry_id": "OFAC-42336",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-15966",
+    "from_entry_id": "OFAC-42311",
+    "to_entry_id": "OFAC-42160",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-17012",
+    "from_entry_id": "OFAC-44462",
+    "to_entry_id": "OFAC-44438",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-17838",
+    "from_entry_id": "OFAC-45985",
+    "to_entry_id": "OFAC-45918",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-18301",
+    "from_entry_id": "OFAC-46726",
+    "to_entry_id": "OFAC-46715",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2187",
+    "from_entry_id": "OFAC-18275",
+    "to_entry_id": "OFAC-17015",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-21894",
+    "from_entry_id": "OFAC-53333",
+    "to_entry_id": "OFAC-53330",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2194",
+    "from_entry_id": "OFAC-18273",
+    "to_entry_id": "OFAC-17015",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2194",
+    "from_entry_id": "OFAC-18273",
+    "to_entry_id": "OFAC-17015",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2196",
+    "from_entry_id": "OFAC-18283",
+    "to_entry_id": "OFAC-17015",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2199",
+    "from_entry_id": "OFAC-18278",
+    "to_entry_id": "OFAC-17015",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2202",
+    "from_entry_id": "OFAC-18289",
+    "to_entry_id": "OFAC-17015",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2211",
+    "from_entry_id": "OFAC-18267",
+    "to_entry_id": "OFAC-17022",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2211",
+    "from_entry_id": "OFAC-18267",
+    "to_entry_id": "OFAC-17022",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2215",
+    "from_entry_id": "OFAC-18269",
+    "to_entry_id": "OFAC-17022",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2215",
+    "from_entry_id": "OFAC-18269",
+    "to_entry_id": "OFAC-17022",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2218",
+    "from_entry_id": "OFAC-18292",
+    "to_entry_id": "OFAC-17022",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2218",
+    "from_entry_id": "OFAC-18292",
+    "to_entry_id": "OFAC-17022",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-23743",
+    "from_entry_id": "OFAC-55853",
+    "to_entry_id": "OFAC-55505",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-23791",
+    "from_entry_id": "OFAC-54750",
+    "to_entry_id": "OFAC-55505",
+    "relation_type": "acting_for_or_on_behalf_of",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-24135",
+    "from_entry_id": "OFAC-56339",
+    "to_entry_id": "OFAC-56311",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-24506",
+    "from_entry_id": "OFAC-56819",
+    "to_entry_id": "OFAC-56810",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-25545",
+    "from_entry_id": "OFAC-36419",
+    "to_entry_id": "OFAC-17018",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-25545",
+    "from_entry_id": "OFAC-36419",
+    "to_entry_id": "OFAC-17018",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-25617",
+    "from_entry_id": "OFAC-58344",
+    "to_entry_id": "OFAC-58343",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2616",
+    "from_entry_id": "OFAC-18848",
+    "to_entry_id": "OFAC-9345",
+    "relation_type": "acting_for_or_on_behalf_of",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2662",
+    "from_entry_id": "OFAC-18711",
+    "to_entry_id": "OFAC-17018",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2665",
+    "from_entry_id": "OFAC-18709",
+    "to_entry_id": "OFAC-17018",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2665",
+    "from_entry_id": "OFAC-18709",
+    "to_entry_id": "OFAC-17018",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2672",
+    "from_entry_id": "OFAC-18780",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2673",
+    "from_entry_id": "OFAC-18781",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2679",
+    "from_entry_id": "OFAC-18782",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2679",
+    "from_entry_id": "OFAC-18782",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2686",
+    "from_entry_id": "OFAC-18776",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2690",
+    "from_entry_id": "OFAC-18770",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2690",
+    "from_entry_id": "OFAC-18770",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2697",
+    "from_entry_id": "OFAC-18773",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2698",
+    "from_entry_id": "OFAC-18774",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2698",
+    "from_entry_id": "OFAC-18774",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2700",
+    "from_entry_id": "OFAC-18787",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2701",
+    "from_entry_id": "OFAC-18789",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2702",
+    "from_entry_id": "OFAC-18791",
+    "to_entry_id": "OFAC-17260",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2708",
+    "from_entry_id": "OFAC-18750",
+    "to_entry_id": "OFAC-17018",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2708",
+    "from_entry_id": "OFAC-18750",
+    "to_entry_id": "OFAC-17018",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2709",
+    "from_entry_id": "OFAC-18753",
+    "to_entry_id": "OFAC-17018",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2709",
+    "from_entry_id": "OFAC-18753",
+    "to_entry_id": "OFAC-17018",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2724",
+    "from_entry_id": "OFAC-18740",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2724",
+    "from_entry_id": "OFAC-18740",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2725",
+    "from_entry_id": "OFAC-18726",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2725",
+    "from_entry_id": "OFAC-18726",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2731",
+    "from_entry_id": "OFAC-18727",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2733",
+    "from_entry_id": "OFAC-18737",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2733",
+    "from_entry_id": "OFAC-18737",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2739",
+    "from_entry_id": "OFAC-18730",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2739",
+    "from_entry_id": "OFAC-18730",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2740",
+    "from_entry_id": "OFAC-18731",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2740",
+    "from_entry_id": "OFAC-18731",
+    "to_entry_id": "OFAC-17013",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-2787",
+    "from_entry_id": "OFAC-18929",
+    "to_entry_id": "OFAC-17037",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3299",
+    "from_entry_id": "OFAC-19647",
+    "to_entry_id": "OFAC-17250",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3302",
+    "from_entry_id": "OFAC-19544",
+    "to_entry_id": "OFAC-17250",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3313",
+    "from_entry_id": "OFAC-19637",
+    "to_entry_id": "OFAC-17250",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3316",
+    "from_entry_id": "OFAC-19471",
+    "to_entry_id": "OFAC-17250",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3321",
+    "from_entry_id": "OFAC-19633",
+    "to_entry_id": "OFAC-17250",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3322",
+    "from_entry_id": "OFAC-19635",
+    "to_entry_id": "OFAC-17250",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3323",
+    "from_entry_id": "OFAC-19636",
+    "to_entry_id": "OFAC-17250",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3326",
+    "from_entry_id": "OFAC-19642",
+    "to_entry_id": "OFAC-17250",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3328",
+    "from_entry_id": "OFAC-19640",
+    "to_entry_id": "OFAC-17250",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3342",
+    "from_entry_id": "OFAC-19674",
+    "to_entry_id": "OFAC-17250",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3354",
+    "from_entry_id": "OFAC-19685",
+    "to_entry_id": "OFAC-17250",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3357",
+    "from_entry_id": "OFAC-19688",
+    "to_entry_id": "OFAC-17250",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3578",
+    "from_entry_id": "OFAC-19989",
+    "to_entry_id": "OFAC-17017",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3587",
+    "from_entry_id": "OFAC-19992",
+    "to_entry_id": "OFAC-17017",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3604",
+    "from_entry_id": "OFAC-20007",
+    "to_entry_id": "OFAC-17017",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3793",
+    "from_entry_id": "OFAC-20295",
+    "to_entry_id": "OFAC-17016",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3799",
+    "from_entry_id": "OFAC-20301",
+    "to_entry_id": "OFAC-17016",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-3801",
+    "from_entry_id": "OFAC-20303",
+    "to_entry_id": "OFAC-17016",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-404",
+    "from_entry_id": "OFAC-15452",
+    "to_entry_id": "OFAC-12927",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-4120",
+    "from_entry_id": "OFAC-20621",
+    "to_entry_id": "OFAC-17014",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-4124",
+    "from_entry_id": "OFAC-20665",
+    "to_entry_id": "OFAC-17014",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-4128",
+    "from_entry_id": "OFAC-20669",
+    "to_entry_id": "OFAC-17014",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-4130",
+    "from_entry_id": "OFAC-20671",
+    "to_entry_id": "OFAC-17014",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-4239",
+    "from_entry_id": "OFAC-20603",
+    "to_entry_id": "OFAC-11598",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-6036",
+    "from_entry_id": "OFAC-23552",
+    "to_entry_id": "OFAC-17145",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-6036",
+    "from_entry_id": "OFAC-23552",
+    "to_entry_id": "OFAC-17145",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-6038",
+    "from_entry_id": "OFAC-23557",
+    "to_entry_id": "OFAC-17145",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-6040",
+    "from_entry_id": "OFAC-23562",
+    "to_entry_id": "OFAC-17145",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-6040",
+    "from_entry_id": "OFAC-23562",
+    "to_entry_id": "OFAC-17145",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-6041",
+    "from_entry_id": "OFAC-23566",
+    "to_entry_id": "OFAC-17145",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-6048",
+    "from_entry_id": "OFAC-23571",
+    "to_entry_id": "OFAC-17145",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-6288",
+    "from_entry_id": "OFAC-23204",
+    "to_entry_id": "OFAC-23189",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-6593",
+    "from_entry_id": "OFAC-24395",
+    "to_entry_id": "OFAC-12927",
+    "relation_type": "acting_for_or_on_behalf_of",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-7035",
+    "from_entry_id": "OFAC-25042",
+    "to_entry_id": "OFAC-12802",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-7290",
+    "from_entry_id": "OFAC-25382",
+    "to_entry_id": "OFAC-25396",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-7318",
+    "from_entry_id": "OFAC-25311",
+    "to_entry_id": "OFAC-25396",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  },
+  {
+    "relationship_id": "OFAC-rel-9242",
+    "from_entry_id": "OFAC-28389",
+    "to_entry_id": "OFAC-28230",
+    "relation_type": "owned_or_controlled_by",
+    "is_former": false
+  }
+]

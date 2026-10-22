@@ -1,0 +1,6098 @@
+[
+  {
+    "country_link_id": "OFAC-10009-c-26ec3a55",
+    "entry_id": "OFAC-10009",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Kuwait"
+  },
+  {
+    "country_link_id": "OFAC-10009-c-e173dbdb",
+    "entry_id": "OFAC-10009",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-10010-c-27bdf2d4",
+    "entry_id": "OFAC-10010",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Kuwait"
+  },
+  {
+    "country_link_id": "OFAC-10010-c-e173dbdb",
+    "entry_id": "OFAC-10010",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-10375-c-1621eaa0",
+    "entry_id": "OFAC-10375",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Al-Anbar, Iraq"
+  },
+  {
+    "country_link_id": "OFAC-10375-c-39c0aece",
+    "entry_id": "OFAC-10375",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iraq"
+  },
+  {
+    "country_link_id": "OFAC-10375-c-f27e852f",
+    "entry_id": "OFAC-10375",
+    "country_iso2": "SY",
+    "country_name": "Syria",
+    "role": "address",
+    "place": "Al-Mazzah Al-Jabal District, 6 Subdistrict, 3 area, Al-Iskan complex, 40/2, Fifth Floor, Damascus"
+  },
+  {
+    "country_link_id": "OFAC-11274-c-1a9f5662",
+    "entry_id": "OFAC-11274",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "c/o DEHONG THAILONG HOTEL CO., LTD., Yunnan Province"
+  },
+  {
+    "country_link_id": "OFAC-11274-c-97f6eb14",
+    "entry_id": "OFAC-11274",
+    "country_iso2": "TH",
+    "country_name": "Thailand",
+    "role": "address",
+    "place": "88/2 Soi Klong Nam Kaew, Tambon Sam Sen Nok, Huay Khwang, Bangkok"
+  },
+  {
+    "country_link_id": "OFAC-11598-c-92447d97",
+    "entry_id": "OFAC-11598",
+    "country_iso2": "KP",
+    "country_name": "Korea, North",
+    "role": "address",
+    "place": "Haeudong, Pyongchen District, Pyongyang"
+  },
+  {
+    "country_link_id": "OFAC-11800-c-380cdbf7",
+    "entry_id": "OFAC-11800",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Joan Sebastian Bach 87, 2-B, Col Bosque de la Loma, Morelia, Michoacan"
+  },
+  {
+    "country_link_id": "OFAC-11800-c-94f04d04",
+    "entry_id": "OFAC-11800",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Michoacan, Mexico"
+  },
+  {
+    "country_link_id": "OFAC-11800-c-ab5f2073",
+    "entry_id": "OFAC-11800",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Calle Sin Nombre 100, Cenobio Moreno, Apatzingan, Michoacan"
+  },
+  {
+    "country_link_id": "OFAC-11800-c-b23ad9e1",
+    "entry_id": "OFAC-11800",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "La Calle Prolongacion Finlandia, Fracc Arboledas, Morelia, Michoacan"
+  },
+  {
+    "country_link_id": "OFAC-12748-c-b4e81183",
+    "entry_id": "OFAC-12748",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Syria"
+  },
+  {
+    "country_link_id": "OFAC-12748-c-e173dbdb",
+    "entry_id": "OFAC-12748",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-12802-c-61cda4d0",
+    "entry_id": "OFAC-12802",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "No. 18, Iranian Building, 14th Alley, Ahmad Qassir Street, Argentina Square, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-12802-c-a2461bea",
+    "entry_id": "OFAC-12802",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "No. 48, 14th Alley, Ahmad Qassir Street, Argentina Square, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-12842-c-29d7b6ab",
+    "entry_id": "OFAC-12842",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iran"
+  },
+  {
+    "country_link_id": "OFAC-12842-c-b4e81183",
+    "entry_id": "OFAC-12842",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Syria"
+  },
+  {
+    "country_link_id": "OFAC-12842-c-e173dbdb",
+    "entry_id": "OFAC-12842",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-12927-c-b8e87deb",
+    "entry_id": "OFAC-12927",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Mahan Air Tower, 21st Floor, Azadeghan Street, Karaj Highway, P.O. Box 14515-411, Tehran, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-12927-c-c4f30637",
+    "entry_id": "OFAC-12927",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Mahan Air Tower, Azadegan St., Karaj Highway, P.O. Box 411-14515, Tehran, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-12927-c-e9f887f4",
+    "entry_id": "OFAC-12927",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "No. 21, Mahan Air Tower, Azadegan Street, Jenah Expressway, Beginning of Sheykh Fazlollah Exp. Way, First of Karaj High Way, Tehran, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-13356-c-9aee8229",
+    "entry_id": "OFAC-13356",
+    "country_iso2": "PA",
+    "country_name": "Panama",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-15003-c-3dee5596",
+    "entry_id": "OFAC-15003",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Mexico"
+  },
+  {
+    "country_link_id": "OFAC-15003-c-aee09d9d",
+    "entry_id": "OFAC-15003",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Sinaloa, Mexico"
+  },
+  {
+    "country_link_id": "OFAC-15003-c-e173dbdb",
+    "entry_id": "OFAC-15003",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-15452-c-e173dbdb",
+    "entry_id": "OFAC-15452",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-15553-c-6bc576f7",
+    "entry_id": "OFAC-15553",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Dezful, Khuzentan Province, Iran"
+  },
+  {
+    "country_link_id": "OFAC-15553-c-e173dbdb",
+    "entry_id": "OFAC-15553",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-15610-c-38d399f9",
+    "entry_id": "OFAC-15610",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Nouakchott, Mauritania"
+  },
+  {
+    "country_link_id": "OFAC-15610-c-bcb2d35b",
+    "entry_id": "OFAC-15610",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Mauritania"
+  },
+  {
+    "country_link_id": "OFAC-15610-c-e173dbdb",
+    "entry_id": "OFAC-15610",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-15610-c-fc1ef6fc",
+    "entry_id": "OFAC-15610",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Mali"
+  },
+  {
+    "country_link_id": "OFAC-16010-c-a7e52c8b",
+    "entry_id": "OFAC-16010",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "6th Floor, Mirdamad Avenue, No. 346, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-16031-c-d16a5a5d",
+    "entry_id": "OFAC-16031",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-16031-c-d53a716d",
+    "entry_id": "OFAC-16031",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Postal Box 14155-1473, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-16031-c-e0cc6418",
+    "entry_id": "OFAC-16031",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "No. 346, Pars Oil Company Building, Modarres Highway, East Mirdamad Boulevard, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-16210-c-06c5a87f",
+    "entry_id": "OFAC-16210",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Mexico"
+  },
+  {
+    "country_link_id": "OFAC-16210-c-3dee5596",
+    "entry_id": "OFAC-16210",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Mexico"
+  },
+  {
+    "country_link_id": "OFAC-16210-c-47a06443",
+    "entry_id": "OFAC-16210",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Tamaulipas, Mexico"
+  },
+  {
+    "country_link_id": "OFAC-16210-c-c9cc3629",
+    "entry_id": "OFAC-16210",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Avenida Constitucion No. 2224, Colonia San Rafael, Nuevo Laredo, Tamaulipas"
+  },
+  {
+    "country_link_id": "OFAC-16479-c-8d2bfa21",
+    "entry_id": "OFAC-16479",
+    "country_iso2": "LY",
+    "country_name": "Libya",
+    "role": "address",
+    "place": "Benghazi"
+  },
+  {
+    "country_link_id": "OFAC-16479-c-bd122ba5",
+    "entry_id": "OFAC-16479",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Libya"
+  },
+  {
+    "country_link_id": "OFAC-16495-c-76bd22df",
+    "entry_id": "OFAC-16495",
+    "country_iso2": "PK",
+    "country_name": "Pakistan",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-16495-c-9a38a793",
+    "entry_id": "OFAC-16495",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "India"
+  },
+  {
+    "country_link_id": "OFAC-16495-c-f28e34d1",
+    "entry_id": "OFAC-16495",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Mumbai, India"
+  },
+  {
+    "country_link_id": "OFAC-16753-c-91aa7647",
+    "entry_id": "OFAC-16753",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Ulan-Ude, Russia"
+  },
+  {
+    "country_link_id": "OFAC-16753-c-e173dbdb",
+    "entry_id": "OFAC-16753",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-16817-c-004880d9",
+    "entry_id": "OFAC-16817",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-16817-c-52fa119d",
+    "entry_id": "OFAC-16817",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-16817-c-e173dbdb",
+    "entry_id": "OFAC-16817",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-16826-c-dd1f8538",
+    "entry_id": "OFAC-16826",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "17 A, Stratoyava St., Saint Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-16835-c-fedf74f0",
+    "entry_id": "OFAC-16835",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "2 Liter a Pl. Rastrelli, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-0a7cc5b2",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Bashnya Zapad, Kompleks Federatsiya, 12, nab. Presnenskaya, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-0a7cc5b2",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Bashnya Zapad, Kompleks Federatsiya, 12, nab. Presnenskaya, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-0d8a0085",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "37 Plyushchikha ul., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-0d8a0085",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "37 Plyushchikha ul., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-3f4462d5",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "IN",
+    "country_name": "India",
+    "role": "address",
+    "place": "The Taj Mahal Hotel, Lobby Mezzanine Floor 1, Mansingh Road, New Delhi"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-3f4462d5",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "IN",
+    "country_name": "India",
+    "role": "address",
+    "place": "The Taj Mahal Hotel, Lobby Mezzanine Floor 1, Mansingh Road, New Delhi"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-481e84ed",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "1266 Nanjing Xilu Street, Jingan District, Shanghai"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-481e84ed",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "1266 Nanjing Xilu Street, Jingan District, Shanghai"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-5c746188",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "11, lit A, Degtyarnyy pereulok, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-5c746188",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "11, lit A, Degtyarnyy pereulok, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-6420246a",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "11 litera, per. Degtyarny, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-6420246a",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "11 litera, per. Degtyarny, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-72f5ce5b",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Tehran"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-72f5ce5b",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Tehran"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-8c13881f",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "18 BC, CITIC Building, 19 Jianguomenwai Dajie, Beijing"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-8c13881f",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "18 BC, CITIC Building, 19 Jianguomenwai Dajie, Beijing"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-917c67d6",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Vorontsovskaya Str 43, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-917c67d6",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Vorontsovskaya Str 43, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-9693534c",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "43, Vorontsovskaya str., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-9693534c",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "43, Vorontsovskaya str., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-aa94ccba",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "str. 1, 43, ul. Vorontsovskaya, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-aa94ccba",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "str. 1, 43, ul. Vorontsovskaya, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-d379a8ae",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "29, Bolshaya Morskaya str., St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-d379a8ae",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "29, Bolshaya Morskaya str., St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-e533e2a7",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "43, bld.1, Vorontsovskaya str., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17013-c-e533e2a7",
+    "entry_id": "OFAC-17013",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "43, bld.1, Vorontsovskaya str., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17014-c-16242957",
+    "entry_id": "OFAC-17014",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "3 Gagarinsky per., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17014-c-fa086f9a",
+    "entry_id": "OFAC-17014",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "3, Gagarinsky Pereulok, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17015-c-0eede6ec",
+    "entry_id": "OFAC-17015",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "20A, CITIC Building, 19, Joanguomenwai Dajie, Beijing"
+  },
+  {
+    "country_link_id": "OFAC-17015-c-0eede6ec",
+    "entry_id": "OFAC-17015",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "20A, CITIC Building, 19, Joanguomenwai Dajie, Beijing"
+  },
+  {
+    "country_link_id": "OFAC-17015-c-49650b18",
+    "entry_id": "OFAC-17015",
+    "country_iso2": "IN",
+    "country_name": "India",
+    "role": "address",
+    "place": "Shop No. 11, Arcade Ground Floor, World Trade Centre, Cuffe Prade, Colaba, Mumbai"
+  },
+  {
+    "country_link_id": "OFAC-17015-c-49650b18",
+    "entry_id": "OFAC-17015",
+    "country_iso2": "IN",
+    "country_name": "India",
+    "role": "address",
+    "place": "Shop No. 11, Arcade Ground Floor, World Trade Centre, Cuffe Prade, Colaba, Mumbai"
+  },
+  {
+    "country_link_id": "OFAC-17015-c-5da301bf",
+    "entry_id": "OFAC-17015",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Pr-kt, Akademika Sakharova, D. 9, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17015-c-5da301bf",
+    "entry_id": "OFAC-17015",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Pr-kt, Akademika Sakharova, D. 9, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17015-c-e64beef1",
+    "entry_id": "OFAC-17015",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Akademik Sakharov Ave 9, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17015-c-e64beef1",
+    "entry_id": "OFAC-17015",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Akademik Sakharov Ave 9, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17016-c-5d946617",
+    "entry_id": "OFAC-17016",
+    "country_iso2": "MN",
+    "country_name": "Mongolia",
+    "role": "address",
+    "place": "6 Enh-Taivan St., Ulaanbaatar"
+  },
+  {
+    "country_link_id": "OFAC-17016-c-5d946617",
+    "entry_id": "OFAC-17016",
+    "country_iso2": "MN",
+    "country_name": "Mongolia",
+    "role": "address",
+    "place": "6 Enh-Taivan St., Ulaanbaatar"
+  },
+  {
+    "country_link_id": "OFAC-17016-c-79a91698",
+    "entry_id": "OFAC-17016",
+    "country_iso2": "IN",
+    "country_name": "India",
+    "role": "address",
+    "place": "10/48 Malcha Marg, Diplomatic Enclave, Chanakyapuri, Delhi"
+  },
+  {
+    "country_link_id": "OFAC-17016-c-79a91698",
+    "entry_id": "OFAC-17016",
+    "country_iso2": "IN",
+    "country_name": "India",
+    "role": "address",
+    "place": "10/48 Malcha Marg, Diplomatic Enclave, Chanakyapuri, Delhi"
+  },
+  {
+    "country_link_id": "OFAC-17016-c-aadbcf2c",
+    "entry_id": "OFAC-17016",
+    "country_iso2": "KZ",
+    "country_name": "Kazakhstan",
+    "role": "address",
+    "place": "6 Floor, Business Center Q, Block A, Building 15A, Kabanbay Batyra Avenue, Astana"
+  },
+  {
+    "country_link_id": "OFAC-17016-c-aadbcf2c",
+    "entry_id": "OFAC-17016",
+    "country_iso2": "KZ",
+    "country_name": "Kazakhstan",
+    "role": "address",
+    "place": "6 Floor, Business Center Q, Block A, Building 15A, Kabanbay Batyra Avenue, Astana"
+  },
+  {
+    "country_link_id": "OFAC-17016-c-b4bd3784",
+    "entry_id": "OFAC-17016",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Central International Trade Center, Suite No. 1205, Tower C, No. 6A Jianguomenwai Avenue, Chaoyang, Liaoning"
+  },
+  {
+    "country_link_id": "OFAC-17016-c-b4bd3784",
+    "entry_id": "OFAC-17016",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Central International Trade Center, Suite No. 1205, Tower C, No. 6A Jianguomenwai Avenue, Chaoyang, Liaoning"
+  },
+  {
+    "country_link_id": "OFAC-17016-c-c3239e8e",
+    "entry_id": "OFAC-17016",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "16 Nametkina Street, Bldg. 1, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17016-c-c3239e8e",
+    "entry_id": "OFAC-17016",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "16 Nametkina Street, Bldg. 1, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17017-c-bafcf916",
+    "entry_id": "OFAC-17017",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "8/15 Korp. 3 ul. Rozhdestvenka, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17017-c-bafcf916",
+    "entry_id": "OFAC-17017",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "8/15 Korp. 3 ul. Rozhdestvenka, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17017-c-cfcff53e",
+    "entry_id": "OFAC-17017",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Bld 3 8/15, Rozhdestvenka St., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17017-c-cfcff53e",
+    "entry_id": "OFAC-17017",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Bld 3 8/15, Rozhdestvenka St., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17018-c-0b819eba",
+    "entry_id": "OFAC-17018",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "19 ul. Vavilova, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17018-c-0b819eba",
+    "entry_id": "OFAC-17018",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "19 ul. Vavilova, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17018-c-0d5b2c75",
+    "entry_id": "OFAC-17018",
+    "country_iso2": "IN",
+    "country_name": "India",
+    "role": "address",
+    "place": "upper ground floor and fourth floor, Birla Tower, 25-Barakhamba Road, New Delhi"
+  },
+  {
+    "country_link_id": "OFAC-17018-c-0d5b2c75",
+    "entry_id": "OFAC-17018",
+    "country_iso2": "IN",
+    "country_name": "India",
+    "role": "address",
+    "place": "upper ground floor and fourth floor, Birla Tower, 25-Barakhamba Road, New Delhi"
+  },
+  {
+    "country_link_id": "OFAC-17018-c-6438f265",
+    "entry_id": "OFAC-17018",
+    "country_iso2": "IN",
+    "country_name": "India",
+    "role": "address",
+    "place": "81-B, 8th Floor, 5th North Avenue, Maker Maxity, Bandra Kurla Complex, Bandra East, Mumbai, Maharashtra"
+  },
+  {
+    "country_link_id": "OFAC-17018-c-6438f265",
+    "entry_id": "OFAC-17018",
+    "country_iso2": "IN",
+    "country_name": "India",
+    "role": "address",
+    "place": "81-B, 8th Floor, 5th North Avenue, Maker Maxity, Bandra Kurla Complex, Bandra East, Mumbai, Maharashtra"
+  },
+  {
+    "country_link_id": "OFAC-17018-c-9d9cc3fb",
+    "entry_id": "OFAC-17018",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "C305/306A Lufthansa Centre 50 Liangmaqiao Rd., Chaoyang District, Beijing"
+  },
+  {
+    "country_link_id": "OFAC-17018-c-9d9cc3fb",
+    "entry_id": "OFAC-17018",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "C305/306A Lufthansa Centre 50 Liangmaqiao Rd., Chaoyang District, Beijing"
+  },
+  {
+    "country_link_id": "OFAC-17022-c-db83dd0f",
+    "entry_id": "OFAC-17022",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "26/1 Sofiyskaya Embankment, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17022-c-db83dd0f",
+    "entry_id": "OFAC-17022",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "26/1 Sofiyskaya Embankment, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17037-c-2ee22098",
+    "entry_id": "OFAC-17037",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Tianhelu 351 Hao, Tianhequ, Guangzhou"
+  },
+  {
+    "country_link_id": "OFAC-17037-c-4bf48f9b",
+    "entry_id": "OFAC-17037",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Room 2203A, Grand Tower, No. 228 Tianhe Road, Tianhe District, Guangzhou"
+  },
+  {
+    "country_link_id": "OFAC-17037-c-c7e745aa",
+    "entry_id": "OFAC-17037",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Room 2203A, Guangcheng Building, No. 228 Tianhe Road, Guangzhou"
+  },
+  {
+    "country_link_id": "OFAC-17037-c-c92e2625",
+    "entry_id": "OFAC-17037",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "204 No. 253 Tianhebei Road, Guangzhou"
+  },
+  {
+    "country_link_id": "OFAC-17037-c-d6f6624f",
+    "entry_id": "OFAC-17037",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Lebanon"
+  },
+  {
+    "country_link_id": "OFAC-17050-c-4431a54c",
+    "entry_id": "OFAC-17050",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Itagui, Antioquia, Colombia"
+  },
+  {
+    "country_link_id": "OFAC-17050-c-9e311644",
+    "entry_id": "OFAC-17050",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Colombia"
+  },
+  {
+    "country_link_id": "OFAC-17145-c-300d0563",
+    "entry_id": "OFAC-17145",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "korp. 1 1 Grigoriya Kukuevitskogo ul., Surgut, Tyumenskaya oblast"
+  },
+  {
+    "country_link_id": "OFAC-17145-c-300d0563",
+    "entry_id": "OFAC-17145",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "korp. 1 1 Grigoriya Kukuevitskogo ul., Surgut, Tyumenskaya oblast"
+  },
+  {
+    "country_link_id": "OFAC-17145-c-78e0f3a3",
+    "entry_id": "OFAC-17145",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "ul. Grigoriya Kukuyevitskogo, 1, bld. 1, Khanty-Mansiysky Autonomous Okrug - Yugra, the city of Surgut, Tyumenskaya Oblast"
+  },
+  {
+    "country_link_id": "OFAC-17145-c-78e0f3a3",
+    "entry_id": "OFAC-17145",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "ul. Grigoriya Kukuyevitskogo, 1, bld. 1, Khanty-Mansiysky Autonomous Okrug - Yugra, the city of Surgut, Tyumenskaya Oblast"
+  },
+  {
+    "country_link_id": "OFAC-17145-c-e8a2c5f9",
+    "entry_id": "OFAC-17145",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Street Kukuevitskogo 1, Surgut, Tyumen Region"
+  },
+  {
+    "country_link_id": "OFAC-17145-c-e8a2c5f9",
+    "entry_id": "OFAC-17145",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Street Kukuevitskogo 1, Surgut, Tyumen Region"
+  },
+  {
+    "country_link_id": "OFAC-17250-c-80449814",
+    "entry_id": "OFAC-17250",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "2/3 Lakhtinsky Avenue, Bldg. 1, St. Petersburg, Russia"
+  },
+  {
+    "country_link_id": "OFAC-17250-c-ea43180a",
+    "entry_id": "OFAC-17250",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "156A Moskovsky Avenue, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-17250-c-efa54080",
+    "entry_id": "OFAC-17250",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "BOX 1255, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-17260-c-29dd558b",
+    "entry_id": "OFAC-17260",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "21 Gogolevsky Blvd., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17260-c-29dd558b",
+    "entry_id": "OFAC-17260",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "21 Gogolevsky Blvd., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17260-c-392adc28",
+    "entry_id": "OFAC-17260",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "24 Usacheva Str., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17260-c-392adc28",
+    "entry_id": "OFAC-17260",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "24 Usacheva Str., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-17284-c-88814365",
+    "entry_id": "OFAC-17284",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Nairobi, Kenya"
+  },
+  {
+    "country_link_id": "OFAC-18267-c-b68faa56",
+    "entry_id": "OFAC-18267",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "St. Magistralynaya 2, Buzuluk"
+  },
+  {
+    "country_link_id": "OFAC-18267-c-b68faa56",
+    "entry_id": "OFAC-18267",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "St. Magistralynaya 2, Buzuluk"
+  },
+  {
+    "country_link_id": "OFAC-18269-c-27b7bcf4",
+    "entry_id": "OFAC-18269",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ul. Lenina D. 4, Nizhnevartovsk"
+  },
+  {
+    "country_link_id": "OFAC-18269-c-27b7bcf4",
+    "entry_id": "OFAC-18269",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ul. Lenina D. 4, Nizhnevartovsk"
+  },
+  {
+    "country_link_id": "OFAC-18269-c-b215ff49",
+    "entry_id": "OFAC-18269",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Lenina St. 4, the Tyumen Region, Khanty-Mansiysk, Autonomous District, Nizhnevartovsk"
+  },
+  {
+    "country_link_id": "OFAC-18269-c-b215ff49",
+    "entry_id": "OFAC-18269",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Lenina St. 4, the Tyumen Region, Khanty-Mansiysk, Autonomous District, Nizhnevartovsk"
+  },
+  {
+    "country_link_id": "OFAC-18273-c-eb9101fe",
+    "entry_id": "OFAC-18273",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Nab. Presnenskaya D. 10, pom II komn 8-59, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18273-c-eb9101fe",
+    "entry_id": "OFAC-18273",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Nab. Presnenskaya D. 10, pom II komn 8-59, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18275-c-d1125cc1",
+    "entry_id": "OFAC-18275",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 14 prospekt Olimpiski, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18278-c-f37a5405",
+    "entry_id": "OFAC-18278",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 35 A ul. Partizana Zheleznyaka, Krasnoyarsk, Krasnoyarski krai"
+  },
+  {
+    "country_link_id": "OFAC-18283-c-b0559a6c",
+    "entry_id": "OFAC-18283",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "79 ul. Sadovnicheskaya, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18289-c-a54af114",
+    "entry_id": "OFAC-18289",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Korobeinikov Lane, 1, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18289-c-b41ff4cc",
+    "entry_id": "OFAC-18289",
+    "country_iso2": "GG",
+    "country_name": "Guernsey",
+    "role": "address",
+    "place": "Frances House, Sir William Place, St. Peter Port"
+  },
+  {
+    "country_link_id": "OFAC-18292-c-20cf9c70",
+    "entry_id": "OFAC-18292",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Achinsk Refinery industrial area, Bolsheuluisky district, Krasnoyarsk territory"
+  },
+  {
+    "country_link_id": "OFAC-18292-c-20cf9c70",
+    "entry_id": "OFAC-18292",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Achinsk Refinery industrial area, Bolsheuluisky district, Krasnoyarsk territory"
+  },
+  {
+    "country_link_id": "OFAC-18709-c-abf65cea",
+    "entry_id": "OFAC-18709",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "6 Vorobievskoe shosse, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18709-c-abf65cea",
+    "entry_id": "OFAC-18709",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "6 Vorobievskoe shosse, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18709-c-d85c87d5",
+    "entry_id": "OFAC-18709",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Novoivanovskoe workers settlement, Odintsovo, Moscow Region"
+  },
+  {
+    "country_link_id": "OFAC-18709-c-d85c87d5",
+    "entry_id": "OFAC-18709",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Novoivanovskoe workers settlement, Odintsovo, Moscow Region"
+  },
+  {
+    "country_link_id": "OFAC-18711-c-250cd31f",
+    "entry_id": "OFAC-18711",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "16 Lva Tolstogo ul., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18726-c-dd8c6b35",
+    "entry_id": "OFAC-18726",
+    "country_iso2": "GE",
+    "country_name": "Georgia",
+    "role": "address",
+    "place": "14, G. Chanturia Street, Tbilisi"
+  },
+  {
+    "country_link_id": "OFAC-18726-c-dd8c6b35",
+    "entry_id": "OFAC-18726",
+    "country_iso2": "GE",
+    "country_name": "Georgia",
+    "role": "address",
+    "place": "14, G. Chanturia Street, Tbilisi"
+  },
+  {
+    "country_link_id": "OFAC-18727-c-074de075",
+    "entry_id": "OFAC-18727",
+    "country_iso2": "AT",
+    "country_name": "Austria",
+    "role": "address",
+    "place": "Parking 6, PO Box 560, Vienna"
+  },
+  {
+    "country_link_id": "OFAC-18730-c-13a6eaef",
+    "entry_id": "OFAC-18730",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 52 str. 1 nab.Kosmodamianskaya, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18730-c-13a6eaef",
+    "entry_id": "OFAC-18730",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 52 str. 1 nab.Kosmodamianskaya, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18731-c-8edea3a5",
+    "entry_id": "OFAC-18731",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Room 47, office XIV, 8 Brestskaya Street, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18731-c-8edea3a5",
+    "entry_id": "OFAC-18731",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Room 47, office XIV, 8 Brestskaya Street, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18731-c-afc31b92",
+    "entry_id": "OFAC-18731",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 35 str. 1, Prospect Leningradski, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18731-c-afc31b92",
+    "entry_id": "OFAC-18731",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 35 str. 1, Prospect Leningradski, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18737-c-347c1287",
+    "entry_id": "OFAC-18737",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "23, Pravdy Street, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18737-c-347c1287",
+    "entry_id": "OFAC-18737",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "23, Pravdy Street, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18740-c-80fffaaa",
+    "entry_id": "OFAC-18740",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 35 str. 1 Etazh 5, Pomeshch. I, Kom. 129, Prospekt Leningradski, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18740-c-80fffaaa",
+    "entry_id": "OFAC-18740",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 35 str. 1 Etazh 5, Pomeshch. I, Kom. 129, Prospekt Leningradski, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18750-c-1322971c",
+    "entry_id": "OFAC-18750",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "7 ul. Pavlovskaya, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18750-c-1322971c",
+    "entry_id": "OFAC-18750",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "7 ul. Pavlovskaya, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18750-c-259e4d16",
+    "entry_id": "OFAC-18750",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "3 Poklonnaya Street, building 1, floor 1, office 3, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18750-c-259e4d16",
+    "entry_id": "OFAC-18750",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "3 Poklonnaya Street, building 1, floor 1, office 3, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18750-c-509cea19",
+    "entry_id": "OFAC-18750",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "42 Bolshaya Yakimanka St., b. 1-2, office 209, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18750-c-509cea19",
+    "entry_id": "OFAC-18750",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "42 Bolshaya Yakimanka St., b. 1-2, office 209, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18753-c-20777ccf",
+    "entry_id": "OFAC-18753",
+    "country_iso2": "LU",
+    "country_name": "Luxembourg",
+    "role": "address",
+    "place": "Boulevard Konrad Adenauer 2, Luxembourg"
+  },
+  {
+    "country_link_id": "OFAC-18753-c-20777ccf",
+    "entry_id": "OFAC-18753",
+    "country_iso2": "LU",
+    "country_name": "Luxembourg",
+    "role": "address",
+    "place": "Boulevard Konrad Adenauer 2, Luxembourg"
+  },
+  {
+    "country_link_id": "OFAC-18753-c-36c58cf9",
+    "entry_id": "OFAC-18753",
+    "country_iso2": "LU",
+    "country_name": "Luxembourg",
+    "role": "address",
+    "place": "14, rue Edward Steichen"
+  },
+  {
+    "country_link_id": "OFAC-18753-c-36c58cf9",
+    "entry_id": "OFAC-18753",
+    "country_iso2": "LU",
+    "country_name": "Luxembourg",
+    "role": "address",
+    "place": "14, rue Edward Steichen"
+  },
+  {
+    "country_link_id": "OFAC-18770-c-2bcef77c",
+    "entry_id": "OFAC-18770",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ul. Vereiskaya D. 29, Str. 141, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18770-c-2bcef77c",
+    "entry_id": "OFAC-18770",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ul. Vereiskaya D. 29, Str. 141, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18770-c-4d40052f",
+    "entry_id": "OFAC-18770",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "12 Kosmonavta Volkova, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18770-c-4d40052f",
+    "entry_id": "OFAC-18770",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "12 Kosmonavta Volkova, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18773-c-9ada5e7c",
+    "entry_id": "OFAC-18773",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "29, korp.31 ul. Ibragimova, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18773-c-df205ead",
+    "entry_id": "OFAC-18773",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "29/31 Ibragimova Street, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18774-c-b046aa1e",
+    "entry_id": "OFAC-18774",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ul. Bolshaya Tatarskaya D. 35, Str. 5, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18774-c-b046aa1e",
+    "entry_id": "OFAC-18774",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ul. Bolshaya Tatarskaya D. 35, Str. 5, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18776-c-cde148a1",
+    "entry_id": "OFAC-18776",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 40 korp. 1 ul. Narodnogo Opolcheniya, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18780-c-5411459e",
+    "entry_id": "OFAC-18780",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "2-4-6, str. 14 per. Bolshoi Savvinski, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18781-c-8a93b34f",
+    "entry_id": "OFAC-18781",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "str. 141 29 Vereiskaya ul., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18782-c-4b8168ef",
+    "entry_id": "OFAC-18782",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "27 Stromynka Ul., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18782-c-4b8168ef",
+    "entry_id": "OFAC-18782",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "27 Stromynka Ul., Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18787-c-020be713",
+    "entry_id": "OFAC-18787",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "29 / 141 Verejskaya Street, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18787-c-abb406fb",
+    "entry_id": "OFAC-18787",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Vereiskaya 29, str. 141, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18789-c-fa9d5562",
+    "entry_id": "OFAC-18789",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Street Malaya Pirogovskaya, D. 18, Bldg. 1, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18791-c-a31cb42c",
+    "entry_id": "OFAC-18791",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Per. Aviatsionniy, D. 5, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-18848-c-d1e6760a",
+    "entry_id": "OFAC-18848",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Korea, North"
+  },
+  {
+    "country_link_id": "OFAC-18848-c-f9814c54",
+    "entry_id": "OFAC-18848",
+    "country_iso2": "MM",
+    "country_name": "Burma",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-18929-c-372754dc",
+    "entry_id": "OFAC-18929",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": "Room 1501 (340), 15/F, SPA Center, 53-55 Lockhart Road, Wan Chai"
+  },
+  {
+    "country_link_id": "OFAC-18929-c-95231f65",
+    "entry_id": "OFAC-18929",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Tianhe Qu, Tianhe Bei Lu, 255 Hao, 1606 Fang, Guangzhou"
+  },
+  {
+    "country_link_id": "OFAC-18929-c-e80f6a31",
+    "entry_id": "OFAC-18929",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": "Room 1501 (340), Lockhart, Wan Chai"
+  },
+  {
+    "country_link_id": "OFAC-19471-c-355f9900",
+    "entry_id": "OFAC-19471",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "3 korp. 2 ul. Varshavskaya, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-19544-c-b8b69252",
+    "entry_id": "OFAC-19544",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 1 ul. Zvereva, Nadym, Yamalo-Nenetski a.o."
+  },
+  {
+    "country_link_id": "OFAC-19633-c-3e811e93",
+    "entry_id": "OFAC-19633",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 41 ul. Adelya Kutuya, Kazan, Tatarstan resp"
+  },
+  {
+    "country_link_id": "OFAC-19635-c-ddd7bfec",
+    "entry_id": "OFAC-19635",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 20 litera A nab. Aptekarskaya, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-19636-c-78e09447",
+    "entry_id": "OFAC-19636",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 20 ul. Respubliki, Noyabrsk, Yamalo-Nenetski a.o."
+  },
+  {
+    "country_link_id": "OFAC-19637-c-c7cf9166",
+    "entry_id": "OFAC-19637",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 8 korp. 1 ul. Stroitelei, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-19640-c-a21ec0ba",
+    "entry_id": "OFAC-19640",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 6 litera D ul. Startovaya, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-19640-c-a21ec0ba",
+    "entry_id": "OFAC-19640",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 6 litera D ul. Startovaya, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-19642-c-10267149",
+    "entry_id": "OFAC-19642",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 53 ul. Shosse Neftyanikov, Krasnodar, Krasnodarski krai"
+  },
+  {
+    "country_link_id": "OFAC-19647-c-2113810a",
+    "entry_id": "OFAC-19647",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 9 prospekt Frunze, Tomsk, Tomskaya obl."
+  },
+  {
+    "country_link_id": "OFAC-19674-c-dc6cbabe",
+    "entry_id": "OFAC-19674",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 106 A str. 1 ul. Novo-Sadovaya, Samara, Samarskaya obl."
+  },
+  {
+    "country_link_id": "OFAC-19685-c-c8a57fc4",
+    "entry_id": "OFAC-19685",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 103 prospekt Kurortny, Sochi, Krasnodarski krai"
+  },
+  {
+    "country_link_id": "OFAC-19688-c-068db00b",
+    "entry_id": "OFAC-19688",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 1 ul. Solnechnaya S. Ilinka, Khabarovski Raion Khabarovski krai"
+  },
+  {
+    "country_link_id": "OFAC-19989-c-7bdc6a5e",
+    "entry_id": "OFAC-19989",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 40, ul. Dolgorukovskaya, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-19992-c-713c8715",
+    "entry_id": "OFAC-19992",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ulitsa Yunnatov, Dom 3, Liter A, Ofis 15, Saint Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-20002-c-773c2950",
+    "entry_id": "OFAC-20002",
+    "country_iso2": "UA",
+    "country_name": "Ukraine",
+    "role": "address",
+    "place": "37/122 T. Shevchenko bld, Kyiv"
+  },
+  {
+    "country_link_id": "OFAC-20007-c-9ca35615",
+    "entry_id": "OFAC-20007",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "8/15 str. 3 ul. Rozhdestvenka, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-20295-c-76d1a347",
+    "entry_id": "OFAC-20295",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Obrucheva Street, Building 27, Corpus 2, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-20301-c-840d88d7",
+    "entry_id": "OFAC-20301",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Vavilova Street, Building 52, Corpus 2, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-20301-c-a85abc98",
+    "entry_id": "OFAC-20301",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Yaroslavskaya Street, Building 50, Room 208, Uglich, Yaroslav Oblast"
+  },
+  {
+    "country_link_id": "OFAC-20303-c-3bcf5931",
+    "entry_id": "OFAC-20303",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "D. 14 Pr Kolomenski, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-20603-c-625e74c7",
+    "entry_id": "OFAC-20603",
+    "country_iso2": "KP",
+    "country_name": "Korea, North",
+    "role": "address",
+    "place": "Pyongyang"
+  },
+  {
+    "country_link_id": "OFAC-20621-c-01f5fe61",
+    "entry_id": "OFAC-20621",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "3 per. Gagarinski, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-20621-c-36bd0b74",
+    "entry_id": "OFAC-20621",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "3 Gagarinsky Pereulok, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-20665-c-0987845a",
+    "entry_id": "OFAC-20665",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "115 Konshinykh Str., Ladogskaya Village, Ust-Labinskiy District, Krasnodar Region"
+  },
+  {
+    "country_link_id": "OFAC-20665-c-3598dd6e",
+    "entry_id": "OFAC-20665",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "115 ul. Konshinykh Stanitsa Ladozhskaya, Ust-Labinski Raion, Krasnodarski Kr."
+  },
+  {
+    "country_link_id": "OFAC-20669-c-17d58c92",
+    "entry_id": "OFAC-20669",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "1 Sadovaya Str., Arkhangelskaya Village, Tikhoretskiy District, Krasnodar Region"
+  },
+  {
+    "country_link_id": "OFAC-20669-c-a9638746",
+    "entry_id": "OFAC-20669",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "1 ul. Sadovaya Stanitsa Arkhangelskaya, Tikhoretski Raion, Krasnodarski Kr."
+  },
+  {
+    "country_link_id": "OFAC-20671-c-2ee152a2",
+    "entry_id": "OFAC-20671",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "1 Mira Str., Kubanskiy Village, Novopokrovskiy District, Krasnodar Region"
+  },
+  {
+    "country_link_id": "OFAC-20671-c-9f76b85e",
+    "entry_id": "OFAC-20671",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "1 ul. Mira Pos. Kubanski, Novopokrovski Raion, Krasnodarski Kr."
+  },
+  {
+    "country_link_id": "OFAC-20678-c-a460996b",
+    "entry_id": "OFAC-20678",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 7 Litera A ul. Paradnaya, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-20679-c-595ca6b0",
+    "entry_id": "OFAC-20679",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "D. Limbei, Purovski Raion, Yamalo-Nenetski Okr."
+  },
+  {
+    "country_link_id": "OFAC-20684-c-c5132c75",
+    "entry_id": "OFAC-20684",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "9 ul. Respubliki, Salekhard, Yamalo-Nenetski Okr."
+  },
+  {
+    "country_link_id": "OFAC-20685-c-a4bff2e0",
+    "entry_id": "OFAC-20685",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "37 ul. Lesnaya, Kostroma, Kostromskaya Obl."
+  },
+  {
+    "country_link_id": "OFAC-20903-c-0c95e8fd",
+    "entry_id": "OFAC-20903",
+    "country_iso2": "CO",
+    "country_name": "Colombia",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-20903-c-fb9b2730",
+    "entry_id": "OFAC-20903",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Corinto, Cauca, Colombia"
+  },
+  {
+    "country_link_id": "OFAC-21096-c-2b3a6bd8",
+    "entry_id": "OFAC-21096",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "KM 1.5 Carretera San Julian a San Miguel El Alto, San Julian, Jalisco"
+  },
+  {
+    "country_link_id": "OFAC-21096-c-77a35201",
+    "entry_id": "OFAC-21096",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "KM 39 700 Carretera Jalostotitlan, San Julian, San Miguel El Alto, Jalisco"
+  },
+  {
+    "country_link_id": "OFAC-21096-c-f594eff4",
+    "entry_id": "OFAC-21096",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Carretera Jalostotitlan San Julian KM 39.70, San Miguel El Alto, Jalisco"
+  },
+  {
+    "country_link_id": "OFAC-21096-c-f6e7a25d",
+    "entry_id": "OFAC-21096",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Guadalajara, Jalisco"
+  },
+  {
+    "country_link_id": "OFAC-21123-c-5c75bb07",
+    "entry_id": "OFAC-21123",
+    "country_iso2": "SY",
+    "country_name": "Syria",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-21123-c-dacffca4",
+    "entry_id": "OFAC-21123",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Albu Kamal, Syria"
+  },
+  {
+    "country_link_id": "OFAC-22383-c-5c4165b2",
+    "entry_id": "OFAC-22383",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 24 korp. 1 ul. Vavilova, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-22389-c-5d166aa6",
+    "entry_id": "OFAC-22389",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "10 ul. Krupskoi, Ufa, Bashkortostan Resp."
+  },
+  {
+    "country_link_id": "OFAC-22397-c-d9681fba",
+    "entry_id": "OFAC-22397",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 12 str. 2 ul. Nametkina, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-22408-c-78970aad",
+    "entry_id": "OFAC-22408",
+    "country_iso2": "UA",
+    "country_name": "Ukraine",
+    "role": "address",
+    "place": "Luhansk"
+  },
+  {
+    "country_link_id": "OFAC-22524-c-73aa9705",
+    "entry_id": "OFAC-22524",
+    "country_iso2": "SY",
+    "country_name": "Syria",
+    "role": "address",
+    "place": "Raqqa"
+  },
+  {
+    "country_link_id": "OFAC-22524-c-80f14478",
+    "entry_id": "OFAC-22524",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Morocco"
+  },
+  {
+    "country_link_id": "OFAC-22524-c-8b880846",
+    "entry_id": "OFAC-22524",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Belgium"
+  },
+  {
+    "country_link_id": "OFAC-22524-c-e5ce0af1",
+    "entry_id": "OFAC-22524",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Belgium"
+  },
+  {
+    "country_link_id": "OFAC-22605-c-95c0a991",
+    "entry_id": "OFAC-22605",
+    "country_iso2": "SG",
+    "country_name": "Singapore",
+    "role": "address",
+    "place": "10 Anson Road, #29-05A, International Plaza"
+  },
+  {
+    "country_link_id": "OFAC-22689-c-29d7b6ab",
+    "entry_id": "OFAC-22689",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iran"
+  },
+  {
+    "country_link_id": "OFAC-22689-c-eb9e8d48",
+    "entry_id": "OFAC-22689",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Qom, Iran"
+  },
+  {
+    "country_link_id": "OFAC-23189-c-2672352c",
+    "entry_id": "OFAC-23189",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Malta"
+  },
+  {
+    "country_link_id": "OFAC-23189-c-31e1fe82",
+    "entry_id": "OFAC-23189",
+    "country_iso2": "MT",
+    "country_name": "Malta",
+    "role": "address",
+    "place": "3 Saint Joseph, Saint Anthony Street, San Gwann"
+  },
+  {
+    "country_link_id": "OFAC-23189-c-9cb58a94",
+    "entry_id": "OFAC-23189",
+    "country_iso2": "MT",
+    "country_name": "Malta",
+    "role": "address",
+    "place": "22 Mensija St., San Gwann"
+  },
+  {
+    "country_link_id": "OFAC-23189-c-c4cb2517",
+    "entry_id": "OFAC-23189",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Malta"
+  },
+  {
+    "country_link_id": "OFAC-23204-c-de4c96c8",
+    "entry_id": "OFAC-23204",
+    "country_iso2": "MT",
+    "country_name": "Malta",
+    "role": "address",
+    "place": "8, Boat Street Marsamxett, Valletta"
+  },
+  {
+    "country_link_id": "OFAC-23305-c-164941fa",
+    "entry_id": "OFAC-23305",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "New Jeshwang, Kanifang Municipality, The Gambia"
+  },
+  {
+    "country_link_id": "OFAC-23305-c-5cb6d4d3",
+    "entry_id": "OFAC-23305",
+    "country_iso2": "GM",
+    "country_name": "The Gambia",
+    "role": "address",
+    "place": "Banjul"
+  },
+  {
+    "country_link_id": "OFAC-23445-c-05692f9f",
+    "entry_id": "OFAC-23445",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "United Kingdom"
+  },
+  {
+    "country_link_id": "OFAC-23445-c-2643d6bd",
+    "entry_id": "OFAC-23445",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Edmonton, London, United Kingdom"
+  },
+  {
+    "country_link_id": "OFAC-23445-c-5c75bb07",
+    "entry_id": "OFAC-23445",
+    "country_iso2": "SY",
+    "country_name": "Syria",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-23445-c-912d93df",
+    "entry_id": "OFAC-23445",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-23507-c-3556de48",
+    "entry_id": "OFAC-23507",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Zhuhai"
+  },
+  {
+    "country_link_id": "OFAC-23507-c-831a4215",
+    "entry_id": "OFAC-23507",
+    "country_iso2": "KP",
+    "country_name": "Korea, North",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-23552-c-a771e7b8",
+    "entry_id": "OFAC-23552",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "D. 94, Obvodnogo Kanala, nab, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-23552-c-a771e7b8",
+    "entry_id": "OFAC-23552",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "D. 94, Obvodnogo Kanala, nab, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-23552-c-cf8ded54",
+    "entry_id": "OFAC-23552",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "registered_in",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-23552-c-cf8ded54",
+    "entry_id": "OFAC-23552",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "registered_in",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-23557-c-a4e2532f",
+    "entry_id": "OFAC-23557",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "17, Bld 1, Zubovsky Boulevard, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-23557-c-cf8ded54",
+    "entry_id": "OFAC-23557",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "registered_in",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-23562-c-5e3cd661",
+    "entry_id": "OFAC-23562",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 20 Germana Ulitsa, Veliky Novgorod, Novgorodskaya Oblast"
+  },
+  {
+    "country_link_id": "OFAC-23562-c-5e3cd661",
+    "entry_id": "OFAC-23562",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 20 Germana Ulitsa, Veliky Novgorod, Novgorodskaya Oblast"
+  },
+  {
+    "country_link_id": "OFAC-23562-c-cf8ded54",
+    "entry_id": "OFAC-23562",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "registered_in",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-23562-c-cf8ded54",
+    "entry_id": "OFAC-23562",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "registered_in",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-23566-c-8f3ebb6c",
+    "entry_id": "OFAC-23566",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d. 81 Sovetskaya Ulitsa, S. Chervichevsky, Tyumensky Rayon, Tyumenskaya Oblast"
+  },
+  {
+    "country_link_id": "OFAC-23566-c-cf8ded54",
+    "entry_id": "OFAC-23566",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "registered_in",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-23571-c-cf8ded54",
+    "entry_id": "OFAC-23571",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "registered_in",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-23571-c-f8913cbc",
+    "entry_id": "OFAC-23571",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "9/1 Lermontova Ulitsa, Surgut"
+  },
+  {
+    "country_link_id": "OFAC-23718-c-81f6b41c",
+    "entry_id": "OFAC-23718",
+    "country_iso2": "KP",
+    "country_name": "Korea, North",
+    "role": "address",
+    "place": "Sonnae-dong, Mangyongdae-guyok, Pyongyang"
+  },
+  {
+    "country_link_id": "OFAC-23725-c-0a590e80",
+    "entry_id": "OFAC-23725",
+    "country_iso2": "KP",
+    "country_name": "Korea, North",
+    "role": "address",
+    "place": "Jongbaek 1-dong, Rakrang-guyok, Pyongyang"
+  },
+  {
+    "country_link_id": "OFAC-23946-c-042062de",
+    "entry_id": "OFAC-23946",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-24395-c-b11fd5e1",
+    "entry_id": "OFAC-24395",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Mahan Air Tower, Azadegn Street, Karaj Highway, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-05792c91",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Al Mansour Branch Baghdad, Al Mansour-12-G 605-M-Bldg, Baghdad"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-3a2cb387",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Al Sadr Branch, Jameela District - 8-22-512, Sadr City"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-48a18785",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Al Najaf Branch, Al Najaf Al Ashraf, Al Amir District - Al Koufa Street, Najaf"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-50b452fe",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Zakho Branch Dahook, Zakho - Ibrahim Al Khaleel Street, Baydar Boulevard, Zakho"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-5dadde10",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Al Masbah Branch, Baghdad Al Masbah Intersection, 929 Street 17 Bldg. 40, Previously the German Embassy, Baghdad"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-74d02b95",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Al Jaderya Branch Baghdad, Al Jaderya - Versus Baghdad University, 906 Street 28 - Dar 3, Baghdad"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-b129a736",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "LB",
+    "country_name": "Lebanon",
+    "role": "address",
+    "place": "Beirut Branch Lebanon, Beirut - Hamra Street, Broadway Center - Versus Costa Caf, Lebanon, Beirut"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-b33d08a8",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Babel Branch Babel, Kalaj - Al Honood Branch, Babel"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-b93497df",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Erbil Branch, Erbil Province, 60 Bldg 354/132, 45 Street, Erbil"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-ba425576",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Al Mawarid Branch, Baghdad - Street 62 Neighboring the Department of Electricity, Baghdad"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-bfaf5128",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Karbala Branch Karbala, Al Dareeba Intersection, Karbala"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-dd6be3be",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "37 Building El-Karadeh 909 Street 1 Near Al Hurea Square, Baghdad"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-e1289d77",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Al Nasiryah Branch, Zi Kar Province El Saray, Bldg. 2/239 Janat Al Janoub Hotel Building, Nasiryah"
+  },
+  {
+    "country_link_id": "OFAC-24545-c-f3b724bf",
+    "entry_id": "OFAC-24545",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Al Basra Branch Al Basra, Manawy Pasha Corniche Street, Basra"
+  },
+  {
+    "country_link_id": "OFAC-25042-c-15ba4777",
+    "entry_id": "OFAC-25042",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "No. 48, 14th Street, Ahmad Ghasir Avenue, Argentina Square, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-25311-c-5bbf3ece",
+    "entry_id": "OFAC-25311",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "other",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-25382-c-5bbf3ece",
+    "entry_id": "OFAC-25382",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "other",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-25396-c-624442f7",
+    "entry_id": "OFAC-25396",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "No 523, Al Seman Tower Building, No 8: Narenjestan, Laveltani Street, Sayya Shirazi Square, Pasdaran Street, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-25396-c-6393b908",
+    "entry_id": "OFAC-25396",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Asseman Tower, Pasdaran Street, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-25396-c-7d566b45",
+    "entry_id": "OFAC-25396",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "No 37 Aseman Tower Sayyade Shirazee Square, Pasdaran Avenue, PO Box 19395-1311, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-25396-c-ae8205be",
+    "entry_id": "OFAC-25396",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "P.O. Box 19395-177, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-25396-c-fe631328",
+    "entry_id": "OFAC-25396",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "P.O. Box 1957614114, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-25890-c-d16a5a5d",
+    "entry_id": "OFAC-25890",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-26417-c-8eacf8e8",
+    "entry_id": "OFAC-26417",
+    "country_iso2": "VE",
+    "country_name": "Venezuela",
+    "role": "address",
+    "place": "Apure"
+  },
+  {
+    "country_link_id": "OFAC-26837-c-77de0d81",
+    "entry_id": "OFAC-26837",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Afar Blvd - Below Shahid Hemmat Bridge - Ninth Gandhi Side - Building No. 2 Petrochemical Company - First Floor, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-26837-c-94bdcab7",
+    "entry_id": "OFAC-26837",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Ilam - Chawar - Ilam Petrochemical Complex"
+  },
+  {
+    "country_link_id": "OFAC-26997-c-8ba95aea",
+    "entry_id": "OFAC-26997",
+    "country_iso2": "AE",
+    "country_name": "United Arab Emirates",
+    "role": "address",
+    "place": "Dubai"
+  },
+  {
+    "country_link_id": "OFAC-27247-c-0c95e8fd",
+    "entry_id": "OFAC-27247",
+    "country_iso2": "CO",
+    "country_name": "Colombia",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-27247-c-cf2eb6e4",
+    "entry_id": "OFAC-27247",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Colombia"
+  },
+  {
+    "country_link_id": "OFAC-27853-c-1154199e",
+    "entry_id": "OFAC-27853",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Mamazand, Varamin, Tehran, Iran"
+  },
+  {
+    "country_link_id": "OFAC-27853-c-29d7b6ab",
+    "entry_id": "OFAC-27853",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iran"
+  },
+  {
+    "country_link_id": "OFAC-27853-c-d16a5a5d",
+    "entry_id": "OFAC-27853",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-28230-c-2b217146",
+    "entry_id": "OFAC-28230",
+    "country_iso2": "VE",
+    "country_name": "Venezuela",
+    "role": "address",
+    "place": "Avenida Intercomunal, Edificio Sede, Sector 6.3, Maiquetia, Distrito Federal"
+  },
+  {
+    "country_link_id": "OFAC-28230-c-ad8ff0ae",
+    "entry_id": "OFAC-28230",
+    "country_iso2": "VE",
+    "country_name": "Venezuela",
+    "role": "address",
+    "place": "Avenida Lecuna Torre Oeste Piso 49, Libertador, Caracas"
+  },
+  {
+    "country_link_id": "OFAC-28525-c-59993efc",
+    "entry_id": "OFAC-28525",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Nicaragua"
+  },
+  {
+    "country_link_id": "OFAC-28525-c-8dc80316",
+    "entry_id": "OFAC-28525",
+    "country_iso2": "NI",
+    "country_name": "Nicaragua",
+    "role": "address",
+    "place": "Villa Progreso 1 Arr, Managua"
+  },
+  {
+    "country_link_id": "OFAC-28525-c-b1bdb471",
+    "entry_id": "OFAC-28525",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Matagalpa, Nicaragua"
+  },
+  {
+    "country_link_id": "OFAC-29220-c-6a0e36a3",
+    "entry_id": "OFAC-29220",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Xinjiang"
+  },
+  {
+    "country_link_id": "OFAC-29220-c-e474c1b1",
+    "entry_id": "OFAC-29220",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Pingyu, Henan, China"
+  },
+  {
+    "country_link_id": "OFAC-29242-c-171e01af",
+    "entry_id": "OFAC-29242",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": "1 Arsenal Street"
+  },
+  {
+    "country_link_id": "OFAC-29242-c-99e0e217",
+    "entry_id": "OFAC-29242",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-29242-c-a0dc0fa7",
+    "entry_id": "OFAC-29242",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-29243-c-73a305eb",
+    "entry_id": "OFAC-29243",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": "House No. 4, Villa De Mer, 5 Lok Chui Street, Tuen Mun"
+  },
+  {
+    "country_link_id": "OFAC-29243-c-99e0e217",
+    "entry_id": "OFAC-29243",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-29243-c-a0dc0fa7",
+    "entry_id": "OFAC-29243",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-29246-c-6ffecefc",
+    "entry_id": "OFAC-29246",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": "Flat 5F, Block 6, New Jade Gardens, Chaiwan"
+  },
+  {
+    "country_link_id": "OFAC-29246-c-99e0e217",
+    "entry_id": "OFAC-29246",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-29246-c-a0dc0fa7",
+    "entry_id": "OFAC-29246",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-29249-c-85910847",
+    "entry_id": "OFAC-29249",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": "Victoria House, No. 15 Barker Road, The Peak"
+  },
+  {
+    "country_link_id": "OFAC-29249-c-99e0e217",
+    "entry_id": "OFAC-29249",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-29249-c-a0dc0fa7",
+    "entry_id": "OFAC-29249",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-29250-c-58de17ae",
+    "entry_id": "OFAC-29250",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": "Flat A, 5/F, Block 2, King's Park Villa, No. 1 King's Park Rise, Homantin, Kowloon"
+  },
+  {
+    "country_link_id": "OFAC-29259-c-0fa00701",
+    "entry_id": "OFAC-29259",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-29259-c-b1f9dd57",
+    "entry_id": "OFAC-29259",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-29259-c-bdc025e8",
+    "entry_id": "OFAC-29259",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Taizhou, China"
+  },
+  {
+    "country_link_id": "OFAC-29260-c-997e7ea8",
+    "entry_id": "OFAC-29260",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": "Flat F, 20 Floor, Block 2, Royal Ascot, Shatin"
+  },
+  {
+    "country_link_id": "OFAC-29260-c-99e0e217",
+    "entry_id": "OFAC-29260",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-29260-c-a0dc0fa7",
+    "entry_id": "OFAC-29260",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-29261-c-811a098c",
+    "entry_id": "OFAC-29261",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Apt 608, 50 Huali Road, Guangzhou, Guangdong"
+  },
+  {
+    "country_link_id": "OFAC-29261-c-b1f9dd57",
+    "entry_id": "OFAC-29261",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-29261-c-d0051414",
+    "entry_id": "OFAC-29261",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Shantou, China"
+  },
+  {
+    "country_link_id": "OFAC-29263-c-6ce49f32",
+    "entry_id": "OFAC-29263",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-29263-c-90a23662",
+    "entry_id": "OFAC-29263",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Dangtu, China"
+  },
+  {
+    "country_link_id": "OFAC-29263-c-b1f9dd57",
+    "entry_id": "OFAC-29263",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-30322-c-633aba56",
+    "entry_id": "OFAC-30322",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Hong Kong, China"
+  },
+  {
+    "country_link_id": "OFAC-30322-c-b1f9dd57",
+    "entry_id": "OFAC-30322",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-30322-c-da68a2e1",
+    "entry_id": "OFAC-30322",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-30343-c-633aba56",
+    "entry_id": "OFAC-30343",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Hong Kong, China"
+  },
+  {
+    "country_link_id": "OFAC-30343-c-b1f9dd57",
+    "entry_id": "OFAC-30343",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-30343-c-d27bbdaa",
+    "entry_id": "OFAC-30343",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Flat B, 22 Floor, Block 30, Laguna City, Lam Tin, Kowloon City, Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-30504-c-004880d9",
+    "entry_id": "OFAC-30504",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-30504-c-0d9ac75f",
+    "entry_id": "OFAC-30504",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Beijing"
+  },
+  {
+    "country_link_id": "OFAC-30504-c-6206a818",
+    "entry_id": "OFAC-30504",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Shanghai, China"
+  },
+  {
+    "country_link_id": "OFAC-30507-c-004880d9",
+    "entry_id": "OFAC-30507",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-30507-c-0d9ac75f",
+    "entry_id": "OFAC-30507",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Beijing"
+  },
+  {
+    "country_link_id": "OFAC-30507-c-5fbc60ae",
+    "entry_id": "OFAC-30507",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Mengjin County, Henan Province, China"
+  },
+  {
+    "country_link_id": "OFAC-30508-c-004880d9",
+    "entry_id": "OFAC-30508",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-30508-c-0d9ac75f",
+    "entry_id": "OFAC-30508",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Beijing"
+  },
+  {
+    "country_link_id": "OFAC-30508-c-70631e28",
+    "entry_id": "OFAC-30508",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Yengisar County, Xinjiang Uyghur Autonomous Region, China"
+  },
+  {
+    "country_link_id": "OFAC-30510-c-004880d9",
+    "entry_id": "OFAC-30510",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-30510-c-0d9ac75f",
+    "entry_id": "OFAC-30510",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Beijing"
+  },
+  {
+    "country_link_id": "OFAC-30510-c-6206a818",
+    "entry_id": "OFAC-30510",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Shanghai, China"
+  },
+  {
+    "country_link_id": "OFAC-30510-c-76ba89c4",
+    "entry_id": "OFAC-30510",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Zhenjiang City, Jiangsu Province, China"
+  },
+  {
+    "country_link_id": "OFAC-30512-c-004880d9",
+    "entry_id": "OFAC-30512",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-30512-c-0d9ac75f",
+    "entry_id": "OFAC-30512",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Beijing"
+  },
+  {
+    "country_link_id": "OFAC-30512-c-6c9ec9d2",
+    "entry_id": "OFAC-30512",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Dengqen County, Changdu, Tibet Autonomous Region, China"
+  },
+  {
+    "country_link_id": "OFAC-30516-c-004880d9",
+    "entry_id": "OFAC-30516",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-30516-c-0d9ac75f",
+    "entry_id": "OFAC-30516",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Beijing"
+  },
+  {
+    "country_link_id": "OFAC-30516-c-a760840e",
+    "entry_id": "OFAC-30516",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Linfen, Shanxi Province, China"
+  },
+  {
+    "country_link_id": "OFAC-30745-c-9b4151e4",
+    "entry_id": "OFAC-30745",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "United Kingdom"
+  },
+  {
+    "country_link_id": "OFAC-30745-c-b4e81183",
+    "entry_id": "OFAC-30745",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Syria"
+  },
+  {
+    "country_link_id": "OFAC-30745-c-f1160037",
+    "entry_id": "OFAC-30745",
+    "country_iso2": "GB",
+    "country_name": "United Kingdom",
+    "role": "address",
+    "place": "34 Allan Way, London"
+  },
+  {
+    "country_link_id": "OFAC-30885-c-39c0aece",
+    "entry_id": "OFAC-30885",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iraq"
+  },
+  {
+    "country_link_id": "OFAC-30885-c-d16a5a5d",
+    "entry_id": "OFAC-30885",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-30885-c-e57d4ff7",
+    "entry_id": "OFAC-30885",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Kirkuk, Iraq"
+  },
+  {
+    "country_link_id": "OFAC-30934-c-90aed9ea",
+    "entry_id": "OFAC-30934",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Shenzhou Technology Mansion, 12th Floor, 31, Zhongguancun South Avenue, Beijing"
+  },
+  {
+    "country_link_id": "OFAC-30934-c-a98d85b2",
+    "entry_id": "OFAC-30934",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "12F Shenzhou Building, 31 Zhongguanchun South Street, Haidian District, Beijing"
+  },
+  {
+    "country_link_id": "OFAC-30958-c-bead5482",
+    "entry_id": "OFAC-30958",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "No. 12 Chegongzhuang Avenue, Xicheng District, Beijing"
+  },
+  {
+    "country_link_id": "OFAC-30964-c-6ce49f32",
+    "entry_id": "OFAC-30964",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-30964-c-99e0e217",
+    "entry_id": "OFAC-30964",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-30964-c-a0dc0fa7",
+    "entry_id": "OFAC-30964",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-30965-c-6ce49f32",
+    "entry_id": "OFAC-30965",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-30965-c-99e0e217",
+    "entry_id": "OFAC-30965",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-30965-c-a0dc0fa7",
+    "entry_id": "OFAC-30965",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-30966-c-6ce49f32",
+    "entry_id": "OFAC-30966",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-30966-c-99e0e217",
+    "entry_id": "OFAC-30966",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-30966-c-a0dc0fa7",
+    "entry_id": "OFAC-30966",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-30967-c-004880d9",
+    "entry_id": "OFAC-30967",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-30967-c-205669ed",
+    "entry_id": "OFAC-30967",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Shijiazhuang City, Hebei Province, China"
+  },
+  {
+    "country_link_id": "OFAC-30967-c-6ce49f32",
+    "entry_id": "OFAC-30967",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-30968-c-0d9ac75f",
+    "entry_id": "OFAC-30968",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Beijing"
+  },
+  {
+    "country_link_id": "OFAC-30968-c-b1f9dd57",
+    "entry_id": "OFAC-30968",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-30968-c-e06c1ab2",
+    "entry_id": "OFAC-30968",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Lulong County, Hebei Province, China"
+  },
+  {
+    "country_link_id": "OFAC-30969-c-004880d9",
+    "entry_id": "OFAC-30969",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-30969-c-0fa00701",
+    "entry_id": "OFAC-30969",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-30969-c-6ce49f32",
+    "entry_id": "OFAC-30969",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-30969-c-99e0e217",
+    "entry_id": "OFAC-30969",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-32056-c-90031bae",
+    "entry_id": "OFAC-32056",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "1, Lingbei Street, Huanggu District, Shenyang"
+  },
+  {
+    "country_link_id": "OFAC-32073-c-85bc786a",
+    "entry_id": "OFAC-32073",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Block 1, Aerospace Communications Mansion, 138, Jiefang Road, Hangzhou"
+  },
+  {
+    "country_link_id": "OFAC-32337-c-5c75bb07",
+    "entry_id": "OFAC-32337",
+    "country_iso2": "SY",
+    "country_name": "Syria",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-32337-c-7ca8aa03",
+    "entry_id": "OFAC-32337",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Jableh, Beit Yashout, Syria"
+  },
+  {
+    "country_link_id": "OFAC-32337-c-b4e81183",
+    "entry_id": "OFAC-32337",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Syria"
+  },
+  {
+    "country_link_id": "OFAC-32471-c-004880d9",
+    "entry_id": "OFAC-32471",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-32471-c-6ce49f32",
+    "entry_id": "OFAC-32471",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-32471-c-8f9c5fd5",
+    "entry_id": "OFAC-32471",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Luoyuan, Fuzhou, Fujian Province, China"
+  },
+  {
+    "country_link_id": "OFAC-32475-c-004880d9",
+    "entry_id": "OFAC-32475",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-32475-c-6ce49f32",
+    "entry_id": "OFAC-32475",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-32475-c-d4e59a32",
+    "entry_id": "OFAC-32475",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Chaling County, Zhuzhou, Hunan Province, China"
+  },
+  {
+    "country_link_id": "OFAC-32477-c-004880d9",
+    "entry_id": "OFAC-32477",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-32477-c-35641e51",
+    "entry_id": "OFAC-32477",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Shengzhou, Zhejiang Province, China"
+  },
+  {
+    "country_link_id": "OFAC-32477-c-6ce49f32",
+    "entry_id": "OFAC-32477",
+    "country_iso2": "HK",
+    "country_name": "Hong Kong",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-33111-c-45207ae2",
+    "entry_id": "OFAC-33111",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "14 F, West Block of Skyworth Semiconductor Design Building, No. 18 Gaoxin South 4th Road, Nanshan District, Shenzhen, Guangdong"
+  },
+  {
+    "country_link_id": "OFAC-33113-c-880d9e69",
+    "entry_id": "OFAC-33113",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Zhongguancun Software Park, Sugon Building 36, 8, Dongbeiwang West Road, Haidian District, Beijing"
+  },
+  {
+    "country_link_id": "OFAC-33701-c-c8b47db8",
+    "entry_id": "OFAC-33701",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "other",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-34119-c-6a0e36a3",
+    "entry_id": "OFAC-34119",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Xinjiang"
+  },
+  {
+    "country_link_id": "OFAC-34119-c-adf0b19e",
+    "entry_id": "OFAC-34119",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Aksu, Xinjiang, China"
+  },
+  {
+    "country_link_id": "OFAC-34119-c-b1f9dd57",
+    "entry_id": "OFAC-34119",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-35199-c-d47989cd",
+    "entry_id": "OFAC-35199",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Georgievskiy Prospekt, 5, Zelenograd, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-35299-c-1ec38a14",
+    "entry_id": "OFAC-35299",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Turkey"
+  },
+  {
+    "country_link_id": "OFAC-35299-c-25efc6f3",
+    "entry_id": "OFAC-35299",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Antwerp, Belgium"
+  },
+  {
+    "country_link_id": "OFAC-35299-c-93782247",
+    "entry_id": "OFAC-35299",
+    "country_iso2": "AE",
+    "country_name": "United Arab Emirates",
+    "role": "address",
+    "place": "Villa 39, Frond N, The Palm Jumeirah, Dubai"
+  },
+  {
+    "country_link_id": "OFAC-35299-c-e3a30a9d",
+    "entry_id": "OFAC-35299",
+    "country_iso2": "AE",
+    "country_name": "United Arab Emirates",
+    "role": "address",
+    "place": "The Palm Jumeirah 0-35, 65919, Dubai"
+  },
+  {
+    "country_link_id": "OFAC-35299-c-e5ce0af1",
+    "entry_id": "OFAC-35299",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Belgium"
+  },
+  {
+    "country_link_id": "OFAC-35318-c-9c5a5c6d",
+    "entry_id": "OFAC-35318",
+    "country_iso2": "AE",
+    "country_name": "United Arab Emirates",
+    "role": "address",
+    "place": "P.O. Box 64701, Dubai"
+  },
+  {
+    "country_link_id": "OFAC-35318-c-ab7d70df",
+    "entry_id": "OFAC-35318",
+    "country_iso2": "AE",
+    "country_name": "United Arab Emirates",
+    "role": "address",
+    "place": "Al Qusais Industrial 5, Dubai"
+  },
+  {
+    "country_link_id": "OFAC-35318-c-f2a39e9a",
+    "entry_id": "OFAC-35318",
+    "country_iso2": "AE",
+    "country_name": "United Arab Emirates",
+    "role": "address",
+    "place": "Plot No. 248-384, Dubai"
+  },
+  {
+    "country_link_id": "OFAC-35376-c-41160e31",
+    "entry_id": "OFAC-35376",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Room 2-25A, Building 1#, No. 27, Huli Road, Mawei District, Fujian, Fuzhou"
+  },
+  {
+    "country_link_id": "OFAC-35547-c-042062de",
+    "entry_id": "OFAC-35547",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-35547-c-b37e3bcf",
+    "entry_id": "OFAC-35547",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-35754-c-e8a21ff4",
+    "entry_id": "OFAC-35754",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ul. Russkaya D. 19, V, Vladivostok"
+  },
+  {
+    "country_link_id": "OFAC-35799-c-3f37ed7f",
+    "entry_id": "OFAC-35799",
+    "country_iso2": "SM",
+    "country_name": "San Marino",
+    "role": "address",
+    "place": "Via Consiglio dei Sessanta, 99, Dogana"
+  },
+  {
+    "country_link_id": "OFAC-35860-c-02e89f4b",
+    "entry_id": "OFAC-35860",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ul. Garshina D. 26/3, Lyubertsy, Tomilino"
+  },
+  {
+    "country_link_id": "OFAC-36073-c-0f1020ec",
+    "entry_id": "OFAC-36073",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Ankara, Turkey"
+  },
+  {
+    "country_link_id": "OFAC-36073-c-126446c9",
+    "entry_id": "OFAC-36073",
+    "country_iso2": "TR",
+    "country_name": "Turkey",
+    "role": "address",
+    "place": "Bahcekoy Mah Ihlamur Sk N4 Bahcekoy Sariyer, Istanbul"
+  },
+  {
+    "country_link_id": "OFAC-36073-c-1ec38a14",
+    "entry_id": "OFAC-36073",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Turkey"
+  },
+  {
+    "country_link_id": "OFAC-36073-c-28114cc4",
+    "entry_id": "OFAC-36073",
+    "country_iso2": "TR",
+    "country_name": "Turkey",
+    "role": "address",
+    "place": "Resit Pasa Birgul Mh Denizbank Ust Sit Yol Sk N29 Istinye, Istanbul"
+  },
+  {
+    "country_link_id": "OFAC-36073-c-793db9d5",
+    "entry_id": "OFAC-36073",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Turkey"
+  },
+  {
+    "country_link_id": "OFAC-36405-c-042062de",
+    "entry_id": "OFAC-36405",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-36405-c-2863d172",
+    "entry_id": "OFAC-36405",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "New York, United States"
+  },
+  {
+    "country_link_id": "OFAC-36405-c-b37e3bcf",
+    "entry_id": "OFAC-36405",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-36419-c-01ec6c10",
+    "entry_id": "OFAC-36419",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Room 1N, 68 letter N Bolshoy Sampsonievskiy Ave, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-36419-c-01ec6c10",
+    "entry_id": "OFAC-36419",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Room 1N, 68 letter N Bolshoy Sampsonievskiy Ave, St. Petersburg"
+  },
+  {
+    "country_link_id": "OFAC-36867-c-042062de",
+    "entry_id": "OFAC-36867",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-36867-c-b37e3bcf",
+    "entry_id": "OFAC-36867",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-37044-c-ea8617e7",
+    "entry_id": "OFAC-37044",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "other",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-37790-c-fa129e15",
+    "entry_id": "OFAC-37790",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Berezhkovskaya Nab D. 38 G, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-38284-c-17b066f9",
+    "entry_id": "OFAC-38284",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Mariupol, Ukraine"
+  },
+  {
+    "country_link_id": "OFAC-38284-c-5dfaf235",
+    "entry_id": "OFAC-38284",
+    "country_iso2": "UA",
+    "country_name": "Ukraine",
+    "role": "address",
+    "place": "Mariupol"
+  },
+  {
+    "country_link_id": "OFAC-38284-c-693f5c44",
+    "entry_id": "OFAC-38284",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Ukraine"
+  },
+  {
+    "country_link_id": "OFAC-38796-c-b955d0b5",
+    "entry_id": "OFAC-38796",
+    "country_iso2": "AM",
+    "country_name": "Armenia",
+    "role": "address",
+    "place": "Raffi Str. #111, Malatia-Sebastia, Yerevan"
+  },
+  {
+    "country_link_id": "OFAC-40156-c-29d7b6ab",
+    "entry_id": "OFAC-40156",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iran"
+  },
+  {
+    "country_link_id": "OFAC-40156-c-d16a5a5d",
+    "entry_id": "OFAC-40156",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-40378-c-3dee5596",
+    "entry_id": "OFAC-40378",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Mexico"
+  },
+  {
+    "country_link_id": "OFAC-40378-c-8c4e461d",
+    "entry_id": "OFAC-40378",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Calle Diego Valadez 1321, Col. Chapultepec, Culiacan, Sinaloa"
+  },
+  {
+    "country_link_id": "OFAC-40378-c-aee09d9d",
+    "entry_id": "OFAC-40378",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Sinaloa, Mexico"
+  },
+  {
+    "country_link_id": "OFAC-40378-c-b990e71c",
+    "entry_id": "OFAC-40378",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Calle Frida Kahlo 2464, Fraccionamiento Residencial Los Cisnes, Culiacan, Sinaloa"
+  },
+  {
+    "country_link_id": "OFAC-40399-c-0f9e22e8",
+    "entry_id": "OFAC-40399",
+    "country_iso2": "TR",
+    "country_name": "Turkey",
+    "role": "address",
+    "place": "Mersin"
+  },
+  {
+    "country_link_id": "OFAC-40399-c-39c0aece",
+    "entry_id": "OFAC-40399",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iraq"
+  },
+  {
+    "country_link_id": "OFAC-40399-c-917dcb80",
+    "entry_id": "OFAC-40399",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Mosul, Iraq"
+  },
+  {
+    "country_link_id": "OFAC-40479-c-f23a7907",
+    "entry_id": "OFAC-40479",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Burma"
+  },
+  {
+    "country_link_id": "OFAC-40479-c-f9814c54",
+    "entry_id": "OFAC-40479",
+    "country_iso2": "MM",
+    "country_name": "Burma",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-40569-c-042062de",
+    "entry_id": "OFAC-40569",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-40569-c-414b7a53",
+    "entry_id": "OFAC-40569",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-40569-c-8fc174f5",
+    "entry_id": "OFAC-40569",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Shatsk District, Ryazan Region, Russia"
+  },
+  {
+    "country_link_id": "OFAC-40569-c-b37e3bcf",
+    "entry_id": "OFAC-40569",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-41005-c-414b7a53",
+    "entry_id": "OFAC-41005",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-41005-c-7e4f3803",
+    "entry_id": "OFAC-41005",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Mytishchi, Moscow Region, Russia"
+  },
+  {
+    "country_link_id": "OFAC-41005-c-a1f0a2b1",
+    "entry_id": "OFAC-41005",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Moscow"
+  },
+  {
+    "country_link_id": "OFAC-41005-c-b37e3bcf",
+    "entry_id": "OFAC-41005",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-41069-c-414b7a53",
+    "entry_id": "OFAC-41069",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-41069-c-b37e3bcf",
+    "entry_id": "OFAC-41069",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-41069-c-cb65fc15",
+    "entry_id": "OFAC-41069",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Sakhalin Region"
+  },
+  {
+    "country_link_id": "OFAC-41069-c-d2790425",
+    "entry_id": "OFAC-41069",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Kharkiv, Kharkiv Region, Ukraine"
+  },
+  {
+    "country_link_id": "OFAC-41993-c-6d366462",
+    "entry_id": "OFAC-41993",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "ul. Elektrozavodskaya, d. 24, of. A214, A215, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-41993-c-bbbc6365",
+    "entry_id": "OFAC-41993",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "ul Kakhovka, d. 20, str. 2 k. 56, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-41993-c-bdf3c634",
+    "entry_id": "OFAC-41993",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "ul. Sushchevskaya d. 21, pod. 2, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-42074-c-042062de",
+    "entry_id": "OFAC-42074",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-42074-c-b37e3bcf",
+    "entry_id": "OFAC-42074",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-42074-c-d5b62bba",
+    "entry_id": "OFAC-42074",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Yekaterinburg, Russia"
+  },
+  {
+    "country_link_id": "OFAC-42160-c-1fd55ac3",
+    "entry_id": "OFAC-42160",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Beirut, Lebanon"
+  },
+  {
+    "country_link_id": "OFAC-42160-c-8f35cca2",
+    "entry_id": "OFAC-42160",
+    "country_iso2": "LB",
+    "country_name": "Lebanon",
+    "role": "address",
+    "place": "38 El Kawthar, Adnan Al Hakim Street, 7th Floor, Jnah, Beirut"
+  },
+  {
+    "country_link_id": "OFAC-42160-c-98d878fb",
+    "entry_id": "OFAC-42160",
+    "country_iso2": "LB",
+    "country_name": "Lebanon",
+    "role": "address",
+    "place": "Eden Gardens Building, Floor 3A-3B, Mina El Hosn-Zeytoune Street, Beirut"
+  },
+  {
+    "country_link_id": "OFAC-42160-c-d6f6624f",
+    "entry_id": "OFAC-42160",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Lebanon"
+  },
+  {
+    "country_link_id": "OFAC-42311-c-14b5e4d9",
+    "entry_id": "OFAC-42311",
+    "country_iso2": "ZA",
+    "country_name": "South Africa",
+    "role": "address",
+    "place": "76A Waterstone Estate, Benmore Gardens, Sandton"
+  },
+  {
+    "country_link_id": "OFAC-42336-c-cff2446b",
+    "entry_id": "OFAC-42336",
+    "country_iso2": "BE",
+    "country_name": "Belgium",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-42336-c-e5ce0af1",
+    "entry_id": "OFAC-42336",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Belgium"
+  },
+  {
+    "country_link_id": "OFAC-42338-c-baa9e911",
+    "entry_id": "OFAC-42338",
+    "country_iso2": "ZA",
+    "country_name": "South Africa",
+    "role": "address",
+    "place": "P.O. Box 35465, Johannesburg, Gauteng"
+  },
+  {
+    "country_link_id": "OFAC-42338-c-f2942973",
+    "entry_id": "OFAC-42338",
+    "country_iso2": "ZA",
+    "country_name": "South Africa",
+    "role": "address",
+    "place": "F4E3 The Paragon II, 1 Krammer Road, Johannesburg, Gauteng"
+  },
+  {
+    "country_link_id": "OFAC-43062-c-52088d7a",
+    "entry_id": "OFAC-43062",
+    "country_iso2": "SO",
+    "country_name": "Somalia",
+    "role": "address",
+    "place": "Salagle, Middle Juba"
+  },
+  {
+    "country_link_id": "OFAC-43062-c-84333836",
+    "entry_id": "OFAC-43062",
+    "country_iso2": "SO",
+    "country_name": "Somalia",
+    "role": "address",
+    "place": "Lower Juba"
+  },
+  {
+    "country_link_id": "OFAC-43062-c-85a2b9a8",
+    "entry_id": "OFAC-43062",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Somalia"
+  },
+  {
+    "country_link_id": "OFAC-43542-c-414b7a53",
+    "entry_id": "OFAC-43542",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-43542-c-8a6f7b3a",
+    "entry_id": "OFAC-43542",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Kalugskaya Street, DOM 48, KV. 9, Kaluga, Kalugskaya Oblast"
+  },
+  {
+    "country_link_id": "OFAC-43542-c-b37e3bcf",
+    "entry_id": "OFAC-43542",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-43542-c-c9d01052",
+    "entry_id": "OFAC-43542",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Kaluga, Russia"
+  },
+  {
+    "country_link_id": "OFAC-43999-c-35681ba6",
+    "entry_id": "OFAC-43999",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Per. Perevedenovskii d. 21, str. 13, floor 1, pomeshch. 10, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-44438-c-06f95227",
+    "entry_id": "OFAC-44438",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Male, Maldives"
+  },
+  {
+    "country_link_id": "OFAC-44438-c-3f5027d5",
+    "entry_id": "OFAC-44438",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Maldives"
+  },
+  {
+    "country_link_id": "OFAC-44438-c-8a65810f",
+    "entry_id": "OFAC-44438",
+    "country_iso2": "MV",
+    "country_name": "Maldives",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-44462-c-907d4c9e",
+    "entry_id": "OFAC-44462",
+    "country_iso2": "MV",
+    "country_name": "Maldives",
+    "role": "address",
+    "place": "Vaaly Villa, Majeedhee Magu, Henveiru, Male"
+  },
+  {
+    "country_link_id": "OFAC-44721-c-6703ac8c",
+    "entry_id": "OFAC-44721",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Pr-d Olminskogo D. 3A, Str. 3, Floor 2, Pom. II, Kom 13, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-45649-c-15409cc4",
+    "entry_id": "OFAC-45649",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Dablual Village, Mayendit County, Unity, South Sudan"
+  },
+  {
+    "country_link_id": "OFAC-45649-c-4799d248",
+    "entry_id": "OFAC-45649",
+    "country_iso2": "SS",
+    "country_name": "South Sudan",
+    "role": "address",
+    "place": "Mayendit County, Unity"
+  },
+  {
+    "country_link_id": "OFAC-45649-c-e775f5cf",
+    "entry_id": "OFAC-45649",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "South Sudan"
+  },
+  {
+    "country_link_id": "OFAC-45901-c-e7600bba",
+    "entry_id": "OFAC-45901",
+    "country_iso2": "ES",
+    "country_name": "Spain",
+    "role": "address",
+    "place": "Paseo De L'Albereda, 45 ESC A 6 9, Valencia"
+  },
+  {
+    "country_link_id": "OFAC-45918-c-5d7d7bfd",
+    "entry_id": "OFAC-45918",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "4 Olkhovskaya Street, Building 2, Floor 4, Suite 470, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-45985-c-b2f3e5ea",
+    "entry_id": "OFAC-45985",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "14 Spartakovskaya Square, Building 3, Suite 9N/2, Office 224, Basmannyy Municipal District, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-46251-c-152ec321",
+    "entry_id": "OFAC-46251",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Khormoj, Iran"
+  },
+  {
+    "country_link_id": "OFAC-46251-c-29d7b6ab",
+    "entry_id": "OFAC-46251",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iran"
+  },
+  {
+    "country_link_id": "OFAC-46251-c-d16a5a5d",
+    "entry_id": "OFAC-46251",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-46312-c-39c0aece",
+    "entry_id": "OFAC-46312",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iraq"
+  },
+  {
+    "country_link_id": "OFAC-46312-c-912d93df",
+    "entry_id": "OFAC-46312",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-46312-c-9d3432cb",
+    "entry_id": "OFAC-46312",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Baghdad, Iraq"
+  },
+  {
+    "country_link_id": "OFAC-46715-c-042062de",
+    "entry_id": "OFAC-46715",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-46715-c-b37e3bcf",
+    "entry_id": "OFAC-46715",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Russia"
+  },
+  {
+    "country_link_id": "OFAC-46715-c-d1ca0ea1",
+    "entry_id": "OFAC-46715",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Rybinsk, Yaroslavl Region, Russia"
+  },
+  {
+    "country_link_id": "OFAC-46726-c-30718baf",
+    "entry_id": "OFAC-46726",
+    "country_iso2": "CY",
+    "country_name": "Cyprus",
+    "role": "address",
+    "place": "Floor 2, Elenion Building, 5 Themistokli Dervi, Nicosia"
+  },
+  {
+    "country_link_id": "OFAC-46737-c-9ada4813",
+    "entry_id": "OFAC-46737",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Room 2210, Building 2, Nanguang City Garden, at the intersection of Nanshan District Avenue and Chuangye Road, Shenzhen"
+  },
+  {
+    "country_link_id": "OFAC-46883-c-2af57106",
+    "entry_id": "OFAC-46883",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Canada"
+  },
+  {
+    "country_link_id": "OFAC-46883-c-4cdd8f5d",
+    "entry_id": "OFAC-46883",
+    "country_iso2": "CA",
+    "country_name": "Canada",
+    "role": "address",
+    "place": "British Columbia"
+  },
+  {
+    "country_link_id": "OFAC-46883-c-bb8338d0",
+    "entry_id": "OFAC-46883",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Canada"
+  },
+  {
+    "country_link_id": "OFAC-47040-c-c960119f",
+    "entry_id": "OFAC-47040",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "5/F, Lee Garden Three, 1 Sunning Road, Causeway Bay, Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-47040-c-e3a17404",
+    "entry_id": "OFAC-47040",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ofis 417, Ul. Maksima Gorkogo 276, Rostov-na-Donu"
+  },
+  {
+    "country_link_id": "OFAC-4709-c-e173dbdb",
+    "entry_id": "OFAC-4709",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-47209-c-78252ac5",
+    "entry_id": "OFAC-47209",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ul. Krasnobogatyrskaya D. 44, Str. 1, Moscow"
+  },
+  {
+    "country_link_id": "OFAC-47411-c-245b1885",
+    "entry_id": "OFAC-47411",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ul. Poltavskaya D. 30, Pomeshch. 1, Nizhniy Novgorod"
+  },
+  {
+    "country_link_id": "OFAC-47654-c-8f02f93c",
+    "entry_id": "OFAC-47654",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Ter. Portovaya Osobaya Ekonomicheskaya Zona, Pr-d Industrialnyi Zd. 15, Str. 1, Pomeshch. 4, S.p. Mirnovskoe"
+  },
+  {
+    "country_link_id": "OFAC-48139-c-2b3652b0",
+    "entry_id": "OFAC-48139",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "19th Floor, New Taizhou Mansion, Taizhou, Zhejiang"
+  },
+  {
+    "country_link_id": "OFAC-48139-c-da68a2e1",
+    "entry_id": "OFAC-48139",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-48720-c-4ac3409c",
+    "entry_id": "OFAC-48720",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Fifth Floor, No 2, Shahid Hassan Moghadam Alley, Shahid Ahmad Ghasir St, Argentine, Saei St, Tehran"
+  },
+  {
+    "country_link_id": "OFAC-48720-c-ed47422c",
+    "entry_id": "OFAC-48720",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "No. 2, Moghadas Alley (4), Ghasir St., Beheshti St., Tehran"
+  },
+  {
+    "country_link_id": "OFAC-48898-c-ea8617e7",
+    "entry_id": "OFAC-48898",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "other",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-49793-c-2a158430",
+    "entry_id": "OFAC-49793",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Veracruz, Veracruz"
+  },
+  {
+    "country_link_id": "OFAC-50056-c-ddda1385",
+    "entry_id": "OFAC-50056",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "d.1, ul. Przhevalskogo, Tula, Tula region"
+  },
+  {
+    "country_link_id": "OFAC-50416-c-cbcdb012",
+    "entry_id": "OFAC-50416",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "ofis 105, d. 3, prospekt Mira, Sovetskaya Gavan"
+  },
+  {
+    "country_link_id": "OFAC-50476-c-24a34f3d",
+    "entry_id": "OFAC-50476",
+    "country_iso2": "HT",
+    "country_name": "Haiti",
+    "role": "address",
+    "place": "Petionville, Ouest"
+  },
+  {
+    "country_link_id": "OFAC-50476-c-4fb1ab05",
+    "entry_id": "OFAC-50476",
+    "country_iso2": "HT",
+    "country_name": "Haiti",
+    "role": "address",
+    "place": "Port-au-Prince, Ouest"
+  },
+  {
+    "country_link_id": "OFAC-50476-c-56cca2a4",
+    "entry_id": "OFAC-50476",
+    "country_iso2": "US",
+    "country_name": "United States",
+    "role": "address",
+    "place": "Miami, FL"
+  },
+  {
+    "country_link_id": "OFAC-50476-c-94672b21",
+    "entry_id": "OFAC-50476",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Haiti"
+  },
+  {
+    "country_link_id": "OFAC-50476-c-ad00863e",
+    "entry_id": "OFAC-50476",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Port-au-Prince, Haiti"
+  },
+  {
+    "country_link_id": "OFAC-50476-c-f455a3df",
+    "entry_id": "OFAC-50476",
+    "country_iso2": "DO",
+    "country_name": "Dominican Republic",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-51786-c-e4784e6d",
+    "entry_id": "OFAC-51786",
+    "country_iso2": "PA",
+    "country_name": "Panama",
+    "role": "other",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-53330-c-2ed54b0d",
+    "entry_id": "OFAC-53330",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "31st Floor, Tower Two, Times Square, 1, Matheson Street, Causeway Bay, Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-53333-c-ea8617e7",
+    "entry_id": "OFAC-53333",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "other",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-53633-c-5223e42a",
+    "entry_id": "OFAC-53633",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "No. 131 Seafood Street, Aotou Street, Daya Bay District, Huizhou, Guangdong"
+  },
+  {
+    "country_link_id": "OFAC-54060-c-ae9d00dc",
+    "entry_id": "OFAC-54060",
+    "country_iso2": "SG",
+    "country_name": "Singapore",
+    "role": "address",
+    "place": "6, Temasek Boulevard, #36-02A, Suntec Tower Four, Singapore"
+  },
+  {
+    "country_link_id": "OFAC-54319-c-7e9523b0",
+    "entry_id": "OFAC-54319",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Unit 1208, Building B 1, Wanda Plaza, 8, Aojiang Lu, Taijiang Qu, Fuzhou, Fujian"
+  },
+  {
+    "country_link_id": "OFAC-54319-c-f668ecd1",
+    "entry_id": "OFAC-54319",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Room D07, 8th Floor, Phase 2, Kai Tak Factory Building, 99, King Fuk Street, San Po Kong, Hong Kong"
+  },
+  {
+    "country_link_id": "OFAC-54376-c-25113843",
+    "entry_id": "OFAC-54376",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Mazatlan, Sinaloa"
+  },
+  {
+    "country_link_id": "OFAC-54376-c-3dee5596",
+    "entry_id": "OFAC-54376",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Mexico"
+  },
+  {
+    "country_link_id": "OFAC-54376-c-76510c04",
+    "entry_id": "OFAC-54376",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Mazatlan, Sinaloa, Mexico"
+  },
+  {
+    "country_link_id": "OFAC-54495-c-0fa00701",
+    "entry_id": "OFAC-54495",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-54495-c-be2d5a3b",
+    "entry_id": "OFAC-54495",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Yemen"
+  },
+  {
+    "country_link_id": "OFAC-54750-c-97c30d84",
+    "entry_id": "OFAC-54750",
+    "country_iso2": "KH",
+    "country_name": "Cambodia",
+    "role": "address",
+    "place": "Prince Holding Group Building, Plov Koh Pich, Phum 14, Tonle Basak Sangkat, Chamkar Mon Khan, Phnom Penh"
+  },
+  {
+    "country_link_id": "OFAC-54840-c-12c9abef",
+    "entry_id": "OFAC-54840",
+    "country_iso2": "TR",
+    "country_name": "Turkey",
+    "role": "address",
+    "place": "KOZAN Industrial Area, Guneri Mahallesi OSB 8 Sokak No: 7 Kozan, Adana"
+  },
+  {
+    "country_link_id": "OFAC-54840-c-c7c9d828",
+    "entry_id": "OFAC-54840",
+    "country_iso2": "TR",
+    "country_name": "Turkey",
+    "role": "address",
+    "place": "SEBA Boulevard D Blok Ayazaga Mah. Mimar Sinan Sokak No: 21 Sariyer, Istanbul"
+  },
+  {
+    "country_link_id": "OFAC-54901-c-8ba95aea",
+    "entry_id": "OFAC-54901",
+    "country_iso2": "AE",
+    "country_name": "United Arab Emirates",
+    "role": "address",
+    "place": "Dubai"
+  },
+  {
+    "country_link_id": "OFAC-54901-c-96c5a77d",
+    "entry_id": "OFAC-54901",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Chiplun, India"
+  },
+  {
+    "country_link_id": "OFAC-54901-c-9a38a793",
+    "entry_id": "OFAC-54901",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "India"
+  },
+  {
+    "country_link_id": "OFAC-54986-c-6c03d69a",
+    "entry_id": "OFAC-54986",
+    "country_iso2": "KM",
+    "country_name": "Comoros",
+    "role": "other",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-55090-c-865afadc",
+    "entry_id": "OFAC-55090",
+    "country_iso2": "LR",
+    "country_name": "Liberia",
+    "role": "other",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-55285-c-29d7b6ab",
+    "entry_id": "OFAC-55285",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iran"
+  },
+  {
+    "country_link_id": "OFAC-55285-c-3b044c49",
+    "entry_id": "OFAC-55285",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Isfahan"
+  },
+  {
+    "country_link_id": "OFAC-55505-c-0fcdb522",
+    "entry_id": "OFAC-55505",
+    "country_iso2": "KH",
+    "country_name": "Cambodia",
+    "role": "address",
+    "place": "Phnom Penh"
+  },
+  {
+    "country_link_id": "OFAC-55505-c-12d1880f",
+    "entry_id": "OFAC-55505",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Cambodia"
+  },
+  {
+    "country_link_id": "OFAC-55505-c-6d025cbd",
+    "entry_id": "OFAC-55505",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Vanuatu"
+  },
+  {
+    "country_link_id": "OFAC-55505-c-b1f9dd57",
+    "entry_id": "OFAC-55505",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-55505-c-bd6730fc",
+    "entry_id": "OFAC-55505",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Fujian, China"
+  },
+  {
+    "country_link_id": "OFAC-55505-c-d791faa5",
+    "entry_id": "OFAC-55505",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Cyprus"
+  },
+  {
+    "country_link_id": "OFAC-55853-c-0fcdb522",
+    "entry_id": "OFAC-55853",
+    "country_iso2": "KH",
+    "country_name": "Cambodia",
+    "role": "address",
+    "place": "Phnom Penh"
+  },
+  {
+    "country_link_id": "OFAC-56305-c-1417a3ff",
+    "entry_id": "OFAC-56305",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Plot 10, Block B5, Phase 1, Shiraz, Fars"
+  },
+  {
+    "country_link_id": "OFAC-56311-c-0c95e8fd",
+    "entry_id": "OFAC-56311",
+    "country_iso2": "CO",
+    "country_name": "Colombia",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-56311-c-36c5ec94",
+    "entry_id": "OFAC-56311",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Venezuela"
+  },
+  {
+    "country_link_id": "OFAC-56311-c-5e94146e",
+    "entry_id": "OFAC-56311",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Venezuela"
+  },
+  {
+    "country_link_id": "OFAC-56311-c-86a9cb3b",
+    "entry_id": "OFAC-56311",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "citizenship",
+    "place": "Venezuela"
+  },
+  {
+    "country_link_id": "OFAC-56339-c-723ce722",
+    "entry_id": "OFAC-56339",
+    "country_iso2": "CO",
+    "country_name": "Colombia",
+    "role": "address",
+    "place": "Cucuta, Norte de Santander"
+  },
+  {
+    "country_link_id": "OFAC-56361-c-46c77508",
+    "entry_id": "OFAC-56361",
+    "country_iso2": "IT",
+    "country_name": "Italy",
+    "role": "address",
+    "place": "Aviano"
+  },
+  {
+    "country_link_id": "OFAC-56361-c-b3c2bec4",
+    "entry_id": "OFAC-56361",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Italy"
+  },
+  {
+    "country_link_id": "OFAC-56587-c-8a8ebede",
+    "entry_id": "OFAC-56587",
+    "country_iso2": "MH",
+    "country_name": "Marshall Islands",
+    "role": "address",
+    "place": "Trust Company Complex, Ajeltake Road, Majuro, Ajeltake Island"
+  },
+  {
+    "country_link_id": "OFAC-56674-c-29d7b6ab",
+    "entry_id": "OFAC-56674",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iran"
+  },
+  {
+    "country_link_id": "OFAC-56674-c-72f5ce5b",
+    "entry_id": "OFAC-56674",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Tehran"
+  },
+  {
+    "country_link_id": "OFAC-56810-c-3dee5596",
+    "entry_id": "OFAC-56810",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Mexico"
+  },
+  {
+    "country_link_id": "OFAC-56810-c-c4e8af1f",
+    "entry_id": "OFAC-56810",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Jalisco, Mexico"
+  },
+  {
+    "country_link_id": "OFAC-56810-c-f6e7a25d",
+    "entry_id": "OFAC-56810",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Guadalajara, Jalisco"
+  },
+  {
+    "country_link_id": "OFAC-56819-c-f6e7a25d",
+    "entry_id": "OFAC-56819",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Guadalajara, Jalisco"
+  },
+  {
+    "country_link_id": "OFAC-56890-c-09e50ba3",
+    "entry_id": "OFAC-56890",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Kermanshah"
+  },
+  {
+    "country_link_id": "OFAC-56890-c-29d7b6ab",
+    "entry_id": "OFAC-56890",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iran"
+  },
+  {
+    "country_link_id": "OFAC-57141-c-29d7b6ab",
+    "entry_id": "OFAC-57141",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iran"
+  },
+  {
+    "country_link_id": "OFAC-57141-c-bbf91a93",
+    "entry_id": "OFAC-57141",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Tehran, Iran"
+  },
+  {
+    "country_link_id": "OFAC-57141-c-d16a5a5d",
+    "entry_id": "OFAC-57141",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-57157-c-29d7b6ab",
+    "entry_id": "OFAC-57157",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iran"
+  },
+  {
+    "country_link_id": "OFAC-57157-c-72f5ce5b",
+    "entry_id": "OFAC-57157",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Tehran"
+  },
+  {
+    "country_link_id": "OFAC-57157-c-bbf91a93",
+    "entry_id": "OFAC-57157",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Tehran, Iran"
+  },
+  {
+    "country_link_id": "OFAC-57349-c-239e6ad8",
+    "entry_id": "OFAC-57349",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Sinaloa"
+  },
+  {
+    "country_link_id": "OFAC-57349-c-3dee5596",
+    "entry_id": "OFAC-57349",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Mexico"
+  },
+  {
+    "country_link_id": "OFAC-57349-c-aee09d9d",
+    "entry_id": "OFAC-57349",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Sinaloa, Mexico"
+  },
+  {
+    "country_link_id": "OFAC-57665-c-78a81c19",
+    "entry_id": "OFAC-57665",
+    "country_iso2": "MH",
+    "country_name": "Marshall Islands",
+    "role": "address",
+    "place": "Trust Company Complex, Ajeltake Road, Ajeltake Island, Majuro"
+  },
+  {
+    "country_link_id": "OFAC-58039-c-3dee5596",
+    "entry_id": "OFAC-58039",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Mexico"
+  },
+  {
+    "country_link_id": "OFAC-58039-c-7753ab3e",
+    "entry_id": "OFAC-58039",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Villas Las Alvarez, Colima"
+  },
+  {
+    "country_link_id": "OFAC-58039-c-c4e8af1f",
+    "entry_id": "OFAC-58039",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Jalisco, Mexico"
+  },
+  {
+    "country_link_id": "OFAC-58343-c-0fa00701",
+    "entry_id": "OFAC-58343",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-58343-c-ad2fb3fe",
+    "entry_id": "OFAC-58343",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Guangxi Province, China"
+  },
+  {
+    "country_link_id": "OFAC-58343-c-b1f9dd57",
+    "entry_id": "OFAC-58343",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "China"
+  },
+  {
+    "country_link_id": "OFAC-58344-c-81248149",
+    "entry_id": "OFAC-58344",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "No. 72, Huaidefu Middle Road, Fuyong, Bao'an District, Shenzhen"
+  },
+  {
+    "country_link_id": "OFAC-58344-c-cbcb07c7",
+    "entry_id": "OFAC-58344",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "101, Building 35, Cuigang Industrial Zone 5, Huaide Community, Fuyong Street, Bao'an District, Shenzhen, Guangdong"
+  },
+  {
+    "country_link_id": "OFAC-58422-c-5738e753",
+    "entry_id": "OFAC-58422",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Anahuac, Nuevo Leon"
+  },
+  {
+    "country_link_id": "OFAC-58432-c-7f8dd554",
+    "entry_id": "OFAC-58432",
+    "country_iso2": "AE",
+    "country_name": "United Arab Emirates",
+    "role": "address",
+    "place": "Unit No: 2002 Uptown Tower, Plot No: DMCC-UD-T2, Uptown, Dubai"
+  },
+  {
+    "country_link_id": "OFAC-58482-c-29d7b6ab",
+    "entry_id": "OFAC-58482",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Iran"
+  },
+  {
+    "country_link_id": "OFAC-58482-c-8ba95aea",
+    "entry_id": "OFAC-58482",
+    "country_iso2": "AE",
+    "country_name": "United Arab Emirates",
+    "role": "address",
+    "place": "Dubai"
+  },
+  {
+    "country_link_id": "OFAC-58614-c-2aa7c575",
+    "entry_id": "OFAC-58614",
+    "country_iso2": "CU",
+    "country_name": "Cuba",
+    "role": "address",
+    "place": "Moa, Holguin"
+  },
+  {
+    "country_link_id": "OFAC-58730-c-53695a60",
+    "entry_id": "OFAC-58730",
+    "country_iso2": "MX",
+    "country_name": "Mexico",
+    "role": "address",
+    "place": "Tijuana, Baja California"
+  },
+  {
+    "country_link_id": "OFAC-7205-c-9acdf18c",
+    "entry_id": "OFAC-7205",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Tunisia"
+  },
+  {
+    "country_link_id": "OFAC-7205-c-cd7d2d22",
+    "entry_id": "OFAC-7205",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Tunisia"
+  },
+  {
+    "country_link_id": "OFAC-7205-c-d9fa30da",
+    "entry_id": "OFAC-7205",
+    "country_iso2": "IT",
+    "country_name": "Italy",
+    "role": "address",
+    "place": "Via Milano n.38, Spinadesco, CR"
+  },
+  {
+    "country_link_id": "OFAC-7214-c-09e1065a",
+    "entry_id": "OFAC-7214",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Baracaldo Vizcaya Province, Spain"
+  },
+  {
+    "country_link_id": "OFAC-7214-c-e173dbdb",
+    "entry_id": "OFAC-7214",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-7257-c-b8a45877",
+    "entry_id": "OFAC-7257",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Ghar el-dimaa, Tunisia"
+  },
+  {
+    "country_link_id": "OFAC-7257-c-cd7d2d22",
+    "entry_id": "OFAC-7257",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "nationality",
+    "place": "Tunisia"
+  },
+  {
+    "country_link_id": "OFAC-7257-c-e173dbdb",
+    "entry_id": "OFAC-7257",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-7257-c-f4d047cd",
+    "entry_id": "OFAC-7257",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Ghardimaou, Tunisia"
+  },
+  {
+    "country_link_id": "OFAC-9345-c-0d9ac75f",
+    "entry_id": "OFAC-9345",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Beijing"
+  },
+  {
+    "country_link_id": "OFAC-9345-c-72f5ce5b",
+    "entry_id": "OFAC-9345",
+    "country_iso2": "IR",
+    "country_name": "Iran",
+    "role": "address",
+    "place": "Tehran"
+  },
+  {
+    "country_link_id": "OFAC-9345-c-87a2fb73",
+    "entry_id": "OFAC-9345",
+    "country_iso2": "KP",
+    "country_name": "Korea, North",
+    "role": "address",
+    "place": "Central District, Pyongyang"
+  },
+  {
+    "country_link_id": "OFAC-9345-c-8847a2eb",
+    "entry_id": "OFAC-9345",
+    "country_iso2": "SY",
+    "country_name": "Syria",
+    "role": "address",
+    "place": "Damascus"
+  },
+  {
+    "country_link_id": "OFAC-9345-c-a1f0a2b1",
+    "entry_id": "OFAC-9345",
+    "country_iso2": "RU",
+    "country_name": "Russia",
+    "role": "address",
+    "place": "Moscow"
+  },
+  {
+    "country_link_id": "OFAC-9528-c-db352d6b",
+    "entry_id": "OFAC-9528",
+    "country_iso2": "TH",
+    "country_name": "Thailand",
+    "role": "address",
+    "place": "c/o SIAM NICE COMPANY LTD., Bangkok"
+  },
+  {
+    "country_link_id": "OFAC-9640-c-e173dbdb",
+    "entry_id": "OFAC-9640",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-9640-c-ed4207b7",
+    "entry_id": "OFAC-9640",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Umm Tuba"
+  },
+  {
+    "country_link_id": "OFAC-9642-c-0aed788a",
+    "entry_id": "OFAC-9642",
+    "country_iso2": "PS",
+    "country_name": "Palestinian",
+    "role": "address",
+    "place": "Hebron, West Bank"
+  },
+  {
+    "country_link_id": "OFAC-9644-c-e173dbdb",
+    "entry_id": "OFAC-9644",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-9648-c-e173dbdb",
+    "entry_id": "OFAC-9648",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-9652-c-419316b5",
+    "entry_id": "OFAC-9652",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Ilar"
+  },
+  {
+    "country_link_id": "OFAC-9652-c-52e5b62f",
+    "entry_id": "OFAC-9652",
+    "country_iso2": "PS",
+    "country_name": "Palestinian",
+    "role": "address",
+    "place": "Bethlehem, West Bank"
+  },
+  {
+    "country_link_id": "OFAC-9664-c-1c313cee",
+    "entry_id": "OFAC-9664",
+    "country_iso2": "PS",
+    "country_name": "Palestinian",
+    "role": "address",
+    "place": "Gaza"
+  },
+  {
+    "country_link_id": "OFAC-9677-c-e173dbdb",
+    "entry_id": "OFAC-9677",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-9678-c-e173dbdb",
+    "entry_id": "OFAC-9678",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-9680-c-e173dbdb",
+    "entry_id": "OFAC-9680",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-9683-c-a9e57bec",
+    "entry_id": "OFAC-9683",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Ramallah, West Bank"
+  },
+  {
+    "country_link_id": "OFAC-9683-c-e173dbdb",
+    "entry_id": "OFAC-9683",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-9691-c-e173dbdb",
+    "entry_id": "OFAC-9691",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-9700-c-cdfc4ff4",
+    "entry_id": "OFAC-9700",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "place_of_birth",
+    "place": "Khan Younis"
+  },
+  {
+    "country_link_id": "OFAC-9700-c-e173dbdb",
+    "entry_id": "OFAC-9700",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-9706-c-e173dbdb",
+    "entry_id": "OFAC-9706",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-9707-c-e173dbdb",
+    "entry_id": "OFAC-9707",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-9711-c-e173dbdb",
+    "entry_id": "OFAC-9711",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "OFAC-9712-c-e173dbdb",
+    "entry_id": "OFAC-9712",
+    "country_iso2": null,
+    "country_name": null,
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-CDi.024-c-29f1b5fc",
+    "entry_id": "UN-CDi.024",
+    "country_iso2": "RW",
+    "country_name": "Rwanda",
+    "role": "place_of_birth",
+    "place": "Gaseke, Gisenyi Province"
+  },
+  {
+    "country_link_id": "UN-CDi.024-c-7aa63a07",
+    "entry_id": "UN-CDi.024",
+    "country_iso2": "CD",
+    "country_name": "Democratic Republic of the Congo",
+    "role": "address",
+    "place": "Rutshuru Territory, North Kivu, As of June 2016"
+  },
+  {
+    "country_link_id": "UN-CDi.024-c-9c8611e9",
+    "entry_id": "UN-CDi.024",
+    "country_iso2": "RW",
+    "country_name": "Rwanda",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-CDi.033-c-9c7c51de",
+    "entry_id": "UN-CDi.033",
+    "country_iso2": "CD",
+    "country_name": "Democratic Republic of the Congo",
+    "role": "place_of_birth",
+    "place": "Kigoma, Walikale"
+  },
+  {
+    "country_link_id": "UN-HTi.003-c-833d13a3",
+    "entry_id": "UN-HTi.003",
+    "country_iso2": "HT",
+    "country_name": "Haiti",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-HTi.003-c-bf7197eb",
+    "entry_id": "UN-HTi.003",
+    "country_iso2": "HT",
+    "country_name": "Haiti",
+    "role": "place_of_birth",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-IQe.197-c-5af77453",
+    "entry_id": "UN-IQe.197",
+    "country_iso2": "AE",
+    "country_name": "United Arab Emirates",
+    "role": "address",
+    "place": "Ibrahim Saeed Lootah Building, Al Ramool Street, P.O. Box 10631 & 638, Rashidiya, Dubai, Dubai"
+  },
+  {
+    "country_link_id": "UN-IQe.197-c-82217b2e",
+    "entry_id": "UN-IQe.197",
+    "country_iso2": "AE",
+    "country_name": "United Arab Emirates",
+    "role": "address",
+    "place": "Lootah Building, Airport Road, near Aviation Club, Rashidya, Dubai"
+  },
+  {
+    "country_link_id": "UN-IQe.197-c-b7f6e35d",
+    "entry_id": "UN-IQe.197",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": "Villa in the Harasiyah area, Baghdad"
+  },
+  {
+    "country_link_id": "UN-IQi.012-c-a2ddb361",
+    "entry_id": "UN-IQi.012",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-IQi.012-c-b46a0f2b",
+    "entry_id": "UN-IQi.012",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "place_of_birth",
+    "place": "Salah al-Din or al-Awja near Tikrit"
+  },
+  {
+    "country_link_id": "UN-IQi.047-c-67b8d040",
+    "entry_id": "UN-IQi.047",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "place_of_birth",
+    "place": "Dujail"
+  },
+  {
+    "country_link_id": "UN-IQi.047-c-a2ddb361",
+    "entry_id": "UN-IQi.047",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-IRe.059-c-a782bc7c",
+    "entry_id": "UN-IRe.059",
+    "country_iso2": "IR",
+    "country_name": "Iran (Islamic Republic of)",
+    "role": "address",
+    "place": "Haftom Tir Square, South Mofte Avenue, Tour Line No 3/1, Tehran"
+  },
+  {
+    "country_link_id": "UN-IRe.059-c-aadb0aee",
+    "entry_id": "UN-IRe.059",
+    "country_iso2": "IR",
+    "country_name": "Iran (Islamic Republic of)",
+    "role": "address",
+    "place": "P.O. Box 1584864813, Tehran"
+  },
+  {
+    "country_link_id": "UN-IRi.013-c-d6497764",
+    "entry_id": "UN-IRi.013",
+    "country_iso2": "IR",
+    "country_name": "Iran (Islamic Republic of)",
+    "role": "address",
+    "place": "33 Hormozan Building, Pirozan St., Sharak Ghods, Tehran"
+  },
+  {
+    "country_link_id": "UN-KPe.012-c-4963c5cc",
+    "entry_id": "UN-KPe.012",
+    "country_iso2": "KP",
+    "country_name": "Democratic People's Republic of Korea",
+    "role": "address",
+    "place": "Pyongyang"
+  },
+  {
+    "country_link_id": "UN-KPe.025-c-beb8de80",
+    "entry_id": "UN-KPe.025",
+    "country_iso2": "KP",
+    "country_name": "Democratic People's Republic of Korea",
+    "role": "address",
+    "place": "Jungson-dong, Sungri Street, Central District, Pyongyang"
+  },
+  {
+    "country_link_id": "UN-KPe.059-c-9b7a742a",
+    "entry_id": "UN-KPe.059",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Room 2105, Trend Centre, 29-31 Chueng Lee Street, Chai Wan, Hong Kong"
+  },
+  {
+    "country_link_id": "UN-KPe.060-c-b424a5ba",
+    "entry_id": "UN-KPe.060",
+    "country_iso2": "MH",
+    "country_name": "Marshall Islands",
+    "role": "address",
+    "place": "Trust Company Complex, Ajeltake Road, Ajeltake Island, Majuro MH"
+  },
+  {
+    "country_link_id": "UN-KPe.068-c-de9d713f",
+    "entry_id": "UN-KPe.068",
+    "country_iso2": "KP",
+    "country_name": "Democratic People's Republic of Korea",
+    "role": "address",
+    "place": "Kumsong 3-dong, Mangyongdae-guyok, Pyongyang"
+  },
+  {
+    "country_link_id": "UN-KPe.072-c-6a363e15",
+    "entry_id": "UN-KPe.072",
+    "country_iso2": "CN",
+    "country_name": "China",
+    "role": "address",
+    "place": "Room 601, 433, Chifeng Lu, Hongkou Qu, Shanghai"
+  },
+  {
+    "country_link_id": "UN-KPi.025-c-36f0a0c9",
+    "entry_id": "UN-KPi.025",
+    "country_iso2": "KP",
+    "country_name": "Democratic People's Republic of Korea",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-KPi.052-c-36f0a0c9",
+    "entry_id": "UN-KPi.052",
+    "country_iso2": "KP",
+    "country_name": "Democratic People's Republic of Korea",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-KPi.060-c-36f0a0c9",
+    "entry_id": "UN-KPi.060",
+    "country_iso2": "KP",
+    "country_name": "Democratic People's Republic of Korea",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-KPi.066-c-36f0a0c9",
+    "entry_id": "UN-KPi.066",
+    "country_iso2": "KP",
+    "country_name": "Democratic People's Republic of Korea",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-KPi.066-c-8fe9af28",
+    "entry_id": "UN-KPi.066",
+    "country_iso2": "KP",
+    "country_name": "Democratic People's Republic of Korea",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-KPi.072-c-36f0a0c9",
+    "entry_id": "UN-KPi.072",
+    "country_iso2": "KP",
+    "country_name": "Democratic People's Republic of Korea",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-LYe.001-c-5f157988",
+    "entry_id": "UN-LYe.001",
+    "country_iso2": "LY",
+    "country_name": "Libya",
+    "role": "address",
+    "place": "1 Fateh Tower Office, No 99 22nd Floor, Borgaida Street, Tripoli"
+  },
+  {
+    "country_link_id": "UN-QDe.106-c-431bd60d",
+    "entry_id": "UN-QDe.106",
+    "country_iso2": "TZ",
+    "country_name": "United Republic of Tanzania",
+    "role": "address",
+    "place": "Singida, at time of listing"
+  },
+  {
+    "country_link_id": "UN-QDe.106-c-5370f4f6",
+    "entry_id": "UN-QDe.106",
+    "country_iso2": "TZ",
+    "country_name": "United Republic of Tanzania",
+    "role": "address",
+    "place": "Tanga, at time of listing"
+  },
+  {
+    "country_link_id": "UN-QDe.106-c-e0a824f3",
+    "entry_id": "UN-QDe.106",
+    "country_iso2": "TZ",
+    "country_name": "United Republic of Tanzania",
+    "role": "address",
+    "place": "P.O. Box 3616, Dar es Salaam, at time of listing"
+  },
+  {
+    "country_link_id": "UN-QDe.107-c-57239220",
+    "entry_id": "UN-QDe.107",
+    "country_iso2": "BA",
+    "country_name": "Bosnia and Herzegovina",
+    "role": "address",
+    "place": "Zlatnih Ljiljana Street, Zavidovici"
+  },
+  {
+    "country_link_id": "UN-QDe.107-c-8232a0c8",
+    "entry_id": "UN-QDe.107",
+    "country_iso2": "BA",
+    "country_name": "Bosnia and Herzegovina",
+    "role": "address",
+    "place": "42 Muhameda Hadzijahica, Sarajevo"
+  },
+  {
+    "country_link_id": "UN-QDe.107-c-c5822236",
+    "entry_id": "UN-QDe.107",
+    "country_iso2": "BA",
+    "country_name": "Bosnia and Herzegovina",
+    "role": "address",
+    "place": "70 and 53 Strosmajerova Street, Zenica"
+  },
+  {
+    "country_link_id": "UN-QDe.107-c-e60089f3",
+    "entry_id": "UN-QDe.107",
+    "country_iso2": "BA",
+    "country_name": "Bosnia and Herzegovina",
+    "role": "address",
+    "place": "30a Put Mladih Muslimana (ex Pavla Lukaca Street), 71 000 Sarajevo"
+  },
+  {
+    "country_link_id": "UN-QDe.107-c-fd39d94b",
+    "entry_id": "UN-QDe.107",
+    "country_iso2": "BA",
+    "country_name": "Bosnia and Herzegovina",
+    "role": "address",
+    "place": "72 ul. Strossmajerova, Zenica"
+  },
+  {
+    "country_link_id": "UN-QDe.108-c-2af99066",
+    "entry_id": "UN-QDe.108",
+    "country_iso2": "BA",
+    "country_name": "Bosnia and Herzegovina",
+    "role": "address",
+    "place": "3 Velika Cilna Ulica, Visoko"
+  },
+  {
+    "country_link_id": "UN-QDe.108-c-320fe6d5",
+    "entry_id": "UN-QDe.108",
+    "country_iso2": "BA",
+    "country_name": "Bosnia and Herzegovina",
+    "role": "address",
+    "place": "6 Avde Smajlovica Street, Novo Sarajevo"
+  },
+  {
+    "country_link_id": "UN-QDe.108-c-5927313f",
+    "entry_id": "UN-QDe.108",
+    "country_iso2": "BA",
+    "country_name": "Bosnia and Herzegovina",
+    "role": "address",
+    "place": "26 Tabhanska Street, Visoko"
+  },
+  {
+    "country_link_id": "UN-QDe.108-c-5927313f",
+    "entry_id": "UN-QDe.108",
+    "country_iso2": "BA",
+    "country_name": "Bosnia and Herzegovina",
+    "role": "address",
+    "place": "26 Tabhanska Street, Visoko"
+  },
+  {
+    "country_link_id": "UN-QDe.138-c-e729bd9c",
+    "entry_id": "UN-QDe.138",
+    "country_iso2": "NG",
+    "country_name": "Nigeria",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDe.153-c-0dcc794c",
+    "entry_id": "UN-QDe.153",
+    "country_iso2": "SY",
+    "country_name": "Syrian Arab Republic",
+    "role": "address",
+    "place": "Albu Kamal (Al-Bukamal)"
+  },
+  {
+    "country_link_id": "UN-QDi.020-c-109aea45",
+    "entry_id": "UN-QDi.020",
+    "country_iso2": "YE",
+    "country_name": "Yemen",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.020-c-19cb1573",
+    "entry_id": "UN-QDi.020",
+    "country_iso2": "SA",
+    "country_name": "Saudi Arabia",
+    "role": "place_of_birth",
+    "place": "Medina"
+  },
+  {
+    "country_link_id": "UN-QDi.020-c-e4a7836c",
+    "entry_id": "UN-QDi.020",
+    "country_iso2": "YE",
+    "country_name": "Yemen",
+    "role": "address",
+    "place": "Jamal street, Al-Dahima alley, Al-Hudaydah"
+  },
+  {
+    "country_link_id": "UN-QDi.055-c-2274c49f",
+    "entry_id": "UN-QDi.055",
+    "country_iso2": "PK",
+    "country_name": "Pakistan",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.055-c-4ac13d3a",
+    "entry_id": "UN-QDi.055",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "address",
+    "place": "Street 13, Wazir Akbar Khan, Kabul"
+  },
+  {
+    "country_link_id": "UN-QDi.059-c-2a9c6b5f",
+    "entry_id": "UN-QDi.059",
+    "country_iso2": "SA",
+    "country_name": "Saudi Arabia",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.059-c-a6663288",
+    "entry_id": "UN-QDi.059",
+    "country_iso2": "US",
+    "country_name": "United States of America",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.059-c-c2057e34",
+    "entry_id": "UN-QDi.059",
+    "country_iso2": "KW",
+    "country_name": "Kuwait",
+    "role": "place_of_birth",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.064-c-6737e601",
+    "entry_id": "UN-QDi.064",
+    "country_iso2": "TN",
+    "country_name": "Tunisia",
+    "role": "place_of_birth",
+    "place": "Menzel Jemil, Bizerte"
+  },
+  {
+    "country_link_id": "UN-QDi.064-c-96ffbd3f",
+    "entry_id": "UN-QDi.064",
+    "country_iso2": "TN",
+    "country_name": "Tunisia",
+    "role": "address",
+    "place": "Ibn Al-Haythman Street, Number 6, Manubah, Tunis"
+  },
+  {
+    "country_link_id": "UN-QDi.064-c-e5b22872",
+    "entry_id": "UN-QDi.064",
+    "country_iso2": "TN",
+    "country_name": "Tunisia",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.081-c-109aea45",
+    "entry_id": "UN-QDi.081",
+    "country_iso2": "YE",
+    "country_name": "Yemen",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.081-c-7cbcddf5",
+    "entry_id": "UN-QDi.081",
+    "country_iso2": "SD",
+    "country_name": "Sudan",
+    "role": "place_of_birth",
+    "place": "Khartoum"
+  },
+  {
+    "country_link_id": "UN-QDi.081-c-ecc549f1",
+    "entry_id": "UN-QDi.081",
+    "country_iso2": "YE",
+    "country_name": "Yemen",
+    "role": "place_of_birth",
+    "place": "Gheil Bawazir, Hadramawt"
+  },
+  {
+    "country_link_id": "UN-QDi.252-c-14c340ee",
+    "entry_id": "UN-QDi.252",
+    "country_iso2": "DZ",
+    "country_name": "Algeria",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.252-c-5cc00016",
+    "entry_id": "UN-QDi.252",
+    "country_iso2": "DZ",
+    "country_name": "Algeria",
+    "role": "place_of_birth",
+    "place": "Anser, Wilaya (province) of Jijel"
+  },
+  {
+    "country_link_id": "UN-QDi.252-c-b66275aa",
+    "entry_id": "UN-QDi.252",
+    "country_iso2": "DZ",
+    "country_name": "Algeria",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.272-c-13626e0a",
+    "entry_id": "UN-QDi.272",
+    "country_iso2": "PK",
+    "country_name": "Pakistan",
+    "role": "place_of_birth",
+    "place": "Lahore, Punjab Province"
+  },
+  {
+    "country_link_id": "UN-QDi.272-c-2274c49f",
+    "entry_id": "UN-QDi.272",
+    "country_iso2": "PK",
+    "country_name": "Pakistan",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.298-c-4735e873",
+    "entry_id": "UN-QDi.298",
+    "country_iso2": "MR",
+    "country_name": "Mauritania",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.298-c-5e3256b4",
+    "entry_id": "UN-QDi.298",
+    "country_iso2": "MR",
+    "country_name": "Mauritania",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.298-c-c4fe6c00",
+    "entry_id": "UN-QDi.298",
+    "country_iso2": "SA",
+    "country_name": "Saudi Arabia",
+    "role": "place_of_birth",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.299-c-407ced9b",
+    "entry_id": "UN-QDi.299",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "place_of_birth",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.299-c-64b0a71e",
+    "entry_id": "UN-QDi.299",
+    "country_iso2": "SY",
+    "country_name": "Syrian Arab Republic",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.299-c-912d93df",
+    "entry_id": "UN-QDi.299",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.299-c-a2ddb361",
+    "entry_id": "UN-QDi.299",
+    "country_iso2": "IQ",
+    "country_name": "Iraq",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.309-c-1ee80275",
+    "entry_id": "UN-QDi.309",
+    "country_iso2": "PK",
+    "country_name": "Pakistan",
+    "role": "place_of_birth",
+    "place": "Mirpur Khas"
+  },
+  {
+    "country_link_id": "UN-QDi.309-c-2274c49f",
+    "entry_id": "UN-QDi.309",
+    "country_iso2": "PK",
+    "country_name": "Pakistan",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.309-c-d65831eb",
+    "entry_id": "UN-QDi.309",
+    "country_iso2": "PK",
+    "country_name": "Pakistan",
+    "role": "address",
+    "place": "Karachi"
+  },
+  {
+    "country_link_id": "UN-QDi.344-c-b4e2e818",
+    "entry_id": "UN-QDi.344",
+    "country_iso2": "QA",
+    "country_name": "Qatar",
+    "role": "place_of_birth",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.344-c-c7ccb4a0",
+    "entry_id": "UN-QDi.344",
+    "country_iso2": "QA",
+    "country_name": "Qatar",
+    "role": "address",
+    "place": "Al Rayyan"
+  },
+  {
+    "country_link_id": "UN-QDi.344-c-d5af427e",
+    "entry_id": "UN-QDi.344",
+    "country_iso2": "QA",
+    "country_name": "Qatar",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.360-c-48218418",
+    "entry_id": "UN-QDi.360",
+    "country_iso2": "GB",
+    "country_name": "United Kingdom of Great Britain and Northern Ireland",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-QDi.360-c-816ff2c6",
+    "entry_id": "UN-QDi.360",
+    "country_iso2": "SY",
+    "country_name": "Syrian Arab Republic",
+    "role": "address",
+    "place": "as at 2013"
+  },
+  {
+    "country_link_id": "UN-QDi.360-c-8f91d638",
+    "entry_id": "UN-QDi.360",
+    "country_iso2": "GB",
+    "country_name": "United Kingdom of Great Britain and Northern Ireland",
+    "role": "place_of_birth",
+    "place": "Greenwich, Greater London"
+  },
+  {
+    "country_link_id": "UN-QDi.360-c-e3dab208",
+    "entry_id": "UN-QDi.360",
+    "country_iso2": "GB",
+    "country_name": "United Kingdom of Great Britain and Northern Ireland",
+    "role": "address",
+    "place": "previous location until 2013"
+  },
+  {
+    "country_link_id": "UN-QDi.372-c-38443c68",
+    "entry_id": "UN-QDi.372",
+    "country_iso2": "TJ",
+    "country_name": "Tajikistan",
+    "role": "place_of_birth",
+    "place": "Varzob area"
+  },
+  {
+    "country_link_id": "UN-QDi.372-c-a071f524",
+    "entry_id": "UN-QDi.372",
+    "country_iso2": "TJ",
+    "country_name": "Tajikistan",
+    "role": "place_of_birth",
+    "place": "Dushanbe"
+  },
+  {
+    "country_link_id": "UN-QDi.372-c-c44d28fc",
+    "entry_id": "UN-QDi.372",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "address",
+    "place": "Kunar and Nuristan provinces and border areas of Zebok district, Badakhshan province"
+  },
+  {
+    "country_link_id": "UN-QDi.372-c-db2b22e7",
+    "entry_id": "UN-QDi.372",
+    "country_iso2": "TJ",
+    "country_name": "Tajikistan",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-SOi.009-c-254ba605",
+    "entry_id": "UN-SOi.009",
+    "country_iso2": "KE",
+    "country_name": "Kenya",
+    "role": "place_of_birth",
+    "place": "Garissa"
+  },
+  {
+    "country_link_id": "UN-SOi.009-c-97c39049",
+    "entry_id": "UN-SOi.009",
+    "country_iso2": "ET",
+    "country_name": "Ethiopia",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-SOi.009-c-ea527ad9",
+    "entry_id": "UN-SOi.009",
+    "country_iso2": "KE",
+    "country_name": "Kenya",
+    "role": "address",
+    "place": "Nairobi"
+  },
+  {
+    "country_link_id": "UN-SOi.010-c-721edb89",
+    "entry_id": "UN-SOi.010",
+    "country_iso2": "SO",
+    "country_name": "Somalia",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-SOi.010-c-bc105534",
+    "entry_id": "UN-SOi.010",
+    "country_iso2": "US",
+    "country_name": "United States of America",
+    "role": "place_of_birth",
+    "place": "Alabama"
+  },
+  {
+    "country_link_id": "UN-SOi.010-c-cecdec17",
+    "entry_id": "UN-SOi.010",
+    "country_iso2": "US",
+    "country_name": "United States of America",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-SOi.011-c-0b316d82",
+    "entry_id": "UN-SOi.011",
+    "country_iso2": "KE",
+    "country_name": "Kenya",
+    "role": "place_of_birth",
+    "place": "Lamu Island"
+  },
+  {
+    "country_link_id": "UN-SOi.014-c-721edb89",
+    "entry_id": "UN-SOi.014",
+    "country_iso2": "SO",
+    "country_name": "Somalia",
+    "role": "address",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-SOi.014-c-87bd3a2a",
+    "entry_id": "UN-SOi.014",
+    "country_iso2": "SO",
+    "country_name": "Somalia",
+    "role": "place_of_birth",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-TAi.049-c-2d857ff6",
+    "entry_id": "UN-TAi.049",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "place_of_birth",
+    "place": "Ghazni Province"
+  },
+  {
+    "country_link_id": "UN-TAi.049-c-c7ba6bc4",
+    "entry_id": "UN-TAi.049",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-TAi.060-c-236dba4e",
+    "entry_id": "UN-TAi.060",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "place_of_birth",
+    "place": "Mial area, Spin Boldak District, Kandahar Province"
+  },
+  {
+    "country_link_id": "UN-TAi.060-c-806f27d4",
+    "entry_id": "UN-TAi.060",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "address",
+    "place": "Kabul"
+  },
+  {
+    "country_link_id": "UN-TAi.060-c-c7ba6bc4",
+    "entry_id": "UN-TAi.060",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-TAi.079-c-20b65377",
+    "entry_id": "UN-TAi.079",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "place_of_birth",
+    "place": "Alingar District, Laghman Province"
+  },
+  {
+    "country_link_id": "UN-TAi.079-c-c7ba6bc4",
+    "entry_id": "UN-TAi.079",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-TAi.080-c-4ac3f045",
+    "entry_id": "UN-TAi.080",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "place_of_birth",
+    "place": "Qalayi Shaikh, Chaparhar District, Nangarhar Province"
+  },
+  {
+    "country_link_id": "UN-TAi.080-c-c7ba6bc4",
+    "entry_id": "UN-TAi.080",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-TAi.153-c-3352f8b7",
+    "entry_id": "UN-TAi.153",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "address",
+    "place": "Kalay Rangin, Spin Boldak District, Kandahar Province"
+  },
+  {
+    "country_link_id": "UN-TAi.153-c-4eda3c53",
+    "entry_id": "UN-TAi.153",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "place_of_birth",
+    "place": "Lowy Kariz, Spin Boldak District, Kandahar Province"
+  },
+  {
+    "country_link_id": "UN-TAi.153-c-bd56e840",
+    "entry_id": "UN-TAi.153",
+    "country_iso2": "PK",
+    "country_name": "Pakistan",
+    "role": "address",
+    "place": "Boghra Road, Miralzei Village, Chaman, Baluchistan Province"
+  },
+  {
+    "country_link_id": "UN-TAi.153-c-c7ba6bc4",
+    "entry_id": "UN-TAi.153",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "nationality",
+    "place": null
+  },
+  {
+    "country_link_id": "UN-TAi.153-c-d0ab53b8",
+    "entry_id": "UN-TAi.153",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "place_of_birth",
+    "place": "Kadanay, Spin Boldak District, Kandahar Province"
+  },
+  {
+    "country_link_id": "UN-TAi.153-c-e64a1be4",
+    "entry_id": "UN-TAi.153",
+    "country_iso2": "PK",
+    "country_name": "Pakistan",
+    "role": "place_of_birth",
+    "place": "Chaman, Baluchistan Province"
+  },
+  {
+    "country_link_id": "UN-TAi.170-c-0afbfed1",
+    "entry_id": "UN-TAi.170",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "place_of_birth",
+    "place": "Giyan District, Paktika Province"
+  },
+  {
+    "country_link_id": "UN-TAi.174-c-6d252ecf",
+    "entry_id": "UN-TAi.174",
+    "country_iso2": "AF",
+    "country_name": "Afghanistan",
+    "role": "place_of_birth",
+    "place": "Kandahar Province"
+  },
+  {
+    "country_link_id": "UN-TAi.174-c-7e7f9272",
+    "entry_id": "UN-TAi.174",
+    "country_iso2": "PK",
+    "country_name": "Pakistan",
+    "role": "address",
+    "place": "Pashtunabad, Quetta, Baluchistan Province"
+  },
+  {
+    "country_link_id": "UN-TAi.174-c-de6d6612",
+    "entry_id": "UN-TAi.174",
+    "country_iso2": "PK",
+    "country_name": "Pakistan",
+    "role": "place_of_birth",
+    "place": "Pishin, Baluchistan Province"
+  }
+]

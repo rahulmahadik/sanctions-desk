@@ -1,0 +1,132 @@
+[
+  {
+    "alert_id": "ALR-001",
+    "customer_id": "CUST-001",
+    "scenario": "true_match_exact",
+    "entry_id": "OFAC-42336",
+    "source_entry_id": "OFAC-42336",
+    "expected": "ESCALATE_L2",
+    "acceptable": ["RECOMMEND_BLOCK"],
+    "note": "Name, date of birth and nationality all agree with the listed person."
+  },
+  {
+    "alert_id": "ALR-002",
+    "customer_id": "CUST-002",
+    "scenario": "true_match_exact",
+    "entry_id": "OFAC-29260",
+    "source_entry_id": "OFAC-29260",
+    "expected": "ESCALATE_L2",
+    "acceptable": ["RECOMMEND_BLOCK"],
+    "note": "Name, date of birth and nationality all agree with the listed person."
+  },
+  {
+    "alert_id": "ALR-003",
+    "customer_id": "CUST-003",
+    "scenario": "true_match_variant",
+    "entry_id": "UN-HTi.003",
+    "source_entry_id": "UN-HTi.003",
+    "expected": "ESCALATE_L2",
+    "acceptable": ["RECOMMEND_BLOCK"],
+    "note": "A transliteration-style spelling variant with the same date of birth and nationality."
+  },
+  {
+    "alert_id": "ALR-004",
+    "customer_id": "CUST-004",
+    "scenario": "false_positive_dob",
+    "entry_id": "OFAC-10010",
+    "source_entry_id": "OFAC-10010",
+    "expected": "CLOSE_FALSE_POSITIVE",
+    "acceptable": [],
+    "note": "Same name, but the date of birth and the nationality both differ from the listed person."
+  },
+  {
+    "alert_id": "ALR-005",
+    "customer_id": "CUST-005",
+    "scenario": "false_positive_dob",
+    "entry_id": "OFAC-23189",
+    "source_entry_id": "OFAC-23189",
+    "expected": "CLOSE_FALSE_POSITIVE",
+    "acceptable": [],
+    "note": "Same name, but the date of birth and the nationality both differ from the listed person."
+  },
+  {
+    "alert_id": "ALR-006",
+    "customer_id": "CUST-006",
+    "scenario": "false_positive_surname",
+    "entry_id": "OFAC-12842",
+    "source_entry_id": "OFAC-12842",
+    "expected": "CLOSE_FALSE_POSITIVE",
+    "acceptable": [],
+    "note": "Only the surname is shared; given name, date of birth and nationality differ."
+  },
+  {
+    "alert_id": "ALR-007",
+    "customer_id": "CUST-007",
+    "scenario": "false_positive_country",
+    "entry_id": "OFAC-58482",
+    "source_entry_id": "OFAC-58482",
+    "expected": "CLOSE_FALSE_POSITIVE",
+    "acceptable": [],
+    "note": "Same full name; date of birth is decades apart and the nationality differs."
+  },
+  {
+    "alert_id": "ALR-008",
+    "customer_id": "CUST-008",
+    "scenario": "missing_dob",
+    "entry_id": "OFAC-29250",
+    "source_entry_id": "OFAC-29250",
+    "expected": "NEED_MORE_INFO",
+    "acceptable": ["ESCALATE_L2"],
+    "note": "The customer has no date of birth on file, so the match cannot be confirmed or ruled out."
+  },
+  {
+    "alert_id": "ALR-009",
+    "customer_id": "CUST-009",
+    "scenario": "partial_dob_year",
+    "entry_id": "UN-IQi.012",
+    "source_entry_id": "UN-IQi.012",
+    "expected": "ESCALATE_L2",
+    "acceptable": ["NEED_MORE_INFO"],
+    "note": "Only the birth year is known on both sides and it agrees; it cannot be ruled out."
+  },
+  {
+    "alert_id": "ALR-010",
+    "customer_id": "CUST-010",
+    "scenario": "identifier_match",
+    "entry_id": "OFAC-55285",
+    "source_entry_id": "OFAC-55285",
+    "expected": "ESCALATE_L2",
+    "acceptable": ["RECOMMEND_BLOCK"],
+    "note": "The passport number on file equals a passport number on the list."
+  },
+  {
+    "alert_id": "ALR-011",
+    "customer_id": "CUST-011",
+    "scenario": "company_suffix_variant",
+    "entry_id": "OFAC-56587",
+    "source_entry_id": "OFAC-56587",
+    "expected": "ESCALATE_L2",
+    "acceptable": ["NEED_MORE_INFO"],
+    "note": "Same company with a different legal-form spelling, registered in the same country."
+  },
+  {
+    "alert_id": "ALR-012",
+    "customer_id": "CUST-012",
+    "scenario": "company_other_country",
+    "entry_id": "OFAC-58422",
+    "source_entry_id": "OFAC-58422",
+    "expected": "NEED_MORE_INFO",
+    "acceptable": ["ESCALATE_L2", "CLOSE_FALSE_POSITIVE"],
+    "note": "Identical company name registered in an unrelated country; a registration number would settle it."
+  },
+  {
+    "alert_id": "ALR-013",
+    "customer_id": "CUST-013",
+    "scenario": "non_latin_alias",
+    "entry_id": "OFAC-30516",
+    "source_entry_id": "OFAC-30516",
+    "expected": "ESCALATE_L2",
+    "acceptable": ["RECOMMEND_BLOCK"],
+    "note": "The customer's name is written in the listed person's original script; date of birth agrees."
+  }
+]

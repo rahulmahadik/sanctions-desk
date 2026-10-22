@@ -108,7 +108,7 @@ describe("CSV output", () => {
         dob_id: "d",
         entry_id: "e",
         dob_value: null,
-        precision: "range",
+        dob_precision: "range",
         range_from: "1950-01-01",
         range_to: "1953-12-31",
         is_approximate: false,

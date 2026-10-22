@@ -39,5 +39,37 @@
     "parentDepth": 3,
     "delayMs": 250,
     "outputDir": "data/reference/gleif"
+  },
+  "sample": {
+    "outputDir": "data/sample",
+    "seed": "sanctions-desk-sample-1",
+    "label": "A small deterministic subset of public sanctions lists, for development and tests. Not a complete or current list.",
+    "quotas": {
+      "individualNonLatin": {
+        "OFAC": 16,
+        "UN": 6
+      },
+      "individualPartialDob": {
+        "OFAC": 16,
+        "UN": 10
+      },
+      "individualFullDob": {
+        "OFAC": 40,
+        "UN": 20
+      },
+      "entity": {
+        "OFAC": 40,
+        "UN": 14
+      },
+      "jurisdiction": {
+        "OFAC": 12,
+        "UN": 4
+      },
+      "vessel": {
+        "OFAC": 4,
+        "UN": 0
+      }
+    },
+    "ownershipLinks": 20
   }
 }

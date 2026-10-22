@@ -177,7 +177,7 @@ class UnContext {
         dob_id: `${entryId}-d-${shortHash(described.value ?? "", described.rangeFrom ?? "", described.rangeTo ?? "", String(approximate))}`,
         entry_id: entryId,
         dob_value: described.value,
-        precision: described.precision,
+        dob_precision: described.precision,
         range_from: described.rangeFrom,
         range_to: described.rangeTo,
         is_approximate: approximate,

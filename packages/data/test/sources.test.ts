@@ -50,6 +50,7 @@ function configFor(base: string, rawDir: string, timeout = 5000): { config: Data
       normalisedDir: join(rawDir, "n"),
       sources: [source],
       gleif: loadDataSources().gleif,
+      sample: loadDataSources().sample,
     },
   };
 }

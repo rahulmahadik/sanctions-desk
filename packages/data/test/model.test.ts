@@ -45,7 +45,7 @@ function tables(): TableRows {
     dob_id: "d1",
     entry_id: "OFAC-1",
     dob_value: "1971",
-    precision: "year",
+    dob_precision: "year",
     range_from: null,
     range_to: null,
     is_approximate: false,

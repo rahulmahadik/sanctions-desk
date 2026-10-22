@@ -27,10 +27,14 @@
     "check:nemotron": "uv run python scripts/check_nemotron.py",
     "lint:voice": "node scripts/lint-voice.mjs",
     "receipt:pubkey": "tsx tools/receipt-pubkey.ts",
+    "zetaris:sql": "tsx tools/zetaris-sql.ts",
+    "zetaris:load-files": "tsx tools/zetaris-load-files.ts",
     "data:fetch": "tsx data/scripts/fetch.ts",
     "data:normalise": "tsx data/scripts/normalise.ts",
     "data:diff": "tsx data/scripts/diff.ts",
-    "data:gleif": "tsx data/scripts/gleif.ts"
+    "data:gleif": "tsx data/scripts/gleif.ts",
+    "data:sample": "tsx data/scripts/sample.ts",
+    "data:slice": "tsx data/scripts/slice-bank.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.2",

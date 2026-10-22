@@ -361,7 +361,7 @@ const birthdate: FeatureHandler = (ctx, version) => {
     dob_id: `${ctx.entryId}-d-${shortHash(d.value ?? "", d.rangeFrom ?? "", d.rangeTo ?? "", String(window.approximate))}`,
     entry_id: ctx.entryId,
     dob_value: d.value,
-    precision: d.precision,
+    dob_precision: d.precision,
     range_from: d.rangeFrom,
     range_to: d.rangeTo,
     is_approximate: window.approximate,

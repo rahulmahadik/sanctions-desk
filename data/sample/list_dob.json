@@ -1,0 +1,1712 @@
+[
+  {
+    "dob_id": "OFAC-10009-d-9fbb8e91",
+    "entry_id": "OFAC-10009",
+    "dob_value": "1960-01-20",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-10010-d-a6467493",
+    "entry_id": "OFAC-10010",
+    "dob_value": "1959-09-24",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-10375-d-61a3beea",
+    "entry_id": "OFAC-10375",
+    "dob_value": "1978-09-19",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-11274-d-48303d33",
+    "entry_id": "OFAC-11274",
+    "dob_value": "1948-09-09",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-11800-d-1ba35ec4",
+    "entry_id": "OFAC-11800",
+    "dob_value": "1955-10-21",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-12748-d-0e8c1d55",
+    "entry_id": "OFAC-12748",
+    "dob_value": "1950",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-12748-d-e7ef9038",
+    "entry_id": "OFAC-12748",
+    "dob_value": "1963",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-12842-d-493cfd9d",
+    "entry_id": "OFAC-12842",
+    "dob_value": "1967",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-15003-d-a8d765dc",
+    "entry_id": "OFAC-15003",
+    "dob_value": "1962-10-23",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-15553-d-5d7b2b8c",
+    "entry_id": "OFAC-15553",
+    "dob_value": "1959",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-15610-d-5f4e5f90",
+    "entry_id": "OFAC-15610",
+    "dob_value": "1970",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-16210-d-c0da6b8b",
+    "entry_id": "OFAC-16210",
+    "dob_value": "1977-01-11",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-16479-d-46e0b0fa",
+    "entry_id": "OFAC-16479",
+    "dob_value": null,
+    "dob_precision": "range",
+    "range_from": "1970-01-01",
+    "range_to": "1972-12-31",
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-16495-d-f4d9d899",
+    "entry_id": "OFAC-16495",
+    "dob_value": "1960-05-05",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-16753-d-55beef17",
+    "entry_id": "OFAC-16753",
+    "dob_value": "1976-08-15",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-16817-d-cd38560f",
+    "entry_id": "OFAC-16817",
+    "dob_value": "1976-05-26",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-17037-d-68655a22",
+    "entry_id": "OFAC-17037",
+    "dob_value": "1977-02-24",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-17050-d-0206e5e2",
+    "entry_id": "OFAC-17050",
+    "dob_value": "1974-06-18",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-17284-d-97aa53d7",
+    "entry_id": "OFAC-17284",
+    "dob_value": null,
+    "dob_precision": "range",
+    "range_from": "1978-01-01",
+    "range_to": "1980-12-31",
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-18848-d-1d101b43",
+    "entry_id": "OFAC-18848",
+    "dob_value": "1970-04-20",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-20903-d-00f5137c",
+    "entry_id": "OFAC-20903",
+    "dob_value": "1967-11-15",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-21123-d-68a4786f",
+    "entry_id": "OFAC-21123",
+    "dob_value": "1974",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-22408-d-861aa4c2",
+    "entry_id": "OFAC-22408",
+    "dob_value": "1973-04-29",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-22524-d-0b21faf8",
+    "entry_id": "OFAC-22524",
+    "dob_value": null,
+    "dob_precision": "range",
+    "range_from": "1983-01-01",
+    "range_to": "1985-12-31",
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-22689-d-aeaa59ba",
+    "entry_id": "OFAC-22689",
+    "dob_value": "1964-08-23",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-23143-d-59eff93d",
+    "entry_id": "OFAC-23143",
+    "dob_value": "1977-01-10",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-23189-d-00a88145",
+    "entry_id": "OFAC-23189",
+    "dob_value": "1974-01-09",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-23305-d-cd7d989d",
+    "entry_id": "OFAC-23305",
+    "dob_value": "1973-02-24",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-23305-d-eb6b220c",
+    "entry_id": "OFAC-23305",
+    "dob_value": "1973-02-25",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-23445-d-73da5638",
+    "entry_id": "OFAC-23445",
+    "dob_value": "1983-06-24",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-23507-d-dd68fb71",
+    "entry_id": "OFAC-23507",
+    "dob_value": "1961-06-09",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-23946-d-de1f06d1",
+    "entry_id": "OFAC-23946",
+    "dob_value": "1986-07-01",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-26417-d-d8916f1a",
+    "entry_id": "OFAC-26417",
+    "dob_value": "1952-11-08",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-27247-d-b5bf9026",
+    "entry_id": "OFAC-27247",
+    "dob_value": "1987-04-14",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-27853-d-05f54494",
+    "entry_id": "OFAC-27853",
+    "dob_value": "1960",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-28525-d-be32f73c",
+    "entry_id": "OFAC-28525",
+    "dob_value": "1962-05-04",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-29220-d-079886b7",
+    "entry_id": "OFAC-29220",
+    "dob_value": "1955",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-29242-d-dd8239de",
+    "entry_id": "OFAC-29242",
+    "dob_value": "1965-07-04",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-29243-d-88287476",
+    "entry_id": "OFAC-29243",
+    "dob_value": "1958-11-11",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-29246-d-e81f13d2",
+    "entry_id": "OFAC-29246",
+    "dob_value": "1963-09-01",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-29249-d-2e709aa3",
+    "entry_id": "OFAC-29249",
+    "dob_value": "1957-05-13",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-29250-d-d56e16d8",
+    "entry_id": "OFAC-29250",
+    "dob_value": "1957-12-07",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-29259-d-bbaf6d22",
+    "entry_id": "OFAC-29259",
+    "dob_value": "1963-09-03",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-29260-d-365ae59b",
+    "entry_id": "OFAC-29260",
+    "dob_value": "1959-04-05",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-29261-d-69083661",
+    "entry_id": "OFAC-29261",
+    "dob_value": "1963-08-25",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-29263-d-6f7b90df",
+    "entry_id": "OFAC-29263",
+    "dob_value": "1954-10-05",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30322-d-dc3992f7",
+    "entry_id": "OFAC-30322",
+    "dob_value": "1965-07-29",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30343-d-8eef5be3",
+    "entry_id": "OFAC-30343",
+    "dob_value": "1964-11-22",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30504-d-5b7cdb09",
+    "entry_id": "OFAC-30504",
+    "dob_value": "1955-09-24",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30507-d-69b31d36",
+    "entry_id": "OFAC-30507",
+    "dob_value": "1951-11",
+    "dob_precision": "month",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30508-d-7abc4bd4",
+    "entry_id": "OFAC-30508",
+    "dob_value": "1953-09",
+    "dob_precision": "month",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30510-d-96be3011",
+    "entry_id": "OFAC-30510",
+    "dob_value": "1953-08-17",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30512-d-32c2a541",
+    "entry_id": "OFAC-30512",
+    "dob_value": "1951-10",
+    "dob_precision": "month",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30516-d-2486a246",
+    "entry_id": "OFAC-30516",
+    "dob_value": "1956-09-06",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30745-d-408e8b9b",
+    "entry_id": "OFAC-30745",
+    "dob_value": "1949-11",
+    "dob_precision": "month",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30885-d-47fa22e2",
+    "entry_id": "OFAC-30885",
+    "dob_value": "1976",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30964-d-844f1d88",
+    "entry_id": "OFAC-30964",
+    "dob_value": "1970-08-28",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30965-d-528ca645",
+    "entry_id": "OFAC-30965",
+    "dob_value": "1972-05-22",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30966-d-099483c3",
+    "entry_id": "OFAC-30966",
+    "dob_value": "1969-09-22",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30967-d-e16324fc",
+    "entry_id": "OFAC-30967",
+    "dob_value": "1965",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30968-d-24c752e8",
+    "entry_id": "OFAC-30968",
+    "dob_value": "1954-01",
+    "dob_precision": "month",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-30969-d-76d39f93",
+    "entry_id": "OFAC-30969",
+    "dob_value": "1949-12-15",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-32337-d-e16324fc",
+    "entry_id": "OFAC-32337",
+    "dob_value": "1965",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-32471-d-0363747b",
+    "entry_id": "OFAC-32471",
+    "dob_value": "1963-11",
+    "dob_precision": "month",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-32471-d-560ebece",
+    "entry_id": "OFAC-32471",
+    "dob_value": "1964-02",
+    "dob_precision": "month",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-32475-d-3fe7545f",
+    "entry_id": "OFAC-32475",
+    "dob_value": "1963-10",
+    "dob_precision": "month",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-32475-d-be509eaf",
+    "entry_id": "OFAC-32475",
+    "dob_value": "1964-01-20",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-32477-d-7a57b829",
+    "entry_id": "OFAC-32477",
+    "dob_value": "1964-08",
+    "dob_precision": "month",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-34119-d-63776f42",
+    "entry_id": "OFAC-34119",
+    "dob_value": "1961-12",
+    "dob_precision": "month",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-35299-d-46ffbbf2",
+    "entry_id": "OFAC-35299",
+    "dob_value": "1965-04-20",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-35299-d-667330fb",
+    "entry_id": "OFAC-35299",
+    "dob_value": "1965-04-24",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-35547-d-aea367f2",
+    "entry_id": "OFAC-35547",
+    "dob_value": "1960-12-13",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-36073-d-9bbde793",
+    "entry_id": "OFAC-36073",
+    "dob_value": "1989-01-07",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-36405-d-0db3c223",
+    "entry_id": "OFAC-36405",
+    "dob_value": "1983-04-03",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-36867-d-3631b9da",
+    "entry_id": "OFAC-36867",
+    "dob_value": "1978-04-01",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-38284-d-22ef119c",
+    "entry_id": "OFAC-38284",
+    "dob_value": "1963-10-03",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-40156-d-951d831d",
+    "entry_id": "OFAC-40156",
+    "dob_value": null,
+    "dob_precision": "range",
+    "range_from": "1963-01-01",
+    "range_to": "1964-12-31",
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-40378-d-98a6c3cf",
+    "entry_id": "OFAC-40378",
+    "dob_value": "1965-04-09",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-40399-d-2376eb51",
+    "entry_id": "OFAC-40399",
+    "dob_value": "1995-05-15",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-40479-d-493cfd9d",
+    "entry_id": "OFAC-40479",
+    "dob_value": "1967",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-40569-d-1ee8d120",
+    "entry_id": "OFAC-40569",
+    "dob_value": "1961-02-11",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-41005-d-17453b22",
+    "entry_id": "OFAC-41005",
+    "dob_value": "1966-02-09",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-41069-d-327a4c84",
+    "entry_id": "OFAC-41069",
+    "dob_value": "1960-10-19",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-42074-d-ee398cbc",
+    "entry_id": "OFAC-42074",
+    "dob_value": "1973-07-16",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-42160-d-5f643acf",
+    "entry_id": "OFAC-42160",
+    "dob_value": "1968-05-29",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-42336-d-95679ddf",
+    "entry_id": "OFAC-42336",
+    "dob_value": "1978-03-19",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-43062-d-3b18ce36",
+    "entry_id": "OFAC-43062",
+    "dob_value": "1981",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-43062-d-8221dddc",
+    "entry_id": "OFAC-43062",
+    "dob_value": "1982",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-43542-d-2930e9fe",
+    "entry_id": "OFAC-43542",
+    "dob_value": "1986-04-10",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-44438-d-96f82228",
+    "entry_id": "OFAC-44438",
+    "dob_value": "1987-10-25",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-45649-d-8221dddc",
+    "entry_id": "OFAC-45649",
+    "dob_value": "1982",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-46251-d-29acd749",
+    "entry_id": "OFAC-46251",
+    "dob_value": "1946-03-30",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-46312-d-b5049907",
+    "entry_id": "OFAC-46312",
+    "dob_value": "1969-05-02",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-46715-d-4122fe85",
+    "entry_id": "OFAC-46715",
+    "dob_value": "1980-01-19",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-46883-d-07eb12bb",
+    "entry_id": "OFAC-46883",
+    "dob_value": "1994-05-14",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-46883-d-508ab875",
+    "entry_id": "OFAC-46883",
+    "dob_value": "1995-04-28",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-50476-d-8ddcce9f",
+    "entry_id": "OFAC-50476",
+    "dob_value": "1961-02-12",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-54376-d-36a0ea70",
+    "entry_id": "OFAC-54376",
+    "dob_value": "1994-03-14",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-54495-d-f0856722",
+    "entry_id": "OFAC-54495",
+    "dob_value": "1985-05-05",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-54901-d-3d67b642",
+    "entry_id": "OFAC-54901",
+    "dob_value": "1974-12-25",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-55285-d-5dd0ec3e",
+    "entry_id": "OFAC-55285",
+    "dob_value": "1982-09-18",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-55505-d-03293e08",
+    "entry_id": "OFAC-55505",
+    "dob_value": "1987-12-16",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-56311-d-49315162",
+    "entry_id": "OFAC-56311",
+    "dob_value": "1993-04-29",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-56361-d-8492e1bc",
+    "entry_id": "OFAC-56361",
+    "dob_value": "1975-05-22",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-56674-d-71f33947",
+    "entry_id": "OFAC-56674",
+    "dob_value": "1982-02-24",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-56810-d-eb9a441c",
+    "entry_id": "OFAC-56810",
+    "dob_value": "1962-01-14",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-56890-d-c0f83dda",
+    "entry_id": "OFAC-56890",
+    "dob_value": "1976-08-16",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-57141-d-c69c348f",
+    "entry_id": "OFAC-57141",
+    "dob_value": "1971-05-17",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-57157-d-6b2122cb",
+    "entry_id": "OFAC-57157",
+    "dob_value": "1963-07-10",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-57349-d-830bd214",
+    "entry_id": "OFAC-57349",
+    "dob_value": "1991-04-28",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-58039-d-cfbf25cb",
+    "entry_id": "OFAC-58039",
+    "dob_value": "1983-06-11",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-58343-d-b4cf24b3",
+    "entry_id": "OFAC-58343",
+    "dob_value": "1985-05-06",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-58482-d-34945eab",
+    "entry_id": "OFAC-58482",
+    "dob_value": "1975-08-24",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-7205-d-3ab76157",
+    "entry_id": "OFAC-7205",
+    "dob_value": "1969-10-13",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-7214-d-71da593d",
+    "entry_id": "OFAC-7214",
+    "dob_value": "1974-10-17",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-7257-d-ed7c3122",
+    "entry_id": "OFAC-7257",
+    "dob_value": "1965-11-23",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9528-d-74125676",
+    "entry_id": "OFAC-9528",
+    "dob_value": "1967-06-17",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9640-d-dbca6387",
+    "entry_id": "OFAC-9640",
+    "dob_value": "1951",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9642-d-5d7b2b8c",
+    "entry_id": "OFAC-9642",
+    "dob_value": "1959",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9644-d-5d7b2b8c",
+    "entry_id": "OFAC-9644",
+    "dob_value": "1959",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9648-d-8c11805f",
+    "entry_id": "OFAC-9648",
+    "dob_value": "1936",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9652-d-a96fb425",
+    "entry_id": "OFAC-9652",
+    "dob_value": "1968",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9664-d-c1670c1c",
+    "entry_id": "OFAC-9664",
+    "dob_value": "1964",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9677-d-079886b7",
+    "entry_id": "OFAC-9677",
+    "dob_value": "1955",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9678-d-9ef46e59",
+    "entry_id": "OFAC-9678",
+    "dob_value": "1944",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9680-d-a67b0fe5",
+    "entry_id": "OFAC-9680",
+    "dob_value": "1961",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9683-d-5b598a97",
+    "entry_id": "OFAC-9683",
+    "dob_value": "1953",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9691-d-05f54494",
+    "entry_id": "OFAC-9691",
+    "dob_value": "1960",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9700-d-45d49fb5",
+    "entry_id": "OFAC-9700",
+    "dob_value": "1956",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9706-d-05f54494",
+    "entry_id": "OFAC-9706",
+    "dob_value": "1960",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9707-d-8c659428",
+    "entry_id": "OFAC-9707",
+    "dob_value": "1957",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9711-d-826f5321",
+    "entry_id": "OFAC-9711",
+    "dob_value": "1962",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "OFAC-9712-d-45d49fb5",
+    "entry_id": "OFAC-9712",
+    "dob_value": "1956",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-CDi.024-d-741fcc55",
+    "entry_id": "UN-CDi.024",
+    "dob_value": "1964-01-01",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-CDi.024-d-cc6a7148",
+    "entry_id": "UN-CDi.024",
+    "dob_value": "1964",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": true
+  },
+  {
+    "dob_id": "UN-CDi.033-d-88dd67f9",
+    "entry_id": "UN-CDi.033",
+    "dob_value": "1980-03-13",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-HTi.003-d-28ef7cc8",
+    "entry_id": "UN-HTi.003",
+    "dob_value": "1982-06-11",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-IQi.012-d-01799360",
+    "entry_id": "UN-IQi.012",
+    "dob_value": "1946",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-IQi.012-d-038090a6",
+    "entry_id": "UN-IQi.012",
+    "dob_value": "1949",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-IQi.012-d-05f54494",
+    "entry_id": "UN-IQi.012",
+    "dob_value": "1960",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-IQi.047-d-9ef46e59",
+    "entry_id": "UN-IQi.047",
+    "dob_value": "1944",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-IRi.013-d-20d29d00",
+    "entry_id": "UN-IRi.013",
+    "dob_value": "1956-08-11",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-KPi.025-d-821411ba",
+    "entry_id": "UN-KPi.025",
+    "dob_value": "1972-05-25",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-KPi.052-d-89e9d49a",
+    "entry_id": "UN-KPi.052",
+    "dob_value": "1968-06-25",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-KPi.060-d-8a99f7fb",
+    "entry_id": "UN-KPi.060",
+    "dob_value": "1957-03-25",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-KPi.066-d-63aaeefe",
+    "entry_id": "UN-KPi.066",
+    "dob_value": null,
+    "dob_precision": "range",
+    "range_from": "1967-01-01",
+    "range_to": "1969-12-31",
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-KPi.072-d-c02ea47e",
+    "entry_id": "UN-KPi.072",
+    "dob_value": "1969-08-22",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.020-d-12ec5b86",
+    "entry_id": "UN-QDi.020",
+    "dob_value": "1971-11-19",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.055-d-1a7168db",
+    "entry_id": "UN-QDi.055",
+    "dob_value": "1938",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.055-d-3b146a6d",
+    "entry_id": "UN-QDi.055",
+    "dob_value": "1940",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.055-d-667ef2e5",
+    "entry_id": "UN-QDi.055",
+    "dob_value": "1945",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.055-d-69821ece",
+    "entry_id": "UN-QDi.055",
+    "dob_value": "1939",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.055-d-8d1a0180",
+    "entry_id": "UN-QDi.055",
+    "dob_value": "1941",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.055-d-8fde8064",
+    "entry_id": "UN-QDi.055",
+    "dob_value": "1937",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.055-d-9ef46e59",
+    "entry_id": "UN-QDi.055",
+    "dob_value": "1944",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.055-d-da18d4bc",
+    "entry_id": "UN-QDi.055",
+    "dob_value": "1943",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.055-d-fe14f28a",
+    "entry_id": "UN-QDi.055",
+    "dob_value": "1942",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.059-d-2621bc12",
+    "entry_id": "UN-QDi.059",
+    "dob_value": "1962-08-24",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.064-d-1377ee1c",
+    "entry_id": "UN-QDi.064",
+    "dob_value": "1968-02-10",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.081-d-31277827",
+    "entry_id": "UN-QDi.081",
+    "dob_value": "1972-05-01",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.081-d-9efb5265",
+    "entry_id": "UN-QDi.081",
+    "dob_value": "1973-09-16",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.252-d-913919fd",
+    "entry_id": "UN-QDi.252",
+    "dob_value": "1967-01-17",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.272-d-287234bf",
+    "entry_id": "UN-QDi.272",
+    "dob_value": "1961-03-12",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.298-d-cf7ad862",
+    "entry_id": "UN-QDi.298",
+    "dob_value": "1981",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": true
+  },
+  {
+    "dob_id": "UN-QDi.299-d-ff5196de",
+    "entry_id": "UN-QDi.299",
+    "dob_value": "1971",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.309-d-f4f19c10",
+    "entry_id": "UN-QDi.309",
+    "dob_value": "1965-10-03",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.344-d-e66bcfbe",
+    "entry_id": "UN-QDi.344",
+    "dob_value": "1977-07-12",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.360-d-b048fe5b",
+    "entry_id": "UN-QDi.360",
+    "dob_value": "1968-11-17",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.372-d-1949965b",
+    "entry_id": "UN-QDi.372",
+    "dob_value": "1975-05-14",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-QDi.372-d-197a8a5a",
+    "entry_id": "UN-QDi.372",
+    "dob_value": "1975",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": true
+  },
+  {
+    "dob_id": "UN-SOi.009-d-0f5a8915",
+    "entry_id": "UN-SOi.009",
+    "dob_value": "1979-04-10",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-SOi.010-d-e2eaaca4",
+    "entry_id": "UN-SOi.010",
+    "dob_value": "1986-05-06",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-SOi.011-d-259f3073",
+    "entry_id": "UN-SOi.011",
+    "dob_value": "1969-11-11",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-SOi.011-d-a2138ef1",
+    "entry_id": "UN-SOi.011",
+    "dob_value": "1969-01-01",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-SOi.011-d-dae0da44",
+    "entry_id": "UN-SOi.011",
+    "dob_value": "1960-11-11",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-SOi.011-d-e0d3f14d",
+    "entry_id": "UN-SOi.011",
+    "dob_value": "1967-11-11",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-SOi.014-d-425aaaa7",
+    "entry_id": "UN-SOi.014",
+    "dob_value": "1972",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": true
+  },
+  {
+    "dob_id": "UN-TAi.049-d-3cd633fd",
+    "entry_id": "UN-TAi.049",
+    "dob_value": "1957",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": true
+  },
+  {
+    "dob_id": "UN-TAi.060-d-86f06923",
+    "entry_id": "UN-TAi.060",
+    "dob_value": "1958",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": true
+  },
+  {
+    "dob_id": "UN-TAi.060-d-f1c4b9a7",
+    "entry_id": "UN-TAi.060",
+    "dob_value": "1957-02-22",
+    "dob_precision": "day",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-TAi.079-d-a8da65ef",
+    "entry_id": "UN-TAi.079",
+    "dob_value": null,
+    "dob_precision": "range",
+    "range_from": "1966-01-01",
+    "range_to": "1967-12-31",
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-TAi.080-d-62fcdd54",
+    "entry_id": "UN-TAi.080",
+    "dob_value": "1967",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": true
+  },
+  {
+    "dob_id": "UN-TAi.153-d-826f5321",
+    "entry_id": "UN-TAi.153",
+    "dob_value": "1962",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-TAi.153-d-a67b0fe5",
+    "entry_id": "UN-TAi.153",
+    "dob_value": "1961",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-TAi.153-d-dd55a741",
+    "entry_id": "UN-TAi.153",
+    "dob_value": "1966",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-TAi.153-d-ff4e7b69",
+    "entry_id": "UN-TAi.153",
+    "dob_value": null,
+    "dob_precision": "range",
+    "range_from": "1968-01-01",
+    "range_to": "1970-12-31",
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-TAi.170-d-8221dddc",
+    "entry_id": "UN-TAi.170",
+    "dob_value": "1982",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-TAi.174-d-05f54494",
+    "entry_id": "UN-TAi.174",
+    "dob_value": "1960",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  },
+  {
+    "dob_id": "UN-TAi.174-d-715146d2",
+    "entry_id": "UN-TAi.174",
+    "dob_value": "1965",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": true
+  },
+  {
+    "dob_id": "UN-TAi.174-d-826f5321",
+    "entry_id": "UN-TAi.174",
+    "dob_value": "1962",
+    "dob_precision": "year",
+    "range_from": null,
+    "range_to": null,
+    "is_approximate": false
+  }
+]

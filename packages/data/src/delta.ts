@@ -77,7 +77,7 @@ export function applyDelta(base: NormalisedSnapshot, ops: readonly DeltaOp[], la
           dob_id: `${entry.entry_id}-d-${shortHash(d.value ?? "", "synthetic")}`,
           entry_id: entry.entry_id,
           dob_value: d.value,
-          precision: d.precision,
+          dob_precision: d.precision,
           range_from: d.rangeFrom,
           range_to: d.rangeTo,
           is_approximate: false,
