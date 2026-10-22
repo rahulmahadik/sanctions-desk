@@ -9,3 +9,9 @@ logs/
 .claude/
 # Private scratch: run logs, notes. Never commit.
 internal/
+
+# Node / TypeScript
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
