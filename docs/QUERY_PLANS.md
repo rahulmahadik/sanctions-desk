@@ -190,4 +190,3 @@ AdaptiveSparkPlan isFinalPlan=false
       +- HashAggregate(keys=[customer_id#2480725], functions=[partial_count(1), partial_sum(amount#2480728)], output=[customer_id#2480725, count#2480746L, sum#2480747, isEmpty#2480748])
          +- Scan USLTableScan[payment](LIVE) [customer_id#2480725,amount#2480728] PushedFilters: [EqualTo(status,pending), In(customer_id, [CUST-0051,CUST-0052])], ReadSchema: struct<customer_id:string,amount:decimal(14,2)>
 ```
-

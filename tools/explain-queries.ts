@@ -85,5 +85,5 @@ for (const q of QUERIES) {
   );
   console.log(`${q.title}: ${plan.split("\n").length} plan lines`);
 }
-writeFileSync(resolveProjectPath("docs/QUERY_PLANS.md"), `${out.join("\n")}\n`);
+writeFileSync(resolveProjectPath("docs/QUERY_PLANS.md"), `${out.join("\n").trimEnd()}\n`);
 console.log("wrote docs/QUERY_PLANS.md");
