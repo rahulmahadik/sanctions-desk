@@ -30,6 +30,7 @@ const RULES = [
   { name: "work-in-progress wording", pattern: /work[- ]in[- ]progress|not (built|implemented) yet|coming soon/i },
   { name: "work marker (TODO, FIXME, XXX)", pattern: /\b(TODO|FIXME|XXX)\b/ },
   { name: "internal brief path", pattern: /internal\/brief|\binternal\/(?!$)/ },
+  { name: "research process wording", pattern: /browser[- ]?(assistant|check)|claude in chrome/i },
   { name: "assistant attribution", pattern: /\bClaude\b|Co-Authored-By|Generated (with|by)|\bAnthropic\b/i },
 ];
 
