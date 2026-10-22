@@ -1,4 +1,4 @@
--- Checks for roles and grants.
+-- Roles and what they may read.
 
 -- @@ roles
 SHOW ROLES

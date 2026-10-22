@@ -36,6 +36,9 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
   triage(deps, "customer", request.alertId);
 
   const evidence = await gatherEvidence(deps, request.alertId);
+  if (evidence.alert.alert_source === "ownership") {
+    throw new AppError("not_implemented", "ownership alerts are not reviewed in this build yet");
+  }
   const match = matchEvidence(deps, evidence);
   judgeDifficulty(deps, match);
 
@@ -117,7 +120,7 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
   return ReviewResponseSchema.parse({
     run_id: request.runId,
     status: "ok",
-    alert_type: "customer",
+    alert_type: evidence.alert.alert_type === "payment" ? "payment" : "customer",
     policy_version: policy.version,
     decision: guard.decision,
     confidence: guard.confidence,

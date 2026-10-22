@@ -8,15 +8,15 @@ import {
   sampleRules,
   triage,
 } from "../src/index.js";
-import { sampleDeps } from "./helpers.js";
+import { caseFacts, sampleDeps } from "./helpers.js";
 
 describe("gatherEvidence", () => {
   it("reads the semantic layer, then the alert, customer, list entry and data quality, masking identifiers", async () => {
     const deps = sampleDeps();
-    const evidence = await gatherEvidence(deps, "ALR-010");
+    const evidence = await gatherEvidence(deps, caseFacts("tm_identifier").alertId);
     expect(evidence.model.tables.map((t) => t.name)).toContain("business_definition");
-    expect(evidence.alert.alert_id).toBe("ALR-010");
-    expect(evidence.customer.customer_id).toBe("CUST-010");
+    expect(evidence.alert.alert_id).toBe(caseFacts("tm_identifier").alertId);
+    expect(evidence.customer.customer_id).toBe(caseFacts("tm_identifier").customerId);
     expect(evidence.customerIdentifiers[0]?.id_number).toMatch(/^\*+\d{2}$/);
     expect(evidence.identifierOverlap).toEqual(["passport"]);
     expect(evidence.dq.find((d) => d.rule === "dob_present_for_individuals")?.failed).toBe(true);
@@ -30,7 +30,7 @@ describe("gatherEvidence", () => {
 describe("matchEvidence and the model prompt", () => {
   it("compares field by field and gives the model explicit nationality facts and the approved wording", async () => {
     const deps = sampleDeps();
-    const evidence = await gatherEvidence(deps, "ALR-001");
+    const evidence = await gatherEvidence(deps, caseFacts("tm_exact_0").alertId);
     const match = matchEvidence(deps, evidence);
     expect(match.comparison).toMatchObject({
       assessment: "strong",
@@ -38,11 +38,14 @@ describe("matchEvidence and the model prompt", () => {
       country: { status: "match" },
     });
     const payload = JSON.parse(renderEvidence(evidence, match));
-    expect(payload.comparison.nationality).toMatchObject({ status: "match", customer_nationality: "BE" });
-    expect(payload.comparison.nationality.listed_nationalities).toContain("BE");
+    expect(payload.comparison.nationality.status).toBe("match");
+    expect(payload.comparison.nationality.listed_nationalities).toContain(
+      payload.comparison.nationality.customer_nationality,
+    );
     expect(payload.customer_identifier).toEqual([]);
     const definitions = JSON.parse(renderDefinitions(evidence));
     expect(definitions.map((d: { id: string }) => d.id).sort()).toEqual([
+      "counterparty_match",
       "effective_ownership_threshold",
       "false_positive",
       "strong_identifier",
@@ -54,10 +57,13 @@ describe("matchEvidence and the model prompt", () => {
 describe("triage", () => {
   it("plans the path and judges how clear the case is", async () => {
     const deps = sampleDeps();
-    expect(triage(deps, "customer", "ALR-004")).toMatchObject({ alertType: "customer", maxCriticRounds: 3 });
-    const clear = matchEvidence(deps, await gatherEvidence(deps, "ALR-004"));
+    expect(triage(deps, "customer", caseFacts("fp_dob_exact_name_0").alertId)).toMatchObject({
+      alertType: "customer",
+      maxCriticRounds: 3,
+    });
+    const clear = matchEvidence(deps, await gatherEvidence(deps, caseFacts("fp_dob_exact_name_0").alertId));
     expect(judgeDifficulty(deps, clear)).toBe("clear");
-    const contested = matchEvidence(deps, await gatherEvidence(deps, "ALR-009"));
+    const contested = matchEvidence(deps, await gatherEvidence(deps, caseFacts("md_no_dob_0").alertId));
     expect(judgeDifficulty(deps, contested)).toBe("contested");
   });
 });

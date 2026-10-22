@@ -5,3 +5,5 @@ export * from "./metadata.js";
 export * from "./replay.js";
 export * from "./setup.js";
 export * from "./tools.js";
+export * from "./usl-spec.js";
+export * from "./usl-sql.js";

@@ -24,6 +24,8 @@ export interface EvidenceBundle {
   model: UslModel;
   alert: Row;
   customer: Row;
+  /** The payment, for payment alerts. */
+  payment: Row | null;
   customerIdentifiers: Row[];
   entry: Row;
   aliases: Row[];
@@ -52,6 +54,7 @@ const REQUIRED_TABLES = [
   "list_country",
   "list_identifier",
   "business_definition",
+  "payment",
 ] as const;
 
 function first(result: ToolResult, what: string): Row {
@@ -141,6 +144,10 @@ export async function gatherEvidence(deps: AgentDeps, alertId: string): Promise<
   const customerId = alert.customer_id ?? "";
   const entryId = alert.entry_id ?? "";
   const customer = first(await read("find_customer", { customer_id: customerId }), `customer ${customerId}`);
+  const paymentId = alert.payment_id;
+  const payment = paymentId
+    ? first(await read("find_payment", { payment_id: paymentId }), `payment ${paymentId}`)
+    : null;
   const customerIdentifiers = (await read("find_customer_identifier", { customer_id: customerId })).rows;
   const entry = first(await read("find_list_entry", { entry_id: entryId }), `list entry ${entryId}`);
   const aliases = (await read("find_list_alias", { entry_id: entryId })).rows;
@@ -190,15 +197,25 @@ export async function gatherEvidence(deps: AgentDeps, alertId: string): Promise<
     cache_hit: overlap.cache_hit,
   });
 
-  const dq = await checkDataQuality(deps, model, "customer", customerId, queries, role);
+  const dq = [
+    ...(await checkDataQuality(deps, model, "customer", customerId, queries, role)),
+    ...(paymentId ? await checkDataQuality(deps, model, "payment", paymentId, queries, role) : []),
+  ];
 
-  const freeText = [customer.full_name, entry.primary_name, entry.remarks, ...aliases.map((a) => a.alias_name)].filter(
-    (t): t is string => typeof t === "string" && t.length > 0,
-  );
+  const freeText = [
+    customer.full_name,
+    customer.notes,
+    payment?.counterparty_name,
+    payment?.payment_reference,
+    entry.primary_name,
+    entry.remarks,
+    ...aliases.map((a) => a.alias_name),
+  ].filter((t): t is string => typeof t === "string" && t.length > 0);
   return {
     model,
     alert,
     customer,
+    payment,
     customerIdentifiers,
     entry,
     aliases,

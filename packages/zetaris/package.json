@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@sanctions-desk/shared": "^0.1.0",
-    "zod": "^4.6.7"
+    "zod": "^4.6.7",
+    "@sanctions-desk/data": "^0.1.0"
   }
 }

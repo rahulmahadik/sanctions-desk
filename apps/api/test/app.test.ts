@@ -106,7 +106,11 @@ describe("POST /run", () => {
 
   it("answers with a structured error, and no invented decision, when the data service is unreachable", async () => {
     const { app, logDir } = await makeApp({ env: { ZETARIS_TOKEN_EVIDENCE: "e-token-123456" } });
-    const res = await app.inject({ method: "POST", url: "/run", payload: { run_id: "run-down", alert_id: "ALR-001" } });
+    const res = await app.inject({
+      method: "POST",
+      url: "/run",
+      payload: { run_id: "run-down", alert_id: "ALR-0001" },
+    });
     expect(res.statusCode).toBe(502);
     expect(res.json()).toMatchObject({ status: "error", run_id: "run-down", error: { type: "query_failed" } });
     expect(res.json().decision).toBeUndefined();

@@ -1,20 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { runReview } from "../src/index.js";
-import { sampleDeps, scriptedGenerator } from "./helpers.js";
+import { caseFacts, sampleDeps, scriptedGenerator } from "./helpers.js";
 
+const fp = caseFacts("fp_dob_exact_name_0");
 const goodFacts = [
-  {
-    table: "customer",
-    key_value: "CUST-004",
-    column: "full_name",
-    value: "Jaber AL-JALAMAH",
-  },
-  {
-    table: "list_entry",
-    key_value: "OFAC-10010",
-    column: "primary_name",
-    value: "Jaber AL-JALAMAH",
-  },
+  { table: "customer", key_value: fp.customerId, column: "full_name", value: fp.customerName },
+  { table: "list_entry", key_value: fp.entryId, column: "primary_name", value: fp.entryName },
 ];
 const decision = (over: Record<string, unknown> = {}) =>
   JSON.stringify({
@@ -31,7 +22,8 @@ const reject = (issue: string) => JSON.stringify({ verdict: "reject", issues: [i
 /** The model script for several rounds: a decision answer, then a critic answer, repeated. */
 const rounds = (d: string, c: string, n: number) => Array.from({ length: n }, () => [d, c]).flat();
 
-const request = { runId: "pipeline-test", alertId: "ALR-004", sampleMode: true };
+const tm = caseFacts("tm_exact_0");
+const request = { runId: "pipeline-test", alertId: fp.alertId, sampleMode: true };
 
 describe("runReview with a scripted model", () => {
   it("approves when the cited facts hold and the critic agrees", async () => {
@@ -70,7 +62,7 @@ describe("runReview with a scripted model", () => {
   it("flags a fact about a table or row that does not exist", async () => {
     const bad = [
       { table: "nonexistent", key_value: "1", column: "x", value: "y" },
-      { ...goodFacts[0], key_value: "CUST-999" },
+      { ...goodFacts[0], key_value: "CUST-9999" },
     ];
     const { generator } = scriptedGenerator(rounds(decision({ facts: bad }), approve, 3));
     const res = await runReview(sampleDeps({ generator }), request);
@@ -85,7 +77,7 @@ describe("runReview with a scripted model", () => {
       value: "Bassem Murad",
     };
     const { generator } = scriptedGenerator(rounds(decision({ facts: [fact] }), approve, 3));
-    const res = await runReview(sampleDeps({ generator }), { ...request, alertId: "ALR-001" });
+    const res = await runReview(sampleDeps({ generator }), { ...request, alertId: tm.alertId });
     expect(res.decision).toBe("ESCALATE_L2");
     expect(res.critic?.final_verdict).toBe("escalated");
   });
@@ -112,7 +104,7 @@ describe("runReview with a scripted model", () => {
 
   it("answers an unknown alert with a not-found error", async () => {
     const { generator } = scriptedGenerator([decision()]);
-    await expect(runReview(sampleDeps({ generator }), { ...request, alertId: "ALR-999" })).rejects.toMatchObject({
+    await expect(runReview(sampleDeps({ generator }), { ...request, alertId: "ALR-9999" })).rejects.toMatchObject({
       type: "query_failed",
     });
   });

@@ -1,5 +1,5 @@
 -- Roles and table-level grants for the three runtime identities. Users are created in the Zetaris UI and
--- assigned to these roles afterwards (see the setup guide); the admin key is never used at runtime.
+-- assigned to these roles afterwards; the admin key is never used at runtime.
 
 -- @@ create_role_evidence_agent
 CREATE ROLE 'role_evidence_agent' DESCRIBE BY 'Evidence and reasoning agents, identifiers are masked'
@@ -9,6 +9,9 @@ CREATE ROLE 'role_reviewer' DESCRIBE BY 'Human reviewers, full values'
 
 -- @@ create_role_eval
 CREATE ROLE 'role_eval' DESCRIBE BY 'Evaluation runs, read-only'
+
+-- @@ grant_role_evidence_agent_business_definition
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.business_definition TO ROLE 'role_evidence_agent'
 
 -- @@ grant_role_evidence_agent_list_entry
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.list_entry TO ROLE 'role_evidence_agent'
@@ -31,8 +34,26 @@ GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.customer T
 -- @@ grant_role_evidence_agent_customer_identifier
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.customer_identifier TO ROLE 'role_evidence_agent'
 
+-- @@ grant_role_evidence_agent_customer_alias
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.customer_alias TO ROLE 'role_evidence_agent'
+
+-- @@ grant_role_evidence_agent_account
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.account TO ROLE 'role_evidence_agent'
+
+-- @@ grant_role_evidence_agent_beneficial_owner
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.beneficial_owner TO ROLE 'role_evidence_agent'
+
+-- @@ grant_role_evidence_agent_payment
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.payment TO ROLE 'role_evidence_agent'
+
 -- @@ grant_role_evidence_agent_alert
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.alert TO ROLE 'role_evidence_agent'
+
+-- @@ grant_role_evidence_agent_disposition
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.disposition TO ROLE 'role_evidence_agent'
+
+-- @@ grant_role_reviewer_business_definition
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.business_definition TO ROLE 'role_reviewer'
 
 -- @@ grant_role_reviewer_list_entry
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.list_entry TO ROLE 'role_reviewer'
@@ -55,8 +76,26 @@ GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.customer T
 -- @@ grant_role_reviewer_customer_identifier
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.customer_identifier TO ROLE 'role_reviewer'
 
+-- @@ grant_role_reviewer_customer_alias
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.customer_alias TO ROLE 'role_reviewer'
+
+-- @@ grant_role_reviewer_account
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.account TO ROLE 'role_reviewer'
+
+-- @@ grant_role_reviewer_beneficial_owner
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.beneficial_owner TO ROLE 'role_reviewer'
+
+-- @@ grant_role_reviewer_payment
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.payment TO ROLE 'role_reviewer'
+
 -- @@ grant_role_reviewer_alert
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.alert TO ROLE 'role_reviewer'
+
+-- @@ grant_role_reviewer_disposition
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.disposition TO ROLE 'role_reviewer'
+
+-- @@ grant_role_eval_business_definition
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.business_definition TO ROLE 'role_eval'
 
 -- @@ grant_role_eval_list_entry
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.list_entry TO ROLE 'role_eval'
@@ -79,14 +118,20 @@ GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.customer T
 -- @@ grant_role_eval_customer_identifier
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.customer_identifier TO ROLE 'role_eval'
 
+-- @@ grant_role_eval_customer_alias
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.customer_alias TO ROLE 'role_eval'
+
+-- @@ grant_role_eval_account
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.account TO ROLE 'role_eval'
+
+-- @@ grant_role_eval_beneficial_owner
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.beneficial_owner TO ROLE 'role_eval'
+
+-- @@ grant_role_eval_payment
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.payment TO ROLE 'role_eval'
+
 -- @@ grant_role_eval_alert
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.alert TO ROLE 'role_eval'
 
--- @@ grant_role_evidence_agent_business_definition
-GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.business_definition TO ROLE 'role_evidence_agent'
-
--- @@ grant_role_reviewer_business_definition
-GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.business_definition TO ROLE 'role_reviewer'
-
--- @@ grant_role_eval_business_definition
-GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.business_definition TO ROLE 'role_eval'
+-- @@ grant_role_eval_disposition
+GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.disposition TO ROLE 'role_eval'

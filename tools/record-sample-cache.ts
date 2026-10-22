@@ -4,10 +4,11 @@
  *
  *   npm run sample:record
  */
-import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runReview, sampleRules } from "@sanctions-desk/agents";
+import { loadExam } from "@sanctions-desk/data";
 import {
   createFallbackRulesGenerator,
   createTraceLogger,
@@ -22,9 +23,7 @@ if (existsSync(envFile)) process.loadEnvFile(envFile);
 
 const config = loadConfig();
 const policy = loadPolicyFile(config.policy.file);
-const alerts = JSON.parse(readFileSync(resolveProjectPath("data/sample/bank/alert.json"), "utf8")) as Array<{
-  alert_id: string;
-}>;
+const alerts = loadExam().cases.flatMap((c) => (c.alert_id ? [{ alert_id: c.alert_id }] : []));
 const cache = emptyCache();
 const zetaris = createZetarisClient({
   config,
@@ -36,18 +35,23 @@ const generator = createFallbackRulesGenerator(sampleRules);
 for (const { alert_id: alertId } of alerts) {
   const runId = `record-${alertId}`;
   const trace = createTraceLogger({ runId, dir: logDir, stdout: false, policyVersion: policy.version });
-  const result = await runReview(
-    {
-      config: { ...config, logging: { ...config.logging, dir: logDir } },
-      policy,
-      zetaris,
-      generator,
-      trace,
-      now: () => new Date(),
-    },
-    { runId, alertId, sampleMode: true },
-  );
-  console.log(`${alertId} ${result.decision} (${Object.keys(cache.entries).length} saved answers)`);
+  try {
+    const result = await runReview(
+      {
+        config: { ...config, logging: { ...config.logging, dir: logDir } },
+        policy,
+        zetaris,
+        generator,
+        trace,
+        now: () => new Date(),
+      },
+      { runId, alertId, sampleMode: true },
+    );
+    console.log(`${alertId} ${result.decision} (${Object.keys(cache.entries).length} saved answers)`);
+  } catch (err) {
+    // Alerts the review does not handle yet are left out of the cache; they cannot run in sample mode either.
+    console.log(`${alertId} skipped: ${err instanceof Error ? err.message : String(err)}`);
+  }
 }
 saveQueryCache(resolveProjectPath(config.sampleCache), cache);
 console.log(`saved ${Object.keys(cache.entries).length} answers to ${config.sampleCache}`);

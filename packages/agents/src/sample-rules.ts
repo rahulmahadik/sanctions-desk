@@ -8,6 +8,7 @@ import type { GenerateRequest } from "@sanctions-desk/shared";
 
 interface Evidence {
   customer?: { customer_id?: string; full_name?: string; date_of_birth?: string | null };
+  payment?: { payment_id?: string; counterparty_name?: string };
   list_entry?: { entry_id?: string; primary_name?: string };
   list_dob?: Array<{ dob_id?: string; dob_value?: string | null }>;
   data_quality?: Array<{ failed?: boolean }>;
@@ -16,7 +17,8 @@ interface Evidence {
     date_of_birth?: string;
     nationality?: { status?: string };
     identifiers?: string;
-    definitions_met?: { true_match?: boolean; false_positive?: boolean };
+    definitions_met?: { true_match?: boolean; false_positive?: boolean; counterparty_match?: boolean };
+    assessment_note?: string;
   };
 }
 
@@ -32,37 +34,29 @@ function evidenceOf(prompt: string): Evidence {
 
 function chooseDecision(e: Evidence): { decision: string; confidence: number; why: string } {
   const c = e.comparison ?? {};
-  const dob = c.date_of_birth;
-  const nationality = c.nationality?.status;
-  if (c.identifiers === "match" || c.assessment === "strong") {
+  const met = c.definitions_met ?? {};
+  if (met.true_match || met.counterparty_match || c.identifiers === "match" || c.assessment === "strong") {
     return {
       decision: "ESCALATE_L2",
       confidence: 0.85,
-      why: "the name, date of birth and nationality or an identifier agree with the listed party",
+      why: "an approved match definition is met, or a document number agrees with the listed party",
     };
   }
   if (e.data_quality?.some((d) => d.failed)) {
     return {
       decision: "NEED_MORE_INFO",
       confidence: 0.7,
-      why: "the customer record fails a data-quality rule, so the data cannot be relied on yet",
+      why: "the record fails a data-quality rule, so the data cannot be relied on yet",
     };
   }
-  if (c.assessment === "weak" && dob === "conflict" && nationality === "conflict") {
+  if (met.false_positive) {
     return {
       decision: "CLOSE_FALSE_POSITIVE",
       confidence: 0.85,
-      why: "the date of birth and the nationality both differ from the listed party and no identifier matches",
+      why: "the approved definition of a false positive is met and no identifier matches",
     };
   }
-  if (c.assessment === "weak" && dob !== "missing_customer") {
-    return {
-      decision: "CLOSE_FALSE_POSITIVE",
-      confidence: 0.75,
-      why: "the match is weak on the available fields and no identifier matches",
-    };
-  }
-  if (dob === "missing_customer") {
+  if (c.date_of_birth === "missing_customer") {
     return {
       decision: "NEED_MORE_INFO",
       confidence: 0.7,
@@ -95,6 +89,14 @@ function decisionAnswer(e: Evidence): string {
       key_value: e.list_entry.entry_id,
       column: "primary_name",
       value: e.list_entry.primary_name ?? null,
+    });
+  }
+  if (e.payment?.payment_id) {
+    facts.push({
+      table: "payment",
+      key_value: e.payment.payment_id,
+      column: "counterparty_name",
+      value: e.payment.counterparty_name ?? null,
     });
   }
   const listedDob = e.list_dob?.find((d) => d.dob_id && d.dob_value);

@@ -31,7 +31,8 @@ Rules:
 - A matching name alone is never enough to close an alert. Close only when the definition of a false positive in <definitions> is met (the dates of birth conflict, the nationality differs and no identifier matches).
 - If key data is missing (for example no date of birth) and the name matches, choose NEED_MORE_INFO or ESCALATE_L2, never CLOSE_FALSE_POSITIVE.
 - Apply the approved definitions in <definitions> exactly. In the comparison, nationality.status "match" means the customer's nationality equals a nationality or citizenship of the listed party; "address_only" means only an address country agrees, which is not a strong identifier.
-- The comparison block has definitions_met, worked out by code: when true_match is true recommend ESCALATE_L2 or RECOMMEND_BLOCK; when false_positive is true recommend CLOSE_FALSE_POSITIVE; when neither is true recommend NEED_MORE_INFO if a needed field is missing, otherwise ESCALATE_L2.
+- The comparison block has definitions_met, worked out by code: when true_match or counterparty_match is true recommend ESCALATE_L2 or RECOMMEND_BLOCK; when false_positive is true recommend CLOSE_FALSE_POSITIVE; when none is true recommend NEED_MORE_INFO if a needed field is missing (for a payment, an unusable counterparty country), otherwise ESCALATE_L2.
+- For a payment alert the comparison is about the counterparty on the payment, not the customer; nationality.customer_nationality does not apply.
 - Choose RECOMMEND_BLOCK only when the definition of a true match is met. It still needs two human approvals.
 - Never write text for the customer. Never say or imply that the customer is under investigation.
 - Give 2 to 6 facts that support the decision. A fact names a row by its key value: use the keys listed in <keys> (for example customer: customer_id, list_entry: entry_id). Copy table, key_value, column and value exactly from the evidence rows; value is a string or null (null when the field is empty). Facts come from evidence rows only, never from the comparison block.
@@ -54,6 +55,22 @@ export function renderEvidence(evidence: EvidenceBundle, match: MatchResult): st
       [evidence.customer],
       ["customer_id", "customer_type", "full_name", "date_of_birth", "nationality", "residence_country", "risk_rating"],
     )[0],
+    payment: evidence.payment
+      ? rowsOf(
+          [evidence.payment],
+          [
+            "payment_id",
+            "direction",
+            "amount",
+            "currency",
+            "counterparty_name",
+            "counterparty_country",
+            "counterparty_bank_bic",
+            "payment_reference",
+            "value_date",
+          ],
+        )[0]
+      : undefined,
     customer_identifier: rowsOf(evidence.customerIdentifiers, [
       "identifier_id",
       "customer_id",

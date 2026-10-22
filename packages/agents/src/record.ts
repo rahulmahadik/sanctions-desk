@@ -37,7 +37,7 @@ export function buildDecisionRecord(input: RecordInput): DecisionRecord {
   return sealDecisionRecord({
     record_id: `rec-${input.runId}`,
     run_id: input.runId,
-    alert_type: "customer",
+    alert_type: evidence.alert.alert_type === "payment" ? "payment" : "customer",
     alert_ref: input.alertId,
     decided_at: at,
     as_of: at,

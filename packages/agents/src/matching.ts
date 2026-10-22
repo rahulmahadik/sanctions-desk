@@ -18,7 +18,7 @@ export interface MatchResult {
 }
 
 export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchResult {
-  const customer = customerProfileFromRows(evidence.customer, evidence.customerIdentifiers);
+  const payer = customerProfileFromRows(evidence.customer, evidence.customerIdentifiers);
   const party = listedPartyFromRows({
     entry: evidence.entry,
     aliases: evidence.aliases,
@@ -26,11 +26,27 @@ export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchR
     countries: evidence.countries,
     identifiers: evidence.listIdentifiers,
   });
+  // A payment alert is about the other party on the payment, not about the customer who sends it.
+  const customer = evidence.payment
+    ? {
+        ...payer,
+        kind: party.kind === "individual" ? ("individual" as const) : ("company" as const),
+        name: evidence.payment.counterparty_name ?? "",
+        otherNames: [],
+        dateOfBirth: null,
+        nationality: null,
+        residence: evidence.payment.counterparty_country ?? null,
+        identifiers: [],
+      }
+    : payer;
   const comparison = compareParty(
     customer,
     party,
     { nameSimilarity: deps.policy.matching.nameSimilarityThreshold },
-    { identifierMatches: evidence.identifierOverlap },
+    {
+      identifierMatches: evidence.payment ? [] : evidence.identifierOverlap,
+      ...(evidence.payment ? { payment: { country: evidence.payment.counterparty_country ?? null } } : {}),
+    },
   );
   deps.trace.log({
     agent: "matching",

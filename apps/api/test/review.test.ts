@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { sampleRules } from "@sanctions-desk/agents";
+import { examCase, loadExam } from "@sanctions-desk/data";
 import type { FetchLike } from "@sanctions-desk/shared";
 import {
   createFallbackRulesGenerator,
@@ -12,6 +13,9 @@ import {
 import { createZetarisClient, loadQueryCache, replayFetch } from "@sanctions-desk/zetaris";
 import { describe, expect, it } from "vitest";
 import { makeApp } from "./helpers.js";
+
+const exam = loadExam();
+const alertOf = (kind: string): string => examCase(exam, kind).alert_id ?? "";
 
 /**
  * The whole review on the committed sample: saved Zetaris answers, the labelled rules-based model, and
@@ -48,7 +52,7 @@ const run = (app: Awaited<ReturnType<typeof sampleApp>>["app"], alertId: string,
 describe("POST /run on the sample", () => {
   it("closes a clear false positive and records every step", async () => {
     const { app, logDir } = await sampleApp();
-    const res = await run(app, "ALR-004");
+    const res = await run(app, alertOf("fp_dob_exact_name_0"));
     expect(res.statusCode).toBe(200);
     const body = ReviewResponseSchema.parse(res.json());
 
@@ -80,7 +84,7 @@ describe("POST /run on the sample", () => {
     expect(record.queries.some((q: { masked_columns: string[] }) => q.masked_columns.includes("id_number"))).toBe(true);
 
     // The trace holds the same story, one event per step.
-    const events = readFileSync(join(logDir, "trace-run-ALR-004.jsonl"), "utf8")
+    const events = readFileSync(join(logDir, `trace-run-${alertOf("fp_dob_exact_name_0")}.jsonl`), "utf8")
       .trim()
       .split("\n")
       .map((l) => JSON.parse(l));
@@ -92,31 +96,29 @@ describe("POST /run on the sample", () => {
     expect(events.filter((e) => e.zetaris_query_id).length).toBeGreaterThan(8);
   });
 
-  it("never closes a case that carries real risk, across the whole labelled set", async () => {
+  it("never closes a case that carries real risk, across every exam case the review can run", async () => {
     const { app } = await sampleApp();
-    const cases = JSON.parse(readFileSync(resolveProjectPath("data/sample/bank/cases.json"), "utf8")) as Array<{
-      alert_id: string;
-      expected: string;
-      acceptable: string[];
-      scenario: string;
-    }>;
-    const results: Array<{ id: string; scenario: string; expected: string; got: string }> = [];
-    for (const c of cases) {
-      const res = await run(app, c.alert_id);
-      expect(res.statusCode, c.alert_id).toBe(200);
-      results.push({ id: c.alert_id, scenario: c.scenario, expected: c.expected, got: res.json().decision });
+    const results: Array<{ id: string; kind: string; expected: string; got: string }> = [];
+    for (const c of exam.cases.filter(
+      (x) => x.alert_id && x.group !== "hidden_ownership" && x.group !== "ownership_below",
+    )) {
+      const res = await run(app, c.alert_id ?? "");
+      expect(res.statusCode, c.kind).toBe(200);
+      const got = res.json().decision as string;
+      results.push({ id: c.case_id, kind: c.kind, expected: c.expected, got });
+      expect(c.must_not, `${c.kind} must not be ${got}`).not.toContain(got);
+      expect([c.expected, ...c.acceptable], `${c.kind}: got ${got}`).toContain(got);
     }
+    expect(results.length).toBe(48);
     const falseCloses = results.filter(
       (r) => r.got === "CLOSE_FALSE_POSITIVE" && r.expected !== "CLOSE_FALSE_POSITIVE",
     );
     expect(falseCloses).toEqual([]);
-    const allowed = new Map(cases.map((c) => [c.alert_id, new Set([c.expected, ...c.acceptable])]));
-    expect(results.filter((r) => !allowed.get(r.id)?.has(r.got))).toEqual([]);
   });
 
   it("refuses to close a customer with missing data and says why", async () => {
     const { app } = await sampleApp();
-    const body = (await run(app, "ALR-008")).json();
+    const body = (await run(app, alertOf("md_no_dob_0"))).json();
     expect(body.decision).toBe("NEED_MORE_INFO");
     expect(
       body.guards.some((g: { guard: string; verdict: string }) => g.guard === "data_quality" && g.verdict === "block"),
@@ -125,14 +127,17 @@ describe("POST /run on the sample", () => {
 
   it("does not run the same alert twice at once", async () => {
     const { app } = await sampleApp({}, 5);
-    const [a, b] = await Promise.all([run(app, "ALR-005", "run-a"), run(app, "ALR-005", "run-b")]);
+    const [a, b] = await Promise.all([
+      run(app, alertOf("fp_dob_exact_name_1"), "run-a"),
+      run(app, alertOf("fp_dob_exact_name_1"), "run-b"),
+    ]);
     const statuses = [a.statusCode, b.statusCode].sort();
     expect(statuses).toEqual([200, 400]);
   });
 
   it("reports an alert that does not exist as a structured error", async () => {
     const { app, logDir } = await sampleApp();
-    const res = await run(app, "ALR-999", "run-missing");
+    const res = await run(app, "ALR-9999", "run-missing");
     expect(res.statusCode).toBe(502);
     expect(res.json()).toMatchObject({ status: "error", error: { type: "query_failed" } });
     expect(existsSync(join(logDir, "trace-run-missing.jsonl"))).toBe(true);

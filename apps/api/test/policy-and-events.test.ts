@@ -59,7 +59,7 @@ describe("POST /run with policy and events", () => {
     const res = await app.inject({
       method: "POST",
       url: "/run",
-      payload: { run_id: "run-pin", alert_type: "payment", alert_id: "P-0001" },
+      payload: { run_id: "run-pin", alert_type: "payment", alert: { payment_id: "P-0001" } },
     });
     expect(res.statusCode).toBe(501);
     expect(res.json()).toMatchObject({ alert_type: "payment", policy_version: 1 });
@@ -69,7 +69,7 @@ describe("POST /run with policy and events", () => {
       agent: "system",
       action: "run_rejected",
       policy_version: 1,
-      input_summary: "payment: alert_id=P-0001",
+      input_summary: "payment: inline alert",
     });
     expect(bus.isFinished("run-pin")).toBe(true);
   });

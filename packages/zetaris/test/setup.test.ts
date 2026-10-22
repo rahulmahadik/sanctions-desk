@@ -34,11 +34,10 @@ describe("parseStatements", () => {
     expect(() => parseStatements("-- @@ a\nSELECT 1\n-- @@ a\nSELECT 2")).toThrow(/used twice/);
   });
   it("reads the committed setup scripts", () => {
-    const sql = readFileSync(new URL("../../../zetaris/sql/02_usl_create.sql", import.meta.url), "utf8");
-    const names = parseStatements(sql).map((s) => s.name);
-    expect(names).toContain("compile_model");
-    expect(names).toContain("activate_alert");
-    expect(names).toContain("dq_dob_for_individuals");
+    const read = (file: string) => readFileSync(new URL(`../../../zetaris/sql/${file}`, import.meta.url), "utf8");
+    expect(parseStatements(read("05_usl_create.sql")).map((s) => s.name)).toContain("compile_model");
+    expect(parseStatements(read("06_activate_create.sql")).map((s) => s.name)).toContain("activate_alert");
+    expect(parseStatements(read("07_dq_create.sql")).map((s) => s.name)).toContain("dq_dob_present_for_individuals");
   });
 });
 
@@ -113,6 +112,24 @@ describe("runSetup", () => {
     n = 0;
     const strict = await runSetup({ config, statements, apply: true, fetchImpl: api.fetchImpl });
     expect(strict.map((r) => r.outcome)).toEqual(["failed"]);
+  });
+
+  it("also treats removing something that is already gone as fine when run again", async () => {
+    const api = fakeZetaris(() => ({
+      status: 400,
+      body: { msg: "metastore.sanctions.screening_usl is not existing" },
+    }));
+    const drops = parseStatements("-- @@ remove\nREMOVE USL x NAMESPACE a.b\n\n-- @@ create\nCREATE ROLE 'r'");
+    const config = testConfig({ ZETARIS_API_KEY: "k" });
+    const results = await runSetup({
+      config,
+      statements: drops,
+      apply: true,
+      skipExists: true,
+      fetchImpl: api.fetchImpl,
+    });
+    // The removal is skipped; the create (a different kind of statement) is a real failure.
+    expect(results.map((r) => r.outcome)).toEqual(["skipped_exists", "failed"]);
   });
 
   it("needs the admin key to apply", async () => {

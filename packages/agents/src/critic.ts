@@ -91,31 +91,40 @@ async function checkFact(
   }
 }
 
-/** Contradictions between the recommendation and the deterministic comparison. */
-export function consistencyIssues(decision: DecisionOutput, match: MatchResult, evidence: EvidenceBundle): string[] {
-  const issues: string[] = [];
+function closeIssues(match: MatchResult, evidence: EvidenceBundle): string[] {
   const c = match.comparison;
-  if (decision.decision === "CLOSE_FALSE_POSITIVE") {
-    if (c.assessment === "strong") issues.push("recommends closing, but the comparison rates the match as strong");
-    if (c.identifiers.status === "match") issues.push("recommends closing, but an identifier matches the listed party");
-    if (c.dob.status === "missing_customer")
-      issues.push("recommends closing, but the customer has no date of birth on file");
-    if (evidence.dq.some((d) => d.failed))
-      issues.push("recommends closing, but the customer record fails a data-quality rule");
-  }
-  const d = decision.decision;
-  if (c.definitions.false_positive && d !== "CLOSE_FALSE_POSITIVE") {
+  const checks: Array<[boolean, string]> = [
+    [c.assessment === "strong", "recommends closing, but the comparison rates the match as strong"],
+    [c.identifiers.status === "match", "recommends closing, but an identifier matches the listed party"],
+    [c.dob.status === "missing_customer", "recommends closing, but the customer has no date of birth on file"],
+    [evidence.dq.some((d) => d.failed), "recommends closing, but the customer record fails a data-quality rule"],
+  ];
+  return checks.filter(([hit]) => hit).map(([, text]) => text);
+}
+
+function definitionIssues(decision: DecisionOutput["decision"], match: MatchResult): string[] {
+  const met = match.comparison.definitions;
+  const issues: string[] = [];
+  if (met.false_positive && decision !== "CLOSE_FALSE_POSITIVE") {
     issues.push(
       "the approved definition of a false positive is met (date of birth conflicts, nationality differs, no identifier matches)",
     );
   }
-  if (c.definitions.true_match && d !== "ESCALATE_L2" && d !== "RECOMMEND_BLOCK") {
-    issues.push("the approved definition of a true match is met, so a person must review it");
+  if ((met.true_match || met.counterparty_match) && decision !== "ESCALATE_L2" && decision !== "RECOMMEND_BLOCK") {
+    issues.push("the approved definition of a match is met, so a person must review it");
   }
-  if (decision.decision === "RECOMMEND_BLOCK" && c.assessment !== "strong") {
+  if (decision === "RECOMMEND_BLOCK" && match.comparison.assessment !== "strong") {
     issues.push("recommends blocking, but the comparison does not rate the match as strong");
   }
   return issues;
+}
+
+/** Contradictions between the recommendation and the deterministic comparison. */
+export function consistencyIssues(decision: DecisionOutput, match: MatchResult, evidence: EvidenceBundle): string[] {
+  return [
+    ...(decision.decision === "CLOSE_FALSE_POSITIVE" ? closeIssues(match, evidence) : []),
+    ...definitionIssues(decision.decision, match),
+  ];
 }
 
 export async function review(

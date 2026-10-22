@@ -1,10 +1,14 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { sampleRules } from "@sanctions-desk/agents";
+import { examCase, loadExam } from "@sanctions-desk/data";
 import { createFallbackRulesGenerator, loadConfig, resolveProjectPath } from "@sanctions-desk/shared";
 import { createZetarisClient, loadQueryCache, replayFetch } from "@sanctions-desk/zetaris";
 import { describe, expect, it } from "vitest";
 import { makeApp } from "./helpers.js";
+
+const exam = loadExam();
+const caseOf = (kind: string) => examCase(exam, kind);
 
 async function sampleApp() {
   const config = loadConfig({ env: { SAMPLE_MODE: "true" } });
@@ -19,13 +23,17 @@ async function sampleApp() {
 describe("the decision trace", () => {
   it("answers the four questions for a case from its sealed record", async () => {
     const { app } = await sampleApp();
-    await app.inject({ method: "POST", url: "/run", payload: { alert_id: "ALR-010", run_id: "run-trace-1" } });
-    const res = await app.inject({ method: "GET", url: "/cases/ALR-010/trace" });
+    await app.inject({
+      method: "POST",
+      url: "/run",
+      payload: { alert_id: caseOf("tm_identifier").alert_id, run_id: "run-trace-1" },
+    });
+    const res = await app.inject({ method: "GET", url: `/cases/${caseOf("tm_identifier").alert_id}/trace` });
     expect(res.statusCode).toBe(200);
     const t = res.json();
 
     expect(t.record.verified).toBe(true);
-    expect(t.case).toMatchObject({ alert_ref: "ALR-010", run_id: "run-trace-1" });
+    expect(t.case).toMatchObject({ alert_ref: caseOf("tm_identifier").alert_id, run_id: "run-trace-1" });
     expect(t.outcome).toMatchObject({ decision: "ESCALATE_L2", human_review_required: true });
 
     // 1. which approved definitions were applied
@@ -58,23 +66,42 @@ describe("the decision trace", () => {
 
   it("is also available by run id", async () => {
     const { app } = await sampleApp();
-    await app.inject({ method: "POST", url: "/run", payload: { alert_id: "ALR-004", run_id: "run-trace-2" } });
+    await app.inject({
+      method: "POST",
+      url: "/run",
+      payload: { alert_id: caseOf("fp_dob_exact_name_0").alert_id, run_id: "run-trace-2" },
+    });
     const res = await app.inject({ method: "GET", url: "/runs/run-trace-2/trace" });
     expect(res.statusCode).toBe(200);
-    expect(res.json().case.alert_ref).toBe("ALR-004");
+    expect(res.json().case.alert_ref).toBe(caseOf("fp_dob_exact_name_0").alert_id);
   });
 
   it("shows the newest recommendation for a case that was reviewed twice", async () => {
     const { app } = await sampleApp();
-    await app.inject({ method: "POST", url: "/run", payload: { alert_id: "ALR-005", run_id: "run-first" } });
+    await app.inject({
+      method: "POST",
+      url: "/run",
+      payload: { alert_id: caseOf("fp_dob_exact_name_1").alert_id, run_id: "run-first" },
+    });
     await new Promise((r) => setTimeout(r, 5));
-    await app.inject({ method: "POST", url: "/run", payload: { alert_id: "ALR-005", run_id: "run-second" } });
-    expect((await app.inject({ method: "GET", url: "/cases/ALR-005/trace" })).json().case.run_id).toBe("run-second");
+    await app.inject({
+      method: "POST",
+      url: "/run",
+      payload: { alert_id: caseOf("fp_dob_exact_name_1").alert_id, run_id: "run-second" },
+    });
+    expect(
+      (await app.inject({ method: "GET", url: `/cases/${caseOf("fp_dob_exact_name_1").alert_id}/trace` })).json().case
+        .run_id,
+    ).toBe("run-second");
   });
 
   it("says so when a record has been changed after it was sealed", async () => {
     const { app, logDir } = await sampleApp();
-    await app.inject({ method: "POST", url: "/run", payload: { alert_id: "ALR-004", run_id: "run-tamper" } });
+    await app.inject({
+      method: "POST",
+      url: "/run",
+      payload: { alert_id: caseOf("fp_dob_exact_name_0").alert_id, run_id: "run-tamper" },
+    });
     const file = join(logDir, "records", "rec-run-tamper.json");
     const record = JSON.parse(readFileSync(file, "utf8"));
     record.decision = "ESCALATE_L2";
@@ -85,7 +112,7 @@ describe("the decision trace", () => {
   it("answers 404 for an unknown case or run, and for an unsafe id", async () => {
     const { app } = await sampleApp();
     for (const url of [
-      "/cases/ALR-404/trace",
+      "/cases/ALR-9404/trace",
       "/runs/never-ran/trace",
       "/cases/..%2F..%2Fx/trace",
       "/runs/..%2Fx/trace",

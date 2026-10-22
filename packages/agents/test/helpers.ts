@@ -58,3 +58,40 @@ export function scriptedGenerator(answers: Array<string | Error>): {
   };
   return { generator, requests };
 }
+
+// ---- the exam, for tests that need a known case ----------------------------------------------
+
+import { readFileSync } from "node:fs";
+import { examCase, loadExam } from "@sanctions-desk/data";
+
+const readJson = <T>(path: string): T => JSON.parse(readFileSync(resolveProjectPath(path), "utf8")) as T;
+
+export interface CaseFacts {
+  alertId: string;
+  customerId: string;
+  entryId: string;
+  customerName: string;
+  entryName: string;
+  expected: string;
+}
+
+/** The ids and names behind one exam case, read from the committed data. */
+export function caseFacts(kind: string): CaseFacts {
+  const c = examCase(loadExam(), kind);
+  const customer = readJson<Array<{ customer_id: string; full_name: string }>>("data/synthetic/customer.json").find(
+    (r) => r.customer_id === c.customer_id,
+  );
+  const entry = readJson<Array<{ entry_id: string; primary_name: string }>>("data/sample/list_entry.json").find(
+    (r) => r.entry_id === c.entry_id,
+  );
+  if (!c.alert_id || !c.customer_id || !c.entry_id || !customer || !entry)
+    throw new Error(`case ${kind} is incomplete`);
+  return {
+    alertId: c.alert_id,
+    customerId: c.customer_id,
+    entryId: c.entry_id,
+    customerName: customer.full_name,
+    entryName: entry.primary_name,
+    expected: c.expected,
+  };
+}

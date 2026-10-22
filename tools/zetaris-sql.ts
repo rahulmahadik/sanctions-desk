@@ -19,8 +19,11 @@ if (!file) {
   process.exit(2);
 }
 const only = args.includes("--only") ? args[args.indexOf("--only") + 1] : undefined;
-const envFile = join(projectRoot(), ".env");
-if (existsSync(envFile)) process.loadEnvFile(envFile);
+// Local credentials: .env, and .env.data for the synthetic bank database and payments service.
+for (const name of [".env", ".env.data"]) {
+  const envFile = join(projectRoot(), name);
+  if (existsSync(envFile)) process.loadEnvFile(envFile);
+}
 
 const config = loadConfig();
 const statements = readStatements(resolveProjectPath(file)).filter((s) => only === undefined || s.name === only);

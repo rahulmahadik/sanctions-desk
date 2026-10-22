@@ -96,9 +96,9 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (
       return reply.status(mapError(error).statusCode).send(errorBody(trace, run, error));
     };
 
-    if (request.alert_type !== "customer" || request.alert_id === undefined) {
+    if (request.alert_id === undefined) {
       return refuse(
-        new AppError("not_implemented", "only customer alerts identified by alert_id can be reviewed in this build"),
+        new AppError("not_implemented", "only alerts identified by alert_id can be reviewed in this build"),
         "run_rejected",
       );
     }
@@ -115,7 +115,7 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (
       agent: "system",
       action: "run_started",
       status: "ok",
-      input_summary: `customer alert ${alertId}`,
+      input_summary: `${request.alert_type} alert ${alertId}`,
       detail: { sample_mode: config.sampleMode },
     });
     try {

@@ -76,6 +76,12 @@ export interface SetupResult {
 }
 
 const EXISTS_PATTERN = /already exist|is existing|already been|already registered|duplicate/i;
+const MISSING_PATTERN = /not exist|not found|no such|is not existing|cannot be found/i;
+
+/** When running a script again, removing something that is already gone is fine; creating something that exists is too. */
+function isRepeatable(sql: string, answer: string): boolean {
+  return EXISTS_PATTERN.test(answer) || (/^\s*(DROP|REMOVE)\b/i.test(sql) && MISSING_PATTERN.test(answer));
+}
 
 export interface SetupRunOptions {
   config: Config;
@@ -129,7 +135,7 @@ async function applyStatement(options: SetupRunOptions, name: string, sql: strin
   });
   const latency = Math.round(response.ms);
   if (response.status === 200) return successResult(name, latency, response.text);
-  const exists = options.skipExists === true && EXISTS_PATTERN.test(response.text);
+  const exists = options.skipExists === true && isRepeatable(sql, response.text);
   return {
     name,
     outcome: exists ? "skipped_exists" : "failed",

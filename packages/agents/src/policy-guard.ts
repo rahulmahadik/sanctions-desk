@@ -44,7 +44,11 @@ export function findInjection(policy: Policy, texts: readonly string[]): string[
 
 function jurisdictionHits(policy: Policy, evidence: EvidenceBundle): string[] {
   // The customer's own jurisdictions. The listed party's countries say nothing about where the customer is exposed.
-  const countries = [evidence.customer.nationality, evidence.customer.residence_country];
+  const countries = [
+    evidence.customer.nationality,
+    evidence.customer.residence_country,
+    evidence.payment?.counterparty_country,
+  ];
   const watched = new Set(policy.jurisdictions.filter((j) => j.action === "escalate").map((j) => j.country));
   return [...new Set(countries.filter((c): c is string => typeof c === "string" && watched.has(c)))];
 }
