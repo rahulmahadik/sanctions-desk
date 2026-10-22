@@ -1,0 +1,17 @@
+{
+  "name": "@sanctions-desk/engines",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./hmem": "./src/hmem/index.ts",
+    "./world-model": "./src/world-model/index.ts",
+    "./markovian": "./src/markovian/index.ts"
+  },
+  "dependencies": {
+    "@sanctions-desk/shared": "^0.1.0",
+    "zod": "^4.6.7"
+  }
+}
