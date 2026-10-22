@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { buildGenerator, loadConfig } from "../../src/index.js";
+import { buildGenerator, loadConfig, type ModelAttempt, verifyReceipt } from "../../src/index.js";
 
 /**
  * Live smoke test against the real Nightshift runtime and the local Ollama backup.
@@ -13,14 +13,27 @@ if (live && existsSync(".env")) process.loadEnvFile(".env");
 describe.skipIf(!live)("generator against live services", () => {
   const config = loadConfig();
   const request = { prompt: "Reply with the single word: ready", maxTokens: 1024, temperature: 0 };
+  const noBackup = { ...config, ollama: { ...config.ollama, baseUrl: "http://127.0.0.1:1/v1" } };
 
-  it("answers through Nightshift and reports which model and route answered", async () => {
-    const generate = buildGenerator({ ...config, ollama: { ...config.ollama, baseUrl: "http://127.0.0.1:1/v1" } });
+  it("answers through Nightshift with a pinned mode and reports which model and route answered", async () => {
+    const attempts: ModelAttempt[] = [];
+    const generate = buildGenerator(noBackup, { onAttempt: (a) => attempts.push(a) });
     const result = await generate({ ...request, lane: "fast" });
     expect(result.provider).toBe("nightshift");
+    expect(result.requestedModel).toBe(config.nightshift.models.fast);
+    expect(result.requestedModel).not.toBe("meterless/auto");
     expect(result.text.toLowerCase()).toContain("ready");
     expect(result.routedModel.length).toBeGreaterThan(0);
     expect(["local", "cloud"]).toContain(result.routeKind);
+    expect(attempts.at(-1)).toMatchObject({ provider: "nightshift", outcome: "ok" });
+  }, 120_000);
+
+  it("returns a signed receipt that verifies", async () => {
+    const generate = buildGenerator(noBackup);
+    const result = await generate({ ...request, prompt: `${request.prompt} ${Date.now()}`, lane: "fast" });
+    expect(result.receipt).toBeDefined();
+    expect(["valid_unpinned", "valid_pinned"]).toContain(result.receipt?.verification);
+    expect(verifyReceipt(result.receiptEnvelope).status).toMatch(/^valid/);
   }, 120_000);
 
   it("falls back to Ollama when Nightshift is unreachable", async () => {

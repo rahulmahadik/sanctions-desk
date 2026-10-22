@@ -1,7 +1,14 @@
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { type Config, type Generator, loadConfig } from "@sanctions-desk/shared";
+import {
+  type Config,
+  type Generator,
+  loadConfig,
+  loadPolicyFile,
+  PolicyStore,
+  RunEventBus,
+} from "@sanctions-desk/shared";
 import { afterEach } from "vitest";
 import { type App, buildApp } from "../src/app.js";
 import { createLogger } from "../src/logger.js";
@@ -32,14 +39,25 @@ const unusedGenerator: Generator = async () => {
 };
 
 /** Build the real app with quiet logging and a temp log directory. */
-export async function makeApp(opts: TestAppOptions = {}): Promise<{ app: App; config: Config; logDir: string }> {
+export async function makeApp(
+  opts: TestAppOptions = {},
+): Promise<{ app: App; config: Config; logDir: string; bus: RunEventBus; policies: PolicyStore }> {
   const dir = tempDir();
   const logDir = join(dir, "logs");
   const overridesPath = join(dir, "overrides.json");
   writeFileSync(overridesPath, JSON.stringify({ logging: { stdout: false, dir: logDir }, ...opts.overrides }));
 
   const config = loadConfig({ env: opts.env ?? {}, overridesPath });
-  const app = await buildApp({ config, logger: createLogger(config), generator: unusedGenerator, prober: opts.prober });
+  const bus = new RunEventBus({ replayLimit: config.events.replayLimit, maxRuns: config.events.maxRuns });
+  const policies = new PolicyStore(loadPolicyFile(config.policy.file));
+  const app = await buildApp({
+    config,
+    logger: createLogger(config),
+    generator: unusedGenerator,
+    bus,
+    policies,
+    prober: opts.prober,
+  });
   apps.push(app);
-  return { app, config, logDir };
+  return { app, config, logDir, bus, policies };
 }

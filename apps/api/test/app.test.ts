@@ -103,7 +103,7 @@ describe("POST /run", () => {
     expect(JSON.parse(lines[0] ?? "{}")).toMatchObject({
       agent: "system",
       action: "run_rejected",
-      input_summary: "alert_id=A-0001",
+      input_summary: "customer: alert_id=A-0001",
     });
     expect(JSON.stringify(body) + lines.join("")).not.toContain("rt-never-in-output");
   });

@@ -22,11 +22,11 @@
     "scope": "user",
     "requestTimeoutMs": 90000,
     "models": {
-      "default": "meterless/auto",
       "fast": "meterless/fast",
       "deep": "meterless/deep",
       "judge": "meterless/judge"
-    }
+    },
+    "receiptPublicKeys": []
   },
   "ollama": {
     "baseUrl": "http://localhost:11434/v1",

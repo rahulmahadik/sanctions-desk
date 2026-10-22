@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
+import { PinnedModeSchema } from "./modes.js";
 import { Secret } from "./secret.js";
 
 /**
@@ -44,12 +45,14 @@ const ConfigSchema = z.strictObject({
     appId: nonEmpty,
     scope: nonEmpty,
     requestTimeoutMs: positiveInt,
+    /** Each lane is pinned to an explicit mode. meterless/auto is rejected. */
     models: z.strictObject({
-      default: nonEmpty,
-      fast: nonEmpty,
-      deep: nonEmpty,
-      judge: nonEmpty,
+      fast: PinnedModeSchema,
+      deep: PinnedModeSchema,
+      judge: PinnedModeSchema,
     }),
+    /** Ed25519 public keys (base64) of the runtime whose receipts we trust. Public, so not a secret. */
+    receiptPublicKeys: z.array(z.string().regex(/^[A-Za-z0-9+/]{43}=$/, "expected a base64 Ed25519 public key")),
     runtimeToken: secret.optional(),
   }),
   ollama: z.strictObject({
@@ -75,7 +78,7 @@ const ConfigSchema = z.strictObject({
 
 export type Config = z.output<typeof ConfigSchema>;
 
-type ValueKind = "string" | "number" | "boolean";
+type ValueKind = "string" | "number" | "boolean" | "list";
 interface EnvBinding {
   env: string;
   path: readonly string[];
@@ -95,10 +98,10 @@ const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "METERLESS_BASE_URL", path: ["nightshift", "baseUrl"], kind: "string" },
   { env: "METERLESS_APP_ID", path: ["nightshift", "appId"], kind: "string" },
   { env: "METERLESS_RUNTIME_TOKEN", path: ["nightshift", "runtimeToken"], kind: "string" },
-  { env: "METERLESS_MODEL", path: ["nightshift", "models", "default"], kind: "string" },
   { env: "METERLESS_MODEL_FAST", path: ["nightshift", "models", "fast"], kind: "string" },
   { env: "METERLESS_MODEL_DEEP", path: ["nightshift", "models", "deep"], kind: "string" },
   { env: "METERLESS_MODEL_JUDGE", path: ["nightshift", "models", "judge"], kind: "string" },
+  { env: "METERLESS_RECEIPT_PUBLIC_KEY", path: ["nightshift", "receiptPublicKeys"], kind: "list" },
   { env: "OLLAMA_BASE_URL", path: ["ollama", "baseUrl"], kind: "string" },
   { env: "OLLAMA_MODEL", path: ["ollama", "model"], kind: "string" },
 ];
@@ -176,6 +179,7 @@ export function describeConfig(cfg: Config) {
       baseUrl: cfg.nightshift.baseUrl,
       appId: cfg.nightshift.appId,
       models: cfg.nightshift.models,
+      receiptKeysPinned: cfg.nightshift.receiptPublicKeys.length,
       runtimeTokenSet: cfg.nightshift.runtimeToken !== undefined,
     },
     ollama: { baseUrl: cfg.ollama.baseUrl, model: cfg.ollama.model },
@@ -225,10 +229,15 @@ function readJsonFile(path: string, issues: string[]): Json {
   }
 }
 
-function coerce(binding: EnvBinding, raw: string, issues: string[]): string | number | boolean | undefined {
+function coerce(binding: EnvBinding, raw: string, issues: string[]): string | number | boolean | string[] | undefined {
   switch (binding.kind) {
     case "string":
       return raw;
+    case "list":
+      return raw
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0);
     case "number": {
       const n = Number(raw);
       if (!Number.isFinite(n)) {

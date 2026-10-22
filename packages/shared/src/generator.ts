@@ -1,6 +1,9 @@
 import type { Config } from "./config.js";
 import { AppError, type StructuredError, toStructuredError } from "./errors.js";
 import { type FetchLike, httpRequest } from "./http.js";
+import { LANES, type Lane, PINNED_MODE } from "./modes.js";
+import { extractReceipt, type ReceiptEnvelope, type ReceiptSummary } from "./receipts.js";
+import type { TraceEventInput } from "./schemas.js";
 import type { Secret } from "./secret.js";
 
 /**
@@ -8,18 +11,23 @@ import type { Secret } from "./secret.js";
  * `Generator` function. Which provider answers is decided here, by configuration.
  *
  *   Nightshift (primary)  ->  Ollama (backup)  ->  fallback-rules (sample mode only)
+ *
+ * Nightshift is always called with a pinned mode (meterless/fast, meterless/deep, ...), never
+ * meterless/auto. If a mode is dead (HTTP 410, or 400 class_no_route) the next configured mode is
+ * tried once; after that the call fails over to Ollama. Every attempt is reported with the mode we
+ * requested and the model the runtime says answered.
  */
 
-export type Lane = "default" | "fast" | "deep" | "judge";
+export type { Lane } from "./modes.js";
 export type Provider = "nightshift" | "ollama" | "fallback-rules";
 export type RouteKind = "local" | "cloud";
 
 export interface GenerateRequest {
   prompt: string;
   system?: string;
-  /** Picks the Nightshift routing mode from config. Ignored if `model` is set. */
+  /** Picks the Nightshift mode from the configuration (default: fast). Ignored if `model` is set. */
   lane?: Lane;
-  /** Explicit model id or routing mode, e.g. "meterless/text.deep". */
+  /** An explicit pinned Nightshift mode, for example "meterless/text.deep". Ollama ignores it. */
   model?: string;
   temperature?: number;
   maxTokens?: number;
@@ -27,23 +35,52 @@ export interface GenerateRequest {
   signal?: AbortSignal;
 }
 
+/** A Nightshift mode that no longer routes. */
+export interface DeadRoute {
+  model: string;
+  status: number;
+  code?: string;
+}
+
 export interface GenerateResult {
   text: string;
   provider: Provider;
-  /** What we asked for (a Nightshift routing mode or an Ollama model name). */
+  /** What we asked for: a Nightshift mode, or the Ollama model name. */
   requestedModel: string;
-  /** What the runtime says actually answered (Nightshift: meterless.routed_model). */
+  /** What the runtime says actually answered. */
   routedModel: string;
   /** "local" or "cloud" as reported by the runtime; null when it did not say. */
   routeKind: RouteKind | null;
   latencyMs: number;
-  receiptId?: string;
   usage?: { promptTokens?: number; completionTokens?: number; totalTokens?: number };
+  /** The mode the runtime says it served. If it differs from `requestedModel`, `modeMismatch` is true. */
+  servedMode?: string;
+  modeMismatch: boolean;
+  /** True when the runtime answered from its cache instead of running a model. */
+  fromCache?: boolean;
+  /** Modes that were dead and skipped before this answer. */
+  deadRoutes?: DeadRoute[];
+  /** Signed receipt summary and the full envelope it was taken from (store the envelope beside the trace). */
+  receipt?: ReceiptSummary;
+  receiptEnvelope?: ReceiptEnvelope;
   /** Providers that failed before this one answered, in order. */
   fellBackFrom?: Array<{ provider: Provider; error: StructuredError }>;
 }
 
 export type Generator = (req: GenerateRequest) => Promise<GenerateResult>;
+
+/** One HTTP attempt to a model provider. Reported through `onAttempt` so every try is logged. */
+export interface ModelAttempt {
+  provider: Provider;
+  requestedModel: string;
+  routedModel?: string;
+  servedMode?: string;
+  status?: number;
+  outcome: "ok" | "dead_route" | "error";
+  errorType?: string;
+  latencyMs: number;
+}
+export type AttemptHook = (attempt: ModelAttempt) => void;
 
 interface NamedGenerator {
   provider: Provider;
@@ -57,6 +94,8 @@ export interface NightshiftOptions {
   scope: string;
   models: Record<Lane, string>;
   timeoutMs: number;
+  receiptPublicKeys?: readonly string[];
+  onAttempt?: AttemptHook;
   fetchImpl?: FetchLike;
 }
 
@@ -65,63 +104,193 @@ export function createNightshiftGenerator(opts: NightshiftOptions): Generator {
     if (!opts.token) {
       throw new AppError("config_missing", "the Nightshift runtime token is not set", { recoverable: true });
     }
-    const requestedModel = req.model ?? opts.models[req.lane ?? "default"];
-    const { status, text, ms } = await httpRequest(joinUrl(opts.baseUrl, "/chat/completions"), {
+    const primary = req.model ?? opts.models[req.lane ?? "fast"];
+    if (!PINNED_MODE.test(primary)) {
+      throw new AppError("validation", `"${primary}" is not a pinned Nightshift mode; meterless/auto is not allowed`);
+    }
+
+    const deadRoutes: DeadRoute[] = [];
+    for (const mode of modesToTry(opts.models, primary)) {
+      const sent = await sendToNightshift(opts, req, mode);
+      const dead = deadRouteOf(mode, sent.status, sent.text);
+      if (dead) {
+        deadRoutes.push(dead);
+        opts.onAttempt?.({
+          provider: "nightshift",
+          requestedModel: mode,
+          status: sent.status,
+          outcome: "dead_route",
+          latencyMs: Math.round(sent.ms),
+        });
+        continue;
+      }
+      return readNightshiftAnswer(opts, mode, sent, deadRoutes);
+    }
+    throw new AppError("route_dead", "no Nightshift mode could route this request", {
+      recoverable: true,
+      details: { dead_routes: deadRoutes },
+    });
+  };
+}
+
+/** The mode asked for, then (once) the next configured mode if it is dead. */
+function modesToTry(models: Record<Lane, string>, primary: string): string[] {
+  const configured = [...new Set(LANES.map((lane) => models[lane]))];
+  const at = configured.indexOf(primary);
+  const rotated = at === -1 ? configured : [...configured.slice(at + 1), ...configured.slice(0, at)];
+  const next = rotated.find((mode) => mode !== primary);
+  return next === undefined ? [primary] : [primary, next];
+}
+
+async function sendToNightshift(opts: NightshiftOptions, req: GenerateRequest, mode: string) {
+  try {
+    return await httpRequest(joinUrl(opts.baseUrl, "/chat/completions"), {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${opts.token.reveal()}`,
+        Authorization: `Bearer ${opts.token?.reveal() ?? ""}`,
         "meterless-app": opts.appId,
         "meterless-scope": opts.scope,
       },
-      body: chatBody(requestedModel, req),
+      body: chatBody(mode, req),
       timeoutMs: req.timeoutMs ?? opts.timeoutMs,
       signal: req.signal,
       fetchImpl: opts.fetchImpl,
     });
-    const body = parseChatResponse("nightshift", status, text);
+  } catch (err) {
+    opts.onAttempt?.({
+      provider: "nightshift",
+      requestedModel: mode,
+      outcome: "error",
+      errorType: toStructuredError(err).type,
+      latencyMs: 0,
+    });
+    throw err;
+  }
+}
+
+/** HTTP 410 (model retired) and 400 class_no_route both mean this mode has no route. */
+function deadRouteOf(model: string, status: number, text: string): DeadRoute | undefined {
+  if (status === 410) return { model, status };
+  if (status === 400 && text.includes("class_no_route")) return { model, status, code: "class_no_route" };
+  return undefined;
+}
+
+function readNightshiftAnswer(
+  opts: NightshiftOptions,
+  mode: string,
+  sent: { status: number; text: string; ms: number },
+  deadRoutes: DeadRoute[],
+): GenerateResult {
+  const latencyMs = Math.round(sent.ms);
+  try {
+    const body = parseChatResponse("nightshift", sent.status, sent.text);
     const meterless = asRecord(body.meterless);
-    const route = asRecord(meterless?.winning_route);
-    const kind = route?.kind;
-    return {
+    const kind = asRecord(meterless?.winning_route)?.kind;
+    const routedModel = asString(meterless?.routed_model) ?? asString(body.model) ?? mode;
+    const servedMode = asString(meterless?.provider_model);
+    const receipt = extractReceipt(meterless, opts.receiptPublicKeys ?? []);
+    const result: GenerateResult = {
       text: extractContent("nightshift", body),
       provider: "nightshift",
-      requestedModel,
-      routedModel: asString(meterless?.routed_model) ?? asString(body.model) ?? requestedModel,
+      requestedModel: mode,
+      routedModel,
       routeKind: kind === "local" || kind === "cloud" ? kind : null,
-      latencyMs: Math.round(ms),
-      receiptId: asString(meterless?.receipt_id),
+      latencyMs,
       usage: extractUsage(body),
+      servedMode,
+      modeMismatch: servedMode !== undefined && servedMode !== mode,
+      fromCache: typeof meterless?.from_cache === "boolean" ? meterless.from_cache : undefined,
+      ...(deadRoutes.length > 0 ? { deadRoutes } : {}),
+      ...(receipt ? { receipt: receipt.summary, receiptEnvelope: receipt.envelope } : {}),
     };
-  };
+    opts.onAttempt?.({
+      provider: "nightshift",
+      requestedModel: mode,
+      routedModel,
+      servedMode,
+      status: sent.status,
+      outcome: "ok",
+      latencyMs,
+    });
+    return result;
+  } catch (err) {
+    opts.onAttempt?.({
+      provider: "nightshift",
+      requestedModel: mode,
+      status: sent.status,
+      outcome: "error",
+      errorType: toStructuredError(err).type,
+      latencyMs,
+    });
+    throw err;
+  }
 }
 
 export interface OllamaOptions {
   baseUrl: string;
   model: string;
   timeoutMs: number;
+  onAttempt?: AttemptHook;
   fetchImpl?: FetchLike;
 }
 
+/** Backup provider. It always uses its own configured model: Nightshift mode names mean nothing to it. */
 export function createOllamaGenerator(opts: OllamaOptions): Generator {
   return async (req) => {
-    const requestedModel = req.model ?? opts.model;
-    const { status, text, ms } = await httpRequest(joinUrl(opts.baseUrl, "/chat/completions"), {
-      method: "POST",
-      body: chatBody(requestedModel, req),
-      timeoutMs: req.timeoutMs ?? opts.timeoutMs,
-      signal: req.signal,
-      fetchImpl: opts.fetchImpl,
-    });
-    const body = parseChatResponse("ollama", status, text);
-    return {
-      text: extractContent("ollama", body),
-      provider: "ollama",
-      requestedModel,
-      routedModel: asString(body.model) ?? requestedModel,
-      routeKind: "local",
-      latencyMs: Math.round(ms),
-      usage: extractUsage(body),
-    };
+    const requestedModel = opts.model;
+    let sent: Awaited<ReturnType<typeof httpRequest>>;
+    try {
+      sent = await httpRequest(joinUrl(opts.baseUrl, "/chat/completions"), {
+        method: "POST",
+        body: chatBody(requestedModel, req),
+        timeoutMs: req.timeoutMs ?? opts.timeoutMs,
+        signal: req.signal,
+        fetchImpl: opts.fetchImpl,
+      });
+    } catch (err) {
+      opts.onAttempt?.({
+        provider: "ollama",
+        requestedModel,
+        outcome: "error",
+        errorType: toStructuredError(err).type,
+        latencyMs: 0,
+      });
+      throw err;
+    }
+    const latencyMs = Math.round(sent.ms);
+    try {
+      const body = parseChatResponse("ollama", sent.status, sent.text);
+      const routedModel = asString(body.model) ?? requestedModel;
+      const result: GenerateResult = {
+        text: extractContent("ollama", body),
+        provider: "ollama",
+        requestedModel,
+        routedModel,
+        routeKind: "local",
+        latencyMs,
+        usage: extractUsage(body),
+        modeMismatch: false,
+      };
+      opts.onAttempt?.({
+        provider: "ollama",
+        requestedModel,
+        routedModel,
+        status: sent.status,
+        outcome: "ok",
+        latencyMs,
+      });
+      return result;
+    } catch (err) {
+      opts.onAttempt?.({
+        provider: "ollama",
+        requestedModel,
+        status: sent.status,
+        outcome: "error",
+        errorType: toStructuredError(err).type,
+        latencyMs,
+      });
+      throw err;
+    }
   };
 }
 
@@ -137,6 +306,7 @@ export function createFallbackRulesGenerator(rules: (req: GenerateRequest) => st
       routedModel: "fallback-rules",
       routeKind: "local",
       latencyMs: Math.round(performance.now() - start),
+      modeMismatch: false,
     };
   };
 }
@@ -186,6 +356,8 @@ export interface BuildGeneratorDeps {
   /** Required to enable fallback-rules; only used when SAMPLE_MODE is on. */
   fallbackRules?: (req: GenerateRequest) => string;
   onFallback?: (from: Provider, error: StructuredError) => void;
+  /** Called for every HTTP attempt, with the requested and routed model. */
+  onAttempt?: AttemptHook;
 }
 
 /** Wire the provider chain from config: Nightshift primary, Ollama backup, rules only in sample mode. */
@@ -201,6 +373,8 @@ export function buildGenerator(cfg: Config, deps: BuildGeneratorDeps = {}): Gene
         scope: nightshift.scope,
         models: nightshift.models,
         timeoutMs: nightshift.requestTimeoutMs,
+        receiptPublicKeys: nightshift.receiptPublicKeys,
+        onAttempt: deps.onAttempt,
         fetchImpl: deps.fetchImpl,
       }),
     },
@@ -210,6 +384,7 @@ export function buildGenerator(cfg: Config, deps: BuildGeneratorDeps = {}): Gene
         baseUrl: ollama.baseUrl,
         model: ollama.model,
         timeoutMs: ollama.requestTimeoutMs,
+        onAttempt: deps.onAttempt,
         fetchImpl: deps.fetchImpl,
       }),
     },
@@ -218,6 +393,31 @@ export function buildGenerator(cfg: Config, deps: BuildGeneratorDeps = {}): Gene
     chain.push({ provider: "fallback-rules", generate: createFallbackRulesGenerator(deps.fallbackRules) });
   }
   return createGeneratorChain(chain, { onFallback: deps.onFallback });
+}
+
+/**
+ * The trace fields that describe one model call, so every agent logs it the same way: requested and
+ * routed model, route kind, tokens, latency, the signed receipt, and any dead route, cache hit or
+ * mode mismatch worth knowing about.
+ */
+export function modelTraceFields(result: GenerateResult): Partial<TraceEventInput> {
+  const notes: Record<string, unknown> = {};
+  if (result.servedMode !== undefined) notes.served_mode = result.servedMode;
+  if (result.modeMismatch) notes.mode_mismatch = true;
+  if (result.fromCache !== undefined) notes.from_cache = result.fromCache;
+  if (result.deadRoutes) notes.dead_routes = result.deadRoutes;
+  if (result.fellBackFrom) notes.fell_back_from = result.fellBackFrom.map((f) => f.provider);
+  return {
+    provider: result.provider,
+    model_requested: result.requestedModel,
+    model_used: result.routedModel,
+    route_kind: result.routeKind,
+    latency_ms: result.latencyMs,
+    ...(result.usage?.promptTokens !== undefined ? { tokens_in: result.usage.promptTokens } : {}),
+    ...(result.usage?.completionTokens !== undefined ? { tokens_out: result.usage.completionTokens } : {}),
+    ...(result.receipt ? { receipt: result.receipt } : {}),
+    ...(Object.keys(notes).length > 0 ? { detail: notes } : {}),
+  };
 }
 
 /** Remove <think>...</think> reasoning blocks that some models put inside the answer. */

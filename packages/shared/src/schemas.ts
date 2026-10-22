@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ReceiptSummarySchema } from "./receipts.js";
 
 export const DecisionSchema = z.enum(["CLOSE_FALSE_POSITIVE", "ESCALATE_L2", "RECOMMEND_BLOCK", "NEED_MORE_INFO"]);
 export type Decision = z.infer<typeof DecisionSchema>;
@@ -106,6 +107,8 @@ export const TraceEventSchema = z.object({
   tokens_in: z.number().int().nonnegative().optional(),
   tokens_out: z.number().int().nonnegative().optional(),
   zetaris_query_id: z.string().optional(),
+  /** Signed Nightshift receipt for the model call this event describes (compact form). */
+  receipt: ReceiptSummarySchema.optional(),
   detail: z.record(z.string(), z.unknown()).optional(),
 });
 export type TraceEvent = z.infer<typeof TraceEventSchema>;

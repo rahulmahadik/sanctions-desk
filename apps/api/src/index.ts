@@ -1,5 +1,13 @@
 import { existsSync } from "node:fs";
-import { buildGenerator, ConfigError, describeConfig, loadConfig } from "@sanctions-desk/shared";
+import {
+  buildGenerator,
+  ConfigError,
+  describeConfig,
+  loadConfig,
+  loadPolicyFile,
+  PolicyStore,
+  RunEventBus,
+} from "@sanctions-desk/shared";
 import { buildApp } from "./app.js";
 import { createLogger } from "./logger.js";
 
@@ -14,10 +22,40 @@ async function main(): Promise<void> {
   const generator = buildGenerator(config, {
     onFallback: (from, error) =>
       logger.warn({ provider: from, error_type: error.type }, "model provider failed, falling back"),
+    onAttempt: (a) => {
+      const fields = {
+        provider: a.provider,
+        requested_model: a.requestedModel,
+        routed_model: a.routedModel,
+        served_mode: a.servedMode,
+        status: a.status,
+        outcome: a.outcome,
+        error_type: a.errorType,
+        latency_ms: a.latencyMs,
+      };
+      if (a.outcome === "ok" && a.servedMode !== undefined && a.servedMode !== a.requestedModel) {
+        logger.warn(fields, "model call served a different mode than requested");
+      } else if (a.outcome === "ok") {
+        logger.info(fields, "model call");
+      } else {
+        logger.warn(fields, "model call failed");
+      }
+    },
+  });
+  const bus = new RunEventBus({
+    replayLimit: config.events.replayLimit,
+    maxRuns: config.events.maxRuns,
+    onListenerError: (err) => logger.warn({ err }, "run event subscriber failed"),
+  });
+  const policies = new PolicyStore(loadPolicyFile(config.policy.file), {
+    onListenerError: (err) => logger.warn({ err }, "policy change subscriber failed"),
   });
 
-  const app = await buildApp({ config, logger, generator });
-  logger.info({ config: describeConfig(config) }, "starting sanctions-desk api");
+  const app = await buildApp({ config, logger, generator, bus, policies });
+  logger.info(
+    { config: describeConfig(config), policy_version: policies.activeVersion() },
+    "starting sanctions-desk api",
+  );
 
   let shuttingDown = false;
   const shutdown = async (signal: string): Promise<void> => {

@@ -6,7 +6,9 @@ export type ErrorType =
   | "network"
   | "http_error"
   | "bad_response"
+  | "route_dead"
   | "validation"
+  | "not_found"
   | "not_implemented"
   | "internal";
 

@@ -27,9 +27,9 @@ describe("loadConfig", () => {
   });
 
   it("treats blank environment values as unset", () => {
-    const cfg = testConfig({ PORT: "   ", METERLESS_MODEL: "" });
+    const cfg = testConfig({ PORT: "   ", METERLESS_MODEL_FAST: "" });
     expect(cfg.server.port).toBe(8000);
-    expect(cfg.nightshift.models.default).toBe("meterless/auto");
+    expect(cfg.nightshift.models.fast).toBe("meterless/fast");
   });
 
   it("applies an overrides file between the defaults and the environment", () => {
@@ -95,6 +95,30 @@ describe("loadConfig", () => {
     const dir = tempDir();
     const overrides = writeJson(dir, "typo.json", { server: { prot: 1 } });
     expect(() => loadConfig({ env: {}, overridesPath: overrides })).toThrow(ConfigError);
+  });
+
+  it("never accepts meterless/auto or a non-Meterless id for a lane", () => {
+    for (const bad of ["meterless/auto", "nvidia/nemotron-3-super-120b-a12b", "fast", "meterless/", "meterless/Auto"]) {
+      expect(() => testConfig({ METERLESS_MODEL_DEEP: bad }), bad).toThrow(/nightshift\.models\.deep/);
+    }
+    expect(testConfig({ METERLESS_MODEL_JUDGE: "meterless/text.deep" }).nightshift.models.judge).toBe(
+      "meterless/text.deep",
+    );
+  });
+
+  it("ignores the retired METERLESS_MODEL variable instead of using it as a default", () => {
+    const cfg = testConfig({ METERLESS_MODEL: "meterless/auto" });
+    expect(cfg.nightshift.models).toEqual({ fast: "meterless/fast", deep: "meterless/deep", judge: "meterless/judge" });
+  });
+
+  it("reads pinned receipt public keys from a comma separated variable and validates them", () => {
+    const key = "00OsSOXGbDitkESZueIJqDPdf9bXAvyrL+8cYDbY6II=";
+    expect(testConfig().nightshift.receiptPublicKeys).toEqual([]);
+    expect(testConfig({ METERLESS_RECEIPT_PUBLIC_KEY: `${key}, ${key}` }).nightshift.receiptPublicKeys).toEqual([
+      key,
+      key,
+    ]);
+    expect(() => testConfig({ METERLESS_RECEIPT_PUBLIC_KEY: "not-a-key" })).toThrow(/receiptPublicKeys/);
   });
 
   it("reports unreadable and invalid config files", () => {

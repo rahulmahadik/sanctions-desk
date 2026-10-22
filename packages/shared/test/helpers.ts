@@ -1,8 +1,9 @@
+import { generateKeyPairSync, sign } from "node:crypto";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach } from "vitest";
-import { type Config, loadConfig, resolveProjectPath } from "../src/index.js";
+import { type Config, canonicalJson, loadConfig, resolveProjectPath } from "../src/index.js";
 
 const dirs: string[] = [];
 
@@ -104,4 +105,42 @@ export function first<T>(items: readonly T[]): T {
   const item = items[0];
   if (item === undefined) throw new Error("expected a non-empty list");
   return item;
+}
+
+// ---- signed receipts ----------------------------------------------------------------------
+
+export interface SignedReceipt {
+  envelope: { body: Record<string, unknown>; pubkey_b64: string; sig_b64: string };
+  publicKeyB64: string;
+}
+
+/** A receipt envelope signed with a fresh Ed25519 key, in the shape Nightshift returns. */
+export function signedReceipt(body: Record<string, unknown> = {}): SignedReceipt {
+  const { publicKey, privateKey } = generateKeyPairSync("ed25519");
+  const publicKeyB64 = publicKey.export({ format: "der", type: "spki" }).subarray(-32).toString("base64");
+  const fullBody = { signer: "meterlessd", ts_ms: 1792682433801, manifest_hash: "m".repeat(64), receipt: {}, ...body };
+  const sig = sign(null, Buffer.from(canonicalJson(fullBody), "utf8"), privateKey).toString("base64");
+  return { envelope: { body: fullBody, pubkey_b64: publicKeyB64, sig_b64: sig }, publicKeyB64 };
+}
+
+/** A Nightshift-style chat response whose `meterless` block carries a signed receipt. */
+export function nightshiftReply(
+  content: string,
+  over: { signed?: SignedReceipt; meterless?: Record<string, unknown> } = {},
+): Record<string, unknown> {
+  const signed = over.signed ?? signedReceipt();
+  return chatReply(content, {
+    model: "local-runtime/nemotron",
+    usage: { prompt_tokens: 5, completion_tokens: 2, total_tokens: 7 },
+    meterless: {
+      receipt_id: "rcpt_test_1",
+      decision_id: "req_test_1",
+      routed_model: "local-runtime/nemotron",
+      provider_model: "meterless/fast",
+      from_cache: false,
+      winning_route: { kind: "local" },
+      receipt_envelope: signed.envelope,
+      ...over.meterless,
+    },
+  });
 }

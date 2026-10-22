@@ -5,6 +5,8 @@ import {
   type Config,
   createTraceLogger,
   makeRedactor,
+  type PolicyStore,
+  type RunEventBus,
   RunRequestSchema,
   RunResponseSchema,
   secretValues,
@@ -13,13 +15,15 @@ import type { FastifyPluginAsync } from "fastify";
 
 interface RunOptions {
   config: Config;
+  bus: RunEventBus;
+  policies: PolicyStore;
 }
 
 /**
  * POST /run is the programmatic entry point. A valid request is traced and answered with a structured
  * `not_implemented` error while the agent pipeline is not enabled. It never returns an invented decision.
  */
-export const runRoutes: FastifyPluginAsync<RunOptions> = async (app, { config }) => {
+export const runRoutes: FastifyPluginAsync<RunOptions> = async (app, { config, bus, policies }) => {
   const redact = makeRedactor(secretValues(config));
 
   app.post("/run", async (req, reply) => {
@@ -32,7 +36,16 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (app, { config })
     }
 
     const runId = parsed.data.run_id ?? randomUUID();
-    const trace = createTraceLogger({ runId, dir: config.logging.dir, redact, stdout: config.logging.stdout });
+    // The run keeps the policy it starts with, even if a new version is published while it runs.
+    const policy = policies.active();
+    const trace = createTraceLogger({
+      runId,
+      dir: config.logging.dir,
+      redact,
+      stdout: config.logging.stdout,
+      bus,
+      policyVersion: policy.version,
+    });
     const error = new AppError("not_implemented", "the agent pipeline is not enabled in this build", {
       recoverable: false,
     }).toJSON();
@@ -41,13 +54,15 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (app, { config })
       agent: "system",
       action: "run_rejected",
       status: "error",
-      input_summary: parsed.data.alert_id ? `alert_id=${parsed.data.alert_id}` : "inline alert",
+      input_summary: `${parsed.data.alert_type}: ${parsed.data.alert_id ? `alert_id=${parsed.data.alert_id}` : "inline alert"}`,
       output_summary: error.message,
     });
 
     const body = RunResponseSchema.parse({
       run_id: runId,
       status: "error",
+      alert_type: parsed.data.alert_type,
+      policy_version: policy.version,
       what_would_change: [],
       citations: [],
       agents: [],

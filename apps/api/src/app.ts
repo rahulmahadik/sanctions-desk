@@ -1,18 +1,24 @@
 import { randomUUID } from "node:crypto";
 import helmet from "@fastify/helmet";
-import type { Config, Generator } from "@sanctions-desk/shared";
+import type { Config, Generator, PolicyStore, RunEventBus } from "@sanctions-desk/shared";
 import fastify from "fastify";
 import type { Logger } from "pino";
 import { mapError } from "./errors.js";
 import { createDependencyProber, type DependencyProber } from "./probes.js";
 import { healthRoutes } from "./routes/health.js";
+import { policyRoutes } from "./routes/policy.js";
 import { runRoutes } from "./routes/run.js";
+import { runEventRoutes } from "./routes/run-events.js";
 
 export interface AppDeps {
   config: Config;
   logger: Logger;
   /** The injected model seam. Agents receive this; no route calls a provider directly. */
   generator: Generator;
+  /** Every run event is published here; live views and replays read from it. */
+  bus: RunEventBus;
+  /** The versioned policy. Each run reads the active version once and keeps it. */
+  policies: PolicyStore;
   /** Replaceable in tests. Defaults to probing the configured runtimes. */
   prober?: DependencyProber;
 }
@@ -64,7 +70,9 @@ export async function buildApp(deps: AppDeps) {
 
   const prober = deps.prober ?? createDependencyProber(config);
   await app.register(healthRoutes, { config, prober });
-  await app.register(runRoutes, { config });
+  await app.register(runRoutes, { config, bus: deps.bus, policies: deps.policies });
+  await app.register(runEventRoutes, { bus: deps.bus });
+  await app.register(policyRoutes, { policies: deps.policies });
 
   return app;
 }

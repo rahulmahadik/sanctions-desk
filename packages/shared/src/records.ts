@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { hashValue, SHA256_HEX, sha256Hex } from "./hashing.js";
 import { ListIdSchema, PolicyRefSchema, ThinkingSchema } from "./policy.js";
+import { ReceiptSummarySchema } from "./receipts.js";
 import { AgentNameSchema, AlertTypeSchema, DecisionSchema, RunIdSchema } from "./schemas.js";
 
 /**
@@ -125,6 +126,10 @@ export const ModelUseSchema = z.strictObject({
   tokens_in: count.optional(),
   tokens_out: count.optional(),
   latency_ms: z.number().nonnegative().optional(),
+  /** The mode the runtime reports it served, when it differs from the one requested. */
+  served_mode: nonEmpty.optional(),
+  /** Signed receipt for this call; the full envelope is stored beside the trace. */
+  receipt: ReceiptSummarySchema.optional(),
 });
 
 export const GuardVerdictSchema = z.strictObject({

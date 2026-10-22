@@ -3,6 +3,7 @@ import { z } from "zod";
 import { resolveProjectPath } from "./config.js";
 import { AppError } from "./errors.js";
 import { hashValue } from "./hashing.js";
+import { AgentModelIdSchema } from "./modes.js";
 import { PolicyVersionSchema } from "./schemas.js";
 
 /**
@@ -32,9 +33,9 @@ export const ThinkingSchema = z.union([
 ]);
 export type Thinking = z.infer<typeof ThinkingSchema>;
 
-/** `model` is a Nightshift lane name from the config (default, fast, deep, judge) or a routing mode. */
+/** `model` is a lane name (fast, deep, judge) or a pinned mode. meterless/auto is never allowed. */
 export const AgentModelSchema = z.strictObject({
-  model: nonEmpty,
+  model: AgentModelIdSchema,
   thinking: ThinkingSchema,
   timeoutMs: positiveInt.max(600_000),
 });

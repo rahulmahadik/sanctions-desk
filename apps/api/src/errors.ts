@@ -3,12 +3,14 @@ import type { FastifyError } from "fastify";
 
 const STATUS_BY_TYPE: Record<ErrorType, number> = {
   validation: 400,
+  not_found: 404,
   not_implemented: 501,
   config_missing: 503,
   timeout: 504,
   network: 502,
   http_error: 502,
   bad_response: 502,
+  route_dead: 502,
   internal: 500,
 };
 
