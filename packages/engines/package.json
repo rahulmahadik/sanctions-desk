@@ -11,6 +11,7 @@
     "./markovian": "./src/markovian/index.ts"
   },
   "dependencies": {
+    "@sanctions-desk/data": "^0.1.0",
     "@sanctions-desk/shared": "^0.1.0",
     "zod": "^4.6.7"
   }
