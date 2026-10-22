@@ -241,7 +241,9 @@ def check_hygiene() -> None:
         "BEGIN (RSA|OPENSSH) PRIVATE " + "KEY",
     ])
     rc, out, e = run(["git", "grep", "-nE", "--untracked", "--exclude-standard", "-e", pattern,
-                      "--", ".", ":(exclude).env.example"])
+                      "--", ".", ":(exclude).env.example",
+                      # The redactor must contain key shapes to recognise them, and its tests use fake ones.
+                      ":(exclude)packages/shared/src/redact.ts", ":(exclude)packages/shared/test/redact.test.ts"])
     if rc == 1:
         report("PASS", "secret scan", "no matches in tracked/untracked non-ignored files")
     elif rc == 0:
