@@ -149,6 +149,7 @@ describe("the committed scripts", () => {
   it("reset removes only what the scripts create", () => {
     const reset = parseStatements(scripts["00_reset_create.sql"] ?? "").map((s) => s.sql);
     expect(reset).toEqual([
+      "UNCACHE TABLE sanctions_payments.payments_raw",
       "REMOVE USL screening_usl NAMESPACE lightning.metastore.sanctions",
       "DROP LIGHTNING DATABASE sanctions_lists",
       "DROP LIGHTNING DATABASE sanctions_bank_files",

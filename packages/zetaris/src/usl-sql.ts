@@ -250,6 +250,8 @@ function resetScript(): string {
     `-- Removes only the objects created by these scripts, so the setup can be rebuilt from scratch: the screening
 -- model, the sanctions_* databases and the bank database registration. Nothing else is touched.`,
     [
+      // The cached payments table outlives the database it was created in, so it is released first.
+      block("uncache_payments", "UNCACHE TABLE sanctions_payments.payments_raw"),
       block("remove_model", `REMOVE USL ${USL} NAMESPACE ${NAMESPACE}`),
       block("drop_lists", "DROP LIGHTNING DATABASE sanctions_lists"),
       block("drop_bank_files", "DROP LIGHTNING DATABASE sanctions_bank_files"),

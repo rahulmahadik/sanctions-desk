@@ -80,7 +80,7 @@ const MISSING_PATTERN = /not exist|not found|no such|is not existing|cannot be f
 
 /** When running a script again, removing something that is already gone is fine; creating something that exists is too. */
 function isRepeatable(sql: string, answer: string): boolean {
-  return EXISTS_PATTERN.test(answer) || (/^\s*(DROP|REMOVE)\b/i.test(sql) && MISSING_PATTERN.test(answer));
+  return EXISTS_PATTERN.test(answer) || (/^\s*(DROP|REMOVE|UNCACHE)\b/i.test(sql) && MISSING_PATTERN.test(answer));
 }
 
 export interface SetupRunOptions {

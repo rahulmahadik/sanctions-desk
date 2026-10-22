@@ -9,25 +9,25 @@
     {
       "op": "replace_dobs",
       "entry_id": "OFAC-30965",
-      "dob_value": "1991-02-24"
+      "dob_value": "1959-07-25"
     },
     {
       "op": "replace_dobs",
       "entry_id": "UN-TAi.060",
-      "dob_value": "1968-04-08"
+      "dob_value": "1944-02-16"
     },
     {
       "op": "add_identifier",
       "entry_id": "OFAC-56674",
       "id_type": "passport",
-      "id_number": "P8888880",
+      "id_number": "P3591164",
       "issuing_country": "IR"
     },
     {
       "op": "add_identifier",
       "entry_id": "OFAC-36073",
       "id_type": "passport",
-      "id_number": "P6021124",
+      "id_number": "P4936369",
       "issuing_country": "TR"
     },
     {

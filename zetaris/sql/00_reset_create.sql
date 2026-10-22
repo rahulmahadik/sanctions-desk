@@ -1,6 +1,9 @@
 -- Removes only the objects created by these scripts, so the setup can be rebuilt from scratch: the screening
 -- model, the sanctions_* databases and the bank database registration. Nothing else is touched.
 
+-- @@ uncache_payments
+UNCACHE TABLE sanctions_payments.payments_raw
+
 -- @@ remove_model
 REMOVE USL screening_usl NAMESPACE lightning.metastore.sanctions
 

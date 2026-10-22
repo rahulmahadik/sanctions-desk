@@ -850,6 +850,16 @@ function clearedBefore(kind: string, changed: Change): Build {
     if (passport) b.identifier(customer.customer_id, "passport", passport, nationalityOf(c.party));
     b.priorDisposition(customer, c, CLEARED_REASONS[changed], 3 + (b.cases.length % 5));
     const alert = b.alert({ customer, candidate: c, source: "customer_name" });
+    // Money is waiting on a clearance that the list update undoes.
+    if (changed !== "none") {
+      b.payment({
+        customer_id: customer.customer_id,
+        counterparty_name: companyName(b.rng),
+        counterparty_country: b.rng.pick(["GB", "DE", "NL", "FR"]),
+        amount: String(b.rng.int(5000, 90000)),
+        payment_reference: "Invoice settlement",
+      });
+    }
     b.delta.push(...undoingEdit(c, changed, customer, passport));
     b.addCase({
       kind,

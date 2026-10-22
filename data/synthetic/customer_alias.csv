@@ -1,47 +1,48 @@
 alias_id,customer_id,alias_name,alias_kind
-CAL-0001,CUST-0067,Ursula Garcia,former
-CAL-0002,CUST-0071,Quentin Carvalho,former
-CAL-0003,CUST-0073,Elena Ibarra,former
-CAL-0004,CUST-0078,Orchid Holdings B.V. (trading),trading
-CAL-0005,CUST-0086,Rania Chaudhry,former
-CAL-0006,CUST-0092,Camille Quinn,former
-CAL-0007,CUST-0099,Maja Silva,former
-CAL-0008,CUST-0100,Hannah Quinn,former
-CAL-0009,CUST-0104,Quentin Abbott,former
-CAL-0010,CUST-0106,Pedro Garcia,former
-CAL-0011,CUST-0112,Mateo Tanaka,former
-CAL-0012,CUST-0119,Mateo Jensen,former
-CAL-0013,CUST-0120,Tidal Logistics LLC (trading),trading
-CAL-0014,CUST-0130,Beatriz Thompson,former
-CAL-0015,CUST-0139,Kenji Tanaka,former
-CAL-0016,CUST-0140,Grace Bauer,former
-CAL-0017,CUST-0144,Delta Software B.V. (trading),trading
-CAL-0018,CUST-0145,Zoe Adeyemi,former
-CAL-0019,CUST-0146,Omar Thompson,former
-CAL-0020,CUST-0152,Gabriel Andersen,former
-CAL-0021,CUST-0160,Bruno Novak,former
-CAL-0022,CUST-0162,Harbor Software B.V. (trading),trading
-CAL-0023,CUST-0167,Sofia Jensen,former
-CAL-0024,CUST-0168,Iris Marine Pte Ltd (trading),trading
-CAL-0025,CUST-0170,Camille Tanaka,former
-CAL-0026,CUST-0175,Lucas Fischer,former
-CAL-0027,CUST-0177,Beatriz Schmidt,former
-CAL-0028,CUST-0185,Thea Novak,former
-CAL-0029,CUST-0190,Viktor Jensen,former
-CAL-0030,CUST-0192,Orchid Software Ltd (trading),trading
-CAL-0031,CUST-0195,Zoe Santos,former
-CAL-0032,CUST-0198,Iris Textiles GmbH (trading),trading
-CAL-0033,CUST-0206,Mateo Bianchi,former
-CAL-0034,CUST-0210,Summit Foods Inc (trading),trading
-CAL-0035,CUST-0216,Iris Holdings GmbH (trading),trading
-CAL-0036,CUST-0223,Quentin Fernandes,former
-CAL-0037,CUST-0225,Olivia Bianchi,former
-CAL-0038,CUST-0232,Mei Rossi,former
-CAL-0039,CUST-0247,Hugo Santos,former
-CAL-0040,CUST-0257,Hannah Eriksson,former
-CAL-0041,CUST-0265,Lucas Moreau,former
-CAL-0042,CUST-0287,Emeka Nakamura,former
-CAL-0043,CUST-0292,Rania Garcia,former
-CAL-0044,CUST-0295,Yara Jensen,former
-CAL-0045,CUST-0297,Dara Moreau,former
-CAL-0046,CUST-0299,Lucas Santos,former
+CAL-0001,CUST-0072,Ridge Holdings GmbH (trading),trading
+CAL-0002,CUST-0080,Nils Abbott,former
+CAL-0003,CUST-0089,Zoe Haddad,former
+CAL-0004,CUST-0091,Emeka Haddad,former
+CAL-0005,CUST-0095,Maja Haddad,former
+CAL-0006,CUST-0101,Marta Oliveira,former
+CAL-0007,CUST-0104,Paula Dubois,former
+CAL-0008,CUST-0107,Nadia Moreau,former
+CAL-0009,CUST-0112,Dara Okafor,former
+CAL-0010,CUST-0126,Tidal Foods B.V. (trading),trading
+CAL-0011,CUST-0130,Olivia Quinn,former
+CAL-0012,CUST-0131,Laila Ugarte,former
+CAL-0013,CUST-0135,Andrei Carvalho,former
+CAL-0014,CUST-0142,Ilse Kowalski,former
+CAL-0015,CUST-0148,Farah Lindqvist,former
+CAL-0016,CUST-0151,Omar Thompson,former
+CAL-0017,CUST-0159,Mei Weber,former
+CAL-0018,CUST-0165,Ilse Oliveira,former
+CAL-0019,CUST-0179,Emeka Almeida,former
+CAL-0020,CUST-0184,Thea Novak,former
+CAL-0021,CUST-0187,Maja Ibarra,former
+CAL-0022,CUST-0188,Marta Bauer,former
+CAL-0023,CUST-0199,Hannah Silva,former
+CAL-0024,CUST-0202,Ana Petersen,former
+CAL-0025,CUST-0205,Elena Silva,former
+CAL-0026,CUST-0206,Ana Ibarra,former
+CAL-0027,CUST-0207,Paula Hansen,former
+CAL-0028,CUST-0211,Gabriel Hansen,former
+CAL-0029,CUST-0215,Rosa Abbott,former
+CAL-0030,CUST-0217,Omar Petersen,former
+CAL-0031,CUST-0220,Stefan Rossi,former
+CAL-0032,CUST-0227,Grace Chaudhry,former
+CAL-0033,CUST-0229,Hannah Castillo,former
+CAL-0034,CUST-0231,Stefan Thompson,former
+CAL-0035,CUST-0256,Hannah Eriksson,former
+CAL-0036,CUST-0257,Kenji Santos,former
+CAL-0037,CUST-0258,Tidal Capital GmbH (trading),trading
+CAL-0038,CUST-0259,Tariq Jensen,former
+CAL-0039,CUST-0265,Viktor Fernandes,former
+CAL-0040,CUST-0269,Omar Santos,former
+CAL-0041,CUST-0273,Omar Abbott,former
+CAL-0042,CUST-0279,Lucas Lambert,former
+CAL-0043,CUST-0281,Maja Vasquez,former
+CAL-0044,CUST-0282,Quarry Marine GmbH (trading),trading
+CAL-0045,CUST-0283,Daniel Eriksson,former
+CAL-0046,CUST-0289,Lucas Almeida,former
+CAL-0047,CUST-0292,Bruno Bianchi,former

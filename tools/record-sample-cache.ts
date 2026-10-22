@@ -7,7 +7,7 @@
 import { existsSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runReview, sampleRules } from "@sanctions-desk/agents";
+import { replayListChange, runReview, sampleRules } from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
 import {
   createFallbackRulesGenerator,
@@ -52,6 +52,31 @@ for (const { alert_id: alertId } of alerts) {
     // Alerts the review does not handle yet are left out of the cache; they cannot run in sample mode either.
     console.log(`${alertId} skipped: ${err instanceof Error ? err.message : String(err)}`);
   }
+}
+// The list-change replay reads the same data layer; its answers are saved too, so it runs in sample mode.
+try {
+  const trace = createTraceLogger({
+    runId: "record-replay",
+    dir: logDir,
+    stdout: false,
+    policyVersion: policy.version,
+  });
+  const report = await replayListChange(
+    {
+      config: { ...config, logging: { ...config.logging, dir: logDir } },
+      policy,
+      zetaris,
+      generator,
+      trace,
+      now: () => new Date(),
+    },
+    {},
+  );
+  console.log(
+    `replay: ${report.reopen.length} to re-open, ${report.release.length} to release; ${report.impact.summary}`,
+  );
+} catch (err) {
+  console.log(`replay skipped: ${err instanceof Error ? err.message : String(err)}`);
 }
 saveQueryCache(resolveProjectPath(config.sampleCache), cache);
 console.log(`saved ${Object.keys(cache.entries).length} answers to ${config.sampleCache}`);

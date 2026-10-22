@@ -4,12 +4,12 @@
   "counts": {
     "customer": 300,
     "customer_identifier": 258,
-    "customer_alias": 46,
-    "account": 341,
+    "customer_alias": 47,
+    "account": 331,
     "beneficial_owner": 21,
     "alert": 72,
     "disposition": 13,
-    "payment": 355
+    "payment": 339
   },
   "exam": {
     "cases": 60,

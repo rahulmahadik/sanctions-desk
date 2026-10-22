@@ -189,3 +189,33 @@ describe("safety on the sample", () => {
     }
   });
 });
+
+describe("list-change replay on the sample", () => {
+  it("offers the changed entries to re-open and the removed one for release, with the portfolio impact", async () => {
+    const { app } = await sampleApp();
+    const res = await app.inject({ method: "POST", url: "/list-change/replay", payload: {} });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+
+    const changedKinds = exam.cases.filter((c) => c.group === "previously_cleared_changed").map((c) => c.entry_id);
+    expect(body.reopen.map((c: { entry_id: string }) => c.entry_id).sort()).toEqual([...changedKinds].sort());
+    expect(body.reopen.every((c: { reason_code: string }) => c.reason_code === "ENTRY_CHANGED")).toBe(true);
+    expect(body.reopen[0].open_alert_ids.length).toBeGreaterThan(0);
+    expect(body.reopen[0].entry_name).toBeTruthy();
+
+    expect(body.release).toHaveLength(1);
+    expect(body.release[0]).toMatchObject({ reason_code: "ENTRY_DELISTED", earlier_decision: "ESCALATE_L2" });
+
+    expect(body).toMatchObject({ total: 13, examined: 13, complete: true, unchanged: 7, moot: 0, policy_version: 1 });
+    expect(body.impact).toMatchObject({ customers: 5, pending_payments: 5 });
+    expect(body.impact.summary).toBe("affects 5 customers and 5 pending payments");
+    expect(body.impact.pending_amount_by_currency).not.toEqual({});
+  });
+
+  it("rejects a malformed request", async () => {
+    const { app } = await sampleApp();
+    for (const payload of [{ batch_size: 0 }, { max_batches: 99 }, { cursor: -1 }, { extra: true }]) {
+      expect((await app.inject({ method: "POST", url: "/list-change/replay", payload })).statusCode).toBe(400);
+    }
+  });
+});

@@ -8,6 +8,7 @@ import { mapError } from "./errors.js";
 import { createDependencyProber, type DependencyProber } from "./probes.js";
 import { guardRoutes } from "./routes/guard.js";
 import { healthRoutes } from "./routes/health.js";
+import { listChangeRoutes } from "./routes/list-change.js";
 import { policyRoutes } from "./routes/policy.js";
 import { runRoutes } from "./routes/run.js";
 import { runEventRoutes } from "./routes/run-events.js";
@@ -87,6 +88,12 @@ export async function buildApp(deps: AppDeps) {
   });
   await app.register(runEventRoutes, { bus: deps.bus });
   await app.register(traceRoutes, { config });
+  await app.register(listChangeRoutes, {
+    config,
+    policies: deps.policies,
+    generator: deps.generator,
+    zetaris: deps.zetaris,
+  });
   await app.register(guardRoutes, {
     config,
     policies: deps.policies,
