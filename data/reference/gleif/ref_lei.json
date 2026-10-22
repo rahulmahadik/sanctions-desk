@@ -1,0 +1,742 @@
+[
+  {
+    "lei": "2138002658CPO9NBH955",
+    "legal_name": "GLENCORE PLC",
+    "country_iso2": "JE",
+    "city": "ST HELIER",
+    "legal_form_id": "JOX1",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2016-09-23"
+  },
+  {
+    "lei": "213800GR9PMZV1HA6636",
+    "legal_name": "MAMOURA DIVERSIFIED GLOBAL HOLDING P.J.S.C.",
+    "country_iso2": "AE",
+    "city": "ABU DHABI",
+    "legal_form_id": "8888",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2018-04-17"
+  },
+  {
+    "lei": "213800J9M4CEKSQYFZ15",
+    "legal_name": "BEAUFORT WIND LIMITED",
+    "country_iso2": "GB",
+    "city": "London",
+    "legal_form_id": "H0PO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2014-02-06"
+  },
+  {
+    "lei": "213800OGSE3XN3HYLZ95",
+    "legal_name": "VENTIENT ENERGY LIMITED",
+    "country_iso2": "GB",
+    "city": "London",
+    "legal_form_id": "H0PO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2017-12-05"
+  },
+  {
+    "lei": "213800QAIOJUKWWBBQ30",
+    "legal_name": "ST SHIPPING AND TRANSPORT PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-04"
+  },
+  {
+    "lei": "213800UXQK8ODDGLAB19",
+    "legal_name": "MOBIUS WIND HOLDINGS LIMITED",
+    "country_iso2": "GB",
+    "city": "London",
+    "legal_form_id": "H0PO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2014-01-29"
+  },
+  {
+    "lei": "2549000OFXLOQKLZYW49",
+    "legal_name": "Gent Investment (DIFC) Limited",
+    "country_iso2": "AE",
+    "city": "Dubai",
+    "legal_form_id": "70EO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-21"
+  },
+  {
+    "lei": "2549000ZEKZO2E2D6O93",
+    "legal_name": "SKAT SHIPPING PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-14"
+  },
+  {
+    "lei": "2549001JYD5V5CEI2X85",
+    "legal_name": "FLEX COMMODITIES PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-04"
+  },
+  {
+    "lei": "2549001UI5FSNYMJ3F91",
+    "legal_name": "WIPRO NETWORKS PTE. LIMITED",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-09"
+  },
+  {
+    "lei": "2549002IE4MW3HG3AQ15",
+    "legal_name": "XANTIUM TECHNOLOGIES APAC PTE. LIMITED",
+    "country_iso2": "SG",
+    "city": "Singapore",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-18"
+  },
+  {
+    "lei": "2549003X6RVJMA9E5Y25",
+    "legal_name": "ساتوس إنرجي م.د.م.س",
+    "country_iso2": "AE",
+    "city": "Dubai",
+    "legal_form_id": "70EO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2024-08-14"
+  },
+  {
+    "lei": "254900445HP77R855G35",
+    "legal_name": "Xantium Holding Limited",
+    "country_iso2": "AE",
+    "city": "Abu Dhabi",
+    "legal_form_id": "OSE2",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-02-10"
+  },
+  {
+    "lei": "254900543T1JSDSVBZ46",
+    "legal_name": "ESR MUMBAI PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-04"
+  },
+  {
+    "lei": "254900590FYSOELSBF17",
+    "legal_name": "Aurium Ltd",
+    "country_iso2": "AE",
+    "city": "Dubai",
+    "legal_form_id": "70EO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-21"
+  },
+  {
+    "lei": "2549005B16UMHNZQUW18",
+    "legal_name": "ASB Capital ICC Limited",
+    "country_iso2": "AE",
+    "city": "Dubai",
+    "legal_form_id": "70EO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-29"
+  },
+  {
+    "lei": "2549006G7WB92ML7LW14",
+    "legal_name": "MIC CAPITAL MANAGEMENT 23 RSC LTD",
+    "country_iso2": "AE",
+    "city": "Abu Dhabi",
+    "legal_form_id": "B13W",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-14"
+  },
+  {
+    "lei": "2549006QNUVUUPEOW097",
+    "legal_name": "AZHA SHIPPING PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-14"
+  },
+  {
+    "lei": "2549006Y8CUQWKTR2112",
+    "legal_name": "SITULA SHIPPING PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-14"
+  },
+  {
+    "lei": "2549007YHAYENXKCNK85",
+    "legal_name": "QUBIC (SINGAPORE) PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2025-05-07"
+  },
+  {
+    "lei": "2549009H1TL7R2LDNR86",
+    "legal_name": "DIGITAL EDGE (SINGAPORE) HOLDINGS PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-25"
+  },
+  {
+    "lei": "254900A7ZT0TCCV46I71",
+    "legal_name": "TOSTOLI SHIPPING (SINGAPORE) PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-08-31"
+  },
+  {
+    "lei": "254900ACG5YNYX03HU89",
+    "legal_name": "ESR KOLKATA 1 PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-03"
+  },
+  {
+    "lei": "254900B4C0B2VTIAXZ64",
+    "legal_name": "ESR CHENNAI 2 PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-04"
+  },
+  {
+    "lei": "254900BV18V1XTTHWH92",
+    "legal_name": "فليكس كوموديتيز م.د.م.س",
+    "country_iso2": "AE",
+    "city": "Dubai",
+    "legal_form_id": "8888",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2024-08-26"
+  },
+  {
+    "lei": "254900GGB8W6RHYTR383",
+    "legal_name": "AM PRECIOUS METALS SINGAPORE PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "Singapore",
+    "legal_form_id": "Y8W9",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-25"
+  },
+  {
+    "lei": "254900HV1ME5CQB9YR61",
+    "legal_name": "ASB Capital Limited",
+    "country_iso2": "AE",
+    "city": "Dubai",
+    "legal_form_id": "70EO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2025-03-11"
+  },
+  {
+    "lei": "254900HXK2Z5UQDZJJ50",
+    "legal_name": "QCT (SINGAPORE) PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2025-05-07"
+  },
+  {
+    "lei": "254900JZRA4R2M5JHN23",
+    "legal_name": "Xantium Technologies Middle East Limited",
+    "country_iso2": "AE",
+    "city": "Abu Dhabi",
+    "legal_form_id": "OSE2",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-02-19"
+  },
+  {
+    "lei": "254900K6AVK6EBISX825",
+    "legal_name": "PW ASSET XV PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-16"
+  },
+  {
+    "lei": "254900M2R0FD7R68YW32",
+    "legal_name": "ESR PUNE R1 PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-03"
+  },
+  {
+    "lei": "254900N6AEV5RW6RH739",
+    "legal_name": "ESR NCR 1 PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-03"
+  },
+  {
+    "lei": "254900O6Y2KIB0FUI049",
+    "legal_name": "ESR PUNE SPE 1 PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-03"
+  },
+  {
+    "lei": "254900OCWSF6TBWZXM03",
+    "legal_name": "ESR PUNE 5 PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-03"
+  },
+  {
+    "lei": "254900POF1CPLI5Y7F70",
+    "legal_name": "ESR PUNE R2 PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-03"
+  },
+  {
+    "lei": "254900PZN6DKDZ375W89",
+    "legal_name": "ESR INDIA LOGISTICS FUND PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2020-03-27"
+  },
+  {
+    "lei": "254900RTIHDB9GY8IP06",
+    "legal_name": "شركة ام دي سي للخدمات العامة القابضة ذ.م.م",
+    "country_iso2": "AE",
+    "city": "Abu Dhabi",
+    "legal_form_id": "8888",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-14"
+  },
+  {
+    "lei": "254900VT0TZZA6AICM83",
+    "legal_name": "DIGITAL EDGE (SINGAPORE) DATA CENTER HOLDINGS PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "SINGAPORE",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-16"
+  },
+  {
+    "lei": "254900ZWOS6Z32JWTE45",
+    "legal_name": "WPSG MASTER HOLDINGS II PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "Singapore",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-25"
+  },
+  {
+    "lei": "335800IFS1IJHESG8362",
+    "legal_name": "WIPRO LIMITED",
+    "country_iso2": "IN",
+    "city": "BANGALORE",
+    "legal_form_id": "DDKQ",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2017-08-01"
+  },
+  {
+    "lei": "335800J1QMHJ15K7PF47",
+    "legal_name": "ANANT RAJ LIMITED",
+    "country_iso2": "IN",
+    "city": "GURGAON",
+    "legal_form_id": "DDKQ",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2018-07-18"
+  },
+  {
+    "lei": "391200QMN3HO5ZJ9A977",
+    "legal_name": "OCP Asia Income Distribution Fund Master Limited",
+    "country_iso2": "KY",
+    "city": "George Town, Grand Cayman",
+    "legal_form_id": "MPUG",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-08-17"
+  },
+  {
+    "lei": "5299006O4DGQ0U77LU47",
+    "legal_name": "msg group GmbH",
+    "country_iso2": "DE",
+    "city": "Ismaning",
+    "legal_form_id": "2HBR",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2022-05-10"
+  },
+  {
+    "lei": "529900AE9Y5JN445UW75",
+    "legal_name": "A. Eiendom Alt-Tegel GmbH",
+    "country_iso2": "DE",
+    "city": "Berlin",
+    "legal_form_id": "2HBR",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-20"
+  },
+  {
+    "lei": "529900BOI3I84SNXCH09",
+    "legal_name": "msg Rethink Compliance GmbH",
+    "country_iso2": "DE",
+    "city": "Frankfurt am Main",
+    "legal_form_id": "2HBR",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-20"
+  },
+  {
+    "lei": "529900HSHBFQRIA38630",
+    "legal_name": "AZH-Abrechnungszentrale für Hebammen GmbH",
+    "country_iso2": "DE",
+    "city": "Lauingen (Donau)",
+    "legal_form_id": "2HBR",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-20"
+  },
+  {
+    "lei": "529900K9B0N5BT694847",
+    "legal_name": "Allianz SE",
+    "country_iso2": "DE",
+    "city": "München",
+    "legal_form_id": "SGST",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2013-12-02"
+  },
+  {
+    "lei": "529900L691992Y7HF041",
+    "legal_name": "A. Eiendom Akazien GmbH",
+    "country_iso2": "DE",
+    "city": "Berlin",
+    "legal_form_id": "2HBR",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-20"
+  },
+  {
+    "lei": "529900P5VU5QNRE8XB24",
+    "legal_name": "Windpark Eckolstädt GmbH & Co. KG",
+    "country_iso2": "DE",
+    "city": "Sehestedt",
+    "legal_form_id": "8Z6G",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-21"
+  },
+  {
+    "lei": "529900ZYF46PADXR2H22",
+    "legal_name": "ARZ Haan AG",
+    "country_iso2": "DE",
+    "city": "Düsseldorf",
+    "legal_form_id": "6QQB",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2013-12-28"
+  },
+  {
+    "lei": "549300289UWVLHMQVV09",
+    "legal_name": "بنك السلام ش.م.ب",
+    "country_iso2": "BH",
+    "city": "SANABIS",
+    "legal_form_id": "8888",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2017-10-24"
+  },
+  {
+    "lei": "5493003BZYYYCDIO0R13",
+    "legal_name": "ソフトバンクグループ株式会社",
+    "country_iso2": "JP",
+    "city": "東京都 港区",
+    "legal_form_id": "T417",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2013-12-31"
+  },
+  {
+    "lei": "5493005NHTUO7F4T4E28",
+    "legal_name": "WECO A/S",
+    "country_iso2": "DK",
+    "city": "Rungsted Kyst",
+    "legal_form_id": "ZRPO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2017-10-08"
+  },
+  {
+    "lei": "549300HDTG2M32J5PB24",
+    "legal_name": "ONEIM FUND I LP",
+    "country_iso2": "KY",
+    "city": "GEORGE TOWN",
+    "legal_form_id": "6XB7",
+    "category": "FUND",
+    "entity_status": "ACTIVE",
+    "registered_on": "2022-11-02"
+  },
+  {
+    "lei": "549300JHAHP2UGERZF57",
+    "legal_name": "AGL DUO HOLDINGS PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "Singapore",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2022-08-12"
+  },
+  {
+    "lei": "549300M4TC4KVCSRZ770",
+    "legal_name": "BlackRock Europe Property Fund V SCSp SIF",
+    "country_iso2": "LU",
+    "city": "Luxembourg",
+    "legal_form_id": "U8KA",
+    "category": "FUND",
+    "entity_status": "ACTIVE",
+    "registered_on": "2018-12-05"
+  },
+  {
+    "lei": "549300R4GO58TF662G96",
+    "legal_name": "Warburg Pincus Asia Real Estate Partners, L.P.",
+    "country_iso2": "KY",
+    "city": "George Town",
+    "legal_form_id": "6XB7",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2021-02-17"
+  },
+  {
+    "lei": "549300SHHD3R06BZ6094",
+    "legal_name": "Weco Shipping A/S",
+    "country_iso2": "DK",
+    "city": "Rungsted Kyst",
+    "legal_form_id": "ZRPO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2018-07-03"
+  },
+  {
+    "lei": "5586005JYFTUMPVGE837",
+    "legal_name": "EFG Holding S.A.E",
+    "country_iso2": "EG",
+    "city": "Egypt",
+    "legal_form_id": "9999",
+    "category": "SOLE_PROPRIETOR",
+    "entity_status": "ACTIVE",
+    "registered_on": "2017-12-13"
+  },
+  {
+    "lei": "64880011IVAG8W7MXU59",
+    "legal_name": "ARDROSSAN WIND FARM (SCOTLAND) LIMITED",
+    "country_iso2": "GB",
+    "city": "Edinburgh",
+    "legal_form_id": "H0PO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-20"
+  },
+  {
+    "lei": "648800HYRQLU9TOWDP93",
+    "legal_name": "MYNYDD CLOGAU WINDFARM LIMITED",
+    "country_iso2": "GB",
+    "city": "London",
+    "legal_form_id": "H0PO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-20"
+  },
+  {
+    "lei": "648800T2MDJ860YUBA24",
+    "legal_name": "FARR WINDFARM LIMITED",
+    "country_iso2": "GB",
+    "city": "Edinburgh",
+    "legal_form_id": "H0PO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-20"
+  },
+  {
+    "lei": "648800ZNBEVFHHN3FN93",
+    "legal_name": "CAUSEYMIRE WINDFARM LIMITED",
+    "country_iso2": "GB",
+    "city": "Edinburgh",
+    "legal_form_id": "H0PO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-20"
+  },
+  {
+    "lei": "6488MDGFG1232H9R2779",
+    "legal_name": "VENTIENT ENERGY UK HOLDCO LIMITED",
+    "country_iso2": "GB",
+    "city": "London",
+    "legal_form_id": "H0PO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-02-18"
+  },
+  {
+    "lei": "8368000P82RKO54UMJ38",
+    "legal_name": "Gent Commodity Pte. Ltd.",
+    "country_iso2": "SG",
+    "city": "Singapore",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2023-06-12"
+  },
+  {
+    "lei": "875500NI8MW0PLVNMU90",
+    "legal_name": "OCP Asia Income Distribution Fund (SF 1) Pte. Limited",
+    "country_iso2": "SG",
+    "city": "Singapore",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-08-31"
+  },
+  {
+    "lei": "8945003HH5NXHFWO6W70",
+    "legal_name": "Blitz F26-402 GmbH",
+    "country_iso2": "DE",
+    "city": "Frankfurt am Main",
+    "legal_form_id": "2HBR",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-20"
+  },
+  {
+    "lei": "894500UP2898MOSQK863",
+    "legal_name": "STARFISH I PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "REPUBLIC PLAZA",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-29"
+  },
+  {
+    "lei": "9845004EBAF3FECCA083",
+    "legal_name": "SILVERLINE FERTILISERS PRIVATE LIMITED",
+    "country_iso2": "IN",
+    "city": "Chennai",
+    "legal_form_id": "YSP9",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2023-03-20"
+  },
+  {
+    "lei": "98450051A0C06C969513",
+    "legal_name": "ANANT RAJ CLOUD SINGAPORE PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "Singapore",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-23"
+  },
+  {
+    "lei": "98450094A8UF910Z1D91",
+    "legal_name": "WECO TANKERS SINGAPORE PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "Singapore",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-09-09"
+  },
+  {
+    "lei": "984500BAB70B2DXBCD12",
+    "legal_name": "Weco Tankers A/S",
+    "country_iso2": "DK",
+    "city": "Rungsted Kyst",
+    "legal_form_id": "ZRPO",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2020-06-08"
+  },
+  {
+    "lei": "984500E3AA3A3BEA2C65",
+    "legal_name": "SILVERLINE INTERNATIONAL VENTURES PTE. LTD.",
+    "country_iso2": "SG",
+    "city": "Singapore",
+    "legal_form_id": "IWZF",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2026-10-05"
+  },
+  {
+    "lei": "XP6XYFDZQGKLUMOFGT37",
+    "legal_name": "GOLD.COM, INC.",
+    "country_iso2": "US",
+    "city": "WILMINGTON",
+    "legal_form_id": "XTIQ",
+    "category": "GENERAL",
+    "entity_status": "ACTIVE",
+    "registered_on": "2012-11-27"
+  }
+]

@@ -1,6 +1,7 @@
 export * from "./countries.js";
 export * from "./delta.js";
 export * from "./diff.js";
+export * from "./gleif.js";
 export * from "./identifiers.js";
 export * from "./model.js";
 export * from "./ofac.js";

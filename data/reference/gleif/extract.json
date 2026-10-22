@@ -1,0 +1,14 @@
+{
+  "source": "GLEIF Global LEI Index (public API)",
+  "source_url": "https://api.gleif.org/api/v1",
+  "licence": "CC0 1.0",
+  "terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+  "golden_copy_publish_date": "2026-10-22T08:00:00Z",
+  "retrieved_at": "2026-10-22T17:32:19.109Z",
+  "counts": {
+    "ref_country": 249,
+    "ref_lei": 74,
+    "ref_lei_relationship": 48
+  },
+  "note": "A small sample of companies that report a direct parent. Not a complete extract."
+}

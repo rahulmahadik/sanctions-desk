@@ -49,6 +49,7 @@ function configFor(base: string, rawDir: string, timeout = 5000): { config: Data
       rawDir,
       normalisedDir: join(rawDir, "n"),
       sources: [source],
+      gleif: loadDataSources().gleif,
     },
   };
 }

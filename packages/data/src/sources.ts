@@ -31,6 +31,19 @@ export const DataSourceSchema = z.strictObject({
 });
 export type DataSource = z.infer<typeof DataSourceSchema>;
 
+export const GleifConfigSchema = z.strictObject({
+  baseUrl: z.url(),
+  licence: z.string().min(1),
+  termsUrl: z.url(),
+  countries: z.array(z.string().length(2)).min(1),
+  scanPageSize: z.number().int().min(1).max(200),
+  maxChildren: z.number().int().positive(),
+  parentDepth: z.number().int().min(1).max(5),
+  delayMs: z.number().int().nonnegative(),
+  outputDir: z.string().min(1),
+});
+export type GleifConfig = z.infer<typeof GleifConfigSchema>;
+
 export const DataSourcesConfigSchema = z
   .strictObject({
     userAgent: z.string().min(1),
@@ -38,6 +51,7 @@ export const DataSourcesConfigSchema = z
     rawDir: z.string().min(1),
     normalisedDir: z.string().min(1),
     sources: z.array(DataSourceSchema).min(1),
+    gleif: GleifConfigSchema,
   })
   .refine((c) => new Set(c.sources.map((s) => s.id)).size === c.sources.length, "source ids must be unique");
 export type DataSourcesConfig = z.infer<typeof DataSourcesConfigSchema>;

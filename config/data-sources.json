@@ -28,5 +28,16 @@
       "url": "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
       "file": "consolidated.xml"
     }
-  ]
+  ],
+  "gleif": {
+    "baseUrl": "https://api.gleif.org/api/v1",
+    "licence": "CC0 1.0",
+    "termsUrl": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+    "countries": ["GB", "DE", "SG", "AE", "CH", "NL", "FR", "HK"],
+    "scanPageSize": 200,
+    "maxChildren": 40,
+    "parentDepth": 3,
+    "delayMs": 250,
+    "outputDir": "data/reference/gleif"
+  }
 }

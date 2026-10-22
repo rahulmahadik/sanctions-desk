@@ -63,7 +63,11 @@ function csvCell(value: unknown): string {
 }
 
 export function toCsv(name: TableName, rows: readonly object[]): string {
-  const columns = TABLE_COLUMNS[name];
+  return csvOf(TABLE_COLUMNS[name], rows);
+}
+
+/** CSV text for any flat rows, with the given column order. */
+export function csvOf(columns: readonly string[], rows: readonly object[]): string {
   const lines = [columns.join(",")];
   for (const row of rows) {
     const record = row as Record<string, unknown>;

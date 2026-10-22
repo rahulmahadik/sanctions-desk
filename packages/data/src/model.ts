@@ -137,6 +137,56 @@ export type ListRelationshipRow = z.infer<typeof ListRelationshipRowSchema>;
 export const RefCountryRowSchema = z.strictObject({ iso2: z.string().length(2), name: nonEmpty });
 export type RefCountryRow = z.infer<typeof RefCountryRowSchema>;
 
+export const RefLeiRowSchema = z.strictObject({
+  lei: z.string().regex(/^[A-Z0-9]{20}$/),
+  legal_name: nonEmpty,
+  country_iso2: z.string().length(2).nullable(),
+  city: z.string().nullable(),
+  legal_form_id: z.string().nullable(),
+  category: z.string().nullable(),
+  entity_status: z.string().nullable(),
+  registered_on: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .nullable(),
+});
+export type RefLeiRow = z.infer<typeof RefLeiRowSchema>;
+
+export const RefLeiRelationshipRowSchema = z.strictObject({
+  relationship_id: nonEmpty,
+  child_lei: z.string().regex(/^[A-Z0-9]{20}$/),
+  parent_lei: z.string().regex(/^[A-Z0-9]{20}$/),
+  relationship_type: nonEmpty,
+  status: nonEmpty,
+  valid_from: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .nullable(),
+  corroboration_level: z.string().nullable(),
+});
+export type RefLeiRelationshipRow = z.infer<typeof RefLeiRelationshipRowSchema>;
+
+/** Reference tables loaded into Zetaris next to the list tables. */
+export const REFERENCE_TABLES = {
+  ref_country: RefCountryRowSchema,
+  ref_lei: RefLeiRowSchema,
+  ref_lei_relationship: RefLeiRelationshipRowSchema,
+} as const;
+export type ReferenceTableName = keyof typeof REFERENCE_TABLES;
+export const REFERENCE_TABLE_COLUMNS: Record<ReferenceTableName, readonly string[]> = {
+  ref_country: ["iso2", "name"],
+  ref_lei: ["lei", "legal_name", "country_iso2", "city", "legal_form_id", "category", "entity_status", "registered_on"],
+  ref_lei_relationship: [
+    "relationship_id",
+    "child_lei",
+    "parent_lei",
+    "relationship_type",
+    "status",
+    "valid_from",
+    "corroboration_level",
+  ],
+};
+
 export const TABLES = {
   list_entry: ListEntryRowSchema,
   list_alias: ListAliasRowSchema,
