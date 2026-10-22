@@ -11,7 +11,7 @@ import { runRoutes } from "./routes/run.js";
 export interface AppDeps {
   config: Config;
   logger: Logger;
-  /** The injected model seam. Agents (milestone M3) receive this; no route calls a provider directly. */
+  /** The injected model seam. Agents receive this; no route calls a provider directly. */
   generator: Generator;
   /** Replaceable in tests. Defaults to probing the configured runtimes. */
   prober?: DependencyProber;
@@ -54,7 +54,11 @@ export async function buildApp(deps: AppDeps) {
     reply.status(404).send({
       status: "error",
       request_id: req.id,
-      error: { type: "validation", message: `route ${req.method} ${req.url.split("?")[0] ?? ""} not found`, recoverable: false },
+      error: {
+        type: "validation",
+        message: `route ${req.method} ${req.url.split("?")[0] ?? ""} not found`,
+        recoverable: false,
+      },
     }),
   );
 

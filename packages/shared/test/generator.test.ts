@@ -6,10 +6,10 @@ import {
   createGeneratorChain,
   createNightshiftGenerator,
   createOllamaGenerator,
-  Secret,
-  stripThinking,
   type Provider,
+  Secret,
   type StructuredError,
+  stripThinking,
 } from "../src/index.js";
 import { chatReply, jsonResponse, stubFetch, testConfig } from "./helpers.js";
 
@@ -59,7 +59,7 @@ describe("Nightshift generator", () => {
     const call = calls[0];
     expect(call?.url).toBe("http://nightshift.test/v1/chat/completions");
     const headers = call?.init.headers as Record<string, string>;
-    expect(headers["Authorization"]).toBe(`Bearer ${TOKEN}`);
+    expect(headers.Authorization).toBe(`Bearer ${TOKEN}`);
     expect(headers["meterless-app"]).toBe("test-app");
     expect(headers["meterless-scope"]).toBe("user");
     const body = JSON.parse(String(call?.init.body));
@@ -93,7 +93,12 @@ describe("Nightshift generator", () => {
 
   it("reads array content parts and strips <think> blocks", async () => {
     const { generate } = nightshift([
-      jsonResponse(chatReply([{ type: "text", text: "<think>hmm</think>" }, { type: "text", text: "answer" }])),
+      jsonResponse(
+        chatReply([
+          { type: "text", text: "<think>hmm</think>" },
+          { type: "text", text: "answer" },
+        ]),
+      ),
     ]);
     expect((await generate({ prompt: "x" })).text).toBe("answer");
     expect(stripThinking("<think>a</think>\nresult")).toBe("result");
@@ -109,7 +114,13 @@ describe("Nightshift generator", () => {
   });
 
   it("classifies HTTP failures: server errors and auth are recoverable, bad requests are not", async () => {
-    const statuses: Array<[number, boolean]> = [[500, true], [429, true], [401, true], [404, true], [400, false]];
+    const statuses: Array<[number, boolean]> = [
+      [500, true],
+      [429, true],
+      [401, true],
+      [404, true],
+      [400, false],
+    ];
     for (const [status, recoverable] of statuses) {
       const { generate } = nightshift([jsonResponse({ error: "nope" }, status)]);
       const error = (await generate({ prompt: "x" }).catch((e: unknown) => e)) as AppError;
@@ -131,7 +142,7 @@ describe("Ollama generator", () => {
     const result = await generate({ prompt: "x" });
     expect(result).toMatchObject({ provider: "ollama", routeKind: "local", routedModel: "nemotron-3.5-lightning:30b" });
     const headers = stub.calls[0]?.init.headers as Record<string, string>;
-    expect(headers["Authorization"]).toBeUndefined();
+    expect(headers.Authorization).toBeUndefined();
   });
 });
 
@@ -188,7 +199,7 @@ describe("generator chain", () => {
     ]);
     const error = (await chain({ prompt: "x" }).catch((e: unknown) => e)) as AppError;
     expect(error.message).toBe("all model providers failed");
-    expect(error.details?.["attempts"]).toHaveLength(2);
+    expect(error.details?.attempts).toHaveLength(2);
   });
 
   it("does not fall back once the caller has aborted", async () => {

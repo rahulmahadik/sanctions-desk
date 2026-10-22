@@ -47,7 +47,10 @@ describe("loadConfig", () => {
   });
 
   it("wraps secrets so they cannot be serialised or printed", () => {
-    const cfg = testConfig({ ZETARIS_API_KEY: "zk-super-secret-1234", METERLESS_RUNTIME_TOKEN: "rt-super-secret-5678" });
+    const cfg = testConfig({
+      ZETARIS_API_KEY: "zk-super-secret-1234",
+      METERLESS_RUNTIME_TOKEN: "rt-super-secret-5678",
+    });
     expect(cfg.zetaris.apiKey?.reveal()).toBe("zk-super-secret-1234");
     const dump = `${JSON.stringify(cfg)} ${inspect(cfg, { depth: 6 })} ${String(cfg.nightshift.runtimeToken)}`;
     expect(dump).not.toContain("super-secret");

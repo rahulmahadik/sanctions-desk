@@ -28,7 +28,7 @@ export interface TestAppOptions {
 }
 
 const unusedGenerator: Generator = async () => {
-  throw new Error("the generator must not be called by M0 routes");
+  throw new Error("the generator must not be called by these routes");
 };
 
 /** Build the real app with quiet logging and a temp log directory. */

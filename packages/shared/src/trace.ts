@@ -2,7 +2,7 @@ import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { AppError } from "./errors.js";
 import type { Redactor } from "./redact.js";
-import { RunIdSchema, TraceEventSchema, type TraceEvent, type TraceEventInput } from "./schemas.js";
+import { RunIdSchema, type TraceEvent, type TraceEventInput, TraceEventSchema } from "./schemas.js";
 
 export interface TraceLogger {
   readonly runId: string;
@@ -25,7 +25,8 @@ export interface TraceOptions {
  */
 export function createTraceLogger(opts: TraceOptions): TraceLogger {
   const parsedId = RunIdSchema.safeParse(opts.runId);
-  if (!parsedId.success) throw new AppError("validation", "invalid run_id for trace file", { details: { run_id: opts.runId } });
+  if (!parsedId.success)
+    throw new AppError("validation", "invalid run_id for trace file", { details: { run_id: opts.runId } });
 
   const dir = resolve(opts.dir);
   mkdirSync(dir, { recursive: true });
@@ -43,8 +44,8 @@ export function createTraceLogger(opts: TraceOptions): TraceLogger {
         redact({ ...input, ts: now().toISOString(), run_id: opts.runId, seq: seq++ }),
       );
       const line = JSON.stringify(event);
-      appendFileSync(file, line + "\n", { encoding: "utf8", mode: 0o640 });
-      if (echo) process.stdout.write(line + "\n");
+      appendFileSync(file, `${line}\n`, { encoding: "utf8", mode: 0o640 });
+      if (echo) process.stdout.write(`${line}\n`);
       return event;
     },
   };

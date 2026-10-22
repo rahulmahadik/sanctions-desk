@@ -13,7 +13,8 @@ describe("httpRequest", () => {
     expect(res.ms).toBeGreaterThanOrEqual(0);
     expect(calls[0]?.init.method).toBe("POST");
     expect(calls[0]?.init.body).toBe('{"a":1}');
-    expect((calls[0]?.init.headers as Record<string, string>)["Content-Type"]).toBe("application/json");
+    const headers = (calls[0]?.init.headers ?? {}) as Record<string, string>;
+    expect(headers["Content-Type"]).toBe("application/json");
   });
 
   it("times out with a recoverable error and strips the query string from details", async () => {
@@ -31,7 +32,9 @@ describe("httpRequest", () => {
 
   it("maps connection failures to a recoverable network error", async () => {
     const { fetchImpl } = stubFetch([new Error("connect ECONNREFUSED")]);
-    const error = (await httpRequest(URL_UNDER_TEST, { timeoutMs: 1000, fetchImpl }).catch((e: unknown) => e)) as AppError;
+    const error = (await httpRequest(URL_UNDER_TEST, { timeoutMs: 1000, fetchImpl }).catch(
+      (e: unknown) => e,
+    )) as AppError;
     expect(error.type).toBe("network");
     expect(error.recoverable).toBe(true);
   });

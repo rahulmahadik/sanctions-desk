@@ -22,7 +22,11 @@ export class AppError extends Error {
   readonly recoverable: boolean;
   readonly details?: Record<string, unknown>;
 
-  constructor(type: ErrorType, message: string, opts: { recoverable?: boolean; details?: Record<string, unknown> } = {}) {
+  constructor(
+    type: ErrorType,
+    message: string,
+    opts: { recoverable?: boolean; details?: Record<string, unknown> } = {},
+  ) {
     super(message);
     this.name = "AppError";
     this.type = type;

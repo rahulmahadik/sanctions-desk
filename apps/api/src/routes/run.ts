@@ -16,9 +16,8 @@ interface RunOptions {
 }
 
 /**
- * POST /run is the programmatic entry point. The agent pipeline arrives in milestone M3; until
- * then a valid request is traced and answered with a structured `not_implemented` error. It never
- * returns an invented decision.
+ * POST /run is the programmatic entry point. A valid request is traced and answered with a structured
+ * `not_implemented` error while the agent pipeline is not enabled. It never returns an invented decision.
  */
 export const runRoutes: FastifyPluginAsync<RunOptions> = async (app, { config }) => {
   const redact = makeRedactor(secretValues(config));
@@ -34,7 +33,7 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (app, { config })
 
     const runId = parsed.data.run_id ?? randomUUID();
     const trace = createTraceLogger({ runId, dir: config.logging.dir, redact, stdout: config.logging.stdout });
-    const error = new AppError("not_implemented", "the agent pipeline is not built yet (milestone M3)", {
+    const error = new AppError("not_implemented", "the agent pipeline is not enabled in this build", {
       recoverable: false,
     }).toJSON();
 

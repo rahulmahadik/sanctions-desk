@@ -15,7 +15,9 @@ function stub(handler: (url: string, init: RequestInit) => Response | Error) {
 }
 
 describe("createDependencyProber", () => {
-  const cfg = loadConfig({ env: { METERLESS_RUNTIME_TOKEN: "rt-probe-token-123456", ZETARIS_API_KEY: "zk-probe-key-123456" } });
+  const cfg = loadConfig({
+    env: { METERLESS_RUNTIME_TOKEN: "rt-probe-token-123456", ZETARIS_API_KEY: "zk-probe-key-123456" },
+  });
 
   it("lists models on both runtimes and sends the Nightshift identity headers", async () => {
     const { fetchImpl, calls } = stub(() => new Response("{}", { status: 200 }));
@@ -27,7 +29,7 @@ describe("createDependencyProber", () => {
     expect(nightshiftCall?.url).toBe(`${cfg.nightshift.baseUrl}/models`);
     expect(nightshiftCall?.headers["meterless-app"]).toBe(cfg.nightshift.appId);
     const ollamaCall = calls.find((c) => c.url.startsWith(cfg.ollama.baseUrl));
-    expect(ollamaCall?.headers["Authorization"]).toBeUndefined();
+    expect(ollamaCall?.headers.Authorization).toBeUndefined();
   });
 
   it("distinguishes unauthorized, unreachable and unconfigured", async () => {

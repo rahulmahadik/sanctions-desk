@@ -1,6 +1,6 @@
 import type { Config } from "./config.js";
-import { AppError, toStructuredError, type StructuredError } from "./errors.js";
-import { httpRequest, type FetchLike } from "./http.js";
+import { AppError, type StructuredError, toStructuredError } from "./errors.js";
+import { type FetchLike, httpRequest } from "./http.js";
 import type { Secret } from "./secret.js";
 
 /**
@@ -79,17 +79,17 @@ export function createNightshiftGenerator(opts: NightshiftOptions): Generator {
       fetchImpl: opts.fetchImpl,
     });
     const body = parseChatResponse("nightshift", status, text);
-    const meterless = asRecord(body["meterless"]);
-    const route = asRecord(meterless?.["winning_route"]);
-    const kind = route?.["kind"];
+    const meterless = asRecord(body.meterless);
+    const route = asRecord(meterless?.winning_route);
+    const kind = route?.kind;
     return {
       text: extractContent("nightshift", body),
       provider: "nightshift",
       requestedModel,
-      routedModel: asString(meterless?.["routed_model"]) ?? asString(body["model"]) ?? requestedModel,
+      routedModel: asString(meterless?.routed_model) ?? asString(body.model) ?? requestedModel,
       routeKind: kind === "local" || kind === "cloud" ? kind : null,
       latencyMs: Math.round(ms),
-      receiptId: asString(meterless?.["receipt_id"]),
+      receiptId: asString(meterless?.receipt_id),
       usage: extractUsage(body),
     };
   };
@@ -117,7 +117,7 @@ export function createOllamaGenerator(opts: OllamaOptions): Generator {
       text: extractContent("ollama", body),
       provider: "ollama",
       requestedModel,
-      routedModel: asString(body["model"]) ?? requestedModel,
+      routedModel: asString(body.model) ?? requestedModel,
       routeKind: "local",
       latencyMs: Math.round(ms),
       usage: extractUsage(body),
@@ -148,24 +148,37 @@ export function createGeneratorChain(
 ): Generator {
   if (chain.length === 0) throw new Error("generator chain needs at least one provider");
   return async (req) => {
-    const failures: Array<{ provider: Provider; error: StructuredError }> = [];
+    const failures: Failure[] = [];
     for (const { provider, generate } of chain) {
-      try {
-        const result = await generate(req);
-        return failures.length > 0 ? { ...result, fellBackFrom: failures } : result;
-      } catch (err) {
-        if (req.signal?.aborted) throw err;
-        const structured = toStructuredError(err);
-        failures.push({ provider, error: structured });
-        hooks.onFallback?.(provider, structured);
-        if (!structured.recoverable) throw err;
-      }
+      const outcome = await attempt(generate, req);
+      if (outcome.ok) return failures.length > 0 ? { ...outcome.result, fellBackFrom: failures } : outcome.result;
+      if (req.signal?.aborted) throw outcome.cause;
+      failures.push({ provider, error: outcome.error });
+      hooks.onFallback?.(provider, outcome.error);
+      if (!outcome.error.recoverable) throw outcome.cause;
     }
-    throw new AppError("http_error", "all model providers failed", {
-      recoverable: true,
-      details: { attempts: failures.map((f) => ({ provider: f.provider, type: f.error.type, message: f.error.message })) },
-    });
+    throw allProvidersFailed(failures);
   };
+}
+
+type Failure = { provider: Provider; error: StructuredError };
+type Attempt = { ok: true; result: GenerateResult } | { ok: false; cause: unknown; error: StructuredError };
+
+async function attempt(generate: Generator, req: GenerateRequest): Promise<Attempt> {
+  try {
+    return { ok: true, result: await generate(req) };
+  } catch (cause) {
+    return { ok: false, cause, error: toStructuredError(cause) };
+  }
+}
+
+function allProvidersFailed(failures: readonly Failure[]): AppError {
+  return new AppError("http_error", "all model providers failed", {
+    recoverable: true,
+    details: {
+      attempts: failures.map((f) => ({ provider: f.provider, type: f.error.type, message: f.error.message })),
+    },
+  });
 }
 
 export interface BuildGeneratorDeps {
@@ -253,31 +266,35 @@ function parseChatResponse(provider: Provider, status: number, text: string): Re
 }
 
 function extractContent(provider: Provider, body: Record<string, unknown>): string {
-  const choices = body["choices"];
+  const choices = body.choices;
   const first = Array.isArray(choices) ? asRecord(choices[0]) : undefined;
-  const message = asRecord(first?.["message"]);
-  const content = message?.["content"];
+  const message = asRecord(first?.message);
+  const content = message?.content;
   let out = "";
   if (typeof content === "string") out = content;
   else if (Array.isArray(content)) {
-    out = content
-      .map((p) => (typeof p === "string" ? p : asString(asRecord(p)?.["text"]) ?? ""))
-      .join("");
+    out = content.map((p) => (typeof p === "string" ? p : (asString(asRecord(p)?.text) ?? ""))).join("");
   }
   out = stripThinking(out);
   if (out.length === 0) {
-    throw new AppError("bad_response", `${provider} returned an empty answer`, { recoverable: true, details: { provider } });
+    const finishReason = asString(first?.finish_reason);
+    const cutOff = finishReason === "length";
+    throw new AppError(
+      "bad_response",
+      `${provider} returned an empty answer${cutOff ? " (cut off by the token limit; raise maxTokens)" : ""}`,
+      { recoverable: true, details: { provider, finish_reason: finishReason ?? null } },
+    );
   }
   return out;
 }
 
 function extractUsage(body: Record<string, unknown>): GenerateResult["usage"] {
-  const u = asRecord(body["usage"]);
+  const u = asRecord(body.usage);
   if (!u) return undefined;
   return {
-    promptTokens: asNumber(u["prompt_tokens"]),
-    completionTokens: asNumber(u["completion_tokens"]),
-    totalTokens: asNumber(u["total_tokens"]),
+    promptTokens: asNumber(u.prompt_tokens),
+    completionTokens: asNumber(u.completion_tokens),
+    totalTokens: asNumber(u.total_tokens),
   };
 }
 

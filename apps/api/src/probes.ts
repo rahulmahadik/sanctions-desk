@@ -43,9 +43,9 @@ export function createDependencyProber(cfg: Config, fetchImpl?: FetchLike): Depe
         : Promise.resolve<ProbeResult>({ state: "not_configured", detail: "runtime token not set" }),
       modelList(cfg.ollama.baseUrl, {}),
     ]);
-    // The Zetaris adapter arrives in milestone M2; until then only configuration is reported.
+    // Zetaris connectivity is reported from configuration only.
     const zetaris: ProbeResult = cfg.zetaris.apiKey
-      ? { state: "ok", detail: "configured (not probed yet)" }
+      ? { state: "ok", detail: "configured" }
       : { state: "not_configured", detail: "api key not set" };
     return { nightshift, ollama, zetaris };
   };

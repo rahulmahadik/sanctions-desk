@@ -1,13 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import {
-  AppError,
-  createTraceLogger,
-  makeRedactor,
-  readTrace,
-  RunIdSchema,
-  RunRequestSchema,
-} from "../src/index.js";
+import { AppError, createTraceLogger, makeRedactor, RunIdSchema, RunRequestSchema, readTrace } from "../src/index.js";
 import { tempDir } from "./helpers.js";
 
 const fixedNow = () => new Date("2026-10-23T01:02:03.000Z");
@@ -16,7 +9,13 @@ describe("createTraceLogger", () => {
   it("appends schema-valid JSONL lines with increasing sequence numbers", () => {
     const dir = tempDir();
     const trace = createTraceLogger({ runId: "run-1", dir, stdout: false, now: fixedNow });
-    trace.log({ agent: "triage", action: "classify", status: "ok", output_summary: "needs full review", confidence: 0.8 });
+    trace.log({
+      agent: "triage",
+      action: "classify",
+      status: "ok",
+      output_summary: "needs full review",
+      confidence: 0.8,
+    });
     trace.log({ agent: "critic", action: "verify", status: "retry", target_agent: "decision", retry_count: 1 });
 
     const events = readTrace(trace.file);

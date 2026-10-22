@@ -127,24 +127,11 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
   const issues: string[] = [];
 
   const defaults = readJsonFile(opts.defaultsPath ?? defaultConfigPath(), issues);
-  const overridesPath = opts.overridesPath ?? nonBlank(env["CONFIG_FILE"]);
+  const overridesPath = opts.overridesPath ?? nonBlank(env.CONFIG_FILE);
   const overrides = overridesPath ? readJsonFile(overridesPath, issues) : {};
 
-  for (const [label, layer] of [["default config file", defaults], ["CONFIG_FILE", overrides]] as const) {
-    for (const path of SECRET_PATHS) {
-      if (getPath(layer, path) !== undefined) {
-        issues.push(`${path.join(".")} must not be set in the ${label}; provide it through the environment`);
-      }
-    }
-  }
-
-  const fromEnv: Json = {};
-  for (const binding of ENV_BINDINGS) {
-    const raw = nonBlank(env[binding.env]);
-    if (raw === undefined) continue;
-    const value = coerce(binding, raw, issues);
-    if (value !== undefined) setPath(fromEnv, binding.path, value);
-  }
+  issues.push(...secretsInFile(defaults, "default config file"), ...secretsInFile(overrides, "CONFIG_FILE"));
+  const fromEnv = readEnvOverrides(env, issues);
 
   if (issues.length > 0) throw new ConfigError(issues);
 
@@ -180,6 +167,24 @@ export function describeConfig(cfg: Config) {
 }
 
 // ---- internals -----------------------------------------------------------------------------
+
+/** Issues for any secret key found in a file layer. Secrets may only come from the environment. */
+function secretsInFile(layer: Json, label: string): string[] {
+  return SECRET_PATHS.filter((path) => getPath(layer, path) !== undefined).map(
+    (path) => `${path.join(".")} must not be set in the ${label}; provide it through the environment`,
+  );
+}
+
+function readEnvOverrides(env: Record<string, string | undefined>, issues: string[]): Json {
+  const fromEnv: Json = {};
+  for (const binding of ENV_BINDINGS) {
+    const raw = nonBlank(env[binding.env]);
+    if (raw === undefined) continue;
+    const value = coerce(binding, raw, issues);
+    if (value !== undefined) setPath(fromEnv, binding.path, value);
+  }
+  return fromEnv;
+}
 
 function nonBlank(v: string | undefined): string | undefined {
   return v === undefined || v.trim() === "" ? undefined : v.trim();

@@ -12,7 +12,8 @@ async function main(): Promise<void> {
   const config = loadConfig();
   const logger = createLogger(config);
   const generator = buildGenerator(config, {
-    onFallback: (from, error) => logger.warn({ provider: from, error_type: error.type }, "model provider failed, falling back"),
+    onFallback: (from, error) =>
+      logger.warn({ provider: from, error_type: error.type }, "model provider failed, falling back"),
   });
 
   const app = await buildApp({ config, logger, generator });

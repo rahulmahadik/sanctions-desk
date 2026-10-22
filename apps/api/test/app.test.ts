@@ -36,7 +36,11 @@ describe("GET /health", () => {
     const { app } = await makeApp();
     const safe = await app.inject({ method: "GET", url: "/health", headers: { "x-request-id": "trace-abc_1.2" } });
     expect(safe.headers["x-request-id"]).toBe("trace-abc_1.2");
-    const unsafe = await app.inject({ method: "GET", url: "/health", headers: { "x-request-id": "bad id\nwith newline" } });
+    const unsafe = await app.inject({
+      method: "GET",
+      url: "/health",
+      headers: { "x-request-id": "bad id\nwith newline" },
+    });
     expect(unsafe.headers["x-request-id"]).toMatch(/^[0-9a-f-]{36}$/);
   });
 
@@ -80,23 +84,27 @@ describe("POST /run", () => {
     const res = await app.inject({
       method: "POST",
       url: "/run",
-      payload: { run_id: "run-m0", alert_id: "A-0001", options: { sample_mode: true } },
+      payload: { run_id: "run-test", alert_id: "A-0001", options: { sample_mode: true } },
     });
     expect(res.statusCode).toBe(501);
     const body = res.json();
     expect(body).toMatchObject({
-      run_id: "run-m0",
+      run_id: "run-test",
       status: "error",
-      trace_id: "run-m0",
+      trace_id: "run-test",
       error: { type: "not_implemented", recoverable: false },
     });
     expect(body.decision).toBeUndefined();
     expect(body.execution_time_seconds).toBeGreaterThanOrEqual(0);
 
-    const traceFile = join(logDir, "trace-run-m0.jsonl");
+    const traceFile = join(logDir, "trace-run-test.jsonl");
     expect(existsSync(traceFile)).toBe(true);
     const lines = readFileSync(traceFile, "utf8").trim().split("\n");
-    expect(JSON.parse(lines[0] ?? "{}")).toMatchObject({ agent: "system", action: "run_rejected", input_summary: "alert_id=A-0001" });
+    expect(JSON.parse(lines[0] ?? "{}")).toMatchObject({
+      agent: "system",
+      action: "run_rejected",
+      input_summary: "alert_id=A-0001",
+    });
     expect(JSON.stringify(body) + lines.join("")).not.toContain("rt-never-in-output");
   });
 
@@ -125,7 +133,12 @@ describe("POST /run", () => {
 
   it("rejects malformed JSON and an empty body", async () => {
     const { app } = await makeApp();
-    const bad = await app.inject({ method: "POST", url: "/run", headers: { "content-type": "application/json" }, payload: "{oops" });
+    const bad = await app.inject({
+      method: "POST",
+      url: "/run",
+      headers: { "content-type": "application/json" },
+      payload: "{oops",
+    });
     expect(bad.statusCode).toBe(400);
     expect(bad.json().error.type).toBe("validation");
     const empty = await app.inject({ method: "POST", url: "/run" });
