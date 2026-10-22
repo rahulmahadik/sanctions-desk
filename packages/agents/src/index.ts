@@ -1,5 +1,6 @@
 export * from "./critic.js";
 export * from "./decision.js";
+export * from "./eval.js";
 export * from "./evidence.js";
 export * from "./matching.js";
 export * from "./memory.js";

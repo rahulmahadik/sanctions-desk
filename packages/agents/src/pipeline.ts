@@ -29,12 +29,14 @@ export interface ReviewRequest {
   alertId: string;
   sampleMode: boolean;
   sampleNotice?: string;
+  /** Switches for comparing the system with simpler setups. Both are on in normal use. */
+  options?: { memory?: boolean; critic?: boolean };
 }
 
 const AGENT_ORDER = ["triage", "evidence", "matching", "memory", "decision", "critic", "policy_guard", "reporter"];
 
 /** Everything read and worked out before a recommendation is asked for. */
-async function prepare(deps: AgentDeps, alertId: string) {
+async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest["options"]) {
   const evidence = await gatherEvidence(deps, alertId);
   // Text that came out of the data is read as data. Anything that tries to instruct the reviewer is flagged first.
   const inbound = await screenInbound(deps, evidence.freeText);
@@ -61,11 +63,11 @@ async function prepare(deps: AgentDeps, alertId: string) {
     defaultLimit: deps.config.zetaris.maxRows,
     maskSensitive: true,
   });
-  const memory = await recallMemory(deps, tools, evidence, evidence.queries);
-  evidence.memory = memory;
+  const memory = options?.memory === false ? undefined : await recallMemory(deps, tools, evidence, evidence.queries);
+  if (memory) evidence.memory = memory;
   // A still-valid earlier clearance on a case the definitions also call a false positive is an easy case:
   // the fast local model is enough and no reasoning is spent.
-  const easy = memory.fresh && match.comparison.definitions.false_positive;
+  const easy = memory?.fresh === true && match.comparison.definitions.false_positive;
   if (easy) {
     deps.trace.log({
       agent: "triage",
@@ -78,7 +80,11 @@ async function prepare(deps: AgentDeps, alertId: string) {
 }
 
 /** The Decision and Critic loop, up to the number of rounds the policy allows. */
-async function deliberate(deps: AgentDeps, prepared: Awaited<ReturnType<typeof prepare>>) {
+async function deliberate(
+  deps: AgentDeps,
+  prepared: Awaited<ReturnType<typeof prepare>>,
+  options: ReviewRequest["options"],
+) {
   const { evidence, match, tools, easy, models } = prepared;
   const { policy, trace } = deps;
   const criticQueries: QueryEvidenceInput[] = [];
@@ -86,6 +92,13 @@ async function deliberate(deps: AgentDeps, prepared: Awaited<ReturnType<typeof p
   let feedback: string[] = [];
   let rounds = 0;
   let approved = false;
+
+  if (options?.critic === false) {
+    // Comparison setup: one recommendation, no critic. The policy guard still applies afterwards.
+    const decision = await decide(deps, evidence, match, [], { fast: easy });
+    models.push(...decision.calls);
+    return { output: decision.output, approved: true, rounds: 0, criticQueries, models, criticRan: false };
+  }
 
   while (rounds < policy.critic.maxRounds && !approved) {
     rounds += 1;
@@ -109,7 +122,7 @@ async function deliberate(deps: AgentDeps, prepared: Awaited<ReturnType<typeof p
     }
   }
   if (!output) throw new AppError("internal", "no recommendation was produced");
-  return { output, approved, rounds, criticQueries, models };
+  return { output, approved, rounds, criticQueries, models, criticRan: true };
 }
 
 export async function runReview(deps: AgentDeps, request: ReviewRequest): Promise<ReviewResponse> {
@@ -117,9 +130,13 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
   const { trace, policy } = deps;
   triage(deps, "customer", request.alertId);
 
-  const prepared = await prepare(deps, request.alertId);
+  const prepared = await prepare(deps, request.alertId, request.options);
   const { evidence, match } = prepared;
-  const { output, approved, rounds, criticQueries, models } = await deliberate(deps, prepared);
+  const { output, approved, rounds, criticQueries, models, criticRan } = await deliberate(
+    deps,
+    prepared,
+    request.options,
+  );
 
   const guard = applyPolicyGuard({ policy, decision: output, match, evidence, criticUnresolved: !approved });
   trace.log({
@@ -147,7 +164,7 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     criticQueries,
     models,
     criticRounds: rounds,
-    criticVerdict: approved ? "approved" : "escalated",
+    criticVerdict: !criticRan ? "not_run" : approved ? "approved" : "escalated",
   });
   const file = writeDecisionRecord(deps.config.logging.dir, record);
   trace.log({

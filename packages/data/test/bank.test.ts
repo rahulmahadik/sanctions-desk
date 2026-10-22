@@ -76,7 +76,7 @@ describe("the synthetic bank", () => {
     expect(bank.tables.customer.length).toBeGreaterThan(280);
     expect(bank.tables.payment.length).toBeGreaterThan(300);
     expect(bank.tables.beneficial_owner.length).toBeGreaterThanOrEqual(20);
-    expect(bank.tables.disposition).toHaveLength(11);
+    expect(bank.tables.disposition).toHaveLength(13);
   });
 
   it("covers the planted edge cases", () => {
@@ -231,6 +231,20 @@ describe("every label agrees with the deterministic matcher", () => {
   });
 });
 
+describe("delisting extras", () => {
+  it("escalate two customers before; the update removes one listed entry and leaves the other alone", () => {
+    const escalated = bank.tables.disposition.filter((d) => d.decision === "ESCALATE_L2");
+    expect(escalated).toHaveLength(2);
+    const removed = bank.delta.filter((op) => op.op === "remove_entry").map((op) => op.entry_id);
+    expect(removed).toHaveLength(1);
+    expect(escalated.map((d) => d.entry_id)).toContain(removed[0]);
+    expect(after.list_entry.some((e) => e.entry_id === removed[0])).toBe(false);
+    const kept = escalated.find((d) => d.entry_id !== removed[0]);
+    expect(after.list_entry.find((e) => e.entry_id === kept?.entry_id)?.content_hash).toBe(kept?.entry_content_hash);
+    expect(bank.tables.alert.filter((a) => a.status === "escalated")).toHaveLength(2);
+  });
+});
+
 describe("validateBank and the files", () => {
   it("reports broken references", () => {
     const broken = structuredClone(bank.tables);
@@ -257,7 +271,7 @@ describe("validateBank and the files", () => {
     writeExam(examFile, bank);
     expect(JSON.parse(readFileSync(join(dir, "customer.json"), "utf8"))).toHaveLength(bank.tables.customer.length);
     expect(readFileSync(join(dir, "payment.csv"), "utf8").split("\n")[0]).toContain("payment_id,customer_id");
-    expect(JSON.parse(readFileSync(join(dir, "list-delta.json"), "utf8")).ops).toHaveLength(5);
+    expect(JSON.parse(readFileSync(join(dir, "list-delta.json"), "utf8")).ops).toHaveLength(6);
     expect(JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")).exam.cases).toBe(60);
     expect(JSON.parse(readFileSync(examFile, "utf8")).cases).toHaveLength(60);
   });

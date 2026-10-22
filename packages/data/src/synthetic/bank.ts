@@ -6,7 +6,7 @@ import { compareParty } from "../matching/compare.js";
 import { shortHash, type TableRows } from "../model.js";
 import { csvOf } from "../snapshot.js";
 import { BankBuilder, CURRENT_TIME, EXAM_GROUP_SIZES, type ExamCase } from "./builder.js";
-import { buildExamCases } from "./cases.js";
+import { addDelistingExtras, buildExamCases } from "./cases.js";
 import {
   emptySyntheticTables,
   SYNTHETIC_LABEL,
@@ -301,6 +301,7 @@ export function buildBank(
   const b = new BankBuilder(rng, options.seed, candidates, tables, hashes);
 
   buildExamCases(b);
+  addDelistingExtras(b);
   const examCustomers = new Set(tables.customer.map((c) => c.customer_id));
   addBackground(b, options.backgroundCustomers);
   addBackgroundAlerts(b, examCustomers, options);

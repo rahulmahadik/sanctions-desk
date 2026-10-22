@@ -35,6 +35,8 @@
     "bankdb:schema": "tsx tools/generate-bankdb.ts",
     "bankdb:reset": "docker compose --env-file .env.data --profile data rm -sf bankdb payments-api && docker volume rm -f sanctions-desk_bankdb-data && docker compose --env-file .env.data --profile data up -d --build bankdb payments-api",
     "ledger": "tsx tools/model-ledger.ts",
+    "exam": "tsx tools/run-exam.ts",
+    "exam:report": "tsx tools/exam-report.ts",
     "zetaris:load-files": "tsx tools/zetaris-load-files.ts",
     "zetaris:rebuild": "tsx tools/zetaris-rebuild.ts",
     "data:fetch": "tsx data/scripts/fetch.ts",

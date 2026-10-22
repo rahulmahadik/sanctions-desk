@@ -29,6 +29,10 @@
       "id_type": "passport",
       "id_number": "P6021124",
       "issuing_country": "TR"
+    },
+    {
+      "op": "remove_entry",
+      "entry_id": "OFAC-40399"
     }
   ]
 }

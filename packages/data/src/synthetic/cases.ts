@@ -988,3 +988,20 @@ export function buildExamCases(b: BankBuilder): void {
     for (const build of builders) build(b);
   }
 }
+
+/**
+ * Customers who were escalated before, on listed entries that a later list update either removes (delisting) or
+ * leaves alone. They are not exam cases: they feed the list-change replay, which must offer the delisted one as a
+ * candidate for release by a person and leave the other untouched.
+ */
+export function addDelistingExtras(b: BankBuilder): void {
+  for (const [kind, removed] of [
+    ["delist_removed", true],
+    ["delist_unchanged", false],
+  ] as const) {
+    const c = b.pick(kind, (x) => hasDobAndNationality(x) && x.party.identifiers.length < 3);
+    const customer = samePerson(b, c, c.natural);
+    b.priorDisposition(customer, c, "TRUE_MATCH_CONFIRMED", 6, "ESCALATE_L2");
+    if (removed) b.delta.push({ op: "remove_entry", entry_id: c.party.entryId });
+  }
+}

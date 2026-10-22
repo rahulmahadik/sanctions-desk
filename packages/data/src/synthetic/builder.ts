@@ -247,13 +247,19 @@ export class BankBuilder {
   }
 
   /** An earlier, closed alert and the analyst's recorded decision about it. */
-  priorDisposition(customer: CustomerRow, candidate: Candidate, reasons: string, month: number): DispositionRow {
+  priorDisposition(
+    customer: CustomerRow,
+    candidate: Candidate,
+    reasons: string,
+    month: number,
+    decision: DispositionRow["decision"] = "CLOSE_FALSE_POSITIVE",
+  ): DispositionRow {
     const raisedAt = `2026-0${month}-12T10:00:00.000Z`;
     const earlier = this.alert({
       customer,
       candidate,
       source: "customer_name",
-      status: "closed",
+      status: decision === "CLOSE_FALSE_POSITIVE" ? "closed" : "escalated",
       raisedAt,
     });
     const { hash, snapshot } = this.entryHash(candidate.party.entryId);
@@ -262,7 +268,7 @@ export class BankBuilder {
       alert_id: earlier.alert_id,
       customer_id: customer.customer_id,
       entry_id: candidate.party.entryId,
-      decision: "CLOSE_FALSE_POSITIVE",
+      decision,
       reason_codes: reasons,
       decided_at: `2026-0${month}-12T14:30:00.000Z`,
       decided_by: `analyst.synthetic.${(month % 3) + 1}`,

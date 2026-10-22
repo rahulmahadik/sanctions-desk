@@ -2,14 +2,14 @@
   "label": "Synthetic data generated for development and demonstration. No real customer, account or payment.",
   "seed": "sanctions-desk-bank-1#d1b9acd2",
   "counts": {
-    "customer": 298,
+    "customer": 300,
     "customer_identifier": 258,
     "customer_alias": 46,
-    "account": 336,
+    "account": 341,
     "beneficial_owner": 21,
-    "alert": 70,
-    "disposition": 11,
-    "payment": 356
+    "alert": 72,
+    "disposition": 13,
+    "payment": 355
   },
   "exam": {
     "cases": 60,
@@ -33,6 +33,6 @@
   ],
   "delta": {
     "label": "Synthetic list update for demonstration: a few real entries are edited so earlier clearances can be re-checked. Not a published list.",
-    "ops": 5
+    "ops": 6
   }
 }
