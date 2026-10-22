@@ -38,7 +38,27 @@ const ConfigSchema = z.strictObject({
     restUrl: z.url(),
     orgId: nonEmpty,
     requestTimeoutMs: positiveInt,
+    /** Admin key. Used by the one-time setup tooling only; runtime reads use the per-role tokens below. */
     apiKey: secret.optional(),
+    /** One API token per runtime identity. A missing token falls back to `apiKey`, and that is logged. */
+    tokens: z
+      .strictObject({
+        evidence: secret.optional(),
+        reviewer: secret.optional(),
+        eval: secret.optional(),
+      })
+      .default({}),
+    /** The USL namespace and model the agents are allowed to read. */
+    namespace: nonEmpty,
+    usl: nonEmpty,
+    /** Maximum rows requested per query. */
+    maxRows: positiveInt,
+    /** Where list files are placed so the Lightning file store can read them. */
+    fileStore: z.strictObject({
+      container: nonEmpty,
+      database: nonEmpty,
+      folder: nonEmpty,
+    }),
   }),
   nightshift: z.strictObject({
     baseUrl: z.url(),
@@ -97,6 +117,9 @@ const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "ZETARIS_REST_URL", path: ["zetaris", "restUrl"], kind: "string" },
   { env: "ZETARIS_ORG_ID", path: ["zetaris", "orgId"], kind: "string" },
   { env: "ZETARIS_API_KEY", path: ["zetaris", "apiKey"], kind: "string" },
+  { env: "ZETARIS_TOKEN_EVIDENCE", path: ["zetaris", "tokens", "evidence"], kind: "string" },
+  { env: "ZETARIS_TOKEN_REVIEWER", path: ["zetaris", "tokens", "reviewer"], kind: "string" },
+  { env: "ZETARIS_TOKEN_EVAL", path: ["zetaris", "tokens", "eval"], kind: "string" },
   { env: "METERLESS_BASE_URL", path: ["nightshift", "baseUrl"], kind: "string" },
   { env: "METERLESS_APP_ID", path: ["nightshift", "appId"], kind: "string" },
   { env: "METERLESS_EVAL_APP_ID", path: ["nightshift", "evalAppId"], kind: "string" },
@@ -112,6 +135,9 @@ const ENV_BINDINGS: readonly EnvBinding[] = [
 /** Keys that hold secrets. They may only come from the environment, never from a file. */
 const SECRET_PATHS: ReadonlyArray<readonly string[]> = [
   ["zetaris", "apiKey"],
+  ["zetaris", "tokens", "evidence"],
+  ["zetaris", "tokens", "reviewer"],
+  ["zetaris", "tokens", "eval"],
   ["nightshift", "runtimeToken"],
 ];
 
@@ -178,7 +204,13 @@ export function forEvaluation(cfg: Config): Config {
 
 /** Every secret value in the config, for the log redactor. */
 export function secretValues(cfg: Config): string[] {
-  return [cfg.zetaris.apiKey, cfg.nightshift.runtimeToken]
+  return [
+    cfg.zetaris.apiKey,
+    cfg.zetaris.tokens.evidence,
+    cfg.zetaris.tokens.reviewer,
+    cfg.zetaris.tokens.eval,
+    cfg.nightshift.runtimeToken,
+  ]
     .filter((s): s is Secret => s !== undefined)
     .map((s) => s.reveal());
 }
@@ -188,7 +220,18 @@ export function describeConfig(cfg: Config) {
   return {
     sampleMode: cfg.sampleMode,
     server: { host: cfg.server.host, port: cfg.server.port },
-    zetaris: { restUrl: cfg.zetaris.restUrl, orgId: cfg.zetaris.orgId, apiKeySet: cfg.zetaris.apiKey !== undefined },
+    zetaris: {
+      restUrl: cfg.zetaris.restUrl,
+      orgId: cfg.zetaris.orgId,
+      namespace: cfg.zetaris.namespace,
+      usl: cfg.zetaris.usl,
+      apiKeySet: cfg.zetaris.apiKey !== undefined,
+      roleTokensSet: {
+        evidence: cfg.zetaris.tokens.evidence !== undefined,
+        reviewer: cfg.zetaris.tokens.reviewer !== undefined,
+        eval: cfg.zetaris.tokens.eval !== undefined,
+      },
+    },
     nightshift: {
       baseUrl: cfg.nightshift.baseUrl,
       appId: cfg.nightshift.appId,

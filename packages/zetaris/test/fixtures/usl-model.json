@@ -1,0 +1,757 @@
+{
+  "namespace": ["metastore", "sanctions"],
+  "name": "screening_usl",
+  "tables": [
+    {
+      "name": "list_entry",
+      "columnSpecs": [
+        {
+          "name": "entry_id",
+          "dataType": "\"varchar(64)\"",
+          "primaryKey": {
+            "columns": []
+          },
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Stable id of the listed party, prefixed with the list (OFAC- or UN-)."
+        },
+        {
+          "name": "list_id",
+          "dataType": "\"varchar(8)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Which list the entry comes from: OFAC or UN."
+        },
+        {
+          "name": "source_uid",
+          "dataType": "\"varchar(64)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The id used by the publisher of the list."
+        },
+        {
+          "name": "party_kind",
+          "dataType": "\"varchar(16)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "individual, entity, vessel, aircraft or other."
+        },
+        {
+          "name": "primary_name",
+          "dataType": "\"varchar(500)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The primary name as published."
+        },
+        {
+          "name": "primary_name_script",
+          "dataType": "\"varchar(16)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Writing system of the primary name, for example Latin or Cyrillic."
+        },
+        {
+          "name": "name_normalised",
+          "dataType": "\"varchar(500)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Lower-case, accent-free form of the primary name used for matching."
+        },
+        {
+          "name": "listed_on",
+          "dataType": "\"varchar(10)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Date the party was listed (YYYY-MM-DD), when published."
+        },
+        {
+          "name": "sanctions_list",
+          "dataType": "\"varchar(100)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Name of the list or programme group, for example SDN List."
+        },
+        {
+          "name": "remarks",
+          "dataType": "\"varchar(4000)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Free-text remarks published with the entry."
+        },
+        {
+          "name": "snapshot_id",
+          "dataType": "\"varchar(64)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Snapshot of the list this row was read from."
+        },
+        {
+          "name": "content_hash",
+          "dataType": "\"varchar(64)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "SHA-256 of the entry content. A change means the entry changed."
+        }
+      ],
+      "unique": [],
+      "foreignKeys": [],
+      "checks": [],
+      "ifNotExit": false,
+      "namespace": ["lightning", "metastore", "sanctions", "screening_usl"],
+      "dqAnnotations": [],
+      "acAnnotations": [],
+      "activateQuery": "SELECT\n    COALESCE(entry_id, '') AS entry_id,\n    COALESCE(list_id, '') AS list_id,\n    COALESCE(source_uid, '') AS source_uid,\n    COALESCE(party_kind, '') AS party_kind,\n    COALESCE(primary_name, '') AS primary_name,\n    primary_name_script,\n    name_normalised,\n    listed_on,\n    sanctions_list,\n    remarks,\n    COALESCE(snapshot_id, '') AS snapshot_id,\n    COALESCE(content_hash, '') AS content_hash\nFROM sanctions_lists.list_entry",
+      "description": "One row per listed party (person, company, vessel or aircraft) from a public sanctions list snapshot."
+    },
+    {
+      "name": "list_alias",
+      "columnSpecs": [
+        {
+          "name": "alias_id",
+          "dataType": "\"varchar(64)\"",
+          "primaryKey": {
+            "columns": []
+          },
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Stable id of the alias."
+        },
+        {
+          "name": "entry_id",
+          "dataType": "\"varchar(64)\"",
+          "notNull": {
+            "columns": []
+          },
+          "foreignKey": {
+            "columns": [],
+            "refTable": ["lightning.metastore.sanctions.screening_usl.list_entry"],
+            "refColumns": ["entry_id"]
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The listed party the alias belongs to."
+        },
+        {
+          "name": "alias_name",
+          "dataType": "\"varchar(500)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The alias as published."
+        },
+        {
+          "name": "alias_type",
+          "dataType": "\"varchar(16)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "primary, aka, fka, nka or low_quality."
+        },
+        {
+          "name": "script",
+          "dataType": "\"varchar(16)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Writing system of the alias."
+        },
+        {
+          "name": "name_normalised",
+          "dataType": "\"varchar(500)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Lower-case, accent-free form used for matching."
+        },
+        {
+          "name": "is_primary",
+          "dataType": "\"boolean\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "True for the primary name."
+        },
+        {
+          "name": "is_strong",
+          "dataType": "\"boolean\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "False for low-quality aliases, which are weak evidence."
+        }
+      ],
+      "unique": [],
+      "foreignKeys": [],
+      "checks": [],
+      "ifNotExit": false,
+      "namespace": ["lightning", "metastore", "sanctions", "screening_usl"],
+      "dqAnnotations": [],
+      "acAnnotations": [],
+      "activateQuery": "SELECT\n    COALESCE(alias_id, '') AS alias_id,\n    COALESCE(entry_id, '') AS entry_id,\n    COALESCE(alias_name, '') AS alias_name,\n    COALESCE(alias_type, '') AS alias_type,\n    script,\n    name_normalised,\n    CAST(is_primary AS BOOLEAN) AS is_primary,\n    CAST(is_strong AS BOOLEAN) AS is_strong\nFROM sanctions_lists.list_alias",
+      "description": "Alternative names of a listed party, including other spellings and scripts."
+    },
+    {
+      "name": "list_dob",
+      "columnSpecs": [
+        {
+          "name": "dob_id",
+          "dataType": "\"varchar(64)\"",
+          "primaryKey": {
+            "columns": []
+          },
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Stable id of the date-of-birth row."
+        },
+        {
+          "name": "entry_id",
+          "dataType": "\"varchar(64)\"",
+          "notNull": {
+            "columns": []
+          },
+          "foreignKey": {
+            "columns": [],
+            "refTable": ["lightning.metastore.sanctions.screening_usl.list_entry"],
+            "refColumns": ["entry_id"]
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The listed party."
+        },
+        {
+          "name": "dob_value",
+          "dataType": "\"varchar(10)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "YYYY, YYYY-MM or YYYY-MM-DD; empty for a range."
+        },
+        {
+          "name": "dob_precision",
+          "dataType": "\"varchar(8)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "day, month, year or range."
+        },
+        {
+          "name": "range_from",
+          "dataType": "\"varchar(10)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "First possible day when the date is a range."
+        },
+        {
+          "name": "range_to",
+          "dataType": "\"varchar(10)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Last possible day when the date is a range."
+        },
+        {
+          "name": "is_approximate",
+          "dataType": "\"boolean\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "True when the list marks the date as approximate."
+        }
+      ],
+      "unique": [],
+      "foreignKeys": [],
+      "checks": [],
+      "ifNotExit": false,
+      "namespace": ["lightning", "metastore", "sanctions", "screening_usl"],
+      "dqAnnotations": [],
+      "acAnnotations": [],
+      "activateQuery": "SELECT\n    COALESCE(dob_id, '') AS dob_id,\n    COALESCE(entry_id, '') AS entry_id,\n    dob_value,\n    COALESCE(dob_precision, '') AS dob_precision,\n    range_from,\n    range_to,\n    CAST(is_approximate AS BOOLEAN) AS is_approximate\nFROM sanctions_lists.list_dob",
+      "description": "Dates of birth of a listed individual. Many are partial (year or month) or a range."
+    },
+    {
+      "name": "list_country",
+      "columnSpecs": [
+        {
+          "name": "country_link_id",
+          "dataType": "\"varchar(64)\"",
+          "primaryKey": {
+            "columns": []
+          },
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Stable id of the link."
+        },
+        {
+          "name": "entry_id",
+          "dataType": "\"varchar(64)\"",
+          "notNull": {
+            "columns": []
+          },
+          "foreignKey": {
+            "columns": [],
+            "refTable": ["lightning.metastore.sanctions.screening_usl.list_entry"],
+            "refColumns": ["entry_id"]
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The listed party."
+        },
+        {
+          "name": "country_iso2",
+          "dataType": "\"varchar(2)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "ISO 3166-1 alpha-2 code, when known."
+        },
+        {
+          "name": "country_name",
+          "dataType": "\"varchar(200)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Country name as published."
+        },
+        {
+          "name": "role",
+          "dataType": "\"varchar(24)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "nationality, citizenship, registered_in, address, place_of_birth or other."
+        },
+        {
+          "name": "place",
+          "dataType": "\"varchar(300)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "City or place text, when published."
+        }
+      ],
+      "unique": [],
+      "foreignKeys": [],
+      "checks": [],
+      "ifNotExit": false,
+      "namespace": ["lightning", "metastore", "sanctions", "screening_usl"],
+      "dqAnnotations": [],
+      "acAnnotations": [],
+      "activateQuery": "SELECT\n    COALESCE(country_link_id, '') AS country_link_id,\n    COALESCE(entry_id, '') AS entry_id,\n    country_iso2,\n    country_name,\n    COALESCE(role, '') AS role,\n    place\nFROM sanctions_lists.list_country",
+      "description": "Countries linked to a listed party, with the role of the link."
+    },
+    {
+      "name": "list_identifier",
+      "columnSpecs": [
+        {
+          "name": "identifier_id",
+          "dataType": "\"varchar(64)\"",
+          "primaryKey": {
+            "columns": []
+          },
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Stable id of the identifier."
+        },
+        {
+          "name": "entry_id",
+          "dataType": "\"varchar(64)\"",
+          "notNull": {
+            "columns": []
+          },
+          "foreignKey": {
+            "columns": [],
+            "refTable": ["lightning.metastore.sanctions.screening_usl.list_entry"],
+            "refColumns": ["entry_id"]
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The listed party."
+        },
+        {
+          "name": "id_type",
+          "dataType": "\"varchar(24)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "passport, national_id, tax_id, registration and similar."
+        },
+        {
+          "name": "id_number",
+          "dataType": "\"varchar(200)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The document or registration number as published."
+        },
+        {
+          "name": "issuing_country",
+          "dataType": "\"varchar(2)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "ISO 3166-1 alpha-2 code of the issuing country, when known."
+        },
+        {
+          "name": "note",
+          "dataType": "\"varchar(500)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Note published with the identifier."
+        }
+      ],
+      "unique": [],
+      "foreignKeys": [],
+      "checks": [],
+      "ifNotExit": false,
+      "namespace": ["lightning", "metastore", "sanctions", "screening_usl"],
+      "dqAnnotations": [],
+      "acAnnotations": [],
+      "activateQuery": "SELECT\n    COALESCE(identifier_id, '') AS identifier_id,\n    COALESCE(entry_id, '') AS entry_id,\n    COALESCE(id_type, '') AS id_type,\n    COALESCE(id_number, '') AS id_number,\n    issuing_country,\n    note\nFROM sanctions_lists.list_identifier",
+      "description": "Identity documents and registration numbers published for a listed party."
+    },
+    {
+      "name": "customer",
+      "columnSpecs": [
+        {
+          "name": "customer_id",
+          "dataType": "\"varchar(32)\"",
+          "primaryKey": {
+            "columns": []
+          },
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Customer id."
+        },
+        {
+          "name": "customer_type",
+          "dataType": "\"varchar(16)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "individual or company."
+        },
+        {
+          "name": "full_name",
+          "dataType": "\"varchar(300)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Name on file."
+        },
+        {
+          "name": "date_of_birth",
+          "dataType": "\"varchar(10)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "YYYY, YYYY-MM or YYYY-MM-DD; empty when not on file. Individuals only."
+        },
+        {
+          "name": "nationality",
+          "dataType": "\"varchar(2)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "ISO 3166-1 alpha-2 nationality or country of registration."
+        },
+        {
+          "name": "residence_country",
+          "dataType": "\"varchar(2)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "ISO 3166-1 alpha-2 country of residence or operation."
+        },
+        {
+          "name": "onboarding_date",
+          "dataType": "\"varchar(10)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Date the customer was onboarded (YYYY-MM-DD)."
+        },
+        {
+          "name": "risk_rating",
+          "dataType": "\"varchar(8)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "low, medium or high."
+        },
+        {
+          "name": "desk",
+          "dataType": "\"varchar(8)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Operations desk: EMEA, APAC or AMER."
+        },
+        {
+          "name": "data_origin",
+          "dataType": "\"varchar(16)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Always synthetic."
+        }
+      ],
+      "unique": [],
+      "foreignKeys": [],
+      "checks": [],
+      "ifNotExit": false,
+      "namespace": ["lightning", "metastore", "sanctions", "screening_usl"],
+      "dqAnnotations": [
+        {
+          "name": "dob_present_for_individuals",
+          "expression": "customer_type <> 'individual' OR (date_of_birth IS NOT NULL AND date_of_birth <> '')",
+          "cte": {}
+        },
+        {
+          "name": "nationality_is_iso2",
+          "expression": "nationality IS NULL OR nationality RLIKE '^[A-Z]{2}$'",
+          "cte": {}
+        }
+      ],
+      "acAnnotations": [],
+      "activateQuery": "SELECT\n    COALESCE(customer_id, '') AS customer_id,\n    COALESCE(customer_type, '') AS customer_type,\n    COALESCE(full_name, '') AS full_name,\n    date_of_birth,\n    nationality,\n    COALESCE(residence_country, '') AS residence_country,\n    COALESCE(onboarding_date, '') AS onboarding_date,\n    risk_rating,\n    desk,\n    data_origin\nFROM sanctions_bank_files.customer",
+      "description": "Synthetic bank customers (people and companies). Not real customers."
+    },
+    {
+      "name": "customer_identifier",
+      "columnSpecs": [
+        {
+          "name": "identifier_id",
+          "dataType": "\"varchar(32)\"",
+          "primaryKey": {
+            "columns": []
+          },
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Identifier id."
+        },
+        {
+          "name": "customer_id",
+          "dataType": "\"varchar(32)\"",
+          "notNull": {
+            "columns": []
+          },
+          "foreignKey": {
+            "columns": [],
+            "refTable": ["lightning.metastore.sanctions.screening_usl.customer"],
+            "refColumns": ["customer_id"]
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The customer."
+        },
+        {
+          "name": "id_type",
+          "dataType": "\"varchar(24)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "passport, national_id, tax_id or registration."
+        },
+        {
+          "name": "id_number",
+          "dataType": "\"varchar(200)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The number on the document (sensitive)."
+        },
+        {
+          "name": "issuing_country",
+          "dataType": "\"varchar(2)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "ISO 3166-1 alpha-2 issuing country."
+        }
+      ],
+      "unique": [],
+      "foreignKeys": [],
+      "checks": [],
+      "ifNotExit": false,
+      "namespace": ["lightning", "metastore", "sanctions", "screening_usl"],
+      "dqAnnotations": [],
+      "acAnnotations": [],
+      "activateQuery": "SELECT\n    COALESCE(identifier_id, '') AS identifier_id,\n    COALESCE(customer_id, '') AS customer_id,\n    COALESCE(id_type, '') AS id_type,\n    COALESCE(id_number, '') AS id_number,\n    issuing_country\nFROM sanctions_bank_files.customer_identifier",
+      "description": "Identity documents on file for a synthetic customer. Masked for the evidence agent."
+    },
+    {
+      "name": "alert",
+      "columnSpecs": [
+        {
+          "name": "alert_id",
+          "dataType": "\"varchar(32)\"",
+          "primaryKey": {
+            "columns": []
+          },
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Alert id."
+        },
+        {
+          "name": "alert_type",
+          "dataType": "\"varchar(16)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "customer or payment."
+        },
+        {
+          "name": "customer_id",
+          "dataType": "\"varchar(32)\"",
+          "notNull": {
+            "columns": []
+          },
+          "foreignKey": {
+            "columns": [],
+            "refTable": ["lightning.metastore.sanctions.screening_usl.customer"],
+            "refColumns": ["customer_id"]
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The customer the alert is about."
+        },
+        {
+          "name": "payment_id",
+          "dataType": "\"varchar(32)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The payment, for payment alerts."
+        },
+        {
+          "name": "list_id",
+          "dataType": "\"varchar(8)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The list that matched."
+        },
+        {
+          "name": "entry_id",
+          "dataType": "\"varchar(64)\"",
+          "notNull": {
+            "columns": []
+          },
+          "foreignKey": {
+            "columns": [],
+            "refTable": ["lightning.metastore.sanctions.screening_usl.list_entry"],
+            "refColumns": ["entry_id"]
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The listed party that matched."
+        },
+        {
+          "name": "matched_name",
+          "dataType": "\"varchar(500)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "The listed name that matched."
+        },
+        {
+          "name": "match_score",
+          "dataType": "\"decimal(4,3)\"",
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "Name similarity from the screening engine, 0 to 1."
+        },
+        {
+          "name": "raised_at",
+          "dataType": "\"varchar(32)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "When the alert was raised (UTC)."
+        },
+        {
+          "name": "status",
+          "dataType": "\"varchar(16)\"",
+          "notNull": {
+            "columns": []
+          },
+          "dqAnnotations": [],
+          "acAnnotations": [],
+          "description": "open, closed or escalated."
+        }
+      ],
+      "unique": [],
+      "foreignKeys": [],
+      "checks": [],
+      "ifNotExit": false,
+      "namespace": ["lightning", "metastore", "sanctions", "screening_usl"],
+      "dqAnnotations": [
+        {
+          "name": "match_score_in_range",
+          "expression": "match_score >= 0 AND match_score <= 1",
+          "cte": {}
+        }
+      ],
+      "acAnnotations": [],
+      "activateQuery": "SELECT\n    COALESCE(alert_id, '') AS alert_id,\n    COALESCE(alert_type, '') AS alert_type,\n    COALESCE(customer_id, '') AS customer_id,\n    payment_id,\n    COALESCE(list_id, '') AS list_id,\n    COALESCE(entry_id, '') AS entry_id,\n    COALESCE(matched_name, '') AS matched_name,\n    CAST(match_score AS DECIMAL(4,3)) AS match_score,\n    COALESCE(raised_at, '') AS raised_at,\n    COALESCE(status, '') AS status\nFROM sanctions_bank_files.alert",
+      "description": "Screening alerts: a customer matched a listed party by name. Each needs a human-reviewed decision."
+    }
+  ],
+  "description": "Screening model: public sanctions lists, bank customers and screening alerts. Synthetic bank data only."
+}

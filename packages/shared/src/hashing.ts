@@ -42,6 +42,6 @@ export function hashValue(value: unknown): string {
  * Hash of one source row as Zetaris returns it (every value a string). Used for memory pointers and
  * decision records: it proves what a row contained without keeping a copy of the row.
  */
-export function hashRow(row: Readonly<Record<string, string>>): string {
+export function hashRow(row: Readonly<Record<string, string | null>>): string {
   return hashValue(row);
 }

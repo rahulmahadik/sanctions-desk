@@ -14,7 +14,15 @@
   "zetaris": {
     "restUrl": "http://localhost:8888/api/v1.0",
     "orgId": "1",
-    "requestTimeoutMs": 30000
+    "requestTimeoutMs": 30000,
+    "namespace": "lightning.metastore.sanctions",
+    "usl": "screening_usl",
+    "maxRows": 200,
+    "fileStore": {
+      "container": "zetaris-driver-1",
+      "database": "sanctions_lists",
+      "folder": "sanctions"
+    }
   },
   "nightshift": {
     "baseUrl": "http://127.0.0.1:8088/v1",

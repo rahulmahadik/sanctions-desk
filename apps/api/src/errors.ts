@@ -11,6 +11,8 @@ const STATUS_BY_TYPE: Record<ErrorType, number> = {
   http_error: 502,
   bad_response: 502,
   route_dead: 502,
+  query_failed: 502,
+  guard_blocked: 403,
   internal: 500,
 };
 

@@ -7,6 +7,8 @@ export type ErrorType =
   | "http_error"
   | "bad_response"
   | "route_dead"
+  | "query_failed"
+  | "guard_blocked"
   | "validation"
   | "not_found"
   | "not_implemented"
