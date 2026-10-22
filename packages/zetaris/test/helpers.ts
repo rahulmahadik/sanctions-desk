@@ -19,7 +19,7 @@ export function fakeZetaris(answer: (sql: string) => { status?: number; body: un
 } {
   const sent: Sent[] = [];
   const fetchImpl: FetchLike = async (url, init) => {
-    const body = JSON.parse(String(init?.body));
+    const body = init?.body ? JSON.parse(String(init.body)) : { queryId: "", sql: "", limit: 0 };
     sent.push({ url, headers: init?.headers as Record<string, string>, body });
     const out = answer(body.sql);
     const text = typeof out.body === "string" ? out.body : JSON.stringify(out.body);

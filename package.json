@@ -37,6 +37,7 @@
     "ledger": "tsx tools/model-ledger.ts",
     "exam": "tsx tools/run-exam.ts",
     "exam:report": "tsx tools/exam-report.ts",
+    "explain": "tsx tools/explain-queries.ts",
     "zetaris:load-files": "tsx tools/zetaris-load-files.ts",
     "zetaris:rebuild": "tsx tools/zetaris-rebuild.ts",
     "data:fetch": "tsx data/scripts/fetch.ts",

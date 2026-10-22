@@ -127,3 +127,20 @@ describe("the decision trace", () => {
     }
   });
 });
+
+describe("the audit link", () => {
+  it("says it cannot ask Zetaris in sample mode", async () => {
+    const { app } = await sampleApp();
+    await app.inject({
+      method: "POST",
+      url: "/run",
+      payload: { alert_id: caseOf("fp_dob_exact_name_0").alert_id, run_id: "run-audit" },
+    });
+    const res = await app.inject({ method: "GET", url: "/runs/run-audit/trace?audit=true" });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().audit).toMatchObject({ available: false });
+    expect(res.json().audit.reason).toContain("sample mode");
+    // Without the flag the audit section is left out.
+    expect((await app.inject({ method: "GET", url: "/runs/run-audit/trace" })).json().audit).toBeUndefined();
+  });
+});
