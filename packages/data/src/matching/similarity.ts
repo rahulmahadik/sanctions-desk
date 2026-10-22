@@ -1,4 +1,4 @@
-import { normaliseName } from "../text.js";
+import { foldConfusables, normaliseName } from "../text.js";
 
 /**
  * Name similarity used to raise alerts and to compare a customer with a listed party.
@@ -78,6 +78,8 @@ function bestTokenScore(token: string, others: readonly string[]): number {
   const skeleton = phoneticSkeleton(token);
   for (const other of others) {
     let score = jaroWinkler(token, other);
+    // An initial ("j") stands for any name that starts with that letter ("john").
+    if ((token.length === 1 || other.length === 1) && token[0] === other[0]) score = Math.max(score, 0.9);
     if (skeleton.length >= 2 && skeleton === phoneticSkeleton(other)) score = Math.max(score, 0.93);
     if (score > best) best = score;
   }
@@ -87,12 +89,20 @@ function bestTokenScore(token: string, others: readonly string[]): number {
 export interface NameScore {
   score: number;
   method: "exact" | "token_set" | "phonetic" | "none";
+  /** True when the name mixed in look-alike letters from another script and was folded before comparing. */
+  homoglyph?: boolean;
 }
 
 /** Similarity of two names (any case, accents or punctuation) between 0 and 1. */
 export function nameScore(left: string, right: string): NameScore {
-  const a = normaliseName(left);
-  const b = normaliseName(right);
+  const foldedLeft = foldConfusables(left);
+  const foldedRight = foldConfusables(right);
+  const homoglyph = foldedLeft.folded || foldedRight.folded;
+  const result = scoreFolded(normaliseName(foldedLeft.text), normaliseName(foldedRight.text));
+  return homoglyph ? { ...result, homoglyph: true } : result;
+}
+
+function scoreFolded(a: string, b: string): NameScore {
   if (a === "" || b === "") return { score: 0, method: "none" };
   if (a === b) return { score: 1, method: "exact" };
   const ta = tokensOf(a);

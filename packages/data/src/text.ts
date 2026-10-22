@@ -84,6 +84,81 @@ export function scriptsIn(text: string): Script[] {
   return SCRIPTS.filter((s) => found.has(s));
 }
 
+/** Cyrillic and Greek letters that look like Latin ones. Used to see through the homoglyph trick. */
+const CONFUSABLES: Readonly<Record<string, string>> = {
+  а: "a",
+  е: "e",
+  о: "o",
+  р: "p",
+  с: "c",
+  у: "y",
+  х: "x",
+  і: "i",
+  ј: "j",
+  ѕ: "s",
+  һ: "h",
+  ԁ: "d",
+  ԛ: "q",
+  ԝ: "w",
+  А: "A",
+  В: "B",
+  Е: "E",
+  К: "K",
+  М: "M",
+  Н: "H",
+  О: "O",
+  Р: "P",
+  С: "C",
+  Т: "T",
+  Х: "X",
+  І: "I",
+  Ј: "J",
+  Ѕ: "S",
+  α: "a",
+  ο: "o",
+  ν: "v",
+  ρ: "p",
+  ι: "i",
+  κ: "k",
+  τ: "t",
+  υ: "u",
+  Α: "A",
+  Β: "B",
+  Ε: "E",
+  Ζ: "Z",
+  Η: "H",
+  Ι: "I",
+  Κ: "K",
+  Μ: "M",
+  Ν: "N",
+  Ο: "O",
+  Ρ: "P",
+  Τ: "T",
+  Υ: "Y",
+  Χ: "X",
+};
+
+/**
+ * If a name mixes Latin letters with look-alike Cyrillic or Greek letters, return the name with those
+ * letters replaced by their Latin look-alikes. A name written wholly in another script is left alone,
+ * since there the letters are not a disguise.
+ */
+export function foldConfusables(text: string): { text: string; folded: boolean } {
+  const scripts = scriptsIn(text);
+  const mixed = scripts.includes("Latin") && scripts.some((s) => s === "Cyrillic" || s === "Greek");
+  if (!mixed) return { text, folded: false };
+  let changed = false;
+  const out = [...text]
+    .map((c) => {
+      const latin = CONFUSABLES[c];
+      if (latin === undefined) return c;
+      changed = true;
+      return latin;
+    })
+    .join("");
+  return { text: out, folded: changed };
+}
+
 /**
  * The script a name is written in. A name that mixes scripts (for example a Cyrillic "а" inside a
  * Latin word, the homoglyph trick) is reported as "Mixed" so callers can flag it.

@@ -1,0 +1,22 @@
+ownership_id,owned_party_id,owned_party_kind,owner_party_id,owner_party_kind,owner_name,ownership_pct,as_of
+OWN-00001,CUST-0035,customer,OFAC-54319,listed,Unico Shipping Co Ltd,50,2026-09-30
+OWN-00002,CUST-0036,customer,OFAC-56339,listed,Yakera Y Lane SAS,25,2026-09-30
+OWN-00003,CUST-0036,customer,OFAC-35299,listed,Alain Francois Viviane Goetz,25,2026-09-30
+OWN-00004,CUST-0037,customer,EXT-0001,external,Ember Software Pte Ltd,70,2026-09-30
+OWN-00005,EXT-0001,external,OFAC-23562,listed,NOVGORODNEFTEPRODUCT OOO,80,2026-09-30
+OWN-00006,CUST-0038,customer,EXT-0002,external,Cedar Software Ltd,100,2026-09-30
+OWN-00007,EXT-0002,external,EXT-0003,external,Alder Holdings LLC,100,2026-09-30
+OWN-00008,EXT-0003,external,EXT-0004,external,Juniper Marine Inc,100,2026-09-30
+OWN-00009,EXT-0004,external,EXT-0005,external,Quarry Logistics Inc,100,2026-09-30
+OWN-00010,EXT-0005,external,EXT-0006,external,Meridian Marine LLC,100,2026-09-30
+OWN-00011,EXT-0006,external,OFAC-38796,listed,Milur Electronics LLC,100,2026-09-30
+OWN-00012,CUST-0039,customer,OFAC-20671,listed,"ROVNENSKI ELEVATOR, OAO",60,2026-09-30
+OWN-00013,CUST-0040,customer,EXT-0007,external,Delta Energy GmbH,60,2026-09-30
+OWN-00014,EXT-0007,external,UN-QDi.055,listed,MAHMOOD SULTAN BASHIR-UD-DIN,90,2026-09-30
+OWN-00015,EXT-0007,external,CUST-0040,customer,Iris Consulting GmbH,10,2026-09-30
+OWN-00016,CUST-0041,customer,OFAC-29261,listed,Yanxiong ZHENG,49.9,2026-09-30
+OWN-00017,CUST-0042,customer,OFAC-46737,listed,GREAT SHARE INTERNATIONAL LOGISTICS LIMITED,25,2026-09-30
+OWN-00018,CUST-0042,customer,UN-QDe.108,listed,TAIBAH INTERNATIONAL-BOSNIA OFFICES,24,2026-09-30
+OWN-00019,CUST-0043,customer,EXT-0008,external,Orchid Foods Pte Ltd,70,2026-09-30
+OWN-00020,EXT-0008,external,OFAC-18770,listed,Open Joint Stock Company Russian Electronics,60,2026-09-30
+OWN-00021,CUST-0044,customer,OFAC-47040,listed,COVART ENERGY LIMITED,,2026-09-30

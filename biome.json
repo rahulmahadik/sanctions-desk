@@ -1,6 +1,10 @@
 {
   "$schema": "https://biomejs.dev/schemas/latest/schema.json",
-  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
   "files": {
     "includes": [
       "**",
@@ -10,7 +14,10 @@
       "!package-lock.json",
       "!internal",
       "!logs",
-      "!data/sample/query-cache.json"
+      "!data/sample",
+      "!data/synthetic",
+      "!data/reference",
+      "!eval/cases"
     ]
   },
   "formatter": {
@@ -23,12 +30,23 @@
     "enabled": true,
     "rules": {
       "preset": "recommended",
-      "style": { "useImportType": "error", "noNonNullAssertion": "error" },
-      "suspicious": { "noExplicitAny": "error" },
-      "complexity": { "noExcessiveCognitiveComplexity": "warn" }
+      "style": {
+        "useImportType": "error",
+        "noNonNullAssertion": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "error"
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "warn"
+      }
     }
   },
   "javascript": {
-    "formatter": { "quoteStyle": "double", "semicolons": "always", "trailingCommas": "all" }
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
   }
 }

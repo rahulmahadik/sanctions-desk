@@ -49,3 +49,20 @@ describe("nameScore", () => {
     expect(nameScore("", "x")).toEqual({ score: 0, method: "none" });
   });
 });
+
+describe("initials and homoglyphs", () => {
+  it("lets an initial stand for a name that starts with that letter", () => {
+    expect(nameScore("J. Smith", "John Smith").score).toBeGreaterThan(0.9);
+    expect(nameScore("K. Smith", "John Smith").score).toBeLessThan(0.85);
+  });
+  it("sees through look-alike Cyrillic letters inside a Latin name, and says so", () => {
+    const disguised = "Bаssem Murаd"; // two Cyrillic "а"
+    const r = nameScore(disguised, "Bassem Murad");
+    expect(r).toMatchObject({ score: 1, method: "exact", homoglyph: true });
+    expect(nameScore("Bassem Murad", "Bassem Murad").homoglyph).toBeUndefined();
+  });
+  it("leaves a name written wholly in another script alone", () => {
+    expect(nameScore("Иван Петров", "Иван Петров")).toMatchObject({ score: 1 });
+    expect(nameScore("Иван Петров", "Ivan Petrov").score).toBeLessThan(0.5);
+  });
+});

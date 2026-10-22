@@ -1,9 +1,20 @@
 name: sanctions-desk
 
+# The review API runs on its own. The `data` profile adds the synthetic bank database and the payments
+# service; they join the Zetaris network only, publish no ports, and are read by Zetaris alone.
+#
+#   docker compose up --build                  the API (sample mode needs no credentials)
+#   docker compose --profile data up --build   the API plus bankdb and payments-api
+#
+# The data profile reads BANKDB_ADMIN_PASSWORD, BANKDB_READER_PASSWORD and PAYMENTS_API_KEY from the
+# environment (put them in .env.data and pass --env-file .env.data). Without them the data services refuse
+# to start; the API does not need them.
+
 services:
   api:
     build:
       context: .
+      target: api
       args:
         NODE_VERSION: ${NODE_VERSION:-26}
     image: sanctions-desk-api:local
@@ -27,3 +38,50 @@ services:
     volumes:
       - ./logs:/app/logs
     restart: unless-stopped
+
+  bankdb:
+    profiles: ["data"]
+    image: postgres:16-alpine
+    container_name: sanctions-bankdb
+    environment:
+      POSTGRES_DB: bank
+      POSTGRES_USER: bank_admin
+      POSTGRES_PASSWORD: ${BANKDB_ADMIN_PASSWORD:-}
+      BANKDB_READER_PASSWORD: ${BANKDB_READER_PASSWORD:-}
+    volumes:
+      - ./docker/bankdb/init:/docker-entrypoint-initdb.d:ro
+      - ./data/synthetic:/seed:ro
+      - bankdb-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bank_admin -d bank"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks: [zetaris]
+    restart: unless-stopped
+
+  payments-api:
+    profiles: ["data"]
+    build:
+      context: .
+      target: payments-api
+      args:
+        NODE_VERSION: ${NODE_VERSION:-26}
+    image: sanctions-desk-payments-api:local
+    container_name: sanctions-payments-api
+    environment:
+      PAYMENTS_FILE: /data/payment.json
+      PAYMENTS_API_KEY: ${PAYMENTS_API_KEY:-}
+    volumes:
+      - ./data/synthetic/payment.json:/data/payment.json:ro
+    networks: [zetaris]
+    restart: unless-stopped
+
+volumes:
+  bankdb-data:
+
+networks:
+  # The network Zetaris already runs on. The review API is deliberately not on it.
+  zetaris:
+    external: true
+    name: zetaris_default

@@ -24,6 +24,7 @@ export type BusinessDefinition = z.infer<typeof BusinessDefinitionSchema>;
 export const IMPLEMENTED_DEFINITIONS: Readonly<Record<string, string>> = {
   true_match: "1",
   false_positive: "1",
+  counterparty_match: "1",
   strong_identifier: "1",
   effective_ownership_threshold: "1",
 };

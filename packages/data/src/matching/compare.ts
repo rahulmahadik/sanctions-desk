@@ -1,3 +1,4 @@
+import { isIso2 } from "../countries.js";
 import { normaliseName, windowOfIso, type YMD } from "../text.js";
 import { nameScore, tokensOf } from "./similarity.js";
 
@@ -51,16 +52,35 @@ export type Assessment = "strong" | "possible" | "weak";
 export interface PartyComparison {
   entry_id: string;
   list_id: string;
-  name: { score: number; method: string; customer_name: string; listed_name: string; alias_type: string };
+  name: {
+    score: number;
+    method: string;
+    customer_name: string;
+    listed_name: string;
+    alias_type: string;
+    homoglyph: boolean;
+  };
   kind: "match" | "mismatch";
   dob: { status: DobStatus; customer: string | null; listed: string[] };
   country: { status: CountryStatus; customer: string | null; listed: string[] };
   identifiers: { status: IdStatus; matches: string[] };
   strong_identifier_matches: number;
-  /** The approved definitions, applied by code (business definitions true_match@1 and false_positive@1). */
-  definitions: { true_match: boolean; false_positive: boolean };
+  /** The approved definitions, applied by code (business definitions true_match@1, false_positive@1 and counterparty_match@1). */
+  definitions: { true_match: boolean; false_positive: boolean; counterparty_match: boolean };
   assessment: Assessment;
   reasons: string[];
+}
+
+/** Titles that are not part of a person's name. Only stripped from the front of a name. */
+const HONORIFICS = new Set(["mr", "mrs", "ms", "miss", "mx", "dr", "prof", "sir", "dame", "lord", "hon"]);
+
+/** A person's name without a leading title ("Dr. Anna Weber" is "Anna Weber"). */
+export function personCore(name: string): string {
+  const tokens = tokensOf(normaliseName(name));
+  const first = tokens[0];
+  return first !== undefined && HONORIFICS.has(first) && tokens.length > 1
+    ? tokens.slice(1).join(" ")
+    : tokens.join(" ");
 }
 
 const SUFFIXES = new Set([
@@ -166,7 +186,7 @@ function compareIdentifiers(customer: CustomerProfile, party: ListedParty): Part
 
 function bestName(customer: CustomerProfile, party: ListedParty) {
   const isCompany = customer.kind === "company";
-  const prep = (s: string) => (isCompany ? companyCore(s) : s);
+  const prep = (s: string) => (isCompany ? companyCore(s) : personCore(s));
   const mine = [customer.name, ...customer.otherNames];
   const theirs = [
     { name: party.primaryName, type: "primary", strong: true },
@@ -178,6 +198,7 @@ function bestName(customer: CustomerProfile, party: ListedParty) {
     customer_name: customer.name,
     listed_name: party.primaryName,
     alias_type: "primary",
+    homoglyph: false,
   };
   for (const m of mine) {
     for (const t of theirs) {
@@ -185,7 +206,14 @@ function bestName(customer: CustomerProfile, party: ListedParty) {
       const weight = t.strong ? 1 : 0.9;
       const score = Math.round(r.score * weight * 1000) / 1000;
       if (score > best.score)
-        best = { score, method: r.method, customer_name: m, listed_name: t.name, alias_type: t.type };
+        best = {
+          score,
+          method: r.method,
+          customer_name: m,
+          listed_name: t.name,
+          alias_type: t.type,
+          homoglyph: r.homoglyph === true,
+        };
     }
   }
   return best;
@@ -220,6 +248,7 @@ function reasonsOf(i: Pick<PartyComparison, "name" | "dob" | "country" | "identi
   ];
   if (i.identifiers.status === "match") reasons.push(`identifier match: ${i.identifiers.matches.join(", ")}`);
   if (i.kind === "mismatch") reasons.push("party type differs (person vs company)");
+  if (i.name.homoglyph) reasons.push("name mixes look-alike letters from another script (possible disguise)");
   return reasons;
 }
 
@@ -238,7 +267,31 @@ function meetsFalsePositive(i: AssessInput, customerNationality: string | null):
   );
 }
 
+/** The country of a payment counterparty against the countries linked to a listed party. */
+function comparePaymentCountry(country: string | null, party: ListedParty): PartyComparison["country"] {
+  const listed = [...new Set(party.countries.map((c) => c.iso2))];
+  const base = { customer: country, listed };
+  if (!country || !isIso2(country)) return { status: "unknown", ...base };
+  if (listed.length === 0) return { status: "unknown", ...base };
+  return { status: listed.includes(country) ? "match" : "conflict", ...base };
+}
+
+/** counterparty_match@1: the counterparty name agrees and its country is one linked to the listed party. */
+function paymentAssessment(
+  nameHigh: boolean,
+  nameScore: number,
+  country: PartyComparison["country"],
+  identifiers: PartyComparison["identifiers"],
+): Assessment {
+  if (identifiers.status === "match" && nameScore >= 0.7) return "strong";
+  if (nameHigh && country.status === "match") return "strong";
+  if (nameHigh && country.status === "unknown") return "possible";
+  return "weak";
+}
+
 export interface CompareOptions {
+  /** Compare a payment counterparty rather than a customer: only the name and the country are known. */
+  payment?: { country: string | null };
   /**
    * Identifier types that matched, worked out where the numbers are visible (inside the data layer).
    * When given, the numbers on the customer and the listed party are not compared here.
@@ -256,7 +309,9 @@ export function compareParty(
   const listedKind = KIND_OF[party.kind];
   const kind = listedKind === undefined || listedKind === customer.kind ? "match" : "mismatch";
   const dob = compareDob(customer.dateOfBirth, party.dobs);
-  const country = compareCountry(customer, party);
+  const country = options.payment
+    ? comparePaymentCountry(options.payment.country, party)
+    : compareCountry(customer, party);
   const identifiers =
     options.identifierMatches === undefined
       ? compareIdentifiers(customer, party)
@@ -270,11 +325,18 @@ export function compareParty(
   const nameHigh = name.score >= thresholds.nameSimilarity;
 
   const input: AssessInput = { kind, identifiers, nameHigh, nameScore: name.score, dob, country };
-  const assessment = assess(input);
-  const definitions = {
-    true_match: meetsTrueMatch(input),
-    false_positive: meetsFalsePositive(input, customer.nationality),
-  };
+  const assessment = options.payment ? paymentAssessment(nameHigh, name.score, country, identifiers) : assess(input);
+  const definitions = options.payment
+    ? {
+        true_match: false,
+        false_positive: country.status === "conflict" && identifiers.status !== "match",
+        counterparty_match: nameHigh && country.status === "match",
+      }
+    : {
+        true_match: meetsTrueMatch(input),
+        false_positive: meetsFalsePositive(input, customer.nationality),
+        counterparty_match: false,
+      };
   const reasons = reasonsOf({ name, dob, country, identifiers, kind });
   return {
     entry_id: party.entryId,

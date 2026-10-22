@@ -46,10 +46,9 @@ function requireEntry(tables: TableRows, id: string) {
   return entry;
 }
 
-export function applyDelta(base: NormalisedSnapshot, ops: readonly DeltaOp[], label: string): NormalisedSnapshot {
-  if (label.trim() === "") throw new AppError("validation", "a synthetic delta needs a label");
-  const parsed = ops.map((op) => DeltaOpSchema.parse(op));
-  const tables = structuredClone(base.tables);
+/** Apply parsed edits to a copy of the tables. */
+function applyOps(base: TableRows, parsed: ReadonlyArray<z.infer<typeof DeltaOpSchema>>): TableRows {
+  const tables = structuredClone(base);
 
   for (const op of parsed) {
     const entry = requireEntry(tables, op.entry_id);
@@ -122,6 +121,36 @@ export function applyDelta(base: NormalisedSnapshot, ops: readonly DeltaOp[], la
     }
   }
 
+  return tables;
+}
+
+/**
+ * Apply edits to a combined sample (one or more lists in the same tables). Entries the edits touch get a
+ * snapshot id that says so; every entry's content hash is recomputed, so untouched entries keep theirs.
+ */
+export function applyDeltaToSample(base: TableRows, ops: readonly DeltaOp[], label: string): TableRows {
+  if (label.trim() === "") throw new AppError("validation", "a synthetic delta needs a label");
+  const parsed = ops.map((op) => DeltaOpSchema.parse(op));
+  const tables = applyOps(base, parsed);
+  const suffix = `+synthetic-${shortHash(label, JSON.stringify(parsed))}`;
+  const touched = new Set(parsed.map((op) => op.entry_id));
+  // A sample holds only part of each list, so hashes of untouched entries are kept as published.
+  const originalHashes = new Map(base.list_entry.map((e) => [e.entry_id, e.content_hash]));
+  sealEntries(tables);
+  for (const entry of tables.list_entry) {
+    if (touched.has(entry.entry_id)) {
+      if (!entry.snapshot_id.includes("+synthetic-")) entry.snapshot_id += suffix;
+    } else {
+      entry.content_hash = originalHashes.get(entry.entry_id) ?? entry.content_hash;
+    }
+  }
+  return tables;
+}
+
+export function applyDelta(base: NormalisedSnapshot, ops: readonly DeltaOp[], label: string): NormalisedSnapshot {
+  if (label.trim() === "") throw new AppError("validation", "a synthetic delta needs a label");
+  const parsed = ops.map((op) => DeltaOpSchema.parse(op));
+  const tables = applyOps(base.tables, parsed);
   const snapshotId = `${base.meta.snapshot_id}+synthetic-${shortHash(label, JSON.stringify(parsed))}`;
   for (const entry of tables.list_entry) entry.snapshot_id = snapshotId;
   sealEntries(tables);

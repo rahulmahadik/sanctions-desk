@@ -1,0 +1,34 @@
+{
+  "label": "Synthetic list update for demonstration: a few real entries are edited so earlier clearances can be re-checked. Not a published list.",
+  "ops": [
+    {
+      "op": "replace_dobs",
+      "entry_id": "OFAC-30969",
+      "dob_value": "1936-09-06"
+    },
+    {
+      "op": "replace_dobs",
+      "entry_id": "OFAC-30965",
+      "dob_value": "1991-02-24"
+    },
+    {
+      "op": "replace_dobs",
+      "entry_id": "UN-TAi.060",
+      "dob_value": "1968-04-08"
+    },
+    {
+      "op": "add_identifier",
+      "entry_id": "OFAC-56674",
+      "id_type": "passport",
+      "id_number": "P8888880",
+      "issuing_country": "IR"
+    },
+    {
+      "op": "add_identifier",
+      "entry_id": "OFAC-36073",
+      "id_type": "passport",
+      "id_number": "P6021124",
+      "issuing_country": "TR"
+    }
+  ]
+}

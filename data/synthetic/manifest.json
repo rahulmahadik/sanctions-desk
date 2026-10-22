@@ -1,0 +1,38 @@
+{
+  "label": "Synthetic data generated for development and demonstration. No real customer, account or payment.",
+  "seed": "sanctions-desk-bank-1#d1b9acd2",
+  "counts": {
+    "customer": 298,
+    "customer_identifier": 258,
+    "customer_alias": 46,
+    "account": 336,
+    "beneficial_owner": 21,
+    "alert": 70,
+    "disposition": 11,
+    "payment": 356
+  },
+  "exam": {
+    "cases": 60,
+    "groups": {
+      "false_positive": 15,
+      "true_match": 8,
+      "transliteration": 6,
+      "missing_data": 5,
+      "hidden_ownership": 6,
+      "ownership_below": 4,
+      "previously_cleared_unchanged": 6,
+      "previously_cleared_changed": 5,
+      "injection": 3,
+      "tipping_off": 2
+    }
+  },
+  "list_snapshot_ids": [
+    "ofac-sdn-2026-10-21-0d805bf5",
+    "ofac-consolidated-2026-10-19-dc3f61dc",
+    "un-consolidated-2026-10-21-76201a92"
+  ],
+  "delta": {
+    "label": "Synthetic list update for demonstration: a few real entries are edited so earlier clearances can be re-checked. Not a published list.",
+    "ops": 5
+  }
+}

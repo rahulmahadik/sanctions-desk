@@ -10,6 +10,16 @@
     "effective_from": "2026-10-01"
   },
   {
+    "definition_key": "counterparty_match@1",
+    "definition_id": "counterparty_match",
+    "version": "1",
+    "name": "Counterparty match",
+    "statement": "A payment counterparty matches a listed party when the counterparty name agrees at or above the policy threshold and the counterparty's country is one of the countries linked to the listed party. A counterparty with no usable country cannot be cleared.",
+    "status": "approved",
+    "owner": "Sanctions policy owner (synthetic sample)",
+    "effective_from": "2026-10-01"
+  },
+  {
     "definition_key": "false_positive@1",
     "definition_id": "false_positive",
     "version": "1",
