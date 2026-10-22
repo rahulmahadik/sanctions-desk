@@ -1,0 +1,29 @@
+{
+  "name": "sanctions-desk",
+  "summary": "An AI review desk for bank sanctions-screening alerts. It recommends; a person decides.",
+  "track": "Track 03 - Reasoning Architecture",
+  "licence": "Apache-2.0",
+  "sponsor_technology": {
+    "zetaris": {
+      "status": "working",
+      "role": "only data path: one semantic layer over list files, a Postgres bank database (JDBC) and a payments REST service"
+    },
+    "meterless_engines": {
+      "status": "working",
+      "engines": ["H-MEM", "World Model", "Markovian"],
+      "tests": "npm run test:engines"
+    },
+    "meterless_nightshift": {
+      "status": "working",
+      "role": "all model calls through pinned modes with signed receipts"
+    },
+    "nvidia_nemotron": {
+      "status": "working",
+      "role": "decision, critic and safety guard, via Nightshift; the model ledger shows which model answered each step"
+    }
+  },
+  "sample_mode": { "status": "working", "needs": "nothing: no Zetaris, no Nightshift, no credentials" },
+  "user_interface": { "status": "not built" },
+  "data": "public lists (OFAC, UN, GLEIF CC0) plus synthetic customers, payments and owners",
+  "ai_usage": "Built with the help of an AI coding assistant (Claude Code). Product models are NVIDIA Nemotron via Meterless Nightshift."
+}

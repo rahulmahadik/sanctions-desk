@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   gatherEvidence,
   judgeDifficulty,
+  MAX_FIELD_CHARS,
   matchEvidence,
   renderDefinitions,
   renderEvidence,
   sampleRules,
   triage,
+  truncateField,
 } from "../src/index.js";
 import { caseFacts, sampleDeps } from "./helpers.js";
 
@@ -77,5 +79,27 @@ describe("sampleRules", () => {
     const unknown = JSON.parse(sampleRules({ prompt: "TASK: decision\n<evidence>not json</evidence>" }));
     expect(unknown.decision).toBe("ESCALATE_L2");
     expect(JSON.parse(sampleRules({ prompt: "TASK: decision" })).decision).toBe("ESCALATE_L2");
+  });
+});
+
+describe("long text in a prompt", () => {
+  it("is cut to a fixed length and says how much was left out", () => {
+    expect(truncateField("short")).toBe("short");
+    expect(truncateField(null)).toBeNull();
+    const long = "x".repeat(MAX_FIELD_CHARS + 120);
+    const cut = truncateField(long) ?? "";
+    expect(cut.startsWith("x".repeat(MAX_FIELD_CHARS))).toBe(true);
+    expect(cut).toContain("120 more characters left out");
+    expect(cut.length).toBeLessThan(long.length);
+  });
+
+  it("applies to the evidence given to the model", async () => {
+    const deps = sampleDeps();
+    const evidence = await gatherEvidence(deps, caseFacts("inj_payment_reference_0").alertId);
+    const longRef = "y".repeat(900);
+    if (evidence.payment) evidence.payment.payment_reference = longRef;
+    const payload = JSON.parse(renderEvidence(evidence, matchEvidence(deps, evidence)));
+    expect(payload.payment.payment_reference.length).toBeLessThan(400);
+    expect(payload.payment.payment_reference).toContain("more characters left out");
   });
 });

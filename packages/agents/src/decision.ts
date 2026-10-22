@@ -42,8 +42,16 @@ Rules:
 Answer with one JSON object only, with these keys:
 {"decision": "...", "confidence": 0.0-1.0, "rationale": "2-4 plain sentences", "facts": [{"table": "...", "key_value": "...", "column": "...", "value": "..."}], "what_would_change": ["..."]}`;
 
+/** The longest a single field is allowed to be in a prompt. Longer text is cut and says so. */
+export const MAX_FIELD_CHARS = 300;
+
+export function truncateField(value: string | null, max = MAX_FIELD_CHARS): string | null {
+  if (value === null || value.length <= max) return value;
+  return `${value.slice(0, max)}…[${value.length - max} more characters left out]`;
+}
+
 function rowsOf(rows: ReadonlyArray<Record<string, string | null>>, keep: readonly string[]) {
-  return rows.map((r) => Object.fromEntries(keep.map((k) => [k, r[k] ?? null])));
+  return rows.map((r) => Object.fromEntries(keep.map((k) => [k, truncateField(r[k] ?? null)])));
 }
 
 /** The evidence as compact JSON for the model. Table names are the short names the model must cite. */

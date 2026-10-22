@@ -33,7 +33,9 @@ const RULES = [
   { name: "work marker (TODO, FIXME, XXX)", pattern: /\b(TODO|FIXME|XXX)\b/ },
   { name: "internal brief path", pattern: /internal\/brief|\binternal\/(?!$)/ },
   { name: "research process wording", pattern: /browser[- ]?(assistant|check)|claude in chrome/i },
-  { name: "assistant attribution", pattern: /\bClaude\b|Co-Authored-By|Generated (with|by)|\bAnthropic\b/i },
+  { name: "assistant attribution line", pattern: /Co-Authored-By|Generated (with|by)/i },
+  // The tools used to build the project are disclosed in the README and in metadata.json, and nowhere else.
+  { name: "assistant name", pattern: /\bClaude\b|\bAnthropic\b/i, allowedIn: new Set(["README.md", "metadata.json"]) },
 ];
 
 const tracked = execFileSync("git", ["ls-files", "-z"], { encoding: "utf8" }).split("\0").filter(Boolean);
@@ -50,7 +52,8 @@ for (const file of tracked) {
   }
   text.split("\n").forEach((line, index) => {
     for (const rule of RULES) {
-      if (rule.pattern.test(line)) problems.push(`${file}:${index + 1}  ${rule.name}: ${line.trim().slice(0, 100)}`);
+      if (rule.pattern.test(line) && !rule.allowedIn?.has(file))
+        problems.push(`${file}:${index + 1}  ${rule.name}: ${line.trim().slice(0, 100)}`);
     }
   });
 }

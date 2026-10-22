@@ -1,0 +1,263 @@
+{
+  "note": "Every edge case the desk is built to handle, with where it is checked. 'exam:' entries are cases in eval/cases/exam.json (a trailing * matches a numbered family); 'test:' entries are a test file and a phrase from a test name in it.",
+  "edge_cases": [
+    {
+      "id": "transliteration",
+      "area": "names",
+      "what": "The same person written with a different spelling or script",
+      "expected": "Escalate when birth date and nationality agree; close when they do not",
+      "covered_by": [
+        "exam:tm_variant",
+        "exam:tl_*",
+        "test:packages/data/test/similarity.test.ts::transliteration variants"
+      ]
+    },
+    {
+      "id": "name_order",
+      "area": "names",
+      "what": "Family name written first",
+      "expected": "Treated as the same name; judged on the other fields",
+      "covered_by": ["exam:fp_name_order", "test:packages/data/test/similarity.test.ts::reordered tokens"]
+    },
+    {
+      "id": "initials",
+      "area": "names",
+      "what": "A first name given as an initial",
+      "expected": "An initial stands for any name that starts with it",
+      "covered_by": ["exam:fp_initials", "test:packages/data/test/similarity.test.ts::initial"]
+    },
+    {
+      "id": "honorifics",
+      "area": "names",
+      "what": "A title in front of a name",
+      "expected": "The title is not part of the name",
+      "covered_by": ["exam:fp_honorific", "test:packages/data/test/compare.test.ts::drops a leading title"]
+    },
+    {
+      "id": "diacritics",
+      "area": "names",
+      "what": "Accents added or removed",
+      "expected": "Accents do not change the match",
+      "covered_by": ["exam:fp_diacritics", "test:packages/data/test/similarity.test.ts::folding"]
+    },
+    {
+      "id": "hyphens",
+      "area": "names",
+      "what": "Hyphens and punctuation in names",
+      "expected": "Punctuation does not change the match",
+      "covered_by": ["exam:fp_hyphen", "test:packages/data/test/text.test.ts::normaliseName"]
+    },
+    {
+      "id": "common_name",
+      "area": "names",
+      "what": "Only a common surname is shared",
+      "expected": "Close as a false positive when birth date and nationality differ",
+      "covered_by": ["exam:fp_surname_only_*", "exam:fp_dob_exact_name_*"]
+    },
+    {
+      "id": "homoglyph",
+      "area": "names",
+      "what": "Look-alike Cyrillic or Greek letters inside a Latin name",
+      "expected": "Seen through, flagged, and escalated like the real name",
+      "covered_by": ["exam:tm_homoglyph", "test:packages/data/test/similarity.test.ts::look-alike"]
+    },
+    {
+      "id": "company_suffix",
+      "area": "names",
+      "what": "Legal-form words and spelling of a company name (Ltd, Limited, L.L.C.)",
+      "expected": "Compared on the distinctive part of the name",
+      "covered_by": ["exam:md_company_no_registration", "test:packages/data/test/compare.test.ts::companyCore"]
+    },
+    {
+      "id": "partial_dob",
+      "area": "names",
+      "what": "A listed party with only a birth year, or a customer with no birth date",
+      "expected": "Year-only conflicts close; a missing date asks for more information",
+      "covered_by": ["exam:fp_year_only_*", "exam:md_no_dob_*", "test:packages/data/test/compare.test.ts::compareDob"]
+    },
+    {
+      "id": "dob_conflict",
+      "area": "names",
+      "what": "Same name, clearly different birth date",
+      "expected": "Close as a false positive when nationality also differs",
+      "covered_by": ["exam:fp_*", "test:packages/data/test/compare.test.ts::false positive definition"]
+    },
+    {
+      "id": "jurisdiction",
+      "area": "names",
+      "what": "A false positive for a customer who lives in a watched jurisdiction",
+      "expected": "Policy sends it to a person anyway",
+      "covered_by": ["exam:fp_jurisdiction", "test:packages/agents/test/policy-guard.test.ts::watched jurisdiction"]
+    },
+    {
+      "id": "exactly_50",
+      "area": "ownership",
+      "what": "A listed person owns exactly 50 percent",
+      "expected": "Counts as control; escalate",
+      "covered_by": ["exam:ho_direct_50", "test:packages/engines/test/ownership.test.ts::exactly"]
+    },
+    {
+      "id": "below_50_49_9",
+      "area": "ownership",
+      "what": "49.9 percent",
+      "expected": "Below the threshold; close",
+      "covered_by": ["exam:ob_49_9", "test:packages/engines/test/ownership.test.ts::49.9"]
+    },
+    {
+      "id": "split_25_25",
+      "area": "ownership",
+      "what": "Two listed owners with 25 percent each",
+      "expected": "They add up to 50; escalate (24 plus 25 stays below)",
+      "covered_by": [
+        "exam:ho_split_25_25",
+        "exam:ob_split_below",
+        "test:packages/engines/test/ownership.test.ts::adds up different listed owners"
+      ]
+    },
+    {
+      "id": "chain",
+      "area": "ownership",
+      "what": "Ownership through holding companies",
+      "expected": "Percentages multiply along a chain",
+      "covered_by": ["exam:ho_two_level", "exam:ob_chain_42", "test:packages/engines/test/ownership.test.ts::chain"]
+    },
+    {
+      "id": "depth_limit",
+      "area": "ownership",
+      "what": "A chain longer than the policy allows",
+      "expected": "Escalate; never guess",
+      "covered_by": ["exam:ho_depth_limit", "test:packages/engines/test/ownership.test.ts::depth"]
+    },
+    {
+      "id": "circular",
+      "area": "ownership",
+      "what": "Companies that own each other",
+      "expected": "The loop is reported and the check still finishes",
+      "covered_by": ["exam:ho_circular", "test:packages/engines/test/ownership.test.ts::circular"]
+    },
+    {
+      "id": "missing_pct",
+      "area": "ownership",
+      "what": "The register gives no percentage",
+      "expected": "Unknown, never zero; ask for more information",
+      "covered_by": ["exam:ob_missing_pct", "test:packages/engines/test/ownership.test.ts::unknown"]
+    },
+    {
+      "id": "entry_updated_reopen",
+      "area": "lists and memory",
+      "what": "A listed entry changes after a case was cleared",
+      "expected": "The clearance is stale; the case is re-opened",
+      "covered_by": ["exam:pcc_*", "test:apps/api/test/review.test.ts::list-change replay"]
+    },
+    {
+      "id": "delisting",
+      "area": "lists and memory",
+      "what": "A listed party is removed from the list",
+      "expected": "An escalation that rested on it becomes a candidate for release by a person",
+      "covered_by": [
+        "test:apps/api/test/review.test.ts::removed one for release",
+        "test:packages/engines/test/rescreen.test.ts::removed"
+      ]
+    },
+    {
+      "id": "duplicate_alerts",
+      "area": "lists and memory",
+      "what": "A new alert for a pair that was cleared before",
+      "expected": "The earlier clearance is used as context if the entry is unchanged",
+      "covered_by": ["exam:pcu_*", "test:packages/agents/test/pipeline.test.ts::fast path"]
+    },
+    {
+      "id": "memory_conflict",
+      "area": "lists and memory",
+      "what": "Two memories disagree",
+      "expected": "Conflicts are detected and resolved with a ledger entry",
+      "covered_by": ["test:packages/engines/test/hmem.test.ts::conflict"]
+    },
+    {
+      "id": "override_beats_memory",
+      "area": "lists and memory",
+      "what": "A person overrides what memory says",
+      "expected": "The override wins and is written to the trust ledger",
+      "covered_by": ["test:packages/engines/test/pointer-memory.test.ts::override"]
+    },
+    {
+      "id": "zetaris_timeout",
+      "area": "data and systems",
+      "what": "Zetaris is slow, down or returns nothing",
+      "expected": "A structured, recoverable error; no invented decision",
+      "covered_by": [
+        "test:packages/zetaris/test/client.test.ts::network failures",
+        "test:packages/shared/test/http.test.ts::timeout",
+        "test:apps/api/test/app.test.ts::data service is unreachable"
+      ]
+    },
+    {
+      "id": "rest_down",
+      "area": "data and systems",
+      "what": "The payments service is down",
+      "expected": "Payment alerts fail with a structured error; customer alerts are unaffected",
+      "covered_by": ["test:apps/api/test/app.test.ts::data service is unreachable"]
+    },
+    {
+      "id": "model_invalid_json",
+      "area": "data and systems",
+      "what": "A model returns an empty answer, an error or invalid JSON",
+      "expected": "One retry on the fast path, then a structured error; a critic that cannot answer approves nothing",
+      "covered_by": [
+        "test:packages/agents/test/model-call.test.ts::falls back",
+        "test:packages/agents/test/pipeline.test.ts::cannot answer"
+      ]
+    },
+    {
+      "id": "policy_pinned",
+      "area": "data and systems",
+      "what": "The policy changes while a run is in progress",
+      "expected": "The run keeps the version it started with",
+      "covered_by": [
+        "test:apps/api/test/policy-and-events.test.ts::new policy version for runs started after a publish"
+      ]
+    },
+    {
+      "id": "concurrent_lock",
+      "area": "data and systems",
+      "what": "The same alert is reviewed twice at once",
+      "expected": "The second request is refused",
+      "covered_by": ["test:apps/api/test/review.test.ts::same alert twice at once"]
+    },
+    {
+      "id": "long_text",
+      "area": "data and systems",
+      "what": "Very long references and notes",
+      "expected": "Cut to a fixed length in prompts, and said so",
+      "covered_by": ["test:packages/agents/test/steps.test.ts::long text in a prompt"]
+    },
+    {
+      "id": "injection",
+      "area": "security",
+      "what": "Instructions hidden in a name, note or payment reference",
+      "expected": "Read as data, flagged, and never a reason to close",
+      "covered_by": ["exam:inj_*", "test:packages/agents/test/safety.test.ts::screenInbound"]
+    },
+    {
+      "id": "tipping_off",
+      "area": "security",
+      "what": "A draft that tells a customer they are being screened",
+      "expected": "Refused",
+      "covered_by": ["exam:to_*", "test:packages/agents/test/safety.test.ts::screenOutbound"]
+    },
+    {
+      "id": "four_eyes",
+      "area": "security",
+      "what": "A policy change without a second approver",
+      "expected": "Refused",
+      "covered_by": ["test:packages/shared/test/policy-store.test.ts::approver"]
+    },
+    {
+      "id": "secrets_not_in_traces",
+      "area": "security",
+      "what": "A secret appears in a request or a model answer",
+      "expected": "Redacted before anything is written",
+      "covered_by": ["exam:inj_payment_reference_1", "test:apps/api/test/app.test.ts::rt-never-in-output"]
+    }
+  ]
+}

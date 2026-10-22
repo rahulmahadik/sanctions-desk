@@ -54,6 +54,15 @@ describe("lint:voice", () => {
     expect(output).toContain("research process wording");
   });
 
+  it("allows the tool disclosure in the README and metadata.json only", () => {
+    const line = text("Built with an AI coding assistant (Cla", "ude Code).\n");
+    expect(lint(line, "README.md").status).toBe(0);
+    expect(lint(line, "metadata.json").status).toBe(0);
+    expect(lint(line, "docs.md").status).toBe(1);
+    // Attribution lines are never allowed, not even there.
+    expect(lint(text("Co-Authored", "-By: someone\n"), "README.md").status).toBe(1);
+  });
+
   it("only checks tracked text files", () => {
     const { status } = lint(text("BROW", "SER CHECK"), "image.png");
     expect(status).toBe(0);
