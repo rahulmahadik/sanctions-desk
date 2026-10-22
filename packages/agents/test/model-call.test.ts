@@ -86,7 +86,7 @@ describe("askJson", () => {
     const out = await ask(sampleDeps({ generator }));
     expect(out.value.decision).toBe("Y");
     expect(requests[0]?.prefill).toBeUndefined();
-    expect(requests[1]).toMatchObject({ prefill: "{", maxTokens: 1500 });
+    expect(requests[1]).toMatchObject({ lane: "fast", prefill: "{", maxTokens: 1500 });
     expect(out.calls).toHaveLength(1);
     expect(out.calls[0]?.thinking).toBe("off");
   });

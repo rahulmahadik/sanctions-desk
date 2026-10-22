@@ -17,7 +17,8 @@
       "!data/sample",
       "!data/synthetic",
       "!data/reference",
-      "!eval/cases"
+      "!eval/cases",
+      "!eval/results"
     ]
   },
   "formatter": {

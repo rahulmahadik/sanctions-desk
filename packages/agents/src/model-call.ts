@@ -68,6 +68,9 @@ export interface AskJsonResult<T> {
   calls: ModelUseInput[];
 }
 
+const laneOrModel = (value: string): { lane: Lane } | { model: string } =>
+  isLane(value) ? { lane: value } : { model: value };
+
 const isLane = (value: string): value is Lane => (LANES as readonly string[]).includes(value);
 
 export function modelUseOf(
@@ -125,13 +128,15 @@ async function attemptOnce<T extends z.ZodType>(
   options: AskJsonOptions<T>,
   prompt: string,
   reasoning: boolean,
+  afterReasoning = false,
 ): Promise<Attempt> {
   const config = deps.policy.models[options.agent as keyof typeof deps.policy.models];
   const budget = reasoningBudget(config.thinking);
   const result = await (deps.generator as Generator)({
     system: reasoning ? `${options.system}\n\n${BRIEF_REASONING}` : options.system,
     prompt,
-    ...(isLane(config.model) ? { lane: config.model } : { model: config.model }),
+    // The fast retry goes to the fast lane: the deep lane may think aloud and never reach the JSON.
+    ...(afterReasoning ? { lane: "fast" as const } : laneOrModel(config.model)),
     // Without reasoning the answer starts straight away with "{"; with it the model thinks first.
     ...(reasoning ? {} : { prefill: "{" }),
     temperature: 0,
@@ -175,7 +180,13 @@ async function askRound<T extends z.ZodType>(
 
   let tried: Attempt;
   try {
-    tried = await attemptOnce(deps, options, attempt === 1 ? options.prompt : options.prompt + retryNote, reasoning);
+    tried = await attemptOnce(
+      deps,
+      options,
+      attempt === 1 ? options.prompt : options.prompt + retryNote,
+      reasoning,
+      attempt > 1 && reasoningBudget(config.thinking) > 0,
+    );
   } catch (failure) {
     const problem = failure instanceof Error ? failure.message : String(failure);
     logStep(deps, options.agent, { attempt, last, ok: false, summary: `model call failed: ${problem}`, reasoning });
