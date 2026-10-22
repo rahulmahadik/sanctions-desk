@@ -6,4 +6,4 @@ __pycache__/
 logs/
 *.pem
 *.key
-.claude/settings.local.json
+.claude/
