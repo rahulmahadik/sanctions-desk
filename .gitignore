@@ -22,3 +22,6 @@ CLAUDE.md
 # Raw and normalised list downloads (large, reproducible with npm run data:fetch)
 data/raw/
 data/normalised/
+
+# This machine's non-secret settings (for example a pinned receipt public key)
+config/local.json

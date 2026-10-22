@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import { askJson, clipped, extractJsonObject } from "../src/model-call.js";
+import { askJson, clipped, extractJsonObject, extractLastJsonObject, reasoningBudget } from "../src/model-call.js";
 import { sampleDeps, scriptedGenerator } from "./helpers.js";
 
 describe("extractJsonObject", () => {
@@ -11,6 +11,26 @@ describe("extractJsonObject", () => {
     expect(() => extractJsonObject("no json here")).toThrow(/no JSON object/);
     expect(() => extractJsonObject("{broken")).toThrow(/no JSON object/);
     expect(() => extractJsonObject("{a: 1}")).toThrow(/not valid JSON/);
+  });
+});
+
+describe("extractLastJsonObject", () => {
+  it("skips braces in the reasoning and returns the last object", () => {
+    expect(extractLastJsonObject('think {a} then {"k": {"n": 1}}')).toEqual({ k: { n: 1 } });
+    expect(extractLastJsonObject('{"only": true}')).toEqual({ only: true });
+  });
+  it("fails when there is no parsable object", () => {
+    expect(() => extractLastJsonObject("nothing {broken")).toThrow(/no JSON object/);
+    expect(() => extractLastJsonObject("plain")).toThrow(/no JSON object/);
+  });
+});
+
+describe("reasoningBudget", () => {
+  it("reads off, on and an explicit budget", () => {
+    expect(reasoningBudget("off")).toBe(0);
+    expect(reasoningBudget("on")).toBe(500);
+    expect(reasoningBudget({ budgetTokens: 300 })).toBe(300);
+    expect(reasoningBudget(undefined)).toBe(0);
   });
 });
 
@@ -28,18 +48,52 @@ describe("askJson", () => {
   const ask = (deps: ReturnType<typeof sampleDeps>) =>
     askJson(deps, { agent: "decision", system: "s", prompt: "p", schema });
 
-  it("sends the agent's configured lane with a JSON prefill and returns the model ledger entry", async () => {
-    const { generator, requests } = scriptedGenerator(['{"decision": "X", "confidence": 0.5}']);
+  it("lets a reasoning agent think briefly first: no prefill, a bounded budget, the answer is the last JSON object", async () => {
+    const { generator, requests } = scriptedGenerator([
+      'Thinking {briefly} about it. {"decision": "X", "confidence": 0.5}',
+    ]);
     const out = await ask(sampleDeps({ generator }));
     expect(out.value).toEqual({ decision: "X", confidence: 0.5 });
-    expect(requests[0]).toMatchObject({ lane: "deep", prefill: "{", temperature: 0, system: "s", prompt: "p" });
-    expect(out.calls).toHaveLength(1);
+    expect(requests[0]).toMatchObject({ lane: "deep", temperature: 0, prompt: "p", maxTokens: 500 + 700 });
+    expect(requests[0]?.prefill).toBeUndefined();
+    expect(requests[0]?.system).toContain("Keep any reasoning under 100 words");
     expect(out.calls[0]).toMatchObject({
       agent: "decision",
       provider: "fallback-rules",
       route_kind: "local",
-      thinking: { budgetTokens: 4096 },
+      thinking: { budgetTokens: 500 },
     });
+  });
+
+  it("answers straight away with a JSON prefill when reasoning is off", async () => {
+    const base = sampleDeps();
+    const policy = {
+      ...base.policy,
+      models: { ...base.policy.models, decision: { ...base.policy.models.decision, thinking: "off" as const } },
+    };
+    const { generator, requests } = scriptedGenerator(['{"decision": "X", "confidence": 0.5}']);
+    const out = await ask(sampleDeps({ generator, policy }));
+    expect(requests[0]).toMatchObject({ lane: "deep", prefill: "{", maxTokens: 1500 });
+    expect(requests[0]?.system).toBe("s");
+    expect(out.calls[0]?.thinking).toBe("off");
+  });
+
+  it("falls back to the fast path with a prefill when the reasoning call fails", async () => {
+    const { generator, requests } = scriptedGenerator([
+      new Error("nightshift returned HTTP 502"),
+      '{"decision": "Y", "confidence": 1}',
+    ]);
+    const out = await ask(sampleDeps({ generator }));
+    expect(out.value.decision).toBe("Y");
+    expect(requests[0]?.prefill).toBeUndefined();
+    expect(requests[1]).toMatchObject({ prefill: "{", maxTokens: 1500 });
+    expect(out.calls).toHaveLength(1);
+    expect(out.calls[0]?.thinking).toBe("off");
+  });
+
+  it("raises the error when every attempt fails to get an answer at all", async () => {
+    const { generator } = scriptedGenerator([new Error("down")]);
+    await expect(ask(sampleDeps({ generator }))).rejects.toThrow("down");
   });
 
   it("tries once more with the problem named, then succeeds", async () => {
@@ -48,6 +102,7 @@ describe("askJson", () => {
     expect(out.value.decision).toBe("Y");
     expect(out.calls).toHaveLength(2);
     expect(requests[1]?.prompt).toContain("previous answer was rejected");
+    expect(requests[1]?.prefill).toBe("{");
   });
 
   it("fails with a structured error after the allowed attempts", async () => {

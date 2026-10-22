@@ -16,9 +16,16 @@ function evidence(over: Partial<EvidenceBundle> = {}): EvidenceBundle {
   } as unknown as EvidenceBundle;
 }
 
-function match(c: { assessment: string; dob?: string; identifiers?: string; score?: number }): MatchResult {
+function match(c: {
+  assessment: string;
+  dob?: string;
+  identifiers?: string;
+  score?: number;
+  trueMatch?: boolean;
+}): MatchResult {
   return {
     comparison: {
+      definitions: { true_match: c.trueMatch ?? c.assessment === "strong", false_positive: false },
       assessment: c.assessment,
       dob: { status: c.dob ?? "conflict" },
       identifiers: { status: c.identifiers ?? "none" },
@@ -90,6 +97,12 @@ describe("applyPolicyGuard", () => {
     expect(out.changed).toBe(true);
     expect(out.confidence).toBeLessThanOrEqual(0.6);
     expect(out.verdicts.some((v) => v.verdict === "block")).toBe(true);
+  });
+
+  it("sends a true match that the model only asked more information about to a person", () => {
+    const out = run(decision("NEED_MORE_INFO"), match({ assessment: "strong", dob: "exact" }));
+    expect(out.decision).toBe("ESCALATE_L2");
+    expect(out.verdicts.some((v) => v.guard === "true_match_met" && v.verdict === "block")).toBe(true);
   });
 
   it("does not close below the confidence floor", () => {

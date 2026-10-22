@@ -29,8 +29,14 @@ export interface CriticResult {
   calls: ModelUseInput[];
 }
 
+/** Models write "approve", "approved", "APPROVE"... all mean the same thing. */
+const verdictWord = z.preprocess(
+  (v) => (typeof v === "string" ? v.trim().toLowerCase().replace(/d$/, "") : v),
+  z.enum(["approve", "reject"]),
+);
+
 const ModelVerdictSchema = z.object({
-  verdict: z.enum(["approve", "reject"]),
+  verdict: verdictWord,
   issues: z.array(clipped(400)).max(6).default([]),
 });
 
@@ -49,11 +55,11 @@ async function checkFact(
 ): Promise<FactCheck> {
   const tool = tools.get(`find_${fact.table}`);
   if (!tool) return { fact, ok: false, reason: `unknown table "${fact.table}"` };
-  if (!tool.columns.includes(fact.key_column) || !tool.columns.includes(fact.column)) {
-    return { fact, ok: false, reason: `unknown column in ${fact.table}` };
-  }
+  const keyColumn = tool.table.columns.find((c) => c.primaryKey)?.name;
+  if (!keyColumn) return { fact, ok: false, reason: `${fact.table} has no key to find a row by` };
+  if (!tool.columns.includes(fact.column)) return { fact, ok: false, reason: `unknown column in ${fact.table}` };
   try {
-    const result = await tool.find({ [fact.key_column]: fact.key_value });
+    const result = await tool.find({ [keyColumn]: fact.key_value });
     const evidence: QueryEvidenceInput = {
       query_id: result.query.query_id,
       agent: "critic",
@@ -64,10 +70,13 @@ async function checkFact(
       row_count: result.rows.length,
       row_hashes: result.rowHashes,
       masked_columns: result.maskedColumns,
+      token_source: result.query.token_source,
+      latency_ms: result.query.latency_ms,
+      cache_hit: result.query.cache_hit,
     };
     const base = { fact, query_id: result.query.query_id, evidence };
     if (result.rows.length === 0) {
-      return { ...base, ok: false, reason: `no ${fact.table} row with ${fact.key_column}=${fact.key_value}` };
+      return { ...base, ok: false, reason: `no ${fact.table} row with ${keyColumn}=${fact.key_value}` };
     }
     const actual = result.rows.map((r) => r[fact.column] ?? null);
     return actual.some((v) => sameValue(v, fact.value))
@@ -93,6 +102,15 @@ export function consistencyIssues(decision: DecisionOutput, match: MatchResult, 
       issues.push("recommends closing, but the customer has no date of birth on file");
     if (evidence.dq.some((d) => d.failed))
       issues.push("recommends closing, but the customer record fails a data-quality rule");
+  }
+  const d = decision.decision;
+  if (c.definitions.false_positive && d !== "CLOSE_FALSE_POSITIVE") {
+    issues.push(
+      "the approved definition of a false positive is met (date of birth conflicts, nationality differs, no identifier matches)",
+    );
+  }
+  if (c.definitions.true_match && d !== "ESCALATE_L2" && d !== "RECOMMEND_BLOCK") {
+    issues.push("the approved definition of a true match is met, so a person must review it");
   }
   if (decision.decision === "RECOMMEND_BLOCK" && c.assessment !== "strong") {
     issues.push("recommends blocking, but the comparison does not rate the match as strong");
@@ -130,12 +148,20 @@ export async function review(
     issues.length > 0 ? `Already found: ${issues.join("; ")}` : "No mechanical problems were found.",
     "Give your verdict as the JSON object described.",
   ].join("\n");
-  const { value, calls } = await askJson(deps, {
-    agent: "critic",
-    system: CRITIC_SYSTEM,
-    prompt,
-    schema: ModelVerdictSchema,
-  });
+  let value: z.infer<typeof ModelVerdictSchema>;
+  let calls: ModelUseInput[] = [];
+  try {
+    ({ value, calls } = await askJson(deps, {
+      agent: "critic",
+      system: CRITIC_SYSTEM,
+      prompt,
+      schema: ModelVerdictSchema,
+    }));
+  } catch (err) {
+    // A critic that cannot answer approves nothing: the recommendation is escalated to a person.
+    const reason = err instanceof Error ? err.message : String(err);
+    value = { verdict: "reject", issues: [`the critic could not complete its check: ${reason}`.slice(0, 380)] };
+  }
   const all = [...issues, ...(value.verdict === "reject" ? value.issues : [])];
   const approved = issues.length === 0 && value.verdict === "approve";
   deps.trace.log({

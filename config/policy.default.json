@@ -72,21 +72,21 @@
     "ownership": {
       "model": "deep",
       "thinking": {
-        "budgetTokens": 2048
+        "budgetTokens": 500
       },
       "timeoutMs": 90000
     },
     "decision": {
       "model": "deep",
       "thinking": {
-        "budgetTokens": 4096
+        "budgetTokens": 500
       },
       "timeoutMs": 90000
     },
     "critic": {
       "model": "judge",
       "thinking": {
-        "budgetTokens": 2048
+        "budgetTokens": 400
       },
       "timeoutMs": 90000
     },

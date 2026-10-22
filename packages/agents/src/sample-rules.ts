@@ -16,6 +16,7 @@ interface Evidence {
     date_of_birth?: string;
     nationality?: { status?: string };
     identifiers?: string;
+    definitions_met?: { true_match?: boolean; false_positive?: boolean };
   };
 }
 
@@ -77,14 +78,12 @@ function decisionAnswer(e: Evidence): string {
   if (e.customer?.customer_id) {
     facts.push({
       table: "customer",
-      key_column: "customer_id",
       key_value: e.customer.customer_id,
       column: "full_name",
       value: e.customer.full_name ?? null,
     });
     facts.push({
       table: "customer",
-      key_column: "customer_id",
       key_value: e.customer.customer_id,
       column: "date_of_birth",
       value: e.customer.date_of_birth ?? null,
@@ -93,7 +92,6 @@ function decisionAnswer(e: Evidence): string {
   if (e.list_entry?.entry_id) {
     facts.push({
       table: "list_entry",
-      key_column: "entry_id",
       key_value: e.list_entry.entry_id,
       column: "primary_name",
       value: e.list_entry.primary_name ?? null,
@@ -103,7 +101,6 @@ function decisionAnswer(e: Evidence): string {
   if (listedDob?.dob_id) {
     facts.push({
       table: "list_dob",
-      key_column: "dob_id",
       key_value: listedDob.dob_id,
       column: "dob_value",
       value: listedDob.dob_value ?? null,

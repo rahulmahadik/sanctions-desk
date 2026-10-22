@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
@@ -8,8 +8,9 @@ import { Secret } from "./secret.js";
 /**
  * Configuration is layered, lowest priority first:
  *   1. config/default.json          committed, non-secret defaults (URLs, model modes, timeouts)
- *   2. the file named by CONFIG_FILE  optional per-environment overrides (never secrets)
- *   3. environment variables        see ENV_BINDINGS; the only place secrets may come from
+ *   2. config/local.json            optional, git-ignored, this machine's non-secret settings (a pinned public key)
+ *   3. the file named by CONFIG_FILE  optional per-environment overrides (never secrets)
+ *   4. environment variables        see ENV_BINDINGS; the only place secrets may come from
  *
  * No URL, model name or timeout is written in source code. Everything is validated at start-up
  * and the process refuses to run on invalid config.
@@ -18,6 +19,8 @@ import { Secret } from "./secret.js";
 const positiveInt = z.number().int().positive();
 const nonEmpty = z.string().min(1);
 const secret = nonEmpty.transform((v) => new Secret(v));
+
+const LOCAL_CONFIG_FILE = "config/local.json";
 
 export const LOG_LEVELS = ["fatal", "error", "warn", "info", "debug", "trace", "silent"] as const;
 
@@ -34,6 +37,15 @@ const ConfigSchema = z.strictObject({
     stdout: z.boolean(),
   }),
   sampleMode: z.boolean(),
+  /** Illustrative unit costs for the cost panel. They are assumptions, not prices: set your own. */
+  costs: z.strictObject({
+    currency: nonEmpty,
+    cloudInputPerMillionTokens: z.number().nonnegative(),
+    cloudOutputPerMillionTokens: z.number().nonnegative(),
+    localPerMillionTokens: z.number().nonnegative(),
+    perDataQuery: z.number().nonnegative(),
+    note: nonEmpty,
+  }),
   /** Saved Zetaris answers used in sample mode. */
   sampleCache: nonEmpty,
   zetaris: z.strictObject({
@@ -182,15 +194,22 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
   const issues: string[] = [];
 
   const defaults = readJsonFile(opts.defaultsPath ?? defaultConfigPath(), issues);
+  // The machine-local file is read only when running for real (no environment passed in), never in tests.
+  const localPath = opts.env === undefined ? resolveProjectPath(LOCAL_CONFIG_FILE) : undefined;
+  const local = localPath && existsSync(localPath) ? readJsonFile(localPath, issues) : {};
   const overridesPath = opts.overridesPath ?? nonBlank(env.CONFIG_FILE);
   const overrides = overridesPath ? readJsonFile(overridesPath, issues) : {};
 
-  issues.push(...secretsInFile(defaults, "default config file"), ...secretsInFile(overrides, "CONFIG_FILE"));
+  issues.push(
+    ...secretsInFile(defaults, "default config file"),
+    ...secretsInFile(local, LOCAL_CONFIG_FILE),
+    ...secretsInFile(overrides, "CONFIG_FILE"),
+  );
   const fromEnv = readEnvOverrides(env, issues);
 
   if (issues.length > 0) throw new ConfigError(issues);
 
-  const parsed = ConfigSchema.safeParse(deepMerge(deepMerge(defaults, overrides), fromEnv));
+  const parsed = ConfigSchema.safeParse(deepMerge(deepMerge(deepMerge(defaults, local), overrides), fromEnv));
   if (!parsed.success) {
     throw new ConfigError(parsed.error.issues.map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`));
   }

@@ -146,6 +146,14 @@ const closeRules: Rule = ({ closing, match, policy, decision }) => {
   return out;
 };
 
+const underReactionRule: Rule = ({ decision, match }) =>
+  match.comparison.definitions.true_match && decision.decision === "NEED_MORE_INFO"
+    ? fails("true_match_met", "ESCALATE_L2", "the approved definition of a true match is met; it goes to a person")
+    : passes(
+        "true_match_met",
+        match.comparison.definitions.true_match ? "true match: escalated" : "true match definition not met",
+      );
+
 const jurisdictionRule: Rule = ({ closing, policy, evidence }) => {
   const countries = jurisdictionHits(policy, evidence);
   if (closing && countries.length > 0)
@@ -188,6 +196,7 @@ const RULES: readonly Rule[] = [
   definitionRule,
   dataQualityRule,
   closeRules,
+  underReactionRule,
   jurisdictionRule,
   injectionRule,
   blockRules,

@@ -124,6 +124,9 @@ export async function gatherEvidence(deps: AgentDeps, alertId: string): Promise<
       row_count: result.rows.length,
       row_hashes: result.rowHashes,
       masked_columns: result.maskedColumns,
+      token_source: result.query.token_source,
+      latency_ms: result.query.latency_ms,
+      cache_hit: result.query.cache_hit,
     });
     citations.push({
       source: "zetaris",
@@ -182,6 +185,9 @@ export async function gatherEvidence(deps: AgentDeps, alertId: string): Promise<
     row_count: overlap.rows.length,
     row_hashes: [],
     masked_columns: [],
+    token_source: overlap.token_source,
+    latency_ms: overlap.latency_ms,
+    cache_hit: overlap.cache_hit,
   });
 
   const dq = await checkDataQuality(deps, model, "customer", customerId, queries, role);
@@ -250,6 +256,9 @@ async function checkDataQuality(
       row_count: result.rows.length,
       row_hashes: [],
       masked_columns: [],
+      token_source: result.token_source,
+      latency_ms: result.latency_ms,
+      cache_hit: result.cache_hit,
     });
   }
   return findings;

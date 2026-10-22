@@ -19,7 +19,6 @@ export type Row = Record<string, string | null>;
 
 export interface FactCitation {
   table: string;
-  key_column: string;
   key_value: string;
   column: string;
   value: string | null;

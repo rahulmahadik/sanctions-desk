@@ -1,12 +1,14 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   type DecisionRecord,
+  DecisionRecordSchema,
   type GuardVerdictInput,
   type ModelUseInput,
   policyRef,
   type QueryEvidenceInput,
   sealDecisionRecord,
+  sha256Hex,
 } from "@sanctions-desk/shared";
 import type { DecisionOutput } from "./decision.js";
 import type { EvidenceBundle } from "./evidence.js";
@@ -55,7 +57,10 @@ export function buildDecisionRecord(input: RecordInput): DecisionRecord {
     rationale: input.rationale,
     what_would_change: input.decision.what_would_change,
     policy: policyRef(deps.policy),
-    definitions: evidence.definitionCheck.applied,
+    definitions: evidence.definitionCheck.applied.map((d) => {
+      const row = evidence.definitions.find((r) => r.definition_id === d.definition_id && r.version === d.version);
+      return row ? { ...d, statement_hash: sha256Hex(row.statement) } : d;
+    }),
     usl: { namespace: deps.config.zetaris.namespace, model_version: evidence.model.version },
     list_snapshots: [
       {
@@ -79,4 +84,23 @@ export function writeDecisionRecord(dir: string, record: DecisionRecord): string
   const file = join(folder, `${record.record_id}.json`);
   writeFileSync(file, `${JSON.stringify(record, null, 2)}\n`, { mode: 0o640 });
   return file;
+}
+
+/** Read the sealed records in a folder, newest first. A file that is not a valid record is skipped. */
+export function readDecisionRecords(
+  dir: string,
+  filter: (record: DecisionRecord) => boolean = () => true,
+): DecisionRecord[] {
+  const folder = join(dir, "records");
+  if (!existsSync(folder)) return [];
+  const records: DecisionRecord[] = [];
+  for (const name of readdirSync(folder).filter((n) => n.endsWith(".json"))) {
+    try {
+      const parsed = DecisionRecordSchema.safeParse(JSON.parse(readFileSync(join(folder, name), "utf8")));
+      if (parsed.success && filter(parsed.data)) records.push(parsed.data);
+    } catch {
+      // a half-written or foreign file is not a record
+    }
+  }
+  return records.sort((a, b) => b.decided_at.localeCompare(a.decided_at));
 }

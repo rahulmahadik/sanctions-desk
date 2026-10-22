@@ -107,6 +107,11 @@ export const QueryEvidenceSchema = z
     row_count: count,
     row_hashes: z.array(sha256),
     masked_columns: z.array(nonEmpty).default([]),
+    /** Whether the query ran under the role's own token or the labelled fallback key. */
+    token_source: z.enum(["role", "fallback"]).optional(),
+    latency_ms: z.number().nonnegative().optional(),
+    /** True when the answer came from the saved sample cache instead of a live query. */
+    cache_hit: z.boolean().optional(),
   })
   .refine((q) => sha256Hex(q.sql) === q.sql_hash, { message: "sql_hash does not match sql", path: ["sql_hash"] });
 
@@ -170,7 +175,9 @@ const DecisionRecordBody = z.strictObject({
   what_would_change: z.array(z.string()).default([]),
   policy: PolicyRefSchema,
   /** The business definitions applied, by id and version. */
-  definitions: z.array(z.strictObject({ definition_id: nonEmpty, version: nonEmpty })).default([]),
+  definitions: z
+    .array(z.strictObject({ definition_id: nonEmpty, version: nonEmpty, statement_hash: sha256.optional() }))
+    .default([]),
   usl: z.strictObject({ namespace: nonEmpty, model_version: nonEmpty }),
   list_snapshots: z.array(ListSnapshotRefSchema),
   queries: z.array(QueryEvidenceSchema),

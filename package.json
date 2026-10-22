@@ -29,6 +29,7 @@
     "receipt:pubkey": "tsx tools/receipt-pubkey.ts",
     "zetaris:sql": "tsx tools/zetaris-sql.ts",
     "sample:record": "tsx tools/record-sample-cache.ts",
+    "ledger": "tsx tools/model-ledger.ts",
     "zetaris:load-files": "tsx tools/zetaris-load-files.ts",
     "zetaris:rebuild": "tsx tools/zetaris-load-files.ts && tsx tools/zetaris-sql.ts zetaris/sql/90_reset_create.sql --apply --skip-exists && tsx tools/zetaris-sql.ts zetaris/sql/01_sources_create.sql --apply --skip-exists && tsx tools/zetaris-sql.ts zetaris/sql/02_usl_create.sql --apply --skip-exists && tsx tools/zetaris-sql.ts zetaris/sql/03_access_create.sql --apply --skip-exists",
     "data:fetch": "tsx data/scripts/fetch.ts",

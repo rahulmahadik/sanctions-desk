@@ -7,5 +7,6 @@ export * from "./pipeline.js";
 export * from "./policy-guard.js";
 export * from "./record.js";
 export * from "./sample-rules.js";
+export * from "./trace-contract.js";
 export * from "./triage.js";
 export * from "./types.js";

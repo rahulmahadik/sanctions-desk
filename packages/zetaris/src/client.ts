@@ -124,7 +124,8 @@ export function createZetarisClient(options: ZetarisClientOptions): ZetarisClien
 
     async query(role, sql, signal) {
       const queryId = randomUUID();
-      const base = { query_id: queryId, role, sql, sql_hash: sha256Hex(sql), cache_hit: false };
+      // Offline means the answer is replayed from saved real queries, which the record says plainly.
+      const base = { query_id: queryId, role, sql, sql_hash: sha256Hex(sql), cache_hit: options.offline === true };
       const verdict = guardSql(sql, { allowedTables: allowed, namespace: z.namespace, usl: z.usl });
       if (!verdict.ok) {
         options.onQuery?.({

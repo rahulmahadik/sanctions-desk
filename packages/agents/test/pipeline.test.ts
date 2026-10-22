@@ -5,14 +5,12 @@ import { sampleDeps, scriptedGenerator } from "./helpers.js";
 const goodFacts = [
   {
     table: "customer",
-    key_column: "customer_id",
     key_value: "CUST-004",
     column: "full_name",
     value: "Jaber AL-JALAMAH",
   },
   {
     table: "list_entry",
-    key_column: "entry_id",
     key_value: "OFAC-10010",
     column: "primary_name",
     value: "Jaber AL-JALAMAH",
@@ -71,7 +69,7 @@ describe("runReview with a scripted model", () => {
 
   it("flags a fact about a table or row that does not exist", async () => {
     const bad = [
-      { table: "nonexistent", key_column: "id", key_value: "1", column: "x", value: "y" },
+      { table: "nonexistent", key_value: "1", column: "x", value: "y" },
       { ...goodFacts[0], key_value: "CUST-999" },
     ];
     const { generator } = scriptedGenerator(rounds(decision({ facts: bad }), approve, 3));
@@ -82,7 +80,6 @@ describe("runReview with a scripted model", () => {
   it("catches a close recommended on a strong match even if the model approves it", async () => {
     const fact = {
       table: "customer",
-      key_column: "customer_id",
       key_value: "CUST-001",
       column: "full_name",
       value: "Bassem Murad",
@@ -118,5 +115,20 @@ describe("runReview with a scripted model", () => {
     await expect(runReview(sampleDeps({ generator }), { ...request, alertId: "ALR-999" })).rejects.toMatchObject({
       type: "query_failed",
     });
+  });
+});
+
+describe("a critic that cannot answer", () => {
+  it("approves nothing: the recommendation goes to a person", async () => {
+    // The critic is asked twice per round (its second try is the retry), so it gets two unusable answers each time.
+    const { generator } = scriptedGenerator(Array.from({ length: 3 }, () => [decision(), "no", "no"]).flat());
+    const res = await runReview(sampleDeps({ generator }), request);
+    expect(res.critic?.final_verdict).toBe("escalated");
+    expect(res.decision).toBe("ESCALATE_L2");
+  });
+
+  it("accepts the verdict however the model spells it", async () => {
+    const { generator } = scriptedGenerator([decision(), JSON.stringify({ verdict: "Approved", issues: [] })]);
+    expect((await runReview(sampleDeps({ generator }), request)).critic?.final_verdict).toBe("approved");
   });
 });

@@ -112,4 +112,24 @@ describe("compareParty", () => {
     });
     expect(compareParty(customer(), p, T).name.score).toBe(0.9);
   });
+  it("applies the approved definitions: true match needs name, day-exact date of birth and nationality or document", () => {
+    expect(compareParty(customer(), party(), T).definitions).toEqual({ true_match: true, false_positive: false });
+    const viaDocument = compareParty(customer({ nationality: "KZ" }), party(), T, { identifierMatches: ["passport"] });
+    expect(viaDocument.definitions.true_match).toBe(true);
+    expect(compareParty(customer({ dateOfBirth: "1975" }), party(), T).definitions.true_match).toBe(false);
+    expect(compareParty(customer({ nationality: "KZ" }), party(), T).definitions.true_match).toBe(false);
+  });
+
+  it("applies the false positive definition: date of birth conflicts, nationality known and different, no document", () => {
+    const other = customer({ dateOfBirth: "1990-01-01", nationality: "GB", residence: "GB" });
+    expect(compareParty(other, party(), T).definitions).toEqual({ true_match: false, false_positive: true });
+    expect(
+      compareParty(customer({ dateOfBirth: "1990-01-01", nationality: null, residence: null }), party(), T).definitions
+        .false_positive,
+    ).toBe(false);
+    expect(compareParty(other, party(), T, { identifierMatches: ["passport"] }).definitions.false_positive).toBe(false);
+    expect(
+      compareParty(customer({ dateOfBirth: null, nationality: "GB" }), party(), T).definitions.false_positive,
+    ).toBe(false);
+  });
 });

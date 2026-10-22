@@ -7,9 +7,9 @@ import type { AgentDeps, FactCitation } from "./types.js";
 
 /** The Decision agent: reads the evidence and the comparison and recommends one of four outcomes. */
 
+/** One cited fact: the row is found by the table's own key, so the model only names the key value. */
 export const FactSchema = z.object({
   table: z.string().min(1),
-  key_column: z.string().min(1),
   key_value: z.string().min(1),
   column: z.string().min(1),
   value: z.string().nullable(),
@@ -31,12 +31,13 @@ Rules:
 - A matching name alone is never enough to close an alert. Close only when the definition of a false positive in <definitions> is met (the dates of birth conflict, the nationality differs and no identifier matches).
 - If key data is missing (for example no date of birth) and the name matches, choose NEED_MORE_INFO or ESCALATE_L2, never CLOSE_FALSE_POSITIVE.
 - Apply the approved definitions in <definitions> exactly. In the comparison, nationality.status "match" means the customer's nationality equals a nationality or citizenship of the listed party; "address_only" means only an address country agrees, which is not a strong identifier.
+- The comparison block has definitions_met, worked out by code: when true_match is true recommend ESCALATE_L2 or RECOMMEND_BLOCK; when false_positive is true recommend CLOSE_FALSE_POSITIVE; when neither is true recommend NEED_MORE_INFO if a needed field is missing, otherwise ESCALATE_L2.
 - Choose RECOMMEND_BLOCK only when the definition of a true match is met. It still needs two human approvals.
 - Never write text for the customer. Never say or imply that the customer is under investigation.
-- Give 2 to 6 facts that support the decision. Copy table, key_column, key_value, column and value exactly from the evidence rows; value is a string or null.
+- Give 2 to 6 facts that support the decision. A fact names a row by its key value: use the keys listed in <keys> (for example customer: customer_id, list_entry: entry_id). Copy table, key_value, column and value exactly from the evidence rows; value is a string or null (null when the field is empty). Facts come from evidence rows only, never from the comparison block.
 - "what_would_change" lists what new information would change your recommendation.
 Answer with one JSON object only, with these keys:
-{"decision": "...", "confidence": 0.0-1.0, "rationale": "2-4 plain sentences", "facts": [{"table": "...", "key_column": "...", "key_value": "...", "column": "...", "value": "..."}], "what_would_change": ["..."]}`;
+{"decision": "...", "confidence": 0.0-1.0, "rationale": "2-4 plain sentences", "facts": [{"table": "...", "key_value": "...", "column": "...", "value": "..."}], "what_would_change": ["..."]}`;
 
 function rowsOf(rows: ReadonlyArray<Record<string, string | null>>, keep: readonly string[]) {
   return rows.map((r) => Object.fromEntries(keep.map((k) => [k, r[k] ?? null])));
@@ -86,12 +87,26 @@ export function renderEvidence(evidence: EvidenceBundle, match: MatchResult): st
       },
       identifiers: match.comparison.identifiers.status,
       party_type: match.comparison.kind,
+      // Worked out by code from the approved definitions. Depart from it only for a reason found in the evidence.
+      definitions_met: match.comparison.definitions,
     },
   };
   return JSON.stringify(payload);
 }
 
 /** The approved wording of the terms, quoted to the model so it applies the same definitions as the matching code. */
+/** The key column of each table, so a cited fact can name a row by its key value alone. */
+export function renderKeys(evidence: EvidenceBundle): string {
+  return JSON.stringify(
+    Object.fromEntries(
+      evidence.model.tables.flatMap((t) => {
+        const key = t.columns.find((c) => c.primaryKey)?.name;
+        return key ? [[t.name, key]] : [];
+      }),
+    ),
+  );
+}
+
 export function renderDefinitions(evidence: EvidenceBundle): string {
   return JSON.stringify(
     evidence.definitions
@@ -122,6 +137,7 @@ export function decisionPrompt(
     "TASK: decision",
     `<policy>${policyExcerpt(deps)}</policy>`,
     `<definitions>${renderDefinitions(evidence)}</definitions>`,
+    `<keys>${renderKeys(evidence)}</keys>`,
     `<evidence>${renderEvidence(evidence, match)}</evidence>`,
   ];
   if (feedback.length > 0) {

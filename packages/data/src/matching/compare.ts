@@ -57,6 +57,8 @@ export interface PartyComparison {
   country: { status: CountryStatus; customer: string | null; listed: string[] };
   identifiers: { status: IdStatus; matches: string[] };
   strong_identifier_matches: number;
+  /** The approved definitions, applied by code (business definitions true_match@1 and false_positive@1). */
+  definitions: { true_match: boolean; false_positive: boolean };
   assessment: Assessment;
   reasons: string[];
 }
@@ -221,6 +223,21 @@ function reasonsOf(i: Pick<PartyComparison, "name" | "dob" | "country" | "identi
   return reasons;
 }
 
+/** true_match@1: names agree, date of birth agrees to the day, and nationality or a document number agrees. */
+function meetsTrueMatch(i: AssessInput): boolean {
+  return i.nameHigh && i.dob.status === "exact" && (i.country.status === "match" || i.identifiers.status === "match");
+}
+
+/** false_positive@1: date of birth conflicts, nationality is known and differs, and no document number matches. */
+function meetsFalsePositive(i: AssessInput, customerNationality: string | null): boolean {
+  return (
+    i.dob.status === "conflict" &&
+    customerNationality !== null &&
+    (i.country.status === "conflict" || i.country.status === "address_only") &&
+    i.identifiers.status !== "match"
+  );
+}
+
 export interface CompareOptions {
   /**
    * Identifier types that matched, worked out where the numbers are visible (inside the data layer).
@@ -252,7 +269,12 @@ export function compareParty(
     (dob.status === "exact" ? 1 : 0) + (country.status === "match" ? 1 : 0) + (identifiers.status === "match" ? 1 : 0);
   const nameHigh = name.score >= thresholds.nameSimilarity;
 
-  const assessment = assess({ kind, identifiers, nameHigh, nameScore: name.score, dob, country });
+  const input: AssessInput = { kind, identifiers, nameHigh, nameScore: name.score, dob, country };
+  const assessment = assess(input);
+  const definitions = {
+    true_match: meetsTrueMatch(input),
+    false_positive: meetsFalsePositive(input, customer.nationality),
+  };
   const reasons = reasonsOf({ name, dob, country, identifiers, kind });
   return {
     entry_id: party.entryId,
@@ -263,6 +285,7 @@ export function compareParty(
     country,
     identifiers,
     strong_identifier_matches: strong,
+    definitions,
     assessment,
     reasons,
   };

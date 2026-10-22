@@ -10,6 +10,7 @@ import { healthRoutes } from "./routes/health.js";
 import { policyRoutes } from "./routes/policy.js";
 import { runRoutes } from "./routes/run.js";
 import { runEventRoutes } from "./routes/run-events.js";
+import { traceRoutes } from "./routes/trace.js";
 
 export interface AppDeps {
   config: Config;
@@ -84,6 +85,7 @@ export async function buildApp(deps: AppDeps) {
     sampleNotice: deps.sampleNotice,
   });
   await app.register(runEventRoutes, { bus: deps.bus });
+  await app.register(traceRoutes, { config });
   await app.register(policyRoutes, { policies: deps.policies });
 
   return app;

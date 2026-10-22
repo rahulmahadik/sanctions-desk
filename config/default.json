@@ -53,5 +53,13 @@
   "policy": {
     "file": "config/policy.default.json"
   },
-  "sampleCache": "data/sample/query-cache.json"
+  "sampleCache": "data/sample/query-cache.json",
+  "costs": {
+    "currency": "USD",
+    "cloudInputPerMillionTokens": 0.5,
+    "cloudOutputPerMillionTokens": 1.5,
+    "localPerMillionTokens": 0,
+    "perDataQuery": 0,
+    "note": "Illustrative assumptions for comparing routes, not prices. Local model calls and saved sample answers cost nothing; replace the cloud figures with your own rates."
+  }
 }
