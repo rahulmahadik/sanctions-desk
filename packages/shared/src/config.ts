@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { dirname, isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { Secret } from "./secret.js";
@@ -60,6 +61,16 @@ const ConfigSchema = z.strictObject({
     criticMaxRounds: positiveInt.max(10),
     healthProbeTimeoutMs: positiveInt,
   }),
+  events: z.strictObject({
+    /** Events kept per run so a late subscriber (live view, replay) can catch up. */
+    replayLimit: positiveInt,
+    /** Runs kept in memory; the oldest finished run is dropped first. */
+    maxRuns: positiveInt,
+  }),
+  policy: z.strictObject({
+    /** Initial policy document, relative to the repository root unless absolute. */
+    file: nonEmpty,
+  }),
 });
 
 export type Config = z.output<typeof ConfigSchema>;
@@ -120,6 +131,12 @@ export interface LoadConfigOptions {
 
 export function defaultConfigPath(): string {
   return fileURLToPath(new URL("../../../config/default.json", import.meta.url));
+}
+
+/** Absolute paths are kept; relative ones are resolved from the repository root (where config/ lives). */
+export function resolveProjectPath(path: string): string {
+  const root = dirname(dirname(defaultConfigPath()));
+  return isAbsolute(path) ? path : resolve(root, path);
 }
 
 export function loadConfig(opts: LoadConfigOptions = {}): Config {

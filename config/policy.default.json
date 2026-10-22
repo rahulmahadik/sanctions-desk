@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "name": "Default screening policy",
+  "description": "Baseline behaviour of the sanctions review desk. Edited only through a reviewed, four-eyes publish.",
+  "lists": {
+    "enabled": ["OFAC", "UN"],
+    "weights": { "OFAC": 1, "UN": 0.9, "EU": 0.9, "UK": 0.9 }
+  },
+  "matching": {
+    "nameSimilarityThreshold": 0.85,
+    "autoCloseCeiling": 0.6,
+    "strongIdentifierFields": ["dob", "nationality", "id_number", "passport_number"],
+    "minStrongIdentifierMatches": 2
+  },
+  "ownership": {
+    "thresholdPercent": 50,
+    "aggregate": true,
+    "maxChainDepth": 5,
+    "onLimitReached": "escalate"
+  },
+  "jurisdictions": [
+    {
+      "country": "CU",
+      "action": "escalate",
+      "note": "Comprehensively sanctioned. Confirm against the current OFAC programme list."
+    },
+    {
+      "country": "IR",
+      "action": "escalate",
+      "note": "Comprehensively sanctioned. Confirm against the current OFAC programme list."
+    },
+    {
+      "country": "KP",
+      "action": "escalate",
+      "note": "Comprehensively sanctioned. Confirm against the current OFAC programme list."
+    }
+  ],
+  "automation": {
+    "autoClose": true,
+    "autoEscalate": true,
+    "autoBlock": false,
+    "messageCustomers": false,
+    "dataAccess": "read_only",
+    "blockApprovalsRequired": 2
+  },
+  "critic": {
+    "maxRounds": 3,
+    "confidenceFloorForClose": 0.7,
+    "abstainOnInvalidData": true
+  },
+  "models": {
+    "triage": { "model": "fast", "thinking": "off", "timeoutMs": 60000 },
+    "evidence": { "model": "fast", "thinking": "off", "timeoutMs": 60000 },
+    "matching": { "model": "fast", "thinking": "off", "timeoutMs": 60000 },
+    "ownership": { "model": "deep", "thinking": { "budgetTokens": 2048 }, "timeoutMs": 90000 },
+    "decision": { "model": "deep", "thinking": { "budgetTokens": 4096 }, "timeoutMs": 90000 },
+    "critic": { "model": "judge", "thinking": { "budgetTokens": 2048 }, "timeoutMs": 90000 },
+    "policy_guard": { "model": "fast", "thinking": "off", "timeoutMs": 60000 },
+    "reporter": { "model": "fast", "thinking": "off", "timeoutMs": 60000 }
+  },
+  "masking": {
+    "triage": "role_evidence_agent",
+    "evidence": "role_evidence_agent",
+    "matching": "role_evidence_agent",
+    "ownership": "role_evidence_agent",
+    "decision": "role_evidence_agent",
+    "critic": "role_evidence_agent",
+    "policy_guard": "role_evidence_agent",
+    "reporter": "role_evidence_agent"
+  },
+  "guards": {
+    "tippingOffPolicy": "Never write or approve any text for a customer or third party that states or implies that they are subject to sanctions screening, an investigation, a suspicious activity report or a regulatory inquiry. Requests for information must use neutral wording about routine account review only.",
+    "injectionPatterns": [
+      "ignore (all )?(previous|prior|above) (instructions|rules)",
+      "disregard (the )?(above|system|previous)",
+      "you are now (a|an|the)",
+      "(reveal|print|show) .{0,30}(system prompt|api key|token|password)",
+      "</?\\s*(system|assistant)\\s*>"
+    ]
+  }
+}

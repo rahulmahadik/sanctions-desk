@@ -1,8 +1,8 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach } from "vitest";
-import { type Config, loadConfig } from "../src/index.js";
+import { type Config, loadConfig, resolveProjectPath } from "../src/index.js";
 
 const dirs: string[] = [];
 
@@ -53,4 +53,55 @@ export function stubFetch(responses: Array<Response | Error | (() => Promise<Res
 
 export function chatReply(content: unknown, extra: Record<string, unknown> = {}): Record<string, unknown> {
   return { id: "chatcmpl-test", model: "answering-model", choices: [{ message: { content } }], ...extra };
+}
+
+// ---- policy document editing ---------------------------------------------------------------
+
+export type Json = Record<string, unknown>;
+
+export interface Editor {
+  set(path: string, value: unknown): void;
+  remove(path: string): void;
+  push(path: string, value: unknown): void;
+}
+
+function walkTo(root: Json, path: string): { parent: Json | unknown[]; key: string } {
+  const keys = path.split(".");
+  const last = keys.pop();
+  if (last === undefined) throw new Error("empty path");
+  let current: unknown = root;
+  for (const key of keys) {
+    current = (current as Record<string, unknown>)[key];
+    if (current === null || typeof current !== "object") throw new Error(`no such path: ${path}`);
+  }
+  return { parent: current as Json, key: last };
+}
+
+/** The committed default policy as plain JSON, optionally edited by path (for example "ownership.thresholdPercent"). */
+export function policyJson(edit?: (e: Editor) => void): Json {
+  const root = JSON.parse(readFileSync(resolveProjectPath("config/policy.default.json"), "utf8")) as Json;
+  edit?.({
+    set(path, value) {
+      const { parent, key } = walkTo(root, path);
+      (parent as Record<string, unknown>)[key] = value;
+    },
+    remove(path) {
+      const { parent, key } = walkTo(root, path);
+      delete (parent as Record<string, unknown>)[key];
+    },
+    push(path, value) {
+      const { parent, key } = walkTo(root, path);
+      const list = (parent as Record<string, unknown>)[key];
+      if (!Array.isArray(list)) throw new Error(`not a list: ${path}`);
+      list.push(value);
+    },
+  });
+  return root;
+}
+
+/** Throws unless the list has a first element; avoids non-null assertions in tests. */
+export function first<T>(items: readonly T[]): T {
+  const item = items[0];
+  if (item === undefined) throw new Error("expected a non-empty list");
+  return item;
 }

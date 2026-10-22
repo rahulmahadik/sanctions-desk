@@ -36,5 +36,12 @@
   "limits": {
     "criticMaxRounds": 3,
     "healthProbeTimeoutMs": 3000
+  },
+  "events": {
+    "replayLimit": 2000,
+    "maxRuns": 200
+  },
+  "policy": {
+    "file": "config/policy.default.json"
   }
 }
