@@ -70,7 +70,7 @@ export function buildDecisionRecord(input: RecordInput): DecisionRecord {
       },
     ],
     queries: [...evidence.queries, ...input.criticQueries],
-    memories: [],
+    memories: evidence.memory?.uses ?? [],
     models: input.models,
     guards: guard.verdicts as GuardVerdictInput[],
     critic: { rounds: input.criticRounds, final_verdict: input.criticVerdict },

@@ -58,7 +58,11 @@ describe("the decision trace", () => {
     expect(t.access.policy.version).toBe(1);
 
     // 4. what it cost
-    expect(t.cost.models.map((m: { provider: string }) => m.provider)).toEqual(["fallback-rules", "fallback-rules"]);
+    expect(t.cost.models.map((m: { provider: string }) => m.provider)).toEqual([
+      "fallback-rules",
+      "fallback-rules",
+      "fallback-rules",
+    ]);
     expect(t.cost.data_queries.cache_hits).toBe(t.cost.data_queries.count);
     expect(t.cost.totals).toMatchObject({ cloud_calls: 0, total_cost: 0 });
     expect(t.cost.assumption).toContain("assumptions");

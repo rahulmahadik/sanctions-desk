@@ -91,69 +91,43 @@ function chooseDecision(e: Evidence): { decision: string; confidence: number; wh
   return { decision: "ESCALATE_L2", confidence: 0.7, why: "the match cannot be ruled out with the data available" };
 }
 
-function decisionAnswer(e: Evidence): string {
-  const pick = chooseDecision(e);
-  const facts: Array<Record<string, string | null>> = [];
+type Fact = Record<string, string | null>;
+const fact = (table: string, key: string, column: string, value: string | null | undefined): Fact => ({
+  table,
+  key_value: key,
+  column,
+  value: value ?? null,
+});
+
+/** Facts the rules model cites: values copied from the evidence rows, so the critic can re-read them. */
+function factsOf(e: Evidence): Fact[] {
+  const facts: Fact[] = [];
   if (e.customer?.customer_id) {
-    facts.push({
-      table: "customer",
-      key_value: e.customer.customer_id,
-      column: "full_name",
-      value: e.customer.full_name ?? null,
-    });
-    facts.push({
-      table: "customer",
-      key_value: e.customer.customer_id,
-      column: "date_of_birth",
-      value: e.customer.date_of_birth ?? null,
-    });
+    facts.push(fact("customer", e.customer.customer_id, "full_name", e.customer.full_name));
+    facts.push(fact("customer", e.customer.customer_id, "date_of_birth", e.customer.date_of_birth));
   }
-  if (e.list_entry?.entry_id) {
-    facts.push({
-      table: "list_entry",
-      key_value: e.list_entry.entry_id,
-      column: "primary_name",
-      value: e.list_entry.primary_name ?? null,
-    });
-  }
-  if (e.payment?.payment_id) {
-    facts.push({
-      table: "payment",
-      key_value: e.payment.payment_id,
-      column: "counterparty_name",
-      value: e.payment.counterparty_name ?? null,
-    });
-  }
+  if (e.list_entry?.entry_id)
+    facts.push(fact("list_entry", e.list_entry.entry_id, "primary_name", e.list_entry.primary_name));
+  if (e.payment?.payment_id)
+    facts.push(fact("payment", e.payment.payment_id, "counterparty_name", e.payment.counterparty_name));
   for (const row of e.ownership?.register_rows?.slice(0, 2) ?? []) {
     if (!row.ownership_id) continue;
-    facts.push({
-      table: "beneficial_owner",
-      key_value: row.ownership_id,
-      column: "owner_name",
-      value: row.owner_name ?? null,
-    });
-    facts.push({
-      table: "beneficial_owner",
-      key_value: row.ownership_id,
-      column: "ownership_pct",
-      value: row.ownership_pct ?? null,
-    });
+    facts.push(fact("beneficial_owner", row.ownership_id, "owner_name", row.owner_name));
+    facts.push(fact("beneficial_owner", row.ownership_id, "ownership_pct", row.ownership_pct));
   }
   const listedDob = e.list_dob?.find((d) => d.dob_id && d.dob_value);
-  if (listedDob?.dob_id) {
-    facts.push({
-      table: "list_dob",
-      key_value: listedDob.dob_id,
-      column: "dob_value",
-      value: listedDob.dob_value ?? null,
-    });
-  }
+  if (listedDob?.dob_id) facts.push(fact("list_dob", listedDob.dob_id, "dob_value", listedDob.dob_value));
+  return facts;
+}
+
+function decisionAnswer(e: Evidence): string {
+  const pick = chooseDecision(e);
   const comparison = e.comparison;
   return JSON.stringify({
     decision: pick.decision,
     confidence: pick.confidence,
     rationale: `Rules-based sample answer: ${pick.why}. Name is ${comparison?.assessment ?? "unrated"}, date of birth is ${comparison?.date_of_birth ?? "unknown"}, nationality is ${comparison?.nationality?.status ?? "unknown"}.`,
-    facts,
+    facts: factsOf(e),
     what_would_change: [
       "A date of birth or document number that settles whether this is the listed party",
       "A change in the listed entry on the next list update",
@@ -162,7 +136,24 @@ function decisionAnswer(e: Evidence): string {
 }
 
 /** The labelled rules used when SAMPLE_MODE is on and no model service answers. */
+const INJECTION =
+  /ignore (all )?(previous|prior|above) (instructions|rules)|disregard (the )?(above|system|previous)|you are now (a|an|the)|(reveal|print|show) .{0,30}(system prompt|api key|token|password)|<\/?\s*(system|assistant)\s*>/i;
+const TIPPING =
+  /sanction(s|ed)?\b|watch ?list|\bOFAC\b|screening|investigat|suspicious (activity|transaction)|\bSAR\b|frozen|regulator/i;
+
+function safetyAnswer(prompt: string): string {
+  const text = /<text>([\s\S]*?)<\/text>/.exec(prompt)?.[1] ?? "";
+  const inbound = prompt.startsWith("TASK: safety_inbound");
+  const hit = (inbound ? INJECTION : TIPPING).exec(text)?.[0];
+  return JSON.stringify({
+    violation: hit !== undefined,
+    category: hit === undefined ? "none" : inbound ? "prompt_injection" : "tipping_off",
+    reasons: hit === undefined ? [] : [`rules-based sample check matched "${hit}"`],
+  });
+}
+
 export function sampleRules(req: GenerateRequest): string {
+  if (req.prompt.startsWith("TASK: safety_")) return safetyAnswer(req.prompt);
   const evidence = evidenceOf(req.prompt);
   if (req.prompt.startsWith("TASK: critic")) return JSON.stringify({ verdict: "approve", issues: [] });
   return decisionAnswer(evidence);

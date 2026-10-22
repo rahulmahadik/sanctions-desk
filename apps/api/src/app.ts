@@ -6,6 +6,7 @@ import fastify from "fastify";
 import type { Logger } from "pino";
 import { mapError } from "./errors.js";
 import { createDependencyProber, type DependencyProber } from "./probes.js";
+import { guardRoutes } from "./routes/guard.js";
 import { healthRoutes } from "./routes/health.js";
 import { policyRoutes } from "./routes/policy.js";
 import { runRoutes } from "./routes/run.js";
@@ -86,6 +87,12 @@ export async function buildApp(deps: AppDeps) {
   });
   await app.register(runEventRoutes, { bus: deps.bus });
   await app.register(traceRoutes, { config });
+  await app.register(guardRoutes, {
+    config,
+    policies: deps.policies,
+    generator: deps.generator,
+    zetaris: deps.zetaris,
+  });
   await app.register(policyRoutes, { policies: deps.policies });
 
   return app;

@@ -66,11 +66,21 @@ describe("POST /run on the sample", () => {
       critic: { final_verdict: "approved" },
     });
     expect(body.sample_notice).toContain("Sample mode");
-    expect(body.agents).toEqual(["triage", "evidence", "matching", "decision", "critic", "policy_guard", "reporter"]);
+    expect(body.agents).toEqual([
+      "triage",
+      "evidence",
+      "matching",
+      "memory",
+      "decision",
+      "critic",
+      "policy_guard",
+      "reporter",
+    ]);
     expect(body.citations.length).toBeGreaterThan(5);
     expect(body.citations.every((c) => c.source === "zetaris" && c.query_id.length > 0)).toBe(true);
     expect(body.what_would_change.length).toBeGreaterThan(0);
     expect(body.models.map((m) => [m.agent, m.provider])).toEqual([
+      ["policy_guard", "fallback-rules"],
       ["decision", "fallback-rules"],
       ["critic", "fallback-rules"],
     ]);
@@ -91,7 +101,7 @@ describe("POST /run on the sample", () => {
     expect(events[0].action).toBe("run_started");
     expect(events.at(-1).action).toBe("run_completed");
     expect(new Set(events.map((e) => e.agent))).toEqual(
-      new Set(["system", "triage", "evidence", "matching", "decision", "critic", "policy_guard", "reporter"]),
+      new Set(["system", "triage", "evidence", "matching", "memory", "decision", "critic", "policy_guard", "reporter"]),
     );
     expect(events.filter((e) => e.zetaris_query_id).length).toBeGreaterThan(8);
   });
@@ -139,5 +149,43 @@ describe("POST /run on the sample", () => {
     expect(res.statusCode).toBe(502);
     expect(res.json()).toMatchObject({ status: "error", error: { type: "query_failed" } });
     expect(existsSync(join(logDir, "trace-run-missing.jsonl"))).toBe(true);
+  });
+});
+
+describe("safety on the sample", () => {
+  it("flags instruction-like text in the data and never closes because of it", async () => {
+    const { app } = await sampleApp();
+    for (const kind of ["inj_customer_note", "inj_payment_reference_0", "inj_payment_reference_1"]) {
+      const body = (await run(app, alertOf(kind))).json();
+      expect(body.decision, kind).toBe("ESCALATE_L2");
+      const injection = body.guards.find((g: { guard: string }) => g.guard === "injection");
+      expect(injection?.verdict, kind).toBe("flag");
+      expect(
+        body.models.some((m: { agent: string }) => m.agent === "policy_guard"),
+        kind,
+      ).toBe(true);
+    }
+  });
+
+  it("refuses the two exam drafts that would tip the customer off, and accepts a neutral one", async () => {
+    const { app } = await sampleApp();
+    for (const c of exam.cases.filter((x) => x.group === "tipping_off")) {
+      const res = await app.inject({ method: "POST", url: "/guard/outbound", payload: { text: c.draft } });
+      expect(res.statusCode, c.kind).toBe(200);
+      expect(res.json(), c.kind).toMatchObject({ allowed: false, category: "tipping_off" });
+    }
+    const neutral = await app.inject({
+      method: "POST",
+      url: "/guard/outbound",
+      payload: { text: "As part of our routine account review, please send a copy of your passport." },
+    });
+    expect(neutral.json()).toMatchObject({ allowed: true, category: "none", policy_version: 1 });
+  });
+
+  it("rejects an empty or oversized draft", async () => {
+    const { app } = await sampleApp();
+    for (const payload of [{ text: "" }, { text: "x".repeat(6000) }, {}, { text: "ok", extra: 1 }]) {
+      expect((await app.inject({ method: "POST", url: "/guard/outbound", payload })).statusCode).toBe(400);
+    }
   });
 });

@@ -119,6 +119,19 @@
       "you are now (a|an|the)",
       "(reveal|print|show) .{0,30}(system prompt|api key|token|password)",
       "</?\\s*(system|assistant)\\s*>"
+    ],
+    "tippingOffPatterns": [
+      "sanction(s|ed)?\\b",
+      "watch ?list",
+      "\\bOFAC\\b",
+      "screening",
+      "investigat(e|ion|ing)",
+      "suspicious (activity|transaction)",
+      "\\bSAR\\b",
+      "(frozen|freeze|freezing|blocked)",
+      "regulator(y)? (inquiry|enquiry)",
+      "report(ed)? (this )?to the authorities",
+      "money laundering"
     ]
   }
 }

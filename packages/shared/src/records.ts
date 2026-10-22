@@ -139,6 +139,7 @@ export const ModelUseSchema = z.strictObject({
   receipt: ReceiptSummarySchema.optional(),
 });
 
+export type MemoryUseInput = z.input<typeof MemoryUseSchema>;
 export type ModelUseInput = z.input<typeof ModelUseSchema>;
 
 export const GuardVerdictSchema = z.strictObject({

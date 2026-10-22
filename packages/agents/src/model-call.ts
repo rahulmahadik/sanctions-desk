@@ -59,6 +59,8 @@ export interface AskJsonOptions<T extends z.ZodType> {
   schema: T;
   /** Added to the prompt on the second try, so the model can correct its own mistake. */
   maxAttempts?: number;
+  /** Force the fast path (no reasoning) even when the policy asks for reasoning, for easy cases. */
+  fast?: boolean;
 }
 
 export interface AskJsonResult<T> {
@@ -168,7 +170,7 @@ async function askRound<T extends z.ZodType>(
   const config = deps.policy.models[options.agent as keyof typeof deps.policy.models];
   const { attempt } = round;
   const last = attempt >= round.attempts;
-  const reasoning = reasoningBudget(config.thinking) > 0 && attempt === 1;
+  const reasoning = reasoningBudget(config.thinking) > 0 && attempt === 1 && options.fast !== true;
   const retryNote = `\n\nYour previous answer was rejected: ${round.previousProblem}\nAnswer again with one valid JSON object only.`;
 
   let tried: Attempt;

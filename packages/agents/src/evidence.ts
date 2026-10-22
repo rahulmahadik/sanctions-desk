@@ -7,7 +7,9 @@ import {
   type ToolResult,
   type UslModel,
 } from "@sanctions-desk/zetaris";
+import type { MemoryEvidence } from "./memory.js";
 import type { OwnershipEvidence } from "./ownership.js";
+import type { SafetyResult } from "./safety.js";
 import type { AgentDeps, Row } from "./types.js";
 
 /**
@@ -29,6 +31,10 @@ export interface EvidenceBundle {
   payment: Row | null;
   /** Who owns the customer, for ownership alerts. Filled in by the Ownership step. */
   ownership?: OwnershipEvidence;
+  /** Earlier decisions about this customer and listed party. Filled in by the Memory step. */
+  memory?: MemoryEvidence;
+  /** What the safety guard found in the free text of the data. Filled in after the data is read. */
+  safety?: SafetyResult;
   customerIdentifiers: Row[];
   entry: Row;
   aliases: Row[];
@@ -58,6 +64,7 @@ const REQUIRED_TABLES = [
   "list_identifier",
   "business_definition",
   "payment",
+  "disposition",
 ] as const;
 
 function first(result: ToolResult, what: string): Row {

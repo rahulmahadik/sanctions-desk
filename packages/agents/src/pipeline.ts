@@ -11,9 +11,11 @@ import { review } from "./critic.js";
 import { type DecisionOutput, decide } from "./decision.js";
 import { gatherEvidence } from "./evidence.js";
 import { type MatchResult, matchEvidence, partyOf } from "./matching.js";
+import { recallMemory } from "./memory.js";
 import { gatherOwnership, matchOwnership, ownershipQuality } from "./ownership.js";
 import { applyPolicyGuard } from "./policy-guard.js";
 import { buildDecisionRecord, writeDecisionRecord } from "./record.js";
+import { screenInbound } from "./safety.js";
 import { judgeDifficulty, triage } from "./triage.js";
 import type { AgentDeps } from "./types.js";
 
@@ -29,14 +31,15 @@ export interface ReviewRequest {
   sampleNotice?: string;
 }
 
-const AGENT_ORDER = ["triage", "evidence", "matching", "decision", "critic", "policy_guard", "reporter"];
+const AGENT_ORDER = ["triage", "evidence", "matching", "memory", "decision", "critic", "policy_guard", "reporter"];
 
-export async function runReview(deps: AgentDeps, request: ReviewRequest): Promise<ReviewResponse> {
-  const started = performance.now();
-  const { trace, policy } = deps;
-  triage(deps, "customer", request.alertId);
+/** Everything read and worked out before a recommendation is asked for. */
+async function prepare(deps: AgentDeps, alertId: string) {
+  const evidence = await gatherEvidence(deps, alertId);
+  // Text that came out of the data is read as data. Anything that tries to instruct the reviewer is flagged first.
+  const inbound = await screenInbound(deps, evidence.freeText);
+  evidence.safety = inbound;
 
-  const evidence = await gatherEvidence(deps, request.alertId);
   let match: MatchResult;
   if (evidence.alert.alert_source === "ownership") {
     const ownership = await gatherOwnership(
@@ -58,8 +61,26 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     defaultLimit: deps.config.zetaris.maxRows,
     maskSensitive: true,
   });
+  const memory = await recallMemory(deps, tools, evidence, evidence.queries);
+  evidence.memory = memory;
+  // A still-valid earlier clearance on a case the definitions also call a false positive is an easy case:
+  // the fast local model is enough and no reasoning is spent.
+  const easy = memory.fresh && match.comparison.definitions.false_positive;
+  if (easy) {
+    deps.trace.log({
+      agent: "triage",
+      action: "route",
+      status: "ok",
+      output_summary: "earlier clearance still valid: fast path, no reasoning",
+    });
+  }
+  return { evidence, match, tools, easy, models: [...inbound.calls] as ModelUseInput[] };
+}
 
-  const models: ModelUseInput[] = [];
+/** The Decision and Critic loop, up to the number of rounds the policy allows. */
+async function deliberate(deps: AgentDeps, prepared: Awaited<ReturnType<typeof prepare>>) {
+  const { evidence, match, tools, easy, models } = prepared;
+  const { policy, trace } = deps;
   const criticQueries: QueryEvidenceInput[] = [];
   let output: DecisionOutput | undefined;
   let feedback: string[] = [];
@@ -68,7 +89,7 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
 
   while (rounds < policy.critic.maxRounds && !approved) {
     rounds += 1;
-    const decision = await decide(deps, evidence, match, feedback);
+    const decision = await decide(deps, evidence, match, feedback, { fast: easy });
     models.push(...decision.calls);
     output = decision.output;
     const verdict = await review(deps, tools, evidence, match, output);
@@ -88,6 +109,17 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     }
   }
   if (!output) throw new AppError("internal", "no recommendation was produced");
+  return { output, approved, rounds, criticQueries, models };
+}
+
+export async function runReview(deps: AgentDeps, request: ReviewRequest): Promise<ReviewResponse> {
+  const started = performance.now();
+  const { trace, policy } = deps;
+  triage(deps, "customer", request.alertId);
+
+  const prepared = await prepare(deps, request.alertId);
+  const { evidence, match } = prepared;
+  const { output, approved, rounds, criticQueries, models } = await deliberate(deps, prepared);
 
   const guard = applyPolicyGuard({ policy, decision: output, match, evidence, criticUnresolved: !approved });
   trace.log({
@@ -104,7 +136,6 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     .map((v) => v.detail)
     .filter((d): d is string => !!d);
   const rationale = guard.changed ? `${output.rationale} Policy check: ${reasons.join("; ")}.` : output.rationale;
-  const criticVerdict = approved ? "approved" : "escalated";
   const record = buildDecisionRecord({
     deps,
     runId: request.runId,
@@ -116,7 +147,7 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     criticQueries,
     models,
     criticRounds: rounds,
-    criticVerdict,
+    criticVerdict: approved ? "approved" : "escalated",
   });
   const file = writeDecisionRecord(deps.config.logging.dir, record);
   trace.log({

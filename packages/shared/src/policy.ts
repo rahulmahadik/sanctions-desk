@@ -143,6 +143,8 @@ export const PolicySchema = z.strictObject({
   guards: z.strictObject({
     tippingOffPolicy: z.string().min(20),
     injectionPatterns: z.array(regexSource).min(1),
+    /** Words and phrases that must never appear in text for a customer: they reveal screening or an investigation. */
+    tippingOffPatterns: z.array(regexSource).min(1),
   }),
 });
 
