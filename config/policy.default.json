@@ -1,10 +1,15 @@
 {
   "version": 1,
   "name": "Default screening policy",
-  "description": "Baseline behaviour of the sanctions review desk. Edited only through a reviewed, four-eyes publish.",
+  "description": "Baseline behaviour of the sanctions review desk. The jurisdiction list is a configurable example, not a complete or current list. Changes go through a reviewed, four-eyes publish.",
   "lists": {
     "enabled": ["OFAC", "UN"],
-    "weights": { "OFAC": 1, "UN": 0.9, "EU": 0.9, "UK": 0.9 }
+    "weights": {
+      "OFAC": 1,
+      "UN": 0.9,
+      "EU": 0.9,
+      "UK": 0.9
+    }
   },
   "matching": {
     "nameSimilarityThreshold": 0.85,
@@ -22,17 +27,17 @@
     {
       "country": "CU",
       "action": "escalate",
-      "note": "Comprehensively sanctioned. Confirm against the current OFAC programme list."
+      "note": "Example entry. Verify against the current OFAC sanctions programs before relying on it; program status changes over time (for example Syria in 2025)."
     },
     {
       "country": "IR",
       "action": "escalate",
-      "note": "Comprehensively sanctioned. Confirm against the current OFAC programme list."
+      "note": "Example entry. Verify against the current OFAC sanctions programs before relying on it; program status changes over time (for example Syria in 2025)."
     },
     {
       "country": "KP",
       "action": "escalate",
-      "note": "Comprehensively sanctioned. Confirm against the current OFAC programme list."
+      "note": "Example entry. Verify against the current OFAC sanctions programs before relying on it; program status changes over time (for example Syria in 2025)."
     }
   ],
   "automation": {
@@ -49,14 +54,52 @@
     "abstainOnInvalidData": true
   },
   "models": {
-    "triage": { "model": "fast", "thinking": "off", "timeoutMs": 60000 },
-    "evidence": { "model": "fast", "thinking": "off", "timeoutMs": 60000 },
-    "matching": { "model": "fast", "thinking": "off", "timeoutMs": 60000 },
-    "ownership": { "model": "deep", "thinking": { "budgetTokens": 2048 }, "timeoutMs": 90000 },
-    "decision": { "model": "deep", "thinking": { "budgetTokens": 4096 }, "timeoutMs": 90000 },
-    "critic": { "model": "judge", "thinking": { "budgetTokens": 2048 }, "timeoutMs": 90000 },
-    "policy_guard": { "model": "fast", "thinking": "off", "timeoutMs": 60000 },
-    "reporter": { "model": "fast", "thinking": "off", "timeoutMs": 60000 }
+    "triage": {
+      "model": "fast",
+      "thinking": "off",
+      "timeoutMs": 60000
+    },
+    "evidence": {
+      "model": "fast",
+      "thinking": "off",
+      "timeoutMs": 60000
+    },
+    "matching": {
+      "model": "fast",
+      "thinking": "off",
+      "timeoutMs": 60000
+    },
+    "ownership": {
+      "model": "deep",
+      "thinking": {
+        "budgetTokens": 2048
+      },
+      "timeoutMs": 90000
+    },
+    "decision": {
+      "model": "deep",
+      "thinking": {
+        "budgetTokens": 4096
+      },
+      "timeoutMs": 90000
+    },
+    "critic": {
+      "model": "judge",
+      "thinking": {
+        "budgetTokens": 2048
+      },
+      "timeoutMs": 90000
+    },
+    "policy_guard": {
+      "model": "fast",
+      "thinking": "off",
+      "timeoutMs": 60000
+    },
+    "reporter": {
+      "model": "fast",
+      "thinking": "off",
+      "timeoutMs": 60000
+    }
   },
   "masking": {
     "triage": "role_evidence_agent",

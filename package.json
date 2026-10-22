@@ -21,10 +21,11 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:live": "LIVE_TESTS=1 vitest run packages/shared/test/live",
-    "ci": "npm run typecheck && npm run lint && npm run test:coverage",
+    "ci": "npm run typecheck && npm run lint && npm run lint:voice && npm run test:coverage",
     "verify": "uv run python scripts/verify_setup.py",
     "check:zetaris": "uv run python scripts/check_zetaris.py",
-    "check:nemotron": "uv run python scripts/check_nemotron.py"
+    "check:nemotron": "uv run python scripts/check_nemotron.py",
+    "lint:voice": "node scripts/lint-voice.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.2",

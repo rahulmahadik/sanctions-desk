@@ -176,6 +176,10 @@ These are locked in the schema and cannot be switched on by any policy document:
 - a depth-limit or circular ownership result always goes to a human
 - records that fail data-quality rules never support an automatic close
 
+The jurisdiction list in `config/policy.default.json` is a configurable example. It is not a complete or
+current list: verify it against the current OFAC sanctions programs before relying on it, because program
+status changes over time (for example Syria in 2025).
+
 Changing the policy is a draft, then a publish by a different person (four-eyes). Publishing swaps the
 active version immediately; runs already in flight keep the version they started with. Rolling back
 republishes an old version's content as a new version.
