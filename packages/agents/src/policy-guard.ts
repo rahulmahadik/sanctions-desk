@@ -126,7 +126,9 @@ const closeRules: Rule = ({ closing, match, policy, decision }) => {
       : passes("identifier_match", "no identifier match"),
   );
   out.push(
-    c.dob.status === "missing_customer" && c.name.score >= policy.matching.nameSimilarityThreshold
+    c.subject === "customer" &&
+      c.dob.status === "missing_customer" &&
+      c.name.score >= policy.matching.nameSimilarityThreshold
       ? fails("missing_data", "NEED_MORE_INFO", "the customer has no date of birth and the name matches")
       : passes("missing_data", `date of birth: ${c.dob.status}`),
   );
@@ -157,6 +159,19 @@ const underReactionRule: Rule = ({ decision, match }) =>
         "true_match_met",
         match.comparison.definitions.true_match ? "true match: escalated" : "true match definition not met",
       );
+
+const ownershipRule: Rule = ({ decision, match, policy }) => {
+  const status = match.comparison.definitions.ownership;
+  if (status === undefined) return passes("ownership", "not an ownership alert");
+  if (status === "met")
+    return fails("ownership", "ESCALATE_L2", "a listed party effectively owns the customer at or above the threshold");
+  if (status === "limit") {
+    const to: Decision = policy.ownership.onLimitReached === "escalate" ? "ESCALATE_L2" : "NEED_MORE_INFO";
+    return fails("ownership", to, "the ownership chain is longer than the policy allows");
+  }
+  if (status === "unknown") return fails("ownership", "NEED_MORE_INFO", "an ownership percentage is missing");
+  return passes("ownership", `effective ownership is below the threshold (${decision.decision})`);
+};
 
 const jurisdictionRule: Rule = ({ closing, policy, evidence }) => {
   const countries = jurisdictionHits(policy, evidence);
@@ -201,6 +216,7 @@ const RULES: readonly Rule[] = [
   dataQualityRule,
   closeRules,
   underReactionRule,
+  ownershipRule,
   jurisdictionRule,
   injectionRule,
   blockRules,

@@ -263,6 +263,24 @@ describe("OwnershipWorld", () => {
     expect(world.evaluate("CUST-1", { ...OPTIONS, asOf: "2026-02-15" }).outcome).toBe("meets_threshold");
   });
 
+  it("adds up different listed owners: 25% + 25% held by two listed parties reaches 50%", () => {
+    const rows = [row("CUST-1", "OFAC-1", "25", "listed"), row("CUST-1", "OFAC-2", "25", "listed")];
+    const result = evaluate(rows);
+    expect(result.outcome).toBe("meets_threshold");
+    expect(result.combinedPercent).toBe(50);
+    expect(result.reasons.join(" ")).toContain("2 listed parties together hold 50%");
+    expect(result.owners.map((o) => o.status)).toEqual(["below", "below"]);
+  });
+
+  it("does not add different listed owners up to 49%, or when aggregation is off", () => {
+    const rows = [row("CUST-1", "OFAC-1", "25", "listed"), row("CUST-1", "OFAC-2", "24", "listed")];
+    expect(evaluate(rows).outcome).toBe("below_threshold");
+    expect(
+      evaluate([row("CUST-1", "OFAC-1", "25", "listed"), row("CUST-1", "OFAC-2", "25", "listed")], { aggregate: false })
+        .outcome,
+    ).toBe("below_threshold");
+  });
+
   it("keeps several owners of one company open at the same time", async () => {
     const world = new OwnershipWorld();
     await world.load([row("CUST-5", "OFAC-1", "25", "listed"), row("CUST-5", "OFAC-2", "30", "listed")]);

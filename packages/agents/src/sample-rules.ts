@@ -9,6 +9,9 @@ import type { GenerateRequest } from "@sanctions-desk/shared";
 interface Evidence {
   customer?: { customer_id?: string; full_name?: string; date_of_birth?: string | null };
   payment?: { payment_id?: string; counterparty_name?: string };
+  ownership?: {
+    register_rows?: Array<{ ownership_id?: string; owner_name?: string | null; ownership_pct?: string | null }>;
+  };
   list_entry?: { entry_id?: string; primary_name?: string };
   list_dob?: Array<{ dob_id?: string; dob_value?: string | null }>;
   data_quality?: Array<{ failed?: boolean }>;
@@ -17,7 +20,12 @@ interface Evidence {
     date_of_birth?: string;
     nationality?: { status?: string };
     identifiers?: string;
-    definitions_met?: { true_match?: boolean; false_positive?: boolean; counterparty_match?: boolean };
+    definitions_met?: {
+      true_match?: boolean;
+      false_positive?: boolean;
+      counterparty_match?: boolean;
+      ownership?: string;
+    };
     assessment_note?: string;
   };
 }
@@ -35,6 +43,23 @@ function evidenceOf(prompt: string): Evidence {
 function chooseDecision(e: Evidence): { decision: string; confidence: number; why: string } {
   const c = e.comparison ?? {};
   const met = c.definitions_met ?? {};
+  if (met.ownership === "met" || met.ownership === "limit") {
+    return {
+      decision: "ESCALATE_L2",
+      confidence: 0.85,
+      why: "a listed party effectively owns the customer, or the chain is too long to judge",
+    };
+  }
+  if (met.ownership === "unknown") {
+    return {
+      decision: "NEED_MORE_INFO",
+      confidence: 0.7,
+      why: "an ownership percentage is missing, so control cannot be ruled in or out",
+    };
+  }
+  if (met.ownership === "below") {
+    return { decision: "CLOSE_FALSE_POSITIVE", confidence: 0.8, why: "effective ownership is below the threshold" };
+  }
   if (met.true_match || met.counterparty_match || c.identifiers === "match" || c.assessment === "strong") {
     return {
       decision: "ESCALATE_L2",
@@ -97,6 +122,21 @@ function decisionAnswer(e: Evidence): string {
       key_value: e.payment.payment_id,
       column: "counterparty_name",
       value: e.payment.counterparty_name ?? null,
+    });
+  }
+  for (const row of e.ownership?.register_rows?.slice(0, 2) ?? []) {
+    if (!row.ownership_id) continue;
+    facts.push({
+      table: "beneficial_owner",
+      key_value: row.ownership_id,
+      column: "owner_name",
+      value: row.owner_name ?? null,
+    });
+    facts.push({
+      table: "beneficial_owner",
+      key_value: row.ownership_id,
+      column: "ownership_pct",
+      value: row.ownership_pct ?? null,
     });
   }
   const listedDob = e.list_dob?.find((d) => d.dob_id && d.dob_value);

@@ -47,9 +47,13 @@ export type DobStatus = "exact" | "compatible" | "conflict" | "missing_customer"
 /** match: nationality agrees. address_only: only an address or other link agrees. */
 export type CountryStatus = "match" | "address_only" | "conflict" | "unknown";
 export type IdStatus = "match" | "none";
+/** met: at or above the threshold. below: under it. unknown: a percentage is missing. limit: the chain is longer than allowed. */
+export type OwnershipStatus = "met" | "below" | "unknown" | "limit";
 export type Assessment = "strong" | "possible" | "weak";
 
 export interface PartyComparison {
+  /** What is being compared with the listed party: the customer, a payment counterparty, or an owner. */
+  subject: "customer" | "payment" | "ownership";
   entry_id: string;
   list_id: string;
   name: {
@@ -66,7 +70,13 @@ export interface PartyComparison {
   identifiers: { status: IdStatus; matches: string[] };
   strong_identifier_matches: number;
   /** The approved definitions, applied by code (business definitions true_match@1, false_positive@1 and counterparty_match@1). */
-  definitions: { true_match: boolean; false_positive: boolean; counterparty_match: boolean };
+  definitions: {
+    true_match: boolean;
+    false_positive: boolean;
+    counterparty_match: boolean;
+    /** For ownership alerts only: how the effective ownership compares with the threshold. */
+    ownership?: OwnershipStatus;
+  };
   assessment: Assessment;
   reasons: string[];
 }
@@ -339,6 +349,7 @@ export function compareParty(
       };
   const reasons = reasonsOf({ name, dob, country, identifiers, kind });
   return {
+    subject: options.payment ? "payment" : "customer",
     entry_id: party.entryId,
     list_id: party.listId,
     name,

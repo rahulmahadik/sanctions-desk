@@ -10,7 +10,8 @@ import { buildEvidenceTools } from "@sanctions-desk/zetaris";
 import { review } from "./critic.js";
 import { type DecisionOutput, decide } from "./decision.js";
 import { gatherEvidence } from "./evidence.js";
-import { matchEvidence } from "./matching.js";
+import { type MatchResult, matchEvidence, partyOf } from "./matching.js";
+import { gatherOwnership, matchOwnership, ownershipQuality } from "./ownership.js";
 import { applyPolicyGuard } from "./policy-guard.js";
 import { buildDecisionRecord, writeDecisionRecord } from "./record.js";
 import { judgeDifficulty, triage } from "./triage.js";
@@ -36,10 +37,20 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
   triage(deps, "customer", request.alertId);
 
   const evidence = await gatherEvidence(deps, request.alertId);
+  let match: MatchResult;
   if (evidence.alert.alert_source === "ownership") {
-    throw new AppError("not_implemented", "ownership alerts are not reviewed in this build yet");
+    const ownership = await gatherOwnership(
+      deps,
+      evidence.model,
+      evidence.customer.customer_id ?? "",
+      evidence.queries,
+    );
+    evidence.ownership = ownership;
+    evidence.dq.push(...(await ownershipQuality(deps, evidence.model, ownership.rows, evidence.queries)));
+    match = matchOwnership(deps, evidence, ownership, partyOf(evidence));
+  } else {
+    match = matchEvidence(deps, evidence);
   }
-  const match = matchEvidence(deps, evidence);
   judgeDifficulty(deps, match);
 
   const tools = buildEvidenceTools(evidence.model, deps.zetaris, {

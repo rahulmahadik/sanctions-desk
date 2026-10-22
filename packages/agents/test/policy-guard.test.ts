@@ -25,6 +25,7 @@ function match(c: {
 }): MatchResult {
   return {
     comparison: {
+      subject: "customer",
       definitions: { true_match: c.trueMatch ?? c.assessment === "strong", false_positive: false },
       assessment: c.assessment,
       dob: { status: c.dob ?? "conflict" },

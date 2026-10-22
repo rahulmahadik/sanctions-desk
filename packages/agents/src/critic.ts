@@ -96,10 +96,25 @@ function closeIssues(match: MatchResult, evidence: EvidenceBundle): string[] {
   const checks: Array<[boolean, string]> = [
     [c.assessment === "strong", "recommends closing, but the comparison rates the match as strong"],
     [c.identifiers.status === "match", "recommends closing, but an identifier matches the listed party"],
-    [c.dob.status === "missing_customer", "recommends closing, but the customer has no date of birth on file"],
+    [
+      c.subject === "customer" && c.dob.status === "missing_customer",
+      "recommends closing, but the customer has no date of birth on file",
+    ],
     [evidence.dq.some((d) => d.failed), "recommends closing, but the customer record fails a data-quality rule"],
   ];
   return checks.filter(([hit]) => hit).map(([, text]) => text);
+}
+
+function ownershipIssues(decision: DecisionOutput["decision"], status: string | undefined): string[] {
+  if (status === undefined) return [];
+  const escalates = decision === "ESCALATE_L2" || decision === "RECOMMEND_BLOCK";
+  if ((status === "met" || status === "limit") && !escalates) {
+    return ["the approved ownership definition is met (or the chain is too long to judge), so a person must review it"];
+  }
+  if (status === "unknown" && decision === "CLOSE_FALSE_POSITIVE") {
+    return ["an ownership percentage is missing, so the case cannot be closed"];
+  }
+  return [];
 }
 
 function definitionIssues(decision: DecisionOutput["decision"], match: MatchResult): string[] {
@@ -116,6 +131,7 @@ function definitionIssues(decision: DecisionOutput["decision"], match: MatchResu
   if (decision === "RECOMMEND_BLOCK" && match.comparison.assessment !== "strong") {
     issues.push("recommends blocking, but the comparison does not rate the match as strong");
   }
+  issues.push(...ownershipIssues(decision, met.ownership));
   return issues;
 }
 

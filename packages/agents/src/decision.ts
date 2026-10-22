@@ -33,6 +33,7 @@ Rules:
 - Apply the approved definitions in <definitions> exactly. In the comparison, nationality.status "match" means the customer's nationality equals a nationality or citizenship of the listed party; "address_only" means only an address country agrees, which is not a strong identifier.
 - The comparison block has definitions_met, worked out by code: when true_match or counterparty_match is true recommend ESCALATE_L2 or RECOMMEND_BLOCK; when false_positive is true recommend CLOSE_FALSE_POSITIVE; when none is true recommend NEED_MORE_INFO if a needed field is missing (for a payment, an unusable counterparty country), otherwise ESCALATE_L2.
 - For a payment alert the comparison is about the counterparty on the payment, not the customer; nationality.customer_nationality does not apply.
+- For an ownership alert (alert_source "ownership") the question is whether the listed party effectively owns the customer. The ownership block was worked out by the ownership engine under the approved definition: status "met" means the threshold is reached (exactly the threshold counts), so recommend ESCALATE_L2; "limit" means the chain is longer than the policy allows, so recommend ESCALATE_L2; "unknown" means a percentage is missing, so recommend NEED_MORE_INFO; "below" means under the threshold, so CLOSE_FALSE_POSITIVE. A missing percentage is unknown, never zero. Cite the register rows (table beneficial_owner, key ownership_id).
 - Choose RECOMMEND_BLOCK only when the definition of a true match is met. It still needs two human approvals.
 - Never write text for the customer. Never say or imply that the customer is under investigation.
 - Give 2 to 6 facts that support the decision. A fact names a row by its key value: use the keys listed in <keys> (for example customer: customer_id, list_entry: entry_id). Copy table, key_value, column and value exactly from the evidence rows; value is a string or null (null when the field is empty). Facts come from evidence rows only, never from the comparison block.
@@ -70,6 +71,31 @@ export function renderEvidence(evidence: EvidenceBundle, match: MatchResult): st
             "value_date",
           ],
         )[0]
+      : undefined,
+    ownership: evidence.ownership
+      ? {
+          outcome: evidence.ownership.result.outcome,
+          status: evidence.ownership.status,
+          threshold_percent: evidence.ownership.result.thresholdPercent,
+          listed_owners_together_percent: evidence.ownership.result.combinedPercent,
+          owners: evidence.ownership.result.owners.map((o) => ({
+            listed_party: o.ownerId,
+            name: o.ownerName,
+            effective_percent: o.effectivePercent,
+            status: o.status,
+            paths: o.paths.map((p) => ({ via: p.nodes, percent: p.percent })),
+          })),
+          register_rows: rowsOf(evidence.ownership.rows, [
+            "ownership_id",
+            "owned_party_id",
+            "owner_party_id",
+            "owner_party_kind",
+            "owner_name",
+            "ownership_pct",
+          ]),
+          circular_ownership: evidence.ownership.result.loops.length > 0,
+          chain_longer_than_policy_allows: evidence.ownership.result.depthLimitReached,
+        }
       : undefined,
     customer_identifier: rowsOf(evidence.customerIdentifiers, [
       "identifier_id",

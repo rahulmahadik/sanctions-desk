@@ -7,6 +7,7 @@ import {
   type ToolResult,
   type UslModel,
 } from "@sanctions-desk/zetaris";
+import type { OwnershipEvidence } from "./ownership.js";
 import type { AgentDeps, Row } from "./types.js";
 
 /**
@@ -26,6 +27,8 @@ export interface EvidenceBundle {
   customer: Row;
   /** The payment, for payment alerts. */
   payment: Row | null;
+  /** Who owns the customer, for ownership alerts. Filled in by the Ownership step. */
+  ownership?: OwnershipEvidence;
   customerIdentifiers: Row[];
   entry: Row;
   aliases: Row[];

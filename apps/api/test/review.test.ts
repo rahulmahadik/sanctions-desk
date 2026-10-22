@@ -96,12 +96,10 @@ describe("POST /run on the sample", () => {
     expect(events.filter((e) => e.zetaris_query_id).length).toBeGreaterThan(8);
   });
 
-  it("never closes a case that carries real risk, across every exam case the review can run", async () => {
+  it("never closes a case that carries real risk, across every exam case that has an alert", async () => {
     const { app } = await sampleApp();
     const results: Array<{ id: string; kind: string; expected: string; got: string }> = [];
-    for (const c of exam.cases.filter(
-      (x) => x.alert_id && x.group !== "hidden_ownership" && x.group !== "ownership_below",
-    )) {
+    for (const c of exam.cases.filter((x) => x.alert_id)) {
       const res = await run(app, c.alert_id ?? "");
       expect(res.statusCode, c.kind).toBe(200);
       const got = res.json().decision as string;
@@ -109,7 +107,7 @@ describe("POST /run on the sample", () => {
       expect(c.must_not, `${c.kind} must not be ${got}`).not.toContain(got);
       expect([c.expected, ...c.acceptable], `${c.kind}: got ${got}`).toContain(got);
     }
-    expect(results.length).toBe(48);
+    expect(results.length).toBe(58);
     const falseCloses = results.filter(
       (r) => r.got === "CLOSE_FALSE_POSITIVE" && r.expected !== "CLOSE_FALSE_POSITIVE",
     );

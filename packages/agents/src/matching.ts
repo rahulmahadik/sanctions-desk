@@ -17,15 +17,20 @@ export interface MatchResult {
   comparison: PartyComparison;
 }
 
-export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchResult {
-  const payer = customerProfileFromRows(evidence.customer, evidence.customerIdentifiers);
-  const party = listedPartyFromRows({
+/** The listed party behind an alert, built from the rows read through Zetaris. */
+export function partyOf(evidence: EvidenceBundle): ListedParty {
+  return listedPartyFromRows({
     entry: evidence.entry,
     aliases: evidence.aliases,
     dobs: evidence.dobs,
     countries: evidence.countries,
     identifiers: evidence.listIdentifiers,
   });
+}
+
+export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchResult {
+  const payer = customerProfileFromRows(evidence.customer, evidence.customerIdentifiers);
+  const party = partyOf(evidence);
   // A payment alert is about the other party on the payment, not about the customer who sends it.
   const customer = evidence.payment
     ? {

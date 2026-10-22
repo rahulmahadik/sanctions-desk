@@ -81,6 +81,8 @@ export interface OwnershipResult {
   thresholdPercent: number;
   outcome: OwnershipOutcome;
   owners: ListedOwner[];
+  /** What all the listed owners hold together, in percent (only the paths with known percentages). */
+  combinedPercent: number;
   /** Each loop as the chain of parties that closes on itself, for example [A, B, A]. */
   loops: string[][];
   depthLimitReached: boolean;
@@ -218,11 +220,15 @@ function summarise(
   owners: ListedOwner[],
   loops: string[][],
   depthLimitReached: boolean,
+  combined: { percent: number; meets: boolean },
 ): {
   outcome: OwnershipOutcome;
   reasons: string[];
 } {
   const reasons: string[] = [];
+  if (combined.meets && owners.length > 1) {
+    reasons.push(`${owners.length} listed parties together hold ${round6(combined.percent)}% effectively`);
+  }
   for (const o of owners) {
     if (o.status === "meets") reasons.push(`${o.ownerId} holds ${o.effectivePercent}% effectively`);
     if (o.status === "unknown") reasons.push(`${o.ownerId}: a link has no percentage on the register`);
@@ -230,7 +236,7 @@ function summarise(
   if (loops.length > 0) reasons.push(`circular ownership: ${loops.map((l) => l.join(" > ")).join("; ")}`);
   if (depthLimitReached) reasons.push("the ownership chain is longer than the policy allows");
 
-  if (owners.some((o) => o.status === "meets")) return { outcome: "meets_threshold", reasons };
+  if (combined.meets || owners.some((o) => o.status === "meets")) return { outcome: "meets_threshold", reasons };
   if (owners.some((o) => o.status === "unknown") || loops.length > 0 || depthLimitReached) {
     return { outcome: "needs_review", reasons };
   }
@@ -258,12 +264,19 @@ export function evaluateOwnership(
   const owners = [...ctx.paths.entries()]
     .map(([id, paths]) => judgeOwner(id, paths, names, options))
     .sort((a, b) => b.effectivePercent - a.effectivePercent || a.ownerId.localeCompare(b.ownerId));
-  const { outcome, reasons } = summarise(owners, ctx.loops, ctx.depthLimitReached);
+  // Listed owners count together: control by several blocked parties adds up, as the 50 percent rule says.
+  const combinedPercent = round6(owners.reduce((sum, o) => sum + o.effectivePercent, 0));
+  const combined = {
+    percent: combinedPercent,
+    meets: options.aggregate && owners.length > 1 && combinedPercent >= options.thresholdPercent - EPSILON,
+  };
+  const { outcome, reasons } = summarise(owners, ctx.loops, ctx.depthLimitReached, combined);
   return {
     subject,
     thresholdPercent: options.thresholdPercent,
     outcome,
     owners,
+    combinedPercent,
     loops: ctx.loops,
     depthLimitReached: ctx.depthLimitReached,
     reasons,

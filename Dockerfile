@@ -11,6 +11,7 @@ COPY apps/payments-api/package.json apps/payments-api/
 COPY packages/shared/package.json packages/shared/
 COPY packages/data/package.json packages/data/
 COPY packages/zetaris/package.json packages/zetaris/
+COPY packages/engines/package.json packages/engines/
 COPY packages/agents/package.json packages/agents/
 RUN npm ci --omit=dev --ignore-scripts
 
