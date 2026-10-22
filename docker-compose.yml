@@ -1,0 +1,29 @@
+name: sanctions-desk
+
+services:
+  api:
+    build:
+      context: .
+      args:
+        NODE_VERSION: ${NODE_VERSION:-26}
+    image: sanctions-desk-api:local
+    ports:
+      - "${PORT:-8000}:8000"
+    # Optional: a clean clone runs without a .env file (sample mode needs no credentials).
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Inside the container the services on the host are reached through host.docker.internal.
+      # These win over values from .env, which point at 127.0.0.1 for running outside Docker.
+      HOST: 0.0.0.0
+      PORT: "8000"
+      SAMPLE_MODE: ${SAMPLE_MODE:-false}
+      METERLESS_BASE_URL: ${DOCKER_METERLESS_BASE_URL:-http://host.docker.internal:8088/v1}
+      OLLAMA_BASE_URL: ${DOCKER_OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
+      ZETARIS_REST_URL: ${DOCKER_ZETARIS_REST_URL:-http://host.docker.internal:8888/api/v1.0}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped

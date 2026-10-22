@@ -136,10 +136,14 @@ export function defaultConfigPath(): string {
   return fileURLToPath(new URL("../../../config/default.json", import.meta.url));
 }
 
-/** Absolute paths are kept; relative ones are resolved from the repository root (where config/ lives). */
+/** The repository root, where config/ lives. Independent of the directory a process was started from. */
+export function projectRoot(): string {
+  return dirname(dirname(defaultConfigPath()));
+}
+
+/** Absolute paths are kept; relative ones are resolved from the repository root. */
 export function resolveProjectPath(path: string): string {
-  const root = dirname(dirname(defaultConfigPath()));
-  return isAbsolute(path) ? path : resolve(root, path);
+  return isAbsolute(path) ? path : resolve(projectRoot(), path);
 }
 
 export function loadConfig(opts: LoadConfigOptions = {}): Config {
@@ -159,7 +163,9 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
   if (!parsed.success) {
     throw new ConfigError(parsed.error.issues.map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`));
   }
-  return parsed.data;
+  // Relative paths mean "inside the project", never "wherever the process happened to start".
+  const config = parsed.data;
+  return { ...config, logging: { ...config.logging, dir: resolveProjectPath(config.logging.dir) } };
 }
 
 /** Every secret value in the config, for the log redactor. */

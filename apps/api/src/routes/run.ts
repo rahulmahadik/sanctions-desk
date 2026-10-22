@@ -6,6 +6,7 @@ import {
   createTraceLogger,
   makeRedactor,
   type PolicyStore,
+  projectRoot,
   type RunEventBus,
   RunRequestSchema,
   RunResponseSchema,
@@ -67,7 +68,7 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (app, { config, b
       citations: [],
       agents: [],
       trace_id: runId,
-      log_file: relative(process.cwd(), trace.file),
+      log_file: relative(projectRoot(), trace.file),
       execution_time_seconds: (performance.now() - started) / 1000,
       error,
     });

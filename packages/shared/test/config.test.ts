@@ -1,6 +1,15 @@
+import { existsSync } from "node:fs";
+import { isAbsolute, join } from "node:path";
 import { inspect } from "node:util";
 import { describe, expect, it } from "vitest";
-import { ConfigError, describeConfig, loadConfig, secretValues } from "../src/index.js";
+import {
+  ConfigError,
+  describeConfig,
+  loadConfig,
+  projectRoot,
+  resolveProjectPath,
+  secretValues,
+} from "../src/index.js";
 import { tempDir, testConfig, writeJson } from "./helpers.js";
 
 describe("loadConfig", () => {
@@ -126,5 +135,22 @@ describe("loadConfig", () => {
     expect(() => loadConfig({ env: {}, overridesPath: `${dir}/missing.json` })).toThrow(/cannot read config file/);
     const notObject = writeJson(dir, "array.json", [1, 2]);
     expect(() => loadConfig({ env: {}, overridesPath: notObject })).toThrow(/not a valid JSON object/);
+  });
+});
+
+describe("project-relative paths", () => {
+  it("resolves the log folder from the project root, not from the working directory", () => {
+    const cfg = testConfig();
+    expect(isAbsolute(cfg.logging.dir)).toBe(true);
+    expect(cfg.logging.dir).toBe(join(projectRoot(), "logs"));
+  });
+
+  it("keeps an absolute log folder as given", () => {
+    expect(testConfig({ LOG_DIR: "/var/log/sanctions-desk" }).logging.dir).toBe("/var/log/sanctions-desk");
+  });
+
+  it("finds the project root from the config location", () => {
+    expect(existsSync(join(projectRoot(), "config", "default.json"))).toBe(true);
+    expect(resolveProjectPath(".env")).toBe(join(projectRoot(), ".env"));
   });
 });

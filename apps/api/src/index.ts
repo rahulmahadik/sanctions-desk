@@ -7,6 +7,7 @@ import {
   loadPolicyFile,
   PolicyStore,
   RunEventBus,
+  resolveProjectPath,
 } from "@sanctions-desk/shared";
 import { buildApp } from "./app.js";
 import { createLogger } from "./logger.js";
@@ -14,8 +15,10 @@ import { createLogger } from "./logger.js";
 const ENV_FILE = ".env";
 
 async function main(): Promise<void> {
-  // Local development convenience: load .env if present. Containers pass real environment variables.
-  if (existsSync(ENV_FILE)) process.loadEnvFile(ENV_FILE);
+  // Local development convenience: load the project's .env if present, wherever the process was started
+  // (npm runs workspace scripts from their own folder). Containers pass real environment variables.
+  const envFile = resolveProjectPath(ENV_FILE);
+  if (existsSync(envFile)) process.loadEnvFile(envFile);
 
   const config = loadConfig();
   const logger = createLogger(config);
