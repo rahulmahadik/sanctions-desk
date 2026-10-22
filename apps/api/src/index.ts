@@ -1,7 +1,9 @@
 import { existsSync } from "node:fs";
+import { sampleRules } from "@sanctions-desk/agents";
 import {
   buildGenerator,
   ConfigError,
+  createFallbackRulesGenerator,
   describeConfig,
   loadConfig,
   loadPolicyFile,
@@ -9,6 +11,7 @@ import {
   RunEventBus,
   resolveProjectPath,
 } from "@sanctions-desk/shared";
+import { createZetarisClient, loadQueryCache, replayFetch } from "@sanctions-desk/zetaris";
 import { buildApp } from "./app.js";
 import { createLogger } from "./logger.js";
 
@@ -22,29 +25,31 @@ async function main(): Promise<void> {
 
   const config = loadConfig();
   const logger = createLogger(config);
-  const generator = buildGenerator(config, {
-    onFallback: (from, error) =>
-      logger.warn({ provider: from, error_type: error.type }, "model provider failed, falling back"),
-    onAttempt: (a) => {
-      const fields = {
-        provider: a.provider,
-        requested_model: a.requestedModel,
-        routed_model: a.routedModel,
-        served_mode: a.servedMode,
-        status: a.status,
-        outcome: a.outcome,
-        error_type: a.errorType,
-        latency_ms: a.latencyMs,
-      };
-      if (a.outcome === "ok" && a.servedMode !== undefined && a.servedMode !== a.requestedModel) {
-        logger.warn(fields, "model call served a different mode than requested");
-      } else if (a.outcome === "ok") {
-        logger.info(fields, "model call");
-      } else {
-        logger.warn(fields, "model call failed");
-      }
-    },
-  });
+  const generator = config.sampleMode
+    ? createFallbackRulesGenerator(sampleRules)
+    : buildGenerator(config, {
+        onFallback: (from, error) =>
+          logger.warn({ provider: from, error_type: error.type }, "model provider failed, falling back"),
+        onAttempt: (a) => {
+          const fields = {
+            provider: a.provider,
+            requested_model: a.requestedModel,
+            routed_model: a.routedModel,
+            served_mode: a.servedMode,
+            status: a.status,
+            outcome: a.outcome,
+            error_type: a.errorType,
+            latency_ms: a.latencyMs,
+          };
+          if (a.outcome === "ok" && a.servedMode !== undefined && a.servedMode !== a.requestedModel) {
+            logger.warn(fields, "model call served a different mode than requested");
+          } else if (a.outcome === "ok") {
+            logger.info(fields, "model call");
+          } else {
+            logger.warn(fields, "model call failed");
+          }
+        },
+      });
   const bus = new RunEventBus({
     replayLimit: config.events.replayLimit,
     maxRuns: config.events.maxRuns,
@@ -54,7 +59,33 @@ async function main(): Promise<void> {
     onListenerError: (err) => logger.warn({ err }, "policy change subscriber failed"),
   });
 
-  const app = await buildApp({ config, logger, generator, bus, policies });
+  // The only data path. In sample mode the same client replays saved answers, so no Zetaris is needed.
+  const zetaris = config.sampleMode
+    ? createZetarisClient({
+        config,
+        offline: true,
+        fetchImpl: replayFetch(loadQueryCache(resolveProjectPath(config.sampleCache))),
+      })
+    : createZetarisClient({
+        config,
+        onQuery: (q) =>
+          logger.info(
+            {
+              query_id: q.query_id,
+              role: q.role,
+              token_source: q.token_source,
+              status: q.status,
+              rows: q.row_count,
+              latency_ms: q.latency_ms,
+            },
+            "zetaris query",
+          ),
+      });
+  const sampleNotice = config.sampleMode
+    ? "Sample mode: Zetaris answers are replayed from saved real queries and the model is a labelled rules-based fallback."
+    : undefined;
+
+  const app = await buildApp({ config, logger, generator, zetaris, sampleNotice, bus, policies });
   logger.info(
     { config: describeConfig(config), policy_version: policies.activeVersion() },
     "starting sanctions-desk api",

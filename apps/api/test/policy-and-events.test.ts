@@ -95,7 +95,7 @@ describe("POST /run with policy and events", () => {
 describe("GET /runs/:runId/events", () => {
   it("returns the recorded events of a run", async () => {
     const { app } = await makeApp();
-    await app.inject({ method: "POST", url: "/run", payload: { run_id: "run-ev", alert_id: "A-1" } });
+    await app.inject({ method: "POST", url: "/run", payload: { run_id: "run-ev", alert: { customer: "C-1" } } });
     const res = await app.inject({ method: "GET", url: "/runs/run-ev/events" });
     expect(res.statusCode).toBe(200);
     const body = res.json();

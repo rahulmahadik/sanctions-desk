@@ -2,7 +2,7 @@ import { z } from "zod";
 import { hashValue, SHA256_HEX, sha256Hex } from "./hashing.js";
 import { ListIdSchema, PolicyRefSchema, ThinkingSchema } from "./policy.js";
 import { ReceiptSummarySchema } from "./receipts.js";
-import { AgentNameSchema, AlertTypeSchema, DecisionSchema, RunIdSchema } from "./schemas.js";
+import { AgentNameSchema, AlertTypeSchema, DecisionSchema, RunIdSchema, RunResponseSchema } from "./schemas.js";
 
 /**
  * Pointer memory (D3) and replayable decision records (D4).
@@ -110,6 +110,8 @@ export const QueryEvidenceSchema = z
   })
   .refine((q) => sha256Hex(q.sql) === q.sql_hash, { message: "sql_hash does not match sql", path: ["sql_hash"] });
 
+export type QueryEvidenceInput = z.input<typeof QueryEvidenceSchema>;
+
 export const MemoryUseSchema = z.strictObject({
   memory_id: nonEmpty,
   pointer_states: z.array(z.enum(POINTER_STATES)).min(1),
@@ -132,11 +134,15 @@ export const ModelUseSchema = z.strictObject({
   receipt: ReceiptSummarySchema.optional(),
 });
 
+export type ModelUseInput = z.input<typeof ModelUseSchema>;
+
 export const GuardVerdictSchema = z.strictObject({
   guard: nonEmpty,
   verdict: z.enum(["pass", "flag", "block"]),
   detail: z.string().optional(),
 });
+
+export type GuardVerdictInput = z.input<typeof GuardVerdictSchema>;
 
 export const HumanActionSchema = z.strictObject({
   action: z.enum(["approve", "override", "second_approval", "reject"]),
@@ -163,6 +169,8 @@ const DecisionRecordBody = z.strictObject({
   rationale: z.string(),
   what_would_change: z.array(z.string()).default([]),
   policy: PolicyRefSchema,
+  /** The business definitions applied, by id and version. */
+  definitions: z.array(z.strictObject({ definition_id: nonEmpty, version: nonEmpty })).default([]),
   usl: z.strictObject({ namespace: nonEmpty, model_version: nonEmpty }),
   list_snapshots: z.array(ListSnapshotRefSchema),
   queries: z.array(QueryEvidenceSchema),
@@ -253,3 +261,37 @@ export function compareDecisionRecords(recorded: DecisionRecord, replayed: Decis
     .filter((field) => hashValue(a[field]) !== hashValue(b[field]))
     .map((field) => ({ field, recorded: a[field], replayed: b[field] }));
 }
+
+// ---- the answer to POST /run ---------------------------------------------------------------
+
+const RunCitationSchema = z.strictObject({
+  source: z.literal("zetaris"),
+  query_id: nonEmpty,
+  table: nonEmpty,
+  row_keys: z.array(z.string()),
+});
+
+/**
+ * The structured answer to a review. It extends the base run response with the evidence trail:
+ * which models answered (with signed receipts), what the guards decided, the critic's verdict and the
+ * hash of the sealed decision record. A recommendation always needs a human to act on it.
+ */
+export const ReviewResponseSchema = RunResponseSchema.extend({
+  citations: z.array(RunCitationSchema).default([]),
+  models: z.array(ModelUseSchema).default([]),
+  guards: z.array(GuardVerdictSchema).default([]),
+  critic: z
+    .strictObject({
+      rounds: z.number().int().min(0).max(3),
+      final_verdict: z.enum(["approved", "rejected", "escalated", "not_run"]),
+    })
+    .optional(),
+  record_id: nonEmpty.optional(),
+  record_hash: sha256.optional(),
+  /** Always true: the desk recommends, a person decides. RECOMMEND_BLOCK needs two approvals. */
+  human_review_required: z.literal(true).optional(),
+  approvals_required: z.number().int().min(1).optional(),
+  sample_mode: z.boolean().optional(),
+  sample_notice: z.string().optional(),
+});
+export type ReviewResponse = z.infer<typeof ReviewResponseSchema>;

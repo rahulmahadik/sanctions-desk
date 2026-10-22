@@ -32,3 +32,6 @@ CREATE LIGHTNING FILESTORE TABLE customer_identifier FROM sanctions_bank_files F
 
 -- @@ file_alert
 CREATE LIGHTNING FILESTORE TABLE alert FROM sanctions_bank_files FORMAT JSON OPTIONS (path "dffs://sanctions/sanctions_bank_files/alert.json")
+
+-- @@ file_business_definition
+CREATE LIGHTNING FILESTORE TABLE business_definition FROM sanctions_lists FORMAT JSON OPTIONS (path "dffs://sanctions/sanctions_lists/business_definition.json")

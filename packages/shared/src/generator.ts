@@ -29,6 +29,11 @@ export interface GenerateRequest {
   lane?: Lane;
   /** An explicit pinned Nightshift mode, for example "meterless/text.deep". Ollama ignores it. */
   model?: string;
+  /**
+   * Start of the answer, sent as a final assistant message (for example "{" to get a JSON object straight away).
+   * The result text always includes it, whether or not the provider repeats it.
+   */
+  prefill?: string;
   temperature?: number;
   maxTokens?: number;
   timeoutMs?: number;
@@ -124,7 +129,8 @@ export function createNightshiftGenerator(opts: NightshiftOptions): Generator {
         });
         continue;
       }
-      return readNightshiftAnswer(opts, mode, sent, deadRoutes);
+      const answer = readNightshiftAnswer(opts, mode, sent, deadRoutes);
+      return { ...answer, text: withPrefill(answer.text, req.prefill) };
     }
     throw new AppError("route_dead", "no Nightshift mode could route this request", {
       recoverable: true,
@@ -269,7 +275,7 @@ export function createOllamaGenerator(opts: OllamaOptions): Generator {
       const body = parseChatResponse("ollama", sent.status, sent.text);
       const routedModel = asString(body.model) ?? requestedModel;
       const result: GenerateResult = {
-        text: extractContent("ollama", body),
+        text: withPrefill(extractContent("ollama", body), req.prefill),
         provider: "ollama",
         requestedModel,
         routedModel,
@@ -432,6 +438,11 @@ export function stripThinking(text: string): string {
   return text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
 }
 
+/** The answer always starts with the prefill, whether or not the provider repeated it. */
+export function withPrefill(text: string, prefill: string | undefined): string {
+  return prefill && !text.trimStart().startsWith(prefill) ? `${prefill}${text}` : text;
+}
+
 // ---- helpers -------------------------------------------------------------------------------
 
 function joinUrl(base: string, path: string): string {
@@ -442,6 +453,7 @@ function chatBody(model: string, req: GenerateRequest): Record<string, unknown> 
   const messages: Array<{ role: string; content: string }> = [];
   if (req.system) messages.push({ role: "system", content: req.system });
   messages.push({ role: "user", content: req.prompt });
+  if (req.prefill) messages.push({ role: "assistant", content: req.prefill });
   return {
     model,
     messages,

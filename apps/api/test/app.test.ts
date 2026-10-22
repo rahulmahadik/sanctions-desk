@@ -79,12 +79,12 @@ describe("GET /health/dependencies", () => {
 });
 
 describe("POST /run", () => {
-  it("answers a valid request with a structured not_implemented error and writes a trace", async () => {
+  it("answers an inline alert with a structured not_implemented error and writes a trace", async () => {
     const { app, logDir } = await makeApp({ env: { METERLESS_RUNTIME_TOKEN: "rt-never-in-output-123456" } });
     const res = await app.inject({
       method: "POST",
       url: "/run",
-      payload: { run_id: "run-test", alert_id: "A-0001", options: { sample_mode: true } },
+      payload: { run_id: "run-test", alert: { customer: "C-1" }, options: { sample_mode: true } },
     });
     expect(res.statusCode).toBe(501);
     const body = res.json();
@@ -100,12 +100,22 @@ describe("POST /run", () => {
     const traceFile = join(logDir, "trace-run-test.jsonl");
     expect(existsSync(traceFile)).toBe(true);
     const lines = readFileSync(traceFile, "utf8").trim().split("\n");
-    expect(JSON.parse(lines[0] ?? "{}")).toMatchObject({
-      agent: "system",
-      action: "run_rejected",
-      input_summary: "customer: alert_id=A-0001",
-    });
+    expect(JSON.parse(lines[0] ?? "{}")).toMatchObject({ agent: "system", action: "run_rejected" });
     expect(JSON.stringify(body) + lines.join("")).not.toContain("rt-never-in-output");
+  });
+
+  it("answers with a structured error, and no invented decision, when the data service is unreachable", async () => {
+    const { app, logDir } = await makeApp({ env: { ZETARIS_TOKEN_EVIDENCE: "e-token-123456" } });
+    const res = await app.inject({ method: "POST", url: "/run", payload: { run_id: "run-down", alert_id: "ALR-001" } });
+    expect(res.statusCode).toBe(502);
+    expect(res.json()).toMatchObject({ status: "error", run_id: "run-down", error: { type: "query_failed" } });
+    expect(res.json().decision).toBeUndefined();
+    const actions = readFileSync(join(logDir, "trace-run-down.jsonl"), "utf8")
+      .trim()
+      .split("\n")
+      .map((l) => JSON.parse(l).action);
+    expect(actions[0]).toBe("run_started");
+    expect(actions.at(-1)).toBe("run_failed");
   });
 
   it("generates a run id when none is given", async () => {

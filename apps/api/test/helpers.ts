@@ -9,6 +9,7 @@ import {
   PolicyStore,
   RunEventBus,
 } from "@sanctions-desk/shared";
+import { createZetarisClient, type ZetarisClient } from "@sanctions-desk/zetaris";
 import { afterEach } from "vitest";
 import { type App, buildApp } from "../src/app.js";
 import { createLogger } from "../src/logger.js";
@@ -32,6 +33,9 @@ export interface TestAppOptions {
   env?: Record<string, string>;
   overrides?: Record<string, unknown>;
   prober?: DependencyProber;
+  generator?: Generator;
+  zetaris?: ZetarisClient;
+  sampleNotice?: string;
 }
 
 const unusedGenerator: Generator = async () => {
@@ -53,10 +57,17 @@ export async function makeApp(
   const app = await buildApp({
     config,
     logger: createLogger(config),
-    generator: unusedGenerator,
+    generator: opts.generator ?? unusedGenerator,
+    zetaris:
+      opts.zetaris ??
+      createZetarisClient({
+        config,
+        fetchImpl: async () => new Response('{"msg":"no data service in this test"}', { status: 503 }),
+      }),
     bus,
     policies,
     prober: opts.prober,
+    sampleNotice: opts.sampleNotice,
   });
   apps.push(app);
   return { app, config, logDir, bus, policies };

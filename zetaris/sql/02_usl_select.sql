@@ -38,3 +38,6 @@ RUN DQ dob_present_for_individuals TABLE lightning.metastore.sanctions.screening
 
 -- @@ dq_invalid_customer
 SHOW DQ ALL INVALID TABLE lightning.metastore.sanctions.screening_usl.customer
+
+-- @@ count_business_definition
+SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.business_definition

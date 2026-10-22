@@ -34,6 +34,8 @@ const ConfigSchema = z.strictObject({
     stdout: z.boolean(),
   }),
   sampleMode: z.boolean(),
+  /** Saved Zetaris answers used in sample mode. */
+  sampleCache: nonEmpty,
   zetaris: z.strictObject({
     restUrl: z.url(),
     orgId: nonEmpty,

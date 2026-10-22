@@ -1,0 +1,16 @@
+{
+  "name": "@sanctions-desk/agents",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@sanctions-desk/data": "^0.1.0",
+    "@sanctions-desk/shared": "^0.1.0",
+    "@sanctions-desk/zetaris": "^0.1.0",
+    "zod": "^4.6.7"
+  }
+}

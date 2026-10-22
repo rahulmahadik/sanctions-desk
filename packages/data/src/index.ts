@@ -1,4 +1,5 @@
 export * from "./countries.js";
+export * from "./definitions.js";
 export * from "./delta.js";
 export * from "./diff.js";
 export * from "./gleif.js";

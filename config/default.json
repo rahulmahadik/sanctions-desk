@@ -52,5 +52,6 @@
   },
   "policy": {
     "file": "config/policy.default.json"
-  }
+  },
+  "sampleCache": "data/sample/query-cache.json"
 }

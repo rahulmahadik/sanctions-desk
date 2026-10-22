@@ -10,6 +10,16 @@ CREATE NAMESPACE IF NOT EXISTS lightning.metastore.sanctions
 
 -- @@ compile_model
 COMPILE USL IF NOT EXISTS screening_usl DEPLOY NAMESPACE lightning.metastore.sanctions DDL
+CREATE TABLE business_definition (
+    definition_key varchar(64) NOT NULL PRIMARY KEY,
+    definition_id varchar(64) NOT NULL,
+    version varchar(8) NOT NULL,
+    name varchar(200) NOT NULL,
+    statement varchar(2000) NOT NULL,
+    status varchar(16) NOT NULL,
+    owner varchar(200),
+    effective_from varchar(10)
+);
 CREATE TABLE list_entry (
     entry_id varchar(64) NOT NULL PRIMARY KEY,
     list_id varchar(8) NOT NULL,
@@ -309,6 +319,46 @@ UPDATE USL lightning.metastore.sanctions.screening_usl.alert.raised_at SET COLUM
 
 -- @@ describe_alert_status
 UPDATE USL lightning.metastore.sanctions.screening_usl.alert.status SET COLUMN DESCRIPTION open, closed or escalated.
+
+-- @@ describe_business_definition
+UPDATE USL lightning.metastore.sanctions.screening_usl.business_definition SET TABLE DESCRIPTION Approved, versioned wording of the terms the desk applies. Each decision cites the definitions it used by id and version.
+
+-- @@ describe_business_definition_definition_key
+UPDATE USL lightning.metastore.sanctions.screening_usl.business_definition.definition_key SET COLUMN DESCRIPTION Stable key of the definition, id@version.
+
+-- @@ describe_business_definition_definition_id
+UPDATE USL lightning.metastore.sanctions.screening_usl.business_definition.definition_id SET COLUMN DESCRIPTION Name of the term, for example true_match.
+
+-- @@ describe_business_definition_version
+UPDATE USL lightning.metastore.sanctions.screening_usl.business_definition.version SET COLUMN DESCRIPTION Version number of the wording. A change of wording is a new version.
+
+-- @@ describe_business_definition_name
+UPDATE USL lightning.metastore.sanctions.screening_usl.business_definition.name SET COLUMN DESCRIPTION Display name of the term.
+
+-- @@ describe_business_definition_statement
+UPDATE USL lightning.metastore.sanctions.screening_usl.business_definition.statement SET COLUMN DESCRIPTION The approved wording of the definition.
+
+-- @@ describe_business_definition_status
+UPDATE USL lightning.metastore.sanctions.screening_usl.business_definition.status SET COLUMN DESCRIPTION draft, approved or retired.
+
+-- @@ describe_business_definition_owner
+UPDATE USL lightning.metastore.sanctions.screening_usl.business_definition.owner SET COLUMN DESCRIPTION Who owns and approves the definition.
+
+-- @@ describe_business_definition_effective_from
+UPDATE USL lightning.metastore.sanctions.screening_usl.business_definition.effective_from SET COLUMN DESCRIPTION Date the version applies from (YYYY-MM-DD).
+
+-- @@ activate_business_definition
+ACTIVATE USL TABLE lightning.metastore.sanctions.screening_usl.business_definition AS
+SELECT
+    COALESCE(definition_key, '') AS definition_key,
+    COALESCE(definition_id, '') AS definition_id,
+    COALESCE(version, '') AS version,
+    COALESCE(name, '') AS name,
+    COALESCE(statement, '') AS statement,
+    COALESCE(status, '') AS status,
+    owner,
+    effective_from
+FROM sanctions_lists.business_definition
 
 -- @@ activate_list_entry
 ACTIVATE USL TABLE lightning.metastore.sanctions.screening_usl.list_entry AS

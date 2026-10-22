@@ -11,7 +11,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "c2f821ecf35d6ea5fc68da8d7a2abbceded1936966b9aca813327361530b2b46"
+    "content_hash": "a0007a5b98f8e8386cc04ec9e9c70002a74d98fcfa95fecab7d2591a2773c39c"
   },
   {
     "entry_id": "OFAC-10010",
@@ -25,7 +25,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "5d5cbed0d3244dfde2906084e79b92ceb08d5160019c5e05bcb0fc2b0cecd674"
+    "content_hash": "9d6c9352f95d1f0598e09ad5babd7ddfd31a569380884b79acc4135929b20b21"
   },
   {
     "entry_id": "OFAC-10375",
@@ -39,7 +39,7 @@
     "sanctions_list": "SDN List",
     "remarks": "passport place of issue: Al-Anbar, Iraq",
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "f420a76523f228fb19560e54322e00a96e22dc488d07cb6a9f9a0ca63a11b6f9"
+    "content_hash": "3d058ea17a29ef83b90728dfb36072e221a95c386a3de9309643866e4d74a911"
   },
   {
     "entry_id": "OFAC-11274",
@@ -95,7 +95,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "9918b9539a9229ddc81b04724b9c039ce07d482e1e2ee2f9d489d7b25df296e5"
+    "content_hash": "ceda6d1dc14eea469a6e81d46bb2a82138f099b425e2762f2552b22f6ab215de"
   },
   {
     "entry_id": "OFAC-12802",
@@ -123,7 +123,7 @@
     "sanctions_list": "SDN List",
     "remarks": "ethnicity Kurdish",
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "217badef02f0959d8c46ea264921f9b28b9940a077eb630258f5eb7e126f9a63"
+    "content_hash": "06d42709ad8208b79e10ef6ae2831b42fb4e8c04a0b6970955dbab2ba8696d87"
   },
   {
     "entry_id": "OFAC-12927",
@@ -165,7 +165,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "afb9563c21dc460b9b848cd9d33816e63822e2a1c647a8966e3ecbaa831e8607"
+    "content_hash": "79146cf1411ea28d702e6f147b66eed6ca66bf566ea4bb0f4e84381360fb6339"
   },
   {
     "entry_id": "OFAC-15452",
@@ -207,7 +207,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "d7fba943d77a3cb89793a0c349569d9449dd72e4a31504303920e8ce08d18e8c"
+    "content_hash": "e5d95bac462e7ac93cadbf6fbadc651a4e70864337b431258c997a810761959d"
   },
   {
     "entry_id": "OFAC-16010",
@@ -249,7 +249,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "7513c3a104333ae962e6478fd2a22cecf1a008c92579d6cfb683b5edb9558a7b"
+    "content_hash": "c58a9d84d0f7b1d471b33f1c5ad802266968856d88e78a283ce23ad71c008e97"
   },
   {
     "entry_id": "OFAC-16479",
@@ -277,7 +277,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "031141307056daff0c90d7e58905dbf5951d5fb4f36dfe02749dca184f6174d7"
+    "content_hash": "764be559d7a37b97c522318af1073a24658ed47354467d8c77c80677222e0fa8"
   },
   {
     "entry_id": "OFAC-16753",
@@ -305,7 +305,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "f0c67157144dbff2487d4d9c5c91c64e3b6aa85299e7efb4ac123d4b513e02f6"
+    "content_hash": "70a84387c5be33a0d4813bf575ceeccfcb4a18453db2723745f5c9c45433aca6"
   },
   {
     "entry_id": "OFAC-16826",
@@ -529,7 +529,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "ce58901f491e0b046ee0fc2dafd7715d759b1e4a4c14839254892ddf90370f7e"
+    "content_hash": "e5298fbf0ed0dca36eceb813c9977564e0b8a58f74435c4221af3a9a319fdf4b"
   },
   {
     "entry_id": "OFAC-17050",
@@ -543,7 +543,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "7c5ab973a42e8cd8bb6b6e155db0ba0c03fc5f8f70359a5d220fc4df50777add"
+    "content_hash": "9a786641f6dc485063b45ede3973a376e001bd85e887a296b8a3a0ddf2bd8c5c"
   },
   {
     "entry_id": "OFAC-17145",
@@ -1243,7 +1243,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "47e895b381b60502679c20d58e473ab5c600d20dadf845392c0b8953bb5fdacd"
+    "content_hash": "dda80632c70095b3210cc873893e80c98c3dae1c7d36560d0f2fabc6a7400ef8"
   },
   {
     "entry_id": "OFAC-18929",
@@ -1775,7 +1775,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "5ce30adf0a64364aec0483ae4a74375e08cf466467c371a33591e93336dd0271"
+    "content_hash": "f2aceeaaeebb7a3668a92a716eb9c5970880eb93264f125541b34ea5ff360107"
   },
   {
     "entry_id": "OFAC-22605",
@@ -1803,7 +1803,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "3a4f3e5e3bdf01277ecb1b8d82bf31f077c24ed5604d821c772d1ea8fbb57fbe"
+    "content_hash": "3a1832381362146af1f75e61761815640cf2e812a2f771128a5713f6d6679127"
   },
   {
     "entry_id": "OFAC-23143",
@@ -1831,7 +1831,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "1ed183ee9cb7ed5e6049ee3b527fdb0af7a9ca61246a989798ded0c6f72d151a"
+    "content_hash": "04830b97134989ddc5be358020c52fa3bb3a308de18e3b944ceee0990969c441"
   },
   {
     "entry_id": "OFAC-23204",
@@ -1873,7 +1873,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "2224843111506d997b35aaf0d6f3ba7641898bc40e02d537082d2bf2e5b97739"
+    "content_hash": "efaca65765a88de1afe668cab87ff58de44bff29743546b51fa5f1ed87cceff1"
   },
   {
     "entry_id": "OFAC-23507",
@@ -1901,7 +1901,7 @@
     "sanctions_list": "SDN List",
     "remarks": "For more information, please reference the following link: http://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/OFAC-Recent-Actions.aspx",
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "1b1f415fd3aaf8c81410ba2060a59c72a1c68f51b08f6aee19de4eead6a84281"
+    "content_hash": "3e3972cafb94edb53b8324de9a93a68cd8c431b3d9aea14c598b30b972c3258d"
   },
   {
     "entry_id": "OFAC-23552",
@@ -1915,7 +1915,7 @@
     "sanctions_list": "SDN List",
     "remarks": "For more information, please reference the following link: http://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/OFAC-Recent-Actions.aspx",
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "1b1f415fd3aaf8c81410ba2060a59c72a1c68f51b08f6aee19de4eead6a84281"
+    "content_hash": "3e3972cafb94edb53b8324de9a93a68cd8c431b3d9aea14c598b30b972c3258d"
   },
   {
     "entry_id": "OFAC-23557",
@@ -1929,7 +1929,7 @@
     "sanctions_list": "Sectoral Sanctions Identifications List",
     "remarks": "For more information, please reference the following link: http://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/OFAC-Recent-Actions.aspx",
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "ad00a7cb65227066a3eb0b55b9226964da92f6a3d3d51107b3cf2bd4e8fa8948"
+    "content_hash": "1258115fc28c5c9cc84d2316ffe661dda5200641db39b4b95d50bcb492acf227"
   },
   {
     "entry_id": "OFAC-23562",
@@ -1943,7 +1943,7 @@
     "sanctions_list": "SDN List",
     "remarks": "For more information, please reference the following link: http://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/OFAC-Recent-Actions.aspx",
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "601cbaa0ec0d019d9eb4786d0a5cba74ab4e09c17d61c16cfaa54c5894c96c24"
+    "content_hash": "790aebc1cb7fa3ab7411e8172216cf3d4d41177f653101b222a4dc710f9ce56a"
   },
   {
     "entry_id": "OFAC-23562",
@@ -1957,7 +1957,7 @@
     "sanctions_list": "SDN List",
     "remarks": "For more information, please reference the following link: http://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/OFAC-Recent-Actions.aspx",
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "601cbaa0ec0d019d9eb4786d0a5cba74ab4e09c17d61c16cfaa54c5894c96c24"
+    "content_hash": "790aebc1cb7fa3ab7411e8172216cf3d4d41177f653101b222a4dc710f9ce56a"
   },
   {
     "entry_id": "OFAC-23566",
@@ -1971,7 +1971,7 @@
     "sanctions_list": "Sectoral Sanctions Identifications List",
     "remarks": "For more information, please reference the following link: http://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/OFAC-Recent-Actions.aspx",
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "2391cde8a7d11da1ddb1ce0a5d7b8045ac2ca920422f50da10ffab21b83ad46e"
+    "content_hash": "e84b34479ccfec3a1330351f7a2d6a6c53366000deb533cbf0df4cd08ffdbd3c"
   },
   {
     "entry_id": "OFAC-23571",
@@ -1985,7 +1985,7 @@
     "sanctions_list": "Sectoral Sanctions Identifications List",
     "remarks": "For more information, please reference the following link: http://www.treasury.gov/resource-center/sanctions/OFAC-Enforcement/Pages/OFAC-Recent-Actions.aspx",
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "47d68495e0fb090ac7f4d53de56a902092867694f02552d529ac7c0554d1ecae"
+    "content_hash": "ff1d0899e2ff1b2dd3e4973b76f3003fc521771be5618b28af4747ad629c7749"
   },
   {
     "entry_id": "OFAC-23718",
@@ -2181,7 +2181,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "7f211b8c6872d6c14db064ada9fdbfab1b67d375d6dec46ce59583b72ff27a90"
+    "content_hash": "8ba21c1c6ad7cd535bc90176bc78d876a196b830f5db95f8901f381db60ba717"
   },
   {
     "entry_id": "OFAC-27853",
@@ -2195,7 +2195,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "2b54ce184ddd4cb7d98ce7f783865372b0e028eef431c0ff4890bf5624ee89af"
+    "content_hash": "d62d1217aa58fe558d9162d7ce9b3840d5dc0594c3c72be494bd0de0a4502398"
   },
   {
     "entry_id": "OFAC-28230",
@@ -2237,7 +2237,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "06ab4403358a843fd111ac7674ea90bebcd20fd91ea65655f8e3986f8af54345"
+    "content_hash": "a363d6273dd6237990e9032494011adb3bf441d165ac062103e91006b1f3653b"
   },
   {
     "entry_id": "OFAC-29220",
@@ -2265,7 +2265,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "6344bb754bb24caa7be2d03bca3551a706328750ff1d923da1fd97be54bdcc1b"
+    "content_hash": "93a16ce94876d7e67823d7f1a2d6359ffaf8a1110c7b270a3aa7011f4c8e9a54"
   },
   {
     "entry_id": "OFAC-29243",
@@ -2279,7 +2279,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "4e13caac810414411ec29117280eccb168d13e6e460f03ca79da395a36d5000a"
+    "content_hash": "deefcfee4a29b70c37c6c59872b4b1e596760babba9d072e5541f9b22a60613c"
   },
   {
     "entry_id": "OFAC-29246",
@@ -2293,7 +2293,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "8668c7d4fa14b9a211c1444b314f06ccd1366dc54738d4f3472cb23dc5627c9d"
+    "content_hash": "cb5270c655e0972ed42ee17ec8390fa609bd21048227ed92c96b216dc86ab250"
   },
   {
     "entry_id": "OFAC-29249",
@@ -2307,7 +2307,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "f35b212deefc6e38ae995376472c77eb5bc46088e3e282d06229e57df46ab8ad"
+    "content_hash": "c4d56b9ad92ece3fb995d909d867282c4ade1a015032070299edcfb7902849a4"
   },
   {
     "entry_id": "OFAC-29250",
@@ -2335,7 +2335,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "001cffa3d6b5e48848e3482b816385e8d22c34875f442398a00cd13842745596"
+    "content_hash": "910730178af88a3e72dfeb9c05033072ea1bead32cb8175313278b60298beb09"
   },
   {
     "entry_id": "OFAC-29260",
@@ -2349,7 +2349,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "8d7d56bd29e9d9a3b78a9e1d67f5d33a4df3ab0246b014985551bb5f6ac99eb6"
+    "content_hash": "b844b08f300c3ff659df14371aceee7a1b70517cba028ecd51b3aa47a56c0a84"
   },
   {
     "entry_id": "OFAC-29261",
@@ -2363,7 +2363,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "aab038108c855fa411b6fdb9d191ed3054edc6ae4b1a95ee5b5938cbdb456b1a"
+    "content_hash": "94024d298e426880f7daa8da8d519827d8c8272e094fdb2b42a04770a7f03fb8"
   },
   {
     "entry_id": "OFAC-29263",
@@ -2377,7 +2377,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "e743514476aa5f41c8321e15e85bc91deb8e8a8c1e3ad431c6240952c5731b85"
+    "content_hash": "f9c9e9892a81ee863f64c0e64bb517c09b15b73b0c83816d4b6b183720f99cca"
   },
   {
     "entry_id": "OFAC-30322",
@@ -2391,7 +2391,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "cec45f65abc87f0aaebeeed8eea11795a074210a20a4ed1d41482358f4c766d9"
+    "content_hash": "8fbbadb50b145da79d5d53c293d1b4cc74207d18cd2659da94b6c88e51eb8c6a"
   },
   {
     "entry_id": "OFAC-30343",
@@ -2405,7 +2405,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "0928d22060e0e1f99655dc47243375b93531f9c2fb2324b231b1b638f8ae7db4"
+    "content_hash": "77b62b4afe9a520451527521bd01131c01d050a210df1a97578eabb826348a45"
   },
   {
     "entry_id": "OFAC-30504",
@@ -2419,7 +2419,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "1757c87724e5a1ed6d38bf39fe8e33aeb965ea770d24b52eb55daa6f80b4fa54"
+    "content_hash": "e5b205101a53a4ce18c6d67c3208ee90530d9a64cca47f196cc5ee7c113278ff"
   },
   {
     "entry_id": "OFAC-30507",
@@ -2433,7 +2433,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "3c5ac0a045dc1416742484664a2d2336659cb47f0de2732e86877632e46d04ae"
+    "content_hash": "2877bfea34ea2accb7f5c8ab71dc98abe6bfd580e579f75ca35529ca4a4ec70f"
   },
   {
     "entry_id": "OFAC-30508",
@@ -2447,7 +2447,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "df8f0800a9fdc70351921091c3340565357ae21f3ff72ff08a601a0233d1f1ed"
+    "content_hash": "f8851c178b9a47f863afc0473de1a917a9078ff802e0d1cb40edec378e8f17c7"
   },
   {
     "entry_id": "OFAC-30510",
@@ -2461,7 +2461,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "17e5710aa0e057c6d7f59ccca9ce82f4f4b1ca4120a1c288e27c98da9f399435"
+    "content_hash": "a1ea1822248b78b4e8696dab07f57596cf33297457f91621e947b8b7b4e3a95c"
   },
   {
     "entry_id": "OFAC-30512",
@@ -2475,7 +2475,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "0a379d026183bf99e4dc990419b373f14710abbcb356e819bace2abe53db380d"
+    "content_hash": "3f6c74c03882c36aa9bd827d74d6f95cb80619f7f93511f4ca58e33ea01f3303"
   },
   {
     "entry_id": "OFAC-30516",
@@ -2489,7 +2489,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "8f7f4914e812e94d17e01c8f27f6cc21010077db7c343cdbe57528d55ae0cf01"
+    "content_hash": "e35204d54794e893b22f25a89be57a97a641a38f5241074b5dd289c3a06a5ac1"
   },
   {
     "entry_id": "OFAC-30745",
@@ -2503,7 +2503,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "a3e0c2bef5cd4fef3dfb33e0b8896f393fe6c58bc936e8207729930735f7a6e0"
+    "content_hash": "d335395f907fbb191b428ddd53f5065731d3a8a2a11cffeb16a1f2ec22771049"
   },
   {
     "entry_id": "OFAC-30885",
@@ -2517,7 +2517,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "d4b5bb5609477b49bab8337f460251345310f6d8659d4dae3cecfd62c2df01f0"
+    "content_hash": "66e6d27a2b6788ba5c36cf2f4d899e1d8f58897ba35f54c6f8cb61d79056a41f"
   },
   {
     "entry_id": "OFAC-30934",
@@ -2559,7 +2559,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "6d4bca042ea1bc42e65701046ff9f6933dfe94b6672e57fcd24187ed145bd37e"
+    "content_hash": "c94d4dfed2f5ad1a6841a58faf42388b5cb3f67d425dac04c820f4ed43e300b1"
   },
   {
     "entry_id": "OFAC-30965",
@@ -2573,7 +2573,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "9af04f314a94740da51e34be1e564305589b22cca6627f1dfe0dcec9f34c0970"
+    "content_hash": "7c549d2d62c262cc7869e4803f377fbca194d29e2500b4166aa682ac50666a57"
   },
   {
     "entry_id": "OFAC-30966",
@@ -2587,7 +2587,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "d5cb92b966a5dcd112373594d27319bbe2a8a95a8a802a7767d471e144e5edd5"
+    "content_hash": "7db7534a139b359103158aacf491e43bea65eeba3e31e451862251e89fd1b3b2"
   },
   {
     "entry_id": "OFAC-30967",
@@ -2601,7 +2601,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "5ce8888bf51a9a39588ef889dac7de35eded06a269885690ad8b3172edcefcbb"
+    "content_hash": "91610b7286074e48a5f60ce282dcf4c5e7d14d5889d3b077b35e6a02df2ccc26"
   },
   {
     "entry_id": "OFAC-30968",
@@ -2615,7 +2615,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "3222c3a21b27268b71e76f1ef94c861b0aa3929bff0db0f15a6bb5784ff6937e"
+    "content_hash": "d01b2efd51d3a58b91d572c448876f49be23e8584ba908c464c141094b87c12a"
   },
   {
     "entry_id": "OFAC-30969",
@@ -2629,7 +2629,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "d234c0a0b2ef141dfe57b78c10465b2a370fa3b15e032b34c434ee034117997a"
+    "content_hash": "d2c57dcce78c223e6589e04ecb0dce7edd510f846f41241d9cc3c485d2f14f8b"
   },
   {
     "entry_id": "OFAC-32056",
@@ -2671,7 +2671,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "665dc3829b18b8925a48be1929dac6621237ed55ceb16aaced3b6bfd3971dbeb"
+    "content_hash": "6620becb9ddee3399594be353c58352aa956e57e97a7f2d26b6aa7f97542d578"
   },
   {
     "entry_id": "OFAC-32471",
@@ -2685,7 +2685,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "e757bec65d8ab5db2903f9a87fd55ea1042e2ba8a7e89f229d76070e5be41702"
+    "content_hash": "4c109bd84b9afc4bf1d9811f8e7eba641636bbc77b3e75916a555542b22254ee"
   },
   {
     "entry_id": "OFAC-32475",
@@ -2699,7 +2699,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "df9cdfc25841ef2885cce0733663fae683a3a9272d984e211fa74379945c258c"
+    "content_hash": "dc6235e6c763351bc7db3c9fd6774c1659407f09ededf9e12d4835977fe4da05"
   },
   {
     "entry_id": "OFAC-32477",
@@ -2713,7 +2713,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "e56cffba0bfd67fd7a2386f805a4529b761fde6003a4dd3978575588b01ed59a"
+    "content_hash": "ded08a6323c7af93062cd4bb643da40f54bba1482cff8ee9fe6bc60504785cf8"
   },
   {
     "entry_id": "OFAC-33111",
@@ -2769,7 +2769,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "202fd0821e3120bf016a40a2cb0559f2617ada94f2abe32878a78f547ee8beca"
+    "content_hash": "b14ccde084f8b3299742c3408d9a9f52229bf7e43691256e0e17edc8414c7c53"
   },
   {
     "entry_id": "OFAC-35199",
@@ -2797,7 +2797,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "3d5fe5a89ed6959257b7c67bd41e4409b0c6c75ff63b1a107ceee2d91af89623"
+    "content_hash": "eb294d9e09f158ea40550db9e3ee3ea5d3d6526e5270e398b541313000110114"
   },
   {
     "entry_id": "OFAC-35318",
@@ -2839,7 +2839,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "835b731e56afd5898155446bb23e9bd77cf90dfa966fcd6c152fea7e473e19ce"
+    "content_hash": "512002ac0245d6f9b279c738fbdff696cb7c0e3904e14ce38ef16d6d1367c6c7"
   },
   {
     "entry_id": "OFAC-35754",
@@ -2895,7 +2895,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "816e6ed08cc61da24e463e9365ea515f46356e9d137d31135193b2815963febf"
+    "content_hash": "0c16c815012b85edab3a0c3c116935460e6f5431dcc7dbfb2fb7a3fcbe5c3810"
   },
   {
     "entry_id": "OFAC-36405",
@@ -2909,7 +2909,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "1fc5c4860c8153ad99b08d7974c5b17d1da4968ba2040ae22e0a3d703fd44f36"
+    "content_hash": "c5a8d39ff1bbbe9298d0ae1ab977eae7d6cbad6ff51b18e5e32a42c97b1a68a1"
   },
   {
     "entry_id": "OFAC-36419",
@@ -2951,7 +2951,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "e64c863c07bb86b30428e0d8cd93ca5ce76c3759e2a12105d249d79180f1b6e2"
+    "content_hash": "3d95d6d8eebbb1a86e33ab681f82510e0d98d543941ccb2449434ae6b77e53c8"
   },
   {
     "entry_id": "OFAC-37044",
@@ -2993,7 +2993,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "21fefd6b42d586897bedd16b4fbb383d5cb932c5e23294ab7ccdfd8f8e4b235a"
+    "content_hash": "cd9932faa2afc1ce3ff158ca04f77d932a8aea52b4e853d4547d16edc666bd97"
   },
   {
     "entry_id": "OFAC-38796",
@@ -3021,7 +3021,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "bca543113719b517a1a9de029df391ea0d6a22b13559a780f760c31fe1e5fe95"
+    "content_hash": "9769bad900b2c3673013830f6bf01c0e2c0756b23dd49ed61d56947f2bc47322"
   },
   {
     "entry_id": "OFAC-40378",
@@ -3035,7 +3035,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "7ed1be79ee1c2b0d0676fea7efbf54ef49f1b36febb8881f1927e950ab75d9a6"
+    "content_hash": "fbd1753f3aa5e4d3900f5c9a10f4586b1c50bfdfdd6217bbcd82c6a0e8f88ff6"
   },
   {
     "entry_id": "OFAC-40399",
@@ -3049,7 +3049,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "51890d21bfed17d10c078a009c702eba06282da83433dfd88ff7066fd9d2b50e"
+    "content_hash": "752f141f667a20e06e5939f8ecd4cc80a761e359939832fa2ff2a3ba8ca9b941"
   },
   {
     "entry_id": "OFAC-40479",
@@ -3063,7 +3063,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "4684498692a5bbd0aaa7ac70db773154d06903a43be2075c878aed3de7129c82"
+    "content_hash": "0fb4031161a1430e940c683454fd8724100fcf423246159b5cac82923b48c656"
   },
   {
     "entry_id": "OFAC-40569",
@@ -3077,7 +3077,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "bd43b91d347f71ce90f3eec8d3d48b930bd4d4209e692ca3fc6c6c03286a0d13"
+    "content_hash": "fc2b5a8c4189a80a2eac7ac07bb3d03bed6ea17ff338fd1420ae962070225665"
   },
   {
     "entry_id": "OFAC-41005",
@@ -3091,7 +3091,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "f58abcc53c7e846a4bda3316fbdeb5ebf392e6933a5a3b9496bf6865f401ccae"
+    "content_hash": "ec20715e5088edf0f36f2a481540ae283c027cb3c2ecd19827fc4c3cef6051bf"
   },
   {
     "entry_id": "OFAC-41069",
@@ -3105,7 +3105,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "d45559fae29b795ebb79edf4c3d244d984c23d6f21f7ac3ac6fd16bceac7fb00"
+    "content_hash": "bd23bb6bb8adf06384d9bec2de33dfb813b99f31aac1ede97b734b66b5940cc6"
   },
   {
     "entry_id": "OFAC-41993",
@@ -3133,7 +3133,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "6e97777bfa53accb56d68ce9e3541584c95de648ca5ce453e904ebc547ce284c"
+    "content_hash": "ff2a5f2df67eff6f32eedf5034553db653edc8226840166751fbdcb491d79626"
   },
   {
     "entry_id": "OFAC-42160",
@@ -3147,7 +3147,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "5aa19d48f1c24eddbe0ec9d183966a16ae39bfd90cce255716f13193ded20652"
+    "content_hash": "93cd7831e09b6a39ce02cc943009287c42e7d541dbc9b2926d82409cc4cb0eb8"
   },
   {
     "entry_id": "OFAC-42311",
@@ -3175,7 +3175,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "c158d63a3efe0b1595ac2634ddebb6d43a56fc6068c07775015cb9dbbf35fb25"
+    "content_hash": "e7406603b5a798266148e427c8f40af8986d73757c64180e5ab55f6cca8e6c58"
   },
   {
     "entry_id": "OFAC-42338",
@@ -3203,7 +3203,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "eeb71a7f72cb697e3fda20175e586682e845ff68344de5f6f5e465f80b7357ce"
+    "content_hash": "6ba74a9ea9037c9b4d280760aff707698648709f799a5c1f52af065930335cec"
   },
   {
     "entry_id": "OFAC-43542",
@@ -3217,7 +3217,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "069175b1694b2bfcc9e35a276f0a1d7c323376fcd89673683e20a86fbbab0909"
+    "content_hash": "e6edc613019bb43d9f68ed2bc04b9543d449cc7b0a1cccdb8324dbe98c712e2d"
   },
   {
     "entry_id": "OFAC-43999",
@@ -3245,7 +3245,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "33c60c982869ba31f31dbf96a940d021c126db0a6e250032a2e2a2497f8ebb4f"
+    "content_hash": "e302ee9aa87c4ee135721c113fd2d631d756086ff9e6de9e25d60b01b98d15ac"
   },
   {
     "entry_id": "OFAC-44462",
@@ -3287,7 +3287,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "217124893341f8a3e268c7f94788ee2e63528c67a07bc0a0774c573bec7ee4f5"
+    "content_hash": "2c3fbbcc421900609a072c11327c088b1f556e5c720b1fc5075495ee3cbdb483"
   },
   {
     "entry_id": "OFAC-45901",
@@ -3343,7 +3343,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "2fc2c28715a44819624f253c06a0b5196f5ad2a7c40f863f788ee3a16ddbcdeb"
+    "content_hash": "f747aa96ba1698f919e928378169823e0ead6ad351e067f25aedb728b452bbf2"
   },
   {
     "entry_id": "OFAC-46312",
@@ -3357,7 +3357,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "6501fa972de46475ae7cd5aa6463ac6afca3ce117b27e35a37c8b4e6f30ad3a7"
+    "content_hash": "60e73d112b88cda02e4910b8223219a909508100a580f730c706f4005f0684ef"
   },
   {
     "entry_id": "OFAC-46715",
@@ -3371,7 +3371,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "13923625d71d2cdc067146f0a15e681eb16f2595f251c8a726c1d90e5ecaec33"
+    "content_hash": "a15eb0d08ec3054ca6a763b8aeb7b0fe0be043e5655e20666c0bee473db109f4"
   },
   {
     "entry_id": "OFAC-46726",
@@ -3413,7 +3413,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "1e71e4d8b1b69073920e7dcc86d83e5520ca67d8f8c845bae3ebb81c4b39c8a1"
+    "content_hash": "25c29fde086ea0b08bf7b45dd02595bce2e6242147b233f9c90ddbe9ce6426be"
   },
   {
     "entry_id": "OFAC-47040",
@@ -3581,7 +3581,7 @@
     "sanctions_list": "Consolidated List",
     "remarks": null,
     "snapshot_id": "ofac-consolidated-2026-10-19-dc3f61dc",
-    "content_hash": "429e2e3f31d172d3d31a07923d5b81f2399517e52bda113fe2bb2ac3ae4241bc"
+    "content_hash": "c30415523bf246756c948dfbb500d1e2087170c9832ab9b7a0293090f20641f5"
   },
   {
     "entry_id": "OFAC-51786",
@@ -3679,7 +3679,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "ce9a47567d43908ddc34206ad75e628c843ea047d32925322f77ec821588f996"
+    "content_hash": "6f3c30f79c34edf60e5590858d208ddb1da33ffff06c9d200efeadf0edcc2fa1"
   },
   {
     "entry_id": "OFAC-54495",
@@ -3693,7 +3693,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "d43a219fe2e53cdca1ddb68259e50eaf4161f00fa9fbed034e2668e37bfad03f"
+    "content_hash": "d18d23a0dcdec352f87f6e34ed1101b90a95cb041474b2e1995b12afd3abac6b"
   },
   {
     "entry_id": "OFAC-54750",
@@ -3735,7 +3735,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "0509642f4fdb30924a888f8d947a4034d34232f7e58418ab48dbc1590a48f10d"
+    "content_hash": "81c3f81714ee7867324a18d7e46455fb72f7f1244b58ff02f00900f26d225132"
   },
   {
     "entry_id": "OFAC-54986",
@@ -3777,7 +3777,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "5ee31e48efec9053e290b90b95c57e9dc95fea24a7b9eb2002f53c2070252bf5"
+    "content_hash": "329ede2e97d944d7b47ae1712b013d0a520e1706b8f47b59843a533ade87f6f7"
   },
   {
     "entry_id": "OFAC-55505",
@@ -3791,7 +3791,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "0771cfed8a2e379d9ade8a13a3f2d90de1540071feebe9fd23886c7fb3f369b5"
+    "content_hash": "3d08a417d91e9a6d7bb1284219ea31bfbe075bad06ceaafcf76512e3a53c3dcb"
   },
   {
     "entry_id": "OFAC-55853",
@@ -3833,7 +3833,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "3404038bea9a1d02a95de6787b322184259da7a657e0a63f213870672a49aa56"
+    "content_hash": "9bb673c5d255bdbffc580b2becb29c300211e8c8a1b482324584ab1c2845808d"
   },
   {
     "entry_id": "OFAC-56339",
@@ -3861,7 +3861,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "5156ebba190b41a4102d0a4e21fe97b8ecabf466164d75eca90dbf2835dd724e"
+    "content_hash": "949112e6d017db97439e1719cb0783816d309519453af996faeb46a4a21f0594"
   },
   {
     "entry_id": "OFAC-56587",
@@ -3889,7 +3889,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "dcaa282e0e6b00713e3a69480aca53efffc0d916e61e40ced108d5e81081bef9"
+    "content_hash": "d1c014e5e4fef361102e2edc2e7afdd76654533cdd9cbbb219934acd5c19f0ab"
   },
   {
     "entry_id": "OFAC-56810",
@@ -3903,7 +3903,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "ad12674d0370917008c73448da5e7c2cbce44ac86e07a808df0d04d70a3f631a"
+    "content_hash": "8e81b4d95fa0796d3b38481e6e791b223c7ce50cb4e113fcca6cc22e65b3b275"
   },
   {
     "entry_id": "OFAC-56819",
@@ -3931,7 +3931,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "2c1c14beac647203dea08e6277830c0ba969555ae1a891d2308257c2e78277a4"
+    "content_hash": "af85871b1a3ca580f3d3fa9ee6e75360afc6e0a53518259bbd57353a4e987289"
   },
   {
     "entry_id": "OFAC-57141",
@@ -3945,7 +3945,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "86d9ff8e03b9c63e8aca9ed7f1a31368c3326740317a19e37916f3ccee7d27e3"
+    "content_hash": "6e25b33f0cd044fa680c97e1c262587709270e3055dd82885fc37203b3da2f53"
   },
   {
     "entry_id": "OFAC-57157",
@@ -3959,7 +3959,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "5ba184d782bbeeecafb4c6a4834e9ba40732f174dc3b84a696ad03fe9c396232"
+    "content_hash": "aff178332f164b9d0ab4dc619b2e7a053b8f513be3ed228a420bbf10975c81af"
   },
   {
     "entry_id": "OFAC-57349",
@@ -3973,7 +3973,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "39f91c7c601bc178b0deef28d4d60d56b6c0fbcc29fe4392b5ec2bf5551f9fe2"
+    "content_hash": "dc02da20e87006bb0d343a68591d07c8824efbe644ee74491bd76aa47bbc8a49"
   },
   {
     "entry_id": "OFAC-57665",
@@ -4001,7 +4001,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "9cf75766da467688ecbf0bde9adf8b6e18d17fab04b8301d1c30e6ce3210cd31"
+    "content_hash": "b4604b2eae333a3ebae7dcbd0194cf380b2475f466e2d5190d75ca95b7625b2a"
   },
   {
     "entry_id": "OFAC-58343",
@@ -4015,7 +4015,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "eb3b53de53f9161efb07a89b58195da8609fb0481ceee35e56184d79b925d95f"
+    "content_hash": "1e5c20ca19bfc4f1b29faa9feb5730148dc02b5633fd2fc9e4797f2b7510f2d3"
   },
   {
     "entry_id": "OFAC-58344",
@@ -4071,7 +4071,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "a0a6ef2ce30524c7359f1ae2552a0fee7125e5f6069846ae7475f8433702a671"
+    "content_hash": "22fc796df88e9e2cc25255773f055b966674d2491197fd5bbcc75a41d0414b13"
   },
   {
     "entry_id": "OFAC-58614",
@@ -4113,7 +4113,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "c877c0a7b1592bac301b63856bb8aaf8101a4418822d27cecac75611f1859141"
+    "content_hash": "a47af7e6f89ac086665ac74ca285289c1a2c5f9da5a46c2ca299cff7219a836b"
   },
   {
     "entry_id": "OFAC-7214",
@@ -4141,7 +4141,7 @@
     "sanctions_list": "SDN List",
     "remarks": null,
     "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
-    "content_hash": "abf6d2d350a93a17a3b76b37b38582984a9e534dda4d6737ed61b812fcc2fbad"
+    "content_hash": "dfdd15c1c58091710a59889cfefefcef0baa5711bb0a0bd133179f113260478d"
   },
   {
     "entry_id": "OFAC-9345",

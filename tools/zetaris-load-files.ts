@@ -9,7 +9,7 @@ import { placeFiles } from "@sanctions-desk/zetaris";
 
 const config = loadConfig();
 const sample = resolveProjectPath("data/sample");
-const lists = ["list_entry", "list_alias", "list_dob", "list_country", "list_identifier"];
+const lists = ["list_entry", "list_alias", "list_dob", "list_country", "list_identifier", "business_definition"];
 const bank = ["customer", "customer_identifier", "alert"];
 const { container, folder } = config.zetaris.fileStore;
 

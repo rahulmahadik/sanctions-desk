@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import helmet from "@fastify/helmet";
 import type { Config, Generator, PolicyStore, RunEventBus } from "@sanctions-desk/shared";
+import type { ZetarisClient } from "@sanctions-desk/zetaris";
 import fastify from "fastify";
 import type { Logger } from "pino";
 import { mapError } from "./errors.js";
@@ -15,6 +16,10 @@ export interface AppDeps {
   logger: Logger;
   /** The injected model seam. Agents receive this; no route calls a provider directly. */
   generator: Generator;
+  /** The only way data is read. Live, or a replay of saved answers in sample mode. */
+  zetaris: ZetarisClient;
+  /** Shown on every answer when the review ran on saved data and the rules-based model. */
+  sampleNotice?: string;
   /** Every run event is published here; live views and replays read from it. */
   bus: RunEventBus;
   /** The versioned policy. Each run reads the active version once and keeps it. */
@@ -70,7 +75,14 @@ export async function buildApp(deps: AppDeps) {
 
   const prober = deps.prober ?? createDependencyProber(config);
   await app.register(healthRoutes, { config, prober });
-  await app.register(runRoutes, { config, bus: deps.bus, policies: deps.policies });
+  await app.register(runRoutes, {
+    config,
+    bus: deps.bus,
+    policies: deps.policies,
+    generator: deps.generator,
+    zetaris: deps.zetaris,
+    sampleNotice: deps.sampleNotice,
+  });
   await app.register(runEventRoutes, { bus: deps.bus });
   await app.register(policyRoutes, { policies: deps.policies });
 

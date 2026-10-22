@@ -2,7 +2,16 @@
   "$schema": "https://biomejs.dev/schemas/latest/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
-    "includes": ["**", "!**/node_modules", "!**/dist", "!**/coverage", "!package-lock.json", "!internal", "!logs"]
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/coverage",
+      "!package-lock.json",
+      "!internal",
+      "!logs",
+      "!data/sample/query-cache.json"
+    ]
   },
   "formatter": {
     "enabled": true,

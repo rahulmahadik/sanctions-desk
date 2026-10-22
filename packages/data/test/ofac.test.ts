@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { parseOfacFile, parseOfacString } from "../src/ofac.js";
+import { countryOfLocation, parseOfacFile, parseOfacString } from "../src/ofac.js";
 import { first } from "./helpers.js";
 
 const FIXTURE = fileURLToPath(new URL("./fixtures/ofac-mini.xml", import.meta.url));
@@ -159,5 +159,22 @@ describe("OFAC advanced XML parser", () => {
   it("rejects input that is not XML", () => {
     expect(() => parseOfacString("not xml at all", options)).toThrow();
     expect(() => parseOfacString("", options)).toThrow(/XML parse error/);
+  });
+});
+
+describe("countryOfLocation", () => {
+  const loc = (over: Partial<{ countryIso2: string | null; countryName: string | null; place: string | null }>) =>
+    ({ countryIso2: null, countryName: null, place: null, ...over }) as Parameters<typeof countryOfLocation>[0];
+  it("uses the code when there is one, else resolves a country name", () => {
+    expect(countryOfLocation(loc({ countryIso2: "BE", place: "Elsewhere" }))).toBe("BE");
+    expect(countryOfLocation(loc({ place: "Kuwait" }))).toBe("KW");
+    expect(countryOfLocation(loc({ countryName: "United Kingdom" }))).toBe("GB");
+  });
+  it("reads the country at the end of a city and country place", () => {
+    expect(countryOfLocation(loc({ place: "Baghdad, Iraq" }))).toBe("IQ");
+  });
+  it("gives null when nothing names a country", () => {
+    expect(countryOfLocation(loc({ place: "Somewhere unknown" }))).toBeNull();
+    expect(countryOfLocation(loc({}))).toBeNull();
   });
 });

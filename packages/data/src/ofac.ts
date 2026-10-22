@@ -369,12 +369,23 @@ const birthdate: FeatureHandler = (ctx, version) => {
   return true;
 };
 
+/** A location's country when the list gives only a name: try the country name, the whole place, then the last part of "City, Country". */
+export function countryOfLocation(location: Location): string | null {
+  if (location.countryIso2) return location.countryIso2;
+  const candidates = [location.countryName, location.place, location.place?.split(",").pop()?.trim()];
+  for (const text of candidates) {
+    const iso = text ? iso2FromName(text) : undefined;
+    if (iso) return iso;
+  }
+  return null;
+}
+
 const countryFeature =
   (role: ListCountryRow["role"]): FeatureHandler =>
   (ctx, version) => {
     const location = locationOf(ctx, version);
     if (location) {
-      pushCountry(ctx, role, location.countryIso2, location.countryName, location.place);
+      pushCountry(ctx, role, countryOfLocation(location), location.countryName, location.place);
       return true;
     }
     const detail = textOf(version, "VersionDetail");
@@ -387,7 +398,13 @@ const placeOfBirth: FeatureHandler = (ctx, version) => {
   const location = locationOf(ctx, version);
   const place = location?.place ?? textOf(version, "VersionDetail") ?? null;
   if (!location && !place) return true;
-  pushCountry(ctx, "place_of_birth", location?.countryIso2 ?? null, location?.countryName ?? null, place);
+  pushCountry(
+    ctx,
+    "place_of_birth",
+    location ? countryOfLocation(location) : null,
+    location?.countryName ?? null,
+    place,
+  );
   return true;
 };
 

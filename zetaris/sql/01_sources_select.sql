@@ -23,3 +23,6 @@ SELECT COUNT(*) AS n FROM sanctions_bank_files.customer_identifier
 
 -- @@ count_alert
 SELECT COUNT(*) AS n FROM sanctions_bank_files.alert
+
+-- @@ count_business_definition
+SELECT COUNT(*) AS n FROM sanctions_lists.business_definition

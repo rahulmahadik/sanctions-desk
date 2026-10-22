@@ -56,6 +56,8 @@ export interface ZetarisClientOptions {
   fetchImpl?: FetchLike;
   /** Called for every query, successful or not. Used to write trace events. */
   onQuery?: (record: QueryRecord) => void;
+  /** For replaying saved answers: no token is needed because nothing leaves the process. */
+  offline?: boolean;
 }
 
 export interface ZetarisClient {
@@ -109,6 +111,7 @@ export function createZetarisClient(options: ZetarisClientOptions): ZetarisClien
     const own = z.tokens[role];
     if (own) return { token: own.reveal(), source: "role" };
     if (z.apiKey) return { token: z.apiKey.reveal(), source: "fallback" };
+    if (options.offline) return { token: "offline", source: "role" };
     return undefined;
   };
 

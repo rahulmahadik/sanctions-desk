@@ -1,0 +1,42 @@
+[
+  {
+    "definition_key": "true_match@1",
+    "definition_id": "true_match",
+    "version": "1",
+    "name": "True match",
+    "statement": "A customer and a listed party are a true match when the names agree at or above the policy threshold, the date of birth agrees to the day, and either the customer's nationality equals a nationality or citizenship of the listed party or a document number matches.",
+    "status": "approved",
+    "owner": "Sanctions policy owner (synthetic sample)",
+    "effective_from": "2026-10-01"
+  },
+  {
+    "definition_key": "false_positive@1",
+    "definition_id": "false_positive",
+    "version": "1",
+    "name": "False positive",
+    "statement": "An alert is a false positive when the names are similar but the customer's date of birth conflicts with every date of birth listed for the party (it differs by more than the listed precision), the customer's nationality is not a nationality or citizenship of the listed party, and no document number matches.",
+    "status": "approved",
+    "owner": "Sanctions policy owner (synthetic sample)",
+    "effective_from": "2026-10-01"
+  },
+  {
+    "definition_key": "strong_identifier@1",
+    "definition_id": "strong_identifier",
+    "version": "1",
+    "name": "Strong identifier",
+    "statement": "A strong identifier is a date of birth that agrees to the day, a nationality that equals a nationality or citizenship of the listed party, or a document number that matches. An address country alone is not a strong identifier, and a year-only date of birth is not a strong identifier.",
+    "status": "approved",
+    "owner": "Sanctions policy owner (synthetic sample)",
+    "effective_from": "2026-10-01"
+  },
+  {
+    "definition_key": "effective_ownership_threshold@1",
+    "definition_id": "effective_ownership_threshold",
+    "version": "1",
+    "name": "Effective ownership threshold",
+    "statement": "A person controls a company when their effective ownership, added up along every ownership path, reaches the threshold in the active policy (50 percent by default). Exactly the threshold counts. A missing percentage is treated as unknown, never as zero.",
+    "status": "approved",
+    "owner": "Sanctions policy owner (synthetic sample)",
+    "effective_from": "2026-10-01"
+  }
+]

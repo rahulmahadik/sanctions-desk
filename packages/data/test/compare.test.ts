@@ -70,6 +70,17 @@ describe("compareParty", () => {
     expect(r.assessment).toBe("weak");
     expect(r.dob.status).toBe("conflict");
   });
+  it("tells a nationality match from an address-only country link", () => {
+    const addressOnly = party({ countries: [{ iso2: "AE", role: "address" }] });
+    const r = compareParty(customer({ nationality: "RU", residence: "AE" }), addressOnly, T);
+    expect(r.country.status).toBe("address_only");
+    expect(r.assessment).toBe("possible");
+    expect(
+      compareParty(customer({ nationality: "RU" }), party({ countries: [{ iso2: "KZ", role: "citizenship" }] }), T)
+        .country.status,
+    ).toBe("conflict");
+    expect(compareParty(customer({ nationality: null, residence: null }), party(), T).country.status).toBe("unknown");
+  });
   it("keeps a missing date of birth as possible", () => {
     expect(compareParty(customer({ dateOfBirth: null }), party(), T).assessment).toBe("possible");
   });

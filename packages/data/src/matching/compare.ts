@@ -43,7 +43,8 @@ export interface MatchThresholds {
 }
 
 export type DobStatus = "exact" | "compatible" | "conflict" | "missing_customer" | "missing_list";
-export type CountryStatus = "match" | "conflict" | "unknown";
+/** match: nationality agrees. address_only: only an address or other link agrees. */
+export type CountryStatus = "match" | "address_only" | "conflict" | "unknown";
 export type IdStatus = "match" | "none";
 export type Assessment = "strong" | "possible" | "weak";
 
@@ -140,12 +141,17 @@ export function compareDob(customerDob: string | null, listed: readonly ListedDo
   return { status: compatible ? "compatible" : "conflict", customer: customerDob, listed: listedText };
 }
 
+const NATIONALITY_ROLES = new Set(["nationality", "citizenship"]);
+
 function compareCountry(customer: CustomerProfile, party: ListedParty): PartyComparison["country"] {
   const listed = [...new Set(party.countries.map((c) => c.iso2))];
+  const nationalities = new Set(party.countries.filter((c) => NATIONALITY_ROLES.has(c.role)).map((c) => c.iso2));
   const mine = [customer.nationality, customer.residence].filter((c): c is string => !!c);
-  if (mine.length === 0 || listed.length === 0) return { status: "unknown", customer: customer.nationality, listed };
-  const overlap = mine.some((c) => listed.includes(c));
-  return { status: overlap ? "match" : "conflict", customer: customer.nationality, listed };
+  const base = { customer: customer.nationality, listed };
+  if (mine.length === 0 || listed.length === 0) return { status: "unknown", ...base };
+  if (customer.nationality && nationalities.has(customer.nationality)) return { status: "match", ...base };
+  if (mine.some((c) => listed.includes(c))) return { status: "address_only", ...base };
+  return { status: "conflict", ...base };
 }
 
 const compact = (value: string): string => value.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -198,7 +204,7 @@ interface AssessInput {
 function assess(i: AssessInput): Assessment {
   if (i.kind === "mismatch" && i.identifiers.status !== "match") return "weak";
   if (i.identifiers.status === "match" && (i.nameHigh || i.nameScore >= 0.7)) return "strong";
-  if (i.nameHigh && i.dob.status === "exact" && i.country.status !== "conflict") return "strong";
+  if (i.nameHigh && i.dob.status === "exact" && i.country.status === "match") return "strong";
   if (i.nameHigh && i.dob.status !== "conflict") return "possible";
   if (i.nameHigh && i.dob.status === "conflict" && i.country.status === "match") return "possible";
   return "weak";

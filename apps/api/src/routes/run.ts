@@ -1,9 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { relative } from "node:path";
+import { type AgentDeps, runReview } from "@sanctions-desk/agents";
 import {
+  type AlertType,
   AppError,
   type Config,
   createTraceLogger,
+  type Generator,
   makeRedactor,
   type PolicyStore,
   projectRoot,
@@ -11,21 +14,55 @@ import {
   RunRequestSchema,
   RunResponseSchema,
   secretValues,
+  type TraceLogger,
+  toStructuredError,
 } from "@sanctions-desk/shared";
+import type { ZetarisClient } from "@sanctions-desk/zetaris";
 import type { FastifyPluginAsync } from "fastify";
+import { mapError } from "../errors.js";
 
 interface RunOptions {
   config: Config;
   bus: RunEventBus;
   policies: PolicyStore;
+  generator: Generator;
+  zetaris: ZetarisClient;
+  /** Set when answers come from saved data and the rules-based model instead of live services. */
+  sampleNotice?: string;
 }
 
 /**
- * POST /run is the programmatic entry point. A valid request is traced and answered with a structured
- * `not_implemented` error while the agent pipeline is not enabled. It never returns an invented decision.
+ * POST /run reviews one alert. The review reads the semantic layer through Zetaris, asks the configured
+ * models, has the critic verify every cited fact, applies the active policy and answers with a recommendation
+ * for a person to act on. A failure is a structured error, never an invented decision.
  */
-export const runRoutes: FastifyPluginAsync<RunOptions> = async (app, { config, bus, policies }) => {
+export const runRoutes: FastifyPluginAsync<RunOptions> = async (
+  app,
+  { config, bus, policies, generator, zetaris, sampleNotice },
+) => {
   const redact = makeRedactor(secretValues(config));
+  // One review per alert at a time: a second request for the same alert would only repeat the same reads.
+  const running = new Set<string>();
+
+  /** The structured answer for a run that did not produce a recommendation. */
+  const errorBody = (
+    trace: TraceLogger,
+    run: { runId: string; alertType: AlertType; policyVersion: number; started: number },
+    error: AppError,
+  ) =>
+    RunResponseSchema.parse({
+      run_id: run.runId,
+      status: "error",
+      alert_type: run.alertType,
+      policy_version: run.policyVersion,
+      what_would_change: [],
+      citations: [],
+      agents: [],
+      trace_id: run.runId,
+      log_file: relative(projectRoot(), trace.file),
+      execution_time_seconds: (performance.now() - run.started) / 1000,
+      error: error.toJSON(),
+    });
 
   app.post("/run", async (req, reply) => {
     const started = performance.now();
@@ -35,8 +72,8 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (app, { config, b
         details: { issues: parsed.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })) },
       });
     }
-
-    const runId = parsed.data.run_id ?? randomUUID();
+    const request = parsed.data;
+    const runId = request.run_id ?? randomUUID();
     // The run keeps the policy it starts with, even if a new version is published while it runs.
     const policy = policies.active();
     const trace = createTraceLogger({
@@ -47,31 +84,59 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (app, { config, b
       bus,
       policyVersion: policy.version,
     });
-    const error = new AppError("not_implemented", "the agent pipeline is not enabled in this build", {
-      recoverable: false,
-    }).toJSON();
+    const run = { runId, alertType: request.alert_type, policyVersion: policy.version, started };
+    const refuse = (error: AppError, event: "run_rejected" | "run_failed") => {
+      trace.log({
+        agent: "system",
+        action: event,
+        status: "error",
+        input_summary: `${request.alert_type}: ${request.alert_id ? `alert_id=${request.alert_id}` : "inline alert"}`,
+        output_summary: error.message,
+      });
+      return reply.status(mapError(error).statusCode).send(errorBody(trace, run, error));
+    };
 
+    if (request.alert_type !== "customer" || request.alert_id === undefined) {
+      return refuse(
+        new AppError("not_implemented", "only customer alerts identified by alert_id can be reviewed in this build"),
+        "run_rejected",
+      );
+    }
+    const alertId = request.alert_id;
+    if (running.has(alertId)) {
+      return refuse(
+        new AppError("validation", `alert ${alertId} is already being reviewed`, { recoverable: true }),
+        "run_rejected",
+      );
+    }
+
+    running.add(alertId);
     trace.log({
       agent: "system",
-      action: "run_rejected",
-      status: "error",
-      input_summary: `${parsed.data.alert_type}: ${parsed.data.alert_id ? `alert_id=${parsed.data.alert_id}` : "inline alert"}`,
-      output_summary: error.message,
+      action: "run_started",
+      status: "ok",
+      input_summary: `customer alert ${alertId}`,
+      detail: { sample_mode: config.sampleMode },
     });
-
-    const body = RunResponseSchema.parse({
-      run_id: runId,
-      status: "error",
-      alert_type: parsed.data.alert_type,
-      policy_version: policy.version,
-      what_would_change: [],
-      citations: [],
-      agents: [],
-      trace_id: runId,
-      log_file: relative(projectRoot(), trace.file),
-      execution_time_seconds: (performance.now() - started) / 1000,
-      error,
-    });
-    return reply.status(501).send(body);
+    try {
+      const deps: AgentDeps = { config, policy, zetaris, generator, trace, now: () => new Date() };
+      const result = await runReview(deps, { runId, alertId, sampleMode: config.sampleMode, sampleNotice });
+      trace.log({
+        agent: "system",
+        action: "run_completed",
+        status: "ok",
+        output_summary: `${result.decision} (confidence ${result.confidence})`,
+        detail: { record_hash: result.record_hash },
+      });
+      return reply.status(200).send({ ...result, log_file: relative(projectRoot(), trace.file) });
+    } catch (err) {
+      const e = toStructuredError(err);
+      return refuse(
+        err instanceof AppError ? err : new AppError(e.type, e.message, { recoverable: e.recoverable }),
+        "run_failed",
+      );
+    } finally {
+      running.delete(alertId);
+    }
   });
 };

@@ -156,7 +156,11 @@ const BUILDERS: Record<ScenarioKind, { eligible: (c: Candidate) => boolean; buil
     }),
   },
   true_match_variant: {
-    eligible: (c) => person(c) && fullDobOf(c.party) !== null && nameVariant(c.natural) !== c.natural,
+    eligible: (c) =>
+      person(c) &&
+      fullDobOf(c.party) !== null &&
+      nationalityOf(c.party) !== null &&
+      nameVariant(c.natural) !== c.natural,
     build: (c, rng) => ({
       kind: "true_match_variant",
       entry_id: c.party.entryId,
@@ -345,7 +349,11 @@ const BUILDERS: Record<ScenarioKind, { eligible: (c: Candidate) => boolean; buil
     }),
   },
   non_latin_alias: {
-    eligible: (c) => person(c) && c.party.aliases.some((a) => !isLatin(a.name)) && fullDobOf(c.party) !== null,
+    eligible: (c) =>
+      person(c) &&
+      c.party.aliases.some((a) => !isLatin(a.name)) &&
+      fullDobOf(c.party) !== null &&
+      nationalityOf(c.party) !== null,
     build: (c, rng) => {
       const alias = c.party.aliases.find((a) => !isLatin(a.name));
       return {
