@@ -1,0 +1,40 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8000,
+    "bodyLimitBytes": 1048576,
+    "shutdownTimeoutMs": 10000
+  },
+  "logging": {
+    "level": "info",
+    "dir": "logs",
+    "stdout": true
+  },
+  "sampleMode": false,
+  "zetaris": {
+    "restUrl": "http://localhost:8888/api/v1.0",
+    "orgId": "1",
+    "requestTimeoutMs": 30000
+  },
+  "nightshift": {
+    "baseUrl": "http://127.0.0.1:8088/v1",
+    "appId": "sanctions-desk",
+    "scope": "user",
+    "requestTimeoutMs": 90000,
+    "models": {
+      "default": "meterless/auto",
+      "fast": "meterless/fast",
+      "deep": "meterless/deep",
+      "judge": "meterless/judge"
+    }
+  },
+  "ollama": {
+    "baseUrl": "http://localhost:11434/v1",
+    "model": "nemotron-3.5-lightning:30b",
+    "requestTimeoutMs": 90000
+  },
+  "limits": {
+    "criticMaxRounds": 3,
+    "healthProbeTimeoutMs": 3000
+  }
+}
