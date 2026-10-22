@@ -28,6 +28,7 @@
     "check:isolation": "tsx tools/check-isolation.ts",
     "lint:voice": "node scripts/lint-voice.mjs",
     "receipt:pubkey": "tsx tools/receipt-pubkey.ts",
+    "test:engines": "tsx tools/test-engines.ts",
     "zetaris:sql": "tsx tools/zetaris-sql.ts",
     "zetaris:generate": "tsx tools/generate-zetaris-sql.ts",
     "sample:record": "tsx tools/record-sample-cache.ts",

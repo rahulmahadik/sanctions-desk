@@ -4,17 +4,21 @@ sanctions-desk is licensed under Apache-2.0 (see `LICENSE`).
 
 ## Meterless engines
 
-Planned. The memory, entity-graph and long-run engines will be derived from the Meterless reference
-implementations (Apache-2.0) and implemented against the public Meterless engine specifications
+The memory, entity-graph and long-run engines in `packages/engines` are derived from the Meterless
+reference implementations (Apache-2.0) and follow the public Meterless engine specifications
 (`AGENTS.md` in each engine folder).
 - Source: https://github.com/Meterless/Meterless
 - Licence: Apache License 2.0
-- Engines: H-MEM, World Model, Markovian
-- Changes: re-implemented in TypeScript against this project's own storage. Any file derived from a
-  Meterless reference file will carry the header "Derived from Meterless <engine> reference, Apache-2.0"
-  and state what was changed.
-
-No Meterless source code is included in this repository yet.
+- H-MEM (`packages/engines/src/hmem`): derived from the Meterless H-MEM reference implementation (Apache-2.0).
+- World Model (`packages/engines/src/world-model`): derived from the Meterless World Model reference
+  implementation (Apache-2.0).
+- Markovian (`packages/engines/src/markovian`): derived from the Meterless Markovian reference
+  implementation (Apache-2.0).
+- Changes: ported to strict TypeScript for this repository's compiler and lint settings, split into smaller
+  modules, and the World Model uses `node:crypto` for SHA-256. Each derived file carries the header
+  "Derived from the Meterless <engine> reference implementation, Apache-2.0". Behaviour is checked with the
+  official conformance runners (`npm run test:engines`) and with this repository's own tests.
+- The domain adapters in `packages/engines/src/domain` are original to this project.
 
 ## Public data sources
 
