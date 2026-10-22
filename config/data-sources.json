@@ -1,0 +1,32 @@
+{
+  "userAgent": "sanctions-desk-data-fetch",
+  "requestTimeoutMs": 300000,
+  "rawDir": "data/raw",
+  "normalisedDir": "data/normalised",
+  "sources": [
+    {
+      "id": "ofac-sdn",
+      "list": "OFAC",
+      "sanctionsList": "SDN List",
+      "format": "ofac-advanced",
+      "url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN_ADVANCED.XML",
+      "file": "SDN_ADVANCED.XML"
+    },
+    {
+      "id": "ofac-consolidated",
+      "list": "OFAC",
+      "sanctionsList": "Consolidated (non-SDN) lists",
+      "format": "ofac-advanced",
+      "url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/CONS_ADVANCED.XML",
+      "file": "CONS_ADVANCED.XML"
+    },
+    {
+      "id": "un-consolidated",
+      "list": "UN",
+      "sanctionsList": "UN Security Council Consolidated List",
+      "format": "un-consolidated",
+      "url": "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
+      "file": "consolidated.xml"
+    }
+  ]
+}
