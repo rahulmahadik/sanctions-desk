@@ -173,35 +173,51 @@ def check_nightshift(env: dict) -> None:
     except (ValueError, KeyError, TypeError):
         report("FAIL", "nightshift /models", err(status, text))
         return
-    report("PASS", "nightshift /models", f"{len(ids)} models ({secs:.2f}s)")
-    print("     " + ", ".join(ids))
-    targets = [i for i in ids if "nemotron" in i.lower()]
-    if not targets:
-        report("FAIL", "nightshift nemotron", "no model id contains 'nemotron'")
-    answered_ok = aliased = cloud = 0
-    for mid in targets:
-        if "embed" in mid.lower():
-            report("WARN", f"nightshift chat {mid}", "skipped: embedding model, not a chat model")
+    cloud_listed = sum(1 for m in json.loads(text)["data"] if (m.get("meterless") or {}).get("kind") == "cloud")
+    report("PASS", "nightshift /models", f"{len(ids)} ids, {cloud_listed} cloud ({secs:.2f}s)")
+    check_pinned_modes(base, headers)
+
+
+MODES_FILE = ROOT / "config" / "default.json"
+EXPECT_CLOUD = ("deep", "judge")
+
+
+def check_pinned_modes(base: str, headers: dict) -> None:
+    """One request per pinned mode: which model answered, local or cloud, and which mode the runtime served."""
+    try:
+        configured = json.loads(MODES_FILE.read_text())["nightshift"]["models"]
+    except (OSError, ValueError, KeyError):
+        report("FAIL", "nightshift modes", "cannot read nightshift.models from config/default.json")
+        return
+    modes = list(dict.fromkeys([*configured.values(), "meterless/local", "meterless/text.deep"]))
+    for mode in modes:
+        body = {
+            "model": mode,
+            "stream": False,
+            "max_tokens": 1024,
+            # A fresh prompt every time, so the answer is generated and not served from the runtime cache.
+            "messages": [{"role": "user", "content": f"Name one color. One word. [{mode} {uuid.uuid4().hex[:8]}]"}],
+        }
+        status, text, secs = http("POST", base + "/chat/completions", {"Content-Type": "application/json", **headers},
+                                  body, timeout=CHAT_TIMEOUT)
+        try:
+            if status != 200:
+                raise ValueError
+            meterless = json.loads(text).get("meterless") or {}
+        except (ValueError, AttributeError):
+            report("FAIL", f"nightshift mode {mode}", f"{err(status, text)} ({secs:.2f}s)")
             continue
-        ok, answered, t, e, kind = chat(base, mid, headers)
-        if not ok:
-            report("FAIL", f"nightshift chat {mid}", f"{e} ({t:.2f}s)")
-            continue
-        answered_ok += 1
-        cloud += kind == "cloud"
-        if answered == mid:
-            report("PASS", f"nightshift chat {mid}", f"requested == answered ({kind or '?'}), {t:.2f}s")
-        else:
-            aliased += 1
-            report("WARN", f"nightshift chat {mid}",
-                   f"aliased: requested {mid}, answered by {answered} ({kind or '?'}), {t:.2f}s")
-    if answered_ok and aliased == answered_ok:
-        report("WARN", "nightshift routing", f"all {answered_ok} requests were answered by a different model than requested")
-    if answered_ok and not cloud:
-        report("WARN", "nightshift cloud lane", "no request was answered by a cloud route; "
-               "attach the cloud lane to app 'sanctions-desk' in Nightshift if you expect one")
-    elif cloud:
-        report("PASS", "nightshift cloud lane", f"{cloud} request(s) answered by a cloud route")
+        routed = meterless.get("routed_model", "?")
+        kind = (meterless.get("winning_route") or {}).get("kind", "?")
+        served = meterless.get("provider_model", "?")
+        cached = meterless.get("from_cache")
+        summary = f"routed={routed} kind={kind} served={served} cache={cached} receipt={'yes' if meterless.get('receipt_envelope') else 'no'} {secs:.2f}s"
+        problems = []
+        if served != mode:
+            problems.append(f"runtime served {served}, not {mode}")
+        if mode.removeprefix("meterless/") in EXPECT_CLOUD and kind != "cloud":
+            problems.append("did not reach a cloud lane")
+        report("WARN" if problems else "PASS", f"nightshift mode {mode}", f"{summary}; {'; '.join(problems)}" if problems else summary)
 
 
 # 5. Ollama
