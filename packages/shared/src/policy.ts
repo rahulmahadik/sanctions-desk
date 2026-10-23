@@ -91,6 +91,35 @@ const regexSource = nonEmpty.refine((s) => {
   }
 }, "must be a valid regular expression");
 
+/**
+ * When a screener risk signal counts. A signal is grounded only when its span points into the field, the span's own
+ * text holds a term of its type, and a name from the evidence (the listed name or an alias, the customer, the
+ * counterparty) is in the span or within `nameWindowChars` of it. A signal that is not grounded is kept, recorded and
+ * shown, and does not block a close. Types with no terms (for example "other" and "instruction_to_reviewer") are not
+ * checked. Added in policy version 7.
+ */
+export const GroundingSchema = z
+  .strictObject({
+    enabled: z.boolean(),
+    /** How far from the span a name may stand, when the span itself holds the term. */
+    nameWindowChars: z.number().int().min(0).max(400),
+    /** A single word of a name counts only from this length, and only if it is not a generic word. */
+    minNameTokenChars: z.number().int().min(2).max(20),
+    /** Words of a name too common to tie a span to one party ("bank", "trading", "limited"...). */
+    genericNameWords: z.array(nonEmpty).default([]),
+    /**
+     * The words that make a span about this type, compared without case or accents. A trailing "*" lets any letters
+     * follow ("report*" holds "reported"). Multi-word terms match across any spacing.
+     */
+    terms: z.partialRecord(ScreenerSignalTypeSchema, z.array(nonEmpty).min(1)),
+    /** Types whose terms are the policy's watched places; the place is itself the entity, so no name is needed. */
+    placeTypes: z.array(ScreenerSignalTypeSchema).default([]),
+  })
+  .refine((g) => !("instruction_to_reviewer" in g.terms) && !g.placeTypes.includes("instruction_to_reviewer"), {
+    message: "instruction_to_reviewer is the injection flag and is never subject to grounding",
+  });
+export type Grounding = z.infer<typeof GroundingSchema>;
+
 const PolicyShape = z.strictObject({
   version: PolicyVersionSchema,
   name: nonEmpty,
@@ -219,6 +248,15 @@ const PolicyShape = z.strictObject({
         }),
       /** The longest stretch of one field the screener reads; the rest is not read and the case says so. */
       maxFieldChars: positiveInt.max(20_000),
+      /** Absent in a policy older than version 7: no grounding check, every signal counts as before. */
+      grounding: GroundingSchema.default({
+        enabled: false,
+        nameWindowChars: 80,
+        minNameTokenChars: 4,
+        genericNameWords: [],
+        terms: {},
+        placeTypes: [],
+      }),
     })
     .refine((s) => s.otherConfidenceThreshold >= s.confidenceThreshold, {
       message: "otherConfidenceThreshold must not be below confidenceThreshold",
@@ -230,6 +268,14 @@ const PolicyShape = z.strictObject({
       otherConfidenceThreshold: 0.7,
       signalTypes: [...SCREENER_SIGNAL_TYPES],
       maxFieldChars: 4000,
+      grounding: {
+        enabled: false,
+        nameWindowChars: 80,
+        minNameTokenChars: 4,
+        genericNameWords: [],
+        terms: {},
+        placeTypes: [],
+      },
     }),
 
   models: perAgent(AgentModelSchema),

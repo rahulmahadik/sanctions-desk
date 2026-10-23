@@ -1,12 +1,21 @@
-import { AppError, type ModelUseInput, type Policy, type ScreenerSignalType } from "@sanctions-desk/shared";
+import {
+  AppError,
+  type ModelUseInput,
+  type NoteDocumentCheck,
+  type Policy,
+  type ScreenerSignalType,
+} from "@sanctions-desk/shared";
 import { z } from "zod";
 import type { EvidenceBundle } from "./evidence.js";
 import {
   assessNote,
+  checkReferenceSpan,
   type EvidenceStandard,
   labelledDateOfBirth,
   normalisedCheckReference,
+  type SourceSpan,
 } from "./evidence-standard.js";
+import { groundSignal } from "./grounding.js";
 import { askJson, type UnavailableCause, unavailableCause } from "./model-call.js";
 import { blockingSignals, findInjection } from "./policy-guard.js";
 import type { AgentDeps } from "./types.js";
@@ -211,6 +220,13 @@ export interface ScreenerSignal {
   /** "customer.notes:12-40" when the span points into the field; "customer.notes:unlocated" when it does not. */
   spanId: string;
   spanValid: boolean;
+  /**
+   * False when the span's text holds no term of the signal's type, or no name from the evidence in or near it (see
+   * grounding.ts). Such a signal is kept, recorded and shown, and does not block a close.
+   */
+  grounded: boolean;
+  /** Why the signal is not grounded, in plain words; never the text. */
+  groundingReason?: string;
 }
 
 /**
@@ -224,9 +240,18 @@ export interface ScreenerDocumentary {
   missing: string[];
   /** The note's check reference as a plain token ("KYC-482113"), found by code. */
   checkReference?: string;
+  /** Where the check reference stands in the field; `value` is the text at exactly those offsets. */
+  checkReferenceSpan?: SourceSpan;
   docNumberPresent: boolean;
   /** An ISO date the text contains. */
   date?: string;
+  /** Where that date stands in the field; `value` is the text at exactly those offsets. */
+  dateSpan?: SourceSpan;
+  /**
+   * For a customer note that meets the standard and cites a document number: whether that number is one of the
+   * customer's documents, counted inside Zetaris. Set by the pipeline after the screener (see note-document.ts).
+   */
+  documentCheck?: NoteDocumentCheck;
   /** Only the date the text states as the date of birth ("born", "date of birth" or "dob" next to it). */
   dob?: string;
   /** Only as a two-letter country code the text contains. */
@@ -279,14 +304,26 @@ export const normaliseName = (name: string): string =>
     .replace(/[^A-Z0-9]+/g, " ")
     .trim();
 
-/** A date the model reported, as an ISO date, if the text contains it in a form the standard accepts. */
-function isoDateIn(text: string, value: string | null | undefined): string | undefined {
-  const v = value?.trim();
-  if (!v || !contains(text, v)) return undefined;
+/** An ISO date for a date written in a form the standard accepts. */
+function isoDateOf(v: string): string | undefined {
   if (ISO_DATE.test(v)) return v;
   const m = /^(\d{1,2})\s+([a-z]{3})[a-z]*\.?\s+(\d{4})$/i.exec(v);
   const month = m ? MONTH_NUMBER[(m[2] as string).toLowerCase()] : undefined;
   return m && month ? `${m[3]}-${month}-${(m[1] as string).padStart(2, "0")}` : undefined;
+}
+
+/**
+ * The date the model reported, found in the text: where it stands, the text at exactly that place, and its ISO form.
+ * The value comes from the text, not from the model's copy of it.
+ */
+function dateIn(text: string, value: string | null | undefined): { iso: string; span: SourceSpan } | undefined {
+  const v = value?.trim();
+  if (!v) return undefined;
+  const start = text.toLowerCase().indexOf(v.toLowerCase());
+  if (start < 0) return undefined;
+  const span: SourceSpan = { start, end: start + v.length, value: text.slice(start, start + v.length) };
+  const iso = isoDateOf(span.value);
+  return iso ? { iso, span } : undefined;
 }
 
 function spanOf(
@@ -315,6 +352,13 @@ function knownName(named: string, knownNames: readonly string[]): string | undef
   return wanted === "" ? undefined : knownNames.find((n) => normaliseName(n) === wanted);
 }
 
+/** The check reference as a plain token, with the exact place in the text it was taken from. */
+function checkReferenceOfText(text: string): Pick<ScreenerDocumentary, "checkReference" | "checkReferenceSpan"> {
+  const span = checkReferenceSpan(text);
+  const token = span ? normalisedCheckReference(span.value) : null;
+  return span && token ? { checkReference: token, checkReferenceSpan: span } : {};
+}
+
 /** One documentary claim, checked: whether the text meets the standard is code's call, and each value must be in it. */
 function documentaryOf(
   claim: ScreenerAnswer["documentary_evidence"][number],
@@ -329,8 +373,7 @@ function documentaryOf(
   // The date of birth is the one the text labels as such, never just any date in it.
   const labelled = labelledDateOfBirth(field.text);
   const dob = labelled !== null && claim.dob?.trim() === labelled ? labelled : undefined;
-  const date = isoDateIn(field.text, claim.date);
-  const checkReference = normalisedCheckReference(field.text);
+  const date = dateIn(field.text, claim.date);
   const code = claim.nationality?.trim() ?? "";
   const nationality = /^[A-Z]{2}$/.test(code) && new RegExp(`\\b${code}\\b`).test(field.text) ? code : undefined;
   const named = claim.named_party?.trim() ?? "";
@@ -341,9 +384,9 @@ function documentaryOf(
     field: field.id,
     meetsStandard: verdict.documentary,
     missing: verdict.missing,
-    ...(checkReference ? { checkReference } : {}),
+    ...checkReferenceOfText(field.text),
     docNumberPresent: /^[A-Za-z0-9][A-Za-z0-9 -]{4,29}$/.test(docNumber) && contains(field.text, docNumber),
-    ...(date ? { date } : {}),
+    ...(date ? { date: date.iso, dateSpan: date.span } : {}),
     ...(dob ? { dob } : {}),
     ...(nationality ? { nationality } : {}),
     ...(namedParty ? { namedParty } : {}),
@@ -369,11 +412,27 @@ export function validateScreenerAnswer(
   const byId = new Map(input.fields.map((f) => [f.id, f]));
   const allowed = new Set<string>(input.policy.screener.signalTypes);
 
+  const names = input.knownNames ?? [];
   const signals: ScreenerSignal[] = answer.risk_signals
     .map((s) => {
       const span = spanOf(byId, s);
       const type = (allowed.has(s.type) ? s.type : "other") as ScreenerSignalType;
-      return { type, confidence: s.confidence, field: span.field, spanId: span.id, spanValid: span.valid };
+      const grounding = groundSignal({
+        policy: input.policy,
+        fieldText: byId.get(span.field)?.text,
+        span: { start: s.start, end: s.end, valid: span.valid },
+        type,
+        names,
+      });
+      return {
+        type,
+        confidence: s.confidence,
+        field: span.field,
+        spanId: span.id,
+        spanValid: span.valid,
+        grounded: grounding.grounded,
+        ...(grounding.reason ? { groundingReason: grounding.reason } : {}),
+      };
     })
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, MAX_SIGNALS);
@@ -451,7 +510,13 @@ export function renderScreener(facts: ScreenerFacts | undefined): Record<string,
       ? { note: "the free text could not be read, so it has not been assessed; do not close the case" }
       : {}),
     fields_read: facts.fieldsRead,
-    risk_signals: facts.signals.map((s) => ({ type: s.type, confidence: s.confidence, span_id: s.spanId })),
+    // A signal that is not grounded in the text it points at is shown, and does not count against a close.
+    risk_signals: facts.signals.map((s) => ({
+      type: s.type,
+      confidence: s.confidence,
+      span_id: s.spanId,
+      grounded: s.grounded,
+    })),
     documentary_evidence: facts.documentary.map((d) => ({
       field: d.field,
       meets_standard: d.meetsStandard,
@@ -468,7 +533,8 @@ export function renderScreener(facts: ScreenerFacts | undefined): Record<string,
   };
 }
 
-const spanSummary = (s: ScreenerSignal): string => `${s.type} ${s.confidence} at ${s.spanId}`;
+const spanSummary = (s: ScreenerSignal): string =>
+  `${s.type} ${s.confidence} at ${s.spanId}${s.grounded ? "" : " (not grounded)"}`;
 
 /**
  * Read the free text of the case on the local model and return structured facts. It never throws: a screener that
@@ -525,6 +591,7 @@ export async function screenFreeText(deps: AgentDeps, evidence: EvidenceBundle):
     const servedByCloud = calls.at(-1)?.route_kind === "cloud";
     const facts: ScreenerFacts = { status: "ok", ...checked, calls, servedByCloud };
     const blocking = blockingSignals(deps.policy, facts);
+    const ungrounded = facts.signals.filter((s) => !s.grounded).length;
     deps.trace.log({
       agent: "screener",
       action: "screen_text",
@@ -532,7 +599,7 @@ export async function screenFreeText(deps: AgentDeps, evidence: EvidenceBundle):
       target_agent: "matching",
       confidence: facts.signals.reduce((m, s) => Math.max(m, s.confidence), 0),
       output_summary:
-        `${facts.signals.length} risk signal(s), ${blocking.length} at or above ${deps.policy.screener.confidenceThreshold}` +
+        `${facts.signals.length} risk signal(s), ${blocking.length} grounded at or above ${deps.policy.screener.confidenceThreshold}, ${ungrounded} not grounded` +
         (facts.signals.length > 0 ? `: ${facts.signals.slice(0, 4).map(spanSummary).join("; ")}` : "") +
         `; documentary: ${facts.documentary.map((d) => `${d.field} ${d.meetsStandard ? "meets the standard" : `claim (lacks ${d.missing.join(", ")})`}`).join("; ") || "none"}` +
         `; injection ${facts.injection.flagged ? "flagged" : "not found"}`,
@@ -542,6 +609,7 @@ export async function screenFreeText(deps: AgentDeps, evidence: EvidenceBundle):
         signals: facts.signals.length,
         blocking: blocking.length,
         unlocated: facts.signals.filter((s) => !s.spanValid).length,
+        ungrounded,
         documentary: facts.documentary.length,
         injection: facts.injection.flagged,
         model: calls.at(-1)?.model_routed,

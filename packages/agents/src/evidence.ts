@@ -1,5 +1,5 @@
 import { type BusinessDefinition, checkDefinitions, type DefinitionCheck } from "@sanctions-desk/data";
-import { AppError, type CloudPayload, type QueryEvidenceInput } from "@sanctions-desk/shared";
+import { AppError, type CloudPayload, type NoteDocumentCheck, type QueryEvidenceInput } from "@sanctions-desk/shared";
 import {
   buildEvidenceTools,
   type EvidenceTool,
@@ -41,6 +41,8 @@ export interface EvidenceBundle {
   safety?: SafetyResult;
   /** What the local screener found in the free text. The cloud models see this and nothing of the text. */
   screener?: ScreenerFacts;
+  /** Whether the document number a documentary customer note cites is on the customer record (note-document.ts). */
+  noteDocument?: NoteDocumentCheck;
   /** What each model-bound step was sent (names, counts, hash). Filled in as the steps run. */
   cloudPayloads?: CloudPayload[];
   customerIdentifiers: Row[];
