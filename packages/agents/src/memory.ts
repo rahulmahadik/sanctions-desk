@@ -63,18 +63,22 @@ function memoryOf(deps: AgentDeps, evidence: EvidenceBundle, disposition: Row, t
 
 type Source = Map<string, { row: Row; desk: boolean }>;
 
+/** True when `other` is an earlier, different decision than `mine`, so `mine` replaces it. */
+const replaces = (mine: { row: Row }, other: { row: Row }): boolean =>
+  (other.row.decided_at ?? "") < (mine.row.decided_at ?? "") &&
+  (other.row.decision ?? "") !== (mine.row.decision ?? "");
+
 /** A person's later decision beats an earlier one: the earlier memory stops influencing reviews, and the ledger says who and why. */
 function supersedeEarlier(memory: PointerMemory, source: Source): void {
-  for (const [id, mine] of source) {
-    if (!mine.desk) continue;
+  const mine = [...source].filter(([, v]) => v.desk);
+  for (const [id, m] of mine) {
     for (const [otherId, other] of source) {
-      if (otherId === id || (other.row.decided_at ?? "") >= (mine.row.decided_at ?? "")) continue;
-      if ((other.row.decision ?? "") === (mine.row.decision ?? "")) continue;
+      if (otherId === id || !replaces(m, other)) continue;
       try {
         memory.override({
           memoryId: otherId,
-          actor: mine.row.decided_by ?? "analyst",
-          reason: mine.row.reason ?? "a later decision on this desk",
+          actor: m.row.decided_by ?? "analyst",
+          reason: m.row.reason ?? "a later decision on this desk",
         });
       } catch {
         // already overridden by an earlier pass
@@ -98,18 +102,8 @@ function detailsOf(recalled: readonly RecalledMemory[], source: Source): Map<str
   return details;
 }
 
-/** Recall what was decided before about this customer and listed party, and check it still holds. */
-export async function recallMemory(
-  deps: AgentDeps,
-  tools: ReadonlyMap<string, EvidenceTool>,
-  evidence: EvidenceBundle,
-  queries: QueryEvidenceInput[],
-): Promise<MemoryEvidence> {
-  const tool = tools.get("find_disposition");
-  const customerId = evidence.customer.customer_id;
-  if (!tool || !customerId) return none();
-  const found = await tool.find({ customer_id: customerId });
-  queries.push({
+function queryEvidenceOf(deps: AgentDeps, found: Awaited<ReturnType<EvidenceTool["find"]>>): QueryEvidenceInput {
+  return {
     query_id: found.query.query_id,
     agent: "memory",
     role: deps.policy.masking.evidence,
@@ -122,7 +116,42 @@ export async function recallMemory(
     token_source: found.query.token_source,
     latency_ms: found.query.latency_ms,
     cache_hit: found.query.cache_hit,
-  });
+  };
+}
+
+/** Remember the bank's earlier decisions and the ones people made on this desk, each with where it came from. */
+function rememberAll(
+  deps: AgentDeps,
+  evidence: EvidenceBundle,
+  memory: PointerMemory,
+  entryTable: string,
+  rows: { bank: Row[]; desk: Row[] },
+): Source {
+  const source: Source = new Map();
+  for (const [list, desk] of [
+    [rows.bank, false],
+    [rows.desk, true],
+  ] as const) {
+    for (const disposition of list) {
+      const record = memory.remember(memoryOf(deps, evidence, disposition, entryTable));
+      source.set(record.id, { row: disposition, desk });
+    }
+  }
+  return source;
+}
+
+/** Recall what was decided before about this customer and listed party, and check it still holds. */
+export async function recallMemory(
+  deps: AgentDeps,
+  tools: ReadonlyMap<string, EvidenceTool>,
+  evidence: EvidenceBundle,
+  queries: QueryEvidenceInput[],
+): Promise<MemoryEvidence> {
+  const tool = tools.get("find_disposition");
+  const customerId = evidence.customer.customer_id;
+  if (!tool || !customerId) return none();
+  const found = await tool.find({ customer_id: customerId });
+  queries.push(queryEvidenceOf(deps, found));
 
   const entryTable = evidence.model.tables.find((t) => t.name === "list_entry")?.qualifiedName ?? "list_entry";
   const memory = new PointerMemory({
@@ -138,16 +167,7 @@ export async function recallMemory(
   const bankRows = found.rows.filter((d) => d.entry_id === evidence.entry.entry_id);
   // Decisions people made on this desk about the same customer and entry. They are kept as pointers too.
   const deskRows = deps.analystDecisions?.(customerId, evidence.entry.entry_id ?? "") ?? [];
-  const source: Source = new Map();
-  for (const [rows, desk] of [
-    [bankRows, false],
-    [deskRows, true],
-  ] as const) {
-    for (const disposition of rows) {
-      const record = memory.remember(memoryOf(deps, evidence, disposition, entryTable));
-      source.set(record.id, { row: disposition, desk });
-    }
-  }
+  const source = rememberAll(deps, evidence, memory, entryTable, { bank: bankRows, desk: deskRows });
   supersedeEarlier(memory, source);
   const recalled = source.size > 0 ? await memory.recall(entryTable, { entry_id: evidence.entry.entry_id ?? "" }) : [];
 
