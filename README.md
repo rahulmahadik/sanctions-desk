@@ -46,7 +46,7 @@ Name matching raises far more alerts than there are real matches. The desk works
 Needs Docker, nothing else: no Zetaris, no model service, no credentials.
 
 ```bash
-git clone <repository-url> sanctions-desk && cd sanctions-desk
+git clone https://github.com/rahulmahadik/sanctions-desk.git && cd sanctions-desk
 SAMPLE_MODE=true docker compose up --build        # the API on http://localhost:8000, the review desk on http://localhost:3001
 
 curl -s localhost:8000/run -H 'content-type: application/json' \
