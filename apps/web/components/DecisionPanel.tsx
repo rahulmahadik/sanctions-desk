@@ -12,7 +12,7 @@ import {
 } from "../lib/api";
 import { DECISION_LABEL, DECISION_TONE, shortHash } from "../lib/format";
 import { SESSION_EVENT } from "../lib/session";
-import type { ActionCheck, ActionRecordView, Decision, HumanView, MeView } from "../lib/types";
+import type { ActionCheck, ActionRecordView, Decision, HumanActionView, HumanView, MeView } from "../lib/types";
 
 const OUTCOMES: Decision[] = ["CLOSE_FALSE_POSITIVE", "NEED_MORE_INFO", "ESCALATE_L2", "RECOMMEND_BLOCK"];
 const CAUTION: Record<Decision, number> = {
@@ -45,16 +45,218 @@ const STATUS_LABEL: Record<HumanView["status"], string> = {
   block_declined: "Block declined by the second approver; escalated",
 };
 
-/** The step where a person decides. The desk recommends; nothing happens until someone approves or overrides. */
-export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refreshKey?: unknown }) {
+const ACTION_TEXT: Record<HumanActionView["action"], string> = {
+  approve: "approved",
+  override: "overrode to",
+  second_approval: "gave the second approval for",
+  reopen: "reopened the automatic close",
+  reject: "declined the block, so",
+};
+
+const needsReason = `Give a reason of at least ${MIN_REASON} characters.`;
+
+/** Why a decision cannot be sent yet, in words, or undefined when it can. */
+export function decideBlocker(
+  me: MeView | undefined,
+  rec: Decision,
+  action: "approve" | "override",
+  outcome: Decision,
+  reasonOk: boolean,
+): string | undefined {
+  if (!me || me.user.role === "viewer") return "Choose a demo user (or sign in) to record a decision.";
+  if (!me.permissions.decide) return `A ${me.user.role.replace("_", " ")} cannot record decisions.`;
+  if (action === "override" && CAUTION[outcome] < CAUTION[rec] && !me.permissions.override_towards_less_caution)
+    return "Only an approver can override towards a less cautious outcome.";
+  if (action === "override" && outcome === rec) return "An override must choose a different outcome.";
+  return reasonOk ? undefined : needsReason;
+}
+
+export function secondBlocker(me: MeView | undefined, firstActor: string | undefined, reasonOk: boolean) {
+  if (!me) return "Choose a demo user.";
+  if (!me.permissions.approve_block) return "The second approval must come from an approver.";
+  if (me.user.id === firstActor) return "You made the first decision; a different approver must confirm.";
+  return reasonOk ? undefined : needsReason;
+}
+
+export function reopenBlocker(me: MeView | undefined, reasonOk: boolean) {
+  if (!me?.permissions.decide) return "Choose a demo user who can decide (analyst or approver), or sign in.";
+  return reasonOk ? undefined : needsReason;
+}
+
+interface Shared {
+  alertId: string;
+  view: HumanView;
+  me?: MeView;
+  reason: string;
+  setReason: (v: string) => void;
+  busy: boolean;
+  submit: (fn: () => Promise<HumanView>) => Promise<void>;
+}
+
+const ReasonBox = ({
+  label,
+  rows,
+  ...p
+}: {
+  label: string;
+  rows: number;
+  reason: string;
+  setReason: (v: string) => void;
+}) => (
+  <p>
+    <label>
+      {label}{" "}
+      <textarea
+        rows={rows}
+        value={p.reason}
+        maxLength={600}
+        onChange={(e) => p.setReason(e.target.value)}
+        style={{ width: "100%" }}
+      />
+    </label>
+  </p>
+);
+
+function ActionsTaken({ view }: { view: HumanView }) {
+  if (view.actions_taken.length === 0) return null;
+  return (
+    <ol className="events" aria-label="What people did">
+      {view.actions_taken.map((a) => (
+        <li key={`${a.actor}-${a.at}`}>
+          <strong>{a.actor}</strong> ({a.role?.replace("_", " ")}) {ACTION_TEXT[a.action]}{" "}
+          {a.outcome ? DECISION_LABEL[a.outcome] : ""}: <em>{a.reason}</em>{" "}
+          <span className="muted">{new Date(a.at).toLocaleString()}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function ReopenForm({ alertId, view, me, reason, setReason, busy, submit }: Shared) {
+  const blocked = reopenBlocker(me, reason.trim().length >= MIN_REASON);
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!blocked) void submit(() => postReopen(alertId, { reason: reason.trim(), record_hash: view.record_hash }));
+      }}
+    >
+      <p data-testid="auto-closed-statement">{view.autonomy?.statement}.</p>
+      <ReasonBox label="Reason for reopening" rows={2} reason={reason} setReason={setReason} />
+      <button type="submit" disabled={busy || blocked !== undefined}>
+        Reopen this close
+      </button>{" "}
+      {blocked ? <span className="muted">{blocked}</span> : null}
+    </form>
+  );
+}
+
+function DecideForm({ alertId, view, me, reason, setReason, busy, submit }: Shared) {
+  const [action, setAction] = useState<"approve" | "override">("approve");
+  const [outcome, setOutcome] = useState<Decision>("ESCALATE_L2");
+  const rec = view.recommendation.decision;
+  const blocked = decideBlocker(me, rec, action, outcome, reason.trim().length >= MIN_REASON);
+  const chosen = action === "approve" ? rec : outcome;
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (blocked) return;
+        void submit(() =>
+          postDecision(alertId, {
+            action,
+            ...(action === "override" ? { outcome } : {}),
+            reason: reason.trim(),
+            record_hash: view.record_hash,
+          }),
+        );
+      }}
+    >
+      <fieldset>
+        <legend>Your decision</legend>
+        <label>
+          <input type="radio" name="action" checked={action === "approve"} onChange={() => setAction("approve")} />{" "}
+          Approve the recommendation
+        </label>{" "}
+        <label>
+          <input type="radio" name="action" checked={action === "override"} onChange={() => setAction("override")} />{" "}
+          Override with
+        </label>{" "}
+        <select
+          aria-label="Outcome for an override"
+          value={outcome}
+          disabled={action !== "override"}
+          onChange={(e) => setOutcome(e.target.value as Decision)}
+        >
+          {OUTCOMES.map((o) => (
+            <option key={o} value={o}>
+              {DECISION_LABEL[o]}
+            </option>
+          ))}
+        </select>
+      </fieldset>
+      <ReasonBox label="Reason (required, shown in the record)" rows={3} reason={reason} setReason={setReason} />
+      <p id="decision-hint" className="muted">
+        {chosen === "RECOMMEND_BLOCK"
+          ? "A block is not final: it waits for a second, different approver, and even then it is only a recommendation for the sanctions officer."
+          : "Nothing is sent or executed. Approving prepares the next record below; you can read it before anyone acts on it."}
+      </p>
+      <button type="submit" disabled={busy || blocked !== undefined}>
+        {busy ? "Saving…" : action === "approve" ? "Approve" : "Override"}
+      </button>{" "}
+      {blocked ? <span className="muted">{blocked}</span> : null}
+    </form>
+  );
+}
+
+function SecondForm({ alertId, view, me, reason, setReason, busy, submit }: Shared) {
+  const blocked = secondBlocker(me, view.actions_taken[0]?.actor, reason.trim().length >= MIN_REASON);
+  const send = (approve: boolean) =>
+    submit(() => postSecondApproval(alertId, { approve, reason: reason.trim(), record_hash: view.record_hash }));
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!blocked) void send(true);
+      }}
+    >
+      <ReasonBox label="Reason for the second approval" rows={2} reason={reason} setReason={setReason} />
+      <button type="submit" disabled={busy || blocked !== undefined}>
+        Give the second approval
+      </button>{" "}
+      <button
+        type="button"
+        className="secondary"
+        disabled={busy || blocked !== undefined}
+        onClick={() => void send(false)}
+      >
+        Decline the block
+      </button>{" "}
+      {blocked ? <span className="muted">{blocked}</span> : null}
+    </form>
+  );
+}
+
+function NextActions({ view }: { view: HumanView }) {
+  if (view.next_actions.length === 0) return <p className="muted">Nothing is prepared until a person has decided.</p>;
+  return (
+    <ul className="plain">
+      {view.next_actions.map((a) => (
+        <li key={a.action_id}>
+          <strong>{KIND_LABEL[a.body.kind]}</strong> <span className="badge tone-wait">{a.body.status}</span>{" "}
+          <span className="muted">not sent; {CHECK_LABEL[a.check]}</span>
+          <pre className="note">{a.body.content}</pre>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Loads the case's decision state and who is signed in, and reloads when either changes. */
+function useDecisionState(alertId: string, refreshKey: unknown) {
   const [me, setMe] = useState<MeView>();
   const [view, setView] = useState<HumanView>();
   const [problem, setProblem] = useState<string>();
-  const [action, setAction] = useState<"approve" | "override">("approve");
-  const [outcome, setOutcome] = useState<Decision>("ESCALATE_L2");
-  const [reason, setReason] = useState("");
-  const [busy, setBusy] = useState(false);
-
   const load = useCallback(() => {
     fetchMe()
       .then(setMe)
@@ -69,13 +271,20 @@ export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refres
         setProblem(err instanceof ApiError && err.status === 404 ? undefined : (err as Error).message);
       });
   }, [alertId]);
-
   // biome-ignore lint/correctness/useExhaustiveDependencies: refreshKey asks for a reload after a new review
   useEffect(() => {
     load();
     window.addEventListener(SESSION_EVENT, load);
     return () => window.removeEventListener(SESSION_EVENT, load);
   }, [load, refreshKey]);
+  return { me, view, setView, problem, setProblem };
+}
+
+/** The step where a person decides. The desk recommends; nothing happens until someone approves or overrides. */
+export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refreshKey?: unknown }) {
+  const { me, view, setView, problem, setProblem } = useDecisionState(alertId, refreshKey);
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
 
   if (!view) {
     return (
@@ -92,61 +301,25 @@ export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refres
     );
   }
 
-  const rec = view.recommendation.decision;
-  const chosen = action === "approve" ? rec : outcome;
-  const lessCautious = action === "override" && CAUTION[outcome] < CAUTION[rec];
-  const reasonOk = reason.trim().length >= MIN_REASON;
-  const canDecide = me?.permissions.decide === true;
-  const blockedBy =
-    !me || me.user.role === "viewer"
-      ? "Choose a demo user (or sign in) to record a decision."
-      : !canDecide
-        ? `A ${me.user.role.replace("_", " ")} cannot record decisions.`
-        : lessCautious && !me.permissions.override_towards_less_caution
-          ? "Only an approver can override towards a less cautious outcome."
-          : action === "override" && outcome === rec
-            ? "An override must choose a different outcome."
-            : !reasonOk
-              ? `Give a reason of at least ${MIN_REASON} characters.`
-              : undefined;
-
-  const submit = async (fn: () => Promise<HumanView>) => {
+  const run = async (fn: () => Promise<unknown>, after?: (v: HumanView) => void) => {
     setBusy(true);
     setProblem(undefined);
     try {
-      setView(await fn());
-      setReason("");
+      const value = await fn();
+      if (after) after(value as HumanView);
     } catch (err) {
       setProblem(err instanceof Error ? err.message : String(err));
     } finally {
       setBusy(false);
     }
   };
-
-  const reopenBlocked = !canDecide
-    ? "Choose a demo user who can decide (analyst or approver), or sign in."
-    : !reasonOk
-      ? `Give a reason of at least ${MIN_REASON} characters.`
-      : undefined;
-  const download = async (format: "pdf" | "md") => {
-    setProblem(undefined);
-    try {
-      await downloadCaseFile(alertId, format);
-    } catch (err) {
-      setProblem(err instanceof Error ? err.message : String(err));
-    }
-  };
-  const first = view.actions_taken[0];
-  const waitingForSecond = view.status === "block_pending";
-  const secondBlocked = !me
-    ? "Choose a demo user."
-    : !me.permissions.approve_block
-      ? "The second approval must come from an approver."
-      : me.user.id === first?.actor
-        ? "You made the first decision; a different approver must confirm."
-        : !reasonOk
-          ? `Give a reason of at least ${MIN_REASON} characters.`
-          : undefined;
+  const submit = (fn: () => Promise<HumanView>) =>
+    run(fn, (v) => {
+      setView(v);
+      setReason("");
+    });
+  const shared: Shared = { alertId, view, me, reason, setReason, busy, submit };
+  const rec = view.recommendation.decision;
 
   return (
     <section className="panel" aria-labelledby="decision-h">
@@ -160,183 +333,31 @@ export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refres
           {problem}
         </p>
       ) : null}
-
       {view.autonomy?.outcome === "qa_sample" && view.status === "awaiting" ? (
         <p className="banner" role="note">
           Picked for a quality-assurance review: this close met every condition for an automatic close, and a person
           decides it.
         </p>
       ) : null}
-
-      {view.status === "auto_closed" ? (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!reopenBlocked)
-              void submit(() => postReopen(alertId, { reason: reason.trim(), record_hash: view.record_hash }));
-          }}
-        >
-          <p data-testid="auto-closed-statement">{view.autonomy?.statement}.</p>
-          <p>
-            <label>
-              Reason for reopening{" "}
-              <textarea rows={2} value={reason} maxLength={600} onChange={(e) => setReason(e.target.value)} />
-            </label>
-          </p>
-          <button type="submit" disabled={busy || reopenBlocked !== undefined}>
-            Reopen this close
-          </button>{" "}
-          {reopenBlocked ? <span className="muted">{reopenBlocked}</span> : null}
-        </form>
-      ) : null}
-
-      {view.actions_taken.length > 0 ? (
-        <ol className="events" aria-label="What people did">
-          {view.actions_taken.map((a) => (
-            <li key={`${a.actor}-${a.at}`}>
-              <strong>{a.actor}</strong> ({a.role?.replace("_", " ")}){" "}
-              {a.action === "approve"
-                ? "approved"
-                : a.action === "override"
-                  ? "overrode to"
-                  : a.action === "second_approval"
-                    ? "gave the second approval for"
-                    : a.action === "reopen"
-                      ? "reopened the automatic close"
-                      : "declined the block, so"}{" "}
-              {a.outcome ? DECISION_LABEL[a.outcome] : ""}: <em>{a.reason}</em>{" "}
-              <span className="muted">{new Date(a.at).toLocaleString()}</span>
-            </li>
-          ))}
-        </ol>
-      ) : null}
-
-      {view.status === "awaiting" ? (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (blockedBy) return;
-            void submit(() =>
-              postDecision(alertId, {
-                action,
-                ...(action === "override" ? { outcome } : {}),
-                reason: reason.trim(),
-                record_hash: view.record_hash,
-              }),
-            );
-          }}
-        >
-          <fieldset>
-            <legend>Your decision</legend>
-            <label>
-              <input type="radio" name="action" checked={action === "approve"} onChange={() => setAction("approve")} />{" "}
-              Approve the recommendation
-            </label>{" "}
-            <label>
-              <input
-                type="radio"
-                name="action"
-                checked={action === "override"}
-                onChange={() => setAction("override")}
-              />{" "}
-              Override with
-            </label>{" "}
-            <select
-              aria-label="Outcome for an override"
-              value={outcome}
-              disabled={action !== "override"}
-              onChange={(e) => setOutcome(e.target.value as Decision)}
-            >
-              {OUTCOMES.map((o) => (
-                <option key={o} value={o}>
-                  {DECISION_LABEL[o]}
-                </option>
-              ))}
-            </select>
-          </fieldset>
-          <p>
-            <label>
-              Reason (required, shown in the record){" "}
-              <textarea
-                rows={3}
-                value={reason}
-                maxLength={600}
-                onChange={(e) => setReason(e.target.value)}
-                aria-describedby="decision-hint"
-                style={{ width: "100%" }}
-              />
-            </label>
-          </p>
-          <p id="decision-hint" className="muted">
-            {chosen === "RECOMMEND_BLOCK"
-              ? "A block is not final: it waits for a second, different approver, and even then it is only a recommendation for the sanctions officer."
-              : "Nothing is sent or executed. Approving prepares the next record below; you can read it before anyone acts on it."}
-          </p>
-          <button type="submit" disabled={busy || blockedBy !== undefined}>
-            {busy ? "Saving…" : action === "approve" ? "Approve" : "Override"}
-          </button>{" "}
-          {blockedBy ? <span className="muted">{blockedBy}</span> : null}
-        </form>
-      ) : null}
-
-      {waitingForSecond ? (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!secondBlocked)
-              void submit(() =>
-                postSecondApproval(alertId, { approve: true, reason: reason.trim(), record_hash: view.record_hash }),
-              );
-          }}
-        >
-          <p>
-            <label>
-              Reason for the second approval{" "}
-              <textarea rows={2} value={reason} maxLength={600} onChange={(e) => setReason(e.target.value)} />
-            </label>
-          </p>
-          <button type="submit" disabled={busy || secondBlocked !== undefined}>
-            Give the second approval
-          </button>{" "}
-          <button
-            type="button"
-            className="secondary"
-            disabled={busy || secondBlocked !== undefined}
-            onClick={() =>
-              void submit(() =>
-                postSecondApproval(alertId, { approve: false, reason: reason.trim(), record_hash: view.record_hash }),
-              )
-            }
-          >
-            Decline the block
-          </button>{" "}
-          {secondBlocked ? <span className="muted">{secondBlocked}</span> : null}
-        </form>
-      ) : null}
-
+      {view.status === "auto_closed" ? <ReopenForm {...shared} /> : null}
+      <ActionsTaken view={view} />
+      {view.status === "awaiting" ? <DecideForm {...shared} /> : null}
+      {view.status === "block_pending" ? <SecondForm {...shared} /> : null}
       <p>
-        <button type="button" className="secondary" onClick={() => void download("pdf")}>
-          Download case file (PDF)
-        </button>{" "}
-        <button type="button" className="secondary" onClick={() => void download("md")}>
-          Download case file (Markdown)
-        </button>
+        {(["pdf", "md"] as const).map((format) => (
+          <span key={format}>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => void run(() => downloadCaseFile(alertId, format))}
+            >
+              Download case file ({format === "pdf" ? "PDF" : "Markdown"})
+            </button>{" "}
+          </span>
+        ))}
       </p>
-
       <h3>Case file: what happens next</h3>
-      {view.next_actions.length === 0 ? (
-        <p className="muted">Nothing is prepared until a person has decided.</p>
-      ) : (
-        <ul className="plain">
-          {view.next_actions.map((a) => (
-            <li key={a.action_id}>
-              <strong>{KIND_LABEL[a.body.kind]}</strong> <span className="badge tone-wait">{a.body.status}</span>{" "}
-              <span className="muted">not sent; {CHECK_LABEL[a.check]}</span>
-              <pre className="note">{a.body.content}</pre>
-            </li>
-          ))}
-        </ul>
-      )}
+      <NextActions view={view} />
     </section>
   );
 }
