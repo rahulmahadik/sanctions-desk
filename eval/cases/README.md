@@ -38,11 +38,17 @@ The set has the same three families as the first, with new names, new wording an
 | Notes that look documentary but are only claims | HO2-013 to HO2-015 (no check reference; the counterparty recorded as unknown; a year of birth but no date) | NEED_MORE_INFO (ESCALATE_L2 acceptable); a close is a miss | Each fails the standard for exactly one reason, which a test checks, so a close that relies on it breaks the rule. |
 | Documentary text, but no usable counterparty country | HO2-009 and HO2-010 | NEED_MORE_INFO (ESCALATE_L2 acceptable); a close is a miss | See the changes below. |
 
-Changes made before the hash was recorded and before any run (no system output for v2 existed):
+Changes made before the final freeze. **No system output for v2 existed when any of them was made**: no v2 result file and no v2 trace existed (checked when each change was made). The same list, with its triggers, is in `heldout2-changes.json`, which the report reads.
 
-| Cases | Change | Reason |
-| --- | --- | --- |
-| HO2-009, HO2-010 | Relabelled from CLOSE_FALSE_POSITIVE to NEED_MORE_INFO (ESCALATE_L2 acceptable, a close is a miss) | The written policy says a counterparty with no usable country cannot be cleared (approved definition `counterparty_match@1` in `data/sample/business_definition.json`, and the failing payment rule `counterparty_country_valid`), so a close would mean ignoring a failing data-quality rule. |
-| HO2-016 to HO2-019 | Added | So the set tests false closes where the structured fields alone would close, and clears that the written policy allows. |
+| Cases | Change | Trigger | Reason |
+| --- | --- | --- | --- |
+| HO2-009, HO2-010 | Relabelled from CLOSE_FALSE_POSITIVE to NEED_MORE_INFO (ESCALATE_L2 acceptable, a close is a miss) | independent review (held-out v2 label check) and policy consistency | The written policy says a counterparty with no usable country cannot be cleared (approved definition counterparty_match@1, and the failing payment rule counterparty_country_valid), so a close would mean ignoring a failing data-quality rule. |
+| HO2-016, HO2-017 | Added: risks where the structured fields alone meet the false-positive definition and the risk is only in free text | independent review (the set was thinner than it looked: four of its seven risks reach an acceptable answer from a missing birth date alone) | So the set tests false closes where plain rules would close. |
+| HO2-018, HO2-019 | Added: clears the written policy allows (no birth date on record, a documentary note with a labelled birth date that conflicts) | independent review (two of the original clears were not reachable under the written policy) | So the set can measure correct clears. |
+| HO2-017 | The listed remarks name the customer by full name only, not with the customer's date of birth as first specified | spec deviation | The remarks are real public list text and cannot carry a synthetic customer's date of birth; no remark in the committed list sample names a person together with a date of birth. The customer's own structured fields still meet the false-positive definition. |
+| all | Date corrected to 23 October 2026; the statement about independence reworded | independent review (date and wording) | The set was committed on 23 October 2026, after the v1 results were known; it was written by a separate author from the v1 case files and the written definitions, which is what the wording now says. |
+| all | A second pinned hash over the rows the cases point at (notes, references and fields) | author's own check | The case file does not hold the note text, so an edit to a note would not change the case-file hash. |
+
+**Final freeze:** the commit before the first v2 run. Its hash is written here and in `heldout2-changes.json` when that run starts: _not yet recorded_.
 
 The rows are built from their own seed and id marker (`CUST-J0001`, `ALR-J0001`, ...) after the first set's rows. `npm run data:synthetic -- --include-heldout2` writes them into `data/synthetic/` after the first set's rows, and `npm run heldout2:load` loads them into the bank database (dry run unless `--apply` is given). Without the flag every existing output is unchanged; a test checks the main and first-set outputs byte for byte against the committed files.
