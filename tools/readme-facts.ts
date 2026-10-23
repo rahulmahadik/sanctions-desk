@@ -56,7 +56,7 @@ let stale = 0;
 for (const file of files) {
   const path = resolveProjectPath(file);
   const text = readFileSync(path, "utf8");
-  const next = text.replace(pattern, (whole, name: string, value: string) => {
+  const next = text.replace(pattern, (_whole, name: string, value: string) => {
     const wanted = facts[name];
     if (wanted === undefined) throw new Error(`${file}: unknown fact "${name}"`);
     if (wanted !== value) stale += 1;

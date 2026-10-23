@@ -39,7 +39,10 @@ await assert.rejects(
 );
 
 let loads = 0;
-const load = async () => ((loads += 1), [1]);
+const load = async () => {
+  loads += 1;
+  return [1];
+};
 assert.equal((await cached(dir, "k", 60000, load)).cache, "miss");
 assert.equal((await cached(dir, "k", 60000, load)).cache, "hit");
 assert.equal(loads, 1);
