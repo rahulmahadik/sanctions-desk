@@ -82,10 +82,14 @@ function rescore(r: Result, original = false): Result {
 
 const originalScore = new Map<string, Metrics>();
 const newest = new Map<string, Result & { file: string }>();
+/** Complete runs of a variant that a newer complete run has replaced, kept for comparison. */
+const earlier: Array<Result & { file: string; original?: Metrics }> = [];
 for (const f of files) {
   const r = JSON.parse(readFileSync(join(dir, f), "utf8")) as Result;
   const partial = r.tag !== undefined || r.selection?.kinds || r.selection?.groups || r.selection?.limit;
   if (!partial) {
+    const previous = newest.get(r.variant);
+    if (previous) earlier.push({ ...previous, original: originalScore.get(r.variant) });
     newest.set(r.variant, { ...rescore(r), file: f });
     originalScore.set(r.variant, rescore(r, true).metrics);
   }
@@ -232,13 +236,21 @@ if (have.length === 0) {
     "| Variant | Cases | Exact | Acceptable (revised labels) | Acceptable (original labels) | Acceptable, leaving out unavailable decisions | False closes (risk cases) | No usable decision: provider / parsing | Median s | p95 s | Cloud share of calls | Model cost |",
   );
   lines.push("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|");
-  for (const v of have) {
-    const r = get(v) as Result;
+  const compared: Array<{ key: string; label: string; r: Result; original?: Metrics }> = [
+    ...have.map((v) => ({ key: v, label: LABEL[v] ?? v, r: get(v) as Result })),
+    ...earlier.map((r) => ({
+      key: r.variant,
+      label: `${LABEL[r.variant] ?? r.variant} — **earlier code version** (run of ${r.started_at.slice(0, 10)}; superseded by the later full run above)`,
+      r,
+      original: r.original,
+    })),
+  ];
+  for (const { key: v, label: rowLabel, r, original } of compared) {
     const m = r.metrics;
     const x = m.excluding_unavailable;
     const by = m.decision_unavailable_by_cause;
     lines.push(
-      `| ${LABEL[v] ?? v} | ${m.cases} | ${pct(m.exact_accuracy)} | ${pct(m.acceptable_accuracy)} | ${pct((originalScore.get(v) ?? m).acceptable_accuracy)} | ${x ? `${pct(x.acceptable_accuracy)} (${x.cases} cases)` : "-"} | ${m.false_closes} of ${m.risk_cases} (${pct(m.false_close_rate)}) | ${by ? `${by.provider} / ${by.parsing}` : "-"} | ${m.latency_s.p50} | ${m.latency_s.p95} | ${pct(m.model_calls.cloud_share)} | ${m.cost.total.toFixed(4)} |`,
+      `| ${rowLabel} | ${m.cases} | ${pct(m.exact_accuracy)} | ${pct(m.acceptable_accuracy)} | ${pct((original ?? originalScore.get(v) ?? m).acceptable_accuracy)} | ${x ? `${pct(x.acceptable_accuracy)} (${x.cases} cases)` : "-"} | ${m.false_closes} of ${m.risk_cases} (${pct(m.false_close_rate)}) | ${by ? `${by.provider} / ${by.parsing}` : "-"} | ${m.latency_s.p50} | ${m.latency_s.p95} | ${pct(m.model_calls.cloud_share)} | ${m.cost.total.toFixed(4)} |`,
     );
   }
   lines.push(
@@ -260,8 +272,11 @@ if (have.length === 0) {
     "| Variant | Started | Code version | Schema-constrained output | Challenger | Pause after a provider failure | Challenger answer limit |",
     "|---|---|---|---|---|---|---|",
   );
-  for (const v of have) {
-    const r = get(v) as Result;
+  const runRows: Array<{ name: string; r: Result }> = [
+    ...have.map((v) => ({ name: v, r: get(v) as Result })),
+    ...earlier.map((r) => ({ name: `${r.variant} (earlier code version)`, r })),
+  ];
+  for (const { name: v, r } of runRows) {
     const f = r.features;
     lines.push(
       f

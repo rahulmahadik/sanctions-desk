@@ -28,6 +28,7 @@
     "check:roles": "tsx tools/check-roles.ts",
     "check:isolation": "tsx tools/check-isolation.ts",
     "lint:voice": "node scripts/lint-voice.mjs",
+    "scan:public": "node scripts/scan-public.mjs",
     "scan:history": "node scripts/scan-history.mjs",
     "receipt:pubkey": "tsx tools/receipt-pubkey.ts",
     "test:engines": "tsx tools/test-engines.ts",
