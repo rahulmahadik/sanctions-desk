@@ -51,21 +51,21 @@ function ownText(text: string, known: readonly string[]): string[] {
   return pieces.filter((p) => p.length >= FRAGMENT_CHARS);
 }
 
-/** True when the prompt holds the field's text, or any run of FRAGMENT_CHARS of it, as written or escaped in JSON. */
-function holdsFragment(
+/** The first run of FRAGMENT_CHARS of the piece found in the prompt, as written or escaped in JSON. */
+function fragmentIn(
   prompt: string,
   runs: ReadonlySet<string>,
   sentAnyway: ReadonlySet<string>,
   piece: string,
-): boolean {
+): string | undefined {
   for (let i = 0; i + FRAGMENT_CHARS <= piece.length; i += 1) {
     const run = piece.slice(i, i + FRAGMENT_CHARS);
     if (run.trim().length < FRAGMENT_CHARS / 2 || sentAnyway.has(run)) continue;
-    if (runs.has(run)) return true;
+    if (runs.has(run)) return run;
     const escaped = JSON.stringify(run).slice(1, -1);
-    if (escaped !== run && prompt.includes(escaped)) return true;
+    if (escaped !== run && prompt.includes(escaped)) return run;
   }
-  return false;
+  return undefined;
 }
 
 /** Every run of FRAGMENT_CHARS characters in the prompt, so each window of the text is one lookup. */
@@ -75,10 +75,38 @@ function runsOf(prompt: string): Set<string> {
   return runs;
 }
 
-/** True when any free text of the case, or a fragment of it, appears in the prompt. */
-export function containsFreeText(prompt: string, evidence: EvidenceBundle): boolean {
-  const texts = freeTextOf(evidence);
-  if (texts.length === 0) return false;
+/** What a free-text match looked like, without its text: which field, whole or fragment, what kind, where. */
+export interface FreeTextMatch {
+  field: "notes" | "payment_reference" | "remarks";
+  kind: "whole" | "fragment";
+  /** A coarse type of the matching characters, so a refusal can be told apart from a leak without keeping the text. */
+  fragment_type: "date" | "check_reference" | "document_number" | "name" | "other";
+  chars: number;
+  fragment_hash: string;
+  /** The prompt block (evidence, definitions, ...) that held it, when the prompt has blocks. */
+  block?: string;
+}
+
+/** A coarse type for a run of characters. */
+export function fragmentType(text: string): FreeTextMatch["fragment_type"] {
+  if (/\d{4}-\d{2}-\d{2}/.test(text)) return "date";
+  if (/\b[A-Z]{2,5}-\d{4,}\b/.test(text)) return "check_reference";
+  if (/\b[A-Z]{0,3}\d{5,}[A-Z]?\b/.test(text)) return "document_number";
+  if (/^[\p{L} .'-]+$/u.test(text) && /\p{Lu}/u.test(text)) return "name";
+  return "other";
+}
+
+/** The first free text of the case, or fragment of it, found in the prompt; undefined when there is none. */
+export function findFreeText(prompt: string, evidence: EvidenceBundle): FreeTextMatch | undefined {
+  const fields = [
+    ["notes", evidence.customer.notes],
+    ["payment_reference", evidence.payment?.payment_reference],
+    ["remarks", evidence.entry.remarks],
+  ] as const;
+  const present = fields.filter(
+    (f): f is readonly [FreeTextMatch["field"], string] => typeof f[1] === "string" && f[1].trim() !== "",
+  );
+  if (present.length === 0) return undefined;
   const known = structuredValues(evidence);
   const runs = runsOf(prompt);
   // Runs that are also part of a value sent on purpose (a list name, an alias) or of the approved definitions' wording
@@ -87,17 +115,36 @@ export function containsFreeText(prompt: string, evidence: EvidenceBundle): bool
   for (const value of [...known, ...evidence.definitions.map((d) => d.statement)]) {
     for (const run of runsOf(value)) sentAnyway.add(run);
   }
-  return texts.some((t) => {
-    const text = t.trim();
+  const blocks = blocksOf(prompt);
+  const blockOf = (text: string) => Object.entries(blocks).find(([, body]) => body.includes(text))?.[0];
+  const describe = (field: FreeTextMatch["field"], kind: FreeTextMatch["kind"], text: string): FreeTextMatch => ({
+    field,
+    kind,
+    fragment_type: fragmentType(text),
+    chars: text.length,
+    fragment_hash: sha256Hex(text).slice(0, 16),
+    ...(blockOf(text) ? { block: blockOf(text) } : {}),
+  });
+  for (const [field, raw] of present) {
+    const text = raw.trim();
     // A whole text is a leak from 8 characters on; shorter ones (or a text that is just a name sent anyway) are not
     // told apart from ordinary words.
     const whole =
       text.length >= 8 &&
       !known.some((k) => k.toLowerCase() === text.toLowerCase()) &&
       (prompt.includes(text) || prompt.includes(JSON.stringify(text).slice(1, -1)));
-    if (whole) return true;
-    return ownText(text, known).some((piece) => holdsFragment(prompt, runs, sentAnyway, piece));
-  });
+    if (whole) return describe(field, "whole", text);
+    for (const piece of ownText(text, known)) {
+      const run = fragmentIn(prompt, runs, sentAnyway, piece);
+      if (run) return describe(field, "fragment", run);
+    }
+  }
+  return undefined;
+}
+
+/** True when any free text of the case, or a fragment of it, appears in the prompt. */
+export function containsFreeText(prompt: string, evidence: EvidenceBundle): boolean {
+  return findFreeText(prompt, evidence) !== undefined;
 }
 
 function blocksOf(prompt: string): Record<string, string> {
@@ -146,6 +193,8 @@ export function recordCloudPayload(
   prompt: string,
 ): CloudPayload {
   const payload = describePrompt(step, prompt, evidence);
+  // When the prompt is refused, say what matched (field, whole or fragment, coarse type, length, hash), never the text.
+  const match = payload.raw_free_text_present ? findFreeText(prompt, evidence) : undefined;
   evidence.cloudPayloads = [...(evidence.cloudPayloads ?? []), payload];
   deps.trace.log({
     agent: step,
@@ -154,7 +203,7 @@ export function recordCloudPayload(
     output_summary: payload.raw_free_text_present
       ? `not sent: free text from the data is in the prompt (hash ${payload.prompt_hash.slice(0, 16)})`
       : `sent ${Object.keys(payload.fields).length} fields, ${payload.prompt_chars} characters, hash ${payload.prompt_hash.slice(0, 16)}; free text withheld`,
-    detail: { ...payload },
+    detail: { ...payload, ...(match ? { free_text_match: match } : {}) },
   });
   if (payload.raw_free_text_present) {
     throw new AppError(

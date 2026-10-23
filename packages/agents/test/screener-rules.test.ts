@@ -131,7 +131,13 @@ describe("nothing copied from the text reaches a cloud prompt", () => {
     const prompt = `TASK: decision\n<evidence>{"x":"see: ${NOTE.slice(15, 45)} etc"}</evidence>`;
     expect(() => recordCloudPayload(deps, evidence, "decision", prompt)).toThrow(AppError);
     const blocked = readTrace(deps.trace.file).find((e) => e.action === "cloud_payload");
-    expect(blocked).toMatchObject({ status: "blocked", detail: { raw_free_text_present: true } });
+    expect(blocked).toMatchObject({
+      status: "blocked",
+      detail: {
+        raw_free_text_present: true,
+        free_text_match: { field: "notes", kind: "fragment", chars: 20, block: "evidence" },
+      },
+    });
     expect(JSON.stringify(blocked)).not.toContain(NOTE.slice(15, 45));
 
     // The decision step, given feedback that quotes the note, sends nothing and escalates.
@@ -333,5 +339,16 @@ describe("who made the recommendation", () => {
       critic_unresolved: false,
     });
     expect(res.decided_by_fallback).toBe(true); // the scripted answers are labelled as the rules stand-in
+  });
+});
+
+describe("a refused prompt says what matched without keeping the text", () => {
+  it("types fragments coarsely", async () => {
+    const { fragmentType } = await import("../src/cloud-payload.js");
+    expect(fragmentType("passport checked 2024-03-05 at")).toBe("date");
+    expect(fragmentType("ref KYC-482113 done")).toBe("check_reference");
+    expect(fragmentType("number ZP1234567 seen")).toBe("document_number");
+    expect(fragmentType("Maria Gonzalez Perez")).toBe("name");
+    expect(fragmentType("said he would come back")).toBe("other");
   });
 });
