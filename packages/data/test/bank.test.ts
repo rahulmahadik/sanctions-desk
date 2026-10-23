@@ -62,10 +62,10 @@ describe("the synthetic bank", () => {
     expect(other.tables.customer.map((c) => c.full_name)).not.toEqual(bank.tables.customer.map((c) => c.full_name));
   });
 
-  it("has the 60 exam cases in the planned groups, with unique ids", () => {
-    expect(bank.cases).toHaveLength(60);
+  it("has the 65 exam cases in the planned groups, with unique ids", () => {
+    expect(bank.cases).toHaveLength(65);
     for (const [group, size] of Object.entries(EXAM_GROUP_SIZES)) expect(inGroup(group), group).toHaveLength(size);
-    expect(new Set(bank.cases.map((c) => c.case_id)).size).toBe(60);
+    expect(new Set(bank.cases.map((c) => c.case_id)).size).toBe(65);
     expect(new Set(bank.cases.flatMap((c) => (c.entry_id ? [c.entry_id] : []))).size).toBeGreaterThan(50);
   });
 
@@ -272,8 +272,8 @@ describe("validateBank and the files", () => {
     expect(JSON.parse(readFileSync(join(dir, "customer.json"), "utf8"))).toHaveLength(bank.tables.customer.length);
     expect(readFileSync(join(dir, "payment.csv"), "utf8").split("\n")[0]).toContain("payment_id,customer_id");
     expect(JSON.parse(readFileSync(join(dir, "list-delta.json"), "utf8")).ops).toHaveLength(6);
-    expect(JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")).exam.cases).toBe(60);
-    expect(JSON.parse(readFileSync(examFile, "utf8")).cases).toHaveLength(60);
+    expect(JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")).exam.cases).toBe(65);
+    expect(JSON.parse(readFileSync(examFile, "utf8")).cases).toHaveLength(65);
   });
 });
 

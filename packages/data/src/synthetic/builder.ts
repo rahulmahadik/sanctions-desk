@@ -17,7 +17,7 @@ import type {
 import type { Rng } from "./random.js";
 import type { Candidate } from "./scenarios.js";
 
-/** The ten groups of the review exam. */
+/** The eleven groups of the review exam. */
 export const EXAM_GROUPS = [
   "false_positive",
   "true_match",
@@ -29,10 +29,11 @@ export const EXAM_GROUPS = [
   "previously_cleared_changed",
   "injection",
   "tipping_off",
+  "payment_jurisdiction",
 ] as const;
 export type ExamGroup = (typeof EXAM_GROUPS)[number];
 
-/** How many cases each group has. The total is 60. */
+/** How many cases each group has. The total is 65. */
 export const EXAM_GROUP_SIZES: Readonly<Record<ExamGroup, number>> = {
   false_positive: 15,
   true_match: 8,
@@ -44,6 +45,7 @@ export const EXAM_GROUP_SIZES: Readonly<Record<ExamGroup, number>> = {
   previously_cleared_changed: 5,
   injection: 3,
   tipping_off: 2,
+  payment_jurisdiction: 5,
 };
 
 export type ExpectedOutcome = Decision | "DRAFT_BLOCKED";
@@ -200,6 +202,8 @@ export class BankBuilder {
       amount: "12500.00",
       currency: account.currency,
       counterparty_bank_bic: null,
+      beneficiary_bank_country: null,
+      intermediary_bank_country: null,
       payment_reference: null,
       value_date: "2026-10-23",
       status: "pending",

@@ -165,3 +165,41 @@ describe("findInjection", () => {
     expect(findInjection(policy, ["Maria Garcia"])).toEqual([]);
   });
 });
+
+describe("payment routes that stay clear of watched jurisdictions", () => {
+  it.each([
+    [
+      "neutral countries",
+      { counterparty_country: "NL", beneficiary_bank_country: "DE", intermediary_bank_country: null },
+    ],
+    [
+      "a place name that only contains a watched name",
+      { counterparty_country: "NL", payment_reference: "Iranian rugs" },
+    ],
+  ])("lets a clear false positive close with %s", (_name, payment) => {
+    const out = run(
+      decision("CLOSE_FALSE_POSITIVE"),
+      match({ assessment: "weak" }),
+      evidence({ payment: payment as never }),
+    );
+    expect(out.verdicts.find((v) => v.guard === "jurisdiction")?.verdict).toBe("pass");
+  });
+});
+
+describe("payment routes that touch a watched jurisdiction", () => {
+  it.each([
+    ["the beneficiary country", { counterparty_country: "KP" }],
+    ["the beneficiary bank country", { counterparty_country: "NL", beneficiary_bank_country: "CU" }],
+    ["an intermediary bank country", { counterparty_country: "NL", intermediary_bank_country: "IR" }],
+    ["a watched place in the payment reference", { counterparty_country: "NL", payment_reference: "Goods via tehran" }],
+    ["a watched country in the payment reference", { counterparty_country: "NL", payment_reference: "Cuba shipment" }],
+  ])("never closes on %s", (_name, payment) => {
+    const out = run(
+      decision("CLOSE_FALSE_POSITIVE"),
+      match({ assessment: "weak" }),
+      evidence({ payment: payment as never }),
+    );
+    expect(out.decision).toBe("ESCALATE_L2");
+    expect(out.verdicts.find((v) => v.guard === "jurisdiction")?.verdict).toBe("block");
+  });
+});

@@ -34,6 +34,8 @@ export interface GenerateRequest {
    * The result text always includes it, whether or not the provider repeats it.
    */
   prefill?: string;
+  /** Ask this provider only (when it is in the chain). Used for a last try after the primary gave unusable answers. */
+  provider?: Provider;
   temperature?: number;
   maxTokens?: number;
   timeoutMs?: number;
@@ -332,7 +334,9 @@ export function createGeneratorChain(
   if (chain.length === 0) throw new Error("generator chain needs at least one provider");
   return async (req) => {
     const failures: Failure[] = [];
+    const only = req.provider !== undefined && chain.some((p) => p.provider === req.provider);
     for (const { provider, generate } of chain) {
+      if (only && provider !== req.provider) continue;
       const outcome = await attempt(generate, req);
       if (outcome.ok) return failures.length > 0 ? { ...outcome.result, fellBackFrom: failures } : outcome.result;
       if (req.signal?.aborted) throw outcome.cause;

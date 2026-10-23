@@ -114,8 +114,8 @@ describe("runReview with a scripted model", () => {
 
 describe("a critic that cannot answer", () => {
   it("approves nothing: the recommendation goes to a person", async () => {
-    // The critic is asked twice per round (its second try is the retry), so it gets two unusable answers each time.
-    const { generator } = scripted(Array.from({ length: 3 }, () => [decision(), "no", "no"]).flat());
+    // The critic is asked three times per round (own model, fast retry, backup), so it gets three unusable answers each time.
+    const { generator } = scripted(Array.from({ length: 3 }, () => [decision(), "no", "no", "no"]).flat());
     const res = await runReview(sampleDeps({ generator }), request);
     expect(res.critic?.final_verdict).toBe("escalated");
     expect(res.decision).toBe("ESCALATE_L2");

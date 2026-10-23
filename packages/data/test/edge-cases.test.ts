@@ -57,7 +57,9 @@ describe("the edge-case registry", () => {
 
   it("covers the areas of the review's edge-case list", () => {
     const areas = new Set(registry.edge_cases.map((e) => e.area));
-    expect(areas).toEqual(new Set(["names", "ownership", "lists and memory", "data and systems", "security"]));
+    expect(areas).toEqual(
+      new Set(["names", "ownership", "lists and memory", "data and systems", "security", "payments"]),
+    );
   });
 });
 

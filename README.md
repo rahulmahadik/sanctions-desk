@@ -98,7 +98,7 @@ Zetaris is the only data path. Three kinds of source meet in one Unified Semanti
 - a **Postgres bank database** over JDBC with a read-only login (customers, ownership, alerts, earlier decisions),
 - a **payments service** read as a cached REST table.
 
-The model has keys, foreign keys, a description for every table and column, and seven data-quality rules on top of the foreign-key rules. The agents read the model's own description at run time and build their tools from it. Three non-admin identities with their own tokens read it; identifier numbers are masked; a second guard in our code allows only one `SELECT` on the model's tables. Failing data-quality records can never support a close. Each query's id is matched to Zetaris's own statement history (`GET /cases/:id/trace?audit=true`), and the key queries' `EXPLAIN` plans are in [docs/QUERY_PLANS.md](docs/QUERY_PLANS.md). Details, setup and what this build does not offer: [docs/ZETARIS.md](docs/ZETARIS.md).
+The model has keys, foreign keys, a description for every table and column, and eight data-quality rules on top of the foreign-key rules. The agents read the model's own description at run time and build their tools from it. Three non-admin identities with their own tokens read it; identifier numbers are masked; a second guard in our code allows only one `SELECT` on the model's tables. Failing data-quality records can never support a close. Each query's id is matched to Zetaris's own statement history (`GET /cases/:id/trace?audit=true`), and the key queries' `EXPLAIN` plans are in [docs/QUERY_PLANS.md](docs/QUERY_PLANS.md). Details, setup and what this build does not offer: [docs/ZETARIS.md](docs/ZETARIS.md).
 
 ### Meterless engines
 
@@ -144,7 +144,7 @@ Nemotron models do the language work: Nemotron 3 Ultra 550B (cloud lane) and Nem
 
 ## Evaluation
 
-The exam has 60 cases built from real public list entries and synthetic customers, payments and owners, in ten groups (false positives, true matches, transliteration, missing data, hidden ownership at and above 50 percent, ownership below 50 percent, earlier clearances that still hold, earlier clearances that no longer hold, injection, tipping-off drafts). Each case has one right answer, acceptable alternatives, and answers that must never be given. The most important number is the **false-close rate**: how often a case that carries real risk is recommended for closing. The target is zero.
+The exam has 65 cases built from real public list entries and synthetic customers, payments and owners, in eleven groups (false positives, true matches, transliteration, missing data, hidden ownership at and above 50 percent, ownership below 50 percent, earlier clearances that still hold, earlier clearances that no longer hold, injection, tipping-off drafts, payment routes through watched jurisdictions). Each case has one right answer, acceptable alternatives, and answers that must never be given. The most important number is the **false-close rate**: how often a case that carries real risk is recommended for closing. The target is zero.
 
 ```bash
 npm run exam -- --variant routed      # the full system, live
@@ -202,19 +202,24 @@ Create the three non-admin Zetaris users and tokens as described in [docs/ZETARI
 
 No URL, model name or timeout is written in the source. Configuration is layered, lowest priority first: `config/default.json` (committed defaults), `config/local.json` (git-ignored, this machine's non-secret settings such as a pinned receipt key), the file named by `CONFIG_FILE`, then environment variables, which are the only place secrets may come from. Invalid configuration stops the process at start-up. Secrets print as `[REDACTED]`.
 
-| Variable                                                          | Overrides                      | Notes                                                                          |
-| ----------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------ |
-| `HOST`, `PORT`                                                    | `server.*`                     | Defaults `0.0.0.0`, `8000`.                                                    |
-| `LOG_LEVEL`, `LOG_DIR`                                            | `logging.*`                    | A relative `LOG_DIR` is resolved from the project root.                        |
-| `SAMPLE_MODE`                                                     | `sampleMode`                   | `true` runs on saved answers and the labelled stand-in.                        |
-| `ZETARIS_REST_URL`, `ZETARIS_ORG_ID`                              | `zetaris.*`                    |                                                                                |
-| `ZETARIS_API_KEY`                                                 | `zetaris.apiKey`               | Secret. Setup tooling and the labelled fallback only.                          |
-| `ZETARIS_TOKEN_EVIDENCE`, `_REVIEWER`, `_EVAL`                    | `zetaris.tokens.*`             | Secrets. One per runtime identity.                                             |
-| `METERLESS_BASE_URL`, `METERLESS_APP_ID`, `METERLESS_EVAL_APP_ID` | `nightshift.*`                 | The evaluation app id keeps the runtime's answer cache separate from live use. |
-| `METERLESS_RUNTIME_TOKEN`                                         | `nightshift.runtimeToken`      | Secret.                                                                        |
-| `METERLESS_MODEL_FAST`, `_DEEP`, `_JUDGE`                         | `nightshift.models.*`          | Must be pinned modes.                                                          |
-| `METERLESS_RECEIPT_PUBLIC_KEY`                                    | `nightshift.receiptPublicKeys` | Comma separated base64 Ed25519 keys; marks receipts `valid_pinned`.            |
-| `OLLAMA_BASE_URL`, `OLLAMA_MODEL`                                 | `ollama.*`                     | Backup provider.                                                               |
+| Variable                                                              | Overrides                      | Notes                                                                                                  |
+| --------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `HOST`, `PORT`                                                        | `server.*`                     | Defaults `0.0.0.0`, `8000`.                                                                            |
+| `LOG_LEVEL`, `LOG_DIR`                                                | `logging.*`                    | A relative `LOG_DIR` is resolved from the project root.                                                |
+| `SAMPLE_MODE`                                                         | `sampleMode`                   | `true` runs on saved answers and the labelled stand-in.                                                |
+| `ZETARIS_REST_URL`, `ZETARIS_ORG_ID`                                  | `zetaris.*`                    |                                                                                                        |
+| `ZETARIS_API_KEY`                                                     | `zetaris.apiKey`               | Secret. Setup tooling and the labelled fallback only.                                                  |
+| `ZETARIS_TOKEN_EVIDENCE`, `_REVIEWER`, `_EVAL`                        | `zetaris.tokens.*`             | Secrets. One per runtime identity.                                                                     |
+| `METERLESS_BASE_URL`, `METERLESS_APP_ID`, `METERLESS_EVAL_APP_ID`     | `nightshift.*`                 | The evaluation app id keeps the runtime's answer cache separate from live use.                         |
+| `METERLESS_RUNTIME_TOKEN`                                             | `nightshift.runtimeToken`      | Secret.                                                                                                |
+| `METERLESS_MODEL_FAST`, `_DEEP`, `_JUDGE`                             | `nightshift.models.*`          | Must be pinned modes.                                                                                  |
+| `METERLESS_RECEIPT_PUBLIC_KEY`                                        | `nightshift.receiptPublicKeys` | Comma separated base64 Ed25519 keys; marks receipts `valid_pinned`.                                    |
+| `OLLAMA_BASE_URL`, `OLLAMA_MODEL`                                     | `ollama.*`                     | Backup provider.                                                                                       |
+| `METERLESS_ENGINES_DIR`                                               | none                           | Folder with the engine conformance runners for `npm run test:engines`. Default `../meterless-engines`. |
+| `BANKDB_ADMIN_PASSWORD`, `BANKDB_READER_PASSWORD`, `PAYMENTS_API_KEY` | none                           | Used by the `data` Docker profile (synthetic bank and payments service). Secrets.                      |
+| `PAYMENTS_FILE`                                                       | none                           | Payments service data file when run outside Docker. Default `data/synthetic/payment.json`.             |
+| `LIVE_TESTS`                                                          | none                           | Set to `1` to run the live model checks (`npm run test:live`).                                         |
+| `ZETARIS_CHECK_CONTAINER`                                             | none                           | Container used by `npm run check:isolation`. Default `zetaris-driver-1`.                               |
 
 ## API
 

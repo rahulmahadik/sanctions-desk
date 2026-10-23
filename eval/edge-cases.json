@@ -258,6 +258,66 @@
       "what": "A secret appears in a request or a model answer",
       "expected": "Redacted before anything is written",
       "covered_by": ["exam:inj_payment_reference_1", "test:apps/api/test/app.test.ts::rt-never-in-output"]
+    },
+    {
+      "id": "address_is_not_nationality",
+      "area": "names",
+      "what": "A listed person's address is in the customer's country, but the listed nationality differs. The country link must not be read as a nationality match. (A review step found this in a first version of the matcher, which counted an address country as nationality.)",
+      "expected": "Only a possible match, never a strong one; the person decides, and the reason names the address-only link",
+      "covered_by": [
+        "test:packages/data/test/compare.test.ts::tells a nationality match from an address-only country link"
+      ]
+    },
+    {
+      "id": "payment_beneficiary_country",
+      "area": "payments",
+      "what": "Payment to a beneficiary in a watched country, with a name that alone would not hold it",
+      "expected": "Escalate; never close",
+      "covered_by": [
+        "exam:pj_beneficiary_country",
+        "test:packages/agents/test/policy-guard.test.ts::payment routes that touch a watched jurisdiction"
+      ]
+    },
+    {
+      "id": "payment_beneficiary_bank",
+      "area": "payments",
+      "what": "Beneficiary paid through a bank in a watched country",
+      "expected": "Escalate; never close",
+      "covered_by": [
+        "exam:pj_beneficiary_bank",
+        "test:packages/agents/test/policy-guard.test.ts::payment routes that touch a watched jurisdiction"
+      ]
+    },
+    {
+      "id": "payment_intermediary_bank",
+      "area": "payments",
+      "what": "Payment routed through an intermediary bank in a watched country",
+      "expected": "Escalate; never close",
+      "covered_by": [
+        "exam:pj_intermediary_bank",
+        "test:packages/agents/test/policy-guard.test.ts::payment routes that touch a watched jurisdiction"
+      ]
+    },
+    {
+      "id": "payment_reference_place",
+      "area": "payments",
+      "what": "The free-text reference names a watched country or place",
+      "expected": "Escalate; whole words only, so \"Iranian rugs\" is not a hit",
+      "covered_by": [
+        "exam:pj_reference_text",
+        "test:packages/agents/test/policy-guard.test.ts::payment routes that touch a watched jurisdiction",
+        "test:packages/agents/test/policy-guard.test.ts::a place name that only contains a watched name"
+      ]
+    },
+    {
+      "id": "payment_clean_route",
+      "area": "payments",
+      "what": "The same kind of payment with a clean route",
+      "expected": "Not raised by the route rule",
+      "covered_by": [
+        "exam:pj_clean_route",
+        "test:packages/agents/test/policy-guard.test.ts::payment routes that stay clear of watched jurisdictions"
+      ]
     }
   ]
 }

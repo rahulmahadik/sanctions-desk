@@ -38,10 +38,17 @@ The application uses three **non-admin** identities, never the admin account, ea
 | `role_reviewer`       | people reviewing a case | every model table in full                    |
 | `role_eval`           | evaluation runs         | read-only                                    |
 
-`npm run zetaris:rebuild` creates the roles and the grants. **Users and tokens are created in the Zetaris interface** (there is no SQL to create a user):
-1. Create three users, for example `agent_evidence`, `agent_reviewer`, `agent_eval`.
-2. Assign each to its role: `ASSIGN USER '<email>' TO ROLE 'role_evidence_agent'` (and the other two).
-3. Create an API token for each and put them in `.env` as `ZETARIS_TOKEN_EVIDENCE`, `ZETARIS_TOKEN_REVIEWER`, `ZETARIS_TOKEN_EVAL`.
+`npm run zetaris:rebuild` creates the roles and the grants (and assigns the three users to them). The users are created through the REST endpoint `POST /users` (header `X-Org-ID`; there is no SQL to create a user):
+
+```bash
+npm run zetaris:agents -- --apply --passwords     # create agent_evidence, agent_reviewer, agent_eval at the GENERAL level
+npm run zetaris:sql -- zetaris/sql/09_agents_create.sql --apply --skip-exists   # ASSIGN USER ... TO ROLE ...
+```
+
+The passwords are random, are never printed, and are written only to `.local/zetaris-agent-passwords.txt` (git-ignored, owner-only). The REST API issues an API token only to the signed-in user, so each token is created once in the interface:
+1. Open the Zetaris interface (http://localhost:3000) and sign in as `agent_evidence@sanctions-desk.local` with its password from that file.
+2. Open the API keys page of the profile menu, create a key, copy it into `.env` as `ZETARIS_TOKEN_EVIDENCE`. Sign out.
+3. Repeat for `agent_reviewer@sanctions-desk.local` (`ZETARIS_TOKEN_REVIEWER`) and `agent_eval@sanctions-desk.local` (`ZETARIS_TOKEN_EVAL`).
 4. Optionally, in the access-control screens, add a column policy that masks `customer_identifier.id_number` for `role_evidence_agent`.
 
 Until a role has its own token, the adapter uses `ZETARIS_API_KEY` as a **labelled fallback**: every query record says `token_source: fallback`, and the decision trace shows it. The identifier numbers are masked by the adapter as well as by Zetaris (defence in depth), and a customer identifier is compared with a listed one by a join **inside Zetaris**, so the number is never read into the application.

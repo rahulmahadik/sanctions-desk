@@ -123,12 +123,19 @@ export function reasoningBudget(thinking: ModelUseInput["thinking"]): number {
   return typeof thinking === "object" ? thinking.budgetTokens : 0;
 }
 
+/** First try on the agent's own model; a retry on the fast lane after reasoning; the last try on the backup provider. */
+function routeOf(attempt: number, thinking: unknown, attempts: number): "own" | "fast" | "backup" {
+  if (attempt === 1) return "own";
+  if (attempt >= attempts && attempts >= 3) return "backup";
+  return reasoningBudget(thinking as Parameters<typeof reasoningBudget>[0]) > 0 ? "fast" : "own";
+}
+
 async function attemptOnce<T extends z.ZodType>(
   deps: AgentDeps,
   options: AskJsonOptions<T>,
   prompt: string,
   reasoning: boolean,
-  afterReasoning = false,
+  route: "own" | "fast" | "backup" = "own",
 ): Promise<Attempt> {
   const config = deps.policy.models[options.agent as keyof typeof deps.policy.models];
   const budget = reasoningBudget(config.thinking);
@@ -136,7 +143,8 @@ async function attemptOnce<T extends z.ZodType>(
     system: reasoning ? `${options.system}\n\n${BRIEF_REASONING}` : options.system,
     prompt,
     // The fast retry goes to the fast lane: the deep lane may think aloud and never reach the JSON.
-    ...(afterReasoning ? { lane: "fast" as const } : laneOrModel(config.model)),
+    ...(route === "own" ? laneOrModel(config.model) : { lane: "fast" as const }),
+    ...(route === "backup" ? { provider: "ollama" as const } : {}),
     // Without reasoning the answer starts straight away with "{"; with it the model thinks first.
     ...(reasoning ? {} : { prefill: "{" }),
     temperature: 0,
@@ -185,7 +193,7 @@ async function askRound<T extends z.ZodType>(
       options,
       attempt === 1 ? options.prompt : options.prompt + retryNote,
       reasoning,
-      attempt > 1 && reasoningBudget(config.thinking) > 0,
+      routeOf(attempt, config.thinking, round.attempts),
     );
   } catch (failure) {
     const problem = failure instanceof Error ? failure.message : String(failure);
@@ -220,7 +228,7 @@ export async function askJson<T extends z.ZodType>(
   if (!deps.policy.models[options.agent as keyof typeof deps.policy.models]) {
     throw new AppError("validation", `no model is configured for the ${options.agent} agent`);
   }
-  const attempts = options.maxAttempts ?? 2;
+  const attempts = options.maxAttempts ?? 3;
   const calls: ModelUseInput[] = [];
   let problem = "";
   for (let attempt = 1; attempt <= attempts; attempt += 1) {

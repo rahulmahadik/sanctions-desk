@@ -25,3 +25,4 @@ data/normalised/
 
 # This machine's non-secret settings (for example a pinned receipt public key)
 config/local.json
+.local/

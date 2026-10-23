@@ -116,6 +116,10 @@ export const PaymentRowSchema = z.strictObject({
   counterparty_name: nonEmpty,
   counterparty_country: iso2,
   counterparty_bank_bic: z.string().max(11).nullable(),
+  /** Country of the beneficiary's bank, when the payment names one. */
+  beneficiary_bank_country: iso2.nullable(),
+  /** Country of an intermediary bank on the route, when the payment names one. */
+  intermediary_bank_country: iso2.nullable(),
   /** Free-text payment reference. Treated as data, never as instructions. */
   payment_reference: z.string().max(500).nullable(),
   value_date: isoDate,

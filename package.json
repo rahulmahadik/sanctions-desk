@@ -40,6 +40,7 @@
     "explain": "tsx tools/explain-queries.ts",
     "docs:edge-cases": "tsx tools/generate-edge-cases.ts",
     "zetaris:load-files": "tsx tools/zetaris-load-files.ts",
+    "zetaris:agents": "tsx tools/zetaris-agents.ts",
     "zetaris:rebuild": "tsx tools/zetaris-rebuild.ts",
     "data:fetch": "tsx data/scripts/fetch.ts",
     "data:normalise": "tsx data/scripts/normalise.ts",

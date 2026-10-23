@@ -27,17 +27,20 @@
     {
       "country": "CU",
       "action": "escalate",
-      "note": "Example entry. Verify against the current OFAC sanctions programs before relying on it; program status changes over time (for example Syria in 2025)."
+      "note": "Example entry. Verify against the current OFAC sanctions programs before relying on it; program status changes over time (for example Syria in 2025).",
+      "keywords": ["Cuba", "Havana"]
     },
     {
       "country": "IR",
       "action": "escalate",
-      "note": "Example entry. Verify against the current OFAC sanctions programs before relying on it; program status changes over time (for example Syria in 2025)."
+      "note": "Example entry. Verify against the current OFAC sanctions programs before relying on it; program status changes over time (for example Syria in 2025).",
+      "keywords": ["Iran", "Tehran"]
     },
     {
       "country": "KP",
       "action": "escalate",
-      "note": "Example entry. Verify against the current OFAC sanctions programs before relying on it; program status changes over time (for example Syria in 2025)."
+      "note": "Example entry. Verify against the current OFAC sanctions programs before relying on it; program status changes over time (for example Syria in 2025).",
+      "keywords": ["North Korea", "DPRK", "Pyongyang"]
     }
   ],
   "automation": {

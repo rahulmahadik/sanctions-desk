@@ -1,6 +1,6 @@
 {
   "label": "Synthetic data generated for development and demonstration. No real customer, account or payment.",
-  "seed": "sanctions-desk-bank-1#d1b9acd2",
+  "seed": "sanctions-desk-bank-1#3e9c9073",
   "cases": [
     {
       "case_id": "EX-001",
@@ -1165,6 +1165,113 @@
         "tipping_off"
       ],
       "note": "A request for information must use neutral wording about routine account review only."
+    },
+    {
+      "case_id": "EX-061",
+      "group": "payment_jurisdiction",
+      "kind": "pj_beneficiary_country",
+      "title": "Payment to a beneficiary in a watched country",
+      "alert_id": "ALR-0070",
+      "alert_type": "payment",
+      "customer_id": "CUST-0059",
+      "entry_id": "OFAC-17250",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "jurisdiction"
+      ],
+      "note": "The name alone would not hold the payment; the route touches a watched jurisdiction, so a person decides."
+    },
+    {
+      "case_id": "EX-062",
+      "group": "payment_jurisdiction",
+      "kind": "pj_beneficiary_bank",
+      "title": "Beneficiary paid through a bank in a watched country",
+      "alert_id": "ALR-0071",
+      "alert_type": "payment",
+      "customer_id": "CUST-0060",
+      "entry_id": "OFAC-43999",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "jurisdiction"
+      ],
+      "note": "The name alone would not hold the payment; the route touches a watched jurisdiction, so a person decides."
+    },
+    {
+      "case_id": "EX-063",
+      "group": "payment_jurisdiction",
+      "kind": "pj_intermediary_bank",
+      "title": "Payment routed through an intermediary bank in a watched country",
+      "alert_id": "ALR-0072",
+      "alert_type": "payment",
+      "customer_id": "CUST-0061",
+      "entry_id": "OFAC-16826",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "jurisdiction"
+      ],
+      "note": "The name alone would not hold the payment; the route touches a watched jurisdiction, so a person decides."
+    },
+    {
+      "case_id": "EX-064",
+      "group": "payment_jurisdiction",
+      "kind": "pj_reference_text",
+      "title": "Payment reference names a watched place",
+      "alert_id": "ALR-0073",
+      "alert_type": "payment",
+      "customer_id": "CUST-0062",
+      "entry_id": "OFAC-17015",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "jurisdiction"
+      ],
+      "note": "The name alone would not hold the payment; the route touches a watched jurisdiction, so a person decides."
+    },
+    {
+      "case_id": "EX-065",
+      "group": "payment_jurisdiction",
+      "kind": "pj_clean_route",
+      "title": "Same kind of payment with a clean route",
+      "alert_id": "ALR-0074",
+      "alert_type": "payment",
+      "customer_id": "CUST-0063",
+      "entry_id": "OFAC-45918",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [
+        "CLOSE_FALSE_POSITIVE",
+        "ESCALATE_L2",
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "jurisdiction"
+      ],
+      "note": "Control: nothing about the route is out of the ordinary, so the weak name match alone must not raise the response."
     }
   ]
 }

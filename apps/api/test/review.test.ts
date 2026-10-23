@@ -117,7 +117,7 @@ describe("POST /run on the sample", () => {
       expect(c.must_not, `${c.kind} must not be ${got}`).not.toContain(got);
       expect([c.expected, ...c.acceptable], `${c.kind}: got ${got}`).toContain(got);
     }
-    expect(results.length).toBe(58);
+    expect(results.length).toBe(63);
     const falseCloses = results.filter(
       (r) => r.got === "CLOSE_FALSE_POSITIVE" && r.expected !== "CLOSE_FALSE_POSITIVE",
     );

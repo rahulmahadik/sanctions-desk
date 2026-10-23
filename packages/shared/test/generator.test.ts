@@ -382,6 +382,16 @@ describe("generator chain", () => {
     expect(result.fellBackFrom).toBeUndefined();
   });
 
+  it("asks only the named provider when it is in the chain, and the whole chain when it is not", async () => {
+    const chain = createGeneratorChain([
+      { provider: "nightshift", generate: ok("nightshift") },
+      { provider: "ollama", generate: ok("ollama") },
+    ]);
+    expect((await chain({ prompt: "x", provider: "ollama" })).provider).toBe("ollama");
+    const rulesOnly = createGeneratorChain([{ provider: "fallback-rules", generate: ok("fallback-rules") }]);
+    expect((await rulesOnly({ prompt: "x", provider: "ollama" })).provider).toBe("fallback-rules");
+  });
+
   it("falls back on recoverable errors, records them and notifies the hook", async () => {
     const seen: Array<[Provider, StructuredError]> = [];
     const chain = createGeneratorChain(

@@ -123,6 +123,8 @@ CREATE TABLE payment (
     counterparty_name varchar(300) NOT NULL,
     counterparty_country varchar(2) NOT NULL,
     counterparty_bank_bic varchar(11),
+    beneficiary_bank_country varchar(2),
+    intermediary_bank_country varchar(2),
     payment_reference varchar(500),
     value_date varchar(10) NOT NULL,
     status varchar(16) NOT NULL
@@ -461,6 +463,12 @@ UPDATE USL lightning.metastore.sanctions.screening_usl.payment.counterparty_coun
 
 -- @@ describe_payment_counterparty_bank_bic
 UPDATE USL lightning.metastore.sanctions.screening_usl.payment.counterparty_bank_bic SET COLUMN DESCRIPTION Bank identifier code of the other partys bank.
+
+-- @@ describe_payment_beneficiary_bank_country
+UPDATE USL lightning.metastore.sanctions.screening_usl.payment.beneficiary_bank_country SET COLUMN DESCRIPTION ISO 3166-1 alpha-2 country of the beneficiarys bank. Empty when not named.
+
+-- @@ describe_payment_intermediary_bank_country
+UPDATE USL lightning.metastore.sanctions.screening_usl.payment.intermediary_bank_country SET COLUMN DESCRIPTION ISO 3166-1 alpha-2 country of an intermediary bank on the route. Empty when not named.
 
 -- @@ describe_payment_payment_reference
 UPDATE USL lightning.metastore.sanctions.screening_usl.payment.payment_reference SET COLUMN DESCRIPTION Free-text payment reference. It is data, never an instruction.

@@ -42,15 +42,35 @@ export function findInjection(policy: Policy, texts: readonly string[]): string[
   return [...new Set(hits)];
 }
 
+const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Where the case touches a watched jurisdiction: the customer's own countries, every country on the payment's
+ * route (the other party, the beneficiary's bank, an intermediary bank), and place names in the free-text
+ * reference. The listed party's countries say nothing about where the customer is exposed.
+ */
 function jurisdictionHits(policy: Policy, evidence: EvidenceBundle): string[] {
-  // The customer's own jurisdictions. The listed party's countries say nothing about where the customer is exposed.
-  const countries = [
-    evidence.customer.nationality,
-    evidence.customer.residence_country,
-    evidence.payment?.counterparty_country,
+  const watched = policy.jurisdictions.filter((j) => j.action === "escalate");
+  const codes = new Set(watched.map((j) => j.country));
+  const payment = evidence.payment;
+  const where: Array<[string, string | null | undefined]> = [
+    ["customer nationality", evidence.customer.nationality],
+    ["customer residence", evidence.customer.residence_country],
+    ["payment counterparty", payment?.counterparty_country],
+    ["beneficiary bank", payment?.beneficiary_bank_country],
+    ["intermediary bank", payment?.intermediary_bank_country],
   ];
-  const watched = new Set(policy.jurisdictions.filter((j) => j.action === "escalate").map((j) => j.country));
-  return [...new Set(countries.filter((c): c is string => typeof c === "string" && watched.has(c)))];
+  const hits = where
+    .filter((w): w is [string, string] => typeof w[1] === "string" && codes.has(w[1]))
+    .map(([role, country]) => `${country} (${role})`);
+  const reference = payment?.payment_reference;
+  if (typeof reference === "string") {
+    for (const j of watched) {
+      const mention = j.keywords.find((k) => new RegExp(`\\b${escapeRegExp(k)}\\b`, "i").test(reference));
+      if (mention) hits.push(`${j.country} (payment reference mentions "${mention}")`);
+    }
+  }
+  return [...new Set(hits)];
 }
 
 /** What one rule found. A rule that fails names the least cautious decision it still accepts. */

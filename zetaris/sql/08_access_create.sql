@@ -1,5 +1,5 @@
--- Roles and table-level grants for the three runtime identities. Users are created in the Zetaris UI and
--- assigned to these roles afterwards; the admin key is never used at runtime.
+-- Roles and table-level grants for the three runtime identities. Users are created and assigned
+-- afterwards (09_agents_create.sql); the admin key is never used at runtime.
 
 -- @@ create_role_evidence_agent
 CREATE ROLE 'role_evidence_agent' DESCRIBE BY 'Evidence and reasoning agents, identifiers are masked'

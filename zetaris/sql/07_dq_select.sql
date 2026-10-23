@@ -18,6 +18,9 @@ RUN DQ payment_amount_positive TABLE lightning.metastore.sanctions.screening_usl
 -- @@ run_counterparty_country_valid
 RUN DQ counterparty_country_valid TABLE lightning.metastore.sanctions.screening_usl.payment
 
+-- @@ run_payment_bank_countries_valid
+RUN DQ payment_bank_countries_valid TABLE lightning.metastore.sanctions.screening_usl.payment
+
 -- @@ run_match_score_in_range
 RUN DQ match_score_in_range TABLE lightning.metastore.sanctions.screening_usl.alert
 

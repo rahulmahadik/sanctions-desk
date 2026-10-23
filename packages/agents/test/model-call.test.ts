@@ -105,6 +105,14 @@ describe("askJson", () => {
     expect(requests[1]?.prefill).toBe("{");
   });
 
+  it("makes the last try on the backup provider", async () => {
+    const { generator, requests } = scriptedGenerator(["no", "still no", '{"decision": "Y", "confidence": 1}']);
+    const out = await ask(sampleDeps({ generator }));
+    expect(out.value.decision).toBe("Y");
+    expect(requests.map((r) => r.provider)).toEqual([undefined, undefined, "ollama"]);
+    expect(requests[1]).toMatchObject({ lane: "fast", prefill: "{" });
+  });
+
   it("fails with a structured error after the allowed attempts", async () => {
     const { generator } = scriptedGenerator(['{"decision": 5}']);
     await expect(ask(sampleDeps({ generator }))).rejects.toMatchObject({ type: "bad_response", recoverable: true });

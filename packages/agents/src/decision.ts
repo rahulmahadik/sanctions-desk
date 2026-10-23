@@ -76,6 +76,8 @@ export function renderEvidence(evidence: EvidenceBundle, match: MatchResult): st
             "counterparty_name",
             "counterparty_country",
             "counterparty_bank_bic",
+            "beneficiary_bank_country",
+            "intermediary_bank_country",
             "payment_reference",
             "value_date",
           ],

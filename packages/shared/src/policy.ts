@@ -114,6 +114,8 @@ export const PolicySchema = z.strictObject({
         country: z.string().regex(/^[A-Z]{2}$/, "use an ISO 3166-1 alpha-2 code"),
         action: z.enum(JURISDICTION_ACTIONS),
         note: z.string().optional(),
+        /** Place and country names that, found in a payment reference, count as a link to this country. */
+        keywords: z.array(z.string().min(2)).default([]),
       }),
     )
     .refine((rows) => unique(rows.map((r) => r.country)), "each country may appear once"),

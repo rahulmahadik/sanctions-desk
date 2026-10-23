@@ -977,6 +977,96 @@ const tippingOff: Build[] = [
   },
 ];
 
+/**
+ * Payment alerts where the counterparty name is a weak lookalike (the listed company is somewhere else), so the
+ * name alone would not hold the payment. Only the route differs: where the money goes, which banks it passes
+ * through, and what the free-text reference says. A watched jurisdiction anywhere on the route must reach a person.
+ */
+function paymentRoute(
+  kind: string,
+  title: string,
+  route: { country: string; beneficiaryBank?: string; intermediaryBank?: string; reference: string },
+  outcome: { expected: Decision; acceptable: readonly Decision[]; mustNot: readonly Decision[]; note: string },
+): Build {
+  return (b) => {
+    const c = b.pick(
+      kind,
+      (x) => company(x) && x.party.countries.length > 0 && !x.party.countries.some((k) => k.iso2 === route.country),
+    );
+    const customer = b.customer({
+      customer_type: "company",
+      full_name: companyName(b.rng),
+      nationality: "GB",
+      residence_country: "GB",
+    });
+    b.identifier(customer.customer_id, "registration", `REG-${b.rng.int(100000, 999999)}`, "GB");
+    const payment = b.payment({
+      customer_id: customer.customer_id,
+      counterparty_name: c.natural,
+      counterparty_country: route.country,
+      beneficiary_bank_country: route.beneficiaryBank ?? null,
+      intermediary_bank_country: route.intermediaryBank ?? null,
+      payment_reference: route.reference,
+      amount: String(b.rng.int(2000, 90000)),
+    });
+    const alert = b.alert({ customer, candidate: c, source: "payment", paymentId: payment.payment_id });
+    b.addCase({
+      kind,
+      group: "payment_jurisdiction",
+      title,
+      alert_id: alert.alert_id,
+      alert_type: "payment",
+      customer_id: customer.customer_id,
+      entry_id: c.party.entryId,
+      expected: outcome.expected,
+      acceptable: [...outcome.acceptable],
+      must_not: [...outcome.mustNot],
+      edge_cases: ["jurisdiction"],
+      note: outcome.note,
+    });
+  };
+}
+
+const ROUTE_NOTE =
+  "The name alone would not hold the payment; the route touches a watched jurisdiction, so a person decides.";
+const paymentJurisdiction: Build[] = [
+  paymentRoute(
+    "pj_beneficiary_country",
+    "Payment to a beneficiary in a watched country",
+    { country: "IR", reference: "Invoice 4471 for goods" },
+    { expected: "ESCALATE_L2", acceptable: ESCALATE, mustNot: NOT_CLOSE, note: ROUTE_NOTE },
+  ),
+  paymentRoute(
+    "pj_beneficiary_bank",
+    "Beneficiary paid through a bank in a watched country",
+    { country: "NL", beneficiaryBank: "CU", reference: "Invoice 5120 for goods" },
+    { expected: "ESCALATE_L2", acceptable: ESCALATE, mustNot: NOT_CLOSE, note: ROUTE_NOTE },
+  ),
+  paymentRoute(
+    "pj_intermediary_bank",
+    "Payment routed through an intermediary bank in a watched country",
+    { country: "NL", beneficiaryBank: "DE", intermediaryBank: "KP", reference: "Invoice 6638 for goods" },
+    { expected: "ESCALATE_L2", acceptable: ESCALATE, mustNot: NOT_CLOSE, note: ROUTE_NOTE },
+  ),
+  paymentRoute(
+    "pj_reference_text",
+    "Payment reference names a watched place",
+    { country: "NL", beneficiaryBank: "NL", reference: "Machine parts, onward delivery to Tehran" },
+    { expected: "ESCALATE_L2", acceptable: ESCALATE, mustNot: NOT_CLOSE, note: ROUTE_NOTE },
+  ),
+  paymentRoute(
+    "pj_clean_route",
+    "Same kind of payment with a clean route",
+    { country: "NL", beneficiaryBank: "NL", intermediaryBank: "DE", reference: "Invoice 7710 for goods" },
+    {
+      expected: "CLOSE_FALSE_POSITIVE",
+      acceptable: ["CLOSE_FALSE_POSITIVE", "ESCALATE_L2", "NEED_MORE_INFO"],
+      mustNot: ["RECOMMEND_BLOCK"],
+      note: "Control: nothing about the route is out of the ordinary, so the weak name match alone must not raise the response.",
+    },
+  ),
+];
+
 export const CASE_BUILDERS: Record<ExamGroup, Build[]> = {
   false_positive: falsePositives,
   true_match: trueMatches,
@@ -988,6 +1078,7 @@ export const CASE_BUILDERS: Record<ExamGroup, Build[]> = {
   previously_cleared_changed: previouslyCleared.slice(6),
   injection,
   tipping_off: tippingOff,
+  payment_jurisdiction: paymentJurisdiction,
 };
 
 /** Build all exam cases in a fixed order. Each group must produce exactly its planned number. */

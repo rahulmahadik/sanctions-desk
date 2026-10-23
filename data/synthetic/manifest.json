@@ -1,18 +1,18 @@
 {
   "label": "Synthetic data generated for development and demonstration. No real customer, account or payment.",
-  "seed": "sanctions-desk-bank-1#d1b9acd2",
+  "seed": "sanctions-desk-bank-1#3e9c9073",
   "counts": {
-    "customer": 300,
-    "customer_identifier": 258,
+    "customer": 305,
+    "customer_identifier": 263,
     "customer_alias": 47,
-    "account": 331,
+    "account": 346,
     "beneficial_owner": 21,
-    "alert": 72,
+    "alert": 77,
     "disposition": 13,
-    "payment": 339
+    "payment": 360
   },
   "exam": {
-    "cases": 60,
+    "cases": 65,
     "groups": {
       "false_positive": 15,
       "true_match": 8,
@@ -23,7 +23,8 @@
       "previously_cleared_unchanged": 6,
       "previously_cleared_changed": 5,
       "injection": 3,
-      "tipping_off": 2
+      "tipping_off": 2,
+      "payment_jurisdiction": 5
     }
   },
   "list_snapshot_ids": [

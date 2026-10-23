@@ -148,6 +148,8 @@ SELECT
     COALESCE(counterparty_name, '') AS counterparty_name,
     COALESCE(counterparty_country, '') AS counterparty_country,
     counterparty_bank_bic,
+    beneficiary_bank_country,
+    intermediary_bank_country,
     payment_reference,
     COALESCE(value_date, '') AS value_date,
     COALESCE(status, '') AS status

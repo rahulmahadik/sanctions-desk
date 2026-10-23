@@ -28,7 +28,7 @@ export type ExamCaseRecord = z.infer<typeof ExamCaseSchema>;
 export const ExamFileSchema = z.strictObject({
   label: z.string(),
   seed: z.string(),
-  cases: z.array(ExamCaseSchema).length(60),
+  cases: z.array(ExamCaseSchema).length(65),
 });
 export type ExamFile = z.infer<typeof ExamFileSchema>;
 

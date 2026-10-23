@@ -49,6 +49,8 @@ CREATE TABLE payment (
   counterparty_name text NOT NULL,
   counterparty_country text NOT NULL,
   counterparty_bank_bic text,
+  beneficiary_bank_country text,
+  intermediary_bank_country text,
   payment_reference text,
   value_date text NOT NULL,
   status text NOT NULL

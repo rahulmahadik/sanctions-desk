@@ -1,4 +1,11 @@
-import { USL_ROLES, USL_TABLE_ORDER, USL_TABLES, type UslColumnSpec, type UslTableSpec } from "./usl-spec.js";
+import {
+  USL_AGENT_USERS,
+  USL_ROLES,
+  USL_TABLE_ORDER,
+  USL_TABLES,
+  type UslColumnSpec,
+  type UslTableSpec,
+} from "./usl-spec.js";
 
 /**
  * Renders the Zetaris setup scripts from the model spec. Each script is a list of statements that start at
@@ -208,6 +215,11 @@ function dqRules(opts: RenderOptions): Array<{ name: string; table: string; expr
     { name: "ownership_pct_present", table: "beneficial_owner", expr: "ownership_pct IS NOT NULL" },
     { name: "payment_amount_positive", table: "payment", expr: "amount > 0" },
     { name: "counterparty_country_valid", table: "payment", expr: `counterparty_country IN (${list})` },
+    {
+      name: "payment_bank_countries_valid",
+      table: "payment",
+      expr: `(beneficiary_bank_country IS NULL OR beneficiary_bank_country IN (${list})) AND (intermediary_bank_country IS NULL OR intermediary_bank_country IN (${list}))`,
+    },
     { name: "match_score_in_range", table: "alert", expr: "match_score >= 0 AND match_score <= 1" },
   ];
 }
@@ -233,9 +245,16 @@ function accessScript(): string {
     }
   }
   return join(
-    `-- Roles and table-level grants for the three runtime identities. Users are created in the Zetaris UI and
--- assigned to these roles afterwards; the admin key is never used at runtime.`,
+    `-- Roles and table-level grants for the three runtime identities. Users are created and assigned
+-- afterwards (09_agents_create.sql); the admin key is never used at runtime.`,
     blocks,
+  );
+}
+
+function agentsScript(): string {
+  return join(
+    "-- Puts each runtime user in its role. The users are created by `npm run zetaris:agents`.",
+    USL_AGENT_USERS.map((u) => block(`assign_${u.name}`, `ASSIGN USER '${u.email}' TO ROLE '${u.role}'`)),
   );
 }
 
@@ -298,6 +317,7 @@ export function renderScripts(opts: RenderOptions): Record<string, string> {
       block("invalid_customers", `SHOW DQ ALL INVALID TABLE ${Q}.customer`),
     ]),
     "08_access_create.sql": accessScript(),
+    "09_agents_create.sql": agentsScript(),
     "08_access_select.sql": selectScript("Roles and what they may read.", [
       block("roles", "SHOW ROLES"),
       ...USL_ROLES.map((r) => block(`grants_${r.name}`, `SHOW GRANT ROLE '${r.name}' ON ALL`)),

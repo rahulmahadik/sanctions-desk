@@ -129,6 +129,7 @@ describe("the committed scripts", () => {
       "ownership_pct_present",
       "payment_amount_positive",
       "counterparty_country_valid",
+      "payment_bank_countries_valid",
       "match_score_in_range",
     ]);
     const dq = parseStatements(scripts["07_dq_create.sql"] ?? "");
