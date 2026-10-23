@@ -1,9 +1,8 @@
 import { existsSync } from "node:fs";
-import { loadSigner, sampleRules } from "@sanctions-desk/agents";
+import { loadSigner } from "@sanctions-desk/agents";
 import {
   buildGenerator,
   ConfigError,
-  createFallbackRulesGenerator,
   describeConfig,
   loadConfig,
   loadPolicyFile,
@@ -12,15 +11,10 @@ import {
   RunEventBus,
   resolveProjectPath,
 } from "@sanctions-desk/shared";
-import {
-  checkRoleAccess,
-  createZetarisClient,
-  describeAccessFailure,
-  loadQueryCache,
-  replayFetch,
-} from "@sanctions-desk/zetaris";
+import { checkRoleAccess, createZetarisClient, describeAccessFailure } from "@sanctions-desk/zetaris";
 import { buildApp } from "./app.js";
 import { createLogger } from "./logger.js";
+import { SAMPLE_NOTICE, sampleGenerator, sampleZetaris } from "./sample.js";
 
 const ENV_FILE = ".env";
 
@@ -33,7 +27,7 @@ async function main(): Promise<void> {
   const config = loadConfig();
   const logger = createLogger(config);
   const generator = config.sampleMode
-    ? createFallbackRulesGenerator(sampleRules)
+    ? sampleGenerator()
     : buildGenerator(config, {
         onFallback: (from, error) =>
           logger.warn({ provider: from, error_type: error.type }, "model provider failed, falling back"),
@@ -81,11 +75,7 @@ async function main(): Promise<void> {
 
   // The only data path. In sample mode the same client replays saved answers, so no Zetaris is needed.
   const zetaris = config.sampleMode
-    ? createZetarisClient({
-        config,
-        offline: true,
-        fetchImpl: replayFetch(loadQueryCache(resolveProjectPath(config.sampleCache))),
-      })
+    ? sampleZetaris(config)
     : createZetarisClient({
         config,
         onQuery: (q) =>
@@ -101,9 +91,7 @@ async function main(): Promise<void> {
             "zetaris query",
           ),
       });
-  const sampleNotice = config.sampleMode
-    ? "Sample mode: Zetaris answers are replayed from saved real queries and the model is a labelled rules-based fallback."
-    : undefined;
+  const sampleNotice = config.sampleMode ? SAMPLE_NOTICE : undefined;
 
   // The people allowed in (tokens are stored as hashes, in a file outside the repository) and the key that signs
   // the records written after an approval. Without a key those records are hash-sealed, and say so.
