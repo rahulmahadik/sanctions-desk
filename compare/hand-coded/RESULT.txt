@@ -1,9 +1,12 @@
-join 1: alert + customer + list entry
-  ALR-0001 CUST-0001 individual RENEL DESTINA UN
-  ALR-0002 CUST-0002 individual Yongan HU OFAC
-  ALR-0003 CUST-0003 individual AHMED DEGHDEGH UN
-join 2: pending payments of alerted customers { customers: 27, payments: 32, value: 1145678.7 }
-join 3: three sources [ [ 'RU', 5 ], [ 'CN', 1 ], [ 'IR', 1 ] ]
+payments cache: miss
+definition false_positive@2: found | tables described: 14
+join 1: [
+  [ 'ALR-0001', 'CUST-0001', 'individual', 'RENEL DESTINA', 'UN' ],
+  [ 'ALR-0002', 'CUST-0002', 'individual', 'Yongan HU', 'OFAC' ],
+  [ 'ALR-0003', 'CUST-0003', 'individual', 'AHMED DEGHDEGH', 'UN' ]
+]
+join 2: { customers: 27, payments: 32, value: 1145678.7 }
+join 3: [ [ 'RU', 5 ], [ 'CN', 1 ], [ 'IR', 1 ] ]
 DQ dob_present_for_individuals invalid = 15
 DQ nationality_is_iso2 invalid = 1
 DQ ownership_pct_in_range invalid = 0
@@ -12,4 +15,5 @@ DQ payment_amount_positive invalid = 0
 DQ counterparty_country_valid invalid = 4
 DQ payment_bank_countries_valid invalid = 0
 DQ match_score_in_range invalid = 0
-elapsed 46 ms
+id_number visible to evidence: false | to reviewer: true
+elapsed 61 ms
