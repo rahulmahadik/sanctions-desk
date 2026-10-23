@@ -364,8 +364,11 @@ export function buildBank(
     "K",
   );
   for (const entryId of [...hb.used, ...hb2.used]) hb3.used.add(entryId);
-  buildHeldout3Cases(hb3);
-  const heldout3 = heldout3CaseIds(hb3.cases);
+  // The third set names its listed parties outright, chosen against the default seed's earlier sets. With another seed
+  // the earlier sets may pick one of them at random, so the third set is built for the default seed only.
+  const thirdSet = options.seed === DEFAULT_BANK_OPTIONS.seed;
+  if (thirdSet) buildHeldout3Cases(hb3);
+  const heldout3 = thirdSet ? heldout3CaseIds(hb3.cases) : [];
 
   const problems = [
     ...validateBank(tablesWithHeldout, list, [...b.cases, ...heldout]),
