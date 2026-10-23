@@ -38,7 +38,7 @@ const CaseIdSchema = z.string().regex(/^[A-Za-z0-9._-]{1,100}$/);
 const KEEP_ALIVE_MS = 15_000;
 
 /** Results saved by the exam runner, newest first. A file that cannot be read is skipped. */
-function readExamResults(dir: string): unknown[] {
+export function readExamResults(dir: string): unknown[] {
   try {
     return readdirSync(dir)
       .filter((n) => n.endsWith(".json"))
@@ -188,7 +188,7 @@ interface SavedRun {
  * The headline measure from the newest complete run of the full system. A run limited to some cases (a tag, kinds,
  * groups or a limit) is not complete. The minutes-saved figure uses the assumptions in the configuration.
  */
-function headlineFromRuns(
+export function headlineFromRuns(
   results: unknown[],
   config: Config,
 ): {

@@ -114,6 +114,32 @@ describe("the review desk routes", () => {
     }
   });
 
+  it("serves the governance view: a mapping note, the inventory, the hard limits and the policy history", async () => {
+    const { app } = await sampleApp();
+    const body = (await app.inject({ method: "GET", url: "/governance" })).json() as {
+      mapping_note: string;
+      inventory: { name: string; policy_version: number; models: Array<{ name: string }> };
+      risk_materiality: { kind: string; dimensions: Array<{ dimension: string }> };
+      human_oversight: { hard_limits: Record<string, unknown> };
+      change_control: { active_policy_version: number; policy_versions: unknown[] };
+      limits: string[];
+    };
+    expect(body.mapping_note).toContain("not a claim of compliance");
+    expect(body.inventory).toMatchObject({ name: "sanctions-desk", policy_version: 1 });
+    expect(body.inventory.models.map((m) => m.name)).toEqual(["Nemotron 3 Ultra 550B", "Nemotron 3.5 Lightning 30B"]);
+    expect(body.risk_materiality.kind).toContain("self-assessment");
+    expect(body.risk_materiality.dimensions.map((d) => d.dimension)).toEqual(["impact", "complexity", "reliance"]);
+    expect(body.human_oversight.hard_limits).toMatchObject({
+      auto_block: false,
+      message_customers: false,
+      data_access: "read_only",
+      approvals_required_for_a_block: 2,
+    });
+    expect(body.change_control).toMatchObject({ active_policy_version: 1 });
+    expect(body.change_control.policy_versions).toHaveLength(1);
+    expect(body.limits.length).toBeGreaterThan(3);
+  });
+
   it("answers the interface's origin and nobody else's", async () => {
     const { app } = await sampleApp();
     const allowed = await app.inject({ method: "GET", url: "/health", headers: { origin: "http://localhost:3001" } });

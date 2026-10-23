@@ -7,6 +7,7 @@ import { shortHash, type TableRows } from "../model.js";
 import { csvOf } from "../snapshot.js";
 import { BankBuilder, CURRENT_TIME, EXAM_GROUP_SIZES, type ExamCase } from "./builder.js";
 import { addDelistingExtras, buildExamCases } from "./cases.js";
+import { buildHeldoutCases, heldoutCaseIds } from "./heldout.js";
 import {
   emptySyntheticTables,
   SYNTHETIC_LABEL,
@@ -39,6 +40,8 @@ export const DEFAULT_BANK_OPTIONS: BankOptions = {
 export interface SyntheticBank {
   tables: SyntheticTables;
   cases: ExamCase[];
+  /** The frozen held-out set (HO-001 and up). Its rows are in `tables`, with ids that carry an H. */
+  heldout: ExamCase[];
   /** Edits that turn the committed list into the later list the exam runs against. */
   delta: DeltaOp[];
   manifest: BankManifest;
@@ -306,7 +309,19 @@ export function buildBank(
   addBackground(b, options.backgroundCustomers);
   addBackgroundAlerts(b, examCustomers, options);
 
-  const problems = validateBank(tables, list, b.cases);
+  // The held-out set: its own seed and id marker, built last, so no other row changes when it is added.
+  const hb = new BankBuilder(
+    createRng(`${options.seed}#heldout`),
+    `${options.seed}#heldout`,
+    candidates,
+    tables,
+    hashes,
+    "H",
+  );
+  buildHeldoutCases(hb);
+  const heldout = heldoutCaseIds(hb.cases);
+
+  const problems = validateBank(tables, list, [...b.cases, ...heldout]);
   if (problems.length > 0)
     throw new Error(`the synthetic bank is inconsistent:\n- ${problems.slice(0, 10).join("\n- ")}`);
 
@@ -320,6 +335,7 @@ export function buildBank(
   return {
     tables,
     cases: b.cases,
+    heldout,
     delta: b.delta,
     manifest: {
       label: SYNTHETIC_LABEL,
@@ -343,6 +359,15 @@ export function writeBank(dir: string, bank: SyntheticBank): void {
   }
   writeFileSync(join(dir, "list-delta.json"), `${JSON.stringify({ label: DELTA_LABEL, ops: bank.delta }, null, 2)}\n`);
   writeFileSync(join(dir, "manifest.json"), `${JSON.stringify(bank.manifest, null, 2)}\n`);
+}
+
+/** The held-out set as an exam file (same shape as the main exam). */
+export function writeHeldout(file: string, bank: SyntheticBank): void {
+  mkdirSync(join(file, ".."), { recursive: true });
+  writeFileSync(
+    file,
+    `${JSON.stringify({ label: `${SYNTHETIC_LABEL} Held-out set, frozen when committed.`, seed: bank.manifest.seed, cases: bank.heldout }, null, 2)}\n`,
+  );
 }
 
 export function writeExam(file: string, bank: SyntheticBank): void {

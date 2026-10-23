@@ -108,6 +108,8 @@ export class BankBuilder {
     readonly candidates: readonly Candidate[],
     tables: SyntheticTables,
     private readonly hashes: ReadonlyMap<string, { hash: string; snapshot: string }>,
+    /** Put a marker after the prefix of every id, so a second set of rows never collides with the first. */
+    private readonly idMarker = "",
   ) {
     this.tables = tables;
   }
@@ -115,7 +117,7 @@ export class BankBuilder {
   next(prefix: string, width = 4): string {
     const n = (this.counters.get(prefix) ?? 0) + 1;
     this.counters.set(prefix, n);
-    return `${prefix}-${String(n).padStart(width, "0")}`;
+    return `${prefix}-${this.idMarker}${String(n).padStart(width, "0")}`;
   }
 
   /** The first listed party that fits, in an order fixed by the seed and the kind. Each party is used once. */

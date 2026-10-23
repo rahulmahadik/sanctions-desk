@@ -197,3 +197,56 @@ export interface ExamAnswer {
   headline_run?: string | null;
   routing_split?: RoutingSplit | null;
 }
+
+export interface GovernanceView {
+  mapping_note: string;
+  inventory: {
+    name: string;
+    purpose: string;
+    status: string;
+    deployment: string;
+    data: string;
+    models: Array<{ name: string; served: string; used_by: string[] }>;
+    which_model_serves: string;
+    components: string[];
+    policy_version: number;
+    sample_mode: boolean;
+  };
+  risk_materiality: {
+    kind: string;
+    dimensions: Array<{ dimension: string; rating: string; basis: string }>;
+    conclusion: string;
+  };
+  human_oversight: { hard_limits: Record<string, string | number | boolean>; controls: string[] };
+  explainability: { record: string; evidence: string; where: string[] };
+  testing: {
+    exam_report: string;
+    headline: Headline | null;
+    headline_sentence: string | null;
+    headline_run: string | null;
+    baselines: string;
+    label_changes: Array<{ case_id: string; reason: string }>;
+    limits: string;
+  };
+  monitoring: {
+    model_ledger: string;
+    routing_split: RoutingSplit | null;
+    json_failure_rate: { note: string; before: unknown[]; after: unknown[] } | null;
+    provider_failures: string;
+    access: string;
+  };
+  change_control: {
+    active_policy_version: number;
+    policy_versions: Array<{
+      version: number;
+      status: string;
+      proposed_by: string;
+      approved_by: string | null;
+      published_at: string | null;
+    }>;
+    audit_entries: number;
+    rule: string;
+    code: string;
+  };
+  limits: string[];
+}

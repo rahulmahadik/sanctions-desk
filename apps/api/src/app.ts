@@ -7,6 +7,7 @@ import type { Logger } from "pino";
 import { mapError } from "./errors.js";
 import { createDependencyProber, type DependencyProber } from "./probes.js";
 import { allowedOrigin, deskRoutes } from "./routes/desk.js";
+import { governanceRoutes } from "./routes/governance.js";
 import { guardRoutes } from "./routes/guard.js";
 import { healthRoutes } from "./routes/health.js";
 import { listChangeRoutes } from "./routes/list-change.js";
@@ -104,6 +105,7 @@ export async function buildApp(deps: AppDeps) {
     zetaris: deps.zetaris,
     sampleNotice: deps.sampleNotice,
   });
+  await app.register(governanceRoutes, { config, policies: deps.policies });
   await app.register(runEventRoutes, { bus: deps.bus });
   await app.register(deskRoutes, { config, bus: deps.bus, policies: deps.policies, zetaris: deps.zetaris });
   await app.register(traceRoutes, { config });

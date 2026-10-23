@@ -1,4 +1,13 @@
-import type { EvidenceView, ExamAnswer, QueueAlert, RecordView, ReviewAnswer, RunEvent, TraceView } from "./types";
+import type {
+  EvidenceView,
+  ExamAnswer,
+  GovernanceView,
+  QueueAlert,
+  RecordView,
+  ReviewAnswer,
+  RunEvent,
+  TraceView,
+} from "./types";
 
 /** Where the API listens, as the browser reaches it. Set NEXT_PUBLIC_API_URL when it is not on this machine. */
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
@@ -33,6 +42,7 @@ export const fetchEvidence = (alertId: string) =>
   getJson<EvidenceView>(`/cases/${encodeURIComponent(alertId)}/evidence`);
 export const fetchRecord = (alertId: string) => getJson<RecordView>(`/cases/${encodeURIComponent(alertId)}/record`);
 export const fetchTrace = (alertId: string) => getJson<TraceView>(`/cases/${encodeURIComponent(alertId)}/trace`);
+export const fetchGovernance = () => getJson<GovernanceView>("/governance");
 export const fetchExam = () => getJson<ExamAnswer>("/exam");
 export const fetchEvents = (runId: string) =>
   getJson<{ run_id: string; finished: boolean; events: RunEvent[] }>(`/runs/${encodeURIComponent(runId)}/events`);

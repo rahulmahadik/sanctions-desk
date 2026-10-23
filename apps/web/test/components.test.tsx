@@ -5,6 +5,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { EvidenceCards } from "../components/Evidence";
 import { ExamDashboard } from "../components/ExamDashboard";
+import { Governance } from "../components/Governance";
 import { HeadlineStrip } from "../components/HeadlineStrip";
 import { Queue } from "../components/Queue";
 import { Outcome, Replay } from "../components/Record";
@@ -17,6 +18,7 @@ import { ANSWER, EVENTS, EVIDENCE, RECORD, SPLIT, TRACE } from "./fixtures";
 vi.mock("../lib/api", () => ({
   fetchQueue: vi.fn(),
   fetchExam: vi.fn(),
+  fetchGovernance: vi.fn(),
   fetchEvidence: vi.fn(),
   fetchTrace: vi.fn(),
   fetchRecord: vi.fn(),
@@ -372,6 +374,87 @@ describe("HeadlineStrip", () => {
     vi.mocked(api.fetchExam).mockRejectedValue(new Error("down"));
     render(<HeadlineStrip />);
     expect((await screen.findByTestId("headline-strip")).textContent).toContain("No complete exam run");
+  });
+});
+
+describe("Governance", () => {
+  const view = {
+    mapping_note: "This is a mapping, not a claim of compliance.",
+    inventory: {
+      name: "sanctions-desk",
+      purpose: "Recommends an outcome.",
+      status: "prototype",
+      deployment: "local",
+      data: "synthetic",
+      models: [{ name: "Nemotron 3 Ultra 550B", served: "cloud", used_by: ["decision"] }],
+      which_model_serves: "Nightshift's learned router decides",
+      components: ["Zetaris"],
+      policy_version: 1,
+      sample_mode: true,
+    },
+    risk_materiality: {
+      kind: "self-assessment",
+      dimensions: [{ dimension: "impact", rating: "high", basis: "a breach" }],
+      conclusion: "material",
+    },
+    human_oversight: {
+      hard_limits: { auto_block: false, approvals_required_for_a_block: 2 },
+      controls: ["A person decides."],
+    },
+    explainability: { record: "A sealed record.", evidence: "Re-read by code.", where: ["GET /cases/:id/trace"] },
+    testing: {
+      exam_report: "eval/REPORT.md",
+      headline: null,
+      headline_sentence: null,
+      headline_run: null,
+      baselines: "compared with baselines",
+      label_changes: [{ case_id: "EX-008", reason: "r" }],
+      limits: "one run",
+    },
+    monitoring: {
+      model_ledger: "every call is logged",
+      routing_split: SPLIT,
+      json_failure_rate: null,
+      provider_failures: "counted by mode",
+      access: "checked at start",
+    },
+    change_control: {
+      active_policy_version: 1,
+      policy_versions: [
+        { version: 1, status: "active", proposed_by: "system", approved_by: "system", published_at: null },
+      ],
+      audit_entries: 1,
+      rule: "Four-eyes.",
+      code: "version control",
+    },
+    limits: ["Synthetic data only."],
+  };
+
+  it("shows the mapping note first and every section, and says when there is no exam run", async () => {
+    vi.mocked(api.fetchGovernance).mockResolvedValue(view as never);
+    render(<Governance />);
+    expect((await screen.findByTestId("mapping-note")).textContent).toContain("not a claim of compliance");
+    for (const heading of [
+      "AI inventory entry",
+      "Risk materiality",
+      "Human oversight",
+      "Explainability",
+      "Testing",
+      "Monitoring",
+      "Change control",
+      "Limits",
+    ]) {
+      expect(screen.getByRole("heading", { name: heading })).toBeTruthy();
+    }
+    expect(screen.getByText("No complete exam run is saved yet.")).toBeTruthy();
+    expect(screen.getByText(/Labels changed after the first full run: EX-008/)).toBeTruthy();
+    expect(screen.getByTestId("routing-split")).toBeTruthy();
+  });
+
+  it("reports a read problem", async () => {
+    vi.mocked(api.fetchGovernance).mockRejectedValue(new Error("down"));
+    render(<Governance />);
+    expect((await screen.findByRole("alert")).textContent).toContain("down");
   });
 });
 

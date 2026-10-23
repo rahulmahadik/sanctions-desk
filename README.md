@@ -333,6 +333,8 @@ The hard limits are fixed in the policy schema, so no draft can lift them: no au
 
 Layout: `apps/api` (HTTP), `apps/web` (review desk interface), `apps/payments-api` (synthetic payments service), `packages/shared` (configuration, model seam, policy, events, records, receipts), `packages/data` (list parsers, matching, synthetic bank, exam), `packages/zetaris` (client, SQL guard, semantic-layer specification and scripts), `packages/agents` (the review steps), `packages/engines` (the three Meterless engines), `tools/`, `zetaris/sql/`, `docker/`, `eval/`, `docs/`.
 
+The governance view, mapped to the headings of the Monetary Authority of Singapore's proposed AI risk management guidelines (a mapping, not a compliance claim), is in [docs/GOVERNANCE.md](docs/GOVERNANCE.md) and on the Governance page of the review desk.
+
 ## Failure handling
 
 | What fails                                                                                  | What the system does                                                                                                                                                     | What the user sees                                                                                                          |
