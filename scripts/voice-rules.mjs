@@ -34,6 +34,10 @@ export const RULES = [
   { name: "internal brief path", pattern: /internal\/brief|\binternal\/(?!$)/ },
   { name: "research process wording", pattern: /browser[- ]?(assistant|check)|claude in chrome/i },
   { name: "assistant attribution line", pattern: /Co-Authored-By|Generated (with|by)/i },
-  // The tools used to build the project are disclosed in the README and in metadata.json, and nowhere else.
-  { name: "assistant name", pattern: /\bClaude\b|\bAnthropic\b/i, allowedIn: new Set(["README.md", "metadata.json"]) },
+  // The tools used to build the project are disclosed in the README, in metadata.json and in the sponsor write-up, and nowhere else.
+  {
+    name: "assistant name",
+    pattern: /\bClaude\b|\bAnthropic\b/i,
+    allowedIn: new Set(["README.md", "metadata.json", "docs/SPONSORS.md"]),
+  },
 ];
