@@ -176,10 +176,11 @@ async function criticMutation(): Promise<CheckOutcome> {
       unchanged_decisions: number;
       unchanged_decisions_approved: number;
       evidence_standard_cases: string;
+      grounding_and_document_cases?: string;
     };
     return {
       ok: r.code === 0 && s.mutations > 0 && s.mutations_caught === s.mutations,
-      detail: `${s.mutations_caught}/${s.mutations} false cited facts caught over ${s.decisions} decisions; ${s.unchanged_decisions_approved}/${s.unchanged_decisions} unchanged decisions approved (no false alarm); evidence standard: ${s.evidence_standard_cases}`,
+      detail: `${s.mutations_caught}/${s.mutations} false cited facts caught over ${s.decisions} decisions; ${s.unchanged_decisions_approved}/${s.unchanged_decisions} unchanged decisions approved (no false alarm); evidence standard: ${s.evidence_standard_cases}${s.grounding_and_document_cases ? `; grounding and document-on-record: ${s.grounding_and_document_cases}` : ""}`,
       output: r.output,
     };
   } catch {
@@ -321,6 +322,28 @@ function heldoutV2(f: Findings): void {
   if (!read("eval/cases/README.md").includes(pin)) f.problems.push("eval/cases/README.md records another hash");
 }
 
+/** The third held-out set: its file matches the pinned hash, and the file in its freeze commit is the same file. */
+const V3_FREEZE = "8d7458b";
+function heldoutV3(f: Findings): void {
+  const pin = /FROZEN_SHA256 = "([0-9a-f]{64})"/.exec(read("packages/agents/test/heldout3-standard.test.ts"))?.[1];
+  if (!pin) {
+    f.problems.push("no pinned hash found for heldout3.json");
+    return;
+  }
+  if (sha256(read("eval/cases/heldout3.json")) !== pin) f.problems.push("heldout3.json differs from the pinned hash");
+  else f.notes.push("heldout3.json file hash matches");
+  try {
+    const frozen = git(["show", `${V3_FREEZE}:eval/cases/heldout3.json`]);
+    if (sha256(`${frozen}\n`) !== pin && sha256(frozen) !== pin)
+      f.problems.push(`heldout3.json in commit ${V3_FREEZE} has another hash`);
+    else f.notes.push(`held-out v3 frozen in commit ${V3_FREEZE}, the same file`);
+  } catch {
+    f.problems.push(
+      `the v3 freeze commit ${V3_FREEZE} is not in this history (a shallow clone has too little history)`,
+    );
+  }
+}
+
 /** The final freeze commit of the second held-out set is in this history. */
 function freezeCommit(f: Findings): void {
   const freeze = (JSON.parse(read("eval/cases/heldout2-changes.json")) as { final_freeze_commit?: string })
@@ -342,6 +365,7 @@ async function preregistration(): Promise<CheckOutcome> {
   heldoutV1(f);
   heldoutV2(f);
   freezeCommit(f);
+  heldoutV3(f);
   return {
     ok: f.problems.length === 0,
     detail: f.problems.length === 0 ? f.notes.join("; ") : f.problems.join("; "),
