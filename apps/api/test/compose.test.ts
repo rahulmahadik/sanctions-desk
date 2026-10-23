@@ -37,6 +37,10 @@ describe("compose: the data services are reachable by Zetaris alone", () => {
     expect(api.ports).toBeDefined();
   });
 
+  it("sets HOST for the api service, since the default outside a container is 127.0.0.1", () => {
+    expect((compose.services.api as Service).environment?.HOST).toBe("0.0.0.0");
+  });
+
   it("starts them only in the data profile, so a clean clone runs the API alone", () => {
     for (const name of data) expect((compose.services[name] as Service).profiles, name).toEqual(["data"]);
     expect((compose.services.api as Service).profiles).toBeUndefined();

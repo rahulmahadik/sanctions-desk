@@ -25,6 +25,7 @@ import type { Logger } from "pino";
 import { mapError } from "./errors.js";
 import { buildOpenApi } from "./openapi.js";
 import { createDependencyProber, type DependencyProber } from "./probes.js";
+import { RateLimiter } from "./rate-limit.js";
 import { decisionRoutes } from "./routes/decisions.js";
 import { allowedOrigin, deskRoutes } from "./routes/desk.js";
 import { governanceRoutes } from "./routes/governance.js";
@@ -57,6 +58,8 @@ export interface AppDeps {
   authMode?: AuthMode;
   /** Signs the records written after an approval. Absent: they are hash-sealed. */
   signer?: Signer;
+  /** The clock the rate limits count windows with, in milliseconds. Only tests replace it. */
+  now?: () => number;
 }
 
 declare module "fastify" {
@@ -161,6 +164,20 @@ export async function buildApp(deps: AppDeps) {
     }
   });
 
+  // How often a caller may change things or start a review. Runs after sign-in so a signed-in user is counted as
+  // themselves; without sign-in (demo or off) the remote address is the caller, since a demo user is only a header.
+  const limiter = new RateLimiter(config.server.rateLimit, deps.now ?? Date.now);
+  app.addHook("onRequest", async (req, reply) => {
+    const route = req.routeOptions.url;
+    if (route === undefined || req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS") return;
+    const caller = mode === "on" && req.actor.id !== ANONYMOUS.id ? `user:${req.actor.id}` : `address:${req.ip}`;
+    const refusal = limiter.check(caller, `${req.method} ${route}`);
+    if (refusal) {
+      reply.header("retry-after", String(refusal.retryAfterSeconds));
+      throw refusal.error;
+    }
+  });
+
   app.addHook("onResponse", async (req, reply) => {
     req.log.info(
       {
@@ -215,6 +232,7 @@ export async function buildApp(deps: AppDeps) {
     zetaris: deps.zetaris,
     sampleNotice: deps.sampleNotice,
     signer: deps.signer,
+    limiter,
   });
   await app.register(governanceRoutes, { config, policies: deps.policies });
   await app.register(runEventRoutes, { bus: deps.bus });

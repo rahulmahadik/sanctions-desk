@@ -29,8 +29,9 @@ import {
   toStructuredError,
 } from "@sanctions-desk/shared";
 import type { ZetarisClient } from "@sanctions-desk/zetaris";
-import type { FastifyPluginAsync } from "fastify";
+import type { FastifyPluginAsync, FastifyReply } from "fastify";
 import { mapError } from "../errors.js";
+import type { RateLimiter } from "../rate-limit.js";
 
 interface RunOptions {
   config: Config;
@@ -42,6 +43,8 @@ interface RunOptions {
   sampleNotice?: string;
   /** Signs the note written for an automatic close. Absent: hash-sealed. */
   signer?: Signer;
+  /** Caps the reviews running at once. */
+  limiter: RateLimiter;
 }
 
 /**
@@ -51,7 +54,7 @@ interface RunOptions {
  */
 export const runRoutes: FastifyPluginAsync<RunOptions> = async (
   app,
-  { config, bus, policies, generator, zetaris, sampleNotice, signer },
+  { config, bus, policies, generator, zetaris, sampleNotice, signer, limiter },
 ) => {
   const redact = makeRedactor(secretValues(config));
   // One review per alert at a time: a second request for the same alert would only repeat the same reads.
@@ -103,8 +106,22 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (
   };
 
   app.post("/run", async (req, reply) => {
+    // Above the cap a review is refused straight away, not queued. The slot is freed when the review ends, however it ends.
+    const slot = limiter.acquireReview();
+    if ("error" in slot) {
+      reply.header("retry-after", String(slot.retryAfterSeconds));
+      throw slot.error;
+    }
+    try {
+      return await review(req.body, reply);
+    } finally {
+      slot.release();
+    }
+  });
+
+  const review = async (body: unknown, reply: FastifyReply) => {
     const started = performance.now();
-    const parsed = RunRequestSchema.safeParse(req.body);
+    const parsed = RunRequestSchema.safeParse(body);
     if (!parsed.success) {
       throw new AppError("validation", "invalid run request", {
         details: { issues: parsed.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })) },
@@ -182,5 +199,5 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (
     } finally {
       running.delete(alertId);
     }
-  });
+  };
 };

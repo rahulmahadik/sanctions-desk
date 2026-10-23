@@ -8,6 +8,7 @@ const STATUS_BY_TYPE: Record<ErrorType, number> = {
   conflict: 409,
   not_found: 404,
   not_implemented: 501,
+  rate_limited: 429,
   config_missing: 503,
   timeout: 504,
   network: 502,
