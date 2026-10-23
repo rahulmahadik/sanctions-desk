@@ -143,6 +143,12 @@ export const PolicySchema = z.strictObject({
   masking: perAgent(nonEmpty),
 
   /**
+   * Ask the models for answers constrained to a JSON Schema instead of "reason, then end with JSON". The model
+   * reasons inside a field of the answer, so there is nothing to extract and nothing to cut off.
+   */
+  structuredOutput: z.boolean().default(true),
+
+  /**
    * What each agent may read, checked by our own SQL guard before a query is sent, whichever credential answers:
    * the tables it may name and the columns it may never name. An agent with no tables reads no data.
    */

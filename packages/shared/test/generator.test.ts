@@ -348,6 +348,22 @@ describe("Ollama generator", () => {
     expect(JSON.parse(String(first(stub.calls).init.body)).response_format).toEqual({ type: "json_object" });
   });
 
+  it("sends a strict JSON Schema as the response format when given one", async () => {
+    const stub = stubFetch([jsonResponse(chatReply("{}"))]);
+    const generate = createOllamaGenerator({
+      baseUrl: "http://ollama.test/v1",
+      model: "m",
+      timeoutMs: 1000,
+      fetchImpl: stub.fetchImpl,
+    });
+    const schema = { type: "object", properties: { a: { type: "string" } } };
+    await generate({ prompt: "x", jsonSchema: { name: "answer", schema } });
+    expect(JSON.parse(String(first(stub.calls).init.body)).response_format).toEqual({
+      type: "json_schema",
+      json_schema: { name: "answer", strict: true, schema },
+    });
+  });
+
   it("does not ask for JSON mode unless told to", async () => {
     const stub = stubFetch([jsonResponse(chatReply("ok"))]);
     const generate = createOllamaGenerator({

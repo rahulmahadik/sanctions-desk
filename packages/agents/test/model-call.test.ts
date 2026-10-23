@@ -101,8 +101,39 @@ describe("askJson", () => {
     const out = await ask(sampleDeps({ generator }));
     expect(out.value.decision).toBe("Y");
     expect(out.calls).toHaveLength(2);
-    expect(requests[1]?.prompt).toContain("previous answer was rejected");
+    expect(requests[1]?.prompt).toContain("could not be used");
     expect(requests[1]?.prefill).toBe("{");
+  });
+
+  it("asks for schema-constrained output when the answer has a schema and the policy allows it", async () => {
+    const { generator, requests } = scriptedGenerator(['{"decision": "Y", "confidence": 1}']);
+    const jsonSchema = { name: "x", schema: { type: "object" } };
+    const out = await askJson(sampleDeps({ generator }), {
+      agent: "decision",
+      system: "s",
+      prompt: "p",
+      schema: z.object({ decision: z.string(), confidence: z.number() }),
+      jsonSchema,
+    });
+    expect(out.value.decision).toBe("Y");
+    expect(requests[0]).toMatchObject({ jsonSchema, lane: "deep" });
+    expect(requests[0]?.prefill).toBeUndefined();
+    expect(requests[0]?.system).toContain("analysis field");
+  });
+
+  it("falls back to the older reasoning-then-JSON way when the policy switches structured output off", async () => {
+    const base = sampleDeps();
+    const policy = { ...base.policy, structuredOutput: false };
+    const { generator, requests } = scriptedGenerator(['{"decision": "Y", "confidence": 1}']);
+    await askJson(sampleDeps({ generator, policy }), {
+      agent: "decision",
+      system: "s",
+      prompt: "p",
+      schema: z.object({ decision: z.string(), confidence: z.number() }),
+      jsonSchema: { name: "x", schema: { type: "object" } },
+    });
+    expect(requests[0]?.jsonSchema).toBeUndefined();
+    expect(requests[0]?.system).toContain("Keep any reasoning");
   });
 
   it("makes the last try on the backup provider", async () => {

@@ -157,8 +157,8 @@ describe("memory of earlier decisions", () => {
       sampleMode: true,
     });
     expect(res.decision).toBe("CLOSE_FALSE_POSITIVE");
-    expect(requests[1]?.prefill).toBe("{");
-    expect(requests[1]?.system).not.toContain("Keep any reasoning");
+    expect(requests[1]?.system).toContain("one short sentence");
+    expect(requests[1]?.system).not.toContain("Use the analysis field");
     expect(requests[1]?.prompt).toContain("fresh: the listed entry has not changed since");
   });
 
@@ -166,7 +166,7 @@ describe("memory of earlier decisions", () => {
     const c = caseFacts("fp_dob_exact_name_0");
     const { generator, requests } = scripted([goodDecision(c), approve]);
     await runReview(sampleDeps({ generator }), { runId: "mem-none", alertId: c.alertId, sampleMode: true });
-    expect(requests[1]?.system).toContain("Keep any reasoning");
+    expect(requests[1]?.system).toContain("Use the analysis field");
     expect(requests[1]?.prompt).toContain('"earlier_decisions":[]');
   });
 
@@ -179,7 +179,7 @@ describe("memory of earlier decisions", () => {
       sampleMode: true,
     });
     expect(requests[1]?.prompt).toContain("stale: the listed entry changed since");
-    expect(requests[1]?.system).toContain("Keep any reasoning");
+    expect(requests[1]?.system).toContain("Use the analysis field");
     // The approved definition of a true match is now met, so a person must see it whatever the model said.
     expect(res.decision).toBe("ESCALATE_L2");
   });

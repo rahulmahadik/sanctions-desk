@@ -61,6 +61,8 @@ export interface AskJsonOptions<T extends z.ZodType> {
   maxAttempts?: number;
   /** Force the fast path (no reasoning) even when the policy asks for reasoning, for easy cases. */
   fast?: boolean;
+  /** The answer's JSON Schema. When given and the policy allows, the models are asked for schema-constrained output. */
+  jsonSchema?: { name: string; schema: Record<string, unknown> };
 }
 
 export interface AskJsonResult<T> {
@@ -111,7 +113,15 @@ function problemOf(text: string, schema: z.ZodType): { value: unknown } | { prob
 interface Attempt {
   result: GenerateResult;
   outcome: ReturnType<typeof problemOf>;
+  structured: boolean;
 }
+
+/** With schema-constrained output the reasoning goes in the "analysis" field, which comes first. */
+export const STRUCTURED_REASONING = "Use the analysis field for brief reasoning, under 100 words, before you decide.";
+export const STRUCTURED_BRIEF = "Keep the analysis field to one short sentence.";
+
+/** Room for the model's reasoning field plus the answer. */
+const STRUCTURED_TOKENS = 2200;
 
 /** Reasoning is bounded: the runtime gives up on a slow model after about 45 seconds. */
 export const BRIEF_REASONING =
@@ -139,6 +149,19 @@ async function attemptOnce<T extends z.ZodType>(
 ): Promise<Attempt> {
   const config = deps.policy.models[options.agent as keyof typeof deps.policy.models];
   const budget = reasoningBudget(config.thinking);
+  if (options.jsonSchema && deps.policy.structuredOutput) {
+    const result = await (deps.generator as Generator)({
+      system: `${options.system}\n\n${reasoning ? STRUCTURED_REASONING : STRUCTURED_BRIEF}`,
+      prompt,
+      ...(route === "own" ? laneOrModel(config.model) : { lane: "fast" as const }),
+      ...(route === "backup" ? { provider: "ollama" as const } : {}),
+      jsonSchema: options.jsonSchema,
+      temperature: 0,
+      maxTokens: STRUCTURED_TOKENS,
+      timeoutMs: config.timeoutMs,
+    });
+    return { result, outcome: problemOf(result.text, options.schema), structured: true };
+  }
   const result = await (deps.generator as Generator)({
     system: reasoning ? `${options.system}\n\n${BRIEF_REASONING}` : options.system,
     prompt,
@@ -151,7 +174,7 @@ async function attemptOnce<T extends z.ZodType>(
     maxTokens: reasoning ? budget + ANSWER_TOKENS : 1500,
     timeoutMs: config.timeoutMs,
   });
-  return { result, outcome: problemOf(result.text, options.schema) };
+  return { result, outcome: problemOf(result.text, options.schema), structured: false };
 }
 
 /** What a failed answer looked like, kept short: how it ended, how long it was, and its first and last words. */
@@ -168,7 +191,15 @@ function failureExcerpt(result: GenerateResult): Record<string, unknown> {
 function logStep(
   deps: AgentDeps,
   agent: AgentName,
-  step: { attempt: number; last: boolean; ok: boolean; summary: string; reasoning: boolean; result?: GenerateResult },
+  step: {
+    attempt: number;
+    last: boolean;
+    ok: boolean;
+    summary: string;
+    reasoning: boolean;
+    result?: GenerateResult;
+    structured?: boolean;
+  },
 ): void {
   const fields = step.result ? modelTraceFields(step.result) : {};
   deps.trace.log({
@@ -181,6 +212,9 @@ function logStep(
     detail: {
       ...(fields.detail ?? {}),
       reasoning: step.reasoning,
+      structured: step.structured === true,
+      // Whether the answer arrived as a bare JSON object, which is what schema-constrained output should give.
+      ...(step.result ? { pure_json: /^\s*\{[\s\S]*\}\s*$/.test(step.result.text) } : {}),
       ...(!step.ok && step.result ? failureExcerpt(step.result) : {}),
     },
   });
@@ -199,7 +233,7 @@ async function askRound<T extends z.ZodType>(
   const { attempt } = round;
   const last = attempt >= round.attempts;
   const reasoning = reasoningBudget(config.thinking) > 0 && attempt === 1 && options.fast !== true;
-  const retryNote = `\n\nYour previous answer was rejected: ${round.previousProblem}\nAnswer again with one valid JSON object only.`;
+  const retryNote = `\n\nNote: the previous answer could not be used (${round.previousProblem}). Answer again with the JSON object only.`;
 
   let tried: Attempt;
   try {
@@ -231,6 +265,7 @@ async function askRound<T extends z.ZodType>(
     summary: ok ? `valid answer on attempt ${attempt}` : outcome.problem,
     reasoning,
     result,
+    structured: tried.structured,
   });
   return ok ? { done: true, value: outcome.value } : { done: false, problem: outcome.problem };
 }

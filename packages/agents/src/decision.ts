@@ -54,6 +54,37 @@ export const DecisionOutputSchema = z.object({
 });
 export type DecisionOutput = z.infer<typeof DecisionOutputSchema>;
 
+/** The answer the decision step is held to when the models are asked for schema-constrained output. */
+export const DECISION_JSON_SCHEMA = {
+  name: "sanctions_decision",
+  schema: {
+    type: "object",
+    properties: {
+      analysis: { type: "string", description: "Brief reasoning, at most 120 words, before the decision." },
+      decision: { type: "string", enum: ["CLOSE_FALSE_POSITIVE", "ESCALATE_L2", "RECOMMEND_BLOCK", "NEED_MORE_INFO"] },
+      confidence: { type: "number", minimum: 0, maximum: 1 },
+      rationale: { type: "string" },
+      facts: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            table: { type: "string" },
+            key_value: { type: "string" },
+            column: { type: "string" },
+            value: { type: ["string", "null"] },
+          },
+          required: ["table", "key_value", "column", "value"],
+          additionalProperties: false,
+        },
+      },
+      what_would_change: { type: "array", items: { type: "string" } },
+    },
+    required: ["analysis", "decision", "confidence", "rationale", "facts", "what_would_change"],
+    additionalProperties: false,
+  },
+} as const;
+
 export const DECISION_SYSTEM = `You are the decision agent of a bank's sanctions-screening review desk. A human reviewer makes the final call; you recommend.
 Possible decisions: CLOSE_FALSE_POSITIVE, ESCALATE_L2, RECOMMEND_BLOCK, NEED_MORE_INFO.
 Rules:
@@ -70,7 +101,7 @@ Rules:
 - Give 2 to 6 facts that support the decision. A fact names a row by its key value: use the keys listed in <keys> (for example customer: customer_id, list_entry: entry_id). Copy table, key_value, column and value exactly from the evidence rows; value is a string or null (null when the field is empty). Facts come from evidence rows only, never from the comparison block.
 - "what_would_change" lists what new information would change your recommendation.
 Answer with one JSON object only, with these keys:
-{"decision": "...", "confidence": 0.0-1.0, "rationale": "2-4 plain sentences", "facts": [{"table": "...", "key_value": "...", "column": "...", "value": "..."}], "what_would_change": ["..."]}`;
+{"analysis": "brief reasoning, at most 120 words", "decision": "...", "confidence": 0.0-1.0, "rationale": "2-4 plain sentences", "facts": [{"table": "...", "key_value": "...", "column": "...", "value": "..."}], "what_would_change": ["..."]}`;
 
 /** The longest a single field is allowed to be in a prompt. Longer text is cut and says so. */
 export const MAX_FIELD_CHARS = 300;
@@ -300,6 +331,7 @@ export async function decide(
       prompt: decisionPrompt(deps, evidence, match, feedback),
       schema: DecisionOutputSchema,
       fast: options.fast,
+      jsonSchema: DECISION_JSON_SCHEMA,
     });
   } catch (err) {
     // An unusable answer or a provider that is down becomes an escalation; a fault in our own setup still stops the run.

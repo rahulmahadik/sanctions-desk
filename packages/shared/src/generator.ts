@@ -45,6 +45,11 @@ export interface GenerateRequest {
    * thinking model from spending its whole budget on reasoning text. Nightshift ignores it.
    */
   jsonMode?: boolean;
+  /**
+   * Constrain the answer to this JSON Schema (`response_format` of type `json_schema`, strict). Nightshift and Ollama
+   * both honour it, so the model cannot wrap its answer in reasoning text or leave it unfinished.
+   */
+  jsonSchema?: { name: string; schema: Record<string, unknown> };
 }
 
 /** A Nightshift mode that no longer routes. */
@@ -478,6 +483,14 @@ function chatBody(model: string, req: GenerateRequest): Record<string, unknown> 
     model,
     messages,
     stream: false,
+    ...(req.jsonSchema
+      ? {
+          response_format: {
+            type: "json_schema",
+            json_schema: { name: req.jsonSchema.name, strict: true, schema: req.jsonSchema.schema },
+          },
+        }
+      : {}),
     ...(req.temperature !== undefined ? { temperature: req.temperature } : {}),
     ...(req.maxTokens !== undefined ? { max_tokens: req.maxTokens } : {}),
   };
