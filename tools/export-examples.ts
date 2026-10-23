@@ -4,6 +4,7 @@
  * hand: every number and sentence in a case file comes from the saved run.
  *
  *   npm run examples -- --variant routed --case EX-001:clear-close --case EX-035:hidden-owner ...
+ *   npm run examples -- --exam heldout --variant routed --case HO-019:held-out-clear
  *   npm run examples -- --replay list-change-reopen        (runs the list-change replay against the live layer)
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -16,7 +17,7 @@ import {
   replayListChange,
   sampleRules,
 } from "@sanctions-desk/agents";
-import { loadExam } from "@sanctions-desk/data";
+import { HELDOUT_EXAM_FILE, loadExam, MAIN_EXAM_FILE } from "@sanctions-desk/data";
 import {
   createFallbackRulesGenerator,
   createTraceLogger,
@@ -34,6 +35,8 @@ const args = process.argv.slice(2);
 const values = (flag: string): string[] =>
   args.flatMap((a, i) => (a === flag && args[i + 1] ? [args[i + 1] as string] : []));
 const variant = values("--variant")[0] ?? "routed";
+// --exam heldout reads the cases and runs of the held-out set (HO-001 and up).
+const heldout = values("--exam")[0] === "heldout";
 const config = loadConfig();
 const outRoot = resolveProjectPath("output_examples");
 
@@ -42,12 +45,13 @@ function write(path: string, text: string): void {
   writeFileSync(path, text);
 }
 
-const exam = loadExam();
+const exam = loadExam(heldout ? HELDOUT_EXAM_FILE : MAIN_EXAM_FILE);
 for (const spec of values("--case")) {
   const [caseId, slug] = spec.split(":");
   const c = exam.cases.find((x) => x.case_id === caseId);
-  if (!c || !slug) throw new Error(`use --case EX-001:short-name (got ${spec})`);
-  const runId = `eval-${variant}-${caseId}`;
+  if (!c || !slug)
+    throw new Error(`use --case EX-001:short-name or HO-019:short-name with --exam heldout (got ${spec})`);
+  const runId = `${heldout ? "eval-heldout" : "eval"}-${variant}-${caseId}`;
   const [record] = readDecisionRecords(config.logging.dir, (r) => r.run_id === runId);
   if (!record) throw new Error(`no sealed record for ${runId}; run the exam variant first`);
   const traceFile = join(config.logging.dir, `trace-${runId}.jsonl`);
