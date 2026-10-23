@@ -441,7 +441,7 @@ lines.push(
   "### (d) The deterministic pipeline on the 70 cases",
   "",
   det
-    ? `Our own code with no language model scores **${pct0(det.metrics.exact_accuracy)} exact and ${pct0(det.metrics.acceptable_accuracy)} acceptable** on the 70 cases, with ${det.metrics.false_closes} of ${det.metrics.risk_cases} risk cases wrongly closed. That is because the labels and the rules share the same definitions: the exam shows consistency with the approved definitions, not that the definitions are right. What the agents add is read on the held-out set above, and in the explanations, the cited evidence and the checks around every recommendation.`
+    ? `Our own code with no language model scores **${pct0(det.metrics.exact_accuracy)} exact and ${pct0(det.metrics.acceptable_accuracy)} acceptable** on the 70 cases, with ${det.metrics.false_closes} of ${det.metrics.risk_cases} risk cases wrongly closed. That is because the labels and the rules share the same definitions: the exam shows consistency with the approved definitions, not that the definitions are right. Rules settle what structured data can; agents add value where rules stop. What the agents add is read on the held-out set above, and in the explanations, the cited evidence and the checks around every recommendation.`
     : "_The deterministic pipeline has not been run on the 70 cases yet._",
   "",
 );

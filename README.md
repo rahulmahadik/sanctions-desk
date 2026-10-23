@@ -25,6 +25,8 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 - **Wrongly closed on the exam's risk cases:** full system **0** of 42, plain name matching 10 of 42.
 <!-- judges:end -->
 
+Rules settle what structured data can; agents add value where rules stop. On the cases the rules were written for, the deterministic pipeline is exact by design; on the held-out set it makes none of the correct clears, and that is where the agents are tested.
+
 Counts in this README (<!--fact:exam_cases-->70<!--/fact--> exam cases in <!--fact:exam_groups-->12<!--/fact--> groups, <!--fact:heldout_cases-->30<!--/fact--> held-out cases, <!--fact:edge_cases-->43<!--/fact--> edge cases) are written by `npm run readme:refresh` from the committed data.
 
 ## Track 3 fit
