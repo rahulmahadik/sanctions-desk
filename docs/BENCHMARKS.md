@@ -1,6 +1,6 @@
 # Benchmarks
 
-Measured on one machine (Apple M5 Max, macOS 27, Node 26), with the API in sample mode (saved Zetaris answers and the labelled stand-in model, so no network or model service is involved), a local client, 200 requests per route and 20 at a time. Reproduce with `npm run bench:api -- --requests 200 --concurrency 20`. These numbers describe this software on this machine, not a deployment: a live review is bounded by the model service and by Zetaris, and its times are in [the exam report](../eval/REPORT.md).
+Measured on one machine (a recent Apple silicon laptop, macOS 27, Node 26), with the API in sample mode (saved Zetaris answers and the labelled stand-in model, so no network or model service is involved), a local client, 200 requests per route and 20 at a time. Reproduce with `npm run bench:api -- --requests 200 --concurrency 20`. These numbers describe this software on this machine, not a deployment: a live review is bounded by the model service and by Zetaris, and its times are in [the exam report](../eval/REPORT.md).
 
 | Route                                                                               | Errors | Median ms | p95 ms | Max ms | Requests/s |
 | ----------------------------------------------------------------------------------- | -----: | --------: | -----: | -----: | ---------: |
