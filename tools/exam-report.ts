@@ -379,7 +379,7 @@ lines.push(
   "| System | Risk cases wrongly closed | Acceptable answers | Median s |",
   "|---|---:|---:|---:|",
   mainRow("Full system (agents, critic, challenger, memory)", full),
-  mainRow(NAME_MATCH + " (score at or above 0.90 escalates)", get("fuzzy")),
+  mainRow(`${NAME_MATCH} (score at or above 0.90 escalates)`, get("fuzzy")),
   mainRow("Every alert goes to a person", get("escalate_all")),
   "",
 );

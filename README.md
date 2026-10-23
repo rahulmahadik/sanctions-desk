@@ -136,7 +136,7 @@ Zetaris is the only data path. Three kinds of source meet in one Unified Semanti
 - a **Postgres bank database** over JDBC with a read-only login (customers, ownership, alerts, earlier decisions),
 - a **payments service** read as a cached REST table.
 
-The agents read the model's own description at run time and build their read-only tools from it; each agent is limited by our SQL guard to its own tables and columns; failing data-quality records can never support a close; every query id is matched to Zetaris's own statement history. How the model was built, what it measured, the access control and the problems met: [Unified Semantic Layer: build and reflection](docs/ZETARIS.md#unified-semantic-layer-build-and-reflection), [Access control](docs/ZETARIS.md#access-control) and [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md). Query plans: [docs/QUERY_PLANS.md](docs/QUERY_PLANS.md).
+The agents read the model's own description at run time and build their read-only tools from it; each agent is limited by our SQL guard to its own tables and columns; failing data-quality records can never support a close; every query id is matched to Zetaris's own statement history. Zetaris checklist, item by item (sources and queries 1a to 1c, comparison with hand-coding 2a, benefit 2b, requirement and mock 2c): [docs/ZETARIS.md](docs/ZETARIS.md#zetaris-checklist). Runnable proofs: `npm run zetaris:queries`, `npm run zetaris:usl`, `npm run compare:hand-coded`, `npm run usl:policy -- --demo`. Access control and the problems met: [Access control](docs/ZETARIS.md#access-control) and [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md). Query plans: [docs/QUERY_PLANS.md](docs/QUERY_PLANS.md).
 
 ### NVIDIA Nemotron
 

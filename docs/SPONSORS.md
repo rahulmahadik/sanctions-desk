@@ -22,7 +22,7 @@ The agents never write SQL and never open a data file. Each reads the layer's ow
 - _Joins inside the layer_: whether a customer's identifier equals a listed one is computed inside Zetaris, so identifier numbers are not read into the application.
 - _Least privilege_: three non-admin roles and users, per-role API tokens, masked identifier numbers, a start-up check that the roles can read the model (`npm run check:roles`).
 
-**Reflection** (what was easy, what was not, what would help) is in [ZETARIS.md](ZETARIS.md#unified-semantic-layer-build-and-reflection): sources onboarded, the queries and which agent uses each, the data-quality findings, roles and masking, effort compared with hand-written joins, why this helps compliance work, and how Zetaris could improve (scriptable column masks and access control, a user-creation statement, an API specification a key can read, typed values, a clear error for reserved column names). Known problems: [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+**Zetaris checklist** (1a to 2c, with the file or command that proves each item) is at the top of [ZETARIS.md](ZETARIS.md#zetaris-checklist): sources and exploratory queries (`npm run zetaris:queries`), the full DDL and data-quality output (`npm run zetaris:usl`), a hand-coded equivalent with line counts (`npm run compare:hand-coded`), a forecast for a periodic KYC review project, and a requirement for Zetaris with a proposed syntax and a working mock (`npm run usl:policy -- --demo`). Known problems: [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
 
 **Check it.** `npm run check:roles`; `npm run zetaris:sql -- zetaris/sql/06_activate_select.sql --apply --show`; the Evidence screen of the review desk shows the rows, the masked columns and the data-quality results for any case.
 

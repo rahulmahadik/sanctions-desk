@@ -1,0 +1,51 @@
+10 proposed statements -> how each is done on the platform today
+
+[SQL      ] {"kind":"create_role","role":"role_evidence_agent","description":"Evidence and reasoning agents, identifiers masked"}
+    CREATE ROLE 'role_evidence_agent' DESCRIBE BY 'Evidence and reasoning agents, identifiers masked'
+
+[SQL      ] {"kind":"create_role","role":"role_reviewer","description":"Human reviewers, full values"}
+    CREATE ROLE 'role_reviewer' DESCRIBE BY 'Human reviewers, full values'
+
+[SQL      ] {"kind":"create_role","role":"role_desk_emea","description":"Reviewers who see the EMEA desk only"}
+    CREATE ROLE 'role_desk_emea' DESCRIBE BY 'Reviewers who see the EMEA desk only'
+
+[REST     ] {"kind":"create_user","user":"agent_evidence","role":"role_evidence_agent","scope":"read_only","expiresDays":90}
+    POST /users (no SQL; random password kept in memory)
+    ASSIGN USER 'agent_evidence' TO ROLE 'role_evidence_agent'
+    POST /auth/api-key (valid 90 days; the scope read_only cannot be requested today)
+
+[REST     ] {"kind":"create_user","user":"agent_reviewer","role":"role_reviewer","scope":"read_only","expiresDays":90}
+    POST /users (no SQL; random password kept in memory)
+    ASSIGN USER 'agent_reviewer' TO ROLE 'role_reviewer'
+    POST /auth/api-key (valid 90 days; the scope read_only cannot be requested today)
+
+[SQL      ] {"kind":"grant_all","role":"role_evidence_agent"}
+    GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.business_definition TO ROLE 'role_evidence_agent'
+    GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.list_entry TO ROLE 'role_evidence_agent'
+    GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.list_alias TO ROLE 'role_evidence_agent'
+    ... and 11 more
+
+[SQL      ] {"kind":"grant_all","role":"role_reviewer"}
+    GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.business_definition TO ROLE 'role_reviewer'
+    GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.list_entry TO ROLE 'role_reviewer'
+    GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.list_alias TO ROLE 'role_reviewer'
+    ... and 11 more
+
+[SQL      ] {"kind":"grant_table","table":"customer","role":"role_desk_emea"}
+    GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.customer TO ROLE 'role_desk_emea'
+
+[INTERFACE] {"kind":"mask","table":"customer_identifier","column":"id_number","pattern":".(?=.{2})","replacement":"*","role":"role_evidence_agent"}
+    Column Access screen of customer_identifier: set id_number to HIDE for role_evidence_agent (a pattern mask does not exist; HIDE hides the whole value)
+
+[INTERFACE] {"kind":"row_filter","table":"customer","role":"role_desk_emea","where":"desk = 'EMEA'"}
+    No row filter on a model table exists today; role_desk_emea would need a view on customer with desk = 'EMEA'
+
+6 steps by SQL, 4 by REST or the interface only, which a SQL script cannot repeat after a rebuild.
+
+mask on customer_identifier.id_number for role_evidence_agent (regex .(?=.{2}) -> *):
+    *******37   (9 characters)
+    ********52   (10 characters)
+    ********99   (10 characters)
+
+row filter on customer for role_desk_emea (desk = 'EMEA'); customers per desk: [["AMER","113"],["APAC","113"],["EMEA","114"]]
+    of the first 5 customers, role_desk_emea would see 2

@@ -1,0 +1,9 @@
+{
+  "name": "hand-coded-equivalent",
+  "private": true,
+  "type": "module",
+  "description": "The same joins and data-quality checks as the Zetaris model, written by hand against the three sources. Comparison only; not part of the application.",
+  "dependencies": {
+    "pg": "8.13.1"
+  }
+}
