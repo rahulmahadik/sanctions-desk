@@ -9,7 +9,7 @@ import type { MatchResult } from "./matching.js";
  * cautious, never less. A person always has the last word, and nothing here sends or blocks anything.
  */
 
-const CAUTION: Record<Decision, number> = {
+export const CAUTION: Record<Decision, number> = {
   CLOSE_FALSE_POSITIVE: 0,
   NEED_MORE_INFO: 1,
   ESCALATE_L2: 2,
@@ -195,6 +195,16 @@ const evidenceStandardRule: Rule = ({ closing, policy, decision, evidence, match
         standard,
       ).missing,
     });
+  const [definitionId, definitionVersion] = standard.definition.split("@");
+  const stated = evidence.definitionCheck.applied.some(
+    (d) => d.definition_id === definitionId && d.version === definitionVersion,
+  );
+  if (closing && !stated)
+    return fails(
+      "evidence_standard",
+      "NEED_MORE_INFO",
+      `the policy relies on the approved definition ${standard.definition}, which the semantic layer does not hold as the newest approved version`,
+    );
   if (!closing || relied.length === 0)
     return passes("evidence_standard", closing ? "no free text relied on" : "not closing");
   const claims = relied.filter((r) => r.missing.length > 0);

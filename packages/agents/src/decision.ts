@@ -254,7 +254,7 @@ export function policyExcerpt(deps: AgentDeps): string {
     name_similarity_threshold: p.matching.nameSimilarityThreshold,
     confidence_floor_for_close: p.critic.confidenceFloorForClose,
     abstain_on_invalid_data: p.critic.abstainOnInvalidData,
-    documentary_evidence: p.evidenceStandard.statement,
+    documentary_evidence: `see the approved definition ${p.evidenceStandard.definition}`,
     jurisdictions_needing_escalation: p.jurisdictions.filter((j) => j.action === "escalate").map((j) => j.country),
   });
 }

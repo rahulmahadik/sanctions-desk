@@ -11,7 +11,13 @@ function evidence(over: Partial<EvidenceBundle> = {}): EvidenceBundle {
     countries: [],
     dq: [],
     freeText: ["Jane Doe"],
-    definitionCheck: { applied: [{ definition_id: "true_match", version: "1" }], mismatched: [] },
+    definitionCheck: {
+      applied: [
+        { definition_id: "true_match", version: "1" },
+        { definition_id: "false_positive", version: "2" },
+      ],
+      mismatched: [],
+    },
     ...over,
   } as unknown as EvidenceBundle;
 }
@@ -261,6 +267,15 @@ describe("the documentary evidence standard", () => {
       "CLOSE_FALSE_POSITIVE",
     );
     expect(guard(run(decision("ESCALATE_L2"), match({ assessment: "weak" }), withNote(claim)))?.verdict).toBe("pass");
+  });
+
+  it("sends a close to NEED_MORE_INFO when the semantic layer does not hold the definition the policy relies on", () => {
+    const old = evidence({
+      definitionCheck: { applied: [{ definition_id: "false_positive", version: "1" }], mismatched: [] },
+    });
+    const out = run(decision("CLOSE_FALSE_POSITIVE"), match({ assessment: "weak" }), old);
+    expect(out.decision).toBe("NEED_MORE_INFO");
+    expect(guard(out)?.detail).toContain("false_positive@2");
   });
 
   it("follows the policy: a requirement switched off is not checked", () => {

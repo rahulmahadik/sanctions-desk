@@ -23,7 +23,7 @@ export type BusinessDefinition = z.infer<typeof BusinessDefinitionSchema>;
 /** The versions the matching code implements. A newer approved version in the data means the code must be reviewed first. */
 export const IMPLEMENTED_DEFINITIONS: Readonly<Record<string, string>> = {
   true_match: "1",
-  false_positive: "1",
+  false_positive: "2",
   counterparty_match: "1",
   strong_identifier: "1",
   effective_ownership_threshold: "1",

@@ -21,9 +21,6 @@ export const StrongIdentifierFieldSchema = z.enum(STRONG_IDENTIFIER_FIELDS);
 
 export const JURISDICTION_ACTIONS = ["review", "escalate", "recommend_block"] as const;
 
-export const DEFAULT_EVIDENCE_STATEMENT =
-  "A note counts as documentary evidence only when it carries a check reference, a document number and a date (and, for a payment, a named counterparty). Anything less is a claim: it is shown to the reviewer and leads to NEED_MORE_INFO, never to a close.";
-
 const unit = z.number().min(0).max(1);
 const nonEmpty = z.string().min(1);
 const positiveInt = z.number().int().positive();
@@ -143,18 +140,19 @@ export const PolicySchema = z.strictObject({
 
   /**
    * What a free-text note or payment reference must carry to count as documentary evidence, and not just a claim. A
-   * close that rests on a claim goes to NEED_MORE_INFO. Added in policy version 2.
+   * close that rests on a claim goes to NEED_MORE_INFO. Added in policy version 2; version 3 moved its wording into the approved definitions (false_positive@2).
    */
   evidenceStandard: z
     .strictObject({
-      statement: z.string().min(20),
+      /** The approved definition, as id@version in the semantic layer, that states the standard in words. */
+      definition: z.string().regex(/^[a-z_]+@\d+$/),
       requireCheckReference: z.boolean(),
       requireDocumentNumber: z.boolean(),
       requireDate: z.boolean(),
       requireNamedCounterpartyForPayments: z.boolean(),
     })
     .default({
-      statement: DEFAULT_EVIDENCE_STATEMENT,
+      definition: "false_positive@2",
       requireCheckReference: true,
       requireDocumentNumber: true,
       requireDate: true,

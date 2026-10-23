@@ -69,7 +69,7 @@ export interface PartyComparison {
   country: { status: CountryStatus; customer: string | null; listed: string[] };
   identifiers: { status: IdStatus; matches: string[] };
   strong_identifier_matches: number;
-  /** The approved definitions, applied by code (business definitions true_match@1, false_positive@1 and counterparty_match@1). */
+  /** The approved definitions, applied by code (business definitions true_match@1, false_positive@2 and counterparty_match@1). */
   definitions: {
     true_match: boolean;
     false_positive: boolean;
@@ -267,7 +267,7 @@ function meetsTrueMatch(i: AssessInput): boolean {
   return i.nameHigh && i.dob.status === "exact" && (i.country.status === "match" || i.identifiers.status === "match");
 }
 
-/** false_positive@1: date of birth conflicts, nationality is known and differs, and no document number matches. */
+/** false_positive (version 1 wording, unchanged in version 2, which adds the documentary evidence standard): date of birth conflicts, nationality is known and differs, and no document number matches. */
 function meetsFalsePositive(i: AssessInput, customerNationality: string | null): boolean {
   return (
     i.dob.status === "conflict" &&

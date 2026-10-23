@@ -40,8 +40,8 @@ describe("the decision trace", () => {
     expect(t.definitions.map((d: { definition_id: string }) => d.definition_id)).toContain("true_match");
     expect(
       t.definitions.every(
-        (d: { version: string; statement_hash: string }) =>
-          d.version === "1" && /^[a-f0-9]{64}$/.test(d.statement_hash),
+        (d: { definition_id: string; version: string; statement_hash: string }) =>
+          d.version === (d.definition_id === "false_positive" ? "2" : "1") && /^[a-f0-9]{64}$/.test(d.statement_hash),
       ),
     ).toBe(true);
 
