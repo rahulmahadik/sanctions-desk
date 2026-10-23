@@ -22,6 +22,35 @@ describe("loadConfig", () => {
     expect(cfg.zetaris.apiKey).toBeUndefined();
   });
 
+  it("listens on this machine only by default", () => {
+    expect(loadConfig({ env: {} }).server.host).toBe("127.0.0.1");
+  });
+
+  it("turns rate limits on by default and lets the environment change them", () => {
+    expect(testConfig().server.rateLimit).toMatchObject({
+      enabled: true,
+      windowMs: 60000,
+      writesPerWindow: 60,
+      reviewsPerWindow: 10,
+      reviewsInFlight: 4,
+    });
+    const cfg = testConfig({
+      RATE_LIMIT_ENABLED: "false",
+      RATE_LIMIT_WINDOW_MS: "1000",
+      RATE_LIMIT_WRITES: "5",
+      RATE_LIMIT_REVIEWS: "2",
+      RATE_LIMIT_REVIEWS_IN_FLIGHT: "1",
+    });
+    expect(cfg.server.rateLimit).toMatchObject({
+      enabled: false,
+      windowMs: 1000,
+      writesPerWindow: 5,
+      reviewsPerWindow: 2,
+      reviewsInFlight: 1,
+    });
+    expect(() => testConfig({ RATE_LIMIT_REVIEWS_IN_FLIGHT: "0" })).toThrow(ConfigError);
+  });
+
   it("lets environment variables override defaults and coerces types", () => {
     const cfg = testConfig({
       PORT: "9100",

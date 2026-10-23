@@ -25,7 +25,10 @@ const ErrorBody: Json = {
     error: {
       type: "object",
       properties: {
-        type: { type: "string", description: "validation, not_found, guard_blocked, query_failed, bad_response, ..." },
+        type: {
+          type: "string",
+          description: "validation, not_found, guard_blocked, query_failed, bad_response, rate_limited, ...",
+        },
         message: { type: "string" },
         recoverable: { type: "boolean" },
       },
@@ -384,6 +387,15 @@ export function buildOpenApi(version: string, extra: RouteDoc[] = []): Json {
           : { description: "OK", content: { "application/json": { schema: r.response ?? { type: "object" } } } },
         "400": { description: "The request is not valid", content: { "application/json": { schema: ErrorBody } } },
         "404": { description: "Not found", content: { "application/json": { schema: ErrorBody } } },
+        ...(r.method === "post"
+          ? {
+              "429": {
+                description: "Too many requests from this caller, or too many reviews running; see Retry-After",
+                headers: { "Retry-After": { schema: { type: "integer", minimum: 1 } } },
+                content: { "application/json": { schema: ErrorBody } },
+              },
+            }
+          : {}),
       },
     };
   }

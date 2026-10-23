@@ -6,7 +6,15 @@
     "shutdownTimeoutMs": 10000,
     "webOrigins": ["http://localhost:3001", "http://127.0.0.1:3001"],
     "docs": true,
-    "auth": "auto"
+    "auth": "auto",
+    "rateLimit": {
+      "enabled": true,
+      "windowMs": 60000,
+      "writesPerWindow": 60,
+      "reviewsPerWindow": 10,
+      "reviewsInFlight": 4,
+      "busyRetryAfterSeconds": 10
+    }
   },
   "actions": {
     "outboxDir": "outbox"

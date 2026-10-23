@@ -44,6 +44,8 @@ export interface TestAppOptions {
   users?: UsersFile;
   /** Change the starting policy, for example to switch autonomy on. */
   policy?: (p: Policy) => Policy;
+  /** The clock the rate limits use. */
+  now?: () => number;
 }
 
 const unusedGenerator: Generator = async () => {
@@ -57,12 +59,15 @@ export async function makeApp(
   const dir = tempDir();
   const logDir = join(dir, "logs");
   const overridesPath = join(dir, "overrides.json");
+  // Rate limits are off unless a test turns them on: many tests send more requests than one caller may.
+  const server = { rateLimit: { enabled: false }, ...(opts.overrides?.server as Record<string, unknown> | undefined) };
   writeFileSync(
     overridesPath,
     JSON.stringify({
       logging: { stdout: false, dir: logDir },
       actions: { outboxDir: join(dir, "outbox") },
       ...opts.overrides,
+      server,
     }),
   );
 
@@ -86,6 +91,7 @@ export async function makeApp(
     sampleNotice: opts.sampleNotice,
     authMode: opts.authMode ?? "off",
     users: opts.users,
+    now: opts.now,
   });
   apps.push(app);
   return { app, config, logDir, bus, policies };

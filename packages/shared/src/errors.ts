@@ -15,6 +15,7 @@ export type ErrorType =
   | "conflict"
   | "not_found"
   | "not_implemented"
+  | "rate_limited"
   | "internal";
 
 export interface StructuredError {

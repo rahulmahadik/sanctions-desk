@@ -42,6 +42,25 @@ const ConfigSchema = z.strictObject({
     auth: z.enum(["auto", "on", "demo", "off"]).default("auto"),
     /** File with the users, their roles and the SHA-256 of each token. Kept outside the repository. */
     usersFile: nonEmpty.optional(),
+    /**
+     * How often one caller may change things or start a review. A caller is the signed-in user when sign-in is on,
+     * otherwise the remote address. Reads and /health are never limited. Above a limit the answer is 429 with
+     * Retry-After; nothing is queued.
+     */
+    rateLimit: z.strictObject({
+      /** Off only for tests and tools that call the app in-process. */
+      enabled: z.boolean().default(true),
+      /** Length of the fixed window, in milliseconds. */
+      windowMs: positiveInt,
+      /** Requests per window per caller to any route that is not a read. */
+      writesPerWindow: positiveInt,
+      /** Requests per window per caller to POST /run and POST /policy/whatif (also counted as writes). */
+      reviewsPerWindow: positiveInt,
+      /** Reviews (POST /run) running at once across all callers. One more is refused, not queued. */
+      reviewsInFlight: positiveInt,
+      /** Retry-After, in seconds, sent when a review is refused because too many are running. */
+      busyRetryAfterSeconds: positiveInt,
+    }),
   }),
   /** What a person's decision on a recommendation produces. Nothing here is ever sent anywhere. */
   actions: z
@@ -191,6 +210,11 @@ const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "DOCS_ENABLED", path: ["server", "docs"], kind: "boolean" },
   { env: "AUTH_MODE", path: ["server", "auth"], kind: "string" },
   { env: "DESK_USERS_FILE", path: ["server", "usersFile"], kind: "string" },
+  { env: "RATE_LIMIT_ENABLED", path: ["server", "rateLimit", "enabled"], kind: "boolean" },
+  { env: "RATE_LIMIT_WINDOW_MS", path: ["server", "rateLimit", "windowMs"], kind: "number" },
+  { env: "RATE_LIMIT_WRITES", path: ["server", "rateLimit", "writesPerWindow"], kind: "number" },
+  { env: "RATE_LIMIT_REVIEWS", path: ["server", "rateLimit", "reviewsPerWindow"], kind: "number" },
+  { env: "RATE_LIMIT_REVIEWS_IN_FLIGHT", path: ["server", "rateLimit", "reviewsInFlight"], kind: "number" },
   { env: "DESK_OUTBOX_DIR", path: ["actions", "outboxDir"], kind: "string" },
   { env: "DESK_SIGNING_KEY_FILE", path: ["actions", "signingKeyFile"], kind: "string" },
   { env: "DESK_SIGNING_PUBLIC_KEY", path: ["actions", "publicKey"], kind: "string" },
@@ -313,7 +337,7 @@ export function secretValues(cfg: Config): string[] {
 export function describeConfig(cfg: Config) {
   return {
     sampleMode: cfg.sampleMode,
-    server: { host: cfg.server.host, port: cfg.server.port },
+    server: { host: cfg.server.host, port: cfg.server.port, rateLimit: cfg.server.rateLimit },
     zetaris: {
       restUrl: cfg.zetaris.restUrl,
       orgId: cfg.zetaris.orgId,
