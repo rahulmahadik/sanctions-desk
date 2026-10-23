@@ -237,7 +237,11 @@ describe("the next action is prepared only after a decision", () => {
 });
 
 describe("how the prepared records are sealed", () => {
-  const body = () => planActions(approve(recordFor("CLOSE_FALSE_POSITIVE")), policy, NOW)[0]!;
+  const body = () => {
+    const first = planActions(approve(recordFor("CLOSE_FALSE_POSITIVE")), policy, NOW)[0];
+    if (!first) throw new Error("no action was planned");
+    return first;
+  };
   const keyFile = (dir: string) => {
     const { privateKey } = generateKeyPairSync("ed25519");
     const file = join(dir, "signing.pem");
