@@ -1,0 +1,4 @@
+# Test fixtures use made-up keys such as "zk-probe-key-123456"; they are not credentials.
+[allowlist]
+description = "fake keys in test fixtures"
+paths = ['''(^|/)test/''']
