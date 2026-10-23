@@ -20,3 +20,20 @@ To check that nothing changed after the third freeze: `git diff 0886c4571da03fa2
 Results are reported in both directions: **risks caught** (recall on the 18 risk cases) and **clears correctly made** (the share of the 8 clear cases that are closed; the rest is the over-escalation rate), with the escalate-all baseline on the same set, which catches every risk and makes no clear.
 
 The cases are not loaded into Zetaris or the bank database until the main exam variants have finished. Rows for them are built from their own seed and id marker (`CUST-H0001`, `ALR-H0001`, ...), so the main synthetic rows do not change when they are added.
+
+## Held-out v2
+
+- `heldout2.json`: 15 cases, HO2-001 to HO2-015, group `beyond_rules_v2`. Date: 24 October 2026.
+- sha256 of `eval/cases/heldout2.json`: `88439234fddb459babdd039551acddc09463fabd733573a7e9cba3bf63a29dbe`
+
+This set was written before any system output on it was seen, and without knowing how the free-text screening step is designed. It will not be changed after this hash is recorded; `packages/agents/test/heldout2-standard.test.ts` pins the hash and fails if the file changes. Labels apply the approved definitions and the documentary evidence standard exactly as written (policy version 5, `false_positive@2`); each case has a one-sentence reason in `note`. Customers and payments are synthetic; the listed side is real public entries from the committed list sample, none of which the first held-out set used.
+
+The set has the same three families as the first, with new names, new wording and the text in other places (customer notes, payment references, the listed entry's remarks), some of it in Spanish, German or French:
+
+| Family | Cases | Expected | Why it is there |
+| --- | --- | --- | --- |
+| Risk stated only in free text | HO2-001 to HO2-007 (a ship's IMO number and an agent's name in payment references, an alias in a Spanish reference, a Spanish maiden name, a German spouse link, a French branch location, a founder named only in the listed remarks) | ESCALATE_L2 (NEED_MORE_INFO acceptable; for HO2-005 and HO2-007 that is the only other acceptable answer); a close is a miss | Tests whether risk that no structured field carries, and that the first set showed was invisible to the decision step, is now seen, in more than one language. |
+| Clears backed by documentary evidence | HO2-008 to HO2-012 (a Spanish and a French identity check, a landlord's ID in a payment reference, a registered company, a themed bar) | CLOSE_FALSE_POSITIVE; an escalation is a miss | Every text meets the standard (check reference, document number, date, named counterparty for a payment). Two carry near-miss wording (a street name that resembles a listed group, a bar named after a weapons maker) that must not raise risk. Keeps the set from rewarding a system that escalates everything. |
+| Notes that look documentary but are only claims | HO2-013 to HO2-015 (no check reference; the counterparty recorded as unknown; a year of birth but no date) | NEED_MORE_INFO (ESCALATE_L2 acceptable); a close is a miss | Each fails the standard for exactly one reason, which a test checks, so a close that relies on it breaks the rule. |
+
+The rows are built from their own seed and id marker (`CUST-J0001`, `ALR-J0001`, ...) after the first set's rows. `npm run data:synthetic -- --include-heldout2` writes them into `data/synthetic/` after the first set's rows, and `npm run heldout2:load` loads them into the bank database (dry run unless `--apply` is given). Without the flag every existing output is unchanged; a test checks the main and first-set outputs byte for byte against the committed files.
