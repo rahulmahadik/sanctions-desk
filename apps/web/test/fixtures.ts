@@ -171,6 +171,7 @@ export const SPLIT = {
     },
   ],
   receipts: 185,
-  mode_coerced: 185,
+  mode_coerced: 120,
+  routed_auto: 185,
   routers: ["learned-router"],
 };

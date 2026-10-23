@@ -41,6 +41,7 @@
     "exam": "tsx tools/run-exam.ts",
     "exam:report": "tsx tools/exam-report.ts",
     "examples": "tsx tools/export-examples.ts",
+    "citations": "tsx tools/citation-errors.ts",
     "json:rate": "tsx tools/json-failure-rate.ts",
     "bench": "tsx tools/bench.ts",
     "explain": "tsx tools/explain-queries.ts",

@@ -1,0 +1,55 @@
+{
+  "runs": [
+    {
+      "label": "before fixes 1 and 2 (routed run of 23 Oct)",
+      "variant": "routed",
+      "since": "2026-10-23T04:52:42",
+      "by_group": {
+        "false_positive": {
+          "cases": 15,
+          "with_citation_error": 0
+        },
+        "true_match": {
+          "cases": 8,
+          "with_citation_error": 1
+        },
+        "transliteration": {
+          "cases": 6,
+          "with_citation_error": 0
+        },
+        "missing_data": {
+          "cases": 5,
+          "with_citation_error": 4
+        },
+        "hidden_ownership": {
+          "cases": 6,
+          "with_citation_error": 4
+        },
+        "ownership_below": {
+          "cases": 4,
+          "with_citation_error": 2
+        },
+        "previously_cleared_unchanged": {
+          "cases": 6,
+          "with_citation_error": 3
+        },
+        "previously_cleared_changed": {
+          "cases": 5,
+          "with_citation_error": 0
+        },
+        "injection": {
+          "cases": 3,
+          "with_citation_error": 1
+        },
+        "payment_jurisdiction": {
+          "cases": 5,
+          "with_citation_error": 4
+        },
+        "rules_gap": {
+          "cases": 5,
+          "with_citation_error": 1
+        }
+      }
+    }
+  ]
+}

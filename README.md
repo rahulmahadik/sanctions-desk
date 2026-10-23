@@ -5,7 +5,7 @@ An AI review desk for bank sanctions-screening alerts. For every alert it reads 
 Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
 <!-- headline:start -->
-The headline result is written here by `npm run exam:report` after the full exam has been run.
+**Headline result** (full system on the 68-alert exam, one run): 31% of alerts closed with cited evidence, 69% escalated; about 401 analyst minutes saved per 100 alerts (assuming 15 minutes per alert and 2 to confirm a close); false closes on cases that carry real risk: 0 of 42. Details, assumptions and the comparison with plain name matching: [eval/REPORT.md](eval/REPORT.md).
 <!-- headline:end -->
 
 ## Contents
@@ -125,7 +125,7 @@ Nightshift, an OpenAI-compatible runtime, is the AI provider for all model calls
 
 The **reasoning budget** is our own token limit plus an instruction to put brief reasoning in the answer's `analysis` field; it is not a model parameter and nothing is sent to Nightshift to switch thinking on. Triage, evidence, matching, ownership, memory, the policy guard and the reporter are code and call no model.
 
-**Which model serves a mode is Nightshift's decision, not ours.** Its learned router chooses: every receipt shows the requested mode replaced by `auto` (`mode_coerced` true) under the routing policy `learned-router`. We do not route by difficulty and we do not pin the cloud. What we do is record, for every call, the mode asked for, the model that answered (`routed_model`), reasoning budget, latency, tokens, the signed receipt and the cost under the configured unit costs (tokens served by the local model are priced at zero). Answers are requested as schema-constrained JSON, with the reasoning in a field of the answer. See [docs/MODELS.md](docs/MODELS.md).
+**Which model serves a mode is Nightshift's decision, not ours.** Its learned router chooses: in every receipt the mode served is the runtime's own `auto` under the routing policy `learned-router` (for `fast` and `deep` the receipt marks the request as replaced, `mode_coerced` true; `judge` already resolves to `auto`). We do not route by difficulty and we do not pin the cloud. What we do is record, for every call, the mode asked for, the model that answered (`routed_model`), reasoning budget, latency, tokens, the signed receipt and the cost under the configured unit costs (tokens served by the local model are priced at zero). Answers are requested as schema-constrained JSON, with the reasoning in a field of the answer. See [docs/MODELS.md](docs/MODELS.md).
 
 ### Zetaris
 
@@ -141,7 +141,14 @@ The agents read the model's own description at run time and build their read-onl
 The language work is done by Nemotron models through Nightshift: **Nemotron 3 Ultra 550B** (served in the cloud) and **Nemotron 3.5 Lightning 30B** (served on this machine). Which of them answers a call is decided by Nightshift's router, so the split below is a measurement, not a setting:
 
 <!-- routing:start -->
-The split is written here by `npm run exam:report` after the full exam has been run.
+Measured in the full exam run of 2026-10-23, from the signed receipts (the model that served each call; Nightshift's learned router decides this, we only ask for a pinned mode):
+
+| Step | Calls | Nemotron 3.5 Lightning 30B (local) | Nemotron 3 Ultra 550B (cloud) |
+|---|---:|---:|---:|
+| Safety guard | 70 | 97.1% (68) | 2.9% (2) |
+| Decision | 111 | 0 | 100.0% (111) |
+| Critic | 109 | 6.4% (7) | 93.6% (102) |
+| Challenger | 30 | 0 | 100.0% (30) |
 <!-- routing:end -->
 
 The **model ledger** of every recommendation lists, per step, the mode asked for, the model that answered, reasoning budget, tokens, latency and the signed receipt with its verification status (`GET /cases/:alertId/trace`, `npm run ledger -- --case <alert id>`, the routing panel of the review desk, and the saved decision records in `output_examples/`).

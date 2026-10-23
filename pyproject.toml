@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "AI review desk for bank sanctions-screening alerts: setup and connection checks"
 readme = "README.md"
 authors = [
-    { name = "rahulmahadik" }
+    { name = "rahulmahadik", email = "13520131+rahulmahadik@users.noreply.github.com" }
 ]
 requires-python = ">=3.13"
 dependencies = []

@@ -24,7 +24,10 @@ export interface RoutingSplit {
   rows: RoutingSplitRow[];
   /** Receipts read, and how many of them show the requested mode replaced by the router's "auto". */
   receipts: number;
+  /** Receipts where the runtime marked the requested mode as replaced (deep and fast). */
   mode_coerced: number;
+  /** Receipts where the mode served was the runtime's own "auto", whatever was requested. */
+  routed_auto: number;
   routers: string[];
 }
 
@@ -37,7 +40,7 @@ export const STEP_NAMES: Record<string, string> = {
 
 interface Receipt {
   winning_route?: { kind?: string; model?: string };
-  app_policy?: { mode_coerced?: boolean };
+  app_policy?: { mode_coerced?: boolean; routed_mode?: string };
   routing?: { policy?: string };
 }
 
@@ -73,10 +76,12 @@ function tally(found: Iterable<{ agent: string; receipt: Receipt }>) {
   const routers = new Set<string>();
   let receipts = 0;
   let coerced = 0;
+  let auto = 0;
   for (const { agent, receipt } of found) {
     const route = receipt.winning_route as { kind?: string; model: string };
     receipts += 1;
     if (receipt.app_policy?.mode_coerced) coerced += 1;
+    if (receipt.app_policy?.routed_mode === "auto") auto += 1;
     if (receipt.routing?.policy) routers.add(receipt.routing.policy);
     const kind = route.kind === "cloud" || route.kind === "local" ? route.kind : "unknown";
     const perStep = counts.get(agent) ?? new Map<string, RoutingSplitModel>();
@@ -85,13 +90,13 @@ function tally(found: Iterable<{ agent: string; receipt: Receipt }>) {
     perStep.set(route.model, row);
     counts.set(agent, perStep);
   }
-  return { counts, routers, receipts, coerced };
+  return { counts, routers, receipts, coerced, auto };
 }
 
 /** Read the receipts of the model calls in a run's traces (events at or after `since`). */
 export function routingSplit(logDir: string, variant: string, since: string): RoutingSplit {
-  if (!existsSync(logDir)) return { rows: [], receipts: 0, mode_coerced: 0, routers: [] };
-  const { counts, routers, receipts, coerced } = tally(receiptsOf(logDir, variant, since));
+  if (!existsSync(logDir)) return { rows: [], receipts: 0, mode_coerced: 0, routed_auto: 0, routers: [] };
+  const { counts, routers, receipts, coerced, auto } = tally(receiptsOf(logDir, variant, since));
   const rows = Object.keys(STEP_NAMES)
     .filter((agent) => counts.has(agent))
     .map((agent) => {
@@ -105,7 +110,7 @@ export function routingSplit(logDir: string, variant: string, since: string): Ro
         models: models.map((m) => ({ ...m, share: Math.round((m.calls / calls) * 10_000) / 10_000 })),
       };
     });
-  return { rows, receipts, mode_coerced: coerced, routers: [...routers] };
+  return { rows, receipts, mode_coerced: coerced, routed_auto: auto, routers: [...routers] };
 }
 
 /** A short name for a model id: "Nemotron 3 Ultra 550B" or "Nemotron 3.5 Lightning 30B". */

@@ -192,6 +192,112 @@ function splitTable(split: RoutingSplit): string[] {
   return out;
 }
 
+const OUTCOMES = [
+  "CLOSE_FALSE_POSITIVE",
+  "NEED_MORE_INFO",
+  "ESCALATE_L2",
+  "RECOMMEND_BLOCK",
+  "DRAFT_BLOCKED",
+  "DRAFT_ALLOWED",
+  "ERROR",
+];
+const SHORT: Record<string, string> = {
+  CLOSE_FALSE_POSITIVE: "close",
+  NEED_MORE_INFO: "more info",
+  ESCALATE_L2: "escalate",
+  RECOMMEND_BLOCK: "block",
+  DRAFT_BLOCKED: "draft blocked",
+  DRAFT_ALLOWED: "draft allowed",
+  ERROR: "error",
+};
+const CAUTION: Record<string, number> = {
+  CLOSE_FALSE_POSITIVE: 0,
+  NEED_MORE_INFO: 1,
+  ESCALATE_L2: 2,
+  RECOMMEND_BLOCK: 3,
+};
+
+/** Expected outcome (rows) against the outcome the variant gave (columns). */
+function confusionMatrix(cases: readonly ScoredCase[]): string[] {
+  const got = OUTCOMES.filter((o) => cases.some((c) => c.got === o));
+  const expected = OUTCOMES.filter((o) => cases.some((c) => c.expected === o));
+  const out = [
+    `| Expected \\ Got | ${got.map((g) => SHORT[g]).join(" | ")} | Total |`,
+    `|---|${got.map(() => "---:").join("|")}|---:|`,
+  ];
+  for (const e of expected) {
+    const row = cases.filter((c) => c.expected === e);
+    out.push(
+      `| ${SHORT[e]} | ${got.map((g) => row.filter((c) => c.got === g).length || "").join(" | ")} | ${row.length} |`,
+    );
+  }
+  return out;
+}
+
+/** Why a case counts as acceptable but not exact, or as neither: the kind of gap, in plain words. */
+function gapKind(c: ScoredCase): string {
+  const acceptable = c.acceptable.includes(c.got);
+  if (acceptable && c.expected === "ESCALATE_L2" && c.got === "RECOMMEND_BLOCK") {
+    return "label granularity: a recommended block is the stronger form of an escalation, and still needs two human approvals";
+  }
+  const more = (CAUTION[c.got] ?? 0) > (CAUTION[c.expected] ?? 0);
+  if (acceptable && more)
+    return "cautious choice: the desk sent it to a person where the exam expected a lighter outcome";
+  if (acceptable) return "acceptable alternative";
+  if (c.decision_unavailable) return `no usable model decision (${c.decision_unavailable}); escalated for that reason`;
+  if (more && c.critic_final === "escalated") {
+    return "real error, in the safe direction: the model cited something that does not exist three times and the critic would not approve it";
+  }
+  if (more) return "miss in the safe direction: more cautious than the exam allows";
+  return "real error, in the unsafe direction";
+}
+
+/** The gap between exact and acceptable (and the misses) as a table: one row per pair of outcomes. */
+function gapTable(cases: readonly ScoredCase[]): string[] {
+  const pairs = new Map<string, ScoredCase[]>();
+  for (const c of cases.filter((x) => x.got !== x.expected)) {
+    const key = `${SHORT[c.expected]} → ${SHORT[c.got]} | ${gapKind(c)}`;
+    pairs.set(key, [...(pairs.get(key) ?? []), c]);
+  }
+  const out = ["| Expected → got | What it is | Cases |", "|---|---|---|"];
+  for (const [key, list] of [...pairs].sort((a, b) => b[1].length - a[1].length)) {
+    const [pair, kind] = key.split(" | ") as [string, string];
+    out.push(`| ${pair} (${list.length}) | ${kind} | ${list.map((c) => `${c.case_id} ${c.kind}`).join(", ")} |`);
+  }
+  return out;
+}
+
+/** For the earlier-clearance cases of a run: was the earlier decision recalled, was its pointer still valid, was it used. */
+function memoryRecall(variant: string, since: string) {
+  const logs = resolveProjectPath(config.logging.dir);
+  const folder = join(logs, "records");
+  const cases = exam.cases.filter((c) => c.group === "previously_cleared_unchanged");
+  const result = { cases: cases.length, recalled: 0, valid: 0, used: 0 };
+  if (!existsSync(folder)) return result;
+  const records = readdirSync(folder)
+    .filter((n) => n.endsWith(".json"))
+    .map(
+      (n) =>
+        JSON.parse(readFileSync(join(folder, n), "utf8")) as {
+          run_id: string;
+          decided_at: string;
+          memories: Array<{ pointer_states: string[]; used: boolean }>;
+        },
+    )
+    .filter((r) => r.decided_at >= since);
+  for (const c of cases) {
+    const latest = records
+      .filter((r) => r.run_id === `eval-${variant}-${c.case_id}`)
+      .sort((a, b) => b.decided_at.localeCompare(a.decided_at))[0];
+    const memory = latest?.memories[0];
+    if (!memory) continue;
+    result.recalled += 1;
+    if (memory.pointer_states.every((s) => s === "fresh")) result.valid += 1;
+    if (memory.used) result.used += 1;
+  }
+  return result;
+}
+
 const ORDER = ["routed", "single", "no_memory", "local", "rules", "fuzzy", "escalate_all"];
 const LABEL: Record<string, string> = {
   routed: "Full system (Nemotron models through Nightshift, critic, challenger, memory)",
@@ -322,6 +428,33 @@ if (have.length === 0) {
     );
   }
 
+  lines.push(
+    "### Exact and acceptable, and where they differ",
+    "",
+    "- **Exact:** the outcome is the one the exam names for the case.",
+    "- **Acceptable:** exact, or one of the alternatives the exam lists as also fine for that case (for example a recommended block for a true match, or escalating a case where information is missing).",
+    "",
+  );
+  for (const v of ["routed", "rules", "fuzzy"].filter((x) => newest.has(x))) {
+    const r = get(v) as Result;
+    lines.push(`#### Expected against given: ${LABEL[v] ?? v}`, "", ...confusionMatrix(r.cases), "");
+    if (v === "rules") {
+      lines.push(
+        "The deterministic pipeline's perfect score says that the exam's labels and its code follow the same approved definitions, which is how both were written. It cannot tell whether the definitions are right, and it never recommends a block.",
+        "",
+      );
+    }
+    if (v === "routed") {
+      const m = r.metrics;
+      lines.push(
+        `Exact ${pct(m.exact_accuracy)}, acceptable ${pct(m.acceptable_accuracy)}: the difference is the cases below.`,
+        "",
+        ...gapTable(r.cases),
+        "",
+      );
+    }
+  }
+
   const fuzzy = get("fuzzy");
   if (fuzzy?.cases.every((c) => c.score !== undefined || c.got === "DRAFT_ALLOWED")) {
     lines.push("### The name-match rules baseline at other thresholds", "");
@@ -402,7 +535,7 @@ if (have.length === 0) {
       lines.push(
         "### Where the model calls were answered",
         "",
-        `We ask Nightshift for a pinned mode (\`meterless/fast\`, \`meterless/deep\`, \`meterless/judge\`) and record, for every call, the model that answered (\`routed_model\`). Which model serves a mode is decided by Nightshift's learned router: in ${split.mode_coerced} of the ${split.receipts} receipts read, the requested mode was replaced by \`auto\` (\`mode_coerced\` true) under the routing policy \`${split.routers.join(", ")}\`. We do not route by difficulty and we do not pin the cloud. The table is a measurement of this run, read from the signed receipts' winning route.`,
+        `We ask Nightshift for a pinned mode (\`meterless/fast\`, \`meterless/deep\`, \`meterless/judge\`) and record, for every call, the model that answered (\`routed_model\`). Which model serves a mode is decided by Nightshift's learned router: in all ${split.routed_auto} of the ${split.receipts} receipts read, the mode served was the runtime's own \`auto\` under the routing policy \`${split.routers.join(", ")}\`. For the \`fast\` and \`deep\` modes the receipt marks the request as replaced (\`mode_coerced\` true, ${split.mode_coerced} receipts); the \`judge\` mode already resolves to \`auto\`. We do not route by difficulty and we do not pin the cloud. The table is a measurement of this run, read from the signed receipts' winning route.`,
         "",
         ...splitTable(split),
         "",
@@ -441,6 +574,44 @@ if (have.length === 0) {
       lines.push(`| ${b.step} | ${f(b)} | ${f(a)} |`);
     }
     lines.push("");
+  }
+
+  if (full) {
+    const mem = memoryRecall(full.variant, full.started_at);
+    if (mem.recalled > 0) {
+      lines.push(
+        "## Memory: earlier decisions",
+        "",
+        `In the ${mem.cases} cases where a person had cleared the same customer and listed party before and the listed entry has not changed: the earlier decision was recalled from H-MEM in ${mem.recalled} of ${mem.cases}, its pointer was still valid (the row's content hash unchanged) in ${mem.valid} of ${mem.cases}, and it was used (the case took the fast path and the model was shown the earlier decision) in ${mem.used} of ${mem.cases}. Memory never closes an alert on its own: every one of these cases was still decided from the evidence, checked by the critic and the policy guard.`,
+        "",
+      );
+    }
+  }
+
+  const citePath = resolveProjectPath("eval/citation-errors.json");
+  if (existsSync(citePath)) {
+    const runs = (
+      JSON.parse(readFileSync(citePath, "utf8")) as {
+        runs: Array<{ label: string; by_group: Record<string, { cases: number; with_citation_error: number }> }>;
+      }
+    ).runs;
+    if (runs.length > 0) {
+      const groups = [...new Set(runs.flatMap((r) => Object.keys(r.by_group)))];
+      lines.push(
+        "## Citations of things that do not exist, by group",
+        "",
+        "A case counts when the critic found, at least once in the run, that the decision cited a table or column that does not exist (for example the code-computed comparison block). It is a formatting mistake of the model, caught by the critic and never approved.",
+        "",
+        `| Group | ${runs.map((r) => r.label).join(" | ")} |`,
+        `|---|${runs.map(() => "---:").join("|")}|`,
+      );
+      for (const g of groups) {
+        lines.push(
+          `| ${g} | ${runs.map((r) => (r.by_group[g] ? `${r.by_group[g].with_citation_error}/${r.by_group[g].cases}` : "-")).join(" | ")} |`,
+        );
+      }
+      lines.push("");
+    }
   }
 
   const withMemory = get("routed");

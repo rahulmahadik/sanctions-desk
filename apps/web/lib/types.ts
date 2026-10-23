@@ -183,6 +183,7 @@ export interface RoutingSplit {
   }>;
   receipts: number;
   mode_coerced: number;
+  routed_auto: number;
   routers: string[];
 }
 

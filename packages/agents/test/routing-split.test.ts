@@ -21,7 +21,7 @@ function setup() {
         body: {
           receipt: {
             winning_route: { kind, model },
-            app_policy: { mode_coerced: true },
+            app_policy: { mode_coerced: true, routed_mode: "auto" },
             routing: { policy: "learned-router" },
           },
         },
@@ -57,7 +57,7 @@ describe("routingSplit", () => {
       ["cloud", 0.5],
       ["local", 0.5],
     ]);
-    expect(split).toMatchObject({ receipts: 55, mode_coerced: 55, routers: ["learned-router"] });
+    expect(split).toMatchObject({ receipts: 55, mode_coerced: 55, routed_auto: 55, routers: ["learned-router"] });
   });
 
   it("copes with a folder that is missing, and ignores a receipt it cannot find", () => {
