@@ -16,7 +16,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import {
@@ -293,9 +293,36 @@ const withTimeout = <T>(p: Promise<T>, ms: number): Promise<T> =>
 const startedAt = new Date().toISOString();
 const outcomes: ScoredCase[] = [];
 console.log(`exam variant ${variant}: ${cases.length} cases`);
+// --thermal-gate <file>: a marker file that exists while the model runtime reports a serious thermal state. Before each
+// case the run cools down for 25 s while it exists, and waits until it is gone once it has existed for over 10 minutes.
+// Every pause and each case's posture are logged so the report can show whether provider failures track heat.
+const gate = flag("--thermal-gate");
+const pauseLog = join(logDir, `run-pauses-${runPrefix}-${variant}.jsonl`);
+const nap = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const logPause = (entry: Record<string, unknown>) =>
+  appendFileSync(pauseLog, `${JSON.stringify({ ts: new Date().toISOString(), run: runPrefix, variant, ...entry })}\n`);
+async function coolDown(caseId: string): Promise<{ posture: "normal" | "serious"; paused_s: number }> {
+  if (!gate || !existsSync(gate)) return { posture: "normal", paused_s: 0 };
+  const started = Date.now();
+  if (Date.now() - statSync(gate).mtimeMs > 10 * 60_000) {
+    logPause({ case_id: caseId, event: "paused", reason: "thermal serious for over 10 minutes" });
+    while (existsSync(gate)) await nap(30_000);
+    logPause({ case_id: caseId, event: "resumed", waited_s: Math.round((Date.now() - started) / 1000) });
+  } else {
+    await nap(25_000);
+    logPause({ case_id: caseId, event: "cool_down", waited_s: 25 });
+  }
+  return { posture: "serious", paused_s: Math.round((Date.now() - started) / 1000) };
+}
+
 for (const c of cases) {
+  const thermal = await coolDown(c.case_id);
   try {
-    const outcome = await withTimeout(runCase(c), 10 * 60_000);
+    const outcome = {
+      ...(await withTimeout(runCase(c), 10 * 60_000)),
+      thermal_posture: thermal.posture,
+      paused_s: thermal.paused_s,
+    };
     outcomes.push(outcome);
     const ok = outcome.got === c.expected || c.acceptable.includes(outcome.got as never);
     console.log(
