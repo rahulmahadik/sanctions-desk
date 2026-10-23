@@ -62,7 +62,7 @@ describe("createZetarisClient", () => {
     const { api, client, records } = setup(tokens);
     await expect(client.query("evidence", "SELECT 1; SELECT 2")).rejects.toMatchObject({ type: "guard_blocked" });
     await expect(client.query("evidence", "DROP TABLE x")).rejects.toMatchObject({ type: "guard_blocked" });
-    await expect(client.query("evidence", "SELECT * FROM other.table")).rejects.toMatchObject({
+    await expect(client.query("evidence", "SELECT * FROM other.users")).rejects.toMatchObject({
       type: "guard_blocked",
     });
     expect(api.sent).toHaveLength(0);

@@ -56,9 +56,13 @@ export function maskValue(value: string | null): string | null {
   return `${"*".repeat(Math.min(value.length - 2, 8))}${value.slice(-2)}`;
 }
 
+/**
+ * Quote a value as an SQL string. A doubled quote is the only escape used. A backslash is refused because a
+ * Spark-style engine reads it as an escape, which could move the end of the string; the SQL guard refuses it too.
+ */
 export function quoteLiteral(value: string): string {
   // biome-ignore lint/suspicious/noControlCharactersInRegex: rejecting control characters is the point
-  if (/[\u0000-\u001f\u007f;]/.test(value)) {
+  if (/[\u0000-\u001f\u007f;\\]/.test(value) || value.includes("${")) {
     throw new AppError("validation", "a filter value contains a character that is not allowed");
   }
   return `'${value.replace(/'/g, "''")}'`;
