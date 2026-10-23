@@ -130,3 +130,15 @@ ALR-J0016,customer,customer_name,CUST-J0016,,OFAC,OFAC-42336,Bassem Murad,0.97,2
 ALR-J0017,customer,customer_name,CUST-J0017,,UN,UN-TAi.153,Faizullah Noorzai Akhtar Mohammed Mira Khan,0.74,2026-10-22T09:00:00.000Z,open
 ALR-J0018,customer,customer_name,CUST-J0018,,OFAC,OFAC-29246,Erick Tsang,0.98,2026-10-22T09:00:00.000Z,open
 ALR-J0019,customer,customer_name,CUST-J0019,,OFAC,OFAC-36405,Yekaterina Sergeyevna Lavrova,0.95,2026-10-22T09:00:00.000Z,open
+ALR-K0001,customer,customer_name,CUST-K0001,,OFAC,OFAC-17037,Ali Zeaiter,0.86,2026-10-22T09:00:00.000Z,open
+ALR-K0002,customer,customer_name,CUST-K0002,,OFAC,OFAC-19992,LLC BALTECH,0.52,2026-10-22T09:00:00.000Z,open
+ALR-K0003,customer,customer_name,CUST-K0003,,OFAC,OFAC-23189,Darren Debono,0.91,2026-10-22T09:00:00.000Z,open
+ALR-K0004,payment,payment,CUST-K0004,PAY-K00001,OFAC,OFAC-58482,Reza Mohammad Taeedi,0.5,2026-10-22T09:00:00.000Z,open
+ALR-K0005,customer,customer_name,CUST-K0005,,OFAC,OFAC-40569,Arkadiy Aleksandrovich Gostev,0.88,2026-10-22T09:00:00.000Z,open
+ALR-K0006,customer,customer_name,CUST-K0006,,OFAC,OFAC-56810,Rivera Miramontes Carlos Humberto,0.55,2026-10-22T09:00:00.000Z,open
+ALR-K0007,customer,customer_name,CUST-K0007,,OFAC,OFAC-29260,Eric Chan,0.98,2026-10-22T09:00:00.000Z,open
+ALR-K0008,customer,customer_name,CUST-K0008,,OFAC,OFAC-10009,Hamid AL-ALI,0.97,2026-10-22T09:00:00.000Z,open
+ALR-K0009,customer,customer_name,CUST-K0009,,OFAC,OFAC-30964,Frederic Choi,0.98,2026-10-22T09:00:00.000Z,open
+ALR-K0010,customer,customer_name,CUST-K0010,,OFAC,OFAC-58343,Xingyu Qiu,0.98,2026-10-22T09:00:00.000Z,open
+ALR-K0011,payment,payment,CUST-K0011,PAY-K00002,OFAC,OFAC-18289,ROSE GROUP LIMITED,0.96,2026-10-22T09:00:00.000Z,open
+ALR-K0012,payment,payment,CUST-K0012,PAY-K00003,OFAC,OFAC-16210,Juanita Del Carmen RIOS HERNANDEZ,0.97,2026-10-22T09:00:00.000Z,open
