@@ -62,5 +62,9 @@
     "localPerMillionTokens": 0,
     "perDataQuery": 0,
     "note": "Illustrative assumptions for comparing routes, not prices. Local model calls and saved sample answers cost nothing; replace the cloud figures with your own rates."
+  },
+  "report": {
+    "minutesPerAlert": 15,
+    "minutesToConfirmClose": 2
   }
 }

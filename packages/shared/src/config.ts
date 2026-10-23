@@ -48,6 +48,16 @@ const ConfigSchema = z.strictObject({
     perDataQuery: z.number().nonnegative(),
     note: nonEmpty,
   }),
+  /**
+   * Assumptions behind the "analyst minutes saved" figure in the exam report and the interface. They are not
+   * measured: set the times your own analysts take.
+   */
+  report: z.strictObject({
+    /** Minutes an analyst spends on one alert, investigating it from scratch. */
+    minutesPerAlert: z.number().positive(),
+    /** Minutes to confirm a close from the evidence the desk cites. */
+    minutesToConfirmClose: z.number().nonnegative(),
+  }),
   /** Saved Zetaris answers used in sample mode. */
   sampleCache: nonEmpty,
   zetaris: z.strictObject({

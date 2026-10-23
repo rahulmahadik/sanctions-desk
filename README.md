@@ -4,6 +4,10 @@ An AI review desk for bank sanctions-screening alerts. For every alert it reads 
 
 Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
+<!-- headline:start -->
+The headline result is written here by `npm run exam:report` after the full exam has been run.
+<!-- headline:end -->
+
 ## Contents
 
 - [What it does](#what-it-does)
