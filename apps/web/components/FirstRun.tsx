@@ -26,8 +26,8 @@ export function FirstRun() {
   };
   return (
     <p className="banner" role="note" data-testid="first-run">
-      New here? The <Link href="/help">help page</Link> walks through the whole flow in two minutes: choose a demo user,
-      review an alert, approve or override it, and check which Nemotron model answered.{" "}
+      New here? The <Link href="/help">help page</Link> walks through the flow in order: choose a demo user, review an
+      alert, read the result, decide, and verify the receipts.{" "}
       <button type="button" className="secondary" onClick={dismiss}>
         Dismiss
       </button>

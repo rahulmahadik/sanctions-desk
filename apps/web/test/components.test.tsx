@@ -730,15 +730,44 @@ describe("the case file download", () => {
 });
 
 describe("help and the first-run pointer", () => {
-  it("walks through the whole flow and says what never changes", async () => {
+  it("renders each section heading, in the order of the user guide", async () => {
+    const { Help, HELP_SECTIONS } = await import("../components/Help");
+    render(<Help />);
+    const headings = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
+    expect(headings).toEqual(HELP_SECTIONS.map((s) => s.title));
+    expect(headings).toEqual([
+      "Start it",
+      "Choose a demo user",
+      "The alert queue",
+      "Open a case and review",
+      "Read the result",
+      "Decide",
+      "What happens next",
+      "Autonomy and the kill switch",
+      "Change the policy",
+      "Exam results and governance",
+      "When something goes wrong",
+    ]);
+  });
+
+  it("names the controls the screens really have", async () => {
     const { Help } = await import("../components/Help");
     render(<Help />);
-    expect(screen.getByText("Try the whole flow in two minutes")).toBeTruthy();
-    for (const word of ["analyst_demo", "approver_demo", "Download case file (PDF)", "Verify receipt"]) {
+    for (const word of [
+      "analyst_demo",
+      "approver_demo",
+      "admin_demo",
+      "Review this alert",
+      "Verify receipt",
+      "Verify all receipts",
+      "Give the second approval",
+      "Decline the block",
+      "Download case file (PDF)",
+      "Kill switch: force level 0 now",
+      "Preview on the exam",
+    ]) {
       expect(document.body.textContent).toContain(word);
     }
-    expect(screen.getByText("What never changes")).toBeTruthy();
-    expect(document.body.textContent).toContain("A recommended block needs two different approvers.");
   });
 
   it("shows once, until it is dismissed, and remembers that in this browser", async () => {
