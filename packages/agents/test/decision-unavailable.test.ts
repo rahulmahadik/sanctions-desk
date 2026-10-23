@@ -117,7 +117,7 @@ describe("exam metrics for unavailable decisions", () => {
   it("counts them in the totals and also reports accuracy without them", () => {
     const m = summarise(cases);
     expect(m.decision_unavailable).toBe(2);
-    expect(m.decision_unavailable_by_cause).toEqual({ provider: 1, parsing: 1 });
+    expect(m.decision_unavailable_by_cause).toEqual({ provider: 1, parsing: 1, withheld: 0 });
     expect(m.exact_accuracy).toBeCloseTo(0.6667, 3);
     expect(m.excluding_unavailable).toEqual({ cases: 1, exact_accuracy: 1, acceptable_accuracy: 1 });
     expect(m.false_closes).toBe(0);

@@ -26,7 +26,19 @@ export interface ScoredCase {
    * The decision step got no usable model answer, so the case was escalated to a person. "provider" when the model
    * service failed or answered with nothing, "parsing" when it answered in a form that could not be used.
    */
-  decision_unavailable?: "provider" | "parsing";
+  decision_unavailable?: "provider" | "parsing" | "withheld";
+  /** The model whose answer became the final recommendation, the route it came from, and whether that was a fallback. */
+  decision_model?: string;
+  decision_route?: string;
+  decided_by_fallback?: boolean;
+  /** The model's own last recommendation, when the guard changed it after the critic never approved. */
+  model_last_recommendation?: string;
+  critic_unresolved?: boolean;
+  /** The screener's verdict on the case (ok, signal, failed, off) and whether a cloud route served it. */
+  screener?: Record<string, unknown>;
+  /** The runtime's thermal posture when the case began, and seconds paused for it. */
+  thermal_posture?: "normal" | "serious";
+  paused_s?: number;
   /** The hybrid path the review took, and what code alone concluded from the structured fields. */
   path?: "confirm" | "reason";
   first_finding?: string;
@@ -83,7 +95,7 @@ export interface Metrics {
   /** Cases where no model produced a usable decision and the desk escalated them. They are in the totals above. */
   decision_unavailable: number;
   /** The same cases split by cause: a provider failure is not our parsing error. */
-  decision_unavailable_by_cause: { provider: number; parsing: number };
+  decision_unavailable_by_cause: { provider: number; parsing: number; withheld: number };
   /** The same accuracy without those cases, so a model outage is not mistaken for a wrong answer. */
   excluding_unavailable: { cases: number; exact_accuracy: number; acceptable_accuracy: number };
   by_group: Record<string, GroupMetrics>;
@@ -138,6 +150,7 @@ export function summarise(cases: readonly ScoredCase[]): Metrics {
     decision_unavailable_by_cause: {
       provider: scores.filter(({ c }) => c.decision_unavailable === "provider").length,
       parsing: scores.filter(({ c }) => c.decision_unavailable === "parsing").length,
+      withheld: scores.filter(({ c }) => c.decision_unavailable === "withheld").length,
     },
     excluding_unavailable: {
       cases: scores.filter(({ c }) => !c.decision_unavailable).length,

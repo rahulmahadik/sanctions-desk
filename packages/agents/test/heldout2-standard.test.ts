@@ -89,7 +89,10 @@ describe("the second held-out set", () => {
       });
       expect(assessNote(text(id)).documentary, id).toBe(true);
       const t = bank.tablesWithHeldout2;
-      const alert = t.alert.find((a) => a.alert_id === frozen.cases.find((c) => c.case_id === id)?.alert_id);
+      const alert = t.alert.find(
+        (a) =>
+          a.alert_id === (frozen.cases.find((c) => c.case_id === id) as { alert_id?: string } | undefined)?.alert_id,
+      );
       expect(t.payment.find((p) => p.payment_id === alert?.payment_id)?.counterparty_country, id).toBe("XX");
     }
   });

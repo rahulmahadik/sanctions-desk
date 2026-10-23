@@ -205,7 +205,11 @@ Which agent runs on which Nemotron model, and what it does:
 **The signed receipt log of the final runs** (one Ed25519-signed Nightshift receipt per model call; the model that served each call is in `winning_route.model`):
 
 <!-- receipts:start -->
-Written by `npm run evidence:export` once the final runs are exported.
+| Run | Receipts | Receipt log | Check it |
+| --- | ---: | --- | --- |
+| `routed-20261023T010000Z` | 1 | [eval/runs/routed-20261023T010000Z/receipts.jsonl.gz](eval/runs/routed-20261023T010000Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/routed-20261023T010000Z` |
+
+`npm run evidence:verify` with no argument checks every run: each signature, that every model call has a receipt, and that the model in the trace equals the model in the receipt.
 <!-- receipts:end -->
 
 The **model ledger** of every recommendation lists, per step, the mode asked for, the model that answered, reasoning budget, tokens, latency and the signed receipt with its verification status (`GET /cases/:alertId/trace`, `npm run ledger -- --case <alert id>`, the routing panel of the review desk, and the saved decision records in `output_examples/`).
@@ -388,6 +392,7 @@ No URL, model name or timeout is written in the source. Configuration is layered
 | `METERLESS_MODEL_FAST`, `_DEEP`, `_JUDGE`                             | `nightshift.models.*`          | Must be pinned modes.                                                                                                                          |
 | `METERLESS_RECEIPT_PUBLIC_KEY`                                        | `nightshift.receiptPublicKeys` | Comma separated base64 Ed25519 keys; marks receipts `valid_pinned`.                                                                            |
 | `OLLAMA_BASE_URL`, `OLLAMA_MODEL`                                     | `ollama.*`                     | Backup provider.                                                                                                                               |
+| `DESK_API_URL`, `DESK_TOKEN`, `DESK_DEMO_USER`                        | (MCP server only)              | Where the MCP server finds the desk API, and the token (or, in sample mode, the demo user) it sends. See [docs/MCP.md](docs/MCP.md).           |
 | `METERLESS_ENGINES_DIR`                                               | none                           | Folder with the engine conformance runners for `npm run test:engines`. Default `../meterless-engines`.                                         |
 | `BANKDB_ADMIN_PASSWORD`, `BANKDB_READER_PASSWORD`, `PAYMENTS_API_KEY` | none                           | Used by the `data` Docker profile (synthetic bank and payments service). Secrets.                                                              |
 | `PAYMENTS_FILE`                                                       | none                           | Payments service data file when run outside Docker. Default `data/synthetic/payment.json`.                                                     |

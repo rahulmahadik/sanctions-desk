@@ -35,13 +35,8 @@
       "group": "beyond_rules",
       "kind": "ho_ref_on_behalf",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -49,13 +44,8 @@
       "group": "beyond_rules",
       "kind": "ho_ref_care_of",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -63,13 +53,8 @@
       "group": "beyond_rules",
       "kind": "ho_ref_shipped_for",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -77,13 +62,8 @@
       "group": "beyond_rules",
       "kind": "ho_ref_variant",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -91,13 +71,8 @@
       "group": "beyond_rules",
       "kind": "ho_note_trading_name",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -105,13 +80,8 @@
       "group": "beyond_rules",
       "kind": "ho_note_family_link",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -119,12 +89,8 @@
       "group": "beyond_rules",
       "kind": "ho_note_unverified_dob",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -132,12 +98,8 @@
       "group": "beyond_rules",
       "kind": "ho_note_says_close",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -145,12 +107,8 @@
       "group": "beyond_rules",
       "kind": "ho_remarks_registered_name",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -158,13 +116,8 @@
       "group": "beyond_rules",
       "kind": "ho_remarks_parents",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -172,13 +125,8 @@
       "group": "beyond_rules",
       "kind": "ho_remarks_vessel",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -186,13 +134,8 @@
       "group": "beyond_rules",
       "kind": "ho_alias_chain_dropped",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -200,13 +143,8 @@
       "group": "beyond_rules",
       "kind": "ho_alias_russian_scheme",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -214,13 +152,8 @@
       "group": "beyond_rules",
       "kind": "ho_alias_korean_scheme",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -228,13 +161,8 @@
       "group": "beyond_rules",
       "kind": "ho_alias_merged_tokens",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -242,13 +170,8 @@
       "group": "beyond_rules",
       "kind": "ho_docs_dob_transposed",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -256,13 +179,8 @@
       "group": "beyond_rules",
       "kind": "ho_docs_two_ids",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -270,13 +188,8 @@
       "group": "beyond_rules",
       "kind": "ho_docs_typo_id",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -285,9 +198,7 @@
       "kind": "ho_clear_verified_passport",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2"
     },
     {
@@ -296,9 +207,7 @@
       "kind": "ho_clear_verified_id_age",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2"
     },
     {
@@ -307,9 +216,7 @@
       "kind": "ho_clear_namesake_registered",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2"
     },
     {
@@ -318,9 +225,7 @@
       "kind": "ho_clear_alias_other_person",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2"
     },
     {
@@ -328,12 +233,8 @@
       "group": "beyond_rules",
       "kind": "ho_clear_remarks_parents_differ",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -341,12 +242,8 @@
       "group": "beyond_rules",
       "kind": "ho_clear_remarks_mother_differs",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -354,12 +251,8 @@
       "group": "beyond_rules",
       "kind": "ho_clear_ref_other_company",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -367,12 +260,8 @@
       "group": "beyond_rules",
       "kind": "ho_clear_ref_other_individual",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -381,9 +270,7 @@
       "kind": "ho_clear_remarks_parents_documented",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2"
     },
     {
@@ -392,9 +279,7 @@
       "kind": "ho_clear_alias_documented",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2"
     },
     {
@@ -403,9 +288,7 @@
       "kind": "ho_clear_variant_documented",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2"
     },
     {
@@ -414,9 +297,7 @@
       "kind": "ho_clear_ref_documented",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2"
     }
   ],

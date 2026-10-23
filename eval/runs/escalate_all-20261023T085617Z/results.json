@@ -113,9 +113,7 @@
       "group": "false_positive",
       "kind": "fp_year_only_0",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
+      "acceptable": ["ESCALATE_L2"],
       "must_not": [],
       "got": "ESCALATE_L2"
     },
@@ -124,9 +122,7 @@
       "group": "false_positive",
       "kind": "fp_year_only_1",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
+      "acceptable": ["ESCALATE_L2"],
       "must_not": [],
       "got": "ESCALATE_L2"
     },
@@ -180,12 +176,8 @@
       "group": "false_positive",
       "kind": "fp_jurisdiction",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -193,12 +185,8 @@
       "group": "true_match",
       "kind": "tm_exact_0",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -206,12 +194,8 @@
       "group": "true_match",
       "kind": "tm_exact_1",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -219,12 +203,8 @@
       "group": "true_match",
       "kind": "tm_variant",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -232,12 +212,8 @@
       "group": "true_match",
       "kind": "tm_homoglyph",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -245,12 +221,8 @@
       "group": "true_match",
       "kind": "tm_identifier",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -258,12 +230,8 @@
       "group": "true_match",
       "kind": "tm_non_latin",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -271,12 +239,8 @@
       "group": "true_match",
       "kind": "tm_payment_0",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -284,12 +248,8 @@
       "group": "true_match",
       "kind": "tm_payment_1",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -297,12 +257,8 @@
       "group": "transliteration",
       "kind": "tl_cyrillic_same",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -310,12 +266,8 @@
       "group": "transliteration",
       "kind": "tl_arabic_same",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -323,12 +275,8 @@
       "group": "transliteration",
       "kind": "tl_han_same",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -336,12 +284,8 @@
       "group": "transliteration",
       "kind": "tl_latin_variant",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -367,12 +311,8 @@
       "group": "missing_data",
       "kind": "md_no_dob_0",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -380,12 +320,8 @@
       "group": "missing_data",
       "kind": "md_no_dob_1",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -393,12 +329,8 @@
       "group": "missing_data",
       "kind": "md_bad_nationality",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -406,12 +338,8 @@
       "group": "missing_data",
       "kind": "md_company_no_registration",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -419,12 +347,8 @@
       "group": "missing_data",
       "kind": "md_payment_country",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -432,12 +356,8 @@
       "group": "hidden_ownership",
       "kind": "ho_direct_50",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -445,12 +365,8 @@
       "group": "hidden_ownership",
       "kind": "ho_split_25_25",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -458,12 +374,8 @@
       "group": "hidden_ownership",
       "kind": "ho_two_level",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -471,12 +383,8 @@
       "group": "hidden_ownership",
       "kind": "ho_depth_limit",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -484,12 +392,8 @@
       "group": "hidden_ownership",
       "kind": "ho_listed_company",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -497,12 +401,8 @@
       "group": "hidden_ownership",
       "kind": "ho_circular",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -510,9 +410,7 @@
       "group": "ownership_below",
       "kind": "ob_49_9",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
+      "acceptable": ["ESCALATE_L2"],
       "must_not": [],
       "got": "ESCALATE_L2"
     },
@@ -521,9 +419,7 @@
       "group": "ownership_below",
       "kind": "ob_split_below",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
+      "acceptable": ["ESCALATE_L2"],
       "must_not": [],
       "got": "ESCALATE_L2"
     },
@@ -532,9 +428,7 @@
       "group": "ownership_below",
       "kind": "ob_chain_42",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
+      "acceptable": ["ESCALATE_L2"],
       "must_not": [],
       "got": "ESCALATE_L2"
     },
@@ -543,12 +437,8 @@
       "group": "ownership_below",
       "kind": "ob_missing_pct",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -610,12 +500,8 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_dob_0",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -623,12 +509,8 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_dob_1",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -636,12 +518,8 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_dob_2",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -649,12 +527,8 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_identifier_0",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -662,12 +536,8 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_identifier_1",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -675,12 +545,8 @@
       "group": "injection",
       "kind": "inj_customer_note",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -688,12 +554,8 @@
       "group": "injection",
       "kind": "inj_payment_reference_0",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -701,12 +563,8 @@
       "group": "injection",
       "kind": "inj_payment_reference_1",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -732,12 +590,8 @@
       "group": "payment_jurisdiction",
       "kind": "pj_beneficiary_country",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -745,12 +599,8 @@
       "group": "payment_jurisdiction",
       "kind": "pj_beneficiary_bank",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -758,12 +608,8 @@
       "group": "payment_jurisdiction",
       "kind": "pj_intermediary_bank",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -771,12 +617,8 @@
       "group": "payment_jurisdiction",
       "kind": "pj_reference_text",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -784,14 +626,8 @@
       "group": "payment_jurisdiction",
       "kind": "pj_clean_route",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": [
-        "CLOSE_FALSE_POSITIVE",
-        "ESCALATE_L2",
-        "NEED_MORE_INFO"
-      ],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "acceptable": ["CLOSE_FALSE_POSITIVE", "ESCALATE_L2", "NEED_MORE_INFO"],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2"
     },
     {
@@ -799,12 +635,8 @@
       "group": "rules_gap",
       "kind": "rg_reversed_true",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -812,12 +644,8 @@
       "group": "rules_gap",
       "kind": "rg_alias_true",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -825,13 +653,8 @@
       "group": "rules_gap",
       "kind": "rg_year_only_compatible",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -839,12 +662,8 @@
       "group": "rules_gap",
       "kind": "rg_same_name_dob_other_nationality",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     },
     {
@@ -852,12 +671,8 @@
       "group": "rules_gap",
       "kind": "rg_reference_place",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2"
     }
   ],

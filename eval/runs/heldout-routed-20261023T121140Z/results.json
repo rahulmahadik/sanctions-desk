@@ -51,13 +51,8 @@
       "group": "beyond_rules",
       "kind": "ho_ref_on_behalf",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2",
       "latency_s": 163.8,
       "tokens_in": 23833,
@@ -75,13 +70,8 @@
       "group": "beyond_rules",
       "kind": "ho_ref_care_of",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2",
       "latency_s": 177.74,
       "tokens_in": 23480,
@@ -99,13 +89,8 @@
       "group": "beyond_rules",
       "kind": "ho_ref_shipped_for",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2",
       "latency_s": 203.43,
       "tokens_in": 25300,
@@ -123,13 +108,8 @@
       "group": "beyond_rules",
       "kind": "ho_ref_variant",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2",
       "latency_s": 217.83,
       "tokens_in": 22985,
@@ -147,13 +127,8 @@
       "group": "beyond_rules",
       "kind": "ho_note_trading_name",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "CLOSE_FALSE_POSITIVE",
       "latency_s": 107.6,
       "tokens_in": 13667,
@@ -171,13 +146,8 @@
       "group": "beyond_rules",
       "kind": "ho_note_family_link",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "CLOSE_FALSE_POSITIVE",
       "latency_s": 115.77,
       "tokens_in": 19776,
@@ -195,12 +165,8 @@
       "group": "beyond_rules",
       "kind": "ho_note_unverified_dob",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "NEED_MORE_INFO",
       "latency_s": 44.66,
       "tokens_in": 15404,
@@ -218,12 +184,8 @@
       "group": "beyond_rules",
       "kind": "ho_note_says_close",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2",
       "latency_s": 183.81,
       "tokens_in": 531,
@@ -242,12 +204,8 @@
       "group": "beyond_rules",
       "kind": "ho_remarks_registered_name",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "NEED_MORE_INFO",
       "latency_s": 66.26,
       "tokens_in": 7439,
@@ -265,13 +223,8 @@
       "group": "beyond_rules",
       "kind": "ho_remarks_parents",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "NEED_MORE_INFO",
       "latency_s": 39.33,
       "tokens_in": 8108,
@@ -289,13 +242,8 @@
       "group": "beyond_rules",
       "kind": "ho_remarks_vessel",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2",
       "latency_s": 223.94,
       "tokens_in": 26368,
@@ -313,13 +261,8 @@
       "group": "beyond_rules",
       "kind": "ho_alias_chain_dropped",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2",
       "latency_s": 185.24,
       "tokens_in": 10767,
@@ -337,13 +280,8 @@
       "group": "beyond_rules",
       "kind": "ho_alias_russian_scheme",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "RECOMMEND_BLOCK",
       "latency_s": 49.09,
       "tokens_in": 9984,
@@ -361,13 +299,8 @@
       "group": "beyond_rules",
       "kind": "ho_alias_korean_scheme",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2",
       "latency_s": 196.97,
       "tokens_in": 453,
@@ -386,13 +319,8 @@
       "group": "beyond_rules",
       "kind": "ho_alias_merged_tokens",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "RECOMMEND_BLOCK",
       "latency_s": 53.95,
       "tokens_in": 8501,
@@ -410,13 +338,8 @@
       "group": "beyond_rules",
       "kind": "ho_docs_dob_transposed",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2",
       "latency_s": 366.98,
       "tokens_in": 27638,
@@ -434,13 +357,8 @@
       "group": "beyond_rules",
       "kind": "ho_docs_two_ids",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2",
       "latency_s": 267.35,
       "tokens_in": 23519,
@@ -458,13 +376,8 @@
       "group": "beyond_rules",
       "kind": "ho_docs_typo_id",
       "expected": "ESCALATE_L2",
-      "acceptable": [
-        "NEED_MORE_INFO",
-        "RECOMMEND_BLOCK"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "ESCALATE_L2",
       "latency_s": 201.36,
       "tokens_in": 442,
@@ -484,9 +397,7 @@
       "kind": "ho_clear_verified_passport",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2",
       "latency_s": 188.42,
       "tokens_in": 501,
@@ -506,9 +417,7 @@
       "kind": "ho_clear_verified_id_age",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2",
       "latency_s": 294.28,
       "tokens_in": 23129,
@@ -527,9 +436,7 @@
       "kind": "ho_clear_namesake_registered",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2",
       "latency_s": 320.09,
       "tokens_in": 34646,
@@ -548,9 +455,7 @@
       "kind": "ho_clear_alias_other_person",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2",
       "latency_s": 232.52,
       "tokens_in": 30320,
@@ -568,12 +473,8 @@
       "group": "beyond_rules",
       "kind": "ho_clear_remarks_parents_differ",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "NEED_MORE_INFO",
       "latency_s": 121.55,
       "tokens_in": 8260,
@@ -591,12 +492,8 @@
       "group": "beyond_rules",
       "kind": "ho_clear_remarks_mother_differs",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "NEED_MORE_INFO",
       "latency_s": 33.32,
       "tokens_in": 8027,
@@ -614,12 +511,8 @@
       "group": "beyond_rules",
       "kind": "ho_clear_ref_other_company",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "NEED_MORE_INFO",
       "latency_s": 108.36,
       "tokens_in": 17607,
@@ -637,12 +530,8 @@
       "group": "beyond_rules",
       "kind": "ho_clear_ref_other_individual",
       "expected": "NEED_MORE_INFO",
-      "acceptable": [
-        "ESCALATE_L2"
-      ],
-      "must_not": [
-        "CLOSE_FALSE_POSITIVE"
-      ],
+      "acceptable": ["ESCALATE_L2"],
+      "must_not": ["CLOSE_FALSE_POSITIVE"],
       "got": "NEED_MORE_INFO",
       "latency_s": 101.91,
       "tokens_in": 18177,
@@ -661,9 +550,7 @@
       "kind": "ho_clear_remarks_parents_documented",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2",
       "latency_s": 135.13,
       "tokens_in": 23101,
@@ -682,9 +569,7 @@
       "kind": "ho_clear_alias_documented",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2",
       "latency_s": 206.22,
       "tokens_in": 28695,
@@ -703,9 +588,7 @@
       "kind": "ho_clear_variant_documented",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "ESCALATE_L2",
       "latency_s": 198.71,
       "tokens_in": 27222,
@@ -724,9 +607,7 @@
       "kind": "ho_clear_ref_documented",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
-      "must_not": [
-        "RECOMMEND_BLOCK"
-      ],
+      "must_not": ["RECOMMEND_BLOCK"],
       "got": "NEED_MORE_INFO",
       "latency_s": 84.29,
       "tokens_in": 16960,
