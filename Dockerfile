@@ -18,7 +18,9 @@ RUN npm ci --omit=dev --ignore-scripts
 
 # ---- runtime: everything both services need ----
 FROM node:${NODE_VERSION}-alpine AS runtime
-ENV NODE_ENV=production
+# Inside a container the API must listen on every interface to be reachable through the published port. Outside a
+# container the default stays 127.0.0.1. Services on the host are reached at http://host.docker.internal:<port>.
+ENV NODE_ENV=production HOST=0.0.0.0
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
