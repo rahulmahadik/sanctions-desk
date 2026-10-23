@@ -3,7 +3,7 @@
  *
  *   npm run usl:policy                 # read zetaris/proposals/screening_usl.access.ddl and print the plan
  *   npm run usl:policy -- --demo       # also show a mask and a row filter on real (synthetic) rows, read-only
- *   npm run usl:policy -- --apply      # run the SQL steps (CREATE ROLE, GRANT) only; ask first
+ *   npm run usl:policy -- --apply      # run the SQL steps (CREATE ROLE, GRANT) only; creating roles and grants needs approval first
  *
  * Nothing is sent without --apply. The steps that today exist only in the interface are listed, never attempted.
  */

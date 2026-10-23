@@ -28,7 +28,7 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 - [Policy](#policy)
 - [Development](#development)
 - [Limits](#limits)
-- [AI usage](#ai-usage)
+- [AI and Model Usage](#ai-and-model-usage)
 - [Third-party code and licence](#third-party-code-and-licence)
 
 ## What it does
@@ -417,9 +417,40 @@ The governance view, mapped to the headings of the Monetary Authority of Singapo
 - Zetaris model access is set in its interface and is emptied by a rebuild; the column policy on identifier numbers is not enforced on this instance, so the application masks them itself. See `docs/ZETARIS.md`.
 - Model answers vary between runs, and cloud routing is decided by the runtime.
 
-## AI usage
+## AI and Model Usage
 
-This project was built with the help of an AI coding assistant (Claude Code). The language models inside the product are NVIDIA Nemotron models reached through Meterless Nightshift, as described above.
+Disclosure under section 6 of the event's AI Usage Policy.
+
+**Models, through Meterless Nightshift.** Every model call in the product goes through Nightshift, an OpenAI-compatible runtime, as the primary provider. The models are NVIDIA Nemotron: **Nemotron 3.5 Lightning 30B** (on this machine) and **Nemotron 3 Ultra 550B** (cloud). Nightshift's router decides which of them answers a call unless the cockpit binds the app; the table under [NVIDIA Nemotron](#nvidia-nemotron) is the split measured from the signed receipts, and [docs/MODELS.md](docs/MODELS.md) explains each step.
+
+| Step                                | Model                             | What it does                                                                                                                                   |
+| ----------------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Safety guard (inbound and outbound) | Nemotron 3.5 Lightning 30B, local | Reads free text that came out of the data for instructions aimed at the reviewer; checks a draft for a customer against the tipping-off policy |
+| Decision                            | Nemotron 3 Ultra 550B, cloud      | Reads the evidence and the approved definitions; recommends one of four outcomes with cited facts                                              |
+| Critic                              | Nemotron 3 Ultra 550B, cloud      | Looks for claims the evidence does not support (cited facts are re-read from the data by code first)                                           |
+| Challenger                          | Nemotron 3 Ultra 550B, cloud      | Argues the case against a close that could slip through                                                                                        |
+
+The Ollama backup (`nemotron-3.5-lightning:30b`) answers only if Nightshift cannot. In sample mode a labelled rules-based stand-in answers instead. No other model provider is named anywhere in the code.
+
+**Agent frameworks.** None. The agents are our own orchestration: plain TypeScript functions in `packages/agents`, one injected `generator` function for model calls, a bounded loop (at most 3 critic rounds) and a sealed, hash-chained decision record. There is no LangChain, LlamaIndex, AutoGen or similar.
+
+**Sponsor technology.**
+- **Zetaris** serves all the data the agents use. The agents never open a file or a database: each sends one read-only SQL statement at a time to the Zetaris REST API and reads the Unified Semantic Layer (14 tables over lists, a bank database and a payments service), under per-agent roles and with data-quality rules. See [docs/ZETARIS.md](docs/ZETARIS.md#zetaris-checklist).
+- **Meterless engines**: H-MEM (agent and analyst memory), World Model (ownership and the 50 percent rule) and Markovian (re-screening after a list change). Each runs in a working feature and has a passing test, and the official conformance suites run in `npm test` (H-MEM 13/13, World Model 8/8, Markovian 8/8). See [docs/SPONSORS.md](docs/SPONSORS.md#2-meterless-engines-three-each-in-a-working-feature-each-with-a-passing-test).
+- **Meterless Nightshift** is the primary model provider. The app connects with `METERLESS_BASE_URL`, a bearer key and the `meterless-app` header, asks for a pinned mode per step, and stores each call's signed receipt.
+- **NVIDIA Nemotron** is the only family of language models used, in the steps above.
+
+**Development tools.** Built with Claude Code. AI-assisted coding was used for scaffolding, tests, debugging and documentation. All generated code was reviewed and tested.
+
+**External tools and libraries.** Node.js, TypeScript, Fastify, Zod, Pino, Next.js and React, Vitest and Biome, and `tsx`; Postgres for the synthetic bank database; Docker for packaging. Security checks used npm audit, Semgrep, Trivy, Gitleaks and ZAP. Versions are in `package-lock.json`.
+
+**Data.** The lists are real public data: OFAC SDN and consolidated list, the UN consolidated list and GLEIF, with licences in [Data sources and licences](#data-sources-and-licences). **All customer, account, ownership and payment data is synthetic**, produced by a seeded script; nothing comes from a real bank, client or employer.
+
+**Open-source code adapted.** The three Meterless engines in `packages/engines/src` are derived from the Meterless reference implementations, and the official conformance suites in `packages/engines/conformance` are copied without change (Apache-2.0). Attribution is in `NOTICE` and `THIRD_PARTY_NOTICES.md`.
+
+**Known limitations.** A person makes every decision by default; the desk only recommends. The exam labels follow the same definitions as the rules, so a high score on the 70 rule-defined cases shows consistency, not that the definitions are right; the held-out set is the test of reasoning beyond them. Model answers vary between runs and cloud routing is decided by the runtime. Cost and time-saved figures rest on stated assumptions. The column policy on identifier numbers is not enforced on the Zetaris instance used, so the application masks them as well. The full list is under [Limits](#limits).
+
+**Sample mode.** With `SAMPLE_MODE=true` the desk runs without Zetaris or Nightshift. It replays saved answers recorded from real Zetaris runs, runs the real agent logic on them, and uses a rules-based stand-in in place of the language models. The interface says so in a banner on every page, and every record made this way carries a sample notice. Sample mode never presents the stand-in's output as a Nemotron answer.
 
 ## Third-party code and licence
 
