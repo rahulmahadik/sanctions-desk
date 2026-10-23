@@ -16,6 +16,24 @@ export interface HeadlineAssumptions {
   minutesPerAlert: number;
   /** Minutes to confirm a close from cited evidence. */
   minutesToConfirmClose: number;
+  /** An industry estimate of manual minutes per alert, as a range; always labelled as an estimate. */
+  manualMinutesRange?: { low: number; high: number };
+}
+
+/** What one alert cost the desk to recommend: measured time and cost, set beside the manual estimate. */
+export interface PerAlert {
+  /** Alerts with a measured time. */
+  alerts: number;
+  median_seconds: number;
+  mean_seconds: number;
+  p95_seconds: number;
+  /** Model cost under the configured unit costs; tokens served by the local model cost nothing. */
+  mean_cost: number;
+  /** The manual estimate, in seconds, for comparison. */
+  manual_seconds: { low: number; high: number } | null;
+  /** How many times faster than the low and the high end of the manual estimate (by median). */
+  times_faster: { low: number; high: number } | null;
+  note: string;
 }
 
 export interface Headline {
@@ -37,12 +55,38 @@ export interface Headline {
   decision_unavailable: number;
   /** Assumption-based: only correct closes save time, and each still costs a confirmation. */
   minutes_saved_per_100_alerts: number;
+  /** Time and cost per alert, measured, beside an industry estimate of the manual time. */
+  per_alert: PerAlert;
   assumptions: HeadlineAssumptions;
 }
 
 const isAlert = (c: ScoredCase): boolean => c.got !== "DRAFT_BLOCKED" && c.got !== "DRAFT_ALLOWED";
 const round = (n: number, d = 4): number => Math.round(n * 10 ** d) / 10 ** d;
 const ratio = (a: number, b: number): number => (b === 0 ? 0 : round(a / b));
+
+const percentile = (sorted: readonly number[], p: number): number =>
+  sorted.length === 0 ? 0 : (sorted[Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1)] ?? 0);
+
+export const MANUAL_ESTIMATE_NOTE =
+  "The desk's time and cost are measured on this machine and cover the recommendation only; a person still decides. The manual time is an industry estimate (a range, no vendor source verified), not a measurement.";
+
+function perAlertOf(alerts: readonly ScoredCase[], range: HeadlineAssumptions["manualMinutesRange"]): PerAlert {
+  const times = alerts.flatMap((c) => (c.latency_s === undefined ? [] : [c.latency_s])).sort((a, b) => a - b);
+  const costs = alerts.map((c) => c.cost ?? 0);
+  const median = percentile(times, 50);
+  const manual = range ? { low: range.low * 60, high: range.high * 60 } : null;
+  return {
+    alerts: times.length,
+    median_seconds: round(median, 2),
+    mean_seconds: round(times.length === 0 ? 0 : times.reduce((t, x) => t + x, 0) / times.length, 2),
+    p95_seconds: round(percentile(times, 95), 2),
+    mean_cost: round(costs.length === 0 ? 0 : costs.reduce((t, x) => t + x, 0) / costs.length, 4),
+    manual_seconds: manual,
+    times_faster:
+      manual && median > 0 ? { low: round(manual.low / median, 0), high: round(manual.high / median, 0) } : null,
+    note: MANUAL_ESTIMATE_NOTE,
+  };
+}
 
 export function headlineOf(cases: readonly ScoredCase[], assumptions: HeadlineAssumptions): Headline {
   const alerts = cases.filter((c) => c.error === undefined && isAlert(c));
@@ -65,6 +109,7 @@ export function headlineOf(cases: readonly ScoredCase[], assumptions: HeadlineAs
     true_match_false_closes: trueMatch.filter((c) => c.got === "CLOSE_FALSE_POSITIVE").length,
     decision_unavailable: alerts.filter((c) => c.decision_unavailable !== undefined).length,
     minutes_saved_per_100_alerts: round(100 * ratio(closedRight.length, alerts.length) * savedPerClose, 1),
+    per_alert: perAlertOf(alerts, assumptions.manualMinutesRange),
     assumptions,
   };
 }
@@ -72,5 +117,16 @@ export function headlineOf(cases: readonly ScoredCase[], assumptions: HeadlineAs
 /** One sentence for a header strip or a README line. */
 export function headlineSentence(h: Headline): string {
   const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
-  return `${pct(h.closed_share)} of alerts closed with cited evidence, ${pct(h.escalated_share)} escalated; about ${h.minutes_saved_per_100_alerts.toFixed(0)} analyst minutes saved per 100 alerts (assuming ${h.assumptions.minutesPerAlert} minutes per alert and ${h.assumptions.minutesToConfirmClose} to confirm a close); false closes on cases that carry real risk: ${h.false_closes} of ${h.risk_cases}.`;
+  return `${pct(h.closed_share)} of alerts closed with cited evidence, ${pct(h.escalated_share)} escalated; about ${h.minutes_saved_per_100_alerts.toFixed(0)} analyst minutes saved per 100 alerts (assuming ${h.assumptions.minutesPerAlert} minutes per alert and ${h.assumptions.minutesToConfirmClose} to confirm a close); false closes on cases that carry real risk: ${h.false_closes} of ${h.risk_cases}.${perAlertSentence(h)}`;
+}
+
+/** The measured time and cost per alert beside the manual estimate, in one sentence that labels the estimate. */
+export function perAlertSentence(h: Headline): string {
+  const p = h.per_alert;
+  if (p.alerts === 0) return "";
+  const own = `The desk took a median of ${p.median_seconds.toFixed(0)} seconds and ${p.mean_cost.toFixed(2)} in model cost per alert (measured)`;
+  if (!p.manual_seconds) return ` ${own}.`;
+  const low = h.assumptions.manualMinutesRange?.low;
+  const high = h.assumptions.manualMinutesRange?.high;
+  return ` ${own}, against an industry estimate of ${low} to ${high} minutes of analyst time per alert (an estimate; no vendor source verified).`;
 }

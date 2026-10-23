@@ -81,6 +81,11 @@ const ConfigSchema = z.strictObject({
     minutesPerAlert: z.number().positive(),
     /** Minutes to confirm a close from the evidence the desk cites. */
     minutesToConfirmClose: z.number().nonnegative(),
+    /**
+     * An industry estimate of the minutes an analyst spends investigating one sanctions alert, as a range. It is shown
+     * beside the desk's own time and cost per alert, always labelled as an estimate: no vendor source was verified.
+     */
+    manualMinutesRange: z.strictObject({ low: z.number().positive(), high: z.number().positive() }),
   }),
   /** Saved Zetaris answers used in sample mode. */
   sampleCache: nonEmpty,

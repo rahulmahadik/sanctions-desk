@@ -67,3 +67,54 @@ describe("headlineOf", () => {
     expect(headlineOf([], assumptions)).toMatchObject({ alerts: 0, closed_share: 0, false_close_rate: 0 });
   });
 });
+
+describe("time and cost per alert", () => {
+  const row = (latency_s: number, cost: number, over: Record<string, unknown> = {}) => ({
+    case_id: "EX-1",
+    group: "g",
+    kind: "k",
+    expected: "CLOSE_FALSE_POSITIVE",
+    acceptable: [],
+    must_not: [],
+    got: "CLOSE_FALSE_POSITIVE",
+    latency_s,
+    cost,
+    ...over,
+  });
+  const assumptions = { minutesPerAlert: 15, minutesToConfirmClose: 2, manualMinutesRange: { low: 20, high: 60 } };
+
+  it("measures the median and mean seconds and the mean cost, leaving out drafts and errors", () => {
+    const h = headlineOf(
+      [
+        row(10, 0.01),
+        row(30, 0.03),
+        row(50, 0.05),
+        row(99, 9, { got: "DRAFT_BLOCKED" }),
+        row(1, 1, { error: "x" }),
+      ] as never,
+      assumptions,
+    );
+    expect(h.per_alert).toMatchObject({ alerts: 3, median_seconds: 30, mean_seconds: 30, mean_cost: 0.03 });
+  });
+
+  it("sets the measured time beside an industry estimate and labels the estimate as one", () => {
+    const h = headlineOf([row(30, 0.03)] as never, assumptions);
+    expect(h.per_alert.manual_seconds).toEqual({ low: 1200, high: 3600 });
+    expect(h.per_alert.times_faster).toEqual({ low: 40, high: 120 });
+    expect(h.per_alert.note).toContain("industry estimate");
+    expect(h.per_alert.note).toContain("no vendor source verified");
+    expect(headlineSentence(h)).toContain(
+      "against an industry estimate of 20 to 60 minutes of analyst time per alert (an estimate; no vendor source verified)",
+    );
+    expect(headlineSentence(h)).toContain("a median of 30 seconds and 0.03 in model cost per alert (measured)");
+  });
+
+  it("does not invent a comparison when no estimate is configured, or when nothing was measured", () => {
+    const none = headlineOf([row(30, 0.03)] as never, { minutesPerAlert: 15, minutesToConfirmClose: 2 });
+    expect(none.per_alert.manual_seconds).toBeNull();
+    expect(none.per_alert.times_faster).toBeNull();
+    expect(headlineSentence(none)).not.toContain("industry estimate");
+    expect(headlineOf([] as never, assumptions).per_alert.alerts).toBe(0);
+    expect(headlineSentence(headlineOf([] as never, assumptions))).not.toContain("measured");
+  });
+});

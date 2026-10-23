@@ -78,6 +78,10 @@
   },
   "report": {
     "minutesPerAlert": 15,
-    "minutesToConfirmClose": 2
+    "minutesToConfirmClose": 2,
+    "manualMinutesRange": {
+      "low": 20,
+      "high": 60
+    }
   }
 }

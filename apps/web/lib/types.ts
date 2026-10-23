@@ -208,7 +208,21 @@ export interface Headline {
   true_match_false_closes: number;
   decision_unavailable: number;
   minutes_saved_per_100_alerts: number;
-  assumptions: { minutesPerAlert: number; minutesToConfirmClose: number };
+  assumptions: {
+    minutesPerAlert: number;
+    minutesToConfirmClose: number;
+    manualMinutesRange?: { low: number; high: number };
+  };
+  per_alert?: {
+    alerts: number;
+    median_seconds: number;
+    mean_seconds: number;
+    p95_seconds: number;
+    mean_cost: number;
+    manual_seconds: { low: number; high: number } | null;
+    times_faster: { low: number; high: number } | null;
+    note: string;
+  };
 }
 
 export interface RoutingSplit {
