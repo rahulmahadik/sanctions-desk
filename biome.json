@@ -9,6 +9,10 @@
     "includes": [
       "**",
       "!**/node_modules",
+      "!eval/runs",
+      "!eval/results",
+      "!eval/adversarial",
+      "!eval/REPORT.md",
       "!**/dist",
       "!**/coverage",
       "!package-lock.json",

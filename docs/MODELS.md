@@ -50,12 +50,12 @@ The cockpit was left unchanged for every final run (held-out, headline routed, s
 <!-- binds:start -->
 Headline run of 2026-10-23 (binds: `sanctions-desk-eval` auto, `sanctions-desk-reasoning` deep, `sanctions-desk-guard` local); the model that served each call, from the signed receipts:
 
-| Step | Calls | Nemotron 3.5 Lightning 30B (local) | Nemotron 3 Ultra 550B (cloud) |
-|---|---:|---:|---:|
-| Safety guard | 70 | 100.0% (70) | 0 |
-| Decision | 89 | 2.3% (2) | 97.8% (87) |
-| Critic | 86 | 1.2% (1) | 98.8% (85) |
-| Challenger | 15 | 0 | 100.0% (15) |
+| Step         | Calls | Nemotron 3.5 Lightning 30B (local) | Nemotron 3 Ultra 550B (cloud) |
+| ------------ | ----: | ---------------------------------: | ----------------------------: |
+| Safety guard |    70 |                        100.0% (70) |                             0 |
+| Decision     |    89 |                           2.3% (2) |                    97.8% (87) |
+| Critic       |    86 |                           1.2% (1) |                    98.8% (85) |
+| Challenger   |    15 |                                  0 |                   100.0% (15) |
 <!-- binds:end -->
 
 **Cockpit setup (about two minutes).** Start the desk once so the identities appear, or run `npm run lab:routing -- --only apps --apps sanctions-desk-reasoning,sanctions-desk-guard`. Open the Nightshift Console and its list of connected apps. Bind `Sanctions Desk Guard` to **local** and `Sanctions Desk Reasoning` to **deep**. Check from the command line, which changes nothing:
