@@ -105,7 +105,7 @@ export const TRACE: TraceView = {
   definitions: [{ definition_id: "true_match", version: "1" }],
   data: {
     usl: { namespace: "lightning.metastore.sanctions", model_version: "v1" },
-    list_snapshots: [{ list_id: "OFAC", snapshot_id: "ofac-2026" }],
+    list_snapshots: [{ list: "OFAC", snapshot_id: "ofac-2026" }],
     queries: [{ query_id: "q1", agent: "evidence", table: "alert", rows: 1 }],
   },
   access: {

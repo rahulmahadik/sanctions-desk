@@ -320,7 +320,9 @@ const get = (v: string) => newest.get(v);
 
 const lines: string[] = [];
 const full = get("routed");
-const head: Headline | undefined = full ? headlineOf(full.cases, assumptions) : undefined;
+const head: Headline | undefined = full
+  ? headlineOf(full.cases, { ...assumptions, currency: config.costs.currency })
+  : undefined;
 
 lines.push("# Exam report", "");
 lines.push("## Headline", "");

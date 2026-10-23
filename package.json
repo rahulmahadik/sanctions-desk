@@ -53,6 +53,7 @@
     "zetaris:rebuild": "tsx tools/zetaris-rebuild.ts",
     "zetaris:definitions": "tsx tools/zetaris-definitions.ts",
     "heldout:load": "tsx tools/heldout-load.ts",
+    "screenshots": "tsx tools/screenshots.ts",
     "lab:routing": "tsx tools/nightshift-lab.ts",
     "users:add": "tsx tools/users-add.ts",
     "actions:keygen": "tsx tools/actions-keygen.ts",

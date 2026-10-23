@@ -533,3 +533,20 @@ describe("the case file", () => {
     expect(md).not.toContain("## What was prepared next");
   });
 });
+
+describe("the evidence view", () => {
+  it("lists only the newest approved version of each definition, not the one it replaced", async () => {
+    const ctx = await sampleApp();
+    const res = await ctx.app.inject({ method: "GET", url: `/cases/${alertOf("fp_dob_exact_name_0")}/evidence` });
+    expect(res.statusCode).toBe(200);
+    const defs = res.json().definitions as Array<{ definition_id: string; version: string }>;
+    expect(defs.filter((d) => d.definition_id === "false_positive").map((d) => d.version)).toEqual(["2"]);
+    expect(defs.map((d) => d.definition_id).sort()).toEqual([
+      "counterparty_match",
+      "effective_ownership_threshold",
+      "false_positive",
+      "strong_identifier",
+      "true_match",
+    ]);
+  });
+});

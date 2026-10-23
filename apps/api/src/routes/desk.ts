@@ -143,7 +143,10 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
       list_identifiers: evidence.listIdentifiers,
       identifier_overlap: evidence.identifierOverlap,
       data_quality: evidence.dq,
-      definitions: evidence.definitions,
+      // Only the newest approved version of each definition: the one the review applied, not the ones it replaced.
+      definitions: evidence.definitions.filter((d) =>
+        evidence.definitionCheck.applied.some((a) => a.definition_id === d.definition_id && a.version === d.version),
+      ),
       queries: evidence.queries.map((q) => ({
         query_id: q.query_id,
         table: q.table,
@@ -210,7 +213,7 @@ export function headlineFromRuns(
       r.variant === "routed" && !r.tag && !r.selection?.kinds && !r.selection?.groups && !r.selection?.limit && r.cases,
   );
   if (!run?.cases) return { headline: null, headline_sentence: null, headline_run: null, routing_split: null };
-  const headline = headlineOf(run.cases, config.report);
+  const headline = headlineOf(run.cases, { ...config.report, currency: config.costs.currency });
   // Where that run's model calls were answered, read from its signed receipts.
   const split = run.started_at ? routingSplit(resolve(config.logging.dir), "routed", run.started_at) : null;
   return {

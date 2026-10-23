@@ -18,6 +18,8 @@ export interface HeadlineAssumptions {
   minutesToConfirmClose: number;
   /** An industry estimate of manual minutes per alert, as a range; always labelled as an estimate. */
   manualMinutesRange?: { low: number; high: number };
+  /** The currency the model cost is shown in. */
+  currency?: string;
 }
 
 /** What one alert cost the desk to recommend: measured time and cost, set beside the manual estimate. */
@@ -124,7 +126,7 @@ export function headlineSentence(h: Headline): string {
 export function perAlertSentence(h: Headline): string {
   const p = h.per_alert;
   if (p.alerts === 0) return "";
-  const own = `The desk took a median of ${p.median_seconds.toFixed(0)} seconds and ${p.mean_cost.toFixed(2)} in model cost per alert (measured)`;
+  const own = `The desk took a median of ${p.median_seconds.toFixed(0)} seconds and ${p.mean_cost.toFixed(2)}${h.assumptions.currency ? ` ${h.assumptions.currency}` : ""} in model cost per alert (measured)`;
   if (!p.manual_seconds) return ` ${own}.`;
   const low = h.assumptions.manualMinutesRange?.low;
   const high = h.assumptions.manualMinutesRange?.high;

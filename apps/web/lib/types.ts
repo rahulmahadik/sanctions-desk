@@ -95,7 +95,7 @@ export interface TraceView {
   definitions: Array<{ definition_id: string; version: string }>;
   data: {
     usl: { namespace: string; model_version: string };
-    list_snapshots: Array<{ list_id: string; snapshot_id: string }>;
+    list_snapshots: Array<{ list: string; snapshot_id: string }>;
     queries: Array<{
       query_id: string;
       agent: string;
@@ -155,7 +155,7 @@ export interface RecordView {
   decided_at: string;
   policy: { version: number };
   definitions: Array<{ definition_id: string; version: string }>;
-  list_snapshots: Array<{ list_id: string; snapshot_id: string }>;
+  list_snapshots: Array<{ list: string; snapshot_id: string }>;
   critic: { rounds: number; final_verdict: string };
   human: unknown[];
   record_hash: string;

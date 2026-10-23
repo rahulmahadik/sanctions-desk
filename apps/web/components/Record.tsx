@@ -104,7 +104,7 @@ export function FourQuestions({ trace }: { trace: TraceView }) {
         <dt>What data is it based on?</dt>
         <dd>
           Semantic layer {trace.data.usl.model_version}; list snapshots{" "}
-          {trace.data.list_snapshots.map((s) => `${s.list_id} ${s.snapshot_id}`).join(", ") || "none"};{" "}
+          {trace.data.list_snapshots.map((s) => `${s.list} ${s.snapshot_id}`).join(", ") || "none"};{" "}
           {trace.data.queries.length} queries
         </dd>
         <dt>Who could see what?</dt>
