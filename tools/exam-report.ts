@@ -629,21 +629,35 @@ if (have.length === 0) {
       : "none (no model call)";
   lines.push("### What each run had", "");
   lines.push(
-    "| Variant | Started | Code version | App binds used | Schema-constrained output | Challenger | Pause after a provider failure | Challenger answer limit |",
-    "|---|---|---|---|---|---|---|---|",
+    "| Run | Set | Started | Code version | App binds used | Payments read | Screener | Retry after a failed try | Schema-constrained output | Challenger |",
+    "|---|---|---|---|---|---|---|---|---|---|",
   );
   const runRows: Array<{ name: string; r: Result }> = [
     ...have.map((v) => ({ name: v, r: get(v) as Result })),
     ...earlier.map((r) => ({ name: `${r.variant} (earlier code version)`, r })),
+    ...[...heldoutNewest.values()].map((r) => ({ name: r.variant, r })),
+    ...[...laterRuns.values()].map((r) => ({ name: `${r.variant}${r.system ? ` (${r.system})` : ""}`, r })),
   ];
   for (const { name: v, r } of runRows) {
-    const f = r.features;
+    const f = r.features as
+      | (Features & { screener?: { enabled: boolean }; retry_identities?: Record<string, string> })
+      | undefined;
+    // The first system read payments live from the REST service (the Zetaris cache had been lost); the changed system
+    // read them from the Zetaris cache, verified by stopping the service.
+    const payments = r.system ? "Zetaris cache" : "live, REST service";
+    const screener = f?.screener ? (f.screener.enabled ? "on" : "off") : "not part of this system";
+    const retry =
+      f?.retry_identities && Object.keys(f.retry_identities).length > 0 ? "local (guard identity)" : "same identity";
     lines.push(
       f
-        ? `| ${v} | ${r.started_at} | ${f.commit ?? "?"} | ${bindsText(f.cockpit_binds)} | ${f.structured_output ? "yes" : "no"} | ${f.challenger?.enabled ? "on" : "off"} | ${f.provider_backoff_ms ? `${f.provider_backoff_ms} ms` : "none"} | ${f.challenger_points ?? "limited to four points; a longer list failed"} |`
-        : `| ${v} | ${r.started_at} | not recorded | not recorded | see the run's traces | see the run's traces | none (started before it was added) | limited to four points; a longer list failed (started before the fix) |`,
+        ? `| ${v} | ${r.exam ?? "exam"} | ${r.started_at} | ${f.commit ?? "?"} | ${bindsText(f.cockpit_binds)} | ${payments} | ${screener} | ${retry} | ${f.structured_output ? "yes" : "no"} | ${f.challenger?.enabled ? "on" : "off"} |`
+        : `| ${v} | ${r.exam ?? "exam"} | ${r.started_at} | not recorded | not recorded | ${payments} | not part of this system | same identity | see the run's traces | see the run's traces |`,
     );
   }
+  lines.push(
+    "",
+    "**Payments: a difference between the runs, not only a note.** The first system's runs read the payments table live from the REST service: the Zetaris cache of that table had been lost (an engine restart drops it), which was found on 24 Oct 2026 when a query failed with the payments service stopped. The table was cached again at about 02:05 SGT on 24 Oct, before the changed system's runs, and checked the same way: with the service stopped, Zetaris answered all 373 rows, and the seven payments of held-out v2 matched the source in all 14 columns. The run note written into those result files gives the time as 02:35; the check was at about 02:05. The data is the same either way; the difference can affect time and resilience, not the rows read.",
+  );
   lines.push("");
   for (const v of ["routed", "single", "no_memory", "local"].filter((x) => newest.has(x))) {
     const r = get(v) as Result;
