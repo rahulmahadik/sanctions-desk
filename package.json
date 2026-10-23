@@ -25,6 +25,7 @@
     "verify": "uv run python scripts/verify_setup.py",
     "check:zetaris": "uv run python scripts/check_zetaris.py",
     "check:nemotron": "uv run python scripts/check_nemotron.py",
+    "check:roles": "tsx tools/check-roles.ts",
     "check:isolation": "tsx tools/check-isolation.ts",
     "lint:voice": "node scripts/lint-voice.mjs",
     "scan:history": "node scripts/scan-history.mjs",

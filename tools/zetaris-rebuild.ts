@@ -39,3 +39,8 @@ for (const step of steps) {
   }
 }
 console.log("\nrebuild complete");
+
+// Access Control on the model lives in the interface and a rebuild empties it. Say so loudly instead of letting
+// the agents silently run on the fallback credential.
+const access = spawnSync("npx", ["tsx", "tools/check-roles.ts"], { stdio: "inherit", timeout: 2 * 60_000 });
+if (access.status !== 0) process.exit(access.status ?? 1);
