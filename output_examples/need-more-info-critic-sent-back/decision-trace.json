@@ -1,0 +1,519 @@
+{
+  "case": {
+    "alert_ref": "ALR-0030",
+    "alert_type": "customer",
+    "record_id": "rec-eval-sys2b-routed-EX-030",
+    "run_id": "eval-sys2b-routed-EX-030",
+    "decided_at": "2026-10-23T20:49:34.835Z"
+  },
+  "record": {
+    "hash": "d3c4627bc7420fe204aa4ac499bd9b0a00f4a9962c63b30eb27257e6fbe900fa",
+    "verified": true
+  },
+  "outcome": {
+    "decision": "NEED_MORE_INFO",
+    "confidence": 0.95,
+    "human_review_required": true
+  },
+  "definitions": [
+    {
+      "definition_id": "counterparty_match",
+      "version": "1",
+      "statement_hash": "bfc72b12ae41a3e9ac845a388caef854dd7a35b66403ceba7c01a04dc8a9e8db"
+    },
+    {
+      "definition_id": "effective_ownership_threshold",
+      "version": "1",
+      "statement_hash": "c24d1ecad9c3d3571dc25e9d8ce2bca28a62198f9128ab7d0ec2596a29f2ab93"
+    },
+    {
+      "definition_id": "false_positive",
+      "version": "2",
+      "statement_hash": "f03b06383f868893dca264769cc24e1feafd8a49c62fc3d1ef92bd47df03ea93"
+    },
+    {
+      "definition_id": "strong_identifier",
+      "version": "1",
+      "statement_hash": "6d4787bdfaab46af6cbc0736007fd74af232933ff5cac8fc54d1c92da6d839fe"
+    },
+    {
+      "definition_id": "true_match",
+      "version": "1",
+      "statement_hash": "3dd8579b5200466f47951b9773b9eda5934a6acd2366a1718309ae135642eebb"
+    }
+  ],
+  "data": {
+    "usl": {
+      "namespace": "lightning.metastore.sanctions",
+      "model_version": "4efa3ddddfbe"
+    },
+    "list_snapshots": [
+      {
+        "list": "OFAC",
+        "snapshot_id": "ofac-sdn-2026-10-21-0d805bf5",
+        "content_hash": "dfdd15c1c58091710a59889cfefefcef0baa5711bb0a0bd133179f113260478d"
+      }
+    ],
+    "queries": [
+      {
+        "query_id": "bf5523f6-1e1b-40e5-8473-6f9fe05384cc",
+        "agent": "evidence",
+        "table": "lightning.metastore.sanctions.screening_usl.alert",
+        "sql_hash": "431ee6ff5b2a9f84863a9cfe486cd3fd3e3379df9f30fdc56689f769ac610407",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 108,
+        "cache_hit": false
+      },
+      {
+        "query_id": "a47d2087-5c5e-42d7-8ea1-42feeb688640",
+        "agent": "evidence",
+        "table": "lightning.metastore.sanctions.screening_usl.customer",
+        "sql_hash": "6a46d6e817b3805f9624fe089c4a9aa7033519f988b2ece0d6a51c3073995021",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 101,
+        "cache_hit": false
+      },
+      {
+        "query_id": "f0b211f6-e15d-4b69-ba88-30a491e536f5",
+        "agent": "evidence",
+        "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
+        "sql_hash": "06eacc9594af207abb772c1a9311b680dcdc3f410f4f95a020b02c1715e23e1d",
+        "rows": 0,
+        "row_hashes": 0,
+        "latency_ms": 93,
+        "cache_hit": false
+      },
+      {
+        "query_id": "4feb471b-7194-47d9-be8d-2ba65a725c07",
+        "agent": "evidence",
+        "table": "lightning.metastore.sanctions.screening_usl.list_entry",
+        "sql_hash": "a6545e1fb053b127f8f7310061d3a80b2095d69367ba6959b8b3d5d2b7056850",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 89,
+        "cache_hit": false
+      },
+      {
+        "query_id": "b54f8fab-373e-44a1-92c7-95f0df73bf58",
+        "agent": "evidence",
+        "table": "lightning.metastore.sanctions.screening_usl.list_alias",
+        "sql_hash": "2b110910a60d14d56a85a69d8d1cadcefd4d295cb107aeb2b739172f1fc924d9",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 118,
+        "cache_hit": false
+      },
+      {
+        "query_id": "78c79e49-b229-4b0a-a64d-49c4387cc326",
+        "agent": "evidence",
+        "table": "lightning.metastore.sanctions.screening_usl.list_dob",
+        "sql_hash": "7c15354a4f517830cfe6050954fecb61e2f6035a863184eb39391143c5141b53",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 92,
+        "cache_hit": false
+      },
+      {
+        "query_id": "22f202d2-7e21-40f8-a068-07de5381bd72",
+        "agent": "evidence",
+        "table": "lightning.metastore.sanctions.screening_usl.list_country",
+        "sql_hash": "ce6cccc28b3bd7293efdf029387dd33821bbf2163322cd2a2c786e4df0b63bd8",
+        "rows": 4,
+        "row_hashes": 4,
+        "latency_ms": 626,
+        "cache_hit": false
+      },
+      {
+        "query_id": "49977e7b-090e-48ec-ac11-d724c8460573",
+        "agent": "evidence",
+        "table": "lightning.metastore.sanctions.screening_usl.list_identifier",
+        "sql_hash": "3cc214176fffab21b5989c65402d01ee74e7c3034e2f4df6975a588e0e415ac9",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 306,
+        "cache_hit": false
+      },
+      {
+        "query_id": "55a6a9e4-be74-4899-abe8-3ce987e9b23b",
+        "agent": "evidence",
+        "table": "lightning.metastore.sanctions.screening_usl.business_definition",
+        "sql_hash": "ef48444a6a3c79b3f0444ad0c0939bd1b855287641f227d501bb8d6c898980b1",
+        "rows": 6,
+        "row_hashes": 6,
+        "latency_ms": 110,
+        "cache_hit": false
+      },
+      {
+        "query_id": "f6fcb9b7-d852-474b-b9b0-427c74ca707f",
+        "agent": "evidence",
+        "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
+        "sql_hash": "d96e22af46edd94844f451d46859a6d9de1c618299bd9555522c79537c566416",
+        "rows": 0,
+        "row_hashes": 0,
+        "latency_ms": 293,
+        "cache_hit": false
+      },
+      {
+        "query_id": "5226a242-8c57-4442-ac03-6da1a276adab",
+        "agent": "evidence",
+        "table": "lightning.metastore.sanctions.screening_usl.customer",
+        "sql_hash": "cf2158a81993bc70162591b146d4bc97515be9c3433328365216349b0fcc69cb",
+        "rows": 24,
+        "row_hashes": 0,
+        "latency_ms": 158,
+        "cache_hit": false
+      },
+      {
+        "query_id": "ed9d6994-0d83-4409-a8dc-1d5431b6ad06",
+        "agent": "evidence",
+        "table": "lightning.metastore.sanctions.screening_usl.customer",
+        "sql_hash": "ef1fc4c1293df5e241b55d27d8573a089299f9530347030efaa3790879c983f9",
+        "rows": 1,
+        "row_hashes": 0,
+        "latency_ms": 139,
+        "cache_hit": false
+      },
+      {
+        "query_id": "6475380e-2871-442a-b382-609116ab58ba",
+        "agent": "memory",
+        "table": "lightning.metastore.sanctions.screening_usl.disposition",
+        "sql_hash": "ba5ecb08f21ff3e0d67abf1c18d8250a778ef45529bb72c6f6d8d79873465b45",
+        "rows": 0,
+        "row_hashes": 0,
+        "latency_ms": 139,
+        "cache_hit": false
+      },
+      {
+        "query_id": "61cc6479-b5f0-4229-bfb8-9dbcefb9b6ed",
+        "agent": "critic",
+        "table": "lightning.metastore.sanctions.screening_usl.customer",
+        "sql_hash": "6a46d6e817b3805f9624fe089c4a9aa7033519f988b2ece0d6a51c3073995021",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 206,
+        "cache_hit": false
+      },
+      {
+        "query_id": "ff101545-871c-45fc-ae48-03bd3989654c",
+        "agent": "critic",
+        "table": "lightning.metastore.sanctions.screening_usl.customer",
+        "sql_hash": "6a46d6e817b3805f9624fe089c4a9aa7033519f988b2ece0d6a51c3073995021",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 212,
+        "cache_hit": false
+      },
+      {
+        "query_id": "a839ec87-e086-40c3-ae50-e967dcf24e57",
+        "agent": "critic",
+        "table": "lightning.metastore.sanctions.screening_usl.list_dob",
+        "sql_hash": "d853574055d5fb87d7b71a3790a93b24ec0ffc6fd753e0d08c76e0db2f39eee0",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 181,
+        "cache_hit": false
+      },
+      {
+        "query_id": "294afe0d-6c18-4f12-b05c-f4fabc86fb8a",
+        "agent": "critic",
+        "table": "lightning.metastore.sanctions.screening_usl.list_dob",
+        "sql_hash": "d853574055d5fb87d7b71a3790a93b24ec0ffc6fd753e0d08c76e0db2f39eee0",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 180,
+        "cache_hit": false
+      },
+      {
+        "query_id": "3eff9e9f-d1e5-4e10-b15d-3d8d578cfd8d",
+        "agent": "critic",
+        "table": "lightning.metastore.sanctions.screening_usl.list_country",
+        "sql_hash": "115ab7a55069dee96bf832082ce8d27bb165ad4471f633420020c5232d9b9725",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 192,
+        "cache_hit": false
+      },
+      {
+        "query_id": "0343f08e-7639-49a7-81e5-7c4eff4abffa",
+        "agent": "critic",
+        "table": "lightning.metastore.sanctions.screening_usl.customer",
+        "sql_hash": "6a46d6e817b3805f9624fe089c4a9aa7033519f988b2ece0d6a51c3073995021",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 180,
+        "cache_hit": false
+      },
+      {
+        "query_id": "d362aa27-6496-48ba-b9bc-d3cfd19c37e0",
+        "agent": "critic",
+        "table": "lightning.metastore.sanctions.screening_usl.customer",
+        "sql_hash": "6a46d6e817b3805f9624fe089c4a9aa7033519f988b2ece0d6a51c3073995021",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 188,
+        "cache_hit": false
+      },
+      {
+        "query_id": "10620adc-208f-4111-9d1d-2ee310197ef1",
+        "agent": "critic",
+        "table": "lightning.metastore.sanctions.screening_usl.list_dob",
+        "sql_hash": "d853574055d5fb87d7b71a3790a93b24ec0ffc6fd753e0d08c76e0db2f39eee0",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 168,
+        "cache_hit": false
+      },
+      {
+        "query_id": "89fe0649-0ccc-473c-9ddd-bd19fcd108c3",
+        "agent": "critic",
+        "table": "lightning.metastore.sanctions.screening_usl.list_dob",
+        "sql_hash": "d853574055d5fb87d7b71a3790a93b24ec0ffc6fd753e0d08c76e0db2f39eee0",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 168,
+        "cache_hit": false
+      },
+      {
+        "query_id": "aed5f548-b04b-4b5e-96ca-3135b61cc931",
+        "agent": "critic",
+        "table": "lightning.metastore.sanctions.screening_usl.list_country",
+        "sql_hash": "115ab7a55069dee96bf832082ce8d27bb165ad4471f633420020c5232d9b9725",
+        "rows": 1,
+        "row_hashes": 1,
+        "latency_ms": 175,
+        "cache_hit": false
+      }
+    ]
+  },
+  "access": {
+    "policy": {
+      "version": 6,
+      "hash": "e1144dea90a433cb5200bd11610ba1935a578a3a4693472abc5d4195adb538b8"
+    },
+    "by_role": [
+      {
+        "role": "role_evidence_agent",
+        "queries": 23,
+        "token_source": "role",
+        "masked_columns": ["id_number"]
+      }
+    ],
+    "note": "token_source 'role' means the query ran under that role's own API token; 'fallback' means the labelled admin fallback was used because no role token was set."
+  },
+  "cost": {
+    "currency": "USD",
+    "assumption": "Illustrative assumptions for comparing routes, not prices. Local model calls and saved sample answers cost nothing; replace the cloud figures with your own rates.",
+    "models": [
+      {
+        "agent": "policy_guard",
+        "model_requested": "meterless/fast",
+        "model_routed": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+        "provider": "nightshift",
+        "route_kind": "local",
+        "reasoning": "none",
+        "tokens_in": 481,
+        "tokens_out": 19,
+        "latency_ms": 462,
+        "receipt_status": "valid_pinned",
+        "receipt_id": "rcpt_req_dj3ngoux",
+        "app": "sanctions-desk-guard",
+        "from_cache": false,
+        "cost": 0
+      },
+      {
+        "agent": "decision",
+        "model_requested": "meterless/deep",
+        "model_routed": "nvidia/nemotron-3-ultra-550b-a55b",
+        "provider": "nightshift",
+        "route_kind": "cloud",
+        "reasoning": "none",
+        "tokens_in": 4334,
+        "tokens_out": 526,
+        "latency_ms": 11206,
+        "receipt_status": "valid_pinned",
+        "receipt_id": "rcpt_req_moixn9ni",
+        "app": "sanctions-desk-reasoning",
+        "from_cache": false,
+        "cost": 0.002956
+      },
+      {
+        "agent": "critic",
+        "model_requested": "meterless/judge",
+        "model_routed": "nvidia/nemotron-3-ultra-550b-a55b",
+        "provider": "nightshift",
+        "route_kind": "cloud",
+        "reasoning": "budget 400 tokens",
+        "tokens_in": 2911,
+        "tokens_out": 152,
+        "latency_ms": 4506,
+        "receipt_status": "valid_pinned",
+        "receipt_id": "rcpt_req_jmkg0inp",
+        "app": "sanctions-desk-reasoning",
+        "from_cache": false,
+        "cost": 0.001684
+      },
+      {
+        "agent": "decision",
+        "model_requested": "meterless/deep",
+        "model_routed": "nvidia/nemotron-3-ultra-550b-a55b",
+        "provider": "nightshift",
+        "route_kind": "cloud",
+        "reasoning": "none",
+        "tokens_in": 4444,
+        "tokens_out": 557,
+        "latency_ms": 8533,
+        "receipt_status": "valid_pinned",
+        "receipt_id": "rcpt_req_x1rvfs7p",
+        "app": "sanctions-desk-reasoning",
+        "from_cache": false,
+        "cost": 0.003058
+      },
+      {
+        "agent": "critic",
+        "model_requested": "meterless/judge",
+        "model_routed": "nvidia/nemotron-3-ultra-550b-a55b",
+        "provider": "nightshift",
+        "route_kind": "cloud",
+        "reasoning": "budget 400 tokens",
+        "tokens_in": 2731,
+        "tokens_out": 128,
+        "latency_ms": 4796,
+        "receipt_status": "valid_pinned",
+        "receipt_id": "rcpt_req_2m50jiv2",
+        "app": "sanctions-desk-reasoning",
+        "from_cache": false,
+        "cost": 0.001558
+      }
+    ],
+    "data_queries": {
+      "count": 23,
+      "total_latency_ms": 4222,
+      "rows_returned": 51,
+      "cache_hits": 0,
+      "cost": 0
+    },
+    "totals": {
+      "tokens_in": 14901,
+      "tokens_out": 1382,
+      "local_calls": 1,
+      "cloud_calls": 4,
+      "model_cost": 0.009256,
+      "total_cost": 0.009256
+    }
+  },
+  "free_text": {
+    "screener": {
+      "status": "nothing_to_read",
+      "served_by_cloud": false,
+      "fields_read": [],
+      "signals": [],
+      "documentary": [],
+      "injection": false
+    },
+    "sent_to_model_steps": [
+      {
+        "step": "decision",
+        "prompt_hash": "b330662ac9324e860dffb3a0cfe1bb34deb13246f8fd026f77d2c3bb3d125894",
+        "prompt_chars": 5378,
+        "fields": {
+          "policy": 1,
+          "definitions": 1,
+          "keys": 1,
+          "evidence.alert": 1,
+          "evidence.customer": 1,
+          "evidence.first_finding": 1,
+          "evidence.screener_facts": 1,
+          "evidence.earlier_decisions": 0,
+          "evidence.customer_identifier": 0,
+          "evidence.list_entry": 1,
+          "evidence.list_alias": 1,
+          "evidence.list_dob": 1,
+          "evidence.list_country": 4,
+          "evidence.list_identifier_types": 1,
+          "evidence.identifier_overlap_types": 0,
+          "evidence.data_quality": 2,
+          "evidence.comparison": 1
+        },
+        "raw_free_text_present": false
+      },
+      {
+        "step": "critic",
+        "prompt_hash": "9cb63654739304ee87297b2a1c0718838700a035c940ee3e7406e6653e22916c",
+        "prompt_chars": 6040,
+        "fields": {
+          "policy": 1,
+          "definitions": 1,
+          "evidence.alert": 1,
+          "evidence.customer": 1,
+          "evidence.first_finding": 1,
+          "evidence.screener_facts": 1,
+          "evidence.earlier_decisions": 0,
+          "evidence.customer_identifier": 0,
+          "evidence.list_entry": 1,
+          "evidence.list_alias": 1,
+          "evidence.list_dob": 1,
+          "evidence.list_country": 4,
+          "evidence.list_identifier_types": 1,
+          "evidence.identifier_overlap_types": 0,
+          "evidence.data_quality": 2,
+          "evidence.comparison": 1,
+          "recommendation": 1
+        },
+        "raw_free_text_present": false
+      },
+      {
+        "step": "decision",
+        "prompt_hash": "34dd86cf979d917d3c085c6186fe17a857ff353a81c8bd78468807dde63ff7eb",
+        "prompt_chars": 6093,
+        "fields": {
+          "policy": 1,
+          "definitions": 1,
+          "keys": 1,
+          "evidence.alert": 1,
+          "evidence.customer": 1,
+          "evidence.first_finding": 1,
+          "evidence.screener_facts": 1,
+          "evidence.earlier_decisions": 0,
+          "evidence.customer_identifier": 0,
+          "evidence.list_entry": 1,
+          "evidence.list_alias": 1,
+          "evidence.list_dob": 1,
+          "evidence.list_country": 4,
+          "evidence.list_identifier_types": 1,
+          "evidence.identifier_overlap_types": 0,
+          "evidence.data_quality": 2,
+          "evidence.comparison": 1
+        },
+        "raw_free_text_present": false
+      },
+      {
+        "step": "critic",
+        "prompt_hash": "4e514efa0009866361fe1995e52cb93ae0ae786d6fe62c623bb7c2b190769789",
+        "prompt_chars": 5424,
+        "fields": {
+          "policy": 1,
+          "definitions": 1,
+          "evidence.alert": 1,
+          "evidence.customer": 1,
+          "evidence.first_finding": 1,
+          "evidence.screener_facts": 1,
+          "evidence.earlier_decisions": 0,
+          "evidence.customer_identifier": 0,
+          "evidence.list_entry": 1,
+          "evidence.list_alias": 1,
+          "evidence.list_dob": 1,
+          "evidence.list_country": 4,
+          "evidence.list_identifier_types": 1,
+          "evidence.identifier_overlap_types": 0,
+          "evidence.data_quality": 2,
+          "evidence.comparison": 1,
+          "recommendation": 1
+        },
+        "raw_free_text_present": false
+      }
+    ],
+    "note": "The screener reads notes, payment references and list remarks on the local model and keeps structured facts only. Each step that calls a model lists the fields it was sent, with counts and a hash of the payload; raw_free_text_present is false when no note, reference or remark was in it."
+  }
+}
