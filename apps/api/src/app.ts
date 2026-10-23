@@ -70,7 +70,8 @@ export function permissionFor(method: string, path: string): Permission | undefi
   if (method === "GET") return undefined;
   if (path === "/run" || path === "/list-change/replay" || path === "/guard/outbound" || path === "/policy/whatif")
     return "run";
-  if (/^\/cases\/[^/]+\/(decision|second-approval)$/.test(path)) return "decide";
+  if (/^\/cases\/[^/]+\/(decision|second-approval|reopen)$/.test(path)) return "decide";
+  if (path === "/autonomy/kill-switch") return "stopAutonomy";
   if (/^\/policy\/drafts\/\d+\/publish$/.test(path)) return "publishPolicy";
   if (path.startsWith("/policy/")) return "proposePolicy";
   return undefined;
@@ -194,6 +195,7 @@ export async function buildApp(deps: AppDeps) {
     generator: deps.generator,
     zetaris: deps.zetaris,
     sampleNotice: deps.sampleNotice,
+    signer: deps.signer,
   });
   await app.register(governanceRoutes, { config, policies: deps.policies });
   await app.register(runEventRoutes, { bus: deps.bus });

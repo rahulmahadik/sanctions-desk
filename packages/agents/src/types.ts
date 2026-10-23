@@ -15,6 +15,12 @@ export interface AgentDeps {
   now: () => Date;
   /** Wait between tries after a provider failure. Tests pass a no-op; the default really waits. */
   sleep?: (ms: number) => Promise<void>;
+  /** True when the kill switch has forced autonomy level 0. Evaluation runs leave it out. */
+  killSwitch?: () => boolean;
+  /** Automatic closes already made today (UTC), for the daily cap. */
+  autoClosedToday?: () => number;
+  /** A number in [0, 1) for the quality-assurance sample. Tests pass a fixed one. */
+  random?: () => number;
   /**
    * Decisions that people made on earlier recommendations about a customer and a listed entry. Read by the memory
    * step beside the bank's own earlier decisions. Evaluation runs leave it out so the exam stays independent.

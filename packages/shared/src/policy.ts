@@ -63,7 +63,7 @@ const regexSource = nonEmpty.refine((s) => {
   }
 }, "must be a valid regular expression");
 
-export const PolicySchema = z.strictObject({
+const PolicyShape = z.strictObject({
   version: PolicyVersionSchema,
   name: nonEmpty,
   description: z.string().optional(),
@@ -179,6 +179,35 @@ export const PolicySchema = z.strictObject({
   }),
 
   /**
+   * How much a person does. Level 0: a person approves every alert. Level 1: a close the desk is certain of may be
+   * closed without waiting, within a daily cap, with a random share sent to a person for quality assurance. Level 1
+   * is switched off at once by the kill switch. What is locked cannot be changed by any draft: an escalation or a
+   * request for information always goes to a person, and a block always needs two different approvers.
+   */
+  autonomy: z
+    .strictObject({
+      level: z.union([z.literal(0), z.literal(1)]),
+      autoClose: z.strictObject({
+        /** A close needs at least this confidence to be closed without a person; never below the critic's floor. */
+        confidenceAtLeast: unit,
+        /** The share of automatic closes sent to a person at random. At least 5 percent. */
+        qaSampleRate: z.number().min(0.05).max(1),
+        /** The most alerts closed automatically in one UTC day; the rest wait for a person. */
+        dailyCap: positiveInt.max(100_000),
+      }),
+      escalationsAlwaysToPerson: z.literal(true),
+      moreInfoAlwaysToPerson: z.literal(true),
+      blockNeedsTwoApprovers: z.literal(true),
+    })
+    .default({
+      level: 0,
+      autoClose: { confidenceAtLeast: 0.9, qaSampleRate: 0.1, dailyCap: 50 },
+      escalationsAlwaysToPerson: true,
+      moreInfoAlwaysToPerson: true,
+      blockNeedsTwoApprovers: true,
+    }),
+
+  /**
    * Ask the models for answers constrained to a JSON Schema instead of "reason, then end with JSON". The model
    * reasons inside a field of the answer, so there is nothing to extract and nothing to cut off.
    */
@@ -198,6 +227,13 @@ export const PolicySchema = z.strictObject({
   }),
 });
 
+export const PolicySchema = PolicyShape.refine(
+  (p) => p.autonomy.autoClose.confidenceAtLeast >= p.critic.confidenceFloorForClose,
+  {
+    message: "an automatic close needs at least the confidence the critic requires for any close",
+    path: ["autonomy", "autoClose", "confidenceAtLeast"],
+  },
+);
 export type Policy = z.infer<typeof PolicySchema>;
 
 export interface PolicyIssue {

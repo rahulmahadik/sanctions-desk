@@ -7,6 +7,7 @@ import {
   ReviewResponseSchema,
 } from "@sanctions-desk/shared";
 import { buildEvidenceTools } from "@sanctions-desk/zetaris";
+import { decideAutonomy, randomDraw } from "./autonomy.js";
 import { challenge, challengeTriggers } from "./challenger.js";
 import { review } from "./critic.js";
 import { type DecisionOutput, decide } from "./decision.js";
@@ -94,6 +95,10 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
 /** The lines a reviewer should read first: what the comparison found, then the check that changed the outcome. */
 function keyEvidence(match: MatchResult, guard: ReturnType<typeof applyPolicyGuard>): string[] {
   const lines = match.comparison.reasons.slice(0, 2).map((r) => `Comparison: ${r}`);
+  if (match.documentaryDateOfBirth !== undefined)
+    lines.unshift(
+      `Date of birth ${match.documentaryDateOfBirth} from verified note (check ref ${match.documentaryCheckReference}), not from the customer record`,
+    );
   const changed = guard.verdicts.find((v) => v.verdict === "block" && v.detail);
   if (changed?.detail) lines.push(`Check: ${changed.guard.replaceAll("_", " ")}: ${changed.detail}`.slice(0, 220));
   return lines.slice(0, 3);
@@ -255,7 +260,56 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
   const rationale = guard.changed
     ? `${finalOutput.rationale} Policy check: ${reasons.join("; ")}.`
     : finalOutput.rationale;
+  const documentary =
+    match.documentaryDateOfBirth !== undefined && match.documentaryCheckReference !== undefined
+      ? [
+          {
+            field: "date_of_birth" as const,
+            value: match.documentaryDateOfBirth,
+            source: "customer.notes",
+            check_reference: match.documentaryCheckReference,
+            label: `date of birth from verified note (check ref ${match.documentaryCheckReference})`,
+          },
+        ]
+      : undefined;
+  // What the autonomy setting does with this recommendation. At level 0 nothing is recorded: a person decides.
+  const autonomy =
+    policy.autonomy.level === 1
+      ? decideAutonomy({
+          policy,
+          killSwitch: deps.killSwitch?.() ?? false,
+          final: guard.decision,
+          modelDecision: output.decision,
+          firstFinding: evidence.hybrid
+            ? { decision: evidence.hybrid.decision, settled: evidence.hybrid.settled }
+            : undefined,
+          confidence: guard.confidence,
+          critic: { final_verdict: !criticRan ? "not_run" : approved ? "approved" : "escalated" },
+          guards: guard.verdicts,
+          dataQualityFailed: evidence.dq.some((d) => d.failed),
+          autoClosedToday: deps.autoClosedToday?.() ?? 0,
+          draw: deps.random?.() ?? randomDraw(),
+        })
+      : undefined;
+  if (autonomy) {
+    trace.log({
+      agent: "policy_guard",
+      action: "autonomy",
+      status: autonomy.outcome === "human_review" ? "ok" : "ok",
+      output_summary:
+        autonomy.statement ??
+        `${autonomy.outcome}: ${
+          autonomy.conditions
+            .filter((c) => !c.met)
+            .map((c) => c.name)
+            .join(", ") || "sampled for quality assurance"
+        }`,
+      detail: { outcome: autonomy.outcome, level_in_force: autonomy.level_in_force },
+    });
+  }
   const record = buildDecisionRecord({
+    autonomy,
+    documentary,
     deps,
     runId: request.runId,
     alertId: request.alertId,
@@ -289,6 +343,8 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     what_would_change: finalOutput.what_would_change,
     key_evidence: keyEvidence(match, guard),
     ...(evidence.hybrid ? { path: evidence.hybrid.path, first_finding: evidence.hybrid.decision } : {}),
+    ...(autonomy ? { autonomy } : {}),
+    ...(documentary ? { documentary } : {}),
     ...(record.confidence_cap ? { confidence_cap: record.confidence_cap } : {}),
     citations,
     agents: challenged ? [...AGENT_ORDER.slice(0, 6), "challenger", ...AGENT_ORDER.slice(6)] : AGENT_ORDER,
@@ -297,7 +353,7 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     critic: record.critic,
     record_id: record.record_id,
     record_hash: record.record_hash,
-    human_review_required: true,
+    human_review_required: autonomy?.outcome !== "auto_closed",
     approvals_required: guard.approvalsRequired,
     trace_id: request.runId,
     execution_time_seconds: (performance.now() - started) / 1000,

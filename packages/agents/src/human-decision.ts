@@ -96,6 +96,20 @@ export function recordDecision(
   return appendHumanAction(record, action, nextRecordId(record));
 }
 
+export interface ReopenRequest {
+  reason: string;
+  record_hash: string;
+}
+
+/** A person reopens a close the desk made automatically. The case then waits for a decision like any other. */
+export function reopen(record: DecisionRecord, request: ReopenRequest, actor: Actor, now: Date): DecisionRecord {
+  if (humanState(record).status !== "auto_closed")
+    refuse("conflict", "only a close made automatically can be reopened");
+  const reason = checkCommon(record, actor, request.reason, request.record_hash);
+  const action: HumanAction = { action: "reopen", actor: actor.id, role: actor.role, at: now.toISOString(), reason };
+  return appendHumanAction(record, action, nextRecordId(record));
+}
+
 /** The second approval (or refusal) of a block. */
 export function secondApproval(
   record: DecisionRecord,
@@ -132,6 +146,19 @@ export interface DeskStores {
 export interface CaseRef {
   customerId: string;
   entryId: string;
+}
+
+/** The note that goes with a close the desk made automatically, and a line in the audit log under the policy. */
+export function recordAutoClose(stores: DeskStores, policy: Policy, record: DecisionRecord, now: Date): ActionRecord[] {
+  audit(stores.logDir, {
+    user: "policy",
+    role: "system",
+    action: "auto_close",
+    alert_id: record.alert_ref,
+    record_hash: record.record_hash,
+    result: record.autonomy?.statement,
+  });
+  return writeActions(stores.outboxDir, planActions(record, policy, now), stores.signer);
 }
 
 export interface Committed {

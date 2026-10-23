@@ -205,6 +205,39 @@ export const ROUTES: RouteDoc[] = [
   },
   {
     method: "post",
+    path: "/cases/{alertId}/reopen",
+    tag: "People",
+    summary: "Reopen a close the desk made automatically; the case then waits for a person's decision",
+    params: [AlertIdParam],
+    body: obj({ reason: { type: "string", minLength: 10, maxLength: 600 }, record_hash: { type: "string" } }, [
+      "reason",
+      "record_hash",
+    ]),
+  },
+  {
+    method: "get",
+    path: "/autonomy",
+    tag: "People",
+    summary: "The autonomy level in force, today's automatic closes against the cap, and the kill switch",
+  },
+  {
+    method: "post",
+    path: "/autonomy/kill-switch",
+    tag: "People",
+    summary: "Force autonomy level 0 at once (an approver or policy admin); only a policy admin can switch it back on",
+    body: obj({ active: { type: "boolean" }, reason: { type: "string", minLength: 10, maxLength: 600 } }, [
+      "active",
+      "reason",
+    ]),
+  },
+  {
+    method: "get",
+    path: "/auto-closed",
+    tag: "People",
+    summary: "Closes made automatically, for a person to review and reopen",
+  },
+  {
+    method: "post",
     path: "/list-change/replay",
     tag: "Review",
     summary: "Check every earlier decision against the list as it is now",

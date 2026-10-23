@@ -1,6 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { relative } from "node:path";
-import { type AgentDeps, readAnalystMemory, runReview } from "@sanctions-desk/agents";
+import {
+  type AgentDeps,
+  autonomyUsage,
+  killSwitchOn,
+  readAnalystMemory,
+  readDecisionRecords,
+  recordAutoClose,
+  runReview,
+  type Signer,
+} from "@sanctions-desk/agents";
 import {
   type AlertType,
   AppError,
@@ -13,6 +22,7 @@ import {
   type RunEventBus,
   RunRequestSchema,
   RunResponseSchema,
+  resolveProjectPath,
   secretValues,
   type TraceLogger,
   toStructuredError,
@@ -29,6 +39,8 @@ interface RunOptions {
   zetaris: ZetarisClient;
   /** Set when answers come from saved data and the rules-based model instead of live services. */
   sampleNotice?: string;
+  /** Signs the note written for an automatic close. Absent: hash-sealed. */
+  signer?: Signer;
 }
 
 /**
@@ -38,7 +50,7 @@ interface RunOptions {
  */
 export const runRoutes: FastifyPluginAsync<RunOptions> = async (
   app,
-  { config, bus, policies, generator, zetaris, sampleNotice },
+  { config, bus, policies, generator, zetaris, sampleNotice, signer },
 ) => {
   const redact = makeRedactor(secretValues(config));
   // One review per alert at a time: a second request for the same alert would only repeat the same reads.
@@ -127,8 +139,24 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (
         trace,
         now: () => new Date(),
         analystDecisions: (customerId, entryId) => readAnalystMemory(config.logging.dir, customerId, entryId),
+        killSwitch: () => killSwitchOn(config.logging.dir),
+        autoClosedToday: () => autonomyUsage(config.logging.dir, new Date()).auto_closed,
       };
       const result = await runReview(deps, { runId, alertId, sampleMode: config.sampleMode, sampleNotice });
+      if (result.autonomy?.outcome === "auto_closed") {
+        const [record] = readDecisionRecords(config.logging.dir, (x) => x.run_id === runId);
+        if (record)
+          recordAutoClose(
+            {
+              logDir: resolveProjectPath(config.logging.dir),
+              outboxDir: resolveProjectPath(config.actions.outboxDir),
+              signer,
+            },
+            policy,
+            record,
+            new Date(),
+          );
+      }
       trace.log({
         agent: "system",
         action: "run_completed",

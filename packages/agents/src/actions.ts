@@ -117,6 +117,25 @@ export function rfiText(policy: Policy, items: readonly string[]): string {
 export function planActions(record: DecisionRecord, policy: Policy, now: Date): ActionBody[] {
   const state = humanState(record);
   if (state.status === "awaiting") return [];
+  if (state.status === "auto_closed") {
+    return [
+      {
+        kind: "closure_note",
+        alert_id: record.alert_ref,
+        alert_type: record.alert_type,
+        record_hash: record.record_hash,
+        recommended: record.decision,
+        final: "CLOSE_FALSE_POSITIVE",
+        status: "closed automatically; a person can reopen it",
+        title: `Closure note (automatic): ${record.alert_ref}`,
+        content: `${record.autonomy?.statement ?? "closed automatically"}. Basis: ${record.rationale}`,
+        decided_by: [],
+        policy: { version: policy.version, hash: record.policy.hash },
+        sent: false,
+        created_at: now.toISOString(),
+      },
+    ];
+  }
   const base = {
     alert_id: record.alert_ref,
     alert_type: record.alert_type,

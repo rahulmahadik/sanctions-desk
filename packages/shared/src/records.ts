@@ -151,7 +151,7 @@ export const GuardVerdictSchema = z.strictObject({
 export type GuardVerdictInput = z.input<typeof GuardVerdictSchema>;
 
 export const HumanActionSchema = z.strictObject({
-  action: z.enum(["approve", "override", "second_approval", "reject"]),
+  action: z.enum(["approve", "override", "second_approval", "reject", "reopen"]),
   actor: nonEmpty,
   /** The actor's role when they acted. */
   role: z.enum(["analyst", "approver", "policy_admin", "viewer"]).optional(),
@@ -161,6 +161,31 @@ export const HumanActionSchema = z.strictObject({
   outcome: DecisionSchema.optional(),
 });
 export type HumanAction = z.infer<typeof HumanActionSchema>;
+
+export const AutonomyRecordSchema = z.strictObject({
+  /** The level the policy asked for and the level in force (0 when the kill switch is on). */
+  policy_level: z.union([z.literal(0), z.literal(1)]),
+  level_in_force: z.union([z.literal(0), z.literal(1)]),
+  outcome: z.enum(["human_review", "auto_closed", "qa_sample"]),
+  conditions: z.array(z.strictObject({ name: nonEmpty, met: z.boolean(), detail: z.string().optional() })),
+  /** The random draw used for the quality-assurance sample, and the rate it was compared with. */
+  qa_draw: z.number().min(0).max(1),
+  qa_rate: z.number().min(0).max(1),
+  /** For an automatic close: "closed automatically under policy vX, level 1, conditions met: ...". */
+  statement: z.string().optional(),
+});
+export type AutonomyRecord = z.infer<typeof AutonomyRecordSchema>;
+
+/** A value taken from a note that carries a check reference, a document number and a date. */
+export const DocumentaryValueSchema = z.strictObject({
+  field: z.literal("date_of_birth"),
+  value: nonEmpty,
+  source: nonEmpty,
+  check_reference: nonEmpty,
+  /** How it is shown to a reviewer: never as a value of the customer record. */
+  label: nonEmpty,
+});
+export type DocumentaryValue = z.infer<typeof DocumentaryValueSchema>;
 
 export const DECISION_RECORD_VERSION = 1 as const;
 
@@ -196,6 +221,8 @@ const DecisionRecordBody = z.strictObject({
   /** The hybrid: what code concluded from the structured fields, and the path the review took because of it. */
   first_finding: DecisionSchema.optional(),
   review_path: z.enum(["confirm", "reason"]).optional(),
+  autonomy: AutonomyRecordSchema.optional(),
+  documentary: z.array(DocumentaryValueSchema).optional(),
   human: z.array(HumanActionSchema).default([]),
   /** Hash of the record this one supersedes (for example after a human action). */
   previous_record_hash: sha256.optional(),
@@ -312,7 +339,11 @@ export const ReviewResponseSchema = RunResponseSchema.extend({
   record_id: nonEmpty.optional(),
   record_hash: sha256.optional(),
   /** Always true: the desk recommends, a person decides. RECOMMEND_BLOCK needs two approvals. */
-  human_review_required: z.literal(true).optional(),
+  human_review_required: z.boolean().optional(),
+  /** What the autonomy setting did with the recommendation; absent at level 0. */
+  autonomy: AutonomyRecordSchema.optional(),
+  /** Values taken from verified notes and shown as such. */
+  documentary: z.array(DocumentaryValueSchema).optional(),
   approvals_required: z.number().int().min(1).optional(),
   sample_mode: z.boolean().optional(),
   sample_notice: z.string().optional(),

@@ -1,0 +1,78 @@
+{
+  "label": "routing lab, not part of the exam",
+  "at": "2026-10-23T07:34:43.906Z",
+  "rows": [
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 3322,
+      "asked": "meterless/deep",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "auto",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": false
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 234
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 2356,
+      "asked": "meterless/fast",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "auto",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 248
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/deep",
+      "status": 502,
+      "ms": 2462,
+      "asked": "meterless/deep",
+      "app_policy": {},
+      "error": "429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 2133,
+      "asked": "meterless/fast",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "auto",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-guard",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 247
+    }
+  ]
+}

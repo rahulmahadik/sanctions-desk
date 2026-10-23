@@ -39,9 +39,11 @@ const DATE = new RegExp(`\\b\\d{4}-\\d{2}-\\d{2}\\b|\\b\\d{1,2}\\s+(?:${MONTHS})
 export function documentaryDateOfBirth(
   text: string | null | undefined,
   standard: EvidenceStandard = DEFAULT_EVIDENCE_STANDARD,
-): string | null {
+): { value: string; checkReference: string } | null {
   if (!assessNote({ text }, standard).documentary) return null;
-  return /\b(?:born|date of birth|dob)\b[\s:]*(\d{4}-\d{2}-\d{2})\b/i.exec(text ?? "")?.[1] ?? null;
+  const value = /\b(?:born|date of birth|dob)\b[\s:]*(\d{4}-\d{2}-\d{2})\b/i.exec(text ?? "")?.[1];
+  const checkReference = CHECK_REFERENCE.exec(text ?? "")?.[0]?.trim();
+  return value && checkReference ? { value, checkReference } : null;
 }
 
 export interface NoteAssessment {

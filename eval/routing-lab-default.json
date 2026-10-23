@@ -1,0 +1,234 @@
+{
+  "label": "routing lab, not part of the exam",
+  "at": "2026-10-23T07:33:38.333Z",
+  "rows": [
+    {
+      "app": "",
+      "model": "meterless/local",
+      "status": 200,
+      "ms": 4039,
+      "asked": "meterless/local",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "local",
+        "routed_mode": "auto",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "node",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 249
+    },
+    {
+      "app": "",
+      "model": "meterless/local",
+      "status": 200,
+      "ms": 1431,
+      "asked": "meterless/local",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "local",
+        "routed_mode": "auto",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "node",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 246
+    },
+    {
+      "app": "",
+      "model": "meterless/local",
+      "status": 200,
+      "ms": 3295,
+      "asked": "meterless/local",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "local",
+        "routed_mode": "auto",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "node",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 242
+    },
+    {
+      "app": "",
+      "model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "status": 200,
+      "ms": 702,
+      "asked": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "auto",
+        "routed_mode": "auto",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "node",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 232
+    },
+    {
+      "app": "",
+      "model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "status": 200,
+      "ms": 12518,
+      "asked": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "auto",
+        "routed_mode": "auto",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "node",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 232
+    },
+    {
+      "app": "",
+      "model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "status": 200,
+      "ms": 774,
+      "asked": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "auto",
+        "routed_mode": "auto",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "node",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 231
+    },
+    {
+      "app": "",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "status": 200,
+      "ms": 4115,
+      "asked": "nvidia/nemotron-3-ultra-550b-a55b",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "auto",
+        "routed_mode": "auto",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "node",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 231
+    },
+    {
+      "app": "",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "status": 200,
+      "ms": 2677,
+      "asked": "nvidia/nemotron-3-ultra-550b-a55b",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "auto",
+        "routed_mode": "auto",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "node",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 232
+    },
+    {
+      "app": "",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "status": 502,
+      "ms": 2260,
+      "asked": "nvidia/nemotron-3-ultra-550b-a55b",
+      "app_policy": {},
+      "error": "429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+    },
+    {
+      "app": "",
+      "model": "meterless/deep",
+      "status": 502,
+      "ms": 2397,
+      "asked": "meterless/deep",
+      "app_policy": {},
+      "error": "429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+    },
+    {
+      "app": "",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 2527,
+      "asked": "meterless/deep",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "auto",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "node",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 233
+    },
+    {
+      "app": "",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 1907,
+      "asked": "meterless/deep",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "auto",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "node",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 233
+    }
+  ]
+}

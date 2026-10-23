@@ -1,5 +1,6 @@
 export * from "./actions.js";
 export * from "./analyst-memory.js";
+export * from "./autonomy.js";
 export * from "./bench.js";
 export * from "./case-file.js";
 export * from "./challenger.js";

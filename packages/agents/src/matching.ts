@@ -16,8 +16,12 @@ export interface MatchResult {
   customer: CustomerProfile;
   party: ListedParty;
   comparison: PartyComparison;
-  /** Set when the customer has no date of birth on record and a documentary note states one. */
+  /**
+   * Set when the customer has no date of birth on record and a documentary note states one. It is always shown as
+   * coming from the note, with the note's check reference, and never as a value of the customer record.
+   */
   documentaryDateOfBirth?: string;
+  documentaryCheckReference?: string;
 }
 
 /** The listed party behind an alert, built from the rows read through Zetaris. */
@@ -37,7 +41,7 @@ export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchR
   const fromNote = recorded.dateOfBirth
     ? null
     : documentaryDateOfBirth(evidence.customer.notes, deps.policy.evidenceStandard);
-  const payer = fromNote ? { ...recorded, dateOfBirth: fromNote } : recorded;
+  const payer = fromNote ? { ...recorded, dateOfBirth: fromNote.value } : recorded;
   const party = partyOf(evidence);
   // A payment alert is about the other party on the payment, not about the customer who sends it.
   const customer = evidence.payment
@@ -67,7 +71,7 @@ export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchR
     status: "ok",
     confidence: comparison.name.score,
     input_summary: `${customer.customerId} vs ${party.entryId}`,
-    output_summary: `${comparison.assessment}: ${comparison.reasons.join("; ")}${fromNote && !evidence.payment ? "; date of birth taken from a documentary note" : ""}`,
+    output_summary: `${comparison.assessment}: ${comparison.reasons.join("; ")}${fromNote && !evidence.payment ? `; date of birth from verified note (check ref ${fromNote.checkReference})` : ""}`,
     detail: {
       dob: comparison.dob.status,
       country: comparison.country.status,
@@ -78,6 +82,8 @@ export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchR
     customer,
     party,
     comparison,
-    ...(fromNote && !evidence.payment ? { documentaryDateOfBirth: fromNote } : {}),
+    ...(fromNote && !evidence.payment
+      ? { documentaryDateOfBirth: fromNote.value, documentaryCheckReference: fromNote.checkReference }
+      : {}),
   };
 }

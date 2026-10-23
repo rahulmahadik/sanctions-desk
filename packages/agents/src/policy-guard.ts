@@ -114,10 +114,27 @@ const definitionRule: Rule = ({ evidence }) => {
       );
 };
 
-const dataQualityRule: Rule = ({ policy, evidence }) => {
+/**
+ * A customer record that fails a data-quality rule can never support a close. The one narrow exception: the rule that
+ * wants a date of birth on an individual's record, when a verified note (a check reference, a document number and a
+ * date) supplies the date. The finding stays in the record and is shown as a flag, and the date is always labelled as
+ * coming from the note.
+ */
+const DOB_RULE = "dob_present_for_individuals";
+
+const dataQualityRule: Rule = ({ policy, evidence, match }) => {
   const failed = evidence.dq.filter((d) => d.failed);
-  return failed.length > 0 && policy.critic.abstainOnInvalidData
-    ? fails("data_quality", "NEED_MORE_INFO", `customer record fails ${failed.map((d) => d.rule).join(", ")}`)
+  const suppliedByNote = match.documentaryDateOfBirth !== undefined;
+  const blocking = failed.filter((d) => !(suppliedByNote && d.rule === DOB_RULE));
+  if (failed.length > 0 && blocking.length === 0 && suppliedByNote) {
+    return {
+      guard: "data_quality",
+      detail: `customer record fails ${DOB_RULE}; the date of birth comes from a verified note (check ref ${match.documentaryCheckReference}), not from the record`,
+      flag: true,
+    };
+  }
+  return blocking.length > 0 && policy.critic.abstainOnInvalidData
+    ? fails("data_quality", "NEED_MORE_INFO", `customer record fails ${blocking.map((d) => d.rule).join(", ")}`)
     : passes("data_quality", "no failing data-quality rule on the customer record");
 };
 

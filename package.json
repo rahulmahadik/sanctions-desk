@@ -52,6 +52,7 @@
     "zetaris:agents": "tsx tools/zetaris-agents.ts",
     "zetaris:rebuild": "tsx tools/zetaris-rebuild.ts",
     "zetaris:definitions": "tsx tools/zetaris-definitions.ts",
+    "lab:routing": "tsx tools/nightshift-lab.ts",
     "users:add": "tsx tools/users-add.ts",
     "actions:keygen": "tsx tools/actions-keygen.ts",
     "data:fetch": "tsx data/scripts/fetch.ts",

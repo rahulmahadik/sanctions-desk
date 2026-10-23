@@ -18,6 +18,8 @@ import type { AgentDeps } from "./types.js";
 /** The Reporter seals everything that was known at decision time into a hash-protected record. */
 
 export interface RecordInput {
+  autonomy?: DecisionRecord["autonomy"];
+  documentary?: DecisionRecord["documentary"];
   deps: AgentDeps;
   runId: string;
   alertId: string;
@@ -75,6 +77,8 @@ export function buildDecisionRecord(input: RecordInput): DecisionRecord {
     guards: guard.verdicts as GuardVerdictInput[],
     critic: { rounds: input.criticRounds, final_verdict: input.criticVerdict },
     ...(evidence.hybrid ? { first_finding: evidence.hybrid.decision, review_path: evidence.hybrid.path } : {}),
+    ...(input.autonomy ? { autonomy: input.autonomy } : {}),
+    ...(input.documentary ? { documentary: input.documentary } : {}),
   });
 }
 

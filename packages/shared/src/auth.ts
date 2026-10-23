@@ -115,6 +115,8 @@ export const PERMISSIONS = {
   overrideTowardsLessCaution: ["approver"],
   proposePolicy: ["approver", "policy_admin"],
   publishPolicy: ["policy_admin"],
+  stopAutonomy: ["approver", "policy_admin"],
+  restoreAutonomy: ["policy_admin"],
 } as const satisfies Record<string, readonly Role[]>;
 export type Permission = keyof typeof PERMISSIONS;
 

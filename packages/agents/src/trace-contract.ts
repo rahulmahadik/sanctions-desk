@@ -12,7 +12,7 @@ import { verifyDecisionRecord } from "@sanctions-desk/shared";
 export interface TraceContract {
   case: { alert_ref: string; alert_type: string; record_id: string; run_id: string; decided_at: string };
   record: { hash: string; verified: boolean };
-  outcome: { decision: string; confidence: number; human_review_required: true };
+  outcome: { decision: string; confidence: number; human_review_required: boolean };
   definitions: Array<{ definition_id: string; version: string; statement_hash?: string }>;
   data: {
     usl: { namespace: string; model_version: string };
@@ -113,7 +113,11 @@ export function buildTraceContract(record: DecisionRecord, costs: Config["costs"
       decided_at: record.decided_at,
     },
     record: { hash: record.record_hash, verified: verifyDecisionRecord(record) },
-    outcome: { decision: record.decision, confidence: record.confidence, human_review_required: true },
+    outcome: {
+      decision: record.decision,
+      confidence: record.confidence,
+      human_review_required: record.autonomy?.outcome !== "auto_closed",
+    },
     definitions: record.definitions,
     data: {
       usl: record.usl,

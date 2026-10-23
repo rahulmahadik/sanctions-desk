@@ -1,15 +1,21 @@
 import {
   type ActionRecord,
   attempt,
+  audit,
+  autoClosedRecords,
+  autonomyUsage,
   type CaseRef,
   type DeskStores,
   humanState,
   readActions,
   readAlertQueue,
   readDecisionRecords,
+  readKillSwitch,
   recordDecision,
+  reopen,
   type Signer,
   secondApproval,
+  setKillSwitch,
   verifyAction,
 } from "@sanctions-desk/agents";
 import {
@@ -43,6 +49,8 @@ const DecisionBody = z.strictObject({
   reason: z.string().max(2000),
   record_hash: RecordHash,
 });
+const ReopenBody = z.strictObject({ reason: z.string().max(2000), record_hash: RecordHash });
+const KillBody = z.strictObject({ active: z.boolean(), reason: z.string().trim().min(10).max(600) });
 const SecondBody = z.strictObject({ approve: z.boolean(), reason: z.string().max(2000), record_hash: RecordHash });
 
 const parse = <T extends z.ZodType>(schema: T, body: unknown): z.infer<T> => {
@@ -143,4 +151,69 @@ export const decisionRoutes: FastifyPluginAsync<DecisionOptions> = async (
     );
     return reply.status(201).send(view(alertId, done.record, done.actions));
   });
+
+  app.post<{ Params: { alertId: string } }>("/cases/:alertId/reopen", async (req, reply) => {
+    const alertId = parse(CaseIdSchema, req.params.alertId);
+    const body = parse(ReopenBody, req.body);
+    const record = latest(alertId);
+    const ref = await caseRef(alertId);
+    const now = new Date();
+    const done = attempt(stores, policies.active(), req.actor, "reopen", record, ref, now, () =>
+      reopen(record, body, req.actor, now),
+    );
+    return reply.status(201).send(view(alertId, done.record, done.actions));
+  });
+
+  /** What the autonomy setting is doing now: the level in force, today's closes against the cap, the kill switch. */
+  const autonomyView = () => {
+    const policy = policies.active();
+    const kill = readKillSwitch(stores.logDir);
+    const usage = autonomyUsage(stores.logDir, new Date());
+    return {
+      policy_version: policy.version,
+      policy_level: policy.autonomy.level,
+      level_in_force: policy.autonomy.level === 1 && kill?.active !== true ? 1 : 0,
+      kill_switch: kill ?? { active: false },
+      settings: policy.autonomy,
+      today: { ...usage, cap: policy.autonomy.autoClose.dailyCap },
+      locked: [
+        "an escalation or a request for information always goes to a person",
+        "a recommended block needs two different approvers",
+        "no automatic block, no message to a customer, no write to a source system",
+      ],
+    };
+  };
+  app.get("/autonomy", async () => autonomyView());
+
+  app.post("/autonomy/kill-switch", async (req) => {
+    const body = parse(KillBody, req.body);
+    // Stopping autonomy is safe, so an approver may do it at once; starting it again takes a policy admin.
+    if (!body.active && !can(req.actor, "restoreAutonomy"))
+      throw new AppError("forbidden", "only a policy admin can switch autonomy back on");
+    const state = { active: body.active, by: req.actor.id, at: new Date().toISOString(), reason: body.reason };
+    setKillSwitch(stores.logDir, state);
+    audit(stores.logDir, {
+      user: req.actor.id,
+      role: req.actor.role,
+      action: "kill_switch",
+      result: body.active ? "on" : "off",
+      reason: body.reason,
+    });
+    return autonomyView();
+  });
+
+  /** Closes the desk made without waiting, newest first, for a person to review and reopen. */
+  app.get("/auto-closed", async () => ({
+    items: autoClosedRecords(logDir).map((r) => ({
+      alert_id: r.alert_ref,
+      record_hash: r.record_hash,
+      decided_at: r.decided_at,
+      statement: r.autonomy?.statement ?? "",
+      policy_version: r.policy.version,
+      confidence: r.confidence,
+      rationale: r.rationale,
+      status: humanState(r).status,
+      reopened_by: r.human.find((h) => h.action === "reopen")?.actor ?? null,
+    })),
+  }));
 };
