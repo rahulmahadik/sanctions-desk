@@ -46,7 +46,7 @@ describe("results by path", () => {
         acceptable: 2,
         false_closes: 0,
         first_finding_acceptable: 2,
-        median_s: 30,
+        median_s: 10,
         mean_cost: 0.02,
         mean_cloud_calls: 3,
       }),
