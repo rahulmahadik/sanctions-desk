@@ -191,11 +191,31 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
     ...(res.path ? { path: res.path, first_finding: res.first_finding } : {}),
     critic_rounds: res.critic?.rounds,
     critic_final: res.critic?.final_verdict,
-    decision_unavailable: res.guards?.some((g) => g.guard === "model_decision")
-      ? res.guards.some((g) => g.guard === "model_decision" && g.detail?.includes("service failed"))
-        ? "provider"
-        : "parsing"
-      : undefined,
+    decision_unavailable: unavailableOf(res.guards),
+    decision_model: res.decision_model,
+    decision_route: res.decision_route,
+    decided_by_fallback: res.decided_by_fallback,
+    model_last_recommendation: res.model_last_recommendation,
+    critic_unresolved: res.critic_unresolved,
+    screener: screenerFields(res.guards),
+  };
+}
+
+/** Why no usable decision came back, when none did: the model service, an unusable answer, or a prompt not sent. */
+function unavailableOf(guards: Array<{ guard: string; detail?: string }> | undefined) {
+  const g = guards?.find((v) => v.guard === "model_decision");
+  if (!g) return undefined;
+  if (g.detail?.includes("service failed")) return "provider";
+  return g.detail?.includes("not sent") ? "withheld" : "parsing";
+}
+
+/** The screener's verdict on this case, and whether a cloud route served it. */
+function screenerFields(guards: Array<{ guard: string; verdict: string; detail?: string }> | undefined) {
+  const v = guards?.find((g) => g.guard === "screener");
+  return {
+    verdict: v?.verdict,
+    unavailable: v?.detail?.includes("screener unavailable") === true,
+    served_by_cloud: guards?.some((g) => g.guard === "screener_locality") === true,
   };
 }
 
@@ -251,6 +271,7 @@ function runFeatures(p: Policy) {
     commit,
     structured_output: p.structuredOutput,
     challenger: p.challenger,
+    screener: { enabled: p.screener.enabled, confidence_threshold: p.screener.confidenceThreshold },
     cockpit_binds: cockpitBinds(p),
     app_identities: Object.fromEntries(Object.entries(p.models).map(([step, m]) => [step, m.identity])),
     tries_per_model_step: "own lane, then fast lane, then Ollama backup; a pause after a provider failure",

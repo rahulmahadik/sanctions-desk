@@ -136,9 +136,11 @@ describe("what code makes of the screener's answer", () => {
       }),
       { policy, fields: [field("customer.notes", "KYC-482113 passport ZP1234567 on 1975-03-02")], standard },
     );
-    expect(out.documentary[0]).toMatchObject({ dob: "1975-03-02" });
+    // The date is in the text but not labelled as a date of birth, so it is not taken as one.
+    expect(out.documentary[0]?.dob).toBeUndefined();
     expect(out.documentary[0]?.nationality).toBeUndefined();
     expect(out.documentary[0]?.namedParty).toBeUndefined();
+    expect(out.documentary[0]?.namedPartyPresent).toBe(false);
   });
 
   it("does not take documentary evidence from a list remark", () => {
@@ -203,8 +205,7 @@ describe("a risk signal blocks a close", () => {
 });
 
 describe("documentary evidence", () => {
-  const documentary =
-    "Identity verified at branch visit (KYC-482113): passport ZP1234567, date of birth confirmed as 1975-03-02.";
+  const documentary = "Identity verified at branch visit (KYC-482113): passport ZP1234567, date of birth 1975-03-02.";
   const claim = "Passport copy on file shows date of birth confirmed as 1975-03-02.";
   const deps = () => sampleDeps();
 
@@ -221,13 +222,13 @@ describe("documentary evidence", () => {
       fields: [{ id: "customer.notes", text: notes, truncated: false }],
       standard: d.policy.evidenceStandard,
     });
-    const screener: ScreenerFacts = { status: "ok", ...checked, calls: [] };
+    const screener: ScreenerFacts = { status: "ok", ...checked, calls: [], servedByCloud: false };
     return { d, evidence: { ...edited, screener }, match: undefined as unknown };
   }
 
-  it("supplies the date of birth, labelled as from the note, when the screener's reading meets the standard", async () => {
+  it("supplies the date of birth, labelled as from the note, when the note meets the standard", async () => {
     const { d, evidence } = await facts_(documentary);
-    // The code's own reading needs the words "date of birth" next to the date; this phrasing only the screener finds.
+    expect(evidence.screener.documentary[0]).toMatchObject({ dob: "1975-03-02", checkReference: "KYC-482113" });
     const match = matchEvidence(d, evidence as never);
     expect(match.documentaryDateOfBirth).toBe("1975-03-02");
     expect(match.documentaryCheckReference).toMatch(/KYC-482113/);
@@ -298,7 +299,7 @@ describe("a screener that cannot answer", () => {
     expect(res.decision).toBe("ESCALATE_L2");
     const verdict = res.guards?.find((g) => g.guard === "screener");
     expect(verdict).toMatchObject({ verdict: "block" });
-    expect(verdict?.detail).toMatch(/screener unavailable.*the free text was not read, so the case cannot be closed/);
+    expect(verdict?.detail).toMatch(/screener unavailable.*the free text was not read; no close/);
     const events = readTrace(deps.trace.file);
     const failed = events.find((e) => e.agent === "screener" && e.action === "screen_text");
     expect(failed).toMatchObject({ status: "error", detail: { failure: "screener_unavailable" } });

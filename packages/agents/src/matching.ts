@@ -8,6 +8,7 @@ import {
 } from "@sanctions-desk/data";
 import type { EvidenceBundle } from "./evidence.js";
 import { documentaryDateOfBirth } from "./evidence-standard.js";
+import { closeBlockers } from "./policy-guard.js";
 import { screenerDateOfBirth } from "./screener.js";
 import type { AgentDeps } from "./types.js";
 
@@ -23,6 +24,8 @@ export interface MatchResult {
    */
   documentaryDateOfBirth?: string;
   documentaryCheckReference?: string;
+  /** Why the policy guard would refuse a close whatever the comparison says (worked out by code; empty when none). */
+  closeBlockers?: string[];
 }
 
 /** The listed party behind an alert, built from the rows read through Zetaris. */
@@ -34,6 +37,28 @@ export function partyOf(evidence: EvidenceBundle): ListedParty {
     countries: evidence.countries,
     identifiers: evidence.listIdentifiers,
   });
+}
+
+/**
+ * The approved definition of a false positive, as the rest of the review must read it: not met when the policy guard
+ * would refuse a close anyway (a blocking risk signal, an unread text, instruction-like text, a failing data-quality
+ * rule a verified note does not answer). Worked out once, here, so the decision prompt, the first finding and the
+ * critic all agree with the guard.
+ */
+export function withCloseBlockers(
+  deps: AgentDeps,
+  evidence: EvidenceBundle,
+  comparison: PartyComparison,
+  documentaryDob: boolean,
+): PartyComparison {
+  if (!comparison.definitions.false_positive) return comparison;
+  const blockers = closeBlockers(deps.policy, evidence, documentaryDob);
+  if (blockers.length === 0) return comparison;
+  return {
+    ...comparison,
+    definitions: { ...comparison.definitions, false_positive: false },
+    reasons: [...comparison.reasons, `false positive not met: ${blockers.join("; ")}`],
+  };
 }
 
 export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchResult {
@@ -61,7 +86,7 @@ export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchR
         identifiers: [],
       }
     : payer;
-  const comparison = compareParty(
+  const compared = compareParty(
     customer,
     party,
     { nameSimilarity: deps.policy.matching.nameSimilarityThreshold },
@@ -70,6 +95,8 @@ export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchR
       ...(evidence.payment ? { payment: { country: evidence.payment.counterparty_country ?? null } } : {}),
     },
   );
+  const documentaryDob = fromNote !== null && !evidence.payment;
+  const comparison = withCloseBlockers(deps, evidence, compared, documentaryDob);
   deps.trace.log({
     agent: "matching",
     action: "compare_party",
@@ -87,6 +114,7 @@ export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchR
     customer,
     party,
     comparison,
+    closeBlockers: closeBlockers(deps.policy, evidence, documentaryDob),
     ...(fromNote && !evidence.payment
       ? { documentaryDateOfBirth: fromNote.value, documentaryCheckReference: fromNote.checkReference }
       : {}),

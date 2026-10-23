@@ -1,7 +1,12 @@
 import { AppError, type ModelUseInput, type Policy, type ScreenerSignalType } from "@sanctions-desk/shared";
 import { z } from "zod";
 import type { EvidenceBundle } from "./evidence.js";
-import { assessNote, checkReferenceOf, type EvidenceStandard } from "./evidence-standard.js";
+import {
+  assessNote,
+  type EvidenceStandard,
+  labelledDateOfBirth,
+  normalisedCheckReference,
+} from "./evidence-standard.js";
 import { askJson, type UnavailableCause, unavailableCause } from "./model-call.js";
 import { blockingSignals, findInjection } from "./policy-guard.js";
 import type { AgentDeps } from "./types.js";
@@ -208,22 +213,32 @@ export interface ScreenerSignal {
   spanValid: boolean;
 }
 
-/** A documentary claim for one field, after code has checked each value against the text and the standard. */
+/**
+ * A documentary claim for one field, after code has checked it. Every value is a normalised token or a name that is
+ * already in the structured evidence: nothing copied from the text can ride along to a cloud model.
+ */
 export interface ScreenerDocumentary {
   field: string;
   /** True only when the text meets the evidence standard of the policy; the model's say-so counts for nothing. */
   meetsStandard: boolean;
   missing: string[];
+  /** The note's check reference as a plain token ("KYC-482113"), found by code. */
   checkReference?: string;
   docNumberPresent: boolean;
+  /** An ISO date the text contains. */
   date?: string;
+  /** Only the date the text states as the date of birth ("born", "date of birth" or "dob" next to it). */
   dob?: string;
+  /** Only as a two-letter country code the text contains. */
   nationality?: string;
+  /** Only a name already in the structured evidence (customer, counterparty, listed name or alias). */
   namedParty?: string;
+  /** The model named a party that the text contains, whether or not it is a known name. */
+  namedPartyPresent: boolean;
 }
 
 export interface ScreenerFacts {
-  status: "ok" | "nothing_to_read" | "failed";
+  status: "ok" | "nothing_to_read" | "failed" | "off";
   failure?: UnavailableCause;
   /** Plain words for the reviewer when the status is "failed". */
   reason?: string;
@@ -233,18 +248,45 @@ export interface ScreenerFacts {
   documentary: ScreenerDocumentary[];
   injection: { flagged: boolean; spans: string[]; patternHits: number };
   calls: ModelUseInput[];
+  /** True when the answer that was used came from a cloud route: the text then did leave the machine. */
+  servedByCloud: boolean;
 }
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
-const PLAIN_NAME = /^[\p{L}][\p{L} .,'&-]{1,79}$/u;
-const SHORT_WORD = /^[\p{L}][\p{L} .'-]{1,39}$/u;
+const MONTH_NUMBER: Record<string, string> = {
+  jan: "01",
+  feb: "02",
+  mar: "03",
+  apr: "04",
+  may: "05",
+  jun: "06",
+  jul: "07",
+  aug: "08",
+  sep: "09",
+  oct: "10",
+  nov: "11",
+  dec: "12",
+};
 
 const contains = (text: string, value: string): boolean => text.toLowerCase().includes(value.trim().toLowerCase());
 
-/** The value if it is plain, short and really in the text; otherwise nothing. Nothing else gets through. */
-function verified(text: string, value: string | null | undefined, shape: RegExp): string | undefined {
+/** Names compared without case, accents, punctuation or extra spaces. */
+export const normaliseName = (name: string): string =>
+  name
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, " ")
+    .trim();
+
+/** A date the model reported, as an ISO date, if the text contains it in a form the standard accepts. */
+function isoDateIn(text: string, value: string | null | undefined): string | undefined {
   const v = value?.trim();
-  return v && shape.test(v) && contains(text, v) ? v : undefined;
+  if (!v || !contains(text, v)) return undefined;
+  if (ISO_DATE.test(v)) return v;
+  const m = /^(\d{1,2})\s+([a-z]{3})[a-z]*\.?\s+(\d{4})$/i.exec(v);
+  const month = m ? MONTH_NUMBER[(m[2] as string).toLowerCase()] : undefined;
+  return m && month ? `${m[3]}-${month}-${(m[1] as string).padStart(2, "0")}` : undefined;
 }
 
 function spanOf(
@@ -267,31 +309,45 @@ function spanOf(
   return { id: `${field ?? "unknown"}:unlocated`, valid: false, field: field ?? "unknown" };
 }
 
+/** A name the model reported, if it is one of the names already in the structured evidence. */
+function knownName(named: string, knownNames: readonly string[]): string | undefined {
+  const wanted = normaliseName(named);
+  return wanted === "" ? undefined : knownNames.find((n) => normaliseName(n) === wanted);
+}
+
 /** One documentary claim, checked: whether the text meets the standard is code's call, and each value must be in it. */
 function documentaryOf(
   claim: ScreenerAnswer["documentary_evidence"][number],
   field: ScreenerField,
-  counterpartyName: string | null | undefined,
-  standard: EvidenceStandard,
+  context: { counterpartyName: string | null | undefined; knownNames: readonly string[]; standard: EvidenceStandard },
 ): ScreenerDocumentary {
   const payment = field.id === SCREENER_FIELDS.reference;
-  const verdict = assessNote({ text: field.text, ...(payment ? { payment: { counterpartyName } } : {}) }, standard);
-  const dob = verified(field.text, claim.dob, ISO_DATE);
-  const date = verified(field.text, claim.date, /^[\p{L}\p{N}][\p{L}\p{N} .,-]{5,24}$/u);
-  const checkReference =
-    verified(field.text, claim.check_ref, /^[A-Za-z0-9][A-Za-z0-9 :#./-]{3,40}$/) ?? checkReferenceOf(field.text);
-  const nationality = verified(field.text, claim.nationality, SHORT_WORD);
-  const namedParty = verified(field.text, claim.named_party, PLAIN_NAME);
+  const verdict = assessNote(
+    { text: field.text, ...(payment ? { payment: { counterpartyName: context.counterpartyName } } : {}) },
+    context.standard,
+  );
+  // The date of birth is the one the text labels as such, never just any date in it.
+  const labelled = labelledDateOfBirth(field.text);
+  const dob = labelled !== null && claim.dob?.trim() === labelled ? labelled : undefined;
+  const date = isoDateIn(field.text, claim.date);
+  const checkReference = normalisedCheckReference(field.text);
+  const code = claim.nationality?.trim() ?? "";
+  const nationality = /^[A-Z]{2}$/.test(code) && new RegExp(`\\b${code}\\b`).test(field.text) ? code : undefined;
+  const named = claim.named_party?.trim() ?? "";
+  const namedPartyPresent = named !== "" && contains(field.text, named);
+  const namedParty = namedPartyPresent ? knownName(named, context.knownNames) : undefined;
+  const docNumber = claim.doc_number?.trim() ?? "";
   return {
     field: field.id,
     meetsStandard: verdict.documentary,
     missing: verdict.missing,
     ...(checkReference ? { checkReference } : {}),
-    docNumberPresent: verified(field.text, claim.doc_number, /^[A-Za-z0-9][A-Za-z0-9 -]{4,29}$/) !== undefined,
+    docNumberPresent: /^[A-Za-z0-9][A-Za-z0-9 -]{4,29}$/.test(docNumber) && contains(field.text, docNumber),
     ...(date ? { date } : {}),
     ...(dob ? { dob } : {}),
     ...(nationality ? { nationality } : {}),
     ...(namedParty ? { namedParty } : {}),
+    namedPartyPresent,
   };
 }
 
@@ -305,9 +361,11 @@ export function validateScreenerAnswer(
     policy: Policy;
     fields: readonly ScreenerField[];
     counterpartyName?: string | null | undefined;
+    /** Names already in the structured evidence; a named party is passed on only when it is one of them. */
+    knownNames?: readonly string[];
     standard: EvidenceStandard;
   },
-): Omit<ScreenerFacts, "status" | "calls" | "failure" | "reason"> {
+): Omit<ScreenerFacts, "status" | "calls" | "failure" | "reason" | "servedByCloud"> {
   const byId = new Map(input.fields.map((f) => [f.id, f]));
   const allowed = new Set<string>(input.policy.screener.signalTypes);
 
@@ -324,7 +382,13 @@ export function validateScreenerAnswer(
   for (const claim of answer.documentary_evidence) {
     const field = byId.get(claim.field);
     if (!field || !DOCUMENTARY_FIELDS.includes(field.id) || documentary.some((d) => d.field === field.id)) continue;
-    documentary.push(documentaryOf(claim, field, input.counterpartyName, input.standard));
+    documentary.push(
+      documentaryOf(claim, field, {
+        counterpartyName: input.counterpartyName,
+        knownNames: input.knownNames ?? [],
+        standard: input.standard,
+      }),
+    );
   }
 
   const patternHits = findInjection(
@@ -361,7 +425,18 @@ const empty = (status: ScreenerFacts["status"]): ScreenerFacts => ({
   documentary: [],
   injection: { flagged: false, spans: [], patternHits: 0 },
   calls: [],
+  servedByCloud: false,
 });
+
+/** The names a documentary claim may repeat: those the cloud models already see in the structured evidence. */
+function knownNamesOf(evidence: EvidenceBundle): string[] {
+  return [
+    evidence.customer.full_name,
+    evidence.payment?.counterparty_name,
+    evidence.entry.primary_name,
+    ...evidence.aliases.map((a) => a.alias_name),
+  ].filter((n): n is string => typeof n === "string" && n.trim() !== "");
+}
 
 /**
  * What the cloud models are told about the free text, and all they are told: the types and confidences of the risk
@@ -387,6 +462,7 @@ export function renderScreener(facts: ScreenerFacts | undefined): Record<string,
       date_of_birth: d.dob,
       nationality: d.nationality,
       named_party: d.namedParty,
+      named_party_present: d.namedPartyPresent,
     })),
     injection_flagged: facts.injection.flagged,
   };
@@ -399,6 +475,16 @@ const spanSummary = (s: ScreenerSignal): string => `${s.type} ${s.confidence} at
  * cannot answer returns status "failed", and the policy guard will not let such a case be closed.
  */
 export async function screenFreeText(deps: AgentDeps, evidence: EvidenceBundle): Promise<ScreenerFacts> {
+  if (!deps.policy.screener.enabled) {
+    deps.trace.log({
+      agent: "screener",
+      action: "screen_text",
+      status: "skipped",
+      output_summary: "screener off by policy: the free text is not read and gives no signals",
+      detail: { screener_enabled: false },
+    });
+    return empty("off");
+  }
   const fields = screenerFields(evidence, deps.policy.screener.maxFieldChars);
   if (fields.length === 0) {
     deps.trace.log({
@@ -431,9 +517,12 @@ export async function screenFreeText(deps: AgentDeps, evidence: EvidenceBundle):
       policy: deps.policy,
       fields,
       counterpartyName: evidence.payment?.counterparty_name,
+      knownNames: knownNamesOf(evidence),
       standard: deps.policy.evidenceStandard,
     });
-    const facts: ScreenerFacts = { status: "ok", ...checked, calls };
+    // The answer used is the last call. If a cloud route served it, the text left the machine: say so, do not hide it.
+    const servedByCloud = calls.at(-1)?.route_kind === "cloud";
+    const facts: ScreenerFacts = { status: "ok", ...checked, calls, servedByCloud };
     const blocking = blockingSignals(deps.policy, facts);
     deps.trace.log({
       agent: "screener",
@@ -454,8 +543,10 @@ export async function screenFreeText(deps: AgentDeps, evidence: EvidenceBundle):
         unlocated: facts.signals.filter((s) => !s.spanValid).length,
         documentary: facts.documentary.length,
         injection: facts.injection.flagged,
-        model: calls[0]?.model_routed,
-        receipt_id: calls[0]?.receipt?.receipt_id,
+        model: calls.at(-1)?.model_routed,
+        route_kind: calls.at(-1)?.route_kind ?? null,
+        served_by_cloud: servedByCloud,
+        receipt_id: calls.at(-1)?.receipt?.receipt_id,
       },
     });
     return facts;

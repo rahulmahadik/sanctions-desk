@@ -30,6 +30,7 @@ const clean = (over: Partial<AutonomyInput> = {}): AutonomyInput => ({
   critic: { final_verdict: "approved" },
   guards: [pass("evidence_standard"), pass("challenger"), pass("data_quality")],
   dataQualityFailed: false,
+  screener: { status: "ok", signals: 0, servedByCloud: false, truncated: false },
   autoClosedToday: 0,
   draw: 0.99,
   ...over,
@@ -71,6 +72,20 @@ describe("automatic closing at level 1", () => {
       { guards: [pass("evidence_standard"), { guard: "jurisdiction", verdict: "block" }] },
     ],
     ["the confidence is below the policy line", { confidence: 0.89 }],
+    ["there is no screener result", { screener: undefined }],
+    ["the screener failed", { screener: { status: "failed", signals: 0, servedByCloud: false, truncated: false } }],
+    [
+      "the screener recorded a signal",
+      { screener: { status: "ok", signals: 1, servedByCloud: false, truncated: false } },
+    ],
+    [
+      "the screener was served by a cloud route",
+      { screener: { status: "ok", signals: 0, servedByCloud: true, truncated: false } },
+    ],
+    [
+      "part of the free text was not read",
+      { screener: { status: "ok", signals: 0, servedByCloud: false, truncated: true } },
+    ],
   ])("goes to a person when %s", (_name, over) => {
     const r = decideAutonomy(clean(over));
     expect(r.outcome).toBe("human_review");

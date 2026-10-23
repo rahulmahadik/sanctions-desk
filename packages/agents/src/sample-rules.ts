@@ -16,6 +16,7 @@ export interface Evidence {
   list_entry?: { entry_id?: string; primary_name?: string };
   list_dob?: Array<{ dob_id?: string; dob_value?: string | null }>;
   data_quality?: Array<{ failed?: boolean }>;
+  date_of_birth_from_verified_note?: { value?: string; check_reference?: string };
   screener_facts?: { status?: string; risk_signals?: Array<{ type: string; confidence: number }> };
   comparison?: {
     assessment?: string;
@@ -29,6 +30,7 @@ export interface Evidence {
       ownership?: string;
     };
     assessment_note?: string;
+    close_blockers?: string[];
   };
 }
 
@@ -55,6 +57,20 @@ export interface Choice {
  * model. It is the stand-in model's answer in sample mode and the first finding of every review.
  */
 export function chooseDecision(e: Evidence): Choice {
+  const pick = structuralChoice(e);
+  const blockers = e.comparison?.close_blockers ?? [];
+  if (pick.decision !== "CLOSE_FALSE_POSITIVE" || blockers.length === 0) return pick;
+  // Never a close the policy guard would refuse: say why instead.
+  const onlyDataQuality = blockers.every((b) => b.startsWith("a failing data-quality rule"));
+  return {
+    decision: onlyDataQuality ? "NEED_MORE_INFO" : "ESCALATE_L2",
+    confidence: 0.7,
+    why: `a close is not open to this case: ${blockers.join("; ")}`,
+    settled: onlyDataQuality,
+  };
+}
+
+function structuralChoice(e: Evidence): Choice {
   const c = e.comparison ?? {};
   const met = c.definitions_met ?? {};
   if (met.ownership === "met" || met.ownership === "limit") {
@@ -89,7 +105,10 @@ export function chooseDecision(e: Evidence): Choice {
       settled: true,
     };
   }
-  if (e.data_quality?.some((d) => d.failed)) {
+  // A date of birth from a verified note answers the date-of-birth rule; matching has already withdrawn the false
+  // positive when any other rule fails, so the definition comes first here.
+  const documentaryClear = met.false_positive === true && e.date_of_birth_from_verified_note !== undefined;
+  if (e.data_quality?.some((d) => d.failed) && !documentaryClear) {
     return {
       decision: "NEED_MORE_INFO",
       confidence: 0.7,

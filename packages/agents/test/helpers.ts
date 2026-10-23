@@ -81,7 +81,7 @@ export const CLEAN_SCREENER = JSON.stringify({
  */
 export function scriptedGenerator(
   answers: Array<string | Error>,
-  options: { screener?: string | Error } = {},
+  options: { screener?: string | Error; screenerRoute?: "local" | "cloud" } = {},
 ): {
   generator: Generator;
   requests: GenerateRequest[];
@@ -100,7 +100,7 @@ export function scriptedGenerator(
         provider: "fallback-rules",
         requestedModel: "test-model",
         routedModel: "test-model",
-        routeKind: "local",
+        routeKind: options.screenerRoute ?? "local",
         latencyMs: 1,
         modeMismatch: false,
       };

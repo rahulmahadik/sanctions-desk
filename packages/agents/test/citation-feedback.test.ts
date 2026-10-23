@@ -40,7 +40,7 @@ describe("a citation of a table that does not exist", () => {
   it("is prevented by a line in the decision prompt that names the tables and the computed blocks", () => {
     expect(DECISION_SYSTEM).toContain("Cite only rows of the tables listed in <keys>");
     expect(DECISION_SYSTEM).toContain(
-      "The comparison, definitions, ownership and earlier_decisions blocks are not tables",
+      "The comparison, definitions, data_quality, screener_facts, first_finding, ownership, earlier_decisions and date_of_birth_from_verified_note blocks are worked out by code, not tables, and cannot be cited",
     );
   });
 });

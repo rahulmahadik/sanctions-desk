@@ -68,6 +68,8 @@ export interface AskJsonOptions<T extends z.ZodType> {
 export interface AskJsonResult<T> {
   value: T;
   calls: ModelUseInput[];
+  /** Which try gave the answer: the step's own lane, the fast retry, or the backup provider. */
+  route: "own" | "fast" | "backup";
 }
 
 const laneOrModel = (value: string): { lane: Lane } | { model: string } =>
@@ -252,7 +254,7 @@ function logStep(
   });
 }
 
-type Round = { done: true; value: unknown } | { done: false; problem: string };
+type Round = { done: true; value: unknown; route: "own" | "fast" | "backup" } | { done: false; problem: string };
 
 interface RoundContext {
   attempt: number;
@@ -312,7 +314,7 @@ function answeredRound(
     route: ctx.route,
     lane: ctx.lane,
   });
-  return ok ? { done: true, value: outcome.value } : { done: false, problem: outcome.problem };
+  return ok ? { done: true, value: outcome.value, route: ctx.route } : { done: false, problem: outcome.problem };
 }
 
 /** One round of asking: reasoning on the first try, the fast local path on the retry. */
@@ -362,7 +364,7 @@ export async function askJson<T extends z.ZodType>(
   let problem = "";
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const round = await askRound(deps, options, { attempt, attempts, previousProblem: problem }, calls);
-    if (round.done) return { value: round.value as z.infer<T>, calls };
+    if (round.done) return { value: round.value as z.infer<T>, calls, route: round.route };
     problem = round.problem;
   }
   throw new AppError("bad_response", `the ${options.agent} model did not return a valid answer: ${problem}`, {
@@ -376,11 +378,13 @@ export async function askJson<T extends z.ZodType>(
  * timeout, an empty answer). "parsing": the model answered but not in a form we can use. The two are reported
  * separately because only the second is ours to fix.
  */
-export type UnavailableCause = "provider" | "parsing";
+export type UnavailableCause = "provider" | "parsing" | "withheld";
 
 const PROVIDER_TYPES = new Set(["http_error", "network", "timeout", "route_dead"]);
 
 export function unavailableCause(err: AppError): UnavailableCause {
+  // The call was never made: the prompt held free text from the data, which is not sent to a model service.
+  if (err.type === "guard_blocked") return "withheld";
   if (PROVIDER_TYPES.has(err.type) || /empty answer|all model providers failed|returned HTTP/i.test(err.message)) {
     return "provider";
   }

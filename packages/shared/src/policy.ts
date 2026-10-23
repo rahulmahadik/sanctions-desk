@@ -195,10 +195,20 @@ const PolicyShape = z.strictObject({
   screener: z
     .strictObject({
       /**
+       * Off only for a comparison run: the free text is then not read, there are no signals, and the policy guard's
+       * screener rule passes with a note saying the screener is off.
+       */
+      enabled: z.boolean().default(true),
+      /**
        * A risk signal at or above this confidence blocks a close. It is capped so that the threshold cannot be set
        * high enough to let every signal through.
        */
       confidenceThreshold: z.number().min(0).max(0.9),
+      /**
+       * "other" is the type a model reaches for when nothing fits, so it blocks a close only from this confidence;
+       * between the normal threshold and this one it is shown as a flag.
+       */
+      otherConfidenceThreshold: z.number().min(0).max(0.95).default(0.7),
       /** The closed list of signal types. It must keep "other" so that a type nobody listed is still counted. */
       signalTypes: z
         .array(ScreenerSignalTypeSchema)
@@ -210,8 +220,14 @@ const PolicyShape = z.strictObject({
       /** The longest stretch of one field the screener reads; the rest is not read and the case says so. */
       maxFieldChars: positiveInt.max(20_000),
     })
+    .refine((s) => s.otherConfidenceThreshold >= s.confidenceThreshold, {
+      message: "otherConfidenceThreshold must not be below confidenceThreshold",
+      path: ["otherConfidenceThreshold"],
+    })
     .default({
+      enabled: true,
       confidenceThreshold: 0.5,
+      otherConfidenceThreshold: 0.7,
       signalTypes: [...SCREENER_SIGNAL_TYPES],
       maxFieldChars: 4000,
     }),

@@ -43,6 +43,22 @@ export function hasDate(text: string): boolean {
 const MONTHS = "jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec";
 const DATE = new RegExp(`\\b\\d{4}-\\d{2}-\\d{2}\\b|\\b\\d{1,2}\\s+(?:${MONTHS})[a-z]*\\.?\\s+\\d{4}\\b`, "i");
 
+/** The date of birth the text states as such ("born", "date of birth" or "dob" next to an ISO date), or null. */
+export function labelledDateOfBirth(text: string | null | undefined): string | null {
+  return /\b(?:born|date of birth|dob)\b[\s:]*(\d{4}-\d{2}-\d{2})\b/i.exec(text ?? "")?.[1] ?? null;
+}
+
+/** A check reference as a plain token: upper case, separators as single dashes ("ref CDD 20931" is "REF-CDD-20931"). */
+export function normalisedCheckReference(text: string | null | undefined): string | null {
+  const raw = checkReferenceOf(text);
+  if (!raw) return null;
+  const token = raw
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return /^[A-Z0-9-]{4,40}$/.test(token) ? token : null;
+}
+
 /**
  * The date of birth a documentary note states, or null. A note that is only a claim never supplies one.
  */
@@ -51,7 +67,7 @@ export function documentaryDateOfBirth(
   standard: EvidenceStandard = DEFAULT_EVIDENCE_STANDARD,
 ): { value: string; checkReference: string } | null {
   if (!assessNote({ text }, standard).documentary) return null;
-  const value = /\b(?:born|date of birth|dob)\b[\s:]*(\d{4}-\d{2}-\d{2})\b/i.exec(text ?? "")?.[1];
+  const value = labelledDateOfBirth(text);
   const checkReference = CHECK_REFERENCE.exec(text ?? "")?.[0]?.trim();
   return value && checkReference ? { value, checkReference } : null;
 }

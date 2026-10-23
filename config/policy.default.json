@@ -75,7 +75,9 @@
     "blockNeedsTwoApprovers": true
   },
   "screener": {
+    "enabled": true,
     "confidenceThreshold": 0.5,
+    "otherConfidenceThreshold": 0.7,
     "signalTypes": [
       "alias_or_former_name",
       "relationship_to_listed_party",

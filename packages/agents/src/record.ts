@@ -37,7 +37,7 @@ export interface RecordInput {
 
 /** The screener's result as the record keeps it: structured facts and where they were found, never the text. */
 function screenerRecord(s: ScreenerFacts): ScreenerRecord {
-  const call = s.calls[0];
+  const call = s.calls.at(-1);
   return {
     status: s.status,
     ...(s.failure ? { failure: s.failure } : {}),
@@ -50,6 +50,8 @@ function screenerRecord(s: ScreenerFacts): ScreenerRecord {
     })),
     documentary: s.documentary.map((d) => ({ field: d.field, meets_standard: d.meetsStandard, missing: d.missing })),
     injection: s.injection.flagged,
+    served_by_cloud: s.servedByCloud,
+    ...(s.truncatedFields.length > 0 ? { truncated_fields: s.truncatedFields } : {}),
     ...(call ? { model: call.model_routed } : {}),
     ...(call?.receipt?.receipt_id ? { receipt_id: call.receipt.receipt_id } : {}),
   };

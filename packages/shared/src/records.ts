@@ -194,9 +194,12 @@ export type DocumentaryValue = z.infer<typeof DocumentaryValueSchema>;
  * a field and a character range, and every value was checked by code against the text it came from.
  */
 export const ScreenerRecordSchema = z.strictObject({
-  status: z.enum(["ok", "nothing_to_read", "failed"]),
+  status: z.enum(["ok", "nothing_to_read", "failed", "off"]),
   /** Why it failed, when it did: the model service, or an answer that could not be used. */
-  failure: z.enum(["provider", "parsing"]).optional(),
+  failure: z.enum(["provider", "parsing", "withheld"]).optional(),
+  /** True when the answer used came from a cloud route, so the text did leave the machine. */
+  served_by_cloud: z.boolean().optional(),
+  truncated_fields: z.array(nonEmpty).optional(),
   fields_read: z.array(nonEmpty),
   signals: z.array(
     z.strictObject({
@@ -392,6 +395,15 @@ export const ReviewResponseSchema = RunResponseSchema.extend({
   /** Values taken from verified notes and shown as such. */
   documentary: z.array(DocumentaryValueSchema).optional(),
   approvals_required: z.number().int().min(1).optional(),
+  /** The model that gave the recommendation used, and which try it was: the own lane, the fast retry, the backup. */
+  decision_model: nonEmpty.optional(),
+  decision_route: z.enum(["own", "fast", "backup"]).optional(),
+  /** True when the recommendation came from a fallback (a retry lane, the backup provider, the rules stand-in) or none came. */
+  decided_by_fallback: z.boolean().optional(),
+  /** The decision model's own last recommendation, before the challenger and the policy guard. */
+  model_last_recommendation: DecisionSchema.optional(),
+  /** True when the critic could not approve within the allowed rounds. */
+  critic_unresolved: z.boolean().optional(),
   sample_mode: z.boolean().optional(),
   sample_notice: z.string().optional(),
 });

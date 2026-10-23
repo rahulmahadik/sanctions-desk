@@ -7,6 +7,7 @@ import { policyExcerpt, renderDefinitions, renderEvidence } from "./decision.js"
 import type { EvidenceBundle } from "./evidence.js";
 import type { MatchResult } from "./matching.js";
 import { askJson, clipped } from "./model-call.js";
+import { blockingDataQuality } from "./policy-guard.js";
 import type { AgentDeps, FactCitation } from "./types.js";
 
 /**
@@ -125,16 +126,26 @@ async function checkFact(
       return { ...base, ok: false, reason: `no ${fact.table} row with ${keyColumn}=${fact.key_value}` };
     }
     const actual = result.rows.map((r) => r[fact.column] ?? null);
-    return actual.some((v) => sameValue(v, fact.value))
-      ? { ...base, ok: true }
-      : {
-          ...base,
-          ok: false,
-          reason: `${fact.table}.${fact.column} is "${actual[0] ?? ""}", not "${fact.value ?? ""}"`,
-        };
+    if (actual.some((v) => sameValue(v, fact.value))) return { ...base, ok: true };
+    // The reason goes back to the cloud models: the value of a free-text column is never quoted in it.
+    const freeText = isFreeTextColumn(fact.column, tool.table.columns.find((c) => c.name === fact.column)?.description);
+    return {
+      ...base,
+      ok: false,
+      reason: freeText
+        ? `${fact.table}.${fact.column} does not match the cited value (a free-text column; its text is not shown)`
+        : `${fact.table}.${fact.column} is "${actual[0] ?? ""}", not "${fact.value ?? ""}"`,
+    };
   } catch (err) {
     return { fact, ok: false, reason: err instanceof Error ? err.message : String(err) };
   }
+}
+
+/** Columns that hold free text: notes, payment references, list remarks, and any column the model describes as free text. */
+export const FREE_TEXT_COLUMNS: readonly string[] = ["notes", "payment_reference", "remarks"];
+
+export function isFreeTextColumn(column: string, description?: string | null): boolean {
+  return FREE_TEXT_COLUMNS.includes(column.toLowerCase()) || /free[- ]text/i.test(description ?? "");
 }
 
 function closeIssues(match: MatchResult, evidence: EvidenceBundle): string[] {
@@ -146,7 +157,11 @@ function closeIssues(match: MatchResult, evidence: EvidenceBundle): string[] {
       c.subject === "customer" && c.dob.status === "missing_customer",
       "recommends closing, but the customer has no date of birth on file",
     ],
-    [evidence.dq.some((d) => d.failed), "recommends closing, but the customer record fails a data-quality rule"],
+    // The same exemption as the policy guard: a date of birth from a verified note answers the date-of-birth rule.
+    [
+      blockingDataQuality(evidence, match.documentaryDateOfBirth !== undefined).length > 0,
+      "recommends closing, but the customer record fails a data-quality rule",
+    ],
   ];
   return checks.filter(([hit]) => hit).map(([, text]) => text);
 }
@@ -221,10 +236,11 @@ export async function review(
     issues.length > 0 ? `Already found: ${issues.join("; ")}` : "No mechanical problems were found.",
     "Give your verdict as the JSON object described.",
   ].join("\n");
-  recordCloudPayload(deps, evidence, "critic", prompt);
   let value: z.infer<typeof ModelVerdictSchema>;
   let calls: ModelUseInput[] = [];
   try {
+    // Throws, and so approves nothing, if any free text of the case is in the prompt.
+    recordCloudPayload(deps, evidence, "critic", prompt);
     ({ value, calls } = await askJson(deps, {
       agent: "critic",
       system: CRITIC_SYSTEM,

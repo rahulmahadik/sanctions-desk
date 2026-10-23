@@ -69,6 +69,8 @@ export function challengeTriggers(
   const score = match.comparison.name.score;
   if (score >= c.nameScoreAtLeast) reasons.push(`the name similarity ${score} is at least ${c.nameScoreAtLeast}`);
   if (c.onDataQualityIssue && evidence.dq.some((d) => d.failed)) reasons.push("a data-quality rule fails");
+  const signals = evidence.screener?.signals.length ?? 0;
+  if (signals > 0) reasons.push(`the screener recorded ${signals} signal(s) in the free text`);
   return reasons;
 }
 
@@ -95,7 +97,6 @@ export async function challenge(
     `<recommendation>${JSON.stringify({ decision: decision.decision, confidence: decision.confidence, rationale: decision.rationale })}</recommendation>`,
     "Give your challenge as the JSON object described.",
   ].join("\n");
-  recordCloudPayload(deps, evidence, "challenger", prompt);
   deps.trace.log({
     agent: "challenger",
     action: "challenge_start",
@@ -104,6 +105,8 @@ export async function challenge(
     output_summary: `challenging a close: ${reasons.join("; ")}`.slice(0, 300),
   });
   try {
+    // Throws when free text of the case is in the prompt: no call, and the close does not stand.
+    recordCloudPayload(deps, evidence, "challenger", prompt);
     const { value, calls } = await askJson(deps, {
       agent: "challenger",
       system: CHALLENGER_SYSTEM,
