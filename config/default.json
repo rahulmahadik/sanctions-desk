@@ -5,7 +5,11 @@
     "bodyLimitBytes": 1048576,
     "shutdownTimeoutMs": 10000,
     "webOrigins": ["http://localhost:3001", "http://127.0.0.1:3001"],
-    "docs": true
+    "docs": true,
+    "auth": "auto"
+  },
+  "actions": {
+    "outboxDir": "outbox"
   },
   "logging": {
     "level": "info",

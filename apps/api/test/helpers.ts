@@ -2,12 +2,14 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  type AuthMode,
   type Config,
   type Generator,
   loadConfig,
   loadPolicyFile,
   PolicyStore,
   RunEventBus,
+  type UsersFile,
 } from "@sanctions-desk/shared";
 import { createZetarisClient, type ZetarisClient } from "@sanctions-desk/zetaris";
 import { afterEach } from "vitest";
@@ -36,6 +38,9 @@ export interface TestAppOptions {
   generator?: Generator;
   zetaris?: ZetarisClient;
   sampleNotice?: string;
+  /** Most tests run with no sign-in. The auth tests set the mode and the users. */
+  authMode?: AuthMode;
+  users?: UsersFile;
 }
 
 const unusedGenerator: Generator = async () => {
@@ -49,7 +54,14 @@ export async function makeApp(
   const dir = tempDir();
   const logDir = join(dir, "logs");
   const overridesPath = join(dir, "overrides.json");
-  writeFileSync(overridesPath, JSON.stringify({ logging: { stdout: false, dir: logDir }, ...opts.overrides }));
+  writeFileSync(
+    overridesPath,
+    JSON.stringify({
+      logging: { stdout: false, dir: logDir },
+      actions: { outboxDir: join(dir, "outbox") },
+      ...opts.overrides,
+    }),
+  );
 
   const config = loadConfig({ env: opts.env ?? {}, overridesPath });
   const bus = new RunEventBus({ replayLimit: config.events.replayLimit, maxRuns: config.events.maxRuns });
@@ -68,6 +80,8 @@ export async function makeApp(
     policies,
     prober: opts.prober,
     sampleNotice: opts.sampleNotice,
+    authMode: opts.authMode ?? "off",
+    users: opts.users,
   });
   apps.push(app);
   return { app, config, logDir, bus, policies };

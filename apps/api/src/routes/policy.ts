@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { replayWhatIf, type WhatIfCase } from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
 import {
+  ANONYMOUS,
   AppError,
   type Config,
   type Generator,
@@ -10,7 +11,7 @@ import {
   resolveProjectPath,
 } from "@sanctions-desk/shared";
 import type { ZetarisClient } from "@sanctions-desk/zetaris";
-import type { FastifyPluginAsync } from "fastify";
+import type { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { z } from "zod";
 
 interface PolicyOptions {
@@ -32,6 +33,22 @@ const WhatIfBody = z.strictObject({
   cases: z.array(z.string().max(100)).max(100).optional(),
   limit: z.number().int().min(1).max(100).default(10),
 });
+
+/**
+ * Who is acting. A signed-in user is the author or approver; a body that names someone else is refused, so the
+ * four-eyes rule rests on identities the caller cannot choose. With auth off (tests) the body names the person.
+ */
+function actingAs(req: FastifyRequest, body: unknown, fields: readonly string[]): Record<string, unknown> {
+  const given = (body ?? {}) as Record<string, unknown>;
+  if (req.actor.id === ANONYMOUS.id) return given;
+  const out = { ...given };
+  for (const f of fields) {
+    if (out[f] !== undefined && out[f] !== req.actor.id)
+      throw new AppError("forbidden", `${f} must be you (${req.actor.id}) or left out`);
+    out[f] = req.actor.id;
+  }
+  return out;
+}
 
 const parse = <T extends z.ZodType>(schema: T, body: unknown): z.infer<T> => {
   const parsed = schema.safeParse(body);
@@ -84,14 +101,14 @@ export const policyRoutes: FastifyPluginAsync<PolicyOptions> = async (
   app.get("/policy/audit", async () => ({ entries: policies.audit() }));
 
   app.post("/policy/drafts", async (req, reply) => {
-    const body = parse(DraftBody, req.body);
+    const body = parse(DraftBody, actingAs(req, req.body, ["proposed_by"]));
     const record = policies.createDraft(body.policy, body.proposed_by, body.reason);
     return reply.status(201).send(summary(record));
   });
 
   /** Read the policy file again and propose it as a draft, so an edit on disk goes through the same review. */
   app.post("/policy/reload", async (req, reply) => {
-    const body = parse(ReloadBody, req.body ?? {});
+    const body = parse(ReloadBody, actingAs(req, req.body ?? {}, ["proposed_by"]));
     let candidate: unknown;
     try {
       candidate = JSON.parse(readFileSync(resolveProjectPath(config.policy.file), "utf8"));
@@ -103,19 +120,19 @@ export const policyRoutes: FastifyPluginAsync<PolicyOptions> = async (
   });
 
   app.post<{ Params: { version: string } }>("/policy/drafts/:version/publish", async (req) => {
-    const body = parse(PublishBody, req.body);
+    const body = parse(PublishBody, actingAs(req, req.body, ["approved_by"]));
     const change = policies.publish(Number(req.params.version), body.approved_by);
     return { published: change.version, replaces: change.previousVersion, at: change.at, ref: change.ref };
   });
 
   app.post<{ Params: { version: string } }>("/policy/drafts/:version/discard", async (req) => {
-    const body = parse(DiscardBody, req.body);
+    const body = parse(DiscardBody, actingAs(req, req.body, ["actor"]));
     policies.discardDraft(Number(req.params.version), body.actor);
     return { discarded: Number(req.params.version) };
   });
 
   app.post("/policy/rollback", async (req, reply) => {
-    const body = parse(RollbackBody, req.body);
+    const body = parse(RollbackBody, actingAs(req, req.body, ["proposed_by"]));
     return reply.status(201).send(summary(policies.rollback(body.to_version, body.proposed_by)));
   });
 

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { relative } from "node:path";
-import { type AgentDeps, runReview } from "@sanctions-desk/agents";
+import { type AgentDeps, readAnalystMemory, runReview } from "@sanctions-desk/agents";
 import {
   type AlertType,
   AppError,
@@ -119,7 +119,15 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (
       detail: { sample_mode: config.sampleMode },
     });
     try {
-      const deps: AgentDeps = { config, policy, zetaris, generator, trace, now: () => new Date() };
+      const deps: AgentDeps = {
+        config,
+        policy,
+        zetaris,
+        generator,
+        trace,
+        now: () => new Date(),
+        analystDecisions: (customerId, entryId) => readAnalystMemory(config.logging.dir, customerId, entryId),
+      };
       const result = await runReview(deps, { runId, alertId, sampleMode: config.sampleMode, sampleNotice });
       trace.log({
         agent: "system",

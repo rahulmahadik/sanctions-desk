@@ -102,5 +102,6 @@ export function readDecisionRecords(
       // a half-written or foreign file is not a record
     }
   }
-  return records.sort((a, b) => b.decided_at.localeCompare(a.decided_at));
+  // A record a person acted on has the same time as the one it extends; the one with more actions is the newer.
+  return records.sort((a, b) => b.decided_at.localeCompare(a.decided_at) || b.human.length - a.human.length);
 }

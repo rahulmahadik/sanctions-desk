@@ -93,7 +93,7 @@ Rules:
 - If key data is missing (for example no date of birth) and the name matches, choose NEED_MORE_INFO or ESCALATE_L2, never CLOSE_FALSE_POSITIVE.
 - Apply the approved definitions in <definitions> exactly. In the comparison, nationality.status "match" means the customer's nationality equals a nationality or citizenship of the listed party; "address_only" means only an address country agrees, which is not a strong identifier.
 - The comparison block has definitions_met, worked out by code: when true_match or counterparty_match is true recommend ESCALATE_L2 or RECOMMEND_BLOCK; when false_positive is true recommend CLOSE_FALSE_POSITIVE; when none is true recommend NEED_MORE_INFO if a needed field is missing (for a payment, an unusable counterparty country), otherwise ESCALATE_L2.
-- earlier_decisions lists what a person decided before about this customer and listed party. "fresh" means the listed entry has not changed since, so the earlier clearance still stands as supporting context (never the only reason). "stale" means the entry changed: do not rely on the earlier decision; judge the case again from the evidence.
+- earlier_decisions lists what a person decided before about this customer and listed party. "fresh" means the listed entry has not changed since, so the earlier clearance still stands as supporting context (never the only reason). "stale" means the entry changed: do not rely on the earlier decision; judge the case again from the evidence. A decision with source "desk_decision" was made by a person on this desk, with their reason; "overridden" means a later decision replaced it. You may cite an earlier decision as a fact: table "memory", key_value the memory_id, column "decision", "state" or "decided_by". A person's earlier decision informs the review but never replaces the evidence in front of you.
 - For a payment alert the comparison is about the counterparty on the payment, not the customer; nationality.customer_nationality does not apply.
 - For an ownership alert (alert_source "ownership") the question is whether the listed party effectively owns the customer. The ownership block was worked out by the ownership engine under the approved definition: status "met" means the threshold is reached (exactly the threshold counts), so recommend ESCALATE_L2; "limit" means the chain is longer than the policy allows, so recommend ESCALATE_L2; "unknown" means a percentage is missing, so recommend NEED_MORE_INFO; "below" means under the threshold, so CLOSE_FALSE_POSITIVE. A missing percentage is unknown, never zero. Cite the register rows (table beneficial_owner, key ownership_id).
 - Choose RECOMMEND_BLOCK only when the definition of a true match is met. It still needs two human approvals.
@@ -176,6 +176,10 @@ export function renderEvidence(evidence: EvidenceBundle, match: MatchResult): st
         }
       : undefined,
     earlier_decisions: evidence.memory?.recalled.map((r) => ({
+      memory_id: r.memory.memory_id,
+      source: evidence.memory?.details.get(r.memory.memory_id)?.source,
+      decided_by: evidence.memory?.details.get(r.memory.memory_id)?.decided_by,
+      reason: evidence.memory?.details.get(r.memory.memory_id)?.reason,
       decision: r.memory.decision,
       reason_codes: r.memory.reason_codes,
       decided_at: r.memory.created_at,

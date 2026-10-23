@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { sampleRules } from "@sanctions-desk/agents";
+import { loadSigner, sampleRules } from "@sanctions-desk/agents";
 import {
   buildGenerator,
   ConfigError,
@@ -7,6 +7,7 @@ import {
   describeConfig,
   loadConfig,
   loadPolicyFile,
+  loadUsersFile,
   PolicyStore,
   RunEventBus,
   resolveProjectPath,
@@ -104,7 +105,11 @@ async function main(): Promise<void> {
     ? "Sample mode: Zetaris answers are replayed from saved real queries and the model is a labelled rules-based fallback."
     : undefined;
 
-  const app = await buildApp({ config, logger, generator, zetaris, sampleNotice, bus, policies });
+  // The people allowed in (tokens are stored as hashes, in a file outside the repository) and the key that signs
+  // the records written after an approval. Without a key those records are hash-sealed, and say so.
+  const users = config.server.usersFile ? loadUsersFile(config.server.usersFile) : undefined;
+  const signer = loadSigner(config.actions.signingKeyFile);
+  const app = await buildApp({ config, logger, generator, zetaris, sampleNotice, bus, policies, users, signer });
   logger.info(
     { config: describeConfig(config), policy_version: policies.activeVersion() },
     "starting sanctions-desk api",

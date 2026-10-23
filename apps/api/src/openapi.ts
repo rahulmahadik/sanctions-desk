@@ -148,6 +148,62 @@ export const ROUTES: RouteDoc[] = [
     ],
   },
   {
+    method: "get",
+    path: "/me",
+    tag: "People",
+    summary: "Who you are, what you may do, and the demo users in sample mode",
+  },
+  {
+    method: "get",
+    path: "/cases/{alertId}/human",
+    tag: "People",
+    summary: "Where a recommendation stands after people acted on it, and the records prepared from their decision",
+    params: [AlertIdParam],
+  },
+  {
+    method: "get",
+    path: "/cases/{alertId}/actions",
+    tag: "People",
+    summary:
+      "The records prepared after an approval (closure note, ticket, draft, hold instruction), with their seal check",
+    params: [AlertIdParam],
+  },
+  {
+    method: "post",
+    path: "/cases/{alertId}/decision",
+    tag: "People",
+    summary: "Approve or override a recommendation, with a reason. A block still needs a second approval",
+    params: [AlertIdParam],
+    body: obj(
+      {
+        action: { type: "string", enum: ["approve", "override"] },
+        outcome: {
+          type: "string",
+          enum: ["CLOSE_FALSE_POSITIVE", "ESCALATE_L2", "RECOMMEND_BLOCK", "NEED_MORE_INFO"],
+          description: "Required for an override",
+        },
+        reason: { type: "string", minLength: 10, maxLength: 600 },
+        record_hash: { type: "string", description: "The hash of the recommendation you were looking at" },
+      },
+      ["action", "reason", "record_hash"],
+    ),
+  },
+  {
+    method: "post",
+    path: "/cases/{alertId}/second-approval",
+    tag: "People",
+    summary: "The second approver confirms or declines a block. Must be an approver and a different person",
+    params: [AlertIdParam],
+    body: obj(
+      {
+        approve: { type: "boolean" },
+        reason: { type: "string", minLength: 10, maxLength: 600 },
+        record_hash: { type: "string" },
+      },
+      ["approve", "reason", "record_hash"],
+    ),
+  },
+  {
     method: "post",
     path: "/list-change/replay",
     tag: "Review",

@@ -15,6 +15,11 @@ export interface AgentDeps {
   now: () => Date;
   /** Wait between tries after a provider failure. Tests pass a no-op; the default really waits. */
   sleep?: (ms: number) => Promise<void>;
+  /**
+   * Decisions that people made on earlier recommendations about a customer and a listed entry. Read by the memory
+   * step beside the bank's own earlier decisions. Evaluation runs leave it out so the exam stays independent.
+   */
+  analystDecisions?: (customerId: string, entryId: string) => Row[];
 }
 
 export type Row = Record<string, string | null>;

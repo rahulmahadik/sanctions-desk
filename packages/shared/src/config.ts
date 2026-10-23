@@ -34,7 +34,29 @@ const ConfigSchema = z.strictObject({
     webOrigins: z.array(nonEmpty),
     /** Serve the OpenAPI description and Swagger UI at /docs. */
     docs: z.boolean().default(true),
+    /**
+     * Who may call the API. `on`: every route except /health needs a user's bearer token. `demo`: sample mode, where
+     * the built-in demo users can be chosen with a header and reading and running reviews need no token. `off`: no
+     * checks (tests only; refused in live mode). `auto` is `on` live and `demo` in sample mode.
+     */
+    auth: z.enum(["auto", "on", "demo", "off"]).default("auto"),
+    /** File with the users, their roles and the SHA-256 of each token. Kept outside the repository. */
+    usersFile: nonEmpty.optional(),
   }),
+  /** What a person's decision on a recommendation produces. Nothing here is ever sent anywhere. */
+  actions: z
+    .strictObject({
+      /** Folder for the action records written after an approval (a local outbox). */
+      outboxDir: nonEmpty,
+      /** Ed25519 private key (PEM) outside the repository. Without it records are hash-sealed, not signed. */
+      signingKeyFile: nonEmpty.optional(),
+      /** Ed25519 public key (base64) that signed records are checked against. */
+      publicKey: z
+        .string()
+        .regex(/^[A-Za-z0-9+/]{43}=$/, "expected a base64 Ed25519 public key")
+        .optional(),
+    })
+    .default({ outboxDir: "outbox" }),
   logging: z.strictObject({
     level: z.enum(LOG_LEVELS),
     dir: nonEmpty,
@@ -150,6 +172,11 @@ const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "HOST", path: ["server", "host"], kind: "string" },
   { env: "WEB_ORIGINS", path: ["server", "webOrigins"], kind: "list" },
   { env: "DOCS_ENABLED", path: ["server", "docs"], kind: "boolean" },
+  { env: "AUTH_MODE", path: ["server", "auth"], kind: "string" },
+  { env: "DESK_USERS_FILE", path: ["server", "usersFile"], kind: "string" },
+  { env: "DESK_OUTBOX_DIR", path: ["actions", "outboxDir"], kind: "string" },
+  { env: "DESK_SIGNING_KEY_FILE", path: ["actions", "signingKeyFile"], kind: "string" },
+  { env: "DESK_SIGNING_PUBLIC_KEY", path: ["actions", "publicKey"], kind: "string" },
   { env: "PORT", path: ["server", "port"], kind: "number" },
   { env: "LOG_LEVEL", path: ["logging", "level"], kind: "string" },
   { env: "LOG_DIR", path: ["logging", "dir"], kind: "string" },

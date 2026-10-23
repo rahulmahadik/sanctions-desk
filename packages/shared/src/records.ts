@@ -153,8 +153,12 @@ export type GuardVerdictInput = z.input<typeof GuardVerdictSchema>;
 export const HumanActionSchema = z.strictObject({
   action: z.enum(["approve", "override", "second_approval", "reject"]),
   actor: nonEmpty,
+  /** The actor's role when they acted. */
+  role: z.enum(["analyst", "approver", "policy_admin", "viewer"]).optional(),
   at: isoTime,
   reason: z.string().optional(),
+  /** The outcome the person settled on: the recommendation for an approval, their own choice for an override. */
+  outcome: DecisionSchema.optional(),
 });
 export type HumanAction = z.infer<typeof HumanActionSchema>;
 

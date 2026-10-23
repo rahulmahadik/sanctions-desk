@@ -10,6 +10,9 @@ export type ErrorType =
   | "query_failed"
   | "guard_blocked"
   | "validation"
+  | "unauthorized"
+  | "forbidden"
+  | "conflict"
   | "not_found"
   | "not_implemented"
   | "internal";

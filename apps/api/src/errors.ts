@@ -3,6 +3,9 @@ import type { FastifyError } from "fastify";
 
 const STATUS_BY_TYPE: Record<ErrorType, number> = {
   validation: 400,
+  unauthorized: 401,
+  forbidden: 403,
+  conflict: 409,
   not_found: 404,
   not_implemented: 501,
   config_missing: 503,

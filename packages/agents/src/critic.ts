@@ -63,11 +63,29 @@ Answer with one JSON object only: {"analysis": "brief reasoning, at most 100 wor
 
 const sameValue = (a: string | null, b: string | null): boolean => (a ?? "") === (b ?? "");
 
+/** A fact that cites an earlier decision is checked against the memory the step recalled, not against a table. */
+function checkMemoryFact(evidence: EvidenceBundle, fact: FactCitation): FactCheck {
+  const detail = evidence.memory?.details.get(fact.key_value);
+  if (!detail) return { fact, ok: false, reason: `no earlier decision ${fact.key_value} was recalled for this case` };
+  const actual: Record<string, string> = {
+    decision: detail.decision,
+    state: detail.state,
+    decided_by: detail.decided_by,
+    reason: detail.reason,
+  };
+  if (!(fact.column in actual)) return { fact, ok: false, reason: `unknown column in memory` };
+  return sameValue(actual[fact.column] ?? null, fact.value)
+    ? { fact, ok: true }
+    : { fact, ok: false, reason: `memory.${fact.column} is "${actual[fact.column]}", not "${fact.value ?? ""}"` };
+}
+
 async function checkFact(
   tools: ReadonlyMap<string, EvidenceTool>,
   fact: FactCitation,
   role: string,
+  evidence: EvidenceBundle,
 ): Promise<FactCheck> {
+  if (fact.table === "memory") return checkMemoryFact(evidence, fact);
   const tool = tools.get(`find_${fact.table}`);
   if (!tool) return { fact, ok: false, reason: `unknown table "${fact.table}"` };
   const keyColumn = tool.table.columns.find((c) => c.primaryKey)?.name;
@@ -165,7 +183,9 @@ export async function review(
   match: MatchResult,
   decision: DecisionOutput,
 ): Promise<CriticResult> {
-  const checks = await Promise.all(decision.facts.map((fact) => checkFact(tools, fact, deps.policy.masking.critic)));
+  const checks = await Promise.all(
+    decision.facts.map((fact) => checkFact(tools, fact, deps.policy.masking.critic, evidence)),
+  );
   const issues = [
     ...checks.filter((c) => !c.ok).map((c) => `cited fact does not hold: ${c.reason}`),
     ...consistencyIssues(decision, match, evidence),

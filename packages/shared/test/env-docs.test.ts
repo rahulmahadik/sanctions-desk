@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { projectRoot } from "@sanctions-desk/shared";
+import { loadConfig, projectRoot } from "@sanctions-desk/shared";
 import { describe, expect, it } from "vitest";
 
 const root = projectRoot();
@@ -49,5 +49,15 @@ describe("environment variables are documented", () => {
   it("keeps placeholders only and drops the retired model variable", () => {
     expect(example).not.toMatch(/^METERLESS_MODEL=/m);
     expect(example).not.toMatch(/[A-Za-z0-9+/]{40,}/);
+  });
+
+  it("loads as a valid configuration when copied to .env as it is", () => {
+    const env: Record<string, string> = {};
+    for (const line of example.split("\n")) {
+      const m = /^([A-Z][A-Z0-9_]*)=(.*)$/.exec(line);
+      if (m && m[2] !== "") env[m[1] as string] = m[2] as string;
+    }
+    const config = loadConfig({ env });
+    expect(config.sampleMode).toBe(true);
   });
 });
