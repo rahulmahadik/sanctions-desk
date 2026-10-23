@@ -102,9 +102,28 @@ function pathSection({ record }: CaseFileInput): string[] {
   ];
 }
 
-function documentarySection({ record }: CaseFileInput): string[] {
-  if (!record.documentary?.length) return [];
+/** Notes whose cited document number is not on the customer record, or could not be checked: the reason, shown. */
+function noteDocumentSection({ record }: CaseFileInput): string[] {
+  const failed = (record.screener?.documentary ?? []).filter(
+    (d) => d.document_check && d.document_check.status !== "on_record",
+  );
+  if (failed.length === 0) return [];
   return [
+    "## Notes that do not meet the documentary standard",
+    "",
+    ...failed.map(
+      (d) =>
+        `- ${d.field}: ${d.document_check?.reason ?? "document cited in note not on customer record"}. The note is a claim, not documentary evidence.`,
+    ),
+    "",
+  ];
+}
+
+function documentarySection(input: CaseFileInput): string[] {
+  const { record } = input;
+  if (!record.documentary?.length) return noteDocumentSection(input);
+  return [
+    ...noteDocumentSection(input),
     "## Values taken from verified notes",
     "",
     ...record.documentary.map(
@@ -174,6 +193,14 @@ function actionsSection({ actions }: CaseFileInput): string[] {
   return [...lines, ""];
 }
 
+/** Citations the critic set aside as not citable, named by table and column. */
+const notCitableText = (record: DecisionRecord): string => {
+  const set = record.critic.not_citable ?? [];
+  return set.length === 0
+    ? ""
+    : `; set aside as not citable: ${cell(set.map((n) => `${n.table}.${n.column} (round ${n.round})`).join(", "))}`;
+};
+
 function checksSection({ record }: CaseFileInput): string[] {
   const rounds = record.critic.rounds;
   return [
@@ -182,7 +209,7 @@ function checksSection({ record }: CaseFileInput): string[] {
     "| Check | Result | Detail |",
     "|---|---|---|",
     ...record.guards.map((g) => `| ${cell(word(g.guard))} | ${g.verdict} | ${cell(g.detail ?? "")} |`),
-    `| critic | ${record.critic.final_verdict} | ${rounds} round${rounds === 1 ? "" : "s"} |`,
+    `| critic | ${record.critic.final_verdict} | ${rounds} round${rounds === 1 ? "" : "s"}${notCitableText(record)} |`,
     "",
   ];
 }

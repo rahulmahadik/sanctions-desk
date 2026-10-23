@@ -247,6 +247,16 @@ npm run zetaris:agents -- --apply      # creates agent_evidence, agent_reviewer 
 
 For each user it creates the account at the GENERAL level through `POST /users` (there is no SQL to create a user) with a random password that exists only in memory, assigns the role, signs in once through the web interface's own sign-in call, asks for an API key (`POST /auth/api-key`, valid 90 days) and writes it to `.env` as `ZETARIS_TOKEN_EVIDENCE`, `ZETARIS_TOKEN_REVIEWER` or `ZETARIS_TOKEN_EVAL`. Passwords and keys are never printed or logged. A password cannot be changed over REST (`PATCH /users/{email}` accepts the call and leaves the account unable to sign in), so a user whose password is unknown is dropped and created again.
 
+### The note's document number: which identity reads `customer_identifier.id_number`
+
+When a customer note meets the documentary standard and cites a document number, the evidence step runs one count:
+
+```sql
+SELECT COUNT(*) AS n FROM <namespace>.screening_usl.customer_identifier ci WHERE ci.customer_id = '<customer>' AND regexp_replace(upper(ci.id_number), '[^A-Z0-9]', '') = '<normalised number from the note>'
+```
+
+It runs under the **evidence** identity (`agent_evidence`, role `role_evidence_agent`) through the evidence step's scoped client (`policy.agentAccess.evidence`), the only agent scope that lists `customer_identifier` without denying `id_number`; the critic and every other step deny that column. It needs no grant beyond the `SELECT` on `customer_identifier` that `role_evidence_agent` already has. Only the count comes back. The number is in the statement sent to Zetaris and nowhere else: the trace and the decision record keep a SHA-256 hash of the normalised number and the statement with the number replaced. Like the identifier overlap join, it names `id_number` in a condition, so if the platform starts enforcing HIDE on that column for this role, the count must move to a role that may see the column; check it then. In sample mode the count has no saved answer until `npm run sample:record` is run again against a live Zetaris; until then the check fails closed ("not verified") and the note is not treated as documentary.
+
 Masking `customer_identifier.id_number` for `role_evidence_agent` is a setting in the Zetaris interface (access-control screens); there is no SQL or REST call for it.
 
 Until a role has its own token, the adapter uses `ZETARIS_API_KEY` as a **labelled fallback**: every query record says `token_source: fallback`, and the decision trace shows it. The identifier numbers are masked by the adapter as well as by Zetaris (defence in depth), and a customer identifier is compared with a listed one by a join **inside Zetaris**, so the number is never read into the application.

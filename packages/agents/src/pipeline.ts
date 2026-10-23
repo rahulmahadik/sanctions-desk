@@ -3,6 +3,7 @@ import {
   type Citation,
   type DecisionRecord,
   type ModelUseInput,
+  type NotCitable,
   type QueryEvidenceInput,
   type ReviewResponse,
   ReviewResponseSchema,
@@ -16,6 +17,7 @@ import { type EvidenceBundle, gatherEvidence } from "./evidence.js";
 import { firstFinding } from "./hybrid.js";
 import { type MatchResult, matchEvidence, partyOf } from "./matching.js";
 import { recallMemory } from "./memory.js";
+import { applyNoteDocumentCheck, checkNoteDocument } from "./note-document.js";
 import { gatherOwnership, matchOwnership, ownershipQuality } from "./ownership.js";
 import { applyPolicyGuard, closeBlockers } from "./policy-guard.js";
 import { buildDecisionRecord, writeDecisionRecord } from "./record.js";
@@ -61,6 +63,12 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
   // and the cloud steps work from those facts; the text itself stays on the machine.
   const screened = await screenFreeText(deps, evidence);
   evidence.screener = screened;
+  // A documentary note's document number must be one of the customer's documents: one count inside Zetaris.
+  const noteDocument = await checkNoteDocument(deps, evidence);
+  if (noteDocument) {
+    evidence.noteDocument = noteDocument;
+    applyNoteDocumentCheck(screened, noteDocument);
+  }
   // One local model's say-so is not enough to mark the data as instructing the reviewer: the screener's verdict counts
   // only with a pattern hit (when the inbound guard already agrees, the data is marked already).
   if (screened.injection.flagged && screened.injection.patternHits > 0 && !inbound.violation) {
@@ -92,7 +100,11 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
   const toolOptions = { role: "evidence", defaultLimit: deps.config.zetaris.maxRows, maskSensitive: true } as const;
   // Memory reads earlier decisions under the evidence step's access; the critic has its own, narrower one.
   const tools = buildEvidenceTools(evidence.model, clientFor(deps, "evidence"), toolOptions);
-  const criticTools = buildEvidenceTools(evidence.model, clientFor(deps, "critic"), toolOptions);
+  // The critic's reads leave out the columns it may not name, so the other columns of such a table can be checked.
+  const criticTools = buildEvidenceTools(evidence.model, clientFor(deps, "critic"), {
+    ...toolOptions,
+    omitColumns: deps.policy.agentAccess.critic.denyColumns,
+  });
   const memory = options?.memory === false ? undefined : await recallMemory(deps, tools, evidence, evidence.queries);
   if (memory) evidence.memory = memory;
   // A still-valid earlier clearance on a case the definitions also call a false positive is an easy case:
@@ -189,6 +201,7 @@ async function deliberate(
   const { evidence, match, criticTools, easy, models } = prepared;
   const { policy, trace } = deps;
   const criticQueries: QueryEvidenceInput[] = [];
+  const notCitable: NotCitable[] = [];
   let output: DecisionOutput | undefined;
   let feedback: string[] = [];
   let rounds = 0;
@@ -208,6 +221,7 @@ async function deliberate(
       criticRan: false,
       unavailable: decision.unavailable,
       last: decision,
+      notCitable,
     };
   }
 
@@ -228,10 +242,12 @@ async function deliberate(
         criticRan: false,
         unavailable: decision.unavailable,
         last: decision,
+        notCitable,
       };
     }
-    const verdict = await review(deps, criticTools, evidence, match, output);
+    const verdict = await review(deps, criticTools, evidence, match, output, { round: rounds });
     models.push(...verdict.calls);
+    notCitable.push(...verdict.notCitable);
     criticQueries.push(...verdict.checks.flatMap((c) => (c.evidence ? [c.evidence] : [])));
     approved = verdict.approved;
     feedback = verdict.issues;
@@ -247,7 +263,7 @@ async function deliberate(
     }
   }
   if (!output) throw new AppError("internal", "no recommendation was produced");
-  return { output, approved, rounds, criticQueries, models, criticRan: true, unavailable: undefined, last };
+  return { output, approved, rounds, criticQueries, models, criticRan: true, unavailable: undefined, last, notCitable };
 }
 
 /** Values the review took from verified notes, shown as such and never as values of the customer record. */
@@ -411,6 +427,7 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     models,
     criticRounds: rounds,
     criticVerdict,
+    criticNotCitable: deliberated.notCitable,
   });
   const file = writeDecisionRecord(deps.config.logging.dir, record);
   trace.log({

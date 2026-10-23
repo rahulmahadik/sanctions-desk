@@ -28,12 +28,57 @@ const CHECK_REFERENCE =
 
 /** A document named, then its number (at least six digits): "passport ZP1234567", "council no. 2345678", "ID 12345678". */
 const DOCUMENT_NUMBER =
-  /\b(?:passport|identity card|id card|national id|id|licen[cs]e|council no\.?|company no\.?|registration(?: no\.?)?|document(?: no\.?)?)(?=[\s:#.-])[^.;()]{0,25}?\b[A-Z]{0,3}\d{6,}\b/i;
+  /\b(?:passport|identity card|id card|national id|id|licen[cs]e|council no\.?|company no\.?|registration(?: no\.?)?|document(?: no\.?)?)(?=[\s:#.-])[^.;()]{0,25}?\b([A-Z]{0,3}\d{6,})\b/i;
 
 /** The check reference a note carries, or null. */
 export function checkReferenceOf(text: string | null | undefined): string | null {
   return CHECK_REFERENCE.exec(text ?? "")?.[0]?.trim() ?? null;
 }
+
+/** A stretch of a text: start inclusive, end exclusive, and the text at exactly those offsets. */
+export interface SourceSpan {
+  start: number;
+  end: number;
+  value: string;
+}
+
+const spanAt = (text: string, start: number, value: string): SourceSpan => ({
+  start,
+  end: start + value.length,
+  value: text.slice(start, start + value.length),
+});
+
+/** Where the check reference stands in the text, exactly as written there, or null. */
+export function checkReferenceSpan(text: string | null | undefined): SourceSpan | null {
+  const t = text ?? "";
+  const m = CHECK_REFERENCE.exec(t);
+  return m ? spanAt(t, m.index, m[0]) : null;
+}
+
+/** Where the first date the standard accepts stands in the text, exactly as written there, or null. */
+export function dateSpan(text: string | null | undefined): SourceSpan | null {
+  const t = text ?? "";
+  const m = DATE.exec(t);
+  return m ? spanAt(t, m.index, m[0]) : null;
+}
+
+/** The text with its check reference blanked out, at the same length, so that offsets still point into the text. */
+const withoutCheckReference = (text: string): string => text.replace(CHECK_REFERENCE, (m) => " ".repeat(m.length));
+
+/**
+ * The document number a note cites (the one the standard counts), exactly as written and where, or null. The check
+ * reference never doubles as the document number.
+ */
+export function documentNumberSpan(text: string | null | undefined): SourceSpan | null {
+  const t = text ?? "";
+  const m = DOCUMENT_NUMBER.exec(withoutCheckReference(t));
+  const number = m?.[1];
+  if (!m || !number) return null;
+  return spanAt(t, m.index + m[0].length - number.length, number);
+}
+
+/** A document number as compared with the customer's documents: upper case, letters and digits only. */
+export const normaliseDocumentNumber = (value: string): string => value.toUpperCase().replace(/[^A-Z0-9]/g, "");
 
 /** True when the text holds a date in one of the forms the standard accepts. */
 export function hasDate(text: string): boolean {
@@ -93,8 +138,8 @@ export function assessNote(source: NoteSource, standard: EvidenceStandard = DEFA
   const missing: string[] = [];
   if (standard.requireCheckReference && !CHECK_REFERENCE.test(text)) missing.push("a check reference");
   // The check reference must not double as the document number.
-  const withoutReference = text.replace(CHECK_REFERENCE, " ");
-  if (standard.requireDocumentNumber && !DOCUMENT_NUMBER.test(withoutReference)) missing.push("a document number");
+  if (standard.requireDocumentNumber && !DOCUMENT_NUMBER.test(withoutCheckReference(text)))
+    missing.push("a document number");
   if (standard.requireDate && !DATE.test(text)) missing.push("a date");
   if (standard.requireNamedCounterpartyForPayments && source.payment && !usableName(source.payment.counterpartyName))
     missing.push("a named counterparty");

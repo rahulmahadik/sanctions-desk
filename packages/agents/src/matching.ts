@@ -61,16 +61,24 @@ export function withCloseBlockers(
   };
 }
 
+/**
+ * The date of birth a note supplies. A note counts as evidence of the birth date only when it meets the documentary
+ * standard; a claim never does. The date comes from the code's own reading of the note or from the screener's, which
+ * code has checked against the text and the same standard. A note whose document number is not on the customer
+ * record, or could not be checked, supplies nothing.
+ */
+function noteDateOfBirth(deps: AgentDeps, evidence: EvidenceBundle): { value: string; checkReference: string } | null {
+  if (evidence.noteDocument !== undefined && evidence.noteDocument.status !== "on_record") return null;
+  return (
+    documentaryDateOfBirth(evidence.customer.notes, deps.policy.evidenceStandard) ??
+    screenerDateOfBirth(evidence.screener) ??
+    null
+  );
+}
+
 export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchResult {
   const recorded = customerProfileFromRows(evidence.customer, evidence.customerIdentifiers);
-  // A note counts as evidence of the birth date only when it meets the documentary standard; a claim never does.
-  // The date comes from the code's own reading of the note or from the screener's, which code has checked against the
-  // text and the same standard.
-  const fromNote = recorded.dateOfBirth
-    ? null
-    : (documentaryDateOfBirth(evidence.customer.notes, deps.policy.evidenceStandard) ??
-      screenerDateOfBirth(evidence.screener) ??
-      null);
+  const fromNote = recorded.dateOfBirth ? null : noteDateOfBirth(deps, evidence);
   const payer = fromNote ? { ...recorded, dateOfBirth: fromNote.value } : recorded;
   const party = partyOf(evidence);
   // A payment alert is about the other party on the payment, not about the customer who sends it.

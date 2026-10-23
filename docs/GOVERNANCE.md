@@ -33,6 +33,8 @@ Conclusion: treated as material. The controls below apply to every recommendatio
 - The policy guard can only make an outcome more cautious.
 - A close is challenged by a second model when confidence is low, the name is very close, or a data-quality rule fails.
 - Text in the data that tries to instruct the reviewer is flagged, treated as data, and cannot close a case.
+- A risk signal from the free text stops a close only when it is grounded: its span holds a term of its type and a name from the evidence (policy version 7). A signal that is not grounded is kept, recorded with its reason and shown to the reviewer as a flag; it does not stop a close. This was added after over-flagging was found: ungrounded signals had blocked correct closes.
+- A note counts as documentary evidence only if the document number it cites is one of the customer's documents, checked by a count inside the data layer. When it is not, the reviewer sees "document cited in note not on customer record" and a close becomes a request for more information. When the check cannot be made, the note is not documentary.
 - Free text is read locally. A screener on the local model reads the customer note, the payment reference and the list remarks and returns structured facts: risk signals (a closed list of types, where in the text, a confidence) and documentary evidence that code validates against the policy's evidence standard. The decision, critic and challenger prompts carry those facts and never the text. A risk signal at or above the policy's threshold stops a close; a note counts as documentary only with a check reference, a document number and a date (and a named counterparty for a payment); a screener that cannot answer, did not read all of the text, or is missing never allows a close. A prompt that holds a note, reference or remark, or a 20-character run of one, is not sent, and the step fails closed. Names, aliases and the reasons a person wrote for earlier decisions are sent by design. What each model step was sent (field names, counts, a hash) is recorded, not the text. See "What leaves the machine, per step" in `docs/MODELS.md`.
 
 ### Oversight in proportion to risk
@@ -45,7 +47,7 @@ The more a mistake would cost, the more people are involved. A mistaken close is
 
 ## Explainability
 
-Each recommendation has a hash-sealed decision record and a trace that answers four questions: which approved definition applied, what data it rested on, who could see what, and what it cost. Every cited fact is re-read from the data by code before the critic's model sees it. See `GET /cases/:alertId/trace`, `GET /cases/:alertId/record`, and the alert view and replay in the review desk.
+Each recommendation has a hash-sealed decision record and a trace that answers four questions: which approved definition applied, what data it rested on, who could see what, and what it cost. Every cited fact is re-read from the data by code before the critic's model sees it. A citation of a source that cannot be checked at all (a free-text column, the identifier number, a block worked out by code) is sent back once; from the second round on it is set aside as not citable, recorded in the trace and the record, and the remaining facts are judged. This ended a deadlock in which the same uncheckable citation was rejected in every round. A citation whose value does not hold is still a rejection. See `GET /cases/:alertId/trace`, `GET /cases/:alertId/record`, and the alert view and replay in the review desk.
 
 ## Testing
 

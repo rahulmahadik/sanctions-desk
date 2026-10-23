@@ -156,6 +156,30 @@ describe("Outcome", () => {
     expect(screen.getByText(/critic: approved after 2 rounds/)).toBeTruthy();
   });
 
+  it("shows a screener signal that is not grounded, and a citation the critic set aside as not citable", () => {
+    render(
+      <Outcome
+        answer={{
+          ...ANSWER,
+          guards: [
+            {
+              guard: "screener_grounding",
+              verdict: "flag",
+              detail: "1 signal(s) not grounded in the text they point at; recorded, not blocking",
+            },
+          ],
+          critic: {
+            rounds: 2,
+            final_verdict: "approved",
+            not_citable: [{ table: "customer", column: "notes", reason: "a free-text column", round: 2 }],
+          },
+        }}
+      />,
+    );
+    expect(screen.getByText(/not grounded in the text they point at; recorded, not blocking/)).toBeTruthy();
+    expect(screen.getByTestId("not-citable").textContent).toContain("customer.notes as not citable (round 2)");
+  });
+
   it("puts the deciding evidence and any confidence cap with its reason right under the recommendation", () => {
     render(
       <Outcome

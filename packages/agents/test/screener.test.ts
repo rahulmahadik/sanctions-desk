@@ -52,7 +52,8 @@ const closeAnswer = (over: Record<string, unknown> = {}) =>
   });
 const request = (runId: string) => ({ runId, alertId: fp.alertId, sampleMode: true });
 
-const NOTE = "Customer trades under the name Covart Energy since 2019 and was introduced by a listed relative.";
+// The signal's span (9-30, "trades under the name ") holds an alias term and the listed name follows it: it is grounded.
+const NOTE = `Customer trades under the name ${fp.entryName} since 2019 and was introduced by a listed relative.`;
 const signalAnswer = (confidence: number) =>
   JSON.stringify({
     analysis: "x",
@@ -275,18 +276,20 @@ describe("documentary evidence", () => {
     expect(raised.verdicts.find((v) => v.guard === "evidence_standard")?.detail).toMatch(/a claim, not documentary/);
   });
 
-  it("is overruled by a risk signal in the same note: the close is still blocked", async () => {
+  it("is overruled by a grounded risk signal in the same note: the close is still blocked", async () => {
+    const note = `${documentary} Brother of ${fp.entryName}.`;
+    const at = note.indexOf("Brother");
     const { generator } = scriptedGenerator([safe, closeAnswer(), approve], {
       screener: JSON.stringify({
         analysis: "x",
         risk_signals: [
-          { type: "relationship_to_listed_party", field: "customer.notes", start: 0, end: 8, confidence: 0.9 },
+          { type: "relationship_to_listed_party", field: "customer.notes", start: at, end: at + 7, confidence: 0.9 },
         ],
         documentary_evidence: [],
         injection: { detected: false, spans: [] },
       }),
     });
-    const res = await runReview(sampleDepsWithText({ notes: documentary }, { generator }), request("sc-doc-signal"));
+    const res = await runReview(sampleDepsWithText({ notes: note }, { generator }), request("sc-doc-signal"));
     expect(res.decision).toBe("ESCALATE_L2");
   });
 });

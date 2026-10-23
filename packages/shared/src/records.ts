@@ -189,6 +189,30 @@ export const DocumentaryValueSchema = z.strictObject({
 });
 export type DocumentaryValue = z.infer<typeof DocumentaryValueSchema>;
 
+const SpanSchema = z.strictObject({ start: count, end: count });
+
+/**
+ * Whether the document number a documentary note cites is one of the customer's documents. The count is worked out by a
+ * query inside Zetaris; the record keeps the outcome, a hash of the normalised number and the query id, never the number.
+ */
+export const NoteDocumentCheckSchema = z.strictObject({
+  status: z.enum(["on_record", "not_on_record", "not_verified"]),
+  /** Plain words for the reviewer, for every status but "on_record". */
+  reason: nonEmpty.optional(),
+  number_hash: sha256,
+  query_id: nonEmpty.optional(),
+});
+export type NoteDocumentCheck = z.infer<typeof NoteDocumentCheckSchema>;
+
+/** A citation the critic set aside because the source cannot be cited at all (not a value that failed to hold). */
+export const NotCitableSchema = z.strictObject({
+  table: nonEmpty,
+  column: nonEmpty,
+  reason: nonEmpty,
+  round: z.number().int().min(1).max(3),
+});
+export type NotCitable = z.infer<typeof NotCitableSchema>;
+
 /**
  * What the screener found in the free text of the case, as structured facts. Nothing here is the text itself: a span is
  * a field and a character range, and every value was checked by code against the text it came from.
@@ -206,8 +230,14 @@ export const ScreenerRecordSchema = z.strictObject({
       type: nonEmpty,
       confidence: unit,
       span_id: nonEmpty,
-      /** False when the span the model named does not point into the field; the signal still counts. */
+      /** False when the span the model named does not point into the field. */
       span_valid: z.boolean(),
+      /**
+       * False when the span's text holds no term of the signal's type or no name from the evidence near it: the signal
+       * is kept and shown, and does not block a close. Absent in records made before policy version 7.
+       */
+      grounded: z.boolean().optional(),
+      grounding_reason: nonEmpty.optional(),
     }),
   ),
   documentary: z.array(
@@ -215,6 +245,11 @@ export const ScreenerRecordSchema = z.strictObject({
       field: nonEmpty,
       meets_standard: z.boolean(),
       missing: z.array(nonEmpty),
+      /** Where in the field the check reference and the date were found: start inclusive, end exclusive. */
+      check_reference_span: SpanSchema.optional(),
+      date_span: SpanSchema.optional(),
+      /** The note's document number compared with the customer's documents inside Zetaris. Never the number. */
+      document_check: NoteDocumentCheckSchema.optional(),
     }),
   ),
   injection: z.boolean(),
@@ -265,6 +300,8 @@ const DecisionRecordBody = z.strictObject({
   critic: z.strictObject({
     rounds: z.number().int().min(0).max(3),
     final_verdict: z.enum(["approved", "rejected", "escalated", "not_run"]),
+    /** Citations set aside from the second round on because their source cannot be cited at all. */
+    not_citable: z.array(NotCitableSchema).optional(),
   }),
   /** The hybrid: what code concluded from the structured fields, and the path the review took because of it. */
   first_finding: DecisionSchema.optional(),
@@ -384,6 +421,7 @@ export const ReviewResponseSchema = RunResponseSchema.extend({
     .strictObject({
       rounds: z.number().int().min(0).max(3),
       final_verdict: z.enum(["approved", "rejected", "escalated", "not_run"]),
+      not_citable: z.array(NotCitableSchema).optional(),
     })
     .optional(),
   record_id: nonEmpty.optional(),

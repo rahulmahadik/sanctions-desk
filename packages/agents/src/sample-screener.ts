@@ -4,6 +4,8 @@
  * service. Its answer is checked by the same code as a real model's.
  */
 
+import { documentNumberSpan } from "./evidence-standard.js";
+
 /** Text that tries to instruct the reviewer or the system. Shared with the safety stand-in. */
 export const INJECTION =
   /ignore (all )?(previous|prior|above) (instructions|rules)|disregard (the )?(above|system|previous)|you are now (a|an|the)|(reveal|print|show) .{0,30}(system prompt|api key|token|password)|<\/?\s*(system|assistant)\s*>/i;
@@ -94,8 +96,6 @@ function hitsIn(field: FieldText, subject: string[], listed: string[], places: s
 }
 
 const CHECK_REF = /\b(?:KYC|CDD|EDD|CHK|REF|CASE)[\s:#-]*[A-Z0-9-]*\d{4,}/i;
-const DOC_NUMBER =
-  /\b(?:passport|identity card|id card|national id|licen[cs]e|ID)\b[^.;()]{0,25}?\b([A-Z]{0,3}\d{6,})\b/i;
 const ANY_DATE =
   /\b\d{4}-\d{2}-\d{2}\b|\b\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{4}\b/i;
 const DOB = /\b(?:born|birth|dob)\b[^0-9]{0,40}(\d{4}-\d{2}-\d{2})\b/i;
@@ -105,7 +105,8 @@ function documentaryOf(field: FieldText) {
   return {
     field: field.field,
     check_ref: CHECK_REF.exec(field.text)?.[0].trim() ?? null,
-    doc_number: DOC_NUMBER.exec(field.text)?.[1] ?? null,
+    // The same reading of the document number as the evidence standard, so the stand-in and the check agree.
+    doc_number: documentNumberSpan(field.text)?.value ?? null,
     date: ANY_DATE.exec(field.text)?.[0] ?? null,
     dob: DOB.exec(field.text)?.[1] ?? null,
     nationality: NATIONALITY.exec(field.text)?.[1] ?? null,

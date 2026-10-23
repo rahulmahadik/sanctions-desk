@@ -15,7 +15,11 @@
  */
 import { writeFileSync } from "node:fs";
 import {
+  applyNoteDocumentCheck,
+  applyPolicyGuard,
   assessNote,
+  blockingSignals,
+  checkNoteDocument,
   clientFor,
   decide,
   gatherEvidence,
@@ -74,6 +78,7 @@ const tools0 = (deps: Parameters<typeof clientFor>[0], evidence: Awaited<ReturnT
     role: "evidence",
     defaultLimit: config.zetaris.maxRows,
     maskSensitive: true,
+    omitColumns: policy.agentAccess.critic.denyColumns,
   });
 for (const alertId of alertIds) {
   if (decisionsTested >= limit) break;
@@ -89,6 +94,11 @@ for (const alertId of alertIds) {
     if (evidence.alert.alert_source === "ownership") continue;
     evidence.safety = await screenInbound(deps, evidence.freeText);
     evidence.screener = await screenFreeText(deps, evidence);
+    const noteDocument = await checkNoteDocument(deps, evidence);
+    if (noteDocument) {
+      evidence.noteDocument = noteDocument;
+      applyNoteDocumentCheck(evidence.screener, noteDocument);
+    }
     const match = matchEvidence(deps, evidence);
     evidence.hybrid = firstFinding(evidence, match);
     const decision = await decide(deps, evidence, match, []);
@@ -140,6 +150,7 @@ for (const alertId of alertIds) {
       role: "evidence",
       defaultLimit: config.zetaris.maxRows,
       maskSensitive: true,
+      omitColumns: policy.agentAccess.critic.denyColumns,
     });
     const original = await review(deps, tools, evidence, match, decision.output);
     const factIssue = (issues: readonly string[]) => issues.some((i) => i.startsWith("cited fact does not hold"));
@@ -222,6 +233,99 @@ const standardRows = standardCases.map((c) => {
   return { case: c.name, documentary, expected: c.mustBeDocumentary, pass: documentary === c.mustBeDocumentary };
 });
 
+// ---- the screener's spans and the note's document: two changes that must not move the outcome the wrong way --------
+// Synthetic in-memory inputs only. (1) A relationship signal whose span holds no relation term and no name must not
+// block a close, while the same signal on a span that holds both must. (2) A note that meets the standard but cites a
+// document number the customer record does not hold (the count inside Zetaris is 0) must not meet the standard.
+const SPAN_NOTE = "Identity verified at branch. Customer is the brother of the listed person named below.";
+const groundingCase = (start: number, end: number) =>
+  validateScreenerAnswer(
+    {
+      risk_signals: [{ type: "relationship_to_listed_party", field: "customer.notes", start, end, confidence: 0.9 }],
+      documentary_evidence: [],
+      injection: { detected: false, spans: [] },
+    },
+    {
+      policy,
+      fields: [{ id: "customer.notes", text: `${SPAN_NOTE} Listed person: Example Listedname.`, truncated: false }],
+      knownNames: ["Example Listedname"],
+      standard: policy.evidenceStandard,
+    },
+  );
+const relationAt = SPAN_NOTE.indexOf("brother");
+const ungrounded = groundingCase(0, 30);
+const grounded = groundingCase(relationAt, relationAt + "brother".length);
+const scopeStub = {
+  query: async () => ({
+    query_id: "count-stub",
+    role: "evidence",
+    token_source: "role",
+    kind: "select",
+    sql: "",
+    sql_hash: "",
+    tables: [],
+    status: "ok",
+    row_count: 1,
+    latency_ms: 0,
+    cache_hit: true,
+    headers: ["n"],
+    rows: [["0"]],
+    objects: [{ n: "0" }],
+  }),
+};
+const stubZetaris = { ...zetaris, scoped: () => ({ ...zetaris, ...scopeStub }) } as unknown as typeof zetaris;
+let documentRow: Record<string, unknown> = { case: "note document number not on the customer record", pass: false };
+try {
+  const trace = createTraceLogger({ runId: "critic-mutation-note-document", dir: config.logging.dir, stdout: false });
+  const deps = { config, policy, zetaris, generator, trace, now: () => new Date() };
+  const evidence = await gatherEvidence(deps, "ALR-0001");
+  evidence.customer = { ...evidence.customer, notes: NOTE };
+  evidence.screener = await screenFreeText(deps, evidence);
+  const check = await checkNoteDocument({ ...deps, zetaris: stubZetaris }, evidence);
+  evidence.noteDocument = check;
+  applyNoteDocumentCheck(evidence.screener, check);
+  const note = evidence.screener.documentary.find((d) => d.field === "customer.notes");
+  const match = matchEvidence(deps, evidence);
+  const guard = applyPolicyGuard({
+    policy,
+    decision: {
+      decision: "CLOSE_FALSE_POSITIVE",
+      confidence: 0.9,
+      rationale: "close",
+      facts: [{ table: "customer", key_value: evidence.customer.customer_id ?? "", column: "notes", value: null }],
+      what_would_change: [],
+    },
+    match,
+    evidence,
+    criticUnresolved: false,
+  });
+  documentRow = {
+    ...documentRow,
+    count_status: check?.status,
+    meets_standard: note?.meetsStandard,
+    outcome: guard.decision,
+    pass:
+      check?.status === "not_on_record" && note?.meetsStandard === false && guard.decision !== "CLOSE_FALSE_POSITIVE",
+  };
+} catch (err) {
+  documentRow = { ...documentRow, error: String(err).slice(0, 160) };
+}
+const fixCases = [
+  {
+    case: "a relationship span with no relation term and no name does not block",
+    pass:
+      ungrounded.signals[0]?.grounded === false &&
+      blockingSignals(policy, { ...ungrounded, status: "ok", calls: [], servedByCloud: false }).length === 0,
+  },
+  {
+    case: "a relationship span with a relation term and a listed name still blocks",
+    pass:
+      grounded.signals[0]?.grounded === true &&
+      blockingSignals(policy, { ...grounded, status: "ok", calls: [], servedByCloud: false }).length === 1,
+  },
+  documentRow,
+];
+
 const done = rows.filter((r) => !r.error && r.testable);
 const untestable = rows.filter((r) => !r.error && !r.testable);
 const summary = {
@@ -255,14 +359,20 @@ const summary = {
   ),
   errors: rows.filter((r) => r.error).length,
   evidence_standard_cases: `${standardRows.filter((r) => r.pass).length} of ${standardRows.length} pass`,
-  // Not checked yet: whether the document number in a note equals a document on the customer record.
-  evidence_standard_not_checked:
-    "a note's document number is not yet compared with the documents on the customer record",
+  grounding_and_document_cases: `${fixCases.filter((r) => r.pass).length} of ${fixCases.length} pass`,
+  grounding_and_document_failures: fixCases.filter((r) => !r.pass),
 };
 console.log(JSON.stringify(summary, null, 2));
 if (args.includes("--write"))
   writeFileSync(
     resolveProjectPath("eval/critic-mutation.json"),
-    `${JSON.stringify({ at: new Date().toISOString(), summary, rows, unchanged: falseAlarm, evidence_standard: standardRows }, null, 2)}\n`,
+    `${JSON.stringify({ at: new Date().toISOString(), summary, rows, unchanged: falseAlarm, evidence_standard: standardRows, grounding_and_document: fixCases }, null, 2)}\n`,
   );
-process.exit(done.length > 0 && summary.mutations_caught === done.length && standardRows.every((r) => r.pass) ? 0 : 1);
+process.exit(
+  done.length > 0 &&
+    summary.mutations_caught === done.length &&
+    standardRows.every((r) => r.pass) &&
+    fixCases.every((r) => r.pass)
+    ? 0
+    : 1,
+);

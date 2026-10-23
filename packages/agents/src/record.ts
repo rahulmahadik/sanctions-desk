@@ -5,6 +5,7 @@ import {
   DecisionRecordSchema,
   type GuardVerdictInput,
   type ModelUseInput,
+  type NotCitable,
   policyRef,
   type QueryEvidenceInput,
   type ScreenerRecord,
@@ -33,6 +34,8 @@ export interface RecordInput {
   models: ModelUseInput[];
   criticRounds: number;
   criticVerdict: "approved" | "rejected" | "escalated" | "not_run";
+  /** Citations the critic set aside as not citable, from the second round on. */
+  criticNotCitable?: NotCitable[];
 }
 
 /** The screener's result as the record keeps it: structured facts and where they were found, never the text. */
@@ -47,8 +50,19 @@ function screenerRecord(s: ScreenerFacts): ScreenerRecord {
       confidence: x.confidence,
       span_id: x.spanId,
       span_valid: x.spanValid,
+      grounded: x.grounded,
+      ...(x.groundingReason ? { grounding_reason: x.groundingReason } : {}),
     })),
-    documentary: s.documentary.map((d) => ({ field: d.field, meets_standard: d.meetsStandard, missing: d.missing })),
+    documentary: s.documentary.map((d) => ({
+      field: d.field,
+      meets_standard: d.meetsStandard,
+      missing: d.missing,
+      ...(d.checkReferenceSpan
+        ? { check_reference_span: { start: d.checkReferenceSpan.start, end: d.checkReferenceSpan.end } }
+        : {}),
+      ...(d.dateSpan ? { date_span: { start: d.dateSpan.start, end: d.dateSpan.end } } : {}),
+      ...(d.documentCheck ? { document_check: d.documentCheck } : {}),
+    })),
     injection: s.injection.flagged,
     served_by_cloud: s.servedByCloud,
     ...(s.truncatedFields.length > 0 ? { truncated_fields: s.truncatedFields } : {}),
@@ -99,7 +113,11 @@ export function buildDecisionRecord(input: RecordInput): DecisionRecord {
     memories: evidence.memory?.uses ?? [],
     models: input.models,
     guards: guard.verdicts as GuardVerdictInput[],
-    critic: { rounds: input.criticRounds, final_verdict: input.criticVerdict },
+    critic: {
+      rounds: input.criticRounds,
+      final_verdict: input.criticVerdict,
+      ...(input.criticNotCitable?.length ? { not_citable: input.criticNotCitable } : {}),
+    },
     ...(evidence.hybrid ? { first_finding: evidence.hybrid.decision, review_path: evidence.hybrid.path } : {}),
     ...(input.autonomy ? { autonomy: input.autonomy } : {}),
     ...(input.documentary ? { documentary: input.documentary } : {}),

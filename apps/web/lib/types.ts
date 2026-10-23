@@ -52,7 +52,12 @@ export interface ReviewAnswer {
   /** Set when the confidence was capped, with the reason. */
   confidence_cap?: { value: number; reason: string };
   guards?: Array<{ guard: string; verdict: "pass" | "flag" | "block"; detail?: string }>;
-  critic?: { rounds: number; final_verdict: string };
+  critic?: {
+    rounds: number;
+    final_verdict: string;
+    /** Citations set aside from the second round on because their source cannot be cited at all. */
+    not_citable?: Array<{ table: string; column: string; reason: string; round: number }>;
+  };
   record_hash?: string;
   approvals_required?: number;
   sample_mode?: boolean;

@@ -29,7 +29,9 @@ describe("a citation of a table that does not exist", () => {
     const { generator, requests } = scriptedGenerator([safe, citingComparison, approve, goodFacts, approve]);
     const res = await runReview(sampleDeps({ generator }), { runId: "cf-1", alertId: c.alertId, sampleMode: true });
     const retry = requests[3]?.prompt ?? "";
-    expect(retry).toContain('unknown table "comparison"');
+    expect(retry).toContain(
+      'remove this citation; it cannot be cited: comparison.dob ("comparison" is worked out by code, not a table',
+    );
     expect(retry).toContain("Cite only rows of these tables:");
     expect(retry).toMatch(/customer \(key customer_id\)/);
     expect(retry).toMatch(/list_entry \(key entry_id\)/);
@@ -38,9 +40,9 @@ describe("a citation of a table that does not exist", () => {
   });
 
   it("is prevented by a line in the decision prompt that names the tables and the computed blocks", () => {
-    expect(DECISION_SYSTEM).toContain("Cite only rows of the tables listed in <keys>");
+    expect(DECISION_SYSTEM).toContain("Cite only the tables and columns listed in <citable>");
     expect(DECISION_SYSTEM).toContain(
-      "The comparison, definitions, data_quality, screener_facts, first_finding, ownership, earlier_decisions and date_of_birth_from_verified_note blocks are worked out by code, not tables, and cannot be cited",
+      "not the comparison, definitions, data_quality, screener_facts, first_finding, ownership, earlier_decisions, identifier_overlap_types or date_of_birth_from_verified_note blocks, which are worked out by code, not tables",
     );
   });
 });

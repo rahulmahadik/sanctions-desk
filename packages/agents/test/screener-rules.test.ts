@@ -173,7 +173,8 @@ describe("nothing copied from the text reaches a cloud prompt", () => {
     expect(cloud.length).toBeGreaterThan(1);
     for (const r of cloud) expect(r.prompt).not.toContain(NOTE.slice(0, 30));
     const critic = requests.find((r) => r.prompt.startsWith("TASK: critic"))?.prompt ?? "";
-    expect(critic).toContain("customer.notes does not match the cited value");
+    expect(critic).toContain("customer.notes is a free-text column; its text is never shown or quoted");
+    expect(critic).not.toContain("something else");
   });
 });
 
@@ -184,7 +185,7 @@ describe("the critic and the first finding agree with the guard", () => {
     expect(matchEvidence(deps, evidence).comparison.definitions.false_positive).toBe(true);
     const blocked = {
       ...evidence,
-      screener: facts({ signals: [{ ...blockingSignal, spanId: "x", spanValid: true }] }),
+      screener: facts({ signals: [{ ...blockingSignal, spanId: "x", spanValid: true, grounded: true }] }),
     };
     const match = matchEvidence(deps, blocked);
     expect(match.comparison.definitions.false_positive).toBe(false);
@@ -321,7 +322,9 @@ describe("the screener's own limits", () => {
     const evidence = await gatherEvidence(deps, fp.alertId);
     const low = {
       ...evidence,
-      screener: facts({ signals: [{ ...blockingSignal, confidence: 0.2, spanId: "x", spanValid: true }] }),
+      screener: facts({
+        signals: [{ ...blockingSignal, confidence: 0.2, spanId: "x", spanValid: true, grounded: true }],
+      }),
     };
     const reasons = challengeTriggers(policy, JSON.parse(closeAnswer), matchEvidence(deps, low), low);
     expect(reasons.join(" ")).toMatch(/screener recorded 1 signal/);

@@ -41,6 +41,11 @@ export interface ToolOptions {
   defaultLimit: number;
   /** When true, columns whose description is marked "(sensitive)" are masked before the caller sees them. */
   maskSensitive: boolean;
+  /**
+   * Columns the tools never select or filter on: the caller's denied columns, so that a table holding one of them can
+   * still be read for its other columns.
+   */
+  omitColumns?: readonly string[];
 }
 
 export const SENSITIVE_MARK = "(sensitive)";
@@ -88,8 +93,10 @@ export function buildEvidenceTools(
 ): Map<string, EvidenceTool> {
   const tools = new Map<string, EvidenceTool>();
   for (const table of model.tables.filter((t) => t.activated)) {
-    const columns = table.columns.map((c) => c.name);
-    const sensitive = options.maskSensitive ? table.columns.filter(isSensitive).map((c) => c.name) : [];
+    const omitted = new Set((options.omitColumns ?? []).map((c) => c.toLowerCase()));
+    const kept = table.columns.filter((c) => !omitted.has(c.name.toLowerCase()));
+    const columns = kept.map((c) => c.name);
+    const sensitive = options.maskSensitive ? kept.filter(isSensitive).map((c) => c.name) : [];
     const keyColumns = table.columns.filter((c) => c.primaryKey).map((c) => c.name);
     const name = `find_${table.name}`;
     tools.set(name, {

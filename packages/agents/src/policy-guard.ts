@@ -34,9 +34,19 @@ export interface GuardInput {
   criticUnresolved: boolean;
 }
 
-/** The screener's risk signals that block a close: at or above the policy's confidence threshold. */
+/**
+ * The screener's risk signals that block a close: grounded in the text they point at, and at or above the policy's
+ * confidence threshold. A signal that is not grounded never blocks; it is shown as a flag (see `ungroundedSignals`).
+ */
 export function blockingSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
-  return (facts?.signals ?? []).filter((s) => s.confidence >= signalThreshold(policy, s));
+  return (facts?.signals ?? []).filter((s) => s.grounded !== false && s.confidence >= signalThreshold(policy, s));
+}
+
+/** Signals at or above the threshold that are not grounded in their span: recorded and shown, not blocking. */
+export function ungroundedSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
+  return (facts?.signals ?? []).filter(
+    (s) => s.grounded === false && s.confidence >= policy.screener.confidenceThreshold,
+  );
 }
 
 /** "other" is the type a model reaches for when nothing fits, so it needs more confidence to block. */
@@ -46,7 +56,10 @@ const signalThreshold = (policy: Policy, s: ScreenerSignal): number =>
 /** Signals at or above the normal threshold that do not block (an "other" below its own threshold): shown as a flag. */
 export function flaggedSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
   return (facts?.signals ?? []).filter(
-    (s) => s.confidence >= policy.screener.confidenceThreshold && s.confidence < signalThreshold(policy, s),
+    (s) =>
+      s.grounded !== false &&
+      s.confidence >= policy.screener.confidenceThreshold &&
+      s.confidence < signalThreshold(policy, s),
   );
 }
 
@@ -232,10 +245,27 @@ const closeRules: Rule = ({ closing, match, policy, decision }) => {
 };
 
 /**
+ * The document number a documentary customer note cites, compared with the customer's documents inside Zetaris. Not on
+ * the record: the note is not documentary, and a close of a customer alert (or any close that cites the note) goes to
+ * NEED_MORE_INFO with the reason shown. Not verified (the count could not be made): the note is not documentary, and a
+ * close that cites it goes to NEED_MORE_INFO. Otherwise the finding is a flag, so the reason is always visible. Raise
+ * only: a recommendation already more cautious than NEED_MORE_INFO stays as it is.
+ */
+function noteDocumentFinding(closing: boolean, evidence: EvidenceBundle, notesCited: boolean): Finding | undefined {
+  const check = evidence.noteDocument;
+  if (!check || check.status === "on_record") return undefined;
+  const reason = check.reason ?? "document cited in note not on customer record";
+  const reliedOn = notesCited || (check.status === "not_on_record" && !evidence.payment);
+  if (closing && reliedOn)
+    return fails("evidence_standard", "NEED_MORE_INFO", `the customer note does not meet the standard: ${reason}`);
+  return { guard: "evidence_standard", detail: `the customer note does not meet the standard: ${reason}`, flag: true };
+}
+
+/**
  * A close may rest on free text only when the text meets the documentary standard of the active policy. The text is
  * read from the evidence rows, not from the model's quotation of it.
  */
-const evidenceStandardRule: Rule = ({ closing, policy, decision, evidence, match }) => {
+const standardRule = ({ closing, policy, decision, evidence, match }: Context): Finding => {
   const standard = policy.evidenceStandard;
   const cited = (table: string, column: string) =>
     decision.facts.some((f) => f.table.toLowerCase() === table && f.column.toLowerCase() === column);
@@ -275,6 +305,17 @@ const evidenceStandardRule: Rule = ({ closing, policy, decision, evidence, match
     : passes("evidence_standard", `${relied.map((r) => r.label).join(" and ")} meets the documentary standard`);
 };
 
+const evidenceStandardRule: Rule = (c) => {
+  const notesCited = c.decision.facts.some(
+    (f) => f.table.toLowerCase() === "customer" && f.column.toLowerCase() === "notes",
+  );
+  const note = noteDocumentFinding(c.closing, c.evidence, notesCited);
+  const base = standardRule(c);
+  if (!note) return base;
+  if (note.raiseTo) return note;
+  return base.raiseTo ? [base, note] : note;
+};
+
 /**
  * The screener read the free text on a local model. A risk signal at or above the policy's threshold means the case
  * cannot be closed. If the screener could not answer, the free text is unread and the case cannot be closed either.
@@ -300,6 +341,27 @@ function screenerState(facts: ScreenerFacts | undefined): Finding | string | und
   return undefined;
 }
 
+/** The flag for signals that are not grounded in their span: shown with their reasons, never blocking. */
+const groundingFlag = (ungrounded: readonly ScreenerSignal[]): Finding => ({
+  guard: "screener_grounding",
+  detail: `${ungrounded.length} signal(s) not grounded in the text they point at; recorded, not blocking: ${ungrounded
+    .map(
+      (s) =>
+        `${s.type.replaceAll("_", " ")} (confidence ${s.confidence}, ${s.spanId}): ${s.groundingReason ?? "not grounded"}`,
+    )
+    .join("; ")}`,
+  flag: true,
+});
+
+/** What the screener rule says when nothing blocks or is flagged. */
+function quietScreener(policy: Policy, facts: ScreenerFacts | undefined, ungrounded: number): string {
+  const low = (facts?.signals.length ?? 0) - ungrounded;
+  if (ungrounded > 0 && low === 0) return "no grounded risk signal in the free text";
+  if (low > 0)
+    return `${low} signal(s) below the confidence threshold ${policy.screener.confidenceThreshold}; recorded, not blocking`;
+  return facts?.status === "nothing_to_read" ? "no free text to read" : "no risk signal in the free text";
+}
+
 /**
  * The screener read the free text on a local model. A risk signal at or above the policy's threshold ("other" has a
  * higher one) means the case cannot be closed. A screener that is missing, could not answer, or did not read all of the
@@ -321,6 +383,8 @@ const screenerRule: Rule = ({ closing, policy, evidence }) => {
   if (state !== undefined) return [...out, blockOrFlag(closing, "screener", state)];
   const blocking = blockingSignals(policy, facts);
   const flagged = flaggedSignals(policy, facts);
+  const ungrounded = ungroundedSignals(policy, facts);
+  if (ungrounded.length > 0) out.push(groundingFlag(ungrounded));
   if (blocking.length > 0) {
     out.push(blockOrFlag(closing, "screener", `risk signal in the free text: ${signalText(blocking)}`));
   } else if (flagged.length > 0) {
@@ -330,17 +394,7 @@ const screenerRule: Rule = ({ closing, policy, evidence }) => {
       flag: true,
     });
   } else {
-    const low = facts?.signals.length ?? 0;
-    out.push(
-      passes(
-        "screener",
-        low > 0
-          ? `${low} signal(s) below the confidence threshold ${policy.screener.confidenceThreshold}; recorded, not blocking`
-          : facts?.status === "nothing_to_read"
-            ? "no free text to read"
-            : "no risk signal in the free text",
-      ),
-    );
+    out.push(passes("screener", quietScreener(policy, facts, ungrounded.length)));
   }
   return out;
 };

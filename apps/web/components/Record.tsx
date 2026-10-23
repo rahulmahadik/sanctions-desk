@@ -54,6 +54,10 @@ function ConfidenceLine({ answer }: { answer: ReviewAnswer }) {
   );
 }
 
+/**
+ * The checks: every guard verdict (the screener's grounded and not-grounded signals, the documentary standard and the
+ * rest), the critic's verdict, and any citation the critic set aside as not citable.
+ */
 function Checks({ answer }: { answer: ReviewAnswer }) {
   const rounds = answer.critic?.rounds;
   return (
@@ -71,6 +75,11 @@ function Checks({ answer }: { answer: ReviewAnswer }) {
             critic: {answer.critic.final_verdict} after {rounds} round{rounds === 1 ? "" : "s"}
           </li>
         ) : null}
+        {(answer.critic?.not_citable ?? []).map((n) => (
+          <li key={`not-citable-${n.table}-${n.column}-${n.round}`} className="tone-alert" data-testid="not-citable">
+            critic set aside a citation of {n.table}.{n.column} as not citable (round {n.round}): {n.reason}
+          </li>
+        ))}
       </ul>
     </>
   );

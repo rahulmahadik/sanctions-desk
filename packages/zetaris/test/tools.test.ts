@@ -58,6 +58,25 @@ describe("buildEvidenceTools", () => {
     expect(alert?.description).toContain("customer_id -> customer");
   });
 
+  it("leaves out the columns a caller may not name, so the rest of that table can still be read", async () => {
+    const api = fakeZetaris(() => ({ body: rowsOf(["identifier_id"], [["IDN-1"]]) }));
+    const client = createZetarisClient({
+      config: testConfig({ ZETARIS_TOKEN_EVIDENCE: "e-token" }),
+      fetchImpl: api.fetchImpl,
+    });
+    client.setAllowedTables(model.tables.map((t) => t.qualifiedName));
+    const tools = buildEvidenceTools(model, client, {
+      role: "evidence",
+      defaultLimit: 50,
+      maskSensitive: true,
+      omitColumns: ["id_number"],
+    });
+    const tool = tools.get("find_customer_identifier");
+    expect(tool?.columns).not.toContain("id_number");
+    await tool?.find({ customer_id: "CUST-001" });
+    expect(api.sent[0]?.body.sql).not.toContain("id_number");
+  });
+
   it("builds a quoted, ordered, limited select and returns rows with keys and hashes", async () => {
     const { api, tools } = setup(() => ({
       body: rowsOf(["customer_id", "full_name"], [["CUST-001", "Bassem Murad"]]),

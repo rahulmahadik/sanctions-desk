@@ -21,11 +21,21 @@ const errorsFor = (input: unknown): string[] => {
 describe("policy schema", () => {
   it("accepts the committed default policy", () => {
     const policy = loadPolicyFile("config/policy.default.json");
-    expect(policy.version).toBe(6);
+    expect(policy.version).toBe(7);
     expect(policy.evidenceStandard.requireCheckReference).toBe(true);
+    // Version 7: span grounding of screener signals, with the term lists as policy data.
+    expect(policy.screener.grounding.enabled).toBe(true);
+    expect(policy.screener.grounding.terms.relationship_to_listed_party).toContain("on behalf of");
+    expect(policy.screener.grounding.placeTypes).toEqual(["sanctioned_jurisdiction_link"]);
     expect(policy.ownership.thresholdPercent).toBe(50);
     expect(policy.lists.enabled).toEqual(["OFAC", "UN"]);
     expect(policy.jurisdictions.map((j) => j.country)).toEqual(["CU", "IR", "KP"]);
+  });
+
+  it("keeps the injection flag out of span grounding", () => {
+    expect(
+      errorsFor(edited((e) => e.set("screener.grounding.terms.instruction_to_reviewer", ["ignore"]))),
+    ).toContainEqual(expect.stringContaining("never subject to grounding"));
   });
 
   it("requires a positive whole version", () => {
