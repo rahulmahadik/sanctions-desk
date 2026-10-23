@@ -4,6 +4,7 @@ import {
   buildEvidenceTools,
   type EvidenceTool,
   loadUslModel,
+  quoteLiteral,
   type ToolResult,
   type UslModel,
 } from "@sanctions-desk/zetaris";
@@ -84,12 +85,11 @@ function first(result: ToolResult, what: string): Row {
 /** SQL that counts customer identifiers equal to listed identifiers; the numbers never leave Zetaris. */
 function overlapSql(model: UslModel, customerId: string, entryId: string): string {
   const base = `${model.namespace}.${model.name}`;
-  const q = (v: string) => `'${v.replace(/'/g, "''")}'`;
   const norm = (c: string) => `regexp_replace(upper(${c}), '[^A-Z0-9]', '')`;
   return (
     `SELECT ci.id_type AS id_type, COUNT(*) AS n FROM ${base}.customer_identifier ci ` +
     `JOIN ${base}.list_identifier li ON ${norm("ci.id_number")} = ${norm("li.id_number")} ` +
-    `WHERE ci.customer_id = ${q(customerId)} AND li.entry_id = ${q(entryId)} GROUP BY ci.id_type`
+    `WHERE ci.customer_id = ${quoteLiteral(customerId)} AND li.entry_id = ${quoteLiteral(entryId)} GROUP BY ci.id_type`
   );
 }
 

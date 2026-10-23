@@ -1,5 +1,9 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { scopeViolation } from "../src/client.js";
 import { blankLiterals, guardSql } from "../src/guard.js";
+import { parseUslModel } from "../src/metadata.js";
+import { buildEvidenceTools, quoteLiteral } from "../src/tools.js";
 
 const NS = "lightning.metastore.sanctions";
 const USL = "screening_usl";
@@ -19,9 +23,11 @@ describe("guardSql: what is allowed", () => {
   it("accepts joins, quoted names, any case and values with quotes", () => {
     expect(
       check(
-        `select a.alert_id from ${T("alert")} a JOIN \`${NS}\`.\`${USL}\`.\`CUSTOMER\` c ON a.customer_id = c.customer_id WHERE c.full_name = 'Smith'`,
+        `select a.alert_id from ${T("alert")} a JOIN \`lightning\`.\`metastore\`.\`sanctions\`.\`${USL}\`.\`CUSTOMER\` c ON a.customer_id = c.customer_id WHERE c.full_name = 'Smith'`,
       ).ok,
     ).toBe(true);
+    // One quoted name with dots in it is a single name to the engine, not the dotted path of an allowed table.
+    expect(reason(`SELECT * FROM \`${NS}\`.\`${USL}\`.customer`)).toBe("unrecognised_table");
     expect(check(`SELECT * FROM ${T("customer").toUpperCase()} WHERE full_name = 'O''Brien'`).ok).toBe(true);
     expect(
       check(`SELECT COUNT(*) FROM ${T("alert")} a JOIN ${T("customer")} c ON a.customer_id = c.customer_id`).ok,
@@ -113,8 +119,12 @@ describe("guardSql: only the allowed tables", () => {
     expect(reason("SELECT * FROM tpcds_db.store_sales")).toBe("table_not_allowed");
     expect(reason(`SELECT * FROM ${T("customer")} c JOIN secrets.keys k ON 1 = 1`)).toBe("table_not_allowed");
   });
-  it("rejects comma joins and subqueries without an allowed table", () => {
-    expect(reason(`SELECT * FROM ${T("customer")}, ${T("alert")}`)).toBe("table_not_allowed");
+  it("reads every table of a comma join, and refuses a subquery without an allowed table", () => {
+    expect(check(`SELECT * FROM ${T("customer")}, ${T("alert")}`)).toMatchObject({
+      ok: true,
+      tables: [T("customer"), T("alert")],
+    });
+    expect(reason(`SELECT * FROM ${T("customer")}, other.users`)).toBe("table_not_allowed");
     expect(reason("SELECT * FROM (SELECT 1) t")).toBe("no_table");
   });
 });
@@ -133,5 +143,250 @@ describe("guardSql: limits", () => {
 describe("blankLiterals", () => {
   it("hides the inside of strings and keeps escaped quotes together", () => {
     expect(blankLiterals("a = 'O''Brien' AND b = 'x'")).toBe("a = 'xxxxxxxx' AND b = 'x'");
+  });
+  it("keeps a backslash and the character after it inside the literal", () => {
+    expect(blankLiterals("a = 'x\\' OR b = 'y'")).toBe("a = 'xxxxxxxxxxx'y'");
+  });
+});
+
+describe("guardSql: every table in every FROM form", () => {
+  const other = "other.users";
+  it.each([
+    ["a comma join after an alias", `SELECT * FROM ${T("customer")} c, ${other} u`],
+    ["a comma join after an alias with AS", `SELECT * FROM ${T("customer")} AS c, ${other} u`],
+    ["a join then an aliased comma join", `SELECT * FROM ${T("customer")} a JOIN ${T("alert")} b ON 1=1, ${other}`],
+    ["a comma after a join condition", `SELECT * FROM ${T("customer")} a JOIN ${T("alert")} b ON a.x = b.x, ${other}`],
+    ["a third table in a comma list", `SELECT * FROM ${T("customer")} a, ${T("alert")} b, ${other} c`],
+    ["an inner join", `SELECT * FROM ${T("customer")} a INNER JOIN ${other} b ON 1=1`],
+    ["a left outer join", `SELECT * FROM ${T("customer")} a LEFT OUTER JOIN ${other} b ON 1=1`],
+    ["a right join", `SELECT * FROM ${T("customer")} a RIGHT JOIN ${other} b ON 1=1`],
+    ["a full outer join", `SELECT * FROM ${T("customer")} a FULL OUTER JOIN ${other} b ON 1=1`],
+    ["a left semi join", `SELECT * FROM ${T("customer")} a LEFT SEMI JOIN ${other} b ON 1=1`],
+    ["a cross join", `SELECT * FROM ${T("customer")} a CROSS JOIN ${other}`],
+    ["a natural join", `SELECT * FROM ${T("customer")} NATURAL JOIN ${other}`],
+    ["a join with USING", `SELECT * FROM ${T("customer")} a JOIN ${other} b USING (customer_id)`],
+    ["a lateral join", `SELECT * FROM ${T("customer")} a JOIN LATERAL (SELECT 1 FROM ${other}) b`],
+    ["a bracketed join", `SELECT * FROM (${T("customer")} a JOIN ${other} b ON 1=1)`],
+    ["a bracketed comma list", `SELECT * FROM (${T("customer")} a, ${other} b)`],
+    ["a subquery in FROM", `SELECT * FROM (SELECT * FROM ${other}) s`],
+    ["a subquery after an allowed table", `SELECT * FROM ${T("customer")} c, (SELECT * FROM ${other}) s`],
+    ["a subquery in WHERE", `SELECT * FROM ${T("customer")} WHERE a = (SELECT max(a) FROM ${other})`],
+    ["a subquery in IN", `SELECT * FROM ${T("customer")} WHERE a IN (SELECT a FROM ${other})`],
+    ["a subquery in EXISTS", `SELECT * FROM ${T("customer")} c WHERE EXISTS (SELECT 1 FROM ${other} u)`],
+    ["a subquery in the select list", `SELECT (SELECT max(a) FROM ${other}) AS m FROM ${T("customer")}`],
+    [
+      "a subquery in a join condition",
+      `SELECT * FROM ${T("customer")} a JOIN ${T("alert")} b ON b.x IN (SELECT x FROM ${other})`,
+    ],
+    ["a query that starts with FROM", `SELECT 1 FROM ${T("customer")} WHERE a IN (FROM ${other} SELECT a)`],
+    ["a TABLE query", `SELECT 1 FROM ${T("customer")} WHERE a IN (TABLE ${other})`],
+    ["a union", `SELECT a FROM ${T("customer")} UNION SELECT a FROM ${other}`],
+    ["an intersect", `SELECT a FROM ${T("customer")} INTERSECT SELECT a FROM ${other}`],
+    ["an except", `SELECT a FROM ${T("customer")} EXCEPT SELECT a FROM ${other}`],
+    ["a bracketed union", `(SELECT a FROM ${T("customer")}) UNION ALL (SELECT a FROM ${other})`],
+    ["a common table expression", `WITH x AS (SELECT * FROM ${other}) SELECT * FROM x`],
+    [
+      "a common table expression that shadows a table",
+      `WITH customer AS (SELECT * FROM ${other}) SELECT * FROM customer`,
+    ],
+    ["a nested common table expression", `SELECT * FROM (WITH x AS (SELECT * FROM ${other}) SELECT * FROM x) s`],
+    [
+      "a common table expression named like an allowed table",
+      `SELECT * FROM (WITH \`${T("customer")}\` AS (SELECT * FROM ${other}) SELECT * FROM \`${T("customer")}\`) s`,
+    ],
+    ["a one-part name", "SELECT * FROM users"],
+    ["a two-part name", "SELECT * FROM a.b"],
+    ["a three-part name", "SELECT * FROM catalog.schema.users"],
+    ["a four-part name", `SELECT * FROM ${NS}.users`],
+    ["a six-part name", `SELECT * FROM ${T("customer")}.extra`],
+    ["a backquoted dotted name", `SELECT * FROM \`${T("customer")}\``],
+    ["a double-quoted dotted name", `SELECT * FROM "${T("customer")}"`],
+    ["a bracket-quoted name", "SELECT * FROM [lightning].[metastore].[sanctions].[screening_usl].[customer]"],
+    ["a bracket-quoted name after a join", `SELECT * FROM ${T("customer")} c JOIN [other].[users] u ON 1=1`],
+    ["a backquoted name with an escaped quote", `SELECT * FROM ${NS}.${USL}.\`cust\`\`omer\``],
+    ["a double-quoted name with an escaped quote", `SELECT * FROM ${NS}.${USL}."cust""omer"`],
+    ["a table function", "SELECT * FROM range(10)"],
+    ["a name given by a function", "SELECT * FROM IDENTIFIER('other.users')"],
+    ["a file read", "SELECT * FROM json.`/tmp/x`"],
+    ["a table sample", `SELECT * FROM ${T("customer")} TABLESAMPLE (10 PERCENT)`],
+    ["a pivot", `SELECT * FROM ${T("customer")} PIVOT (count(a) FOR a IN (1, 2))`],
+    ["a time travel clause", `SELECT * FROM ${T("customer")} VERSION AS OF 1`],
+    ["a FROM with nothing after it", "SELECT 1 FROM"],
+    ["a number glued to a keyword", `SELECT 1e5FROM ${other}`],
+    [
+      "a column named like a clause, then a comma join",
+      `SELECT * FROM ${T("customer")} a JOIN ${T("alert")} b ON a.x = b.sort, ${other}`,
+    ],
+    [
+      "a clause word used as a column, then a comma join",
+      `SELECT * FROM ${T("customer")} a JOIN ${T("alert")} b ON a.x = offset, ${other}`,
+    ],
+    ["a clause word used as an alias, then a comma join", `SELECT * FROM ${T("customer")} limit, ${other}`],
+    ["an unbalanced bracket", `SELECT * FROM (${T("customer")}`],
+    ["an extra closing bracket", `SELECT * FROM ${T("customer")})`],
+    ["a variable substitution", `SELECT * FROM \${hivevar:t}`],
+    ["a variable substitution inside a value", `SELECT * FROM ${T("customer")} WHERE a = '\${x}'`],
+    ["a parameter marker", `SELECT * FROM ${T("customer")} WHERE a = ?`],
+  ])("refuses %s", (_name, sql) => {
+    expect(check(sql).ok).toBe(false);
+  });
+
+  it.each([
+    [
+      "a comma join with aliases",
+      `SELECT * FROM ${T("customer")} c, ${T("alert")} a WHERE c.customer_id = a.customer_id`,
+    ],
+    [
+      "several join kinds",
+      `SELECT * FROM ${T("customer")} c LEFT OUTER JOIN ${T("alert")} a ON 1=1 CROSS JOIN ${T("list_entry")} e`,
+    ],
+    ["a bracketed join", `SELECT * FROM (${T("customer")} c JOIN ${T("alert")} a ON c.x = a.x) j`],
+    ["a subquery with a column alias list", `SELECT * FROM (SELECT a, b FROM ${T("customer")}) AS s(x, y)`],
+    ["a union of allowed tables", `SELECT a FROM ${T("customer")} UNION SELECT a FROM ${T("alert")}`],
+    ["quoted parts of an allowed table", `SELECT * FROM "lightning"."metastore".\`sanctions\`.screening_usl."ALERT"`],
+    ["a value that looks like a table", `SELECT * FROM ${T("customer")} WHERE note = 'x, other.users JOIN y'`],
+    ["a column named like a clause", `SELECT * FROM ${T("customer")} c WHERE c.sort = 1 ORDER BY c.order, c.limit`],
+    ["functions with commas", `SELECT coalesce(a, 'b'), substr(c, 1, 2) FROM ${T("customer")} x, ${T("alert")} y`],
+    ["a window", `SELECT row_number() OVER (PARTITION BY a, b ORDER BY c) AS r FROM ${T("customer")}`],
+    ["non-ASCII inside a value", `SELECT * FROM ${T("customer")} WHERE full_name = 'Müller 王'`],
+  ])("accepts %s", (_name, sql) => {
+    expect(check(sql)).toMatchObject({ ok: true });
+  });
+
+  it("names every table it read, once, in lower case", () => {
+    const v = check(
+      `SELECT * FROM ${T("CUSTOMER")} c, ${T("alert")} a WHERE a.x IN (SELECT x FROM ${T("list_entry")}) AND c.y IN (SELECT y FROM ${T("customer")})`,
+    );
+    expect(v.ok && [...v.tables].sort()).toEqual([T("alert"), T("customer"), T("list_entry")]);
+  });
+
+  it("gives a clear code when a table position cannot be read", () => {
+    expect(reason("SELECT * FROM [other].[users]")).toBe("unrecognised_table");
+    expect(reason("SELECT * FROM range(10)")).toBe("unrecognised_table");
+    expect(reason(`SELECT * FROM \`${T("customer")}\``)).toBe("unrecognised_table");
+    expect(reason(`SELECT * FROM ${T("customer")} limit, other.users`)).toBe("unrecognised_table");
+    expect(reason(`SELECT * FROM (${T("customer")}`)).toBe("unbalanced_brackets");
+    expect(reason("WITH x AS (SELECT 1) SELECT * FROM x")).toBe("not_read_only");
+    expect(reason("SELECT * FROM (WITH x AS (SELECT 1) SELECT * FROM x) s")).toBe("forbidden_keyword");
+  });
+});
+
+describe("guardSql: characters outside string values", () => {
+  it.each([
+    ["a Cyrillic letter in a keyword", `SЕLECT * FROM ${T("customer")}`],
+    ["a Cyrillic letter in a table name", `SELECT * FROM ${NS}.${USL}.сustomer`],
+    ["a full-width letter", `SELECT * FROM ${T("customer")} ＷHERE 1=1`],
+    ["a zero-width space", `SELECT * FROM ${T("customer")}​, other.users`],
+    ["a zero-width joiner in a name", `SELECT * FROM ${T("cust‍omer")}`],
+    ["a bidirectional override", `SELECT * FROM ${T("customer")} WHERE a = 1 ‮`],
+    ["a no-break space", `SELECT * FROM ${T("customer")}`],
+    ["non-ASCII in a quoted name", `SELECT * FROM ${NS}.${USL}.\`custömer\``],
+    ["a byte order mark", `﻿SELECT * FROM ${T("customer")}`],
+  ])("refuses %s", (_name, sql) => {
+    expect(reason(sql)).toBe("non_ascii");
+  });
+
+  it("refuses a backslash anywhere, so a string cannot end where the guard does not expect", () => {
+    expect(
+      reason(`SELECT 1 FROM ${T("customer")} WHERE a = 'x\\' OR 1 IN (SELECT 1 FROM other.users) OR b = \\'y'`),
+    ).toBe("backslash");
+    expect(reason(`SELECT 1 FROM ${T("customer")} WHERE a = 'abc\\'`)).toBe("backslash");
+    expect(reason(`SELECT 1 FROM ${T("customer")} WHERE a = 'a\\nb'`)).toBe("backslash");
+  });
+
+  it("refuses an unclosed quote", () => {
+    expect(reason(`SELECT 1 FROM ${T("customer")} WHERE a = 'x`)).toBe("unbalanced_quote");
+    expect(reason(`SELECT 1 FROM ${T("customer")} WHERE \`a = 1`)).toBe("unbalanced_quote");
+  });
+
+  it("keeps a doubled quote inside one value", () => {
+    const v = check(`SELECT 1 FROM ${T("customer")} WHERE a = 'x'' OR 1 IN (SELECT 1 FROM other.users) OR ''y'`);
+    expect(v).toMatchObject({ ok: true, tables: [T("customer")] });
+  });
+});
+
+describe("quoteLiteral agrees with the guard", () => {
+  it("refuses a backslash and a substitution, and its output always passes the guard", () => {
+    expect(() => quoteLiteral("abc\\")).toThrow(/not allowed/);
+    expect(() => quoteLiteral(`\${x}`)).toThrow(/not allowed/);
+    for (const value of ["O'Brien", "''", "x' OR '1'='1", "a, other.users JOIN b", "Müller"]) {
+      const v = check(`SELECT * FROM ${T("customer")} WHERE a = ${quoteLiteral(value)}`);
+      expect(v).toMatchObject({ ok: true, tables: [T("customer")] });
+    }
+  });
+});
+
+describe("scopeViolation: an agent's own tables", () => {
+  it("sees the second table of a comma join after an alias", () => {
+    const scope = { agent: "screener", tables: ["customer"], denyColumns: [] };
+    const v = check(`SELECT * FROM ${T("customer")} c, ${T("alert")} a`);
+    expect(v.ok).toBe(true);
+    if (v.ok) expect(scopeViolation(scope, v.tables, v.sql)).toMatch(/may not read alert/);
+  });
+});
+
+describe("guardSql: every statement shape the application sends", () => {
+  type Cache = { entries: Record<string, { sql: string; body: string }> };
+  const cache = JSON.parse(
+    readFileSync(new URL("../../../data/sample/query-cache.json", import.meta.url), "utf8"),
+  ) as Cache;
+  const recorded = Object.values(cache.entries);
+  const load = recorded.find((e) => e.sql.startsWith("LOAD USL"));
+  const cell = (JSON.parse(load?.body ?? "{}") as { data?: string[][] }).data?.[0]?.[0] ?? "{}";
+  const model = parseUslModel(JSON.parse(cell));
+  const live = {
+    namespace: NS,
+    usl: USL,
+    allowedTables: model.tables.filter((t) => t.activated).map((t) => t.qualifiedName),
+  };
+  const q = (name: string) => `${NS}.${USL}.${name}`;
+
+  it("passes every statement recorded from real runs, and reads exactly the tables it names", () => {
+    expect(recorded.length).toBeGreaterThan(100);
+    for (const { sql } of recorded) {
+      const v = guardSql(sql, live);
+      expect(v, sql).toMatchObject({ ok: true });
+      const named = [...sql.matchAll(/(?:FROM|JOIN|TABLE) (lightning\.[\w.]+)/g)].map((m) => m[1]);
+      if (v.ok) expect([...v.tables].sort(), sql).toEqual([...new Set(named)].sort());
+    }
+  });
+
+  it("passes the statements the evidence tools build, for every table and filter shape", async () => {
+    const sent: string[] = [];
+    const client = {
+      query: async (_role: string, sql: string) => {
+        sent.push(sql);
+        return { objects: [], rows: [], headers: [] };
+      },
+    } as unknown as Parameters<typeof buildEvidenceTools>[1];
+    const tools = buildEvidenceTools(model, client, { role: "evidence", defaultLimit: 50, maskSensitive: true });
+    for (const tool of tools.values()) {
+      const [a, b] = tool.columns as [string, string | undefined];
+      await tool.find({ [a]: "CUST-0001" });
+      if (b) await tool.find({ [a]: "O'Brien", [b]: "x" }, { limit: 5 });
+    }
+    expect(sent.length).toBeGreaterThan(10);
+    for (const sql of sent) expect(guardSql(sql, live), sql).toMatchObject({ ok: true });
+  });
+
+  it("passes the metadata, quality, list change, queue, ownership and identifier overlap shapes", () => {
+    const list = ["CUST-0051", "CUST-0052"].map(quoteLiteral).join(", ");
+    const norm = (c: string) => `regexp_replace(upper(${c}), '[^A-Z0-9]', '')`;
+    const statements = [
+      `LOAD USL ${USL} NAMESPACE ${NS}`,
+      `LIST DQ USL ${NS}.${USL}`,
+      `SHOW NAMESPACES OR TABLES IN ${NS}`,
+      `SHOW DQ ALL INVALID TABLE ${q("customer")}`,
+      `SHOW DQ INVALID RECORD dob_present_for_individuals TABLE ${q("customer")}`,
+      `SELECT ci.id_type AS id_type, COUNT(*) AS n FROM ${q("customer_identifier")} ci JOIN ${q("list_identifier")} li ON ${norm("ci.id_number")} = ${norm("li.id_number")} WHERE ci.customer_id = ${quoteLiteral("CUST-0001")} AND li.entry_id = ${quoteLiteral("OFAC-1")} GROUP BY ci.id_type`,
+      `SELECT \`alert_id\`, \`customer_id\`, \`entry_id\` FROM ${q("alert")} WHERE \`status\` = 'open' AND \`customer_id\` IN (${list})`,
+      `SELECT \`payment_id\`, \`amount\`, \`currency\` FROM ${q("payment")} WHERE \`status\` = 'pending' AND \`customer_id\` IN (${list})`,
+      `SELECT \`ownership_id\`, \`owned_party_id\` FROM ${q("beneficial_owner")} WHERE \`owned_party_id\` IN (${list}) ORDER BY \`ownership_id\``,
+      `SELECT \`disposition_id\`, \`decision\` FROM ${q("disposition")} ORDER BY \`disposition_id\``,
+      `SELECT \`alert_id\`, \`status\` FROM ${q("alert")} ORDER BY \`alert_id\` LIMIT 200`,
+      `SELECT definition_key, definition_id, version, name, statement, status, owner, effective_from FROM ${q("business_definition")}`,
+      `SELECT p.customer_id, COUNT(*) AS pending_payments, SUM(p.amount) AS pending_amount FROM ${q("payment")} p WHERE p.status = 'pending' AND p.customer_id IN (${list}) GROUP BY p.customer_id`,
+    ];
+    for (const sql of statements) expect(guardSql(sql, live), sql).toMatchObject({ ok: true });
   });
 });

@@ -33,6 +33,9 @@ describe("quoteLiteral", () => {
     expect(quoteLiteral("O'Brien")).toBe("'O''Brien'");
     expect(() => quoteLiteral("a;b")).toThrow(/not allowed/);
     expect(() => quoteLiteral("a\nb")).toThrow(/not allowed/);
+    expect(() => quoteLiteral("abc\\")).toThrow(/not allowed/);
+    expect(() => quoteLiteral("a\\'b")).toThrow(/not allowed/);
+    expect(() => quoteLiteral(`\${x}`)).toThrow(/not allowed/);
   });
 });
 
