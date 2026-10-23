@@ -37,15 +37,15 @@ const secretValues = Object.entries(process.env)
 
 const counts = new Map<string, number>();
 /** The Nightshift build in force when a run started, from eval/nightshift-builds.json (null if not listed). */
-function nightshiftBuildAt(startedAt: string): { runtime: string; app_bundle: string; known_limits: string[] } | null {
+function nightshiftBuildAt(startedAt: string): { version: string; source: string; known_limits: string[] } | null {
   const file = resolveProjectPath("eval/nightshift-builds.json");
   if (!existsSync(file)) return null;
   const { builds } = JSON.parse(readFileSync(file, "utf8")) as {
-    builds: Array<{ runtime: string; app_bundle: string; from: string; until: string | null; known_limits: string[] }>;
+    builds: Array<{ version: string; source: string; from: string; until: string | null; known_limits: string[] }>;
   };
   const at = Date.parse(startedAt);
   const b = builds.find((x) => at >= Date.parse(x.from) && (x.until === null || at < Date.parse(x.until)));
-  return b ? { runtime: b.runtime, app_bundle: b.app_bundle, known_limits: b.known_limits } : null;
+  return b ? { version: b.version, source: b.source, known_limits: b.known_limits } : null;
 }
 
 function redact(text: string): string {

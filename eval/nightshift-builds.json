@@ -1,9 +1,9 @@
 {
-  "note": "The Nightshift build the runs were made on. The application bundle version is read from the installed application; the runtime does not expose its own version. Each run takes the build whose period contains its start time. Limits listed are the ones we measured, not claims about other builds.",
+  "note": "The Nightshift build the runs were made on: version 1.2.1, as shown on the application's About screen (no separate runtime version is shown). Each run takes the build whose period contains its start time. Limits listed are the ones we measured, not claims about other builds.",
   "builds": [
     {
-      "runtime": "not exposed by the runtime",
-      "app_bundle": "1.2.1",
+      "version": "1.2.1",
+      "source": "the application's About screen, confirmed by the project owner; no separate runtime version is shown",
       "from": "2026-10-20T00:00:00Z",
       "until": null,
       "known_limits": [
