@@ -49,6 +49,6 @@ Changes made before the final freeze. **No system output for v2 existed when any
 | all | Date corrected to 23 October 2026; the statement about independence reworded | independent review (date and wording) | The set was committed on 23 October 2026, after the v1 results were known; it was written by a separate author from the v1 case files and the written definitions, which is what the wording now says. |
 | all | A second pinned hash over the rows the cases point at (notes, references and fields) | author's own check | The case file does not hold the note text, so an edit to a note would not change the case-file hash. |
 
-**Final freeze:** the commit before the first v2 run. Its hash is written here and in `heldout2-changes.json` when that run starts: _not yet recorded_.
+**Final freeze:** commit `da7aff4`, the commit the first v2 run (changed system, 24 Oct 2026 02:07 SGT) started from; the run result records the same commit. Nothing in `heldout2.json` or the rows it points at changed after it.
 
 The rows are built from their own seed and id marker (`CUST-J0001`, `ALR-J0001`, ...) after the first set's rows. `npm run data:synthetic -- --include-heldout2` writes them into `data/synthetic/` after the first set's rows, and `npm run heldout2:load` loads them into the bank database (dry run unless `--apply` is given). Without the flag every existing output is unchanged; a test checks the main and first-set outputs byte for byte against the committed files.

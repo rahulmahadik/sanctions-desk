@@ -2,8 +2,8 @@
   "set": "eval/cases/heldout2.json",
   "no_system_output_when_changed": true,
   "evidence": "eval/results held no heldout2 result file and logs held no heldout2 trace when each change was made (checked 23 Oct 2026, 22:2x SGT)",
-  "final_freeze_commit": null,
-  "final_freeze_note": "recorded at the commit before the first v2 run",
+  "final_freeze_commit": "da7aff4",
+  "final_freeze_note": "the commit the first v2 run (changed system, 24 Oct 2026 02:07 SGT) started from; the run result records the same commit",
   "changes": [
     {
       "cases": "HO2-009, HO2-010",
