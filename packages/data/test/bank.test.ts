@@ -294,3 +294,19 @@ describe("the Postgres schema", () => {
     expect(BANKDB_TABLE_ORDER.indexOf("customer")).toBeLessThan(BANKDB_TABLE_ORDER.indexOf("account"));
   });
 });
+
+describe("the held-out rows", () => {
+  it("are kept out of the main tables, so adding the set changes no committed row", () => {
+    expect(bank.tables.customer.some((c) => c.customer_id.startsWith("CUST-H"))).toBe(false);
+    expect(bank.tablesWithHeldout.customer.some((c) => c.customer_id.startsWith("CUST-H"))).toBe(true);
+    expect(bank.manifest.counts.customer).toBe(bank.tables.customer.length);
+    const main = new Set(bank.tables.customer.map((c) => JSON.stringify(c)));
+    expect(bank.tablesWithHeldout.customer.filter((c) => main.has(JSON.stringify(c)))).toHaveLength(main.size);
+  });
+
+  it("build the same bank every time", () => {
+    const again = buildBank(list, snapshotIds);
+    expect(JSON.stringify(again.tablesWithHeldout)).toBe(JSON.stringify(bank.tablesWithHeldout));
+    expect(JSON.stringify(again.heldout)).toBe(JSON.stringify(bank.heldout));
+  });
+});

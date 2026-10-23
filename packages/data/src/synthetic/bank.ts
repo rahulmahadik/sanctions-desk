@@ -38,9 +38,12 @@ export const DEFAULT_BANK_OPTIONS: BankOptions = {
 };
 
 export interface SyntheticBank {
+  /** The rows of the main exam and the background. This is what `data/synthetic/` holds. */
   tables: SyntheticTables;
+  /** The same rows plus those of the held-out set, which are loaded only when the set is run. */
+  tablesWithHeldout: SyntheticTables;
   cases: ExamCase[];
-  /** The frozen held-out set (HO-001 and up). Its rows are in `tables`, with ids that carry an H. */
+  /** The frozen held-out set (HO-001 and up). Its rows are in `tablesWithHeldout`, with ids that carry an H. */
   heldout: ExamCase[];
   /** Edits that turn the committed list into the later list the exam runs against. */
   delta: DeltaOp[];
@@ -309,6 +312,8 @@ export function buildBank(
   addBackground(b, options.backgroundCustomers);
   addBackgroundAlerts(b, examCustomers, options);
 
+  const mainTables = structuredClone(tables);
+
   // The held-out set: its own seed and id marker, built last, so no other row changes when it is added.
   const hb = new BankBuilder(
     createRng(`${options.seed}#heldout`),
@@ -333,14 +338,15 @@ export function buildBank(
   }
 
   return {
-    tables,
+    tables: mainTables,
+    tablesWithHeldout: tables,
     cases: b.cases,
     heldout,
     delta: b.delta,
     manifest: {
       label: SYNTHETIC_LABEL,
       seed: `${options.seed}#${shortHash(options.seed, JSON.stringify(b.cases.map((c) => c.kind)))}`,
-      counts: Object.fromEntries(SYNTHETIC_TABLE_NAMES.map((n) => [n, tables[n].length])),
+      counts: Object.fromEntries(SYNTHETIC_TABLE_NAMES.map((n) => [n, mainTables[n].length])),
       exam: { cases: b.cases.length, groups },
       list_snapshot_ids: [...listSnapshotIds],
       delta: { label: DELTA_LABEL, ops: b.delta.length },
@@ -350,10 +356,11 @@ export function buildBank(
 
 const columnsOf = (name: SyntheticTableName): string[] => Object.keys(SYNTHETIC_TABLES[name].shape);
 
-export function writeBank(dir: string, bank: SyntheticBank): void {
+export function writeBank(dir: string, bank: SyntheticBank, options: { includeHeldout?: boolean } = {}): void {
   mkdirSync(dir, { recursive: true });
+  const tables = options.includeHeldout ? bank.tablesWithHeldout : bank.tables;
   for (const name of SYNTHETIC_TABLE_NAMES) {
-    const rows = bank.tables[name] as object[];
+    const rows = tables[name] as object[];
     writeFileSync(join(dir, `${name}.json`), `${JSON.stringify(rows)}\n`);
     writeFileSync(join(dir, `${name}.csv`), csvOf(columnsOf(name), rows));
   }

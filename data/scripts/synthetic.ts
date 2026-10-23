@@ -3,11 +3,20 @@
  *
  *   npm run data:synthetic
  *
- * Writes data/synthetic/ (tables as JSON and CSV, the list update, a manifest) and eval/cases/exam.json.
+ * Writes data/synthetic/ (tables as JSON and CSV, the list update, a manifest), eval/cases/exam.json and
+ * eval/cases/heldout.json. Add --include-heldout to put the held-out rows into data/synthetic/ as well.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { buildBank, loadDataSources, TABLES, type TableRows, writeBank, writeExam } from "@sanctions-desk/data";
+import {
+  buildBank,
+  loadDataSources,
+  TABLES,
+  type TableRows,
+  writeBank,
+  writeExam,
+  writeHeldout,
+} from "@sanctions-desk/data";
 import { resolveProjectPath } from "@sanctions-desk/shared";
 
 const config = loadDataSources();
@@ -23,6 +32,9 @@ const bank = buildBank(
   tables as unknown as TableRows,
   manifest.snapshots.map((s) => s.snapshot_id),
 );
-writeBank(resolveProjectPath("data/synthetic"), bank);
+// The held-out rows are written only on request, so the committed tables stay exactly what the main exam loaded.
+const includeHeldout = process.argv.includes("--include-heldout");
+writeBank(resolveProjectPath("data/synthetic"), bank, { includeHeldout });
+writeHeldout(resolveProjectPath("eval/cases/heldout.json"), bank);
 writeExam(resolveProjectPath("eval/cases/exam.json"), bank);
 console.log(JSON.stringify(bank.manifest, null, 1));
