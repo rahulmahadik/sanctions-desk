@@ -67,6 +67,7 @@
     "usl:policy": "tsx tools/usl-policy.ts",
     "heldout:load": "tsx tools/heldout-load.ts",
     "heldout2:load": "tsx tools/heldout2-load.ts",
+    "heldout3:load": "tsx tools/heldout3-load.ts",
     "screenshots": "tsx tools/screenshots.ts",
     "mcp": "tsx tools/mcp-server.ts",
     "study:models": "tsx tools/model-study.ts",

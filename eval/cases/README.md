@@ -52,3 +52,27 @@ Changes made before the final freeze. **No system output for v2 existed when any
 **Final freeze:** commit `da7aff4`, the commit the first v2 run (changed system, 24 Oct 2026 02:07 SGT) started from; the run result records the same commit. Nothing in `heldout2.json` or the rows it points at changed after it.
 
 The rows are built from their own seed and id marker (`CUST-J0001`, `ALR-J0001`, ...) after the first set's rows. `npm run data:synthetic -- --include-heldout2` writes them into `data/synthetic/` after the first set's rows, and `npm run heldout2:load` loads them into the bank database (dry run unless `--apply` is given). Without the flag every existing output is unchanged; a test checks the main and first-set outputs byte for byte against the committed files.
+
+## Held-out v3
+
+- `heldout3.json`: 12 cases, HO3-001 to HO3-012, group `beyond_rules_v3`. Date: 24 October 2026.
+- sha256 of `eval/cases/heldout3.json`: `62ef25460bdc91e8ee7971d5f267e2f727ff8d0c860a24622b2c5df634b954a9`
+- sha256 of the rows the cases point at (customers, identifiers, accounts, payments and alerts with the marker `K`, the notes, references and fields the labels were written against): `52e554497273286eb1da488729bb52d129a4a7f34c16cac20d9f0ca53425f594`
+
+This set was written from the written definitions only (the approved business definitions, the evidence standard section of the policy and the case and data builders), before the fix it will test was written, and without reading any result or trace. No system output for v3 existed when it was frozen. It will not be changed after these hashes are recorded; `packages/agents/test/heldout3-standard.test.ts` pins both hashes and fails if the case file or the rows change. Labels apply the approved definitions and the documentary evidence standard exactly as written (`false_positive@2`, `counterparty_match@1`, `effective_ownership_threshold@1`); each case has a one-sentence reason in `note`. Customers and payments are synthetic; the listed side is real public entries from the committed list sample, none of which the first or second held-out set used.
+
+The set has six risks and six clears:
+
+| Family | Cases | Expected | Why it is there |
+| --- | --- | --- | --- |
+| Relationship to a listed party stated in free text, where plain rules would close | HO3-001 (the listed person is the customer's father and funds the account), HO3-003 (shares held as nominee for the listed person), HO3-005 (an Italian note: the customer is the listed person's business partner) | ESCALATE_L2 only; a close is a miss | The structured fields alone meet the false-positive definition (birth date present and conflicting to the day, nationality differs, no document matches), so only the text shows the risk. |
+| Relationship to a listed party stated in free text | HO3-002 (a Portuguese note: the customer is the executive director of a listed company), HO3-004 (a payment reference: the counterparty is a company owned by the listed person, no percentage given) | ESCALATE_L2 only; a close is a miss | No structured field links the customer or the counterparty to the listed party. |
+| Relationship stated in free text, resting on a press report | HO3-006 (a Dutch note: the customer is trustee of a foundation whose sole beneficiary, according to a press report, is the listed person) | ESCALATE_L2 (NEED_MORE_INFO acceptable); a close is a miss | The link is a claim, not a document, so asking for more is an honest answer beside escalation. |
+| Clears whose text names the listed person in a name check | HO3-007 (a customer note), HO3-012 (a payment reference) | CLOSE_FALSE_POSITIVE; nothing else is acceptable | The listed person is named only as the subject of a check ("name check against the listed person: different date of birth, different passport"), which is not a relationship. |
+| Clears with harmless words next to a name | HO3-008 ("father's name" printed on a passport), HO3-009 ("director of studies" at a school), HO3-010 ("nominee for the award"), HO3-011 ("the sister company of our Dublin branch office") | CLOSE_FALSE_POSITIVE; nothing else is acceptable | Words that sound like a relationship (father, director, nominee, sister company) must not count as one. |
+
+Every clear is reachable under the written policy, and every clear's text is in English and meets the documentary standard (a check reference, a document number and a date; for a payment, a named counterparty). The four customer clears have no failing data-quality rule other than the missing birth date, which the note answers with a labelled birth date that conflicts with the only listed date; the nationality differs and no document matches. The two payment clears have a named counterparty and a usable counterparty country that is not linked to the listed party, so the counterparty match definition is not met. No risk text meets the documentary standard. A test checks all of this.
+
+The rows are built from their own seed and id marker (`CUST-K0001`, `ALR-K0001`, ...) after the second set's rows. `npm run data:synthetic -- --include-heldout3` writes them into `data/synthetic/` after both earlier sets' rows, and `npm run heldout3:load` loads them into the bank database (dry run unless `--apply` is given). Without the flag every existing output is unchanged; a test checks the existing outputs byte for byte.
+
+**Final freeze:** recorded at the first v3 run.

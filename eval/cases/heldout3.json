@@ -1,0 +1,258 @@
+{
+  "label": "Synthetic data generated for development and demonstration. No real customer, account or payment. Third held-out set, written before any system output on it was seen and frozen when its hash is recorded.",
+  "seed": "sanctions-desk-bank-1#2920bd4c",
+  "cases": [
+    {
+      "case_id": "HO3-001",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_rules_close_note_son",
+      "title": "A similar name with a conflicting birth date and another nationality; the note says the customer is the listed person's son and is funded by him",
+      "alert_id": "ALR-K0001",
+      "alert_type": "customer",
+      "customer_id": "CUST-K0001",
+      "entry_id": "OFAC-17037",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "rules_would_close"
+      ],
+      "note": "The structured fields alone meet the false-positive definition, but the note names the listed person, with the listed birth date, as the customer's father and the source of the account's funds."
+    },
+    {
+      "case_id": "HO3-002",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_note_director_portuguese",
+      "title": "A Portuguese customer note says the customer is the executive director of a listed company",
+      "alert_id": "ALR-K0002",
+      "alert_type": "customer",
+      "customer_id": "CUST-K0002",
+      "entry_id": "OFAC-19992",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "non_english_text"
+      ],
+      "note": "The customer's name has nothing in common with the listed company; the note, in Portuguese, says the customer has been its executive director since 2020 and is paid by it into this account."
+    },
+    {
+      "case_id": "HO3-003",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_rules_close_note_nominee",
+      "title": "A near-identical name with a conflicting birth date and another nationality; the note says the customer holds shares as nominee for the listed person",
+      "alert_id": "ALR-K0003",
+      "alert_type": "customer",
+      "customer_id": "CUST-K0003",
+      "entry_id": "OFAC-23189",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "rules_would_close"
+      ],
+      "note": "The structured fields alone meet the false-positive definition, but the note says the customer holds shares as nominee for the listed person, named with the listed birth date, and passes the dividends on to him."
+    },
+    {
+      "case_id": "HO3-004",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_ref_company_owned_by_listed",
+      "title": "The payment reference says the counterparty company is owned by the listed person",
+      "alert_id": "ALR-K0004",
+      "alert_type": "payment",
+      "customer_id": "CUST-K0004",
+      "entry_id": "OFAC-58482",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_payment_reference"
+      ],
+      "note": "The counterparty's name and country are not linked to the listed person, but the reference says the counterparty is owned by him, with no percentage, which the approved ownership definition treats as unknown, never as zero."
+    },
+    {
+      "case_id": "HO3-005",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_rules_close_note_partner_italian",
+      "title": "A shorter form of the listed name with a conflicting birth date and another nationality; an Italian note says the customer is the listed person's business partner",
+      "alert_id": "ALR-K0005",
+      "alert_type": "customer",
+      "customer_id": "CUST-K0005",
+      "entry_id": "OFAC-40569",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "non_english_text",
+        "rules_would_close"
+      ],
+      "note": "The structured fields alone meet the false-positive definition, but the note, in Italian, says the customer co-owns a company half and half with the listed person, named in full, and signs contracts on his behalf."
+    },
+    {
+      "case_id": "HO3-006",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_note_trustee_dutch",
+      "title": "A Dutch customer note says the customer is trustee of a foundation whose sole beneficiary, according to a press report, is the listed person",
+      "alert_id": "ALR-K0006",
+      "alert_type": "customer",
+      "customer_id": "CUST-K0006",
+      "entry_id": "OFAC-56810",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "non_english_text"
+      ],
+      "note": "The note, in Dutch, links the customer to the listed person as trustee for him, but the link rests on a press report and not on a document, so asking for more information is an honest answer beside escalation."
+    },
+    {
+      "case_id": "HO3-007",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_name_check_note",
+      "title": "Exact name, no birth date on record; the note records a name check against the listed person with a passport and a different birth date",
+      "alert_id": "ALR-K0007",
+      "alert_type": "customer",
+      "customer_id": "CUST-K0007",
+      "entry_id": "OFAC-29260",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "near_miss_wording",
+        "clearing_evidence_in_text",
+        "data_quality_failure"
+      ],
+      "note": "The note names the listed person only as the subject of a name check; it carries a check reference, a passport number and a date, and its labelled birth date conflicts with the only listed date while the nationality differs and no document matches."
+    },
+    {
+      "case_id": "HO3-008",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_fathers_name",
+      "title": "Exact name, no birth date on record; a passport check note gives the father's name as printed on the passport and a different birth date",
+      "alert_id": "ALR-K0008",
+      "alert_type": "customer",
+      "customer_id": "CUST-K0008",
+      "entry_id": "OFAC-10009",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "near_miss_wording",
+        "clearing_evidence_in_text",
+        "data_quality_failure"
+      ],
+      "note": "The father's name is a field copied from the passport, not a link to the listed person; the note carries a check reference, a passport number and a date, and its labelled birth date conflicts with the only listed date while the nationality differs and no document matches."
+    },
+    {
+      "case_id": "HO3-009",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_director_of_studies",
+      "title": "Exact name, no birth date on record; the note says the customer is a director of studies at a language school and records an identity card check",
+      "alert_id": "ALR-K0009",
+      "alert_type": "customer",
+      "customer_id": "CUST-K0009",
+      "entry_id": "OFAC-30964",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "near_miss_wording",
+        "clearing_evidence_in_text",
+        "data_quality_failure"
+      ],
+      "note": "A director of studies at a school is a job title, not a directorship of a listed company; the note carries a check reference, an identity card number and a date, and its labelled birth date conflicts with the only listed date while the nationality differs and no document matches."
+    },
+    {
+      "case_id": "HO3-010",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_award_nominee",
+      "title": "Exact name, no birth date on record; the note says the customer is a nominee for an engineering award and records a national ID check",
+      "alert_id": "ALR-K0010",
+      "alert_type": "customer",
+      "customer_id": "CUST-K0010",
+      "entry_id": "OFAC-58343",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "near_miss_wording",
+        "clearing_evidence_in_text",
+        "data_quality_failure"
+      ],
+      "note": "Being a nominee for an award is not a nominee holding for anyone; the note carries a check reference, a national ID number and a date, and its labelled birth date conflicts with the only listed date while the nationality differs and no document matches."
+    },
+    {
+      "case_id": "HO3-011",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_sister_company",
+      "title": "The counterparty name equals a listed company; the reference says it is the sister company of the customer's branch office and records a company number check",
+      "alert_id": "ALR-K0011",
+      "alert_type": "payment",
+      "customer_id": "CUST-K0011",
+      "entry_id": "OFAC-18289",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_payment_reference",
+        "near_miss_wording",
+        "clearing_evidence_in_text"
+      ],
+      "note": "The counterparty's country, Ireland, is not one linked to the listed company, so the counterparty match definition is not met; the sister company is the customer's own group, not the listed party's, and the reference names the counterparty and carries a check reference, a company number and a date."
+    },
+    {
+      "case_id": "HO3-012",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_payee_name_check",
+      "title": "The counterparty name equals a listed individual; the reference records a name check against the listed person with a passport and a different birth date",
+      "alert_id": "ALR-K0012",
+      "alert_type": "payment",
+      "customer_id": "CUST-K0012",
+      "entry_id": "OFAC-16210",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_payment_reference",
+        "near_miss_wording",
+        "clearing_evidence_in_text"
+      ],
+      "note": "The counterparty's country, Spain, is not one linked to the listed person, so the counterparty match definition is not met; the reference mentions the listed person only as the subject of a name check, names the payee and carries a check reference, a passport number, a date and a labelled birth date that conflicts with the only listed date."
+    }
+  ]
+}
