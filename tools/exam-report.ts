@@ -367,6 +367,12 @@ function directions(cases: readonly ScoredCase[]) {
 }
 const summariseOne = (c: ScoredCase): boolean => c.got === c.expected || c.acceptable.includes(c.got);
 
+/** Notes on specific held-out v1 cases, from the trace analysis. The labels are frozen and are not changed. */
+const HELDOUT_V1_NOTES: Record<string, string> = {
+  "HO-030":
+    "label conflicts with the written policy (a failing data-quality rule cannot support a close); left unchanged because frozen",
+};
+
 const NAME_MATCH = "Name-match rules baseline";
 const mainRow = (label: string, r: Result | undefined) =>
   r
@@ -414,9 +420,17 @@ if (heldoutNewest.size > 0) {
       "",
       misses.length === 0
         ? "None."
-        : `| Case | Kind | Expected | Got |\n|---|---|---|---|\n${misses.map((c) => `| ${c.case_id} | ${c.kind} | ${c.expected} | ${c.got} |`).join("\n")}`,
+        : `| Case | Kind | Expected | Got | Note |\n|---|---|---|---|---|\n${misses.map((c) => `| ${c.case_id} | ${c.kind} | ${c.expected} | ${c.got} | ${HELDOUT_V1_NOTES[c.case_id] ?? ""} |`).join("\n")}`,
       "",
     );
+    const unavailable = hoFull.cases.filter((c) => c.decision_unavailable);
+    const byFallback = unavailable.filter((c) => c.got === c.expected || c.acceptable.includes(c.got)).length;
+    if (unavailable.length > 0) {
+      lines.push(
+        `Provider failures: ${unavailable.length} case(s) ended with "model decision unavailable" (${unavailable.map((c) => c.case_id).join(", ")}) and were escalated to a person. ${byFallback} of them count as acceptable only because escalation was the expected answer; without those, ${directions(hoFull.cases).acceptable - byFallback} of ${hoFull.cases.length} cases reached an acceptable outcome through a model answer.`,
+        "",
+      );
+    }
   }
 }
 
