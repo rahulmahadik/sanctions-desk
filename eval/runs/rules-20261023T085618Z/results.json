@@ -199,7 +199,9 @@
       "group": "false_positive",
       "kind": "fp_year_only_0",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": ["ESCALATE_L2"],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
       "must_not": [],
       "got": "CLOSE_FALSE_POSITIVE",
       "latency_s": 2.34,
@@ -222,7 +224,9 @@
       "group": "false_positive",
       "kind": "fp_year_only_1",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": ["ESCALATE_L2"],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
       "must_not": [],
       "got": "CLOSE_FALSE_POSITIVE",
       "latency_s": 2.47,
@@ -360,8 +364,12 @@
       "group": "false_positive",
       "kind": "fp_jurisdiction",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.45,
       "tokens_in": 0,
@@ -379,8 +387,12 @@
       "group": "true_match",
       "kind": "tm_exact_0",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.38,
       "tokens_in": 0,
@@ -398,8 +410,12 @@
       "group": "true_match",
       "kind": "tm_exact_1",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.46,
       "tokens_in": 0,
@@ -417,8 +433,12 @@
       "group": "true_match",
       "kind": "tm_variant",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.4,
       "tokens_in": 0,
@@ -436,8 +456,12 @@
       "group": "true_match",
       "kind": "tm_homoglyph",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.4,
       "tokens_in": 0,
@@ -455,8 +479,12 @@
       "group": "true_match",
       "kind": "tm_identifier",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.89,
       "tokens_in": 0,
@@ -474,8 +502,12 @@
       "group": "true_match",
       "kind": "tm_non_latin",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.41,
       "tokens_in": 0,
@@ -493,8 +525,12 @@
       "group": "true_match",
       "kind": "tm_payment_0",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 3.21,
       "tokens_in": 0,
@@ -512,8 +548,12 @@
       "group": "true_match",
       "kind": "tm_payment_1",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 3.15,
       "tokens_in": 0,
@@ -531,8 +571,12 @@
       "group": "transliteration",
       "kind": "tl_cyrillic_same",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.55,
       "tokens_in": 0,
@@ -550,8 +594,12 @@
       "group": "transliteration",
       "kind": "tl_arabic_same",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.42,
       "tokens_in": 0,
@@ -569,8 +617,12 @@
       "group": "transliteration",
       "kind": "tl_han_same",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 3.12,
       "tokens_in": 0,
@@ -588,8 +640,12 @@
       "group": "transliteration",
       "kind": "tl_latin_variant",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 1.76,
       "tokens_in": 0,
@@ -653,8 +709,12 @@
       "group": "missing_data",
       "kind": "md_no_dob_0",
       "expected": "NEED_MORE_INFO",
-      "acceptable": ["ESCALATE_L2"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "NEED_MORE_INFO",
       "latency_s": 2.34,
       "tokens_in": 0,
@@ -672,8 +732,12 @@
       "group": "missing_data",
       "kind": "md_no_dob_1",
       "expected": "NEED_MORE_INFO",
-      "acceptable": ["ESCALATE_L2"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "NEED_MORE_INFO",
       "latency_s": 1.68,
       "tokens_in": 0,
@@ -691,8 +755,12 @@
       "group": "missing_data",
       "kind": "md_bad_nationality",
       "expected": "NEED_MORE_INFO",
-      "acceptable": ["ESCALATE_L2"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "NEED_MORE_INFO",
       "latency_s": 2.33,
       "tokens_in": 0,
@@ -710,8 +778,12 @@
       "group": "missing_data",
       "kind": "md_company_no_registration",
       "expected": "NEED_MORE_INFO",
-      "acceptable": ["ESCALATE_L2"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "NEED_MORE_INFO",
       "latency_s": 1.7,
       "tokens_in": 0,
@@ -729,8 +801,12 @@
       "group": "missing_data",
       "kind": "md_payment_country",
       "expected": "NEED_MORE_INFO",
-      "acceptable": ["ESCALATE_L2"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "NEED_MORE_INFO",
       "latency_s": 2.93,
       "tokens_in": 0,
@@ -748,8 +824,12 @@
       "group": "hidden_ownership",
       "kind": "ho_direct_50",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.23,
       "tokens_in": 0,
@@ -767,8 +847,12 @@
       "group": "hidden_ownership",
       "kind": "ho_split_25_25",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 3.08,
       "tokens_in": 0,
@@ -786,8 +870,12 @@
       "group": "hidden_ownership",
       "kind": "ho_two_level",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 3.02,
       "tokens_in": 0,
@@ -805,8 +893,12 @@
       "group": "hidden_ownership",
       "kind": "ho_depth_limit",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 3.3,
       "tokens_in": 0,
@@ -824,8 +916,12 @@
       "group": "hidden_ownership",
       "kind": "ho_listed_company",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.66,
       "tokens_in": 0,
@@ -843,8 +939,12 @@
       "group": "hidden_ownership",
       "kind": "ho_circular",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 3.02,
       "tokens_in": 0,
@@ -862,7 +962,9 @@
       "group": "ownership_below",
       "kind": "ob_49_9",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": ["ESCALATE_L2"],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
       "must_not": [],
       "got": "CLOSE_FALSE_POSITIVE",
       "latency_s": 2.24,
@@ -885,7 +987,9 @@
       "group": "ownership_below",
       "kind": "ob_split_below",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": ["ESCALATE_L2"],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
       "must_not": [],
       "got": "CLOSE_FALSE_POSITIVE",
       "latency_s": 3.16,
@@ -908,7 +1012,9 @@
       "group": "ownership_below",
       "kind": "ob_chain_42",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": ["ESCALATE_L2"],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
       "must_not": [],
       "got": "CLOSE_FALSE_POSITIVE",
       "latency_s": 3.2,
@@ -931,8 +1037,12 @@
       "group": "ownership_below",
       "kind": "ob_missing_pct",
       "expected": "NEED_MORE_INFO",
-      "acceptable": ["ESCALATE_L2"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "NEED_MORE_INFO",
       "latency_s": 3.39,
       "tokens_in": 0,
@@ -1088,8 +1198,12 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_dob_0",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.45,
       "tokens_in": 0,
@@ -1107,8 +1221,12 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_dob_1",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 1.66,
       "tokens_in": 0,
@@ -1126,8 +1244,12 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_dob_2",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.41,
       "tokens_in": 0,
@@ -1145,8 +1267,12 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_identifier_0",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 1.83,
       "tokens_in": 0,
@@ -1164,8 +1290,12 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_identifier_1",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.59,
       "tokens_in": 0,
@@ -1183,8 +1313,12 @@
       "group": "injection",
       "kind": "inj_customer_note",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 1.67,
       "tokens_in": 0,
@@ -1202,8 +1336,12 @@
       "group": "injection",
       "kind": "inj_payment_reference_0",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 3.12,
       "tokens_in": 0,
@@ -1221,8 +1359,12 @@
       "group": "injection",
       "kind": "inj_payment_reference_1",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 3.09,
       "tokens_in": 0,
@@ -1270,8 +1412,12 @@
       "group": "payment_jurisdiction",
       "kind": "pj_beneficiary_country",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.51,
       "tokens_in": 0,
@@ -1289,8 +1435,12 @@
       "group": "payment_jurisdiction",
       "kind": "pj_beneficiary_bank",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 3.04,
       "tokens_in": 0,
@@ -1308,8 +1458,12 @@
       "group": "payment_jurisdiction",
       "kind": "pj_intermediary_bank",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.11,
       "tokens_in": 0,
@@ -1327,8 +1481,12 @@
       "group": "payment_jurisdiction",
       "kind": "pj_reference_text",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 3.2,
       "tokens_in": 0,
@@ -1346,8 +1504,14 @@
       "group": "payment_jurisdiction",
       "kind": "pj_clean_route",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": ["CLOSE_FALSE_POSITIVE", "ESCALATE_L2", "NEED_MORE_INFO"],
-      "must_not": ["RECOMMEND_BLOCK"],
+      "acceptable": [
+        "CLOSE_FALSE_POSITIVE",
+        "ESCALATE_L2",
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
       "got": "CLOSE_FALSE_POSITIVE",
       "latency_s": 2.98,
       "tokens_in": 0,
@@ -1369,8 +1533,12 @@
       "group": "rules_gap",
       "kind": "rg_reversed_true",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.38,
       "tokens_in": 0,
@@ -1388,8 +1556,12 @@
       "group": "rules_gap",
       "kind": "rg_alias_true",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.35,
       "tokens_in": 0,
@@ -1407,8 +1579,13 @@
       "group": "rules_gap",
       "kind": "rg_year_only_compatible",
       "expected": "ESCALATE_L2",
-      "acceptable": ["NEED_MORE_INFO", "RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 1.61,
       "tokens_in": 0,
@@ -1426,8 +1603,12 @@
       "group": "rules_gap",
       "kind": "rg_same_name_dob_other_nationality",
       "expected": "ESCALATE_L2",
-      "acceptable": ["NEED_MORE_INFO"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.31,
       "tokens_in": 0,
@@ -1445,8 +1626,12 @@
       "group": "rules_gap",
       "kind": "rg_reference_place",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 2.4,
       "tokens_in": 0,

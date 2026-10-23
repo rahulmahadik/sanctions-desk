@@ -1,0 +1,92 @@
+{
+  "run_id": "heldout2-sys2bnoscreen-routed-20261023T222222Z",
+  "variant": "routed",
+  "exam": "heldout2",
+  "started_at": "2026-10-23T22:22:22.853Z",
+  "finished_at": "2026-10-23T23:00:23.690Z",
+  "policy_version": 6,
+  "features": {
+    "commit": "81ddc7c",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "screener": {
+      "enabled": false,
+      "confidence_threshold": 0.5
+    },
+    "cockpit_binds": {
+      "sanctions-desk-eval": "auto",
+      "sanctions-desk-guard": "local",
+      "sanctions-desk-reasoning": "deep"
+    },
+    "app_identities": {
+      "triage": "default",
+      "evidence": "default",
+      "screener": "guard",
+      "matching": "default",
+      "ownership": "default",
+      "decision": "reasoning",
+      "critic": "reasoning",
+      "challenger": "reasoning",
+      "policy_guard": "guard",
+      "reporter": "default"
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "retry_identities": {
+      "decision": "guard",
+      "critic": "guard",
+      "challenger": "guard"
+    },
+    "note": "payments served from the Zetaris cache (verified 24 Oct about 02:05 SGT by stopping the payments service; all 373 rows incl. the 7 v2 payments match the source)",
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "nightshift_build": {
+    "version": "1.2.1",
+    "source": "the application's About screen, confirmed by the project owner; no separate runtime version is shown",
+    "known_limits": [
+      "an app bind in the cockpit replaces the mode or model id the client asks for (the receipt records both), so explicit model ids are coerced",
+      "the cloud model sometimes answers slowly or not at all: timeouts and HTTP 502 were seen in the runs"
+    ]
+  },
+  "app_binds": {
+    "sanctions-desk-eval": "auto",
+    "sanctions-desk-guard": "local",
+    "sanctions-desk-reasoning": "deep"
+  },
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "screener": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "deep / reasoning 500",
+    "critic": "judge / reasoning 400",
+    "challenger": "deep / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": 19,
+  "events": 800,
+  "receipts": 102,
+  "files": {
+    "results.json": {
+      "bytes": 22132,
+      "sha256": "5282c3e059dfd1fd5b318a8ea7d1dfcb4a3e510f134cd1cf1a62fb1dcdce0190"
+    },
+    "trace.jsonl.gz": {
+      "bytes": 50754,
+      "sha256": "1a67eb34a3c8b88b90b8e85438ad586e4315fb571e6d59fedeb9d175db327735"
+    },
+    "receipts.jsonl.gz": {
+      "bytes": 42016,
+      "sha256": "cbaba24b7ef4453d60ab3bcab6cb3d15df68a7d1a51a82ba44a6c54251f19f58"
+    }
+  },
+  "redacted": "tokens, local paths, hostnames and addresses other than the local machine, usernames, e-mail addresses and secret environment values were removed from results.json and trace.jsonl.gz; receipts.jsonl.gz is untouched",
+  "verify": "npm run evidence:verify -- eval/runs/heldout2-sys2bnoscreen-routed-20261023T222222Z"
+}

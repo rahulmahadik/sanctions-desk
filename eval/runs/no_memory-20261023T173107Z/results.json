@@ -185,8 +185,12 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_dob_0",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "RECOMMEND_BLOCK",
       "latency_s": 49.46,
       "tokens_in": 8186,
@@ -204,8 +208,12 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_dob_1",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 224.51,
       "tokens_in": 6526,
@@ -223,8 +231,12 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_dob_2",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "RECOMMEND_BLOCK",
       "latency_s": 43.9,
       "tokens_in": 8193,
@@ -242,8 +254,12 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_identifier_0",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 582.76,
       "tokens_in": 42409,
@@ -261,8 +277,12 @@
       "group": "previously_cleared_changed",
       "kind": "pcc_identifier_1",
       "expected": "ESCALATE_L2",
-      "acceptable": ["RECOMMEND_BLOCK"],
-      "must_not": ["CLOSE_FALSE_POSITIVE"],
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
       "got": "ESCALATE_L2",
       "latency_s": 176.89,
       "tokens_in": 22885,

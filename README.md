@@ -254,12 +254,12 @@ App binds used in the final runs: `sanctions-desk-guard` bound to local and `san
 <!-- routing:start -->
 Measured in the full exam run of 2026-10-23, from the signed receipts (the model that served each call; Nightshift's learned router decides this, we only ask for a pinned mode):
 
-| Step         | Calls | Nemotron 3.5 Lightning 30B (local) | Nemotron 3 Ultra 550B (cloud) |
-| ------------ | ----: | ---------------------------------: | ----------------------------: |
-| Safety guard |    70 |                        100.0% (70) |                             0 |
-| Decision     |    89 |                           2.3% (2) |                    97.8% (87) |
-| Critic       |    86 |                           1.2% (1) |                    98.8% (85) |
-| Challenger   |    15 |                                  0 |                   100.0% (15) |
+| Step | Calls | Nemotron 3.5 Lightning 30B (local) | Nemotron 3 Ultra 550B (cloud) |
+|---|---:|---:|---:|
+| Safety guard | 70 | 100.0% (70) | 0 |
+| Decision | 89 | 2.3% (2) | 97.8% (87) |
+| Critic | 86 | 1.2% (1) | 98.8% (85) |
+| Challenger | 15 | 0 | 100.0% (15) |
 <!-- routing:end -->
 
 Which agent runs on which Nemotron model, and what it does:
@@ -276,9 +276,30 @@ Which agent runs on which Nemotron model, and what it does:
 **The signed receipt log of the final runs** (one Ed25519-signed Nightshift receipt per model call; the model that served each call is in `winning_route.model`):
 
 <!-- receipts:start -->
-| Run                       | Receipts | Receipt log                                                                                                | Check it                                                       |
-| ------------------------- | -------: | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| `routed-20261023T010000Z` |        1 | [eval/runs/routed-20261023T010000Z/receipts.jsonl.gz](eval/runs/routed-20261023T010000Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/routed-20261023T010000Z` |
+| Run | Receipts | Receipt log | Check it |
+| --- | ---: | --- | --- |
+| `rules-20261023T085618Z` | 0 | [eval/runs/rules-20261023T085618Z/receipts.jsonl.gz](eval/runs/rules-20261023T085618Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/rules-20261023T085618Z` |
+| `fuzzy-20261023T085617Z` | 0 | [eval/runs/fuzzy-20261023T085617Z/receipts.jsonl.gz](eval/runs/fuzzy-20261023T085617Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/fuzzy-20261023T085617Z` |
+| `escalate_all-20261023T085617Z` | 0 | [eval/runs/escalate_all-20261023T085617Z/receipts.jsonl.gz](eval/runs/escalate_all-20261023T085617Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/escalate_all-20261023T085617Z` |
+| `routed-20261023T133311Z` | 260 | [eval/runs/routed-20261023T133311Z/receipts.jsonl.gz](eval/runs/routed-20261023T133311Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/routed-20261023T133311Z` |
+| `single-20261023T161731Z` | 132 | [eval/runs/single-20261023T161731Z/receipts.jsonl.gz](eval/runs/single-20261023T161731Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/single-20261023T161731Z` |
+| `no_memory-20261023T173107Z` | 42 | [eval/runs/no_memory-20261023T173107Z/receipts.jsonl.gz](eval/runs/no_memory-20261023T173107Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/no_memory-20261023T173107Z` |
+| `heldout-rules-20261023T081308Z` | 0 | [eval/runs/heldout-rules-20261023T081308Z/receipts.jsonl.gz](eval/runs/heldout-rules-20261023T081308Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout-rules-20261023T081308Z` |
+| `heldout-fuzzy-20261023T082432Z` | 0 | [eval/runs/heldout-fuzzy-20261023T082432Z/receipts.jsonl.gz](eval/runs/heldout-fuzzy-20261023T082432Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout-fuzzy-20261023T082432Z` |
+| `heldout-escalate_all-20261023T083248Z` | 0 | [eval/runs/heldout-escalate_all-20261023T083248Z/receipts.jsonl.gz](eval/runs/heldout-escalate_all-20261023T083248Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout-escalate_all-20261023T083248Z` |
+| `heldout-routed-20261023T121140Z` | 142 | [eval/runs/heldout-routed-20261023T121140Z/receipts.jsonl.gz](eval/runs/heldout-routed-20261023T121140Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout-routed-20261023T121140Z` |
+| `heldout2-sys2-routed-20261023T180732Z` | 81 | [eval/runs/heldout2-sys2-routed-20261023T180732Z/receipts.jsonl.gz](eval/runs/heldout2-sys2-routed-20261023T180732Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout2-sys2-routed-20261023T180732Z` |
+| `heldout2-escalate_all-20261023T193323Z` | 0 | [eval/runs/heldout2-escalate_all-20261023T193323Z/receipts.jsonl.gz](eval/runs/heldout2-escalate_all-20261023T193323Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout2-escalate_all-20261023T193323Z` |
+| `heldout2-fuzzy-20261023T193323Z` | 0 | [eval/runs/heldout2-fuzzy-20261023T193323Z/receipts.jsonl.gz](eval/runs/heldout2-fuzzy-20261023T193323Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout2-fuzzy-20261023T193323Z` |
+| `heldout2-rules-20261023T193324Z` | 0 | [eval/runs/heldout2-rules-20261023T193324Z/receipts.jsonl.gz](eval/runs/heldout2-rules-20261023T193324Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout2-rules-20261023T193324Z` |
+| `heldout2-sys2b-routed-20261023T193436Z` | 98 | [eval/runs/heldout2-sys2b-routed-20261023T193436Z/receipts.jsonl.gz](eval/runs/heldout2-sys2b-routed-20261023T193436Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout2-sys2b-routed-20261023T193436Z` |
+| `sys2b-routed-20261023T195504Z` | 305 | [eval/runs/sys2b-routed-20261023T195504Z/receipts.jsonl.gz](eval/runs/sys2b-routed-20261023T195504Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/sys2b-routed-20261023T195504Z` |
+| `heldout-sys2b-routed-20261023T214515Z` | 135 | [eval/runs/heldout-sys2b-routed-20261023T214515Z/receipts.jsonl.gz](eval/runs/heldout-sys2b-routed-20261023T214515Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout-sys2b-routed-20261023T214515Z` |
+| `heldout2-sys2bnoscreen-routed-20261023T222222Z` | 102 | [eval/runs/heldout2-sys2bnoscreen-routed-20261023T222222Z/receipts.jsonl.gz](eval/runs/heldout2-sys2bnoscreen-routed-20261023T222222Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout2-sys2bnoscreen-routed-20261023T222222Z` |
+| `heldout3-sys3-routed-20261023T231901Z` | 67 | [eval/runs/heldout3-sys3-routed-20261023T231901Z/receipts.jsonl.gz](eval/runs/heldout3-sys3-routed-20261023T231901Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout3-sys3-routed-20261023T231901Z` |
+| `heldout3-escalate_all-20261023T233941Z` | 0 | [eval/runs/heldout3-escalate_all-20261023T233941Z/receipts.jsonl.gz](eval/runs/heldout3-escalate_all-20261023T233941Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout3-escalate_all-20261023T233941Z` |
+| `heldout3-rules-20261023T234147Z` | 0 | [eval/runs/heldout3-rules-20261023T234147Z/receipts.jsonl.gz](eval/runs/heldout3-rules-20261023T234147Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout3-rules-20261023T234147Z` |
+| `heldout3-sys3-single-20261023T234224Z` | 36 | [eval/runs/heldout3-sys3-single-20261023T234224Z/receipts.jsonl.gz](eval/runs/heldout3-sys3-single-20261023T234224Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout3-sys3-single-20261023T234224Z` |
 
 `npm run evidence:verify` with no argument checks every run: each signature, that every model call has a receipt, and that the model in the trace equals the model in the receipt.
 <!-- receipts:end -->

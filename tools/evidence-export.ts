@@ -64,6 +64,8 @@ interface Result {
   variant: string;
   tag?: string;
   exam?: string;
+  /** The system version a later run was made with (its run ids carry it). */
+  system?: string;
   selection?: { groups?: unknown; kinds?: unknown; limit?: unknown };
   started_at: string;
   finished_at: string;
@@ -82,11 +84,16 @@ const complete = readdirSync(resultsDir)
 
 // The newest complete run of each variant, and of each exam (the held-out set is its own exam).
 const chosen = new Map<string, { file: string; r: Result }>();
-for (const run of complete) chosen.set(`${run.r.exam ?? "exam"}:${run.r.variant}`, run);
+// Runs whose system name marks a probe (a smoke test, an outage test) are not final runs and are left out.
+const PROBES = new Set(["smoke", "zdown", "probe"]);
+for (const run of complete) {
+  if (run.r.system && PROBES.has(run.r.system)) continue;
+  chosen.set(`${run.r.exam ?? "exam"}:${run.r.system ?? ""}:${run.r.variant}`, run);
+}
 
 const sha = (data: Buffer | string) => createHash("sha256").update(data).digest("hex");
 const idOf = (r: Result) =>
-  `${r.exam === "heldout" ? "heldout-" : ""}${r.variant}-${r.started_at.replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z")}`;
+  `${r.exam && r.exam !== "exam" ? `${r.exam}-` : ""}${r.system ? `${r.system}-` : ""}${r.variant}-${r.started_at.replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z")}`;
 const problems: string[] = [];
 const summary: Array<{ id: string; bytes: number; receipts: number; events: number }> = [];
 
@@ -102,7 +109,8 @@ for (const { file, r } of chosen.values()) {
   const lines: string[] = [];
   const receiptIds = new Set<string>();
   for (const c of r.cases) {
-    const name = join(logs, `trace-${r.exam === "heldout" ? "eval-heldout" : "eval"}-${r.variant}-${c.case_id}.jsonl`);
+    const prefix = `${r.exam && r.exam !== "exam" ? `eval-${r.exam}` : "eval"}${r.system ? `-${r.system}` : ""}`;
+    const name = join(logs, `trace-${prefix}-${r.variant}-${c.case_id}.jsonl`);
     if (!existsSync(name)) continue;
     const events = readFileSync(name, "utf8")
       .split("\n")

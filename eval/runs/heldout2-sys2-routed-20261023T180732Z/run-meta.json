@@ -1,0 +1,92 @@
+{
+  "run_id": "heldout2-sys2-routed-20261023T180732Z",
+  "variant": "routed",
+  "exam": "heldout2",
+  "started_at": "2026-10-23T18:07:32.336Z",
+  "finished_at": "2026-10-23T19:22:55.957Z",
+  "policy_version": 6,
+  "features": {
+    "commit": "3d360df",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "screener": {
+      "enabled": true,
+      "confidence_threshold": 0.5
+    },
+    "cockpit_binds": {
+      "sanctions-desk-eval": "auto",
+      "sanctions-desk-guard": "local",
+      "sanctions-desk-reasoning": "deep"
+    },
+    "app_identities": {
+      "triage": "default",
+      "evidence": "default",
+      "screener": "guard",
+      "matching": "default",
+      "ownership": "default",
+      "decision": "reasoning",
+      "critic": "reasoning",
+      "challenger": "reasoning",
+      "policy_guard": "guard",
+      "reporter": "default"
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "retry_identities": {
+      "decision": "guard",
+      "critic": "guard",
+      "challenger": "guard"
+    },
+    "note": "payments served from the Zetaris cache (verified 24 Oct 02:35 SGT by stopping the payments service)",
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "nightshift_build": {
+    "version": "1.2.1",
+    "source": "the application's About screen, confirmed by the project owner; no separate runtime version is shown",
+    "known_limits": [
+      "an app bind in the cockpit replaces the mode or model id the client asks for (the receipt records both), so explicit model ids are coerced",
+      "the cloud model sometimes answers slowly or not at all: timeouts and HTTP 502 were seen in the runs"
+    ]
+  },
+  "app_binds": {
+    "sanctions-desk-eval": "auto",
+    "sanctions-desk-guard": "local",
+    "sanctions-desk-reasoning": "deep"
+  },
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "screener": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "deep / reasoning 500",
+    "critic": "judge / reasoning 400",
+    "challenger": "deep / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": 19,
+  "events": 795,
+  "receipts": 81,
+  "files": {
+    "results.json": {
+      "bytes": 21189,
+      "sha256": "82565b8419840d25c871cba3697738b73cd96be589ec8c0b22e9b2392a990f56"
+    },
+    "trace.jsonl.gz": {
+      "bytes": 45889,
+      "sha256": "35a9aa24a28cc97d2ecaf5554bfa4fc0ca6419368bb6e057ce5120a8a72d9699"
+    },
+    "receipts.jsonl.gz": {
+      "bytes": 34469,
+      "sha256": "1986bae62b4ab6f0b7fc04959294c2431a9706aae2d111665813c90f02d7269c"
+    }
+  },
+  "redacted": "tokens, local paths, hostnames and addresses other than the local machine, usernames, e-mail addresses and secret environment values were removed from results.json and trace.jsonl.gz; receipts.jsonl.gz is untouched",
+  "verify": "npm run evidence:verify -- eval/runs/heldout2-sys2-routed-20261023T180732Z"
+}

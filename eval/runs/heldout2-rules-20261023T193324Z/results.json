@@ -1,0 +1,801 @@
+{
+  "variant": "rules",
+  "exam": "heldout2",
+  "features": {
+    "commit": "f6ed38a",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "screener": {
+      "enabled": true,
+      "confidence_threshold": 0.5
+    },
+    "cockpit_binds": {
+      "sanctions-desk-eval": "auto",
+      "sanctions-desk-guard": "local",
+      "sanctions-desk-reasoning": "deep"
+    },
+    "app_identities": {
+      "triage": "default",
+      "evidence": "default",
+      "screener": "guard",
+      "matching": "default",
+      "ownership": "default",
+      "decision": "reasoning",
+      "critic": "reasoning",
+      "challenger": "reasoning",
+      "policy_guard": "guard",
+      "reporter": "default"
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "retry_identities": {
+      "decision": "guard",
+      "critic": "guard",
+      "challenger": "guard"
+    },
+    "note": "payments served from the Zetaris cache (verified 24 Oct about 02:05 SGT by stopping the payments service; all 373 rows incl. the 7 v2 payments match the source)",
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "selection": {},
+  "started_at": "2026-10-23T19:33:24.810Z",
+  "finished_at": "2026-10-23T19:34:35.274Z",
+  "policy_version": 6,
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "screener": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "deep / reasoning 500",
+    "critic": "judge / reasoning 400",
+    "challenger": "deep / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": [
+    {
+      "case_id": "HO2-001",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_ref_imo_number",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 4.19,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "CLOSE_FALSE_POSITIVE",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-002",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_ref_agent_named_in_remarks",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 5.68,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "CLOSE_FALSE_POSITIVE",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-003",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_ref_alias_spanish",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 3.99,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "CLOSE_FALSE_POSITIVE",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-004",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_note_maiden_name_spanish",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 3.27,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-005",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_note_spouse_german",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 3.12,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-006",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_note_branch_location_french",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 3.48,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-007",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_remarks_founder_as_counterparty",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 3.77,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-008",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_clear_spanish_passport",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 3.26,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 5,
+      "cloud_calls": 0,
+      "cost": 0,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 0,
+      "challenger_cost": 0,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "CLOSE_FALSE_POSITIVE",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-009",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_clear_street_name",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 4.76,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-010",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_clear_registered_company",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 5.05,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-011",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_clear_themed_bar",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 3.18,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 5,
+      "cloud_calls": 0,
+      "cost": 0,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 0,
+      "challenger_cost": 0,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "CLOSE_FALSE_POSITIVE",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-012",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_clear_french_id",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 3.12,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 5,
+      "cloud_calls": 0,
+      "cost": 0,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 0,
+      "challenger_cost": 0,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "CLOSE_FALSE_POSITIVE",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-013",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_claim_no_check_reference",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 3.13,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-014",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_claim_unnamed_counterparty",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 3.91,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-015",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_claim_no_date",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 4.04,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-016",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_rules_close_note_power_of_attorney",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 3.14,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-017",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_rules_close_remarks_father",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 3.07,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-018",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_clear_licence_dob",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 3.15,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 5,
+      "cloud_calls": 0,
+      "cost": 0,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 0,
+      "challenger_cost": 0,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "CLOSE_FALSE_POSITIVE",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO2-019",
+      "group": "beyond_rules_v2",
+      "kind": "ho2_clear_alias_identity_card",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 3.15,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 5,
+      "cloud_calls": 0,
+      "cost": 0,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 0,
+      "challenger_cost": 0,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "CLOSE_FALSE_POSITIVE",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    }
+  ],
+  "metrics": {
+    "cases": 19,
+    "errors": 0,
+    "exact_accuracy": 0.6316,
+    "acceptable_accuracy": 0.8421,
+    "risk_cases": 14,
+    "false_closes": 3,
+    "false_close_rate": 0.2143,
+    "forbidden_answers": 3,
+    "abstain_rate": 0.4737,
+    "decision_unavailable": 0,
+    "decision_unavailable_by_cause": {
+      "provider": 0,
+      "parsing": 0,
+      "withheld": 0
+    },
+    "excluding_unavailable": {
+      "cases": 19,
+      "exact_accuracy": 0.6316,
+      "acceptable_accuracy": 0.8421
+    },
+    "by_group": {
+      "beyond_rules_v2": {
+        "cases": 19,
+        "exact": 12,
+        "acceptable": 16
+      }
+    },
+    "latency_s": {
+      "mean": 3.71,
+      "p50": 3.27,
+      "p95": 5.68
+    },
+    "tokens": {
+      "in": 0,
+      "out": 0
+    },
+    "model_calls": {
+      "local": 81,
+      "cloud": 0,
+      "cloud_share": 0
+    },
+    "cost": {
+      "total": 0,
+      "per_case": 0
+    },
+    "challenger": {
+      "fired": 5,
+      "changed": 0,
+      "added_seconds": 0,
+      "added_cost": 0
+    },
+    "critic": {
+      "reviewed": 19,
+      "sent_back": 0,
+      "unresolved": 0,
+      "mean_rounds": 1
+    }
+  }
+}

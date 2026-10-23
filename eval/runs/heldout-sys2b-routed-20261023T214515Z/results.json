@@ -1,0 +1,1171 @@
+{
+  "variant": "routed",
+  "exam": "heldout",
+  "system": "sys2b",
+  "features": {
+    "commit": "81ddc7c",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "screener": {
+      "enabled": true,
+      "confidence_threshold": 0.5
+    },
+    "cockpit_binds": {
+      "sanctions-desk-eval": "auto",
+      "sanctions-desk-guard": "local",
+      "sanctions-desk-reasoning": "deep"
+    },
+    "app_identities": {
+      "triage": "default",
+      "evidence": "default",
+      "screener": "guard",
+      "matching": "default",
+      "ownership": "default",
+      "decision": "reasoning",
+      "critic": "reasoning",
+      "challenger": "reasoning",
+      "policy_guard": "guard",
+      "reporter": "default"
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "retry_identities": {
+      "decision": "guard",
+      "critic": "guard",
+      "challenger": "guard"
+    },
+    "note": "payments served from the Zetaris cache (verified 24 Oct about 02:05 SGT by stopping the payments service; all 373 rows incl. the 7 v2 payments match the source)",
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "selection": {},
+  "started_at": "2026-10-23T21:45:15.877Z",
+  "finished_at": "2026-10-23T22:22:20.907Z",
+  "policy_version": 6,
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "screener": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "deep / reasoning 500",
+    "critic": "judge / reasoning 400",
+    "challenger": "deep / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": [
+    {
+      "case_id": "HO-001",
+      "group": "beyond_rules",
+      "kind": "ho_ref_on_behalf",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 27.06,
+      "tokens_in": 10764,
+      "tokens_out": 1260,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005748,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-002",
+      "group": "beyond_rules",
+      "kind": "ho_ref_care_of",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 24.04,
+      "tokens_in": 11154,
+      "tokens_out": 1216,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005956,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-003",
+      "group": "beyond_rules",
+      "kind": "ho_ref_shipped_for",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 38.19,
+      "tokens_in": 10158,
+      "tokens_out": 1143,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.00562,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-004",
+      "group": "beyond_rules",
+      "kind": "ho_ref_variant",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 84.49,
+      "tokens_in": 17413,
+      "tokens_out": 2360,
+      "local_calls": 2,
+      "cloud_calls": 3,
+      "cost": 0.011072,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 3,
+      "critic_final": "escalated",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": true,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO-005",
+      "group": "beyond_rules",
+      "kind": "ho_note_trading_name",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 64.19,
+      "tokens_in": 19556,
+      "tokens_out": 2106,
+      "local_calls": 2,
+      "cloud_calls": 4,
+      "cost": 0.011616,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 2,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-006",
+      "group": "beyond_rules",
+      "kind": "ho_note_family_link",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 64.39,
+      "tokens_in": 16274,
+      "tokens_out": 3030,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.011442,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-007",
+      "group": "beyond_rules",
+      "kind": "ho_note_unverified_dob",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 37.83,
+      "tokens_in": 18060,
+      "tokens_out": 1770,
+      "local_calls": 2,
+      "cloud_calls": 4,
+      "cost": 0.010206,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 2,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-008",
+      "group": "beyond_rules",
+      "kind": "ho_note_says_close",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 20.17,
+      "tokens_in": 9677,
+      "tokens_out": 1065,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005009,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO-009",
+      "group": "beyond_rules",
+      "kind": "ho_remarks_registered_name",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 25.47,
+      "tokens_in": 10602,
+      "tokens_out": 976,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005323,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO-010",
+      "group": "beyond_rules",
+      "kind": "ho_remarks_parents",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 66.45,
+      "tokens_in": 9293,
+      "tokens_out": 1125,
+      "local_calls": 3,
+      "cloud_calls": 1,
+      "cost": 0.003537,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO-011",
+      "group": "beyond_rules",
+      "kind": "ho_remarks_vessel",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 67.89,
+      "tokens_in": 19167,
+      "tokens_out": 2332,
+      "local_calls": 2,
+      "cloud_calls": 4,
+      "cost": 0.01125,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 2,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-012",
+      "group": "beyond_rules",
+      "kind": "ho_alias_chain_dropped",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 73.92,
+      "tokens_in": 8139,
+      "tokens_out": 634,
+      "local_calls": 1,
+      "cloud_calls": 2,
+      "cost": 0.004761,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-013",
+      "group": "beyond_rules",
+      "kind": "ho_alias_russian_scheme",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 53.33,
+      "tokens_in": 8497,
+      "tokens_out": 645,
+      "local_calls": 1,
+      "cloud_calls": 2,
+      "cost": 0.004945,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "RECOMMEND_BLOCK",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-014",
+      "group": "beyond_rules",
+      "kind": "ho_alias_korean_scheme",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 106.86,
+      "tokens_in": 17671,
+      "tokens_out": 2820,
+      "local_calls": 1,
+      "cloud_calls": 2,
+      "cost": 0.012817,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO-015",
+      "group": "beyond_rules",
+      "kind": "ho_alias_merged_tokens",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 57.13,
+      "tokens_in": 10802,
+      "tokens_out": 972,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005343,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "RECOMMEND_BLOCK",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-016",
+      "group": "beyond_rules",
+      "kind": "ho_docs_dob_transposed",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 164.67,
+      "tokens_in": 26616,
+      "tokens_out": 2528,
+      "local_calls": 2,
+      "cloud_calls": 6,
+      "cost": 0.015791,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 3,
+      "critic_final": "escalated",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": true,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-017",
+      "group": "beyond_rules",
+      "kind": "ho_docs_two_ids",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 235.97,
+      "tokens_in": 24538,
+      "tokens_out": 2498,
+      "local_calls": 1,
+      "cloud_calls": 6,
+      "cost": 0.015763,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 3,
+      "critic_final": "escalated",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": true,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-018",
+      "group": "beyond_rules",
+      "kind": "ho_docs_typo_id",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 79.95,
+      "tokens_in": 17008,
+      "tokens_out": 2764,
+      "local_calls": 1,
+      "cloud_calls": 2,
+      "cost": 0.012401,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-019",
+      "group": "beyond_rules",
+      "kind": "ho_clear_verified_passport",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 21.79,
+      "tokens_in": 10589,
+      "tokens_out": 1116,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005578,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 30
+    },
+    {
+      "case_id": "HO-020",
+      "group": "beyond_rules",
+      "kind": "ho_clear_verified_id_age",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 50.44,
+      "tokens_in": 10716,
+      "tokens_out": 1132,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005654,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO-021",
+      "group": "beyond_rules",
+      "kind": "ho_clear_namesake_registered",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 38.34,
+      "tokens_in": 10421,
+      "tokens_out": 1117,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005537,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO-022",
+      "group": "beyond_rules",
+      "kind": "ho_clear_alias_other_person",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 26.52,
+      "tokens_in": 12226,
+      "tokens_out": 1330,
+      "local_calls": 3,
+      "cloud_calls": 2,
+      "cost": 0.005635,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO-023",
+      "group": "beyond_rules",
+      "kind": "ho_clear_remarks_parents_differ",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 22.11,
+      "tokens_in": 10487,
+      "tokens_out": 1072,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.00546,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-024",
+      "group": "beyond_rules",
+      "kind": "ho_clear_remarks_mother_differs",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 24.62,
+      "tokens_in": 10093,
+      "tokens_out": 1027,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005271,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-025",
+      "group": "beyond_rules",
+      "kind": "ho_clear_ref_other_company",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 63.11,
+      "tokens_in": 18684,
+      "tokens_out": 2034,
+      "local_calls": 2,
+      "cloud_calls": 4,
+      "cost": 0.010823,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 2,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-026",
+      "group": "beyond_rules",
+      "kind": "ho_clear_ref_other_individual",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 24.64,
+      "tokens_in": 9814,
+      "tokens_out": 1062,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005319,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO-027",
+      "group": "beyond_rules",
+      "kind": "ho_clear_remarks_parents_documented",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 29.4,
+      "tokens_in": 11018,
+      "tokens_out": 1187,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005673,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-028",
+      "group": "beyond_rules",
+      "kind": "ho_clear_alias_documented",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 24.39,
+      "tokens_in": 10705,
+      "tokens_out": 1147,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005659,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-029",
+      "group": "beyond_rules",
+      "kind": "ho_clear_variant_documented",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 26.14,
+      "tokens_in": 11126,
+      "tokens_out": 1181,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.005889,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    },
+    {
+      "case_id": "HO-030",
+      "group": "beyond_rules",
+      "kind": "ho_clear_ref_documented",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 51.41,
+      "tokens_in": 19538,
+      "tokens_out": 2290,
+      "local_calls": 2,
+      "cloud_calls": 4,
+      "cost": 0.011533,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 2,
+      "critic_final": "approved",
+      "decision_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "decision_route": "own",
+      "decided_by_fallback": false,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "serious",
+      "paused_s": 25
+    }
+  ],
+  "metrics": {
+    "cases": 30,
+    "errors": 0,
+    "exact_accuracy": 0.4333,
+    "acceptable_accuracy": 0.7333,
+    "risk_cases": 22,
+    "false_closes": 0,
+    "false_close_rate": 0,
+    "forbidden_answers": 0,
+    "abstain_rate": 0.6667,
+    "decision_unavailable": 0,
+    "decision_unavailable_by_cause": {
+      "provider": 0,
+      "parsing": 0,
+      "withheld": 0
+    },
+    "excluding_unavailable": {
+      "cases": 30,
+      "exact_accuracy": 0.4333,
+      "acceptable_accuracy": 0.7333
+    },
+    "by_group": {
+      "beyond_rules": {
+        "cases": 30,
+        "exact": 13,
+        "acceptable": 22
+      }
+    },
+    "latency_s": {
+      "mean": 56.5,
+      "p50": 38.34,
+      "p95": 164.67
+    },
+    "tokens": {
+      "in": 410806,
+      "out": 46939
+    },
+    "model_calls": {
+      "local": 57,
+      "cloud": 78,
+      "cloud_share": 0.5778
+    },
+    "cost": {
+      "total": 0.236631,
+      "per_case": 0.007888
+    },
+    "challenger": {
+      "fired": 0,
+      "changed": 0,
+      "added_seconds": 0,
+      "added_cost": 0
+    },
+    "critic": {
+      "reviewed": 30,
+      "sent_back": 8,
+      "unresolved": 3,
+      "mean_rounds": 1.37
+    }
+  }
+}
