@@ -130,7 +130,7 @@ describe("a role token the platform refuses", () => {
 
   it("falls back to the admin key once, labels it, and stops trying the role token", async () => {
     let calls = 0;
-    const api = fakeZetaris((sql) => {
+    const api = fakeZetaris(() => {
       calls += 1;
       return calls === 1
         ? { status: 400, body: { msg: "User 'X' does not have access to USL: m.s.customer" } }

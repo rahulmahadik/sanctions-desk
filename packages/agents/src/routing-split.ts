@@ -41,35 +41,57 @@ interface Receipt {
   routing?: { policy?: string };
 }
 
-/** Read the receipts of the model calls in a run's traces (events at or after `since`). */
-export function routingSplit(logDir: string, variant: string, since: string): RoutingSplit {
+/** The step and receipt id of a model_answer trace line that carries a receipt, or undefined. */
+function receiptRef(line: string, since: string): { agent: string; id: string } | undefined {
+  if (!line.includes('"action":"model_answer"') || !line.includes('"receipt"')) return undefined;
+  const e = JSON.parse(line) as { ts: string; agent: string; receipt?: { receipt_id?: string } };
+  const id = e.receipt?.receipt_id;
+  return e.ts >= since && id && e.agent in STEP_NAMES ? { agent: e.agent, id } : undefined;
+}
+
+/** The signed receipt's body, or undefined when its file is missing. */
+function readReceipt(logDir: string, id: string): Receipt | undefined {
+  const file = join(logDir, "receipts", `${id}.json`);
+  if (!existsSync(file)) return undefined;
+  return (JSON.parse(readFileSync(file, "utf8")) as { body?: { receipt?: Receipt } }).body?.receipt;
+}
+
+/** The receipts of the model calls in a run's traces (events at or after `since`), with the step that made each. */
+function* receiptsOf(logDir: string, variant: string, since: string): Generator<{ agent: string; receipt: Receipt }> {
+  for (const name of readdirSync(logDir).filter((n) => n.startsWith(`trace-eval-${variant}-`))) {
+    for (const line of readFileSync(join(logDir, name), "utf8").split("\n")) {
+      const ref = receiptRef(line, since);
+      const receipt = ref ? readReceipt(logDir, ref.id) : undefined;
+      if (ref && receipt?.winning_route?.model) yield { agent: ref.agent, receipt };
+    }
+  }
+}
+
+/** Tally the winning routes of the receipts per step. */
+function tally(found: Iterable<{ agent: string; receipt: Receipt }>) {
   const counts = new Map<string, Map<string, RoutingSplitModel>>();
   const routers = new Set<string>();
   let receipts = 0;
   let coerced = 0;
-  if (!existsSync(logDir)) return { rows: [], receipts, mode_coerced: coerced, routers: [] };
-  for (const name of readdirSync(logDir).filter((n) => n.startsWith(`trace-eval-${variant}-`))) {
-    for (const line of readFileSync(join(logDir, name), "utf8").split("\n")) {
-      if (!line.includes('"action":"model_answer"') || !line.includes('"receipt"')) continue;
-      const e = JSON.parse(line) as { ts: string; agent: string; receipt?: { receipt_id?: string } };
-      const id = e.receipt?.receipt_id;
-      if (e.ts < since || !id || !(e.agent in STEP_NAMES)) continue;
-      const file = join(logDir, "receipts", `${id}.json`);
-      if (!existsSync(file)) continue;
-      const body = (JSON.parse(readFileSync(file, "utf8")) as { body?: { receipt?: Receipt } }).body?.receipt;
-      const route = body?.winning_route;
-      if (!route?.model) continue;
-      receipts += 1;
-      if (body?.app_policy?.mode_coerced) coerced += 1;
-      if (body?.routing?.policy) routers.add(body.routing.policy);
-      const kind = route.kind === "cloud" || route.kind === "local" ? route.kind : "unknown";
-      const perStep = counts.get(e.agent) ?? new Map<string, RoutingSplitModel>();
-      const row = perStep.get(route.model) ?? { model: route.model, kind, calls: 0, share: 0 };
-      row.calls += 1;
-      perStep.set(route.model, row);
-      counts.set(e.agent, perStep);
-    }
+  for (const { agent, receipt } of found) {
+    const route = receipt.winning_route as { kind?: string; model: string };
+    receipts += 1;
+    if (receipt.app_policy?.mode_coerced) coerced += 1;
+    if (receipt.routing?.policy) routers.add(receipt.routing.policy);
+    const kind = route.kind === "cloud" || route.kind === "local" ? route.kind : "unknown";
+    const perStep = counts.get(agent) ?? new Map<string, RoutingSplitModel>();
+    const row = perStep.get(route.model) ?? { model: route.model, kind, calls: 0, share: 0 };
+    row.calls += 1;
+    perStep.set(route.model, row);
+    counts.set(agent, perStep);
   }
+  return { counts, routers, receipts, coerced };
+}
+
+/** Read the receipts of the model calls in a run's traces (events at or after `since`). */
+export function routingSplit(logDir: string, variant: string, since: string): RoutingSplit {
+  if (!existsSync(logDir)) return { rows: [], receipts: 0, mode_coerced: 0, routers: [] };
+  const { counts, routers, receipts, coerced } = tally(receiptsOf(logDir, variant, since));
   const rows = Object.keys(STEP_NAMES)
     .filter((agent) => counts.has(agent))
     .map((agent) => {

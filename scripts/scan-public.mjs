@@ -28,7 +28,7 @@ const RULES = [
   {
     group: "assistant name or attribution",
     re: /\b(Claude|Anthropic|Claude Code|Co-Authored-By|Generated (with|by)|AI-generated)\b/i,
-    allowedIn: new Set(["README.md", "metadata.json"]),
+    allowedIn: new Set(["README.md", "metadata.json", "LICENSE"]),
   },
   {
     group: "local path",
@@ -56,7 +56,15 @@ const FORBIDDEN_PATHS = [
   { group: "raw data or logs tracked", re: /^(data\/(raw|normalised)|logs)\// },
 ];
 
-const findings = { tracked: [], history: [], messages: [], paths: [] };
+// Files without a text extension that a public reader sees all the same.
+const EXTRA_TEXT = new Set(["Dockerfile", "LICENSE", ".gitignore", ".dockerignore", ".env.example"]);
+const IMAGES = new Set([".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".pdf"]);
+const readable = (f) => EXTRA_TEXT.has(f) || TEXT_EXTENSIONS.has(extname(f));
+const RULE_FILES = new Set(["scripts/scan-public.mjs", "scripts/scan-history.mjs"]);
+const skipped = (f) =>
+  RULE_FILES.has(f) || (SKIP_FILES.has(f) && !EXTRA_TEXT.has(f)) || SKIP_PREFIXES.some((p) => f.startsWith(p));
+
+const findings = { tracked: [], history: [], messages: [], paths: [], images: [] };
 const allowed = (rule, file) => rule.allowedIn?.has(file);
 const test = (file) => /(^|\/)test\//.test(file);
 
@@ -64,8 +72,9 @@ const test = (file) => /(^|\/)test\//.test(file);
 const tracked = git(["ls-files", "-z"]).split("\0").filter(Boolean);
 for (const file of tracked) {
   for (const f of FORBIDDEN_PATHS) if (f.re.test(file)) findings.paths.push({ where: "tracked", group: f.group, file });
-  if (SKIP_FILES.has(file) || SKIP_PREFIXES.some((p) => file.startsWith(p)) || !TEXT_EXTENSIONS.has(extname(file)))
-    continue;
+  if (IMAGES.has(extname(file).toLowerCase()))
+    findings.images.push({ group: "image or document to review by eye", file });
+  if (skipped(file) || !readable(file)) continue;
   let text;
   try {
     text = readFileSync(file, "utf8");
@@ -110,11 +119,7 @@ for (const line of git(["log", "--all", "-p", "--no-color", "--no-ext-diff", "--
   if (line.startsWith("COMMIT ")) current = line.slice(7, 17);
   else if (line.startsWith("+++ ")) {
     file = line.startsWith("+++ b/") ? line.slice(6) : "";
-    skip =
-      !file ||
-      SKIP_FILES.has(file) ||
-      SKIP_PREFIXES.some((p) => file.startsWith(p)) ||
-      !TEXT_EXTENSIONS.has(extname(file));
+    skip = !file || skipped(file) || !readable(file);
   } else if (line.startsWith("+") && !skip) {
     const text = line.slice(1);
     for (const r of RULES) {
@@ -141,6 +146,7 @@ if (asJson) {
     }
   };
   show("tracked files now", findings.tracked, (r) => `${r.file}:${r.line}  ${r.text}`);
+  show("images and documents (check by eye for local paths, usernames or tool names)", findings.images, (r) => r.file);
   show("paths", findings.paths, (r) => `[${r.where}] ${r.file}${r.commit ? ` (${r.commit})` : ""}`);
   show(
     "commit messages",

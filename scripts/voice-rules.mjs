@@ -21,6 +21,7 @@ export const SKIP_FILES = new Set([
   "LICENSE",
   "scripts/lint-voice.mjs",
   "scripts/voice-rules.mjs",
+  "scripts/scan-public.mjs",
 ]);
 // Rows copied from public sanctions lists and GLEIF are data, not our wording.
 export const SKIP_PREFIXES = ["data/sample/", "data/reference/"];

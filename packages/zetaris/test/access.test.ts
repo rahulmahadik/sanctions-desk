@@ -18,7 +18,7 @@ describe("checkRoleAccess", () => {
   });
 
   it("names who is refused and what the platform said, and who has no token", async () => {
-    const api = fakeZetaris((sql) => ({
+    const api = fakeZetaris(() => ({
       status: 400,
       body: { msg: "User 'AGENT' does not have access to USL: metastore.sanctions.customer\nmore" },
     }));

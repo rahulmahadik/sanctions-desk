@@ -6,7 +6,6 @@ __pycache__/
 logs/
 *.pem
 *.key
-.claude/
 # Private scratch: run logs, notes. Never commit.
 internal/
 
@@ -15,9 +14,6 @@ node_modules/
 dist/
 coverage/
 *.tsbuildinfo
-
-# Local assistant instructions (kept on disk, not published)
-CLAUDE.md
 
 # Raw and normalised list downloads (large, reproducible with npm run data:fetch)
 data/raw/
@@ -28,4 +24,3 @@ config/local.json
 .local/
 .next/
 apps/web/next-env.d.ts
-*.tsbuildinfo

@@ -1,6 +1,5 @@
 .git
 .github
-.claude
 .env
 .env.*
 !.env.example
@@ -11,7 +10,6 @@ coverage
 dist
 logs
 internal
-CLAUDE.md
 scripts
 src
 *.md

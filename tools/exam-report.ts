@@ -100,23 +100,54 @@ const assumptions = config.report;
 const alertCases = exam.cases.filter((c) => c.alert_id !== null).length;
 const draftCases = exam.cases.length - alertCases;
 
+/** The trace events of a variant's cases at or after `since` whose line contains `needle`. */
+function* traceEvents<T extends { ts: string }>(variant: string, since: string, needle: string): Generator<T> {
+  const logs = resolveProjectPath(config.logging.dir);
+  if (!existsSync(logs)) return;
+  for (const name of readdirSync(logs).filter((n) => n.startsWith(`trace-eval-${variant}-`))) {
+    for (const line of readFileSync(join(logs, name), "utf8").split("\n")) {
+      if (!line.includes(needle)) continue;
+      const e = JSON.parse(line) as T;
+      if (e.ts >= since) yield e;
+    }
+  }
+}
+
 /** What the challenger concluded in each of this run's challenges, from the run's traces. */
 function challengerOutcomes(variant: string, since: string) {
   const out = { total: 0, none: 0, credible: 0, unavailable: 0 };
-  const logs = resolveProjectPath(config.logging.dir);
-  if (!existsSync(logs)) return out;
-  for (const name of readdirSync(logs).filter((n) => n.startsWith(`trace-eval-${variant}-`))) {
-    for (const line of readFileSync(join(logs, name), "utf8").split("\n")) {
-      if (!line.includes('"action":"challenge_result"')) continue;
-      const e = JSON.parse(line) as { ts: string; status: string };
-      if (e.ts < since) continue;
-      out.total += 1;
-      if (e.status === "ok") out.none += 1;
-      else if (e.status === "blocked") out.credible += 1;
-      else out.unavailable += 1;
-    }
+  for (const e of traceEvents<{ ts: string; status: string }>(variant, since, '"action":"challenge_result"')) {
+    out.total += 1;
+    if (e.status === "ok") out.none += 1;
+    else if (e.status === "blocked") out.credible += 1;
+    else out.unavailable += 1;
   }
   return out;
+}
+
+interface ModelAnswerEvent {
+  ts: string;
+  agent: string;
+  retry_count?: number;
+  model_requested?: string;
+  output_summary?: string;
+  detail?: { lane?: string; structured?: boolean };
+}
+
+const ENTRY_LANE: Record<string, string> = {
+  decision: "deep",
+  critic: "judge",
+  challenger: "deep",
+  policy_guard: "fast",
+};
+
+/** The mode a call asked for: logged for newer runs, inferred from the step and the try for older ones. */
+function modeAskedFor(e: ModelAnswerEvent, failed: boolean): string {
+  const raw =
+    e.detail?.lane ??
+    e.model_requested ??
+    (failed ? ([ENTRY_LANE[e.agent], "fast", "ollama"][Math.min(e.retry_count ?? 0, 2)] as string) : "unknown");
+  return raw.replace("meterless/", "");
 }
 
 /**
@@ -124,43 +155,22 @@ function challengerOutcomes(variant: string, since: string) {
  * answer, because every provider failed) by the mode asked for, and any answer that was not schema-constrained.
  */
 function callStats(variant: string, since: string) {
-  const entryLane: Record<string, string> = {
-    decision: "deep",
-    critic: "judge",
-    challenger: "deep",
-    policy_guard: "fast",
-  };
   const lanes = new Map<string, { calls: number; failed: number }>();
   const failedBy = new Map<string, number>();
   let unstructured = 0;
-  const logs = resolveProjectPath(config.logging.dir);
-  if (!existsSync(logs)) return { lanes, failedBy, unstructured };
-  for (const name of readdirSync(logs).filter((n) => n.startsWith(`trace-eval-${variant}-`))) {
-    for (const line of readFileSync(join(logs, name), "utf8").split("\n")) {
-      if (!line.includes('"action":"model_answer"')) continue;
-      const e = JSON.parse(line) as {
-        ts: string;
-        agent: string;
-        retry_count?: number;
-        model_requested?: string;
-        output_summary?: string;
-        detail?: { lane?: string; structured?: boolean };
-      };
-      if (e.ts < since || !(e.agent in entryLane)) continue;
-      const failed = /^model call failed/.test(e.output_summary ?? "");
-      const raw =
-        e.detail?.lane ??
-        e.model_requested ??
-        (failed ? ([entryLane[e.agent], "fast", "ollama"][Math.min(e.retry_count ?? 0, 2)] as string) : "unknown");
-      const lane = raw.replace("meterless/", "");
-      const row = lanes.get(lane) ?? { calls: 0, failed: 0 };
-      row.calls += 1;
-      if (failed) {
-        row.failed += 1;
-        failedBy.set(`${e.agent} on ${lane}`, (failedBy.get(`${e.agent} on ${lane}`) ?? 0) + 1);
-      } else if (e.agent !== "policy_guard" && e.detail?.structured !== true) unstructured += 1;
-      lanes.set(lane, row);
+  for (const e of traceEvents<ModelAnswerEvent>(variant, since, '"action":"model_answer"')) {
+    if (!(e.agent in ENTRY_LANE)) continue;
+    const failed = /^model call failed/.test(e.output_summary ?? "");
+    const lane = modeAskedFor(e, failed);
+    const row = lanes.get(lane) ?? { calls: 0, failed: 0 };
+    row.calls += 1;
+    if (failed) {
+      row.failed += 1;
+      failedBy.set(`${e.agent} on ${lane}`, (failedBy.get(`${e.agent} on ${lane}`) ?? 0) + 1);
+    } else if (e.agent !== "policy_guard" && e.detail?.structured !== true) {
+      unstructured += 1;
     }
+    lanes.set(lane, row);
   }
   return { lanes, failedBy, unstructured };
 }
@@ -313,7 +323,7 @@ if (have.length === 0) {
   }
 
   const fuzzy = get("fuzzy");
-  if (fuzzy && fuzzy.cases.every((c) => c.score !== undefined || c.got === "DRAFT_ALLOWED")) {
+  if (fuzzy?.cases.every((c) => c.score !== undefined || c.got === "DRAFT_ALLOWED")) {
     lines.push("### The name-match rules baseline at other thresholds", "");
     lines.push("| Threshold | Acceptable | False closes (risk cases) | Escalated |", "|---:|---:|---:|---:|");
     for (const t of [0.5, 0.6, 0.7, 0.8, 0.9, 0.95]) {
