@@ -16,3 +16,6 @@ scripts
 src
 *.md
 !README.md
+.next
+**/.next
+.local

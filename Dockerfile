@@ -8,6 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/api/package.json apps/api/
 COPY apps/payments-api/package.json apps/payments-api/
+COPY apps/web/package.json apps/web/
 COPY packages/shared/package.json packages/shared/
 COPY packages/data/package.json packages/data/
 COPY packages/zetaris/package.json packages/zetaris/
@@ -46,3 +47,34 @@ EXPOSE 8000
 HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8000)+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["node", "--import", "tsx", "apps/api/src/index.ts"]
+
+# ---- the review desk interface: built once, served by a small self-contained Next.js server ----
+FROM node:${NODE_VERSION}-alpine AS web-build
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY apps/api/package.json apps/api/
+COPY apps/payments-api/package.json apps/payments-api/
+COPY apps/web/package.json apps/web/
+COPY packages/shared/package.json packages/shared/
+COPY packages/data/package.json packages/data/
+COPY packages/zetaris/package.json packages/zetaris/
+COPY packages/engines/package.json packages/engines/
+COPY packages/agents/package.json packages/agents/
+RUN npm ci --ignore-scripts
+COPY tsconfig.base.json ./
+COPY apps/web apps/web
+# The browser reaches the API at this address; it is fixed when the interface is built.
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} NEXT_TELEMETRY_DISABLED=1
+RUN npm run build -w @sanctions-desk/web
+
+FROM node:${NODE_VERSION}-alpine AS web
+ENV NODE_ENV=production PORT=3001 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1
+WORKDIR /app
+COPY --from=web-build /app/apps/web/.next/standalone ./
+COPY --from=web-build /app/apps/web/.next/static ./apps/web/.next/static
+USER node
+EXPOSE 3001
+HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:3001/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node", "apps/web/server.js"]

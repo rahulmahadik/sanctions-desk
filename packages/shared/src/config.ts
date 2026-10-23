@@ -30,6 +30,8 @@ const ConfigSchema = z.strictObject({
     port: z.number().int().min(1).max(65535),
     bodyLimitBytes: positiveInt,
     shutdownTimeoutMs: positiveInt,
+    /** Browser origins allowed to call the API (the review desk interface). */
+    webOrigins: z.array(nonEmpty),
   }),
   logging: z.strictObject({
     level: z.enum(LOG_LEVELS),
@@ -124,6 +126,7 @@ interface EnvBinding {
 /** Which environment variable overrides which config key. */
 const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "HOST", path: ["server", "host"], kind: "string" },
+  { env: "WEB_ORIGINS", path: ["server", "webOrigins"], kind: "list" },
   { env: "PORT", path: ["server", "port"], kind: "number" },
   { env: "LOG_LEVEL", path: ["logging", "level"], kind: "string" },
   { env: "LOG_DIR", path: ["logging", "dir"], kind: "string" },

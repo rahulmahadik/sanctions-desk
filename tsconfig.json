@@ -5,8 +5,10 @@
     "data/scripts",
     "packages/*/src",
     "packages/*/test",
-    "apps/*/src",
-    "apps/*/test",
+    "apps/api/src",
+    "apps/api/test",
+    "apps/payments-api/src",
+    "apps/payments-api/test",
     "vitest.config.ts"
   ]
 }

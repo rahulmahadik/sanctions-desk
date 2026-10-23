@@ -6,6 +6,7 @@ import fastify from "fastify";
 import type { Logger } from "pino";
 import { mapError } from "./errors.js";
 import { createDependencyProber, type DependencyProber } from "./probes.js";
+import { allowedOrigin, deskRoutes } from "./routes/desk.js";
 import { guardRoutes } from "./routes/guard.js";
 import { healthRoutes } from "./routes/health.js";
 import { listChangeRoutes } from "./routes/list-change.js";
@@ -55,6 +56,23 @@ export async function buildApp(deps: AppDeps) {
   app.addHook("onRequest", async (req, reply) => {
     reply.header("x-request-id", req.id);
     reply.header("cache-control", "no-store");
+    const origin = allowedOrigin(config, req.headers.origin);
+    if (origin !== undefined) {
+      reply.header("access-control-allow-origin", origin);
+      reply.header("vary", "Origin");
+    }
+  });
+
+  // Browser preflight for the review desk interface (only the configured origins get the headers above).
+  app.options("/*", async (req, reply) => {
+    const origin = allowedOrigin(config, req.headers.origin);
+    if (origin === undefined) return reply.status(204).send();
+    return reply
+      .status(204)
+      .header("access-control-allow-methods", "GET, POST, OPTIONS")
+      .header("access-control-allow-headers", "content-type, x-request-id")
+      .header("access-control-max-age", "600")
+      .send();
   });
 
   app.setErrorHandler((err, req, reply) => {
@@ -87,6 +105,7 @@ export async function buildApp(deps: AppDeps) {
     sampleNotice: deps.sampleNotice,
   });
   await app.register(runEventRoutes, { bus: deps.bus });
+  await app.register(deskRoutes, { config, bus: deps.bus, policies: deps.policies, zetaris: deps.zetaris });
   await app.register(traceRoutes, { config });
   await app.register(listChangeRoutes, {
     config,

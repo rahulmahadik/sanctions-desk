@@ -327,6 +327,12 @@ export function createFallbackRulesGenerator(rules: (req: GenerateRequest) => st
 }
 
 /** Try each generator in order. Only recoverable failures move on to the next one. */
+/** Only the provider the request names, when the chain has it; otherwise the whole chain. */
+function providersFor(chain: NamedGenerator[], wanted: Provider | undefined): NamedGenerator[] {
+  const only = chain.filter((p) => p.provider === wanted);
+  return only.length > 0 ? only : chain;
+}
+
 export function createGeneratorChain(
   chain: NamedGenerator[],
   hooks: { onFallback?: (from: Provider, error: StructuredError) => void } = {},
@@ -334,9 +340,7 @@ export function createGeneratorChain(
   if (chain.length === 0) throw new Error("generator chain needs at least one provider");
   return async (req) => {
     const failures: Failure[] = [];
-    const only = req.provider !== undefined && chain.some((p) => p.provider === req.provider);
-    for (const { provider, generate } of chain) {
-      if (only && provider !== req.provider) continue;
+    for (const { provider, generate } of providersFor(chain, req.provider)) {
       const outcome = await attempt(generate, req);
       if (outcome.ok) return failures.length > 0 ? { ...outcome.result, fellBackFrom: failures } : outcome.result;
       if (req.signal?.aborted) throw outcome.cause;

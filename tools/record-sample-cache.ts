@@ -7,7 +7,7 @@
 import { existsSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { replayListChange, runReview, sampleRules } from "@sanctions-desk/agents";
+import { readAlertQueue, replayListChange, runReview, sampleRules } from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
 import {
   createFallbackRulesGenerator,
@@ -52,6 +52,13 @@ for (const { alert_id: alertId } of alerts) {
     // Alerts the review does not handle yet are left out of the cache; they cannot run in sample mode either.
     console.log(`${alertId} skipped: ${err instanceof Error ? err.message : String(err)}`);
   }
+}
+// The queue of alerts the interface shows is read through the same layer and saved too.
+try {
+  const queue = await readAlertQueue({ config, zetaris });
+  console.log(`queue: ${queue.length} alerts`);
+} catch (err) {
+  console.log(`queue skipped: ${err instanceof Error ? err.message : String(err)}`);
 }
 // The list-change replay reads the same data layer; its answers are saved too, so it runs in sample mode.
 try {

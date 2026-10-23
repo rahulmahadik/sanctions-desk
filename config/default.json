@@ -3,7 +3,8 @@
     "host": "0.0.0.0",
     "port": 8000,
     "bodyLimitBytes": 1048576,
-    "shutdownTimeoutMs": 10000
+    "shutdownTimeoutMs": 10000,
+    "webOrigins": ["http://localhost:3001", "http://127.0.0.1:3001"]
   },
   "logging": {
     "level": "info",

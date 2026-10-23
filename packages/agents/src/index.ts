@@ -9,6 +9,7 @@ export * from "./model-call.js";
 export * from "./ownership.js";
 export * from "./pipeline.js";
 export * from "./policy-guard.js";
+export * from "./queue.js";
 export * from "./record.js";
 export * from "./safety.js";
 export * from "./sample-rules.js";
