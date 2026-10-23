@@ -20,7 +20,7 @@ import {
   type UsersFile,
 } from "@sanctions-desk/shared";
 import type { ZetarisClient } from "@sanctions-desk/zetaris";
-import fastify from "fastify";
+import fastify, { type FastifyReply } from "fastify";
 import type { Logger } from "pino";
 import { mapError } from "./errors.js";
 import { buildOpenApi } from "./openapi.js";
@@ -65,14 +65,18 @@ declare module "fastify" {
   }
 }
 
-/** What a route needs. Reading needs only a signed-in user; these are the exceptions. */
+/**
+ * What a route needs. Reading needs only a signed-in user; these are the exceptions. `path` is the pattern of the
+ * route that matched (for example `/policy/drafts/:version/publish`), never the text the caller sent: the router
+ * decodes percent escapes, so `/policy/drafts/%32/publish` reaches the same handler as `/policy/drafts/2/publish`.
+ */
 export function permissionFor(method: string, path: string): Permission | undefined {
-  if (method === "GET") return undefined;
+  if (method === "GET" || method === "HEAD") return undefined;
   if (path === "/run" || path === "/list-change/replay" || path === "/guard/outbound" || path === "/policy/whatif")
     return "run";
   if (/^\/cases\/[^/]+\/(decision|second-approval|reopen)$/.test(path)) return "decide";
   if (path === "/autonomy/kill-switch") return "stopAutonomy";
-  if (/^\/policy\/drafts\/\d+\/publish$/.test(path)) return "publishPolicy";
+  if (/^\/policy\/drafts\/[^/]+\/publish$/.test(path)) return "publishPolicy";
   if (path.startsWith("/policy/")) return "proposePolicy";
   return undefined;
 }
@@ -94,6 +98,20 @@ export async function buildApp(deps: AppDeps) {
     requestIdHeader: false,
     genReqId: (req) => requestIdFrom(req.headers["x-request-id"]),
     trustProxy: false,
+    // Errors the router raises before a route is chosen (an address that is too long or badly encoded). The
+    // default answer repeats the address back; this one does not, and has the same shape as every other error.
+    frameworkErrors: (err, req, reply) => {
+      const tooLong = (err as { code?: string }).code === "FST_ERR_MAX_PARAM_LENGTH";
+      return (reply as unknown as FastifyReply).status(tooLong ? 414 : 400).send({
+        status: "error",
+        request_id: req.id,
+        error: {
+          type: "validation",
+          message: tooLong ? "the address is too long" : "the address is not valid",
+          recoverable: false,
+        },
+      });
+    },
   });
 
   await app.register(helmet, { contentSecurityPolicy: false });
@@ -130,7 +148,7 @@ export async function buildApp(deps: AppDeps) {
     const actor = authenticator.actorFor(req.headers);
     if (!actor) throw new AppError("unauthorized", "a valid token is required");
     req.actor = actor;
-    const need = permissionFor(req.method, path);
+    const need = permissionFor(req.method, req.routeOptions.url ?? path);
     // In sample mode anyone may read and run a review; recording a decision or changing policy needs a demo user.
     const open = mode === "demo" && need === "run";
     if (need !== undefined && !open && !can(actor, need)) {
