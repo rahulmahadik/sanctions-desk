@@ -339,3 +339,22 @@ CUST-H0027,individual,AHMED DEGHDEGH,,AE,FR,2020-01-13,low,EMEA,"Identity card I
 CUST-H0028,individual,Sheila Paola Urias De Nunez,,SG,GB,2021-02-14,low,APAC,Passport ZR7698720 verified at onboarding (KYC-907831) on 2026-09-25: date of birth 2013-03-14.,synthetic
 CUST-H0029,individual,Idwina Lau,,SG,GB,2022-03-15,low,AMER,National ID 88110434 checked by compliance (KYC-269997) on 2026-09-25: date of birth 1953-07-29.,synthetic
 CUST-H0030,company,Granite Foods GmbH,,GB,GB,2023-04-16,medium,EMEA,,synthetic
+CUST-J0001,company,Willow Software Pte Ltd,,GB,GB,2024-05-17,medium,APAC,,synthetic
+CUST-J0002,company,Orchid Trading GmbH,,GB,GB,2014-06-18,medium,AMER,,synthetic
+CUST-J0003,company,Cedar Consulting B.V.,,GB,GB,2015-07-19,medium,EMEA,,synthetic
+CUST-J0004,individual,Ilse Carvalho,,AE,ES,2016-08-20,low,APAC,Cliente casada. Apellido de soltera: Sally Anne Frances Jones. Esposo: Junaid Hussain.,synthetic
+CUST-J0005,individual,Grace Moreau,,NL,DE,2017-09-21,low,AMER,Ehefrau von Ibrahim Awwad Ibrahim Ali al-Badri al-Samarrai laut Kopie der Heiratsurkunde. Das Konto dient dem Familienunterhalt.,synthetic
+CUST-J0006,company,Al Noor Change SARL,,FR,FR,2018-10-22,medium,EMEA,"Bureau de change. Succursale à Albu Kamal (Syrie), ouverte en 2021; virements vers la région frontalière.",synthetic
+CUST-J0007,company,Ridge Capital LLC,,GB,GB,2019-11-23,medium,APAC,,synthetic
+CUST-J0008,individual,LOZA GARCIA Rodolfo Alejandro,,FR,ES,2020-12-24,low,AMER,"Identidad verificada en sucursal (KYC-811821) el 2026-09-12: passport ZV9807386, date of birth 2004-06-11.",synthetic
+CUST-J0009,company,Fjord Marine B.V.,,GB,GB,2021-01-25,medium,EMEA,,synthetic
+CUST-J0010,company,Meridian Software B.V.,,GB,GB,2022-02-26,medium,APAC,,synthetic
+CUST-J0011,individual,Kenffersso Jhosue Sevilla Arteaga,,FR,GB,2023-03-27,low,AMER,"Owns the Kalashnikov Vodka Bar, a themed restaurant in Soho. Identity: passport ZT5619872, checked at branch (KYC-227810) on 14 Sep 2026, date of birth 1970-04-29.",synthetic
+CUST-J0012,individual,Mokhtar BOUCHOUCHA,,SG,FR,2024-04-01,low,EMEA,"Vérification d'identité (CDD-674312) le 2026-09-19 : national ID 93034239, date of birth 1987-10-13.",synthetic
+CUST-J0013,individual,KIM MUN CHOL,,FR,GB,2014-05-02,low,APAC,Passport ZP8546977 seen at branch on 2026-09-11; date of birth 1974-03-25.,synthetic
+CUST-J0014,company,Nova Software S.A.,,GB,GB,2015-06-03,medium,AMER,,synthetic
+CUST-J0015,individual,Zhi Chen,,FR,GB,2016-07-04,low,EMEA,"Identity confirmed (KYC-603357), passport ZS7940202; born 2002.",synthetic
+CUST-J0016,individual,Bassem Murad,2007-03-19,AE,GB,2017-08-05,low,APAC,"Holds a power of attorney for a cousin of the same name, Bassem Murad (born 1978-03-19), and signs supply contracts in the cousin's name.",synthetic
+CUST-J0017,individual,Akhtar Mohammed,1938-05-02,AE,AE,2018-09-06,low,AMER,,synthetic
+CUST-J0018,individual,Erick Tsang,,FR,GB,2019-10-07,low,EMEA,Enhanced review EDD-75893 closed on 2026-08-30. Driving licence 54753120 inspected in person; DOB: 1987-09-01.,synthetic
+CUST-J0019,individual,Yekaterina Sergeyevna Lavrova,,DE,GB,2020-11-08,low,APAC,"Identity card 1294934161 sighted by the compliance desk, case 2026-29562, on 3 Oct 2026; card shows born 1962-04-03.",synthetic

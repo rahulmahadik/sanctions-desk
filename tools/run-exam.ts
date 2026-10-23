@@ -277,6 +277,11 @@ function runFeatures(p: Policy) {
     cockpit_binds: cockpitBinds(p),
     app_identities: Object.fromEntries(Object.entries(p.models).map(([step, m]) => [step, m.identity])),
     tries_per_model_step: "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    retry_identities: Object.fromEntries(
+      Object.entries(p.models).flatMap(([step, m]) => (m.retryIdentity ? [[step, m.retryIdentity]] : [])),
+    ),
+    // --note: a condition of the run that the code cannot see (for example how the payments table was served).
+    ...(flag("--note") ? { note: flag("--note") } : {}),
     provider_backoff_ms: PROVIDER_BACKOFF_MS,
     challenger_points: "up to eight, strongest first",
   };

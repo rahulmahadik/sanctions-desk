@@ -365,3 +365,10 @@ PAY-H00005,CUST-H0011,ACC-H00011,outbound,45000,CHF,Bridge Marine Services Ltd,H
 PAY-H00006,CUST-H0025,ACC-H00025,outbound,13018,SGD,Joint Stock Company Russian Agricultural Bank,XX,,,,"Invoice 20261-77 to Joint Stock Company Russian Agricultural Bank (Pty), company no. 941005900, Auckland NZ; unrelated to any listed entity of the same name",2026-10-23,pending
 PAY-H00007,CUST-H0026,ACC-H00026,outbound,3266,CHF,Kelvin Kong,XX,,,,"Salary April, employee 6891, born 1999-05-22, payroll batch 26-04",2026-10-23,pending
 PAY-H00008,CUST-H0030,ACC-H00030,outbound,39430,SGD,OJSC SAMOTLORNEFTEGAZ,XX,,,,"Deposit refund to OJSC SAMOTLORNEFTEGAZ (Pty), Auckland NZ; company no. 214834671 verified (KYC-761459) on 2026-09-13; no link to the listed entity",2026-10-23,pending
+PAY-J00001,CUST-J0001,ACC-J00001,outbound,36368,CHF,Pacific Bunkering Pte Ltd,SG,,,,"Bunkers delivered to tanker, IMO 5988369, delivery note BK-8272",2026-10-23,pending
+PAY-J00002,CUST-J0002,ACC-J00002,outbound,23506,EUR,Harbour Fuel Trading LLC,AE,,,,"Commission, marine oil tranche 2, agent Tsang Yung Yuan (Neil Tsang)",2026-10-23,pending
+PAY-J00003,CUST-J0003,ACC-J00003,outbound,33079,GBP,Distribuciones Levante SL,ES,,,,"Pago por cuenta de AL-HARAMAYN FOUNDATION (TANZANIA), contrato 3390/2026",2026-10-23,pending
+PAY-J00004,CUST-J0007,ACC-J00007,outbound,4650,EUR,Najmiddin K. Jalolov,UZ,,,,"Consulting fee, September",2026-10-23,pending
+PAY-J00005,CUST-J0009,ACC-J00009,outbound,5788,USD,Michel Joseph Martelly,XX,,,,"Rent deposit, Isis Court, Oxford; landlord ID 14471076 verified (CDD-590216) on 2026-10-04, landlord born 1987-02-12",2026-10-23,pending
+PAY-J00006,CUST-J0010,ACC-J00010,outbound,17368,SGD,"GAZPROM TRANSGAZ SANKT-PETERBURG, OOO",XX,,,,"Invoice 2026-114 to GAZPROM TRANSGAZ SANKT-PETERBURG, OOO (Leeds, GB); company no. 61408830 confirmed, chk 169279 on 2026-10-03",2026-10-23,pending
+PAY-J00007,CUST-J0014,ACC-J00014,outbound,14374,USD,Unknown,XX,,,,"Final payment for NOVATEK-KOSTROMA, OOO, company no. 87467179, verified (CDD-233986) on 2026-09-23; unrelated to the listed entity",2026-10-23,pending
