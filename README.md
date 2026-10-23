@@ -5,7 +5,7 @@ An AI review desk for bank sanctions-screening alerts. For every alert it reads 
 Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
 <!-- headline:start -->
-**Headline result** (full system on the 68-alert exam, one run): 31% of alerts closed with cited evidence, 69% escalated; about 401 analyst minutes saved per 100 alerts (assuming 15 minutes per alert and 2 to confirm a close); false closes on cases that carry real risk: 0 of 42. Details, assumptions and the comparison with plain name matching: [eval/REPORT.md](eval/REPORT.md).
+**Headline result** (full system on the 68-alert exam, one run): 26% of alerts closed with cited evidence, 74% escalated; about 344 analyst minutes saved per 100 alerts (assuming 15 minutes per alert and 2 to confirm a close); false closes on cases that carry real risk: 0 of 42. The desk took a median of 130 seconds and 0.01 USD in model cost per alert (measured), against an industry estimate of 20 to 60 minutes of analyst time per alert (an estimate; no vendor source verified). Details, assumptions and the comparison with plain name matching: [eval/REPORT.md](eval/REPORT.md).
 <!-- headline:end -->
 
 ## For judges
@@ -22,7 +22,8 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 **Headline numbers** (from the saved runs; refreshed by `npm run exam:report`):
 
 <!-- judges:start -->
-- **Wrongly closed on the exam's risk cases:** full system **0** of 42, plain name matching 10 of 42.
+- **Wrongly closed on the 42 risk cases of the exam:** full system **0**, plain name matching 10.
+- **Held-out set (cases the rules were not written for):** 20 of 22 risks caught, 0 of 8 correct clears made (escalate-everything catches every risk and makes none).
 <!-- judges:end -->
 
 Rules settle what structured data can; agents add value where rules stop. On the cases the rules were written for, the deterministic pipeline is exact by design; on the held-out set it makes none of the correct clears, and that is where the agents are tested.
@@ -181,10 +182,10 @@ Measured in the full exam run of 2026-10-23, from the signed receipts (the model
 
 | Step         | Calls | Nemotron 3.5 Lightning 30B (local) | Nemotron 3 Ultra 550B (cloud) |
 | ------------ | ----: | ---------------------------------: | ----------------------------: |
-| Safety guard |    70 |                         97.1% (68) |                      2.9% (2) |
-| Decision     |   111 |                                  0 |                  100.0% (111) |
-| Critic       |   109 |                           6.4% (7) |                   93.6% (102) |
-| Challenger   |    30 |                                  0 |                   100.0% (30) |
+| Safety guard |    70 |                        100.0% (70) |                             0 |
+| Decision     |    89 |                           2.3% (2) |                    97.8% (87) |
+| Critic       |    86 |                           1.2% (1) |                    98.8% (85) |
+| Challenger   |    15 |                                  0 |                   100.0% (15) |
 <!-- routing:end -->
 
 The **model ledger** of every recommendation lists, per step, the mode asked for, the model that answered, reasoning budget, tokens, latency and the signed receipt with its verification status (`GET /cases/:alertId/trace`, `npm run ledger -- --case <alert id>`, the routing panel of the review desk, and the saved decision records in `output_examples/`).

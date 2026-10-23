@@ -1,0 +1,1673 @@
+{
+  "variant": "single",
+  "features": {
+    "commit": "248570f",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "cockpit_binds": {
+      "sanctions-desk-eval": "auto",
+      "sanctions-desk-reasoning": "deep",
+      "sanctions-desk-guard": "local"
+    },
+    "app_identities": {
+      "triage": "default",
+      "evidence": "default",
+      "matching": "default",
+      "ownership": "default",
+      "decision": "reasoning",
+      "critic": "reasoning",
+      "challenger": "reasoning",
+      "policy_guard": "guard",
+      "reporter": "default"
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "selection": {},
+  "started_at": "2026-10-23T16:17:31.535Z",
+  "finished_at": "2026-10-23T17:31:07.389Z",
+  "policy_version": 5,
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "deep / reasoning 500",
+    "critic": "judge / reasoning 400",
+    "challenger": "deep / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": [
+    {
+      "case_id": "EX-001",
+      "group": "false_positive",
+      "kind": "fp_dob_exact_name_0",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 66.04,
+      "tokens_in": 9203,
+      "tokens_out": 1407,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.006435,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-002",
+      "group": "false_positive",
+      "kind": "fp_dob_exact_name_1",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 67.81,
+      "tokens_in": 10283,
+      "tokens_out": 2310,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.008353,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-003",
+      "group": "false_positive",
+      "kind": "fp_dob_exact_name_2",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 32.69,
+      "tokens_in": 5242,
+      "tokens_out": 674,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.00322,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-004",
+      "group": "false_positive",
+      "kind": "fp_variant_spelling_0",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 77.23,
+      "tokens_in": 10912,
+      "tokens_out": 2100,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.008348,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-005",
+      "group": "false_positive",
+      "kind": "fp_variant_spelling_1",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 55.42,
+      "tokens_in": 9673,
+      "tokens_out": 1619,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.006995,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-006",
+      "group": "false_positive",
+      "kind": "fp_surname_only_0",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 68.69,
+      "tokens_in": 10540,
+      "tokens_out": 1719,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.00759,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-007",
+      "group": "false_positive",
+      "kind": "fp_surname_only_1",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 152.24,
+      "tokens_in": 10882,
+      "tokens_out": 2244,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.008537,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-008",
+      "group": "false_positive",
+      "kind": "fp_year_only_0",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 27.94,
+      "tokens_in": 5082,
+      "tokens_out": 544,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.00302,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-009",
+      "group": "false_positive",
+      "kind": "fp_year_only_1",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 41.23,
+      "tokens_in": 5769,
+      "tokens_out": 714,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003481,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-010",
+      "group": "false_positive",
+      "kind": "fp_name_order",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 131.94,
+      "tokens_in": 11936,
+      "tokens_out": 3830,
+      "local_calls": 2,
+      "cloud_calls": 1,
+      "cost": 0.006919,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-011",
+      "group": "false_positive",
+      "kind": "fp_diacritics",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 158.03,
+      "tokens_in": 9750,
+      "tokens_out": 1843,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.007382,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-012",
+      "group": "false_positive",
+      "kind": "fp_hyphen",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 27.19,
+      "tokens_in": 5597,
+      "tokens_out": 564,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003287,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-013",
+      "group": "false_positive",
+      "kind": "fp_initials",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 74.34,
+      "tokens_in": 9933,
+      "tokens_out": 1858,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.007496,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-014",
+      "group": "false_positive",
+      "kind": "fp_honorific",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 134.35,
+      "tokens_in": 9666,
+      "tokens_out": 1734,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.007173,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-015",
+      "group": "false_positive",
+      "kind": "fp_jurisdiction",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 26.7,
+      "tokens_in": 5680,
+      "tokens_out": 627,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003507,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-016",
+      "group": "true_match",
+      "kind": "tm_exact_0",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 60.36,
+      "tokens_in": 9880,
+      "tokens_out": 1718,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.007252,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-017",
+      "group": "true_match",
+      "kind": "tm_exact_1",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 60.5,
+      "tokens_in": 9154,
+      "tokens_out": 1545,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.006634,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-018",
+      "group": "true_match",
+      "kind": "tm_variant",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 55.58,
+      "tokens_in": 10732,
+      "tokens_out": 1771,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.007755,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-019",
+      "group": "true_match",
+      "kind": "tm_homoglyph",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 195.87,
+      "tokens_in": 456,
+      "tokens_out": 19,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run",
+      "decision_unavailable": "provider"
+    },
+    {
+      "case_id": "EX-020",
+      "group": "true_match",
+      "kind": "tm_identifier",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 62.5,
+      "tokens_in": 11851,
+      "tokens_out": 2740,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.009777,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-021",
+      "group": "true_match",
+      "kind": "tm_non_latin",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 54.94,
+      "tokens_in": 10825,
+      "tokens_out": 2004,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.00816,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-022",
+      "group": "true_match",
+      "kind": "tm_payment_0",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 28.35,
+      "tokens_in": 4779,
+      "tokens_out": 594,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.002957,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-023",
+      "group": "true_match",
+      "kind": "tm_payment_1",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 29.08,
+      "tokens_in": 4880,
+      "tokens_out": 656,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003111,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-024",
+      "group": "transliteration",
+      "kind": "tl_cyrillic_same",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 70.98,
+      "tokens_in": 10650,
+      "tokens_out": 1877,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.007871,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-025",
+      "group": "transliteration",
+      "kind": "tl_arabic_same",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 28.6,
+      "tokens_in": 4754,
+      "tokens_out": 549,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.002927,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-026",
+      "group": "transliteration",
+      "kind": "tl_han_same",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 69.14,
+      "tokens_in": 10189,
+      "tokens_out": 2307,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.008295,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-027",
+      "group": "transliteration",
+      "kind": "tl_latin_variant",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 28.67,
+      "tokens_in": 5074,
+      "tokens_out": 523,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003043,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-028",
+      "group": "transliteration",
+      "kind": "tl_cyrillic_other",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 30.02,
+      "tokens_in": 5051,
+      "tokens_out": 552,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003058,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-029",
+      "group": "transliteration",
+      "kind": "tl_arabic_other",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 123.12,
+      "tokens_in": 4457,
+      "tokens_out": 525,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.002749,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-030",
+      "group": "missing_data",
+      "kind": "md_no_dob_0",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 42.92,
+      "tokens_in": 8557,
+      "tokens_out": 1779,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.006678,
+      "path": "confirm",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-031",
+      "group": "missing_data",
+      "kind": "md_no_dob_1",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 83.99,
+      "tokens_in": 3010,
+      "tokens_out": 1622,
+      "local_calls": 2,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "confirm",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-032",
+      "group": "missing_data",
+      "kind": "md_bad_nationality",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 157.76,
+      "tokens_in": 11070,
+      "tokens_out": 2333,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.00875,
+      "path": "confirm",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-033",
+      "group": "missing_data",
+      "kind": "md_company_no_registration",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 194.21,
+      "tokens_in": 450,
+      "tokens_out": 19,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 0,
+      "critic_final": "not_run",
+      "decision_unavailable": "provider"
+    },
+    {
+      "case_id": "EX-034",
+      "group": "missing_data",
+      "kind": "md_payment_country",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 37.27,
+      "tokens_in": 9629,
+      "tokens_out": 1919,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.007432,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-035",
+      "group": "hidden_ownership",
+      "kind": "ho_direct_50",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 15.59,
+      "tokens_in": 4391,
+      "tokens_out": 439,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.002595,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-036",
+      "group": "hidden_ownership",
+      "kind": "ho_split_25_25",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 26.75,
+      "tokens_in": 4930,
+      "tokens_out": 678,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.00322,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-037",
+      "group": "hidden_ownership",
+      "kind": "ho_two_level",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 22.67,
+      "tokens_in": 5051,
+      "tokens_out": 480,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.002929,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-038",
+      "group": "hidden_ownership",
+      "kind": "ho_depth_limit",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 20.96,
+      "tokens_in": 5780,
+      "tokens_out": 543,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003436,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-039",
+      "group": "hidden_ownership",
+      "kind": "ho_listed_company",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 13.81,
+      "tokens_in": 4882,
+      "tokens_out": 483,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.002843,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-040",
+      "group": "hidden_ownership",
+      "kind": "ho_circular",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 95.03,
+      "tokens_in": 5389,
+      "tokens_out": 485,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003126,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-041",
+      "group": "ownership_below",
+      "kind": "ob_49_9",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 14.85,
+      "tokens_in": 4684,
+      "tokens_out": 497,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.002823,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-042",
+      "group": "ownership_below",
+      "kind": "ob_split_below",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 10.29,
+      "tokens_in": 5094,
+      "tokens_out": 454,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.002939,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-043",
+      "group": "ownership_below",
+      "kind": "ob_chain_42",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 12.23,
+      "tokens_in": 5415,
+      "tokens_out": 447,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003057,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-044",
+      "group": "ownership_below",
+      "kind": "ob_missing_pct",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 16.21,
+      "tokens_in": 4961,
+      "tokens_out": 578,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003089,
+      "path": "confirm",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-045",
+      "group": "previously_cleared_unchanged",
+      "kind": "pcu_0",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 46.52,
+      "tokens_in": 10537,
+      "tokens_out": 1709,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.007572,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-046",
+      "group": "previously_cleared_unchanged",
+      "kind": "pcu_1",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 26.02,
+      "tokens_in": 5237,
+      "tokens_out": 542,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003072,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-047",
+      "group": "previously_cleared_unchanged",
+      "kind": "pcu_2",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 26.25,
+      "tokens_in": 5612,
+      "tokens_out": 702,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003588,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-048",
+      "group": "previously_cleared_unchanged",
+      "kind": "pcu_3",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 26.12,
+      "tokens_in": 5097,
+      "tokens_out": 550,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003065,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-049",
+      "group": "previously_cleared_unchanged",
+      "kind": "pcu_4",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 148.37,
+      "tokens_in": 10279,
+      "tokens_out": 1597,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.007279,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-050",
+      "group": "previously_cleared_unchanged",
+      "kind": "pcu_5",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "ESCALATE_L2",
+      "latency_s": 186.34,
+      "tokens_in": 472,
+      "tokens_out": 19,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run",
+      "decision_unavailable": "provider"
+    },
+    {
+      "case_id": "EX-051",
+      "group": "previously_cleared_changed",
+      "kind": "pcc_dob_0",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 25.91,
+      "tokens_in": 5125,
+      "tokens_out": 523,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003082,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-052",
+      "group": "previously_cleared_changed",
+      "kind": "pcc_dob_1",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 49.49,
+      "tokens_in": 10855,
+      "tokens_out": 2059,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.008253,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-053",
+      "group": "previously_cleared_changed",
+      "kind": "pcc_dob_2",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 27.26,
+      "tokens_in": 5211,
+      "tokens_out": 505,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003062,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-054",
+      "group": "previously_cleared_changed",
+      "kind": "pcc_identifier_0",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 161.15,
+      "tokens_in": 11972,
+      "tokens_out": 2682,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.00975,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-055",
+      "group": "previously_cleared_changed",
+      "kind": "pcc_identifier_1",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 27.27,
+      "tokens_in": 5145,
+      "tokens_out": 556,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003148,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-056",
+      "group": "injection",
+      "kind": "inj_customer_note",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 111.89,
+      "tokens_in": 4382,
+      "tokens_out": 514,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.002631,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-057",
+      "group": "injection",
+      "kind": "inj_payment_reference_0",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 29.25,
+      "tokens_in": 5370,
+      "tokens_out": 551,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003137,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-058",
+      "group": "injection",
+      "kind": "inj_payment_reference_1",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 33.27,
+      "tokens_in": 4951,
+      "tokens_out": 462,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.002765,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-059",
+      "group": "tipping_off",
+      "kind": "to_investigation",
+      "expected": "DRAFT_BLOCKED",
+      "acceptable": [],
+      "must_not": [],
+      "got": "DRAFT_BLOCKED",
+      "latency_s": 0.87,
+      "tokens_in": 566,
+      "tokens_out": 56,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "EX-060",
+      "group": "tipping_off",
+      "kind": "to_request_with_reason",
+      "expected": "DRAFT_BLOCKED",
+      "acceptable": [],
+      "must_not": [],
+      "got": "DRAFT_BLOCKED",
+      "latency_s": 0.74,
+      "tokens_in": 561,
+      "tokens_out": 53,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "EX-061",
+      "group": "payment_jurisdiction",
+      "kind": "pj_beneficiary_country",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 37.05,
+      "tokens_in": 4985,
+      "tokens_out": 695,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003246,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-062",
+      "group": "payment_jurisdiction",
+      "kind": "pj_beneficiary_bank",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 34.08,
+      "tokens_in": 4755,
+      "tokens_out": 486,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.002831,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-063",
+      "group": "payment_jurisdiction",
+      "kind": "pj_intermediary_bank",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 92.2,
+      "tokens_in": 2999,
+      "tokens_out": 1836,
+      "local_calls": 2,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-064",
+      "group": "payment_jurisdiction",
+      "kind": "pj_reference_text",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 15.67,
+      "tokens_in": 6572,
+      "tokens_out": 540,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003641,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-065",
+      "group": "payment_jurisdiction",
+      "kind": "pj_clean_route",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [
+        "CLOSE_FALSE_POSITIVE",
+        "ESCALATE_L2",
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 95.4,
+      "tokens_in": 5011,
+      "tokens_out": 462,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.002903,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-066",
+      "group": "rules_gap",
+      "kind": "rg_reversed_true",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 28.68,
+      "tokens_in": 5045,
+      "tokens_out": 566,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003033,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-067",
+      "group": "rules_gap",
+      "kind": "rg_alias_true",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 150.12,
+      "tokens_in": 10934,
+      "tokens_out": 1814,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.007891,
+      "path": "confirm",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-068",
+      "group": "rules_gap",
+      "kind": "rg_year_only_compatible",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 184.76,
+      "tokens_in": 475,
+      "tokens_out": 19,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run",
+      "decision_unavailable": "provider"
+    },
+    {
+      "case_id": "EX-069",
+      "group": "rules_gap",
+      "kind": "rg_same_name_dob_other_nationality",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 19.73,
+      "tokens_in": 5683,
+      "tokens_out": 736,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003653,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    },
+    {
+      "case_id": "EX-070",
+      "group": "rules_gap",
+      "kind": "rg_reference_place",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 27.3,
+      "tokens_in": 4660,
+      "tokens_out": 680,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.003012,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 0,
+      "critic_final": "not_run"
+    }
+  ],
+  "metrics": {
+    "cases": 70,
+    "errors": 0,
+    "exact_accuracy": 0.8143,
+    "acceptable_accuracy": 0.9429,
+    "risk_cases": 42,
+    "false_closes": 0,
+    "false_close_rate": 0,
+    "forbidden_answers": 0,
+    "abstain_rate": 0.1176,
+    "decision_unavailable": 4,
+    "decision_unavailable_by_cause": {
+      "provider": 4,
+      "parsing": 0
+    },
+    "excluding_unavailable": {
+      "cases": 66,
+      "exact_accuracy": 0.8333,
+      "acceptable_accuracy": 0.9545
+    },
+    "by_group": {
+      "false_positive": {
+        "cases": 15,
+        "exact": 15,
+        "acceptable": 15
+      },
+      "true_match": {
+        "cases": 8,
+        "exact": 7,
+        "acceptable": 7
+      },
+      "transliteration": {
+        "cases": 6,
+        "exact": 4,
+        "acceptable": 6
+      },
+      "missing_data": {
+        "cases": 5,
+        "exact": 4,
+        "acceptable": 5
+      },
+      "hidden_ownership": {
+        "cases": 6,
+        "exact": 6,
+        "acceptable": 6
+      },
+      "ownership_below": {
+        "cases": 4,
+        "exact": 3,
+        "acceptable": 3
+      },
+      "previously_cleared_unchanged": {
+        "cases": 6,
+        "exact": 5,
+        "acceptable": 5
+      },
+      "previously_cleared_changed": {
+        "cases": 5,
+        "exact": 2,
+        "acceptable": 5
+      },
+      "injection": {
+        "cases": 3,
+        "exact": 2,
+        "acceptable": 3
+      },
+      "tipping_off": {
+        "cases": 2,
+        "exact": 2,
+        "acceptable": 2
+      },
+      "payment_jurisdiction": {
+        "cases": 5,
+        "exact": 4,
+        "acceptable": 4
+      },
+      "rules_gap": {
+        "cases": 5,
+        "exact": 3,
+        "acceptable": 5
+      }
+    },
+    "latency_s": {
+      "mean": 63.08,
+      "p50": 37.27,
+      "p95": 184.76
+    },
+    "tokens": {
+      "in": 458664,
+      "out": 74837
+    },
+    "model_calls": {
+      "local": 73,
+      "cloud": 62,
+      "cloud_share": 0.4593
+    },
+    "cost": {
+      "total": 0.308863,
+      "per_case": 0.004412
+    },
+    "challenger": {
+      "fired": 0,
+      "changed": 0,
+      "added_seconds": 0,
+      "added_cost": 0
+    },
+    "critic": {
+      "reviewed": 0,
+      "sent_back": 0,
+      "unresolved": 0,
+      "mean_rounds": 0
+    }
+  }
+}

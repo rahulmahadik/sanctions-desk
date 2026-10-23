@@ -1,0 +1,80 @@
+{
+  "run_id": "routed-20261023T133311Z",
+  "variant": "routed",
+  "exam": "exam",
+  "started_at": "2026-10-23T13:33:11.122Z",
+  "finished_at": "2026-10-23T16:17:31.214Z",
+  "policy_version": 5,
+  "features": {
+    "commit": "248570f",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "cockpit_binds": {
+      "sanctions-desk-eval": "auto",
+      "sanctions-desk-reasoning": "deep",
+      "sanctions-desk-guard": "local"
+    },
+    "app_identities": {
+      "triage": "default",
+      "evidence": "default",
+      "matching": "default",
+      "ownership": "default",
+      "decision": "reasoning",
+      "critic": "reasoning",
+      "challenger": "reasoning",
+      "policy_guard": "guard",
+      "reporter": "default"
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "nightshift_build": {
+    "version": "1.2.1",
+    "source": "the application's About screen, confirmed by the project owner; no separate runtime version is shown",
+    "known_limits": [
+      "an app bind in the cockpit replaces the mode or model id the client asks for (the receipt records both), so explicit model ids are coerced",
+      "the cloud model sometimes answers slowly or not at all: timeouts and HTTP 502 were seen in the runs"
+    ]
+  },
+  "app_binds": {
+    "sanctions-desk-eval": "auto",
+    "sanctions-desk-reasoning": "deep",
+    "sanctions-desk-guard": "local"
+  },
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "deep / reasoning 500",
+    "critic": "judge / reasoning 400",
+    "challenger": "deep / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": 70,
+  "events": 2288,
+  "receipts": 260,
+  "files": {
+    "results.json": {
+      "bytes": 43890,
+      "sha256": "16e1baa8419e765cb8e60425225dea319dd480528cff3e57c9a86ba36ac3a563"
+    },
+    "trace.jsonl.gz": {
+      "bytes": 121676,
+      "sha256": "ab9d1c456bfdf9c0e6dddf19d14bacfd7a3482ec6d77e5827e93d91381b52705"
+    },
+    "receipts.jsonl.gz": {
+      "bytes": 108390,
+      "sha256": "7188ec154986963630bda487bc2519d56643c3ec8397058fbc14269655c7a8ce"
+    }
+  },
+  "redacted": "tokens, local paths, hostnames and addresses other than the local machine, usernames, e-mail addresses and secret environment values were removed from results.json and trace.jsonl.gz; receipts.jsonl.gz is untouched",
+  "verify": "npm run evidence:verify -- eval/runs/routed-20261023T133311Z"
+}
