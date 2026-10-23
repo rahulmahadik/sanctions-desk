@@ -312,7 +312,7 @@ Only objects with our own names are touched (`sanctions_*`, `lightning.metastore
 ## Behaviour worth knowing
 
 - A column named `precision` breaks a Zetaris model (it is stored with its quotes), so the date-of-birth precision column is called `dob_precision`.
-- A cached REST table outlives the database it was created in; the reset script releases it first.
+- A cached REST table outlives the database it was created in; the reset script releases it first. It is also **lost when the Zetaris engine restarts**: run `npm run zetaris:cache-check` (add `--apply` to cache it again) after a restart.
 - Values come back as strings, with SQL NULL as null; the code casts explicitly.
 
 ## What this build does not offer
