@@ -19,6 +19,8 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 - [Evaluation](#evaluation)
 - [Edge cases handled](#edge-cases-handled)
 - [Guardrails](#guardrails)
+- [Failure handling](#failure-handling)
+- [Responsible AI](#responsible-ai)
 - [Data sources and licences](#data-sources-and-licences)
 - [Run it live](#run-it-live)
 - [Configuration](#configuration)
@@ -143,12 +145,12 @@ The language work is done by Nemotron models through Nightshift: **Nemotron 3 Ul
 <!-- routing:start -->
 Measured in the full exam run of 2026-10-23, from the signed receipts (the model that served each call; Nightshift's learned router decides this, we only ask for a pinned mode):
 
-| Step | Calls | Nemotron 3.5 Lightning 30B (local) | Nemotron 3 Ultra 550B (cloud) |
-|---|---:|---:|---:|
-| Safety guard | 70 | 97.1% (68) | 2.9% (2) |
-| Decision | 111 | 0 | 100.0% (111) |
-| Critic | 109 | 6.4% (7) | 93.6% (102) |
-| Challenger | 30 | 0 | 100.0% (30) |
+| Step         | Calls | Nemotron 3.5 Lightning 30B (local) | Nemotron 3 Ultra 550B (cloud) |
+| ------------ | ----: | ---------------------------------: | ----------------------------: |
+| Safety guard |    70 |                         97.1% (68) |                      2.9% (2) |
+| Decision     |   111 |                                  0 |                  100.0% (111) |
+| Critic       |   109 |                           6.4% (7) |                   93.6% (102) |
+| Challenger   |    30 |                                  0 |                   100.0% (30) |
 <!-- routing:end -->
 
 The **model ledger** of every recommendation lists, per step, the mode asked for, the model that answered, reasoning budget, tokens, latency and the signed receipt with its verification status (`GET /cases/:alertId/trace`, `npm run ledger -- --case <alert id>`, the routing panel of the review desk, and the saved decision records in `output_examples/`).
@@ -331,14 +333,44 @@ The hard limits are fixed in the policy schema, so no draft can lift them: no au
 
 Layout: `apps/api` (HTTP), `apps/web` (review desk interface), `apps/payments-api` (synthetic payments service), `packages/shared` (configuration, model seam, policy, events, records, receipts), `packages/data` (list parsers, matching, synthetic bank, exam), `packages/zetaris` (client, SQL guard, semantic-layer specification and scripts), `packages/agents` (the review steps), `packages/engines` (the three Meterless engines), `tools/`, `zetaris/sql/`, `docker/`, `eval/`, `docs/`.
 
+## Failure handling
+
+| What fails                                                                                  | What the system does                                                                                                                                                     | What the user sees                                                                                                          |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| The model service is down, or a step gets no answer at all                                  | Tries the next mode, then the Ollama backup, with a short pause after a provider failure. If every try fails, the decision step escalates the case; it never closes one. | An escalation with the reason "model decision unavailable"; the report counts provider failures apart from unusable answers |
+| A model answer cannot be used (cut off, no JSON, an unknown decision word, a wrong type)    | Answers are requested as schema-constrained JSON; known spellings of the four decisions are read as the same decision; a bad answer is retried on the next mode          | The same escalation if every try fails, with the cause (service failure or unusable answer)                                 |
+| The critic finds a cited fact that is not true, or does not exist                           | The recommendation goes back to the decision step with notes, up to three rounds; if the critic still cannot approve, the policy guard escalates                         | "critic: escalated after 3 rounds" and the critic's reasons                                                                 |
+| The challenger cannot answer, or finds a credible true-match argument                       | A close does not stand either way: it becomes an escalation                                                                                                              | The escalation, with the argument or "the close could not be challenged"                                                    |
+| A data-quality rule fails on the customer's or payment's record                             | No close; the outcome becomes "need more information" and confidence is capped                                                                                           | The rule's name and the capped confidence with its reason                                                                   |
+| An ownership percentage is missing, the chain loops, or it is longer than the policy allows | The percentage is "unknown", never zero; a loop ends; a chain over the limit escalates                                                                                   | "Need more information" or an escalation with the ownership step's reason                                                   |
+| Text in the data tries to instruct the reviewer                                             | It is treated as data, flagged, and never closes a case                                                                                                                  | A flagged check on the case, and an escalation                                                                              |
+| A draft message to a customer would reveal screening or an investigation                    | The draft is refused                                                                                                                                                     | The refusal and the reason                                                                                                  |
+| A role's Zetaris token is refused, or access was emptied by a rebuild                       | A live API refuses to start and prints the fix steps; with the admin fallback switched on, the retry is labelled                                                         | The start-up message; every query record names the credential used                                                          |
+| A query is outside an agent's tables or columns, or is not a single read-only statement     | It is blocked before anything is sent                                                                                                                                    | A recorded block (`agent_scope` or the guard's code)                                                                        |
+| A policy change lifts a hard limit or has no second approver                                | It is rejected                                                                                                                                                           | The validation error naming the field, or the four-eyes refusal                                                             |
+| A model receipt does not verify                                                             | The call is kept, with its status                                                                                                                                        | `valid_pinned`, `valid_unpinned` or `invalid` in the model ledger                                                           |
+| No live services are available                                                              | Sample mode replays saved answers with a labelled rules stand-in                                                                                                         | A notice on every answer saying so                                                                                          |
+
+## Responsible AI
+
+- **A person decides.** The desk recommends. It never blocks an account, never writes to a source system and never contacts a customer; those limits are fixed in the policy schema and cannot be lifted by a policy change. A recommended block needs two approvals.
+- **Evidence you can check.** Every cited fact is re-read from the data by code before the critic's model sees it; a claim that does not match is never approved. Each recommendation has a sealed decision record and a trace that answers four questions: which approved definition applied, what data it rested on, who could see what, and what it cost.
+- **Synthetic data only.** Customers, accounts, owners and payments are generated; only the listed parties are real public entries.
+- **Memory without personal data.** Earlier decisions are remembered as an outcome, reason codes and a pointer to the row (table, key, content hash). The pointer is re-checked each time and goes stale when the listed entry changes; a memory can inform a decision but cannot close an alert on its own.
+- **Least privilege.** Each agent can read only its own tables and columns; identifier numbers are masked; the model service never receives them.
+- **Fairness in name matching across languages.** What was measured: six transliteration cases across Cyrillic, Arabic and Han scripts, look-alike letters, accents, name order and spelling variants, and every one of those that carried real risk was escalated, none closed. What was not measured: other scripts and naming conventions, and how often common names in any one culture are escalated without cause. Name matching tends to raise more alerts for people whose names are common or transliterated in many ways, and the cost of that falls on those customers as extra review. Before any real use, measure the escalation rate by name origin and set the thresholds with that in mind.
+- **Where the models run.** Most decision and critic calls are answered by a cloud model through Nightshift. That is acceptable for synthetic data; with real customer data it needs an explicit decision about what may leave the machine.
+
 ## Limits
 
 - The customers, accounts, owners and payments are **synthetic**; only the listed parties are real public entries. The exam measures behaviour on planted situations, not performance on a bank's real alert volume.
-- The approved definitions are written in this repository for the exam. A high score shows consistency with them, not that they are the right ones for a given bank.
-- The interface is read-only: it shows recommendations and has no approve or override action yet.
+- The approved definitions are written in this repository for the exam, and the exam's labels follow the same definitions. A high score shows consistency with them, not that they are the right ones for a given bank.
+- Each variant in the report is one run. Model answers vary between runs and the runtime may answer a repeated prompt from its cache.
+- Speed: the full system takes a median of about 50 seconds a case, because it uses a large cloud model, a critic and sometimes a challenger.
+- Cost figures use illustrative unit costs, and the minutes-saved figure rests on stated assumptions, not measurement.
 - Sanctions law and list programmes change; the jurisdiction list is an example.
 - Embeddings are not used: this Nightshift build serves no embedding route.
-- Column masking and row filters could not be set through SQL or REST in this Zetaris build; masking is done in the adapter as well, and the interface steps are in `docs/ZETARIS.md`.
+- Zetaris model access is set in its interface and is emptied by a rebuild; the column policy on identifier numbers is not enforced on this instance, so the application masks them itself. See `docs/ZETARIS.md`.
 - Model answers vary between runs, and cloud routing is decided by the runtime.
 
 ## AI usage
