@@ -4,14 +4,19 @@ import {
   audit,
   autoClosedRecords,
   autonomyUsage,
+  buildTraceContract,
   type CaseRef,
   type DeskStores,
+  gatherEvidence,
   humanState,
+  markdownToPdf,
   readActions,
   readAlertQueue,
   readDecisionRecords,
   readKillSwitch,
+  readRunEvents,
   recordDecision,
+  renderCaseFile,
   reopen,
   type Signer,
   secondApproval,
@@ -32,6 +37,7 @@ import {
 import type { ZetarisClient } from "@sanctions-desk/zetaris";
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
+import { refuseGenerator, silentTrace } from "./desk.js";
 
 interface DecisionOptions {
   config: Config;
@@ -223,4 +229,68 @@ export const decisionRoutes: FastifyPluginAsync<DecisionOptions> = async (
       reopened_by: r.human.find((h) => h.action === "reopen")?.actor ?? null,
     })),
   }));
+
+  /**
+   * The case file: one document that says what the desk recommended and why, what the case rests on, what people did,
+   * what was prepared next, which model answered each step and the sealed record's hash. Markdown or PDF.
+   */
+  app.get<{ Params: { alertId: string }; Querystring: { format?: string } }>(
+    "/cases/:alertId/file",
+    async (req, reply) => {
+      const alertId = parse(CaseIdSchema, req.params.alertId);
+      const format = parse(z.enum(["md", "pdf"]).default("md"), req.query.format);
+      const record = latest(alertId);
+      const evidence = await gatherEvidence(
+        {
+          config,
+          policy: policies.active(),
+          zetaris,
+          generator: refuseGenerator,
+          trace: silentTrace(`file-${alertId}`),
+          now: () => new Date(),
+        },
+        alertId,
+      );
+      const show = (v: string | null | undefined) => (v === null || v === undefined || v === "" ? "not on record" : v);
+      const facts = [
+        { label: "Customer", value: `${show(evidence.customer.full_name)} (${show(evidence.customer.customer_type)})` },
+        { label: "Customer date of birth (record)", value: show(evidence.customer.date_of_birth) },
+        { label: "Customer nationality", value: show(evidence.customer.nationality) },
+        { label: "Customer note", value: show(evidence.customer.notes) },
+        { label: "Listed party", value: `${show(evidence.entry.primary_name)} (${show(evidence.entry.list_id)})` },
+        { label: "Listed dates of birth", value: evidence.dobs.map((d) => show(d.dob_value)).join("; ") || "none" },
+        ...(evidence.payment
+          ? [
+              {
+                label: "Payment counterparty",
+                value: `${show(evidence.payment.counterparty_name)} (${show(evidence.payment.counterparty_country)})`,
+              },
+              { label: "Payment reference", value: show(evidence.payment.payment_reference) },
+            ]
+          : []),
+        {
+          label: "Identifier numbers",
+          value: "masked for the evidence role; whether one matches a listed number was decided inside Zetaris",
+        },
+      ];
+      const text = renderCaseFile({
+        title: `Case file: alert ${alertId}`,
+        summary: `Alert ${alertId} (${record.alert_type}), reviewed under policy version ${record.policy.version}. Synthetic customer data; the listed party is a public sanctions-list entry.`,
+        record,
+        events: readRunEvents(logDir, record),
+        contract: buildTraceContract(record, config.costs),
+        files: {
+          record: `GET /cases/${alertId}/record`,
+          trace: `GET /cases/${alertId}/trace`,
+          events: `GET /runs/${record.run_id}/events`,
+        },
+        actions: readActions(stores.outboxDir, alertId).map(withCheck),
+        facts,
+      });
+      reply.header("content-disposition", `attachment; filename="case-file-${alertId}.${format}"`);
+      return format === "pdf"
+        ? reply.type("application/pdf").send(markdownToPdf(text, `record ${record.record_hash.slice(0, 16)}`))
+        : reply.type("text/markdown; charset=utf-8").send(text);
+    },
+  );
 };

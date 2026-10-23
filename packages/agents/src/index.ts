@@ -17,6 +17,7 @@ export * from "./matching.js";
 export * from "./memory.js";
 export * from "./model-call.js";
 export * from "./ownership.js";
+export * from "./pdf.js";
 export * from "./pipeline.js";
 export * from "./policy-guard.js";
 export * from "./queue.js";

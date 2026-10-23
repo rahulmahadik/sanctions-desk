@@ -1,4 +1,8 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { DecisionRecord, TraceEvent } from "@sanctions-desk/shared";
+import type { ActionCheck, ActionRecord } from "./actions.js";
+import { humanState } from "./human-state.js";
 import type { ListChangeReport } from "./list-change.js";
 import type { TraceContract } from "./trace-contract.js";
 
@@ -18,7 +22,40 @@ export interface CaseFileInput {
   contract: TraceContract;
   /** Files saved beside the case file, by name. */
   files: { record: string; trace: string; events: string };
+  /** The records prepared after a person's decision, with the result of checking each one's seal. */
+  actions?: ReadonlyArray<ActionRecord & { check?: ActionCheck }>;
+  /** The facts the case rests on, as label and value, with identifier numbers already masked. */
+  facts?: ReadonlyArray<{ label: string; value: string }>;
 }
+
+/** The events of the newest run recorded in a record's trace file, up to a few seconds after the record was sealed. */
+export function readRunEvents(logDir: string, record: DecisionRecord): TraceEvent[] {
+  const file = join(logDir, `trace-${record.run_id}.jsonl`);
+  if (!existsSync(file)) return [];
+  const all = readFileSync(file, "utf8")
+    .split("\n")
+    .filter(Boolean)
+    .map((l) => JSON.parse(l) as TraceEvent);
+  // The file holds every run of this case, each starting again at event 0. The sealed record is the newest run's.
+  const start = all.map((e) => e.seq).lastIndexOf(0);
+  const until = new Date(Date.parse(record.decided_at) + 5000).toISOString();
+  return all.slice(Math.max(0, start)).filter((e) => e.ts <= until);
+}
+
+const STATUS_TEXT: Record<string, string> = {
+  awaiting: "waiting for a person to decide",
+  auto_closed: "closed automatically; a person can reopen it",
+  decided: "decided by a person",
+  block_pending: "block approval pending: a second, different approver must confirm",
+  block_approved: "a block recommendation, approved by two people",
+  block_declined: "the block was declined by the second approver; escalated",
+};
+const CHECK_TEXT: Record<string, string> = {
+  signed_and_pinned: "signed (Ed25519), key matches the configured public key",
+  signed_unpinned: "signed (Ed25519), key not pinned",
+  hash_sealed: "hash-sealed (no signing key configured)",
+  invalid: "does not verify",
+};
 
 const cell = (text: string): string => text.replaceAll("|", "/").replaceAll("\n", " ");
 const money = (n: number, currency: string): string => `${n.toFixed(4)} ${currency}`;
@@ -55,7 +92,72 @@ export function renderCaseFile(input: CaseFileInput): string {
   if (record.what_would_change.length > 0) {
     lines.push("**What would change this**", "", ...record.what_would_change.map((w) => `- ${w}`), "");
   }
+  if (record.review_path) {
+    lines.push(
+      "## Path",
+      "",
+      record.review_path === "confirm"
+        ? `Code's first finding from the structured fields was **${DECISION_TEXT[record.first_finding ?? ""] ?? record.first_finding}**, and the structured evidence settles the case, so the agents confirmed and explained it.`
+        : `Code's first finding from the structured fields was **${DECISION_TEXT[record.first_finding ?? ""] ?? record.first_finding}**, but the structured evidence does not settle the case or there is free text to weigh, so the agents reasoned over all of it.`,
+      "",
+    );
+  }
+  if (record.documentary?.length) {
+    lines.push(
+      "## Values taken from verified notes",
+      "",
+      ...record.documentary.map(
+        (d) =>
+          `- ${d.label}: **${d.value}**. This is not a value of the customer record; the data-quality finding stays.`,
+      ),
+      "",
+    );
+  }
+  if (input.facts?.length) {
+    lines.push("## Facts the case rests on", "", ...input.facts.map((f) => `- **${f.label}:** ${f.value}`), "");
+  }
+  if (record.autonomy) {
+    lines.push(
+      "## Autonomy",
+      "",
+      record.autonomy.outcome === "auto_closed"
+        ? `**${record.autonomy.statement}.**`
+        : record.autonomy.outcome === "qa_sample"
+          ? "This close met every condition for an automatic close and was picked at random for a quality-assurance review by a person."
+          : `Level ${record.autonomy.level_in_force} was in force; the recommendation goes to a person. Conditions not met: ${
+              record.autonomy.conditions
+                .filter((c) => !c.met)
+                .map((c) => c.name.replaceAll("_", " "))
+                .join(", ") || "none"
+            }.`,
+      "",
+    );
+  }
   lines.push("## How the desk got there", "", ...timeline(input.events), "");
+
+  const state = humanState(record);
+  lines.push("## What people did", "", `Status: ${STATUS_TEXT[state.status] ?? state.status}.`, "");
+  if (record.human.length > 0) {
+    lines.push("| Who | Role | Action | Outcome | When | Reason |", "|---|---|---|---|---|---|");
+    for (const h of record.human) {
+      lines.push(
+        `| ${cell(h.actor)} | ${(h.role ?? "").replaceAll("_", " ")} | ${h.action.replaceAll("_", " ")} | ${h.outcome ? (DECISION_TEXT[h.outcome] ?? h.outcome) : ""} | ${h.at} | ${cell(h.reason ?? "")} |`,
+      );
+    }
+    lines.push("");
+  } else {
+    lines.push("No person has acted on this recommendation yet.", "");
+  }
+  if (input.actions && input.actions.length > 0) {
+    lines.push("## What was prepared next", "", "Nothing here was sent or executed.", "");
+    lines.push("| Record | Status | Seal | Text |", "|---|---|---|---|");
+    for (const a of input.actions) {
+      lines.push(
+        `| ${a.body.kind.replaceAll("_", " ")} | ${cell(a.body.status)} | ${cell(CHECK_TEXT[a.check ?? (a.seal.type === "ed25519" ? "signed_unpinned" : "hash_sealed")] ?? "")} | ${cell(a.body.content)} |`,
+      );
+    }
+    lines.push("");
+  }
 
   lines.push("## Checks", "", "| Check | Result | Detail |", "|---|---|---|");
   for (const g of record.guards)
@@ -83,12 +185,12 @@ export function renderCaseFile(input: CaseFileInput): string {
     lines.push(
       "## Which model answered each step",
       "",
-      "| Step | Asked for | Answered by | Lane | Reasoning | Receipt |",
-      "|---|---|---|---|---|---|",
+      "| Step | Asked for | Answered by | Lane | App | Reasoning | Receipt |",
+      "|---|---|---|---|---|---|---|",
     );
     for (const m of contract.cost.models) {
       lines.push(
-        `| ${cell(m.agent.replaceAll("_", " "))} | ${cell(m.model_requested)} | ${cell(m.model_routed)} | ${m.route_kind ?? "local"} | ${cell(m.reasoning)} | ${m.receipt_status.replaceAll("_", " ")} |`,
+        `| ${cell(m.agent.replaceAll("_", " "))} | ${cell(m.model_requested)} | ${cell(m.model_routed)} | ${m.route_kind ?? "local"} | ${cell(m.app ?? "")} | ${cell(m.reasoning)} | ${m.receipt_status.replaceAll("_", " ")}${m.receipt_id ? ` (${m.receipt_id})` : ""} |`,
       );
     }
     lines.push("");

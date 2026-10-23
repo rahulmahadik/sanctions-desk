@@ -238,6 +238,23 @@ export const ROUTES: RouteDoc[] = [
   },
   {
     method: "get",
+    path: "/cases/{alertId}/file",
+    tag: "People",
+    summary:
+      "The case file as Markdown or PDF: recommendation, facts, what people did, what was prepared next, models and the record hash",
+    params: [AlertIdParam],
+    query: [
+      {
+        name: "format",
+        in: "query",
+        required: false,
+        schema: { type: "string", enum: ["md", "pdf"] },
+        description: "md (default) or pdf",
+      },
+    ],
+  },
+  {
+    method: "get",
     path: "/receipts/{receiptId}/verify",
     tag: "Review",
     summary:

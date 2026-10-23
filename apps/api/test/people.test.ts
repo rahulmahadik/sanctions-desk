@@ -488,3 +488,48 @@ describe("with auth on", () => {
     }
   });
 });
+
+describe("the case file", () => {
+  it("is a Markdown file that names the recommendation, the facts, what people did and what was prepared", async () => {
+    const ctx = await sampleApp();
+    const alertId = alertOf("fp_dob_exact_name_0");
+    await review(ctx, alertId);
+    await decide(ctx, alertId, "analyst_demo");
+    const res = await ctx.app.inject({ method: "GET", url: `/cases/${alertId}/file` });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers["content-type"]).toContain("text/markdown");
+    expect(res.headers["content-disposition"]).toContain(`case-file-${alertId}.md`);
+    const md = res.body;
+    expect(md).toContain(`# Case file: alert ${alertId}`);
+    expect(md).toContain("## Recommendation");
+    expect(md).toContain("## Facts the case rests on");
+    expect(md).toContain("masked for the evidence role");
+    expect(md).toContain("## What people did");
+    expect(md).toContain("analyst_demo");
+    expect(md).toContain("## What was prepared next");
+    expect(md).toContain("closure note");
+    expect(md).toContain("hash-sealed");
+    expect(md).toContain("## The record");
+  });
+
+  it("is a PDF on request, and says plainly when there is nothing to put in it", async () => {
+    const ctx = await sampleApp();
+    const alertId = alertOf("fp_dob_exact_name_0");
+    expect((await ctx.app.inject({ method: "GET", url: `/cases/${alertId}/file` })).statusCode).toBe(404);
+    await review(ctx, alertId);
+    const pdf = await ctx.app.inject({ method: "GET", url: `/cases/${alertId}/file?format=pdf` });
+    expect(pdf.statusCode).toBe(200);
+    expect(pdf.headers["content-type"]).toBe("application/pdf");
+    expect(pdf.rawPayload.subarray(0, 8).toString()).toBe("%PDF-1.4");
+    expect((await ctx.app.inject({ method: "GET", url: `/cases/${alertId}/file?format=docx` })).statusCode).toBe(400);
+  });
+
+  it("shows no one acted yet, and requires nothing but a recommendation", async () => {
+    const ctx = await sampleApp();
+    const alertId = alertOf("tm_exact_0");
+    await review(ctx, alertId);
+    const md = (await ctx.app.inject({ method: "GET", url: `/cases/${alertId}/file` })).body;
+    expect(md).toContain("No person has acted on this recommendation yet.");
+    expect(md).not.toContain("## What was prepared next");
+  });
+});

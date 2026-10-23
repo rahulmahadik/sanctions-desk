@@ -29,6 +29,7 @@ vi.mock("../lib/api", () => ({
   followRun: vi.fn(),
   fetchReceiptCheck: vi.fn(),
   fetchMe: vi.fn(),
+  downloadCaseFile: vi.fn(),
   fetchHuman: vi.fn(),
   postDecision: vi.fn(),
   postSecondApproval: vi.fn(),
@@ -677,5 +678,30 @@ describe("Verify receipt", () => {
     vi.mocked(api.fetchReceiptCheck).mockRejectedValueOnce(new Error("no stored receipt rcpt_test_1"));
     fireEvent.click(screen.getByRole("button", { name: "Verify receipt rcpt_test_1" }));
     expect((await screen.findByRole("alert")).textContent).toContain("no stored receipt");
+  });
+});
+
+describe("the case file download", () => {
+  it("offers the case file as PDF and Markdown once there is a recommendation", async () => {
+    vi.mocked(api.fetchMe).mockResolvedValue(ME_ANALYST);
+    vi.mocked(api.fetchHuman).mockResolvedValue(HUMAN.decided);
+    vi.mocked(api.downloadCaseFile).mockResolvedValue();
+    render(<DecisionPanel alertId="ALR-0001" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Download case file (PDF)" }));
+    fireEvent.click(screen.getByRole("button", { name: "Download case file (Markdown)" }));
+    await waitFor(() => expect(api.downloadCaseFile).toHaveBeenCalledTimes(2));
+    expect(vi.mocked(api.downloadCaseFile).mock.calls).toEqual([
+      ["ALR-0001", "pdf"],
+      ["ALR-0001", "md"],
+    ]);
+  });
+
+  it("shows why a download failed", async () => {
+    vi.mocked(api.fetchMe).mockResolvedValue(ME_ANALYST);
+    vi.mocked(api.fetchHuman).mockResolvedValue(HUMAN.decided);
+    vi.mocked(api.downloadCaseFile).mockRejectedValue(new Error("alert ALR-0001 has no recommendation yet"));
+    render(<DecisionPanel alertId="ALR-0001" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Download case file (PDF)" }));
+    expect((await screen.findByRole("alert")).textContent).toContain("no recommendation yet");
   });
 });

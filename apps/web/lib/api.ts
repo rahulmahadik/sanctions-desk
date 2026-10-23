@@ -71,6 +71,25 @@ export const startReview = (alertId: string, runId: string) =>
 
 export const fetchReceiptCheck = (receiptId: string) =>
   getJson<ReceiptCheck>(`/receipts/${encodeURIComponent(receiptId)}/verify`);
+/** Download the case file. A fetch with the sign-in header, because a plain link cannot carry it. */
+export async function downloadCaseFile(alertId: string, format: "pdf" | "md"): Promise<void> {
+  const res = await fetch(`${API_URL}/cases/${encodeURIComponent(alertId)}/file?format=${format}`, {
+    headers: authHeaders(),
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => undefined)) as { error?: { message?: string } } | undefined;
+    throw new ApiError(body?.error?.message ?? `the API answered HTTP ${res.status}`, res.status);
+  }
+  const url = URL.createObjectURL(await res.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `case-file-${alertId}.${format}`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
 export const fetchMe = () => getJson<MeView>("/me");
 export const fetchHuman = (alertId: string) => getJson<HumanView>(`/cases/${encodeURIComponent(alertId)}/human`);
 

@@ -1,7 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ApiError, fetchHuman, fetchMe, postDecision, postReopen, postSecondApproval } from "../lib/api";
+import {
+  ApiError,
+  downloadCaseFile,
+  fetchHuman,
+  fetchMe,
+  postDecision,
+  postReopen,
+  postSecondApproval,
+} from "../lib/api";
 import { DECISION_LABEL, DECISION_TONE, shortHash } from "../lib/format";
 import { SESSION_EVENT } from "../lib/session";
 import type { ActionCheck, ActionRecordView, Decision, HumanView, MeView } from "../lib/types";
@@ -120,6 +128,14 @@ export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refres
     : !reasonOk
       ? `Give a reason of at least ${MIN_REASON} characters.`
       : undefined;
+  const download = async (format: "pdf" | "md") => {
+    setProblem(undefined);
+    try {
+      await downloadCaseFile(alertId, format);
+    } catch (err) {
+      setProblem(err instanceof Error ? err.message : String(err));
+    }
+  };
   const first = view.actions_taken[0];
   const waitingForSecond = view.status === "block_pending";
   const secondBlocked = !me
@@ -297,6 +313,15 @@ export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refres
           {secondBlocked ? <span className="muted">{secondBlocked}</span> : null}
         </form>
       ) : null}
+
+      <p>
+        <button type="button" className="secondary" onClick={() => void download("pdf")}>
+          Download case file (PDF)
+        </button>{" "}
+        <button type="button" className="secondary" onClick={() => void download("md")}>
+          Download case file (Markdown)
+        </button>
+      </p>
 
       <h3>Case file: what happens next</h3>
       {view.next_actions.length === 0 ? (

@@ -170,12 +170,12 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
 };
 
 /** Reading evidence needs no model; this makes sure nothing here ever asks one. */
-const refuseGenerator = async (): Promise<never> => {
+export const refuseGenerator = async (): Promise<never> => {
   throw new AppError("validation", "reading evidence does not use a model");
 };
 
 /** A trace that records nothing: reading the facts for display is not a review. */
-function silentTrace(runId: string): TraceLogger {
+export function silentTrace(runId: string): TraceLogger {
   return {
     runId,
     file: "",

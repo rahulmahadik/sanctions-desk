@@ -185,3 +185,117 @@ describe("renderReplayFile", () => {
     expect(text).toContain("does not release anything");
   });
 });
+
+describe("renderCaseFile after people have acted", () => {
+  const files = { record: "r.json", trace: "t.json", events: "e.jsonl" };
+  const render = (rec: DecisionRecord, extra: Partial<Parameters<typeof renderCaseFile>[0]> = {}) =>
+    renderCaseFile({
+      title: "t",
+      summary: "s",
+      record: rec,
+      events,
+      contract: buildTraceContract(rec, costs),
+      files,
+      ...extra,
+    });
+
+  it("lists who acted, with role, outcome, time and reason, and the records prepared next with their seal", () => {
+    const rec = record({
+      human: [
+        {
+          action: "approve",
+          actor: "ana",
+          role: "analyst",
+          at: "2026-10-23T10:00:00.000Z",
+          reason: "Dates differ | by years",
+          outcome: "NEED_MORE_INFO",
+        },
+      ],
+    });
+    const text = render(rec, {
+      actions: [
+        {
+          action_id: "rfi_draft-1",
+          body: {
+            kind: "rfi_draft",
+            alert_id: "ALR-1",
+            alert_type: "customer",
+            record_hash: sha("d"),
+            recommended: "NEED_MORE_INFO",
+            final: "NEED_MORE_INFO",
+            status: "draft, not sent",
+            title: "x",
+            content: "Please send a recent proof of address.",
+            decided_by: [],
+            policy: { version: 1, hash: sha("a") },
+            sent: false,
+            created_at: "2026-10-23T10:00:01.000Z",
+          },
+          body_hash: sha("e"),
+          seal: { type: "hash-sealed" },
+        },
+      ],
+    });
+    expect(text).toContain("## What people did");
+    expect(text).toContain("Status: decided by a person.");
+    expect(text).toContain(
+      "| ana | analyst | approve | Need more information | 2026-10-23T10:00:00.000Z | Dates differ / by years |",
+    );
+    expect(text).toContain("## What was prepared next");
+    expect(text).toContain("Nothing here was sent or executed.");
+    expect(text).toContain(
+      "rfi draft | draft, not sent | hash-sealed (no signing key configured) | Please send a recent proof of address.",
+    );
+  });
+
+  it("says that nobody has acted yet, and leaves out the prepared records", () => {
+    const text = render(record());
+    expect(text).toContain("No person has acted on this recommendation yet.");
+    expect(text).not.toContain("## What was prepared next");
+  });
+
+  it("states an automatic close in the words of the record, a QA sample, the path, and a date taken from a verified note", () => {
+    const rec = record({
+      review_path: "confirm",
+      first_finding: "CLOSE_FALSE_POSITIVE",
+      autonomy: {
+        policy_level: 1,
+        level_in_force: 1,
+        outcome: "auto_closed",
+        conditions: [{ name: "level_one", met: true }],
+        qa_draw: 0.5,
+        qa_rate: 0.1,
+        statement: "closed automatically under policy v4, level 1, conditions met: level_one",
+      },
+      documentary: [
+        {
+          field: "date_of_birth",
+          value: "1975-03-02",
+          source: "customer.notes",
+          check_reference: "KYC-482113",
+          label: "date of birth from verified note (check ref KYC-482113)",
+        },
+      ],
+    });
+    const text = render(rec, { facts: [{ label: "Customer", value: "A B" }] });
+    expect(text).toContain("Status: closed automatically; a person can reopen it.");
+    expect(text).toContain("**closed automatically under policy v4, level 1, conditions met: level_one.**");
+    expect(text).toContain("the structured evidence settles the case");
+    expect(text).toContain("date of birth from verified note (check ref KYC-482113): **1975-03-02**");
+    expect(text).toContain("not a value of the customer record");
+    expect(text).toContain("- **Customer:** A B");
+    const sampled = render(
+      record({
+        autonomy: {
+          policy_level: 1,
+          level_in_force: 1,
+          outcome: "qa_sample",
+          conditions: [],
+          qa_draw: 0.01,
+          qa_rate: 0.1,
+        },
+      }),
+    );
+    expect(sampled).toContain("picked at random for a quality-assurance review");
+  });
+});

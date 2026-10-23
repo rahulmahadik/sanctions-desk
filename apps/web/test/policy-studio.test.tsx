@@ -10,6 +10,7 @@ import { HUMAN, ME_ANALYST, ME_APPROVER } from "./fixtures";
 vi.mock("../lib/api", () => ({
   fetchQueue: vi.fn(),
   fetchMe: vi.fn(),
+  downloadCaseFile: vi.fn(),
   fetchHuman: vi.fn(),
   fetchAutonomy: vi.fn(),
   fetchAutoClosed: vi.fn(),
