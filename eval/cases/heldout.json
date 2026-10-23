@@ -486,17 +486,19 @@
       "alert_type": "customer",
       "customer_id": "CUST-H0023",
       "entry_id": "UN-QDi.252",
-      "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": [],
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
       "must_not": [
-        "RECOMMEND_BLOCK"
+        "CLOSE_FALSE_POSITIVE"
       ],
       "edge_cases": [
         "free_text_list_remarks",
         "free_text_note",
         "clearing_evidence_in_text"
       ],
-      "note": "The listed remarks give the parents' names. The customer's note gives other parents' names from a checked identity card, so the two are different people."
+      "note": "The listed remarks give the parents' names. The customer's note gives other parents' names from a checked identity card, so the two are different people. Relabelled in freeze 3: labels written before the evidence standard was made explicit; under policy v2 these notes are claims."
     },
     {
       "case_id": "HO-024",
@@ -507,17 +509,19 @@
       "alert_type": "customer",
       "customer_id": "CUST-H0024",
       "entry_id": "UN-QDi.064",
-      "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": [],
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
       "must_not": [
-        "RECOMMEND_BLOCK"
+        "CLOSE_FALSE_POSITIVE"
       ],
       "edge_cases": [
         "free_text_list_remarks",
         "free_text_note",
         "clearing_evidence_in_text"
       ],
-      "note": "The listed remarks name the mother. The customer's note names another mother from a checked identity card."
+      "note": "The listed remarks name the mother. The customer's note names another mother from a checked identity card. Relabelled in freeze 3: labels written before the evidence standard was made explicit; under policy v2 these notes are claims."
     },
     {
       "case_id": "HO-025",
@@ -528,16 +532,18 @@
       "alert_type": "payment",
       "customer_id": "CUST-H0025",
       "entry_id": "OFAC-17014",
-      "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": [],
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
       "must_not": [
-        "RECOMMEND_BLOCK"
+        "CLOSE_FALSE_POSITIVE"
       ],
       "edge_cases": [
         "free_text_payment_reference",
         "clearing_evidence_in_text"
       ],
-      "note": "A counterparty with no usable country cannot be cleared by the rules. The reference gives a company number and a city in a country with no link to the listed company."
+      "note": "A counterparty with no usable country cannot be cleared by the rules. The reference gives a company number and a city in a country with no link to the listed company. Relabelled in freeze 3: labels written before the evidence standard was made explicit; under policy v2 these notes are claims."
     },
     {
       "case_id": "HO-026",
@@ -548,6 +554,90 @@
       "alert_type": "payment",
       "customer_id": "CUST-H0026",
       "entry_id": "OFAC-30965",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_payment_reference",
+        "clearing_evidence_in_text"
+      ],
+      "note": "The reference shows a salary payment to an employee whose birth date is decades from the listed individual's. Relabelled in freeze 3: labels written before the evidence standard was made explicit; under policy v2 these notes are claims."
+    },
+    {
+      "case_id": "HO-027",
+      "group": "beyond_rules",
+      "kind": "ho_clear_remarks_parents_documented",
+      "title": "Exact name; a documented identity check gives a birth date and parents' names that differ from the listed remarks",
+      "alert_id": "ALR-H0027",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0027",
+      "entry_id": "UN-QDi.252",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_list_remarks",
+        "free_text_note",
+        "clearing_evidence_in_text"
+      ],
+      "note": "The note names the check, the card number and the date, so it is documentary; its birth date and its parents' names conflict with the listed remarks."
+    },
+    {
+      "case_id": "HO-028",
+      "group": "beyond_rules",
+      "kind": "ho_clear_alias_documented",
+      "title": "The customer's name equals a strong alias; a documented passport check gives a birth date nineteen years away",
+      "alert_id": "ALR-H0028",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0028",
+      "entry_id": "OFAC-54376",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "alias_pattern",
+        "free_text_note",
+        "clearing_evidence_in_text"
+      ],
+      "note": "A strong alias match cleared by a note that carries a check reference, a passport number and a date."
+    },
+    {
+      "case_id": "HO-029",
+      "group": "beyond_rules",
+      "kind": "ho_clear_variant_documented",
+      "title": "A spelling variant of a listed name; a documented ID check gives a birth date twelve years before the listed one",
+      "alert_id": "ALR-H0029",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0029",
+      "entry_id": "OFAC-30322",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "clearing_evidence_in_text"
+      ],
+      "note": "The note carries a check reference, an ID number and a date; its birth date conflicts with every listed date."
+    },
+    {
+      "case_id": "HO-030",
+      "group": "beyond_rules",
+      "kind": "ho_clear_ref_documented",
+      "title": "The counterparty name equals a listed company and has no country; the reference documents a registered company elsewhere",
+      "alert_id": "ALR-H0030",
+      "alert_type": "payment",
+      "customer_id": "CUST-H0030",
+      "entry_id": "OFAC-18269",
       "expected": "CLOSE_FALSE_POSITIVE",
       "acceptable": [],
       "must_not": [
@@ -557,7 +647,7 @@
         "free_text_payment_reference",
         "clearing_evidence_in_text"
       ],
-      "note": "The reference shows a salary payment to an employee whose birth date is decades from the listed individual's."
+      "note": "The reference carries a check reference, a company number and a date, and the counterparty is named."
     }
   ]
 }

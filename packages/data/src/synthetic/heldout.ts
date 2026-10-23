@@ -48,6 +48,20 @@ function record(b: BankBuilder, s: Spec): void {
   });
 }
 
+/**
+ * Freeze 3: four cases whose text does not meet the documentary evidence standard of policy version 2 are relabelled
+ * from a close to NEED_MORE_INFO. The labels were written before the standard was made explicit; under policy version
+ * 2 these notes are claims. Their rows are unchanged.
+ */
+const CLAIM_ONLY = new Set([
+  "ho_clear_remarks_parents_differ",
+  "ho_clear_remarks_mother_differs",
+  "ho_clear_ref_other_company",
+  "ho_clear_ref_other_individual",
+]);
+const RELABEL_REASON =
+  " Relabelled in freeze 3: labels written before the evidence standard was made explicit; under policy v2 these notes are claims.";
+
 const ESCALATE_OR_ASK: ExamCase["acceptable"] = ["NEED_MORE_INFO", "RECOMMEND_BLOCK"];
 const ASK_ONLY: ExamCase["acceptable"] = ["NEED_MORE_INFO"];
 
@@ -474,15 +488,26 @@ export function buildClearingCases(b: BankBuilder): void {
   const CLOSE = "CLOSE_FALSE_POSITIVE" as const;
   const yearsLater = (dob: string, years: number): string => `${Number(dob.slice(0, 4)) + years}${dob.slice(4)}`;
   const kyc = () => `KYC-${b.rng.int(100000, 999999)}`;
-  const base = (kind: string, title: string, note: string, edge: string[]) => ({
-    kind,
-    title,
-    expected: CLOSE,
-    acceptable: [] as ExamCase["acceptable"],
-    mustNot: ["RECOMMEND_BLOCK"] as ExamCase["must_not"],
-    note,
-    edge,
-  });
+  const base = (kind: string, title: string, note: string, edge: string[]) =>
+    CLAIM_ONLY.has(kind)
+      ? {
+          kind,
+          title,
+          expected: "NEED_MORE_INFO" as const,
+          acceptable: ["ESCALATE_L2"] as ExamCase["acceptable"],
+          mustNot: [...NOT_CLOSE] as ExamCase["must_not"],
+          note: `${note}${RELABEL_REASON}`,
+          edge,
+        }
+      : {
+          kind,
+          title,
+          expected: CLOSE,
+          acceptable: [] as ExamCase["acceptable"],
+          mustNot: ["RECOMMEND_BLOCK"] as ExamCase["must_not"],
+          note,
+          edge,
+        };
   const individual = (c: Candidate) => person(c) && fullDobOf(c.party) !== null && nationalityOf(c.party) !== null;
 
   // F. The customer's note carries a verified document that shows a different person.
@@ -677,6 +702,118 @@ export function buildClearingCases(b: BankBuilder): void {
         "ho_clear_ref_other_individual",
         "The counterparty name equals a listed individual and has no country; the reference is a payroll line with another birth date",
         "The reference shows a salary payment to an employee whose birth date is decades from the listed individual's.",
+        ["free_text_payment_reference", "clearing_evidence_in_text"],
+      ),
+      alertId: alert.alert_id,
+      alertType: "payment",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+    });
+  }
+  // J. Freeze 3: clearing text that meets the documentary standard, so a close is reachable under policy version 2.
+  const documented = (dob: string) => `${kyc()}) on 2026-09-${b.rng.int(10, 28)}: date of birth ${dob}`;
+  {
+    const c = byEntry(b, "UN-QDi.252");
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: c.natural,
+      date_of_birth: null,
+      nationality: otherCountry(b.rng, [nationalityOf(c.party)]),
+      residence_country: "FR",
+      notes: `Identity card ID ${b.rng.int(10000000, 99999999)} checked at branch (${documented("1991-04-12")}; mother's name Houria Benali, father's name Said.`,
+    });
+    const alert = b.alert({ customer, candidate: c, source: "customer_name", matchedName: c.natural, score: 0.95 });
+    record(b, {
+      ...base(
+        "ho_clear_remarks_parents_documented",
+        "Exact name; a documented identity check gives a birth date and parents' names that differ from the listed remarks",
+        "The note names the check, the card number and the date, so it is documentary; its birth date and its parents' names conflict with the listed remarks.",
+        ["free_text_list_remarks", "free_text_note", "clearing_evidence_in_text"],
+      ),
+      alertId: alert.alert_id,
+      alertType: "customer",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+    });
+  }
+  {
+    const c = b.pick("ho_clear_alias_documented", (x) => individual(x) && x.party.aliases.some((a) => a.strong));
+    const alias = c.party.aliases.find((a) => a.strong)?.name ?? c.natural;
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: alias,
+      date_of_birth: null,
+      nationality: otherCountry(b.rng, [nationalityOf(c.party)]),
+      residence_country: "GB",
+      notes: `Passport ZR${b.rng.int(1000000, 9999999)} verified at onboarding (${documented(yearsLater(fullDobOf(c.party) as string, 19))}.`,
+    });
+    const alert = b.alert({ customer, candidate: c, source: "customer_name", matchedName: alias, score: 0.96 });
+    record(b, {
+      ...base(
+        "ho_clear_alias_documented",
+        "The customer's name equals a strong alias; a documented passport check gives a birth date nineteen years away",
+        "A strong alias match cleared by a note that carries a check reference, a passport number and a date.",
+        ["alias_pattern", "free_text_note", "clearing_evidence_in_text"],
+      ),
+      alertId: alert.alert_id,
+      alertType: "customer",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+    });
+  }
+  {
+    const c = b.pick("ho_clear_variant_documented", (x) => individual(x) && nameVariant(x.natural) !== x.natural);
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: nameVariant(c.natural),
+      date_of_birth: null,
+      nationality: otherCountry(b.rng, [nationalityOf(c.party)]),
+      residence_country: "GB",
+      notes: `National ID ${b.rng.int(10000000, 99999999)} checked by compliance (${documented(yearsLater(fullDobOf(c.party) as string, -12))}.`,
+    });
+    const alert = b.alert({ customer, candidate: c, source: "customer_name", matchedName: c.natural, score: 0.93 });
+    record(b, {
+      ...base(
+        "ho_clear_variant_documented",
+        "A spelling variant of a listed name; a documented ID check gives a birth date twelve years before the listed one",
+        "The note carries a check reference, an ID number and a date; its birth date conflicts with every listed date.",
+        ["free_text_note", "clearing_evidence_in_text"],
+      ),
+      alertId: alert.alert_id,
+      alertType: "customer",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+    });
+  }
+  {
+    const c = b.pick("ho_clear_ref_documented", (x) => company(x));
+    const customer = b.customer({
+      customer_type: "company",
+      full_name: companyName(b.rng),
+      nationality: "GB",
+      residence_country: "GB",
+    });
+    b.identifier(customer.customer_id, "registration", `REG-${b.rng.int(100000, 999999)}`, "GB");
+    const payment = b.payment({
+      customer_id: customer.customer_id,
+      counterparty_name: c.natural,
+      counterparty_country: "XX",
+      payment_reference: `Deposit refund to ${c.natural} (Pty), Auckland NZ; company no. ${b.rng.int(100000000, 999999999)} verified (${kyc()}) on 2026-09-${b.rng.int(10, 28)}; no link to the listed entity`,
+      amount: String(b.rng.int(3000, 40000)),
+    });
+    const alert = b.alert({
+      customer,
+      candidate: c,
+      source: "payment",
+      paymentId: payment.payment_id,
+      matchedName: c.natural,
+      score: 0.96,
+    });
+    record(b, {
+      ...base(
+        "ho_clear_ref_documented",
+        "The counterparty name equals a listed company and has no country; the reference documents a registered company elsewhere",
+        "The reference carries a check reference, a company number and a date, and the counterparty is named.",
         ["free_text_payment_reference", "clearing_evidence_in_text"],
       ),
       alertId: alert.alert_id,
