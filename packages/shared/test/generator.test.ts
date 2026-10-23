@@ -333,6 +333,33 @@ describe("Ollama generator", () => {
     expect(attempts[0]).toMatchObject({ provider: "ollama", outcome: "ok" });
   });
 
+  it("reports why the model stopped, and asks Ollama for a JSON-only answer when told to", async () => {
+    const stub = stubFetch([
+      jsonResponse(chatReply("{}", { choices: [{ message: { content: "{}" }, finish_reason: "length" }] })),
+    ]);
+    const generate = createOllamaGenerator({
+      baseUrl: "http://ollama.test/v1",
+      model: "m",
+      timeoutMs: 1000,
+      fetchImpl: stub.fetchImpl,
+    });
+    const result = await generate({ prompt: "x", jsonMode: true });
+    expect(result.finishReason).toBe("length");
+    expect(JSON.parse(String(first(stub.calls).init.body)).response_format).toEqual({ type: "json_object" });
+  });
+
+  it("does not ask for JSON mode unless told to", async () => {
+    const stub = stubFetch([jsonResponse(chatReply("ok"))]);
+    const generate = createOllamaGenerator({
+      baseUrl: "http://ollama.test/v1",
+      model: "m",
+      timeoutMs: 1000,
+      fetchImpl: stub.fetchImpl,
+    });
+    await generate({ prompt: "x" });
+    expect(JSON.parse(String(first(stub.calls).init.body)).response_format).toBeUndefined();
+  });
+
   it("reports failed attempts with their error type", async () => {
     const attempts: ModelAttempt[] = [];
     const down = createOllamaGenerator({

@@ -62,245 +62,250 @@ CUST-0060,company,Pinnacle Energy B.V.,,GB,GB,2018-12-06,medium,AMER,,synthetic
 CUST-0061,company,Meridian Energy GmbH,,GB,GB,2019-01-07,medium,EMEA,,synthetic
 CUST-0062,company,Beacon Capital Pte Ltd,,GB,GB,2020-02-08,medium,APAC,,synthetic
 CUST-0063,company,Alder Holdings GmbH,,GB,GB,2021-03-09,medium,AMER,,synthetic
-CUST-0064,individual,Umar Abdul Hamid Salim Brukan Al-Khatuni,1995-05-15,IQ,DE,2022-04-10,low,EMEA,,synthetic
-CUST-0065,individual,Adam Richard Pearson,1994-05-14,CA,SG,2023-05-11,low,APAC,,synthetic
-CUST-0066,individual,Ursula Fernandes,1976-03-13,NL,DE,2024-06-12,medium,AMER,,synthetic
-CUST-0067,individual,Kenji Bianchi,1962-12-03,AE,DE,2014-07-13,high,EMEA,,synthetic
-CUST-0068,individual,Emeka Lindqvist,1948-06-21,SG,FR,2015-08-14,medium,APAC,,synthetic
-CUST-0069,individual,Gabriel Schmidt,1967-01-05,CH,ES,2016-09-15,low,AMER,,synthetic
-CUST-0070,individual,Kenji Castillo,1983-07-13,SE,AE,2017-10-16,high,EMEA,,synthetic
-CUST-0071,company,Granite Textiles GmbH,,NL,NL,2018-11-17,medium,APAC,Address verified by utility bill.,synthetic
-CUST-0072,individual,Quentin Thompson,1951-04-03,FR,DE,2019-12-18,high,AMER,,synthetic
-CUST-0073,individual,Gabriel Petersen,2000-08-13,GB,FR,2020-01-19,low,EMEA,,synthetic
-CUST-0074,individual,Camille Lambert,1968-04-05,IT,CH,2021-02-20,medium,APAC,,synthetic
-CUST-0075,individual,Dara Tanaka,1994-10-05,HK,AE,2022-03-21,low,AMER,,synthetic
-CUST-0076,individual,Ilse Quinn,1991-02-05,ES,HK,2023-04-22,low,EMEA,,synthetic
-CUST-0077,company,Cedar Capital GmbH,,FR,FR,2024-05-23,medium,APAC,,synthetic
-CUST-0078,individual,Ana Eriksson,1948-08-12,DE,GB,2014-06-24,medium,AMER,Address verified by utility bill.,synthetic
-CUST-0079,individual,Sofia Quinn,1952-01-25,NL,DE,2015-07-25,low,EMEA,Address verified by utility bill.,synthetic
-CUST-0080,individual,Emeka Santos,2003-02-06,GB,GB,2016-08-26,high,APAC,,synthetic
-CUST-0081,individual,Marta Weber,1956-07-10,AE,ES,2017-09-27,medium,AMER,,synthetic
-CUST-0082,individual,Jonas Jensen,1975-01-12,IE,SG,2018-10-01,low,EMEA,,synthetic
-CUST-0083,company,Orchid Holdings B.V.,,IE,IE,2019-11-02,medium,APAC,,synthetic
-CUST-0084,individual,Rosa Silva,1982-01-18,GB,IT,2020-12-03,high,AMER,,synthetic
-CUST-0085,individual,Hugo Fischer,1998-02-23,ES,HK,2021-01-04,high,EMEA,,synthetic
-CUST-0086,individual,Farah Chaudhry,1960-07-03,GB,NL,2022-02-05,low,APAC,,synthetic
-CUST-0087,individual,Nils Oliveira,1997-10-03,IT,IE,2023-03-06,medium,AMER,,synthetic
-CUST-0088,individual,Ana Eriksson,1970-08-22,IE,GB,2024-04-07,high,EMEA,Onboarded in branch.,synthetic
-CUST-0089,company,Iris Energy B.V.,,HK,HK,2014-05-08,medium,APAC,,synthetic
-CUST-0090,individual,Viktor Bauer,1987-02-05,HK,GB,2015-06-09,low,AMER,,synthetic
-CUST-0091,individual,Beatriz Thompson,1969-08-25,SG,SE,2016-07-10,low,EMEA,,synthetic
-CUST-0092,individual,Stefan Moreau,1954-05-18,CH,NL,2017-08-11,medium,APAC,,synthetic
-CUST-0093,individual,Daniel Schmidt,1949-06-05,SG,SE,2018-09-12,low,AMER,,synthetic
-CUST-0094,individual,Grace Eriksson,1945-01-10,CH,NL,2019-10-13,medium,EMEA,,synthetic
-CUST-0095,company,Juniper Foods Ltd,,DE,DE,2020-11-14,medium,APAC,,synthetic
-CUST-0096,individual,Emeka Kowalski,1965-02-06,FR,SG,2021-12-15,low,AMER,Onboarded in branch.,synthetic
-CUST-0097,individual,Maja Quinn,1965-04-27,SE,GB,2022-01-16,high,EMEA,Annual review completed.,synthetic
-CUST-0098,individual,Julia Bianchi,1959-04-20,NL,FR,2023-02-17,low,APAC,,synthetic
-CUST-0099,individual,Mateo Lambert,1992-03-01,IT,AE,2024-03-18,high,AMER,,synthetic
-CUST-0100,individual,Pedro Eriksson,1953-04-18,SE,HK,2014-04-19,high,EMEA,,synthetic
-CUST-0101,company,Summit Holdings B.V.,,ES,ES,2015-05-20,medium,APAC,,synthetic
-CUST-0102,individual,Marta Mancini,1960-01-25,ES,ES,2016-06-21,low,AMER,,synthetic
-CUST-0103,individual,Dara Petersen,1946-08-19,SG,DE,2017-07-22,high,EMEA,,synthetic
-CUST-0104,individual,Gabriel Schmidt,1966-08-07,DE,SE,2018-08-23,low,APAC,,synthetic
-CUST-0105,individual,Felix Andersen,1999-04-04,SG,IE,2019-09-24,medium,AMER,,synthetic
-CUST-0106,individual,Aroha Rossi,1988-05-23,AE,IT,2020-10-25,high,EMEA,,synthetic
-CUST-0107,company,Alder Foods B.V.,,SG,SG,2021-11-26,medium,APAC,,synthetic
-CUST-0108,individual,Julia Novak,1963-06-14,GB,CH,2022-12-27,low,AMER,,synthetic
-CUST-0109,individual,Maja Adeyemi,2002-10-24,ES,SE,2023-01-01,medium,EMEA,Annual review completed.,synthetic
-CUST-0110,individual,Beatriz Fischer,1949-11-21,SG,NL,2024-02-02,medium,APAC,,synthetic
-CUST-0111,individual,Omar Hansen,1981-08-19,HK,IE,2014-03-03,medium,AMER,,synthetic
-CUST-0112,individual,Pedro Eriksson,1973-07-20,DE,ES,2015-04-04,medium,EMEA,Source of funds documented.,synthetic
-CUST-0113,company,Vertex Holdings Inc,,GB,GB,2016-05-05,medium,APAC,,synthetic
-CUST-0114,individual,Thea Weber,1968-08-14,HK,DE,2017-06-06,medium,AMER,,synthetic
-CUST-0115,individual,Laila Almeida,1996-04-25,NL,FR,2018-07-07,medium,EMEA,,synthetic
-CUST-0116,individual,Omar Lindqvist,1973-04-19,CH,SG,2019-08-08,low,APAC,,synthetic
-CUST-0117,individual,Rosa Jensen,1979-12-02,ES,DE,2020-09-09,medium,AMER,,synthetic
-CUST-0118,individual,Chiara Novak,1987-06-06,SG,IT,2021-10-10,high,EMEA,,synthetic
-CUST-0119,company,Granite Marine Pte Ltd,,AE,AE,2022-11-11,medium,APAC,,synthetic
-CUST-0120,individual,Omar Gruber,1947-12-21,SE,AE,2023-12-12,high,AMER,,synthetic
-CUST-0121,individual,Ilse Novak,1951-02-02,IE,IE,2024-01-13,low,EMEA,Onboarded in branch.,synthetic
-CUST-0122,individual,Elena Carvalho,1976-03-23,IT,IE,2014-02-14,medium,APAC,,synthetic
-CUST-0123,individual,Omar Quinn,1945-06-18,HK,SE,2015-03-15,medium,AMER,,synthetic
-CUST-0124,individual,Nils Rossi,1959-09-26,IT,GB,2016-04-16,high,EMEA,,synthetic
-CUST-0125,company,Tidal Logistics LLC,,ES,ES,2017-05-17,medium,APAC,,synthetic
-CUST-0126,individual,Andrei Andersen,1959-07-09,GB,IE,2018-06-18,medium,AMER,Relationship manager changed.,synthetic
-CUST-0127,individual,Daniel Okafor,1957-06-27,GB,ES,2019-07-19,high,EMEA,,synthetic
-CUST-0128,individual,Sanjay Rossi,1997-10-04,GB,ES,2020-08-20,high,APAC,Onboarded in branch.,synthetic
-CUST-0129,individual,Rosa Pereira,1972-10-09,GB,GB,2021-09-21,low,AMER,,synthetic
-CUST-0130,individual,Andrei Vasquez,1959-09-28,SE,DE,2022-10-22,high,EMEA,,synthetic
-CUST-0131,company,Juniper Trading Pte Ltd,,HK,HK,2023-11-23,medium,APAC,,synthetic
-CUST-0132,individual,Zoe Haddad,1946-04-24,CH,FR,2024-12-24,low,AMER,,synthetic
-CUST-0133,individual,Emeka Weber,1968-06-11,HK,NL,2014-01-25,low,EMEA,,synthetic
-CUST-0134,individual,Rosa Andersen,1957-01-17,SG,HK,2015-02-26,low,APAC,,synthetic
-CUST-0135,individual,Beatriz Kowalski,1999-03-06,SG,AE,2016-03-27,high,AMER,,synthetic
-CUST-0136,individual,Andrei Schmidt,2000-03-15,AE,GB,2017-04-01,medium,EMEA,,synthetic
-CUST-0137,company,Granite Textiles Ltd,,FR,FR,2018-05-02,medium,APAC,,synthetic
-CUST-0138,individual,Felix Thompson,1999-10-04,ES,IE,2019-06-03,medium,AMER,,synthetic
-CUST-0139,individual,Isabel Bianchi,1956-01-05,IE,GB,2020-07-04,high,EMEA,,synthetic
-CUST-0140,individual,Ursula Tanaka,2003-06-13,GB,IT,2021-08-05,low,APAC,,synthetic
-CUST-0141,individual,Wanjiru Lambert,1954-10-09,GB,SG,2022-09-06,low,AMER,,synthetic
-CUST-0142,individual,Paula Abbott,1987-05-01,GB,SG,2023-10-07,low,EMEA,,synthetic
-CUST-0143,company,Lumen Energy Pte Ltd,,DE,DE,2024-11-08,medium,APAC,,synthetic
-CUST-0144,individual,Ilse Carvalho,1955-11-15,ES,NL,2014-12-09,medium,AMER,,synthetic
-CUST-0145,individual,Yara Nakamura,1956-07-06,IE,IT,2015-01-10,medium,EMEA,,synthetic
-CUST-0146,individual,Nadia Weber,1951-01-09,IT,SE,2016-02-11,medium,APAC,,synthetic
-CUST-0147,individual,Tariq Okafor,1977-06-23,IT,FR,2017-03-12,medium,AMER,Annual review completed.,synthetic
-CUST-0148,individual,Thea Adeyemi,1997-10-25,IE,IE,2018-04-13,low,EMEA,,synthetic
-CUST-0149,company,Delta Software B.V.,,IT,IT,2019-05-14,medium,APAC,,synthetic
-CUST-0150,individual,Quentin Pereira,1990-03-20,AE,CH,2020-06-15,medium,AMER,Onboarded in branch.,synthetic
-CUST-0151,individual,Emeka Jensen,2002-09-24,FR,HK,2021-07-16,low,EMEA,,synthetic
-CUST-0152,individual,Isabel Andersen,1959-04-14,IE,IT,2022-08-17,low,APAC,,synthetic
-CUST-0153,individual,Bruno Fernandes,1947-04-18,CH,NL,2023-09-18,medium,AMER,,synthetic
-CUST-0154,individual,Wanjiru Okafor,1974-07-28,IT,AE,2024-10-19,medium,EMEA,,synthetic
-CUST-0155,company,Iris Textiles Pte Ltd,,ES,ES,2014-11-20,medium,APAC,,synthetic
-CUST-0156,individual,Bruno Gruber,2002-09-14,SG,HK,2015-12-21,low,AMER,,synthetic
-CUST-0157,individual,Jonas Nakamura,1980-05-15,SE,FR,2016-01-22,high,EMEA,,synthetic
-CUST-0158,individual,Bruno Carvalho,1948-12-02,FR,IE,2017-02-23,low,APAC,,synthetic
-CUST-0159,individual,Thea Nakamura,1970-10-01,ES,FR,2018-03-24,high,AMER,,synthetic
-CUST-0160,individual,Emeka Vasquez,1958-08-22,AE,DE,2019-04-25,medium,EMEA,,synthetic
-CUST-0161,company,Kestrel Trading Ltd,,SE,SE,2020-05-26,medium,APAC,,synthetic
-CUST-0162,individual,Hannah Mancini,1951-02-08,AE,CH,2021-06-27,medium,AMER,,synthetic
-CUST-0163,individual,Sofia Lindqvist,1960-10-06,SE,SG,2022-07-01,medium,EMEA,,synthetic
-CUST-0164,individual,Bruno Lindqvist,1990-03-28,IT,IT,2023-08-02,low,APAC,,synthetic
-CUST-0165,individual,Maja Vasquez,1993-08-24,IT,IE,2024-09-03,medium,AMER,,synthetic
-CUST-0166,individual,Lucas Pereira,1989-03-02,CH,SE,2014-10-04,medium,EMEA,,synthetic
-CUST-0167,company,Harbor Software B.V.,,SE,SE,2015-11-05,medium,APAC,,synthetic
-CUST-0168,individual,Camille Novak,1967-06-16,AE,ES,2016-12-06,medium,AMER,Annual review completed.,synthetic
-CUST-0169,individual,Kofi Bianchi,1990-01-25,CH,IE,2017-01-07,high,EMEA,,synthetic
-CUST-0170,individual,Mei Tanaka,1974-10-17,NL,IT,2018-02-08,medium,APAC,,synthetic
-CUST-0171,individual,Dara Carvalho,2003-10-03,IT,FR,2019-03-09,medium,AMER,,synthetic
-CUST-0172,individual,Elena Tanaka,1975-09-04,CH,CH,2020-04-10,medium,EMEA,,synthetic
-CUST-0173,company,Iris Marine Pte Ltd,,AE,AE,2021-05-11,medium,APAC,,synthetic
-CUST-0174,individual,Rania Ugarte,1997-03-25,HK,NL,2022-06-12,medium,AMER,,synthetic
-CUST-0175,individual,Omar Moreau,1976-01-13,DE,FR,2023-07-13,high,EMEA,,synthetic
-CUST-0176,individual,Ilse Hansen,1957-10-18,HK,FR,2024-08-14,low,APAC,,synthetic
-CUST-0177,individual,Andrei Santos,1978-06-26,SE,CH,2014-09-15,high,AMER,,synthetic
-CUST-0178,individual,Maja Almeida,2003-07-01,NL,FR,2015-10-16,medium,EMEA,,synthetic
-CUST-0179,company,Zenith Energy Pte Ltd,,FR,FR,2016-11-17,medium,APAC,,synthetic
-CUST-0180,individual,Ilse Santos,1970-06-10,SG,GB,2017-12-18,low,AMER,,synthetic
-CUST-0181,individual,Omar Weber,1957-05-24,CH,HK,2018-01-19,medium,EMEA,,synthetic
-CUST-0182,individual,Hannah Moreau,1954-09-15,HK,CH,2019-02-20,medium,APAC,,synthetic
-CUST-0183,individual,Kenji Okafor,1985-04-18,IE,ES,2020-03-21,low,AMER,,synthetic
-CUST-0184,individual,Grace Ugarte,1971-04-03,IT,CH,2021-04-22,medium,EMEA,,synthetic
-CUST-0185,company,Pinnacle Trading GmbH,,DE,DE,2022-05-23,medium,APAC,,synthetic
-CUST-0186,individual,Ilse Moreau,1981-06-22,GB,HK,2023-06-24,medium,AMER,,synthetic
-CUST-0187,individual,Jonas Adeyemi,1995-02-10,FR,AE,2024-07-25,high,EMEA,,synthetic
-CUST-0188,individual,Isabel Chaudhry,1956-03-19,HK,NL,2014-08-26,high,APAC,,synthetic
-CUST-0189,individual,Elena Rossi,1994-10-14,HK,SG,2015-09-27,low,AMER,Onboarded in branch.,synthetic
-CUST-0190,individual,Mei Garcia,1969-02-03,AE,AE,2016-10-01,low,EMEA,,synthetic
-CUST-0191,company,Zenith Consulting B.V.,,DE,DE,2017-11-02,medium,APAC,,synthetic
-CUST-0192,individual,Julia Vasquez,1975-01-04,SE,IE,2018-12-03,low,AMER,,synthetic
-CUST-0193,individual,Kenji Abbott,1966-01-28,CH,IT,2019-01-04,medium,EMEA,,synthetic
-CUST-0194,individual,Laila Mancini,1975-05-09,NL,IT,2020-02-05,medium,APAC,,synthetic
-CUST-0195,individual,Andrei Oliveira,1981-04-25,SE,HK,2021-03-06,low,AMER,,synthetic
-CUST-0196,individual,Kofi Bauer,1946-12-04,NL,DE,2022-04-07,high,EMEA,,synthetic
-CUST-0197,company,Orchid Software Ltd,,CH,CH,2023-05-08,medium,APAC,,synthetic
-CUST-0198,individual,Stefan Kowalski,1976-03-04,IT,IT,2024-06-09,high,AMER,Annual review completed.,synthetic
-CUST-0199,individual,Quentin Silva,1962-10-13,CH,IT,2014-07-10,low,EMEA,,synthetic
-CUST-0200,individual,Julia Ugarte,1999-04-13,NL,SG,2015-08-11,high,APAC,,synthetic
-CUST-0201,individual,Andrei Carvalho,1998-03-27,ES,CH,2016-09-12,high,AMER,,synthetic
-CUST-0202,individual,Daniel Jensen,1981-05-18,SG,GB,2017-10-13,low,EMEA,,synthetic
-CUST-0203,company,Iris Textiles GmbH,,FR,FR,2018-11-14,medium,APAC,,synthetic
-CUST-0204,individual,Beatriz Dubois,1957-02-28,NL,GB,2019-12-15,high,AMER,,synthetic
-CUST-0205,individual,Zane Weber,1977-07-23,SE,GB,2020-01-16,low,EMEA,,synthetic
-CUST-0206,individual,Paula Ibarra,1952-01-07,AE,IT,2021-02-17,high,APAC,,synthetic
-CUST-0207,individual,Sanjay Garcia,1954-01-01,ES,CH,2022-03-18,low,AMER,Relationship manager changed.,synthetic
-CUST-0208,individual,Kofi Schmidt,1977-05-16,IE,SG,2023-04-19,low,EMEA,,synthetic
-CUST-0209,company,Beacon Textiles Ltd,,HK,HK,2024-05-20,medium,APAC,,synthetic
-CUST-0210,individual,Rania Fischer,1955-08-12,SE,SG,2014-06-21,low,AMER,,synthetic
-CUST-0211,individual,Yara Abbott,2000-02-16,IT,ES,2015-07-22,high,EMEA,,synthetic
-CUST-0212,individual,Dara Jensen,1974-02-03,HK,IE,2016-08-23,low,APAC,,synthetic
-CUST-0213,individual,Beatriz Thompson,1981-05-05,CH,IE,2017-09-24,medium,AMER,,synthetic
-CUST-0214,individual,Laila Garcia,1983-01-02,ES,AE,2018-10-25,medium,EMEA,,synthetic
-CUST-0215,company,Summit Foods Inc,,DE,DE,2019-11-26,medium,APAC,,synthetic
-CUST-0216,individual,Rosa Jensen,1995-09-08,IT,HK,2020-12-27,medium,AMER,Address verified by utility bill.,synthetic
-CUST-0217,individual,Zane Andersen,1968-08-28,ES,GB,2021-01-01,medium,EMEA,,synthetic
-CUST-0218,individual,Pedro Tanaka,1996-07-18,CH,CH,2022-02-02,high,APAC,,synthetic
-CUST-0219,individual,Kofi Okafor,1980-06-13,NL,SE,2023-03-03,medium,AMER,,synthetic
-CUST-0220,individual,Mei Moreau,1961-09-19,IE,AE,2024-04-04,medium,EMEA,,synthetic
-CUST-0221,company,Iris Holdings GmbH,,FR,FR,2014-05-05,medium,APAC,,synthetic
-CUST-0222,individual,Nadia Pereira,1983-02-21,CH,AE,2015-06-06,low,AMER,,synthetic
-CUST-0223,individual,Farah Lindqvist,1960-03-25,SG,NL,2016-07-07,low,EMEA,,synthetic
-CUST-0224,individual,Emeka Tanaka,1989-06-27,IT,HK,2017-08-08,low,APAC,,synthetic
-CUST-0225,individual,Emeka Dubois,1989-08-01,IT,DE,2018-09-09,high,AMER,,synthetic
-CUST-0226,individual,Kofi Fernandes,1996-06-15,IT,HK,2019-10-10,low,EMEA,,synthetic
-CUST-0227,company,Union Marine Ltd,,SG,SG,2020-11-11,medium,APAC,Relationship manager changed.,synthetic
-CUST-0228,individual,Grace Lambert,1998-01-15,NL,DE,2021-12-12,medium,AMER,,synthetic
-CUST-0229,individual,Laila Okafor,1962-05-25,SE,IE,2022-01-13,low,EMEA,,synthetic
-CUST-0230,individual,Maja Bauer,1981-04-12,SG,AE,2023-02-14,high,APAC,Source of funds documented.,synthetic
-CUST-0231,individual,Nadia Dubois,1956-04-04,GB,GB,2024-03-15,low,AMER,,synthetic
-CUST-0232,individual,Camille Fernandes,1957-05-04,ES,NL,2014-04-16,low,EMEA,,synthetic
-CUST-0233,company,Vertex Logistics Inc,,IT,IT,2015-05-17,medium,APAC,,synthetic
-CUST-0234,individual,Nils Eriksson,1976-05-26,CH,NL,2016-06-18,low,AMER,,synthetic
-CUST-0235,individual,Emeka Quinn,1961-05-20,IT,AE,2017-07-19,low,EMEA,,synthetic
-CUST-0236,individual,Zoe Adeyemi,1976-11-24,ES,FR,2018-08-20,low,APAC,,synthetic
-CUST-0237,individual,Beatriz Schmidt,1980-05-06,DE,IE,2019-09-21,low,AMER,,synthetic
-CUST-0238,individual,Ilse Ugarte,1973-07-27,AE,IE,2020-10-22,medium,EMEA,Annual review completed.,synthetic
-CUST-0239,company,Ridge Marine LLC,,IE,IE,2021-11-23,medium,APAC,,synthetic
-CUST-0240,individual,Mateo Fernandes,1965-02-04,IT,FR,2022-12-24,low,AMER,,synthetic
-CUST-0241,individual,Zoe Lambert,1988-02-02,SG,AE,2023-01-25,medium,EMEA,,synthetic
-CUST-0242,individual,Dara Lambert,1982-01-05,CH,SE,2024-02-26,medium,APAC,,synthetic
-CUST-0243,individual,Viktor Thompson,1947-09-03,ES,SE,2014-03-27,low,AMER,Address verified by utility bill.,synthetic
-CUST-0244,individual,Olivia Okafor,1994-05-13,GB,DE,2015-04-01,low,EMEA,,synthetic
-CUST-0245,company,Union Software Pte Ltd,,SG,SG,2016-05-02,medium,APAC,Source of funds documented.,synthetic
-CUST-0246,individual,Elena Abbott,1969-11-02,DE,HK,2017-06-03,medium,AMER,,synthetic
-CUST-0247,individual,Nils Haddad,1998-02-16,GB,HK,2018-07-04,low,EMEA,,synthetic
-CUST-0248,individual,Kofi Mancini,1950-05-15,CH,CH,2019-08-05,low,APAC,,synthetic
-CUST-0249,individual,Laila Vasquez,1968-12-04,ES,DE,2020-09-06,low,AMER,,synthetic
-CUST-0250,individual,Beatriz Pereira,1965-12-13,IT,SG,2021-10-07,low,EMEA,,synthetic
-CUST-0251,company,Harbor Marine Ltd,,CH,CH,2022-11-08,medium,APAC,,synthetic
-CUST-0252,individual,Mateo Okafor,1979-01-25,DE,SG,2023-12-09,low,AMER,,synthetic
-CUST-0253,individual,Bruno Andersen,1947-10-17,CH,NL,2024-01-10,low,EMEA,,synthetic
-CUST-0254,individual,Bruno Eriksson,2002-01-18,GB,CH,2014-02-11,high,APAC,,synthetic
-CUST-0255,individual,Nils Lindqvist,1964-06-18,ES,SG,2015-03-12,medium,AMER,,synthetic
-CUST-0256,individual,Ana Dubois,2002-09-21,FR,FR,2016-04-13,medium,EMEA,,synthetic
-CUST-0257,company,Lumen Software B.V.,,HK,HK,2017-05-14,medium,APAC,,synthetic
-CUST-0258,individual,Kofi Nakamura,1983-12-25,SE,DE,2018-06-15,low,AMER,,synthetic
-CUST-0259,individual,Hugo Fernandes,1988-08-23,DE,NL,2019-07-16,medium,EMEA,,synthetic
-CUST-0260,individual,Wanjiru Adeyemi,1987-08-02,HK,FR,2020-08-17,low,APAC,,synthetic
-CUST-0261,individual,Felix Silva,1975-03-06,AE,SG,2021-09-18,low,AMER,,synthetic
-CUST-0262,individual,Aroha Bauer,1974-03-25,AE,DE,2022-10-19,low,EMEA,,synthetic
-CUST-0263,company,Orchid Foods Pte Ltd,,SE,SE,2023-11-20,medium,APAC,Relationship manager changed.,synthetic
-CUST-0264,individual,Zane Andersen,1954-11-24,IT,HK,2024-12-21,high,AMER,,synthetic
-CUST-0265,individual,Paula Fernandes,1957-08-19,CH,GB,2014-01-22,high,EMEA,,synthetic
-CUST-0266,individual,Lucas Moreau,1993-07-09,AE,IT,2015-02-23,medium,APAC,,synthetic
+CUST-0064,individual,AL-FAWAZ KHALID ABD AL-RAHMAN HAMD,1962-08-24,SA,DE,2022-04-10,low,EMEA,,synthetic
+CUST-0065,individual,Mohammad Yahya Aziz,1961-03-12,PK,SG,2023-05-11,low,APAC,,synthetic
+CUST-0066,individual,Isma'il Fu'ad Rasul AHMED,1976-03-14,IQ,GB,2024-06-12,low,AMER,,synthetic
+CUST-0067,individual,PACIFIQUE NTAWUNGUKA,1964-01-01,HK,DE,2014-07-13,low,EMEA,,synthetic
+CUST-0068,company,Fjord Marine Pte Ltd,,GB,GB,2015-08-14,medium,APAC,,synthetic
+CUST-0069,individual,Umar Abdul Hamid Salim Brukan Al-Khatuni,1995-05-15,IQ,DE,2016-09-15,low,AMER,,synthetic
+CUST-0070,individual,Adam Richard Pearson,1994-05-14,CA,AE,2017-10-16,low,EMEA,,synthetic
+CUST-0071,individual,Pedro Fernandes,1970-02-03,FR,DE,2018-11-17,high,APAC,,synthetic
+CUST-0072,individual,Zane Andersen,1960-10-19,DE,AE,2019-12-18,medium,AMER,,synthetic
+CUST-0073,individual,Jonas Chaudhry,1966-07-09,ES,CH,2020-01-19,medium,EMEA,,synthetic
+CUST-0074,individual,Beatriz Bianchi,1968-02-26,CH,CH,2021-02-20,medium,APAC,,synthetic
+CUST-0075,individual,Maja Jensen,1995-12-25,IE,HK,2022-03-21,medium,AMER,,synthetic
+CUST-0076,company,Ridge Capital Ltd,,DE,DE,2023-04-22,medium,EMEA,,synthetic
+CUST-0077,individual,Omar Schmidt,1998-07-09,ES,DE,2024-05-23,high,APAC,,synthetic
+CUST-0078,individual,Quentin Carvalho,1947-05-03,FR,NL,2014-06-24,low,AMER,,synthetic
+CUST-0079,individual,Olivia Gruber,1990-10-03,DE,GB,2015-07-25,medium,EMEA,,synthetic
+CUST-0080,individual,Yara Andersen,1986-12-02,ES,ES,2016-08-26,low,APAC,,synthetic
+CUST-0081,individual,Rosa Abbott,1967-11-08,ES,ES,2017-09-27,low,AMER,,synthetic
+CUST-0082,company,Iris Consulting Ltd,,SG,SG,2018-10-01,medium,EMEA,,synthetic
+CUST-0083,individual,Nadia Abbott,1952-10-22,DE,NL,2019-11-02,low,APAC,,synthetic
+CUST-0084,individual,Maja Garcia,1963-07-05,IE,SG,2020-12-03,low,AMER,,synthetic
+CUST-0085,individual,Beatriz Nakamura,1989-06-10,SG,DE,2021-01-04,low,EMEA,,synthetic
+CUST-0086,individual,Camille Jensen,1973-09-17,GB,DE,2022-02-05,high,APAC,,synthetic
+CUST-0087,individual,Rania Abbott,1998-02-20,DE,SE,2023-03-06,low,AMER,Onboarded in branch.,synthetic
+CUST-0088,company,Kestrel Logistics LLC,,ES,ES,2024-04-07,medium,EMEA,,synthetic
+CUST-0089,individual,Paula Kowalski,1996-09-06,CH,ES,2014-05-08,low,APAC,,synthetic
+CUST-0090,individual,Grace Novak,1970-04-03,IT,DE,2015-06-09,low,AMER,,synthetic
+CUST-0091,individual,Rania Rossi,1990-10-23,IE,IT,2016-07-10,medium,EMEA,,synthetic
+CUST-0092,individual,Tariq Oliveira,1995-07-02,FR,NL,2017-08-11,high,APAC,,synthetic
+CUST-0093,individual,Ilse Gruber,1946-01-07,HK,SE,2018-09-12,high,AMER,,synthetic
+CUST-0094,company,Iris Holdings Pte Ltd,,HK,HK,2019-10-13,medium,EMEA,,synthetic
+CUST-0095,individual,Grace Vasquez,1953-07-18,DE,IE,2020-11-14,high,APAC,,synthetic
+CUST-0096,individual,Jonas Weber,1968-11-11,ES,IE,2021-12-15,low,AMER,,synthetic
+CUST-0097,individual,Farah Ibarra,1955-12-17,AE,GB,2022-01-16,low,EMEA,,synthetic
+CUST-0098,individual,Laila Oliveira,1953-03-12,CH,SG,2023-02-17,low,APAC,,synthetic
+CUST-0099,individual,Chiara Haddad,1963-04-01,GB,HK,2024-03-18,low,AMER,,synthetic
+CUST-0100,company,Granite Software LLC,,NL,NL,2014-04-19,medium,EMEA,,synthetic
+CUST-0101,individual,Hugo Fischer,2000-11-24,DE,IT,2015-05-20,low,APAC,,synthetic
+CUST-0102,individual,Beatriz Fischer,1978-07-23,SG,IT,2016-06-21,low,AMER,,synthetic
+CUST-0103,individual,Camille Hansen,1989-05-09,GB,ES,2017-07-22,low,EMEA,,synthetic
+CUST-0104,individual,Thea Kowalski,1986-10-09,SE,HK,2018-08-23,medium,APAC,,synthetic
+CUST-0105,individual,Beatriz Moreau,1977-09-17,IT,FR,2019-09-24,high,AMER,,synthetic
+CUST-0106,company,Ridge Trading S.A.,,SG,SG,2020-10-25,medium,EMEA,,synthetic
+CUST-0107,individual,Daniel Tanaka,1962-10-11,HK,DE,2021-11-26,low,APAC,,synthetic
+CUST-0108,individual,Tariq Novak,1950-12-08,DE,FR,2022-12-27,high,AMER,,synthetic
+CUST-0109,individual,Rosa Gruber,1960-12-20,IE,AE,2023-01-01,low,EMEA,Onboarded in branch.,synthetic
+CUST-0110,individual,Quentin Quinn,2002-11-25,HK,SE,2024-02-02,low,APAC,,synthetic
+CUST-0111,individual,Yara Castillo,1974-03-19,AE,SE,2014-03-03,low,AMER,,synthetic
+CUST-0112,company,Summit Logistics Pte Ltd,,DE,DE,2015-04-04,medium,EMEA,,synthetic
+CUST-0113,individual,Andrei Chaudhry,1948-06-02,AE,ES,2016-05-05,low,APAC,,synthetic
+CUST-0114,individual,Nils Castillo,1954-02-20,CH,HK,2017-06-06,low,AMER,,synthetic
+CUST-0115,individual,Mei Eriksson,1994-09-26,AE,SE,2018-07-07,high,EMEA,,synthetic
+CUST-0116,individual,Omar Andersen,1991-01-06,NL,GB,2019-08-08,low,APAC,Source of funds documented.,synthetic
+CUST-0117,individual,Mei Ibarra,1982-05-03,SG,GB,2020-09-09,medium,AMER,,synthetic
+CUST-0118,company,Beacon Textiles Pte Ltd,,IE,IE,2021-10-10,medium,EMEA,,synthetic
+CUST-0119,individual,Felix Okafor,1978-07-20,ES,HK,2022-11-11,medium,APAC,,synthetic
+CUST-0120,individual,Ilse Adeyemi,2003-09-25,IT,ES,2023-12-12,low,AMER,,synthetic
+CUST-0121,individual,Ana Jensen,1982-08-21,SE,IT,2024-01-13,low,EMEA,,synthetic
+CUST-0122,individual,Thea Tanaka,1982-09-07,NL,FR,2014-02-14,high,APAC,,synthetic
+CUST-0123,individual,Paula Hansen,1952-10-04,ES,ES,2015-03-15,low,AMER,,synthetic
+CUST-0124,company,Delta Logistics Pte Ltd,,IT,IT,2016-04-16,medium,EMEA,Onboarded in branch.,synthetic
+CUST-0125,individual,Nadia Carvalho,1990-07-21,IT,ES,2017-05-17,high,APAC,,synthetic
+CUST-0126,individual,Beatriz Moreau,1950-08-18,SG,AE,2018-06-18,low,AMER,Relationship manager changed.,synthetic
+CUST-0127,individual,Sanjay Tanaka,1990-02-01,SE,IT,2019-07-19,low,EMEA,Address verified by utility bill.,synthetic
+CUST-0128,individual,Stefan Lindqvist,1991-11-04,GB,NL,2020-08-20,medium,APAC,,synthetic
+CUST-0129,individual,Yara Dubois,1988-12-26,IT,GB,2021-09-21,medium,AMER,,synthetic
+CUST-0130,company,Fjord Logistics Inc,,IE,IE,2022-10-22,medium,EMEA,,synthetic
+CUST-0131,individual,Felix Hansen,1957-02-01,NL,ES,2023-11-23,high,APAC,,synthetic
+CUST-0132,individual,Gabriel Lindqvist,1999-11-15,IE,CH,2024-12-24,low,AMER,Source of funds documented.,synthetic
+CUST-0133,individual,Pedro Carvalho,1958-08-22,GB,DE,2014-01-25,medium,EMEA,,synthetic
+CUST-0134,individual,Aroha Carvalho,1962-03-23,FR,GB,2015-02-26,low,APAC,Annual review completed.,synthetic
+CUST-0135,individual,Viktor Pereira,1946-01-26,GB,IE,2016-03-27,high,AMER,,synthetic
+CUST-0136,company,Cedar Energy Pte Ltd,,DE,DE,2017-04-01,medium,EMEA,,synthetic
+CUST-0137,individual,Laila Okafor,1967-04-04,IE,GB,2018-05-02,low,APAC,,synthetic
+CUST-0138,individual,Kofi Mancini,1976-08-10,ES,FR,2019-06-03,low,AMER,,synthetic
+CUST-0139,individual,Beatriz Gruber,1990-10-20,IT,CH,2020-07-04,high,EMEA,,synthetic
+CUST-0140,individual,Gabriel Adeyemi,1972-10-16,SG,GB,2021-08-05,low,APAC,,synthetic
+CUST-0141,individual,Grace Kowalski,1962-10-18,HK,NL,2022-09-06,medium,AMER,,synthetic
+CUST-0142,company,Beacon Holdings S.A.,,SE,SE,2023-10-07,medium,EMEA,Relationship manager changed.,synthetic
+CUST-0143,individual,Gabriel Oliveira,1979-02-15,SG,IT,2024-11-08,medium,APAC,,synthetic
+CUST-0144,individual,Hannah Vasquez,1983-04-12,ES,IE,2014-12-09,high,AMER,,synthetic
+CUST-0145,individual,Isabel Chaudhry,1978-10-03,DE,CH,2015-01-10,low,EMEA,,synthetic
+CUST-0146,individual,Sanjay Bianchi,1956-12-20,SG,DE,2016-02-11,low,APAC,,synthetic
+CUST-0147,individual,Yara Nakamura,1956-07-06,IE,IT,2017-03-12,medium,AMER,,synthetic
+CUST-0148,company,Orchid Capital Ltd,,SE,SE,2018-04-13,medium,EMEA,Source of funds documented.,synthetic
+CUST-0149,individual,Rosa Andersen,1978-11-19,FR,FR,2019-05-14,low,APAC,,synthetic
+CUST-0150,individual,Chiara Novak,2000-11-02,SE,SG,2020-06-15,high,AMER,,synthetic
+CUST-0151,individual,Zoe Lambert,1956-08-22,IE,IE,2021-07-16,low,EMEA,Onboarded in branch.,synthetic
+CUST-0152,individual,Gabriel Hansen,1994-04-16,CH,IT,2022-08-17,medium,APAC,,synthetic
+CUST-0153,individual,Kenji Moreau,2001-01-05,HK,CH,2023-09-18,low,AMER,,synthetic
+CUST-0154,company,Union Logistics Pte Ltd,,GB,GB,2024-10-19,medium,EMEA,,synthetic
+CUST-0155,individual,Yara Abbott,1988-10-13,IT,NL,2014-11-20,medium,APAC,,synthetic
+CUST-0156,individual,Stefan Silva,2000-01-12,DE,ES,2015-12-21,low,AMER,Source of funds documented.,synthetic
+CUST-0157,individual,Rosa Bauer,1963-02-04,CH,IE,2016-01-22,low,EMEA,,synthetic
+CUST-0158,individual,Kenji Haddad,1995-11-03,HK,NL,2017-02-23,low,APAC,,synthetic
+CUST-0159,individual,Olivia Moreau,1998-11-18,FR,CH,2018-03-24,low,AMER,,synthetic
+CUST-0160,company,Cedar Capital GmbH,,FR,FR,2019-04-25,medium,EMEA,,synthetic
+CUST-0161,individual,Maja Nakamura,1996-07-05,NL,ES,2020-05-26,medium,APAC,,synthetic
+CUST-0162,individual,Tariq Andersen,1958-12-07,HK,DE,2021-06-27,high,AMER,,synthetic
+CUST-0163,individual,Ilse Novak,1994-03-04,SG,IT,2022-07-01,low,EMEA,,synthetic
+CUST-0164,individual,Dara Santos,1976-04-23,SG,FR,2023-08-02,high,APAC,,synthetic
+CUST-0165,individual,Zoe Hansen,1981-04-06,FR,GB,2024-09-03,low,AMER,,synthetic
+CUST-0166,company,Tidal Trading B.V.,,IE,IE,2014-10-04,medium,EMEA,Relationship manager changed.,synthetic
+CUST-0167,individual,Nils Lindqvist,1947-11-15,ES,DE,2015-11-05,medium,APAC,,synthetic
+CUST-0168,individual,Kofi Mancini,1993-08-20,DE,NL,2016-12-06,low,AMER,,synthetic
+CUST-0169,individual,Isabel Jensen,1977-04-17,DE,HK,2017-01-07,low,EMEA,,synthetic
+CUST-0170,individual,Yara Novak,1961-01-05,FR,FR,2018-02-08,low,APAC,,synthetic
+CUST-0171,individual,Carlos Hansen,1983-06-22,DE,ES,2019-03-09,high,AMER,,synthetic
+CUST-0172,company,Ridge Holdings GmbH,,FR,FR,2020-04-10,medium,EMEA,,synthetic
+CUST-0173,individual,Maja Schmidt,1951-10-20,SG,NL,2021-05-11,high,APAC,,synthetic
+CUST-0174,individual,Omar Andersen,1953-02-06,HK,IE,2022-06-12,medium,AMER,,synthetic
+CUST-0175,individual,Emeka Thompson,1951-07-19,HK,IE,2023-07-13,medium,EMEA,Annual review completed.,synthetic
+CUST-0176,individual,Nadia Fischer,1974-07-11,CH,IE,2024-08-14,low,APAC,,synthetic
+CUST-0177,individual,Tariq Lindqvist,1961-05-01,IT,FR,2014-09-15,medium,AMER,,synthetic
+CUST-0178,company,Orchid Trading Ltd,,SE,SE,2015-10-16,medium,EMEA,,synthetic
+CUST-0179,individual,Zoe Ibarra,1976-04-17,IE,ES,2016-11-17,high,APAC,,synthetic
+CUST-0180,individual,Carlos Lambert,1950-09-22,GB,IT,2017-12-18,high,AMER,,synthetic
+CUST-0181,individual,Laila Pereira,1960-08-14,SG,FR,2018-01-19,low,EMEA,,synthetic
+CUST-0182,individual,Yara Hansen,1964-08-05,ES,IT,2019-02-20,medium,APAC,,synthetic
+CUST-0183,individual,Omar Thompson,1988-06-19,ES,GB,2020-03-21,low,AMER,,synthetic
+CUST-0184,company,Zenith Marine B.V.,,FR,FR,2021-04-22,medium,EMEA,,synthetic
+CUST-0185,individual,Felix Mancini,1976-07-06,NL,AE,2022-05-23,low,APAC,,synthetic
+CUST-0186,individual,Maja Haddad,1967-01-19,AE,GB,2023-06-24,low,AMER,Address verified by utility bill.,synthetic
+CUST-0187,individual,Elena Rossi,1994-10-14,HK,SG,2024-07-25,low,EMEA,Onboarded in branch.,synthetic
+CUST-0188,individual,Mei Garcia,1969-02-03,AE,AE,2014-08-26,low,APAC,,synthetic
+CUST-0189,individual,Zane Gruber,1993-07-27,IT,DE,2015-09-27,low,AMER,,synthetic
+CUST-0190,company,Willow Holdings S.A.,,HK,HK,2016-10-01,medium,EMEA,,synthetic
+CUST-0191,individual,Viktor Fischer,1970-03-21,SG,HK,2017-11-02,low,APAC,,synthetic
+CUST-0192,individual,Quentin Novak,1946-09-18,AE,ES,2018-12-03,high,AMER,,synthetic
+CUST-0193,individual,Ilse Fischer,1946-08-26,GB,NL,2019-01-04,low,EMEA,,synthetic
+CUST-0194,individual,Kofi Bauer,1946-12-04,NL,DE,2020-02-05,high,APAC,,synthetic
+CUST-0195,individual,Nadia Tanaka,1948-11-24,DE,CH,2021-03-06,medium,AMER,,synthetic
+CUST-0196,company,Meridian Marine S.A.,,DE,DE,2022-04-07,medium,EMEA,,synthetic
+CUST-0197,individual,Yara Gruber,1972-02-22,CH,GB,2023-05-08,medium,APAC,,synthetic
+CUST-0198,individual,Quentin Gruber,1988-02-28,HK,FR,2024-06-09,low,AMER,,synthetic
+CUST-0199,individual,Julia Fischer,1949-03-22,SE,GB,2014-07-10,high,EMEA,,synthetic
+CUST-0200,individual,Tariq Dubois,1971-04-19,HK,AE,2015-08-11,medium,APAC,,synthetic
+CUST-0201,individual,Viktor Santos,1998-08-10,IE,IE,2016-09-12,low,AMER,Address verified by utility bill.,synthetic
+CUST-0202,company,Summit Marine S.A.,,HK,HK,2017-10-13,medium,EMEA,,synthetic
+CUST-0203,individual,Farah Chaudhry,1950-12-13,IT,GB,2018-11-14,low,APAC,,synthetic
+CUST-0204,individual,Marta Rossi,1998-06-09,IE,FR,2019-12-15,low,AMER,,synthetic
+CUST-0205,individual,Stefan Nakamura,1968-03-07,NL,IT,2020-01-16,low,EMEA,,synthetic
+CUST-0206,individual,Andrei Carvalho,1960-06-02,CH,IT,2021-02-17,high,APAC,,synthetic
+CUST-0207,individual,Nils Silva,1984-05-20,IE,ES,2022-03-18,low,AMER,,synthetic
+CUST-0208,company,Granite Foods GmbH,,CH,CH,2023-04-19,medium,EMEA,,synthetic
+CUST-0209,individual,Yara Bianchi,1976-10-24,AE,GB,2024-05-20,low,APAC,Annual review completed.,synthetic
+CUST-0210,individual,Bruno Bauer,1981-06-28,HK,NL,2014-06-21,medium,AMER,,synthetic
+CUST-0211,individual,Tariq Schmidt,1957-07-16,IE,IE,2015-07-22,low,EMEA,Annual review completed.,synthetic
+CUST-0212,individual,Zoe Garcia,1952-05-21,FR,HK,2016-08-23,high,APAC,,synthetic
+CUST-0213,individual,Omar Okafor,1996-08-03,GB,IE,2017-09-24,low,AMER,,synthetic
+CUST-0214,company,Harbor Energy Inc,,IT,IT,2018-10-25,medium,EMEA,,synthetic
+CUST-0215,individual,Kenji Kowalski,1987-10-28,AE,SG,2019-11-26,low,APAC,,synthetic
+CUST-0216,individual,Thea Schmidt,1996-11-25,IT,IT,2020-12-27,low,AMER,,synthetic
+CUST-0217,individual,Camille Garcia,1979-08-08,ES,DE,2021-01-01,medium,EMEA,,synthetic
+CUST-0218,individual,Zane Lambert,1965-04-10,SE,IT,2022-02-02,low,APAC,Relationship manager changed.,synthetic
+CUST-0219,individual,Laila Dubois,1976-04-06,SE,CH,2023-03-03,low,AMER,,synthetic
+CUST-0220,company,Alder Foods B.V.,,CH,CH,2024-04-04,medium,EMEA,,synthetic
+CUST-0221,individual,Olivia Chaudhry,1997-10-12,IE,FR,2014-05-05,high,APAC,,synthetic
+CUST-0222,individual,Farah Quinn,1981-01-23,IE,SG,2015-06-06,low,AMER,,synthetic
+CUST-0223,individual,Felix Tanaka,1971-07-22,DE,NL,2016-07-07,medium,EMEA,,synthetic
+CUST-0224,individual,Grace Abbott,1947-08-23,ES,IT,2017-08-08,medium,APAC,Annual review completed.,synthetic
+CUST-0225,individual,Rania Bauer,2000-03-28,IE,GB,2018-09-09,low,AMER,,synthetic
+CUST-0226,company,Zenith Marine Inc,,IE,IE,2019-10-10,medium,EMEA,,synthetic
+CUST-0227,individual,Quentin Fernandes,1999-02-27,NL,SG,2020-11-11,medium,APAC,,synthetic
+CUST-0228,individual,Bruno Almeida,1992-05-08,FR,SG,2021-12-12,low,AMER,,synthetic
+CUST-0229,individual,Viktor Jensen,1976-12-28,SG,GB,2022-01-13,low,EMEA,Relationship manager changed.,synthetic
+CUST-0230,individual,Carlos Okafor,1971-12-05,IT,CH,2023-02-14,medium,APAC,,synthetic
+CUST-0231,individual,Chiara Jensen,1964-06-11,DE,NL,2024-03-15,high,AMER,,synthetic
+CUST-0232,company,Beacon Marine S.A.,,SE,SE,2014-04-16,medium,EMEA,,synthetic
+CUST-0233,individual,Tariq Petersen,1954-12-03,SE,HK,2015-05-17,medium,APAC,,synthetic
+CUST-0234,individual,Sanjay Lambert,1989-05-11,DE,HK,2016-06-18,high,AMER,,synthetic
+CUST-0235,individual,Olivia Gruber,1946-07-16,GB,NL,2017-07-19,medium,EMEA,Source of funds documented.,synthetic
+CUST-0236,individual,Zoe Lambert,1988-02-02,SG,AE,2018-08-20,medium,APAC,,synthetic
+CUST-0237,individual,Dara Lambert,1982-01-05,CH,SE,2019-09-21,medium,AMER,,synthetic
+CUST-0238,company,Vertex Capital Ltd,,SE,SE,2020-10-22,medium,EMEA,,synthetic
+CUST-0239,individual,Olivia Petersen,1963-06-03,IE,IT,2021-11-23,high,APAC,Annual review completed.,synthetic
+CUST-0240,individual,Carlos Bianchi,1958-03-25,SE,SG,2022-12-24,low,AMER,Source of funds documented.,synthetic
+CUST-0241,individual,Elena Abbott,1969-11-02,DE,HK,2023-01-25,medium,EMEA,,synthetic
+CUST-0242,individual,Nils Haddad,1998-02-16,GB,HK,2024-02-26,low,APAC,,synthetic
+CUST-0243,individual,Kofi Mancini,1950-05-15,CH,CH,2014-03-27,low,AMER,,synthetic
+CUST-0244,company,Lumen Capital GmbH,,DE,DE,2015-04-01,medium,EMEA,,synthetic
+CUST-0245,individual,Emeka Chaudhry,1968-01-14,IE,GB,2016-05-02,high,APAC,,synthetic
+CUST-0246,individual,Beatriz Pereira,1965-12-13,IT,SG,2017-06-03,low,AMER,,synthetic
+CUST-0247,individual,Grace Ibarra,1950-07-12,IT,CH,2018-07-04,low,EMEA,,synthetic
+CUST-0248,individual,Daniel Dubois,1976-11-07,FR,HK,2019-08-05,medium,APAC,,synthetic
+CUST-0249,individual,Stefan Almeida,1964-05-18,DE,FR,2020-09-06,medium,AMER,,synthetic
+CUST-0250,company,Kestrel Software Pte Ltd,,DE,DE,2021-10-07,medium,EMEA,Onboarded in branch.,synthetic
+CUST-0251,individual,Nils Andersen,1996-12-11,IE,GB,2022-11-08,high,APAC,,synthetic
+CUST-0252,individual,Kenji Novak,1988-09-19,IE,AE,2023-12-09,medium,AMER,,synthetic
+CUST-0253,individual,Farah Jensen,1976-04-19,HK,IT,2024-01-10,medium,EMEA,Source of funds documented.,synthetic
+CUST-0254,individual,Ursula Carvalho,1956-03-11,GB,GB,2014-02-11,low,APAC,,synthetic
+CUST-0255,individual,Rosa Garcia,1993-05-22,FR,CH,2015-03-12,high,AMER,,synthetic
+CUST-0256,company,Zenith Foods S.A.,,SE,SE,2016-04-13,medium,EMEA,,synthetic
+CUST-0257,individual,Daniel Garcia,2002-11-24,HK,CH,2017-05-14,low,APAC,,synthetic
+CUST-0258,individual,Maja Moreau,1998-06-03,AE,HK,2018-06-15,low,AMER,,synthetic
+CUST-0259,individual,Felix Silva,1975-03-06,AE,SG,2019-07-16,low,EMEA,,synthetic
+CUST-0260,individual,Aroha Bauer,1974-03-25,AE,DE,2020-08-17,low,APAC,,synthetic
+CUST-0261,individual,Mei Mancini,1970-02-21,AE,SE,2021-09-18,high,AMER,,synthetic
+CUST-0262,company,Tidal Capital GmbH,,SE,SE,2022-10-19,medium,EMEA,,synthetic
+CUST-0263,individual,Mei Schmidt,1951-03-14,ES,SE,2023-11-20,medium,APAC,Onboarded in branch.,synthetic
+CUST-0264,individual,Thea Quinn,1948-09-09,SG,HK,2024-12-21,medium,AMER,,synthetic
+CUST-0265,individual,Lucas Lambert,1971-10-15,HK,AE,2014-01-22,high,EMEA,,synthetic
+CUST-0266,individual,Thea Ugarte,1986-11-10,IT,FR,2015-02-23,low,APAC,,synthetic
 CUST-0267,individual,Farah Schmidt,2001-12-01,GB,DE,2016-03-24,high,AMER,,synthetic
-CUST-0268,individual,Nadia Moreau,1988-10-22,SE,ES,2017-04-25,high,EMEA,Annual review completed.,synthetic
-CUST-0269,company,Vertex Logistics B.V.,,GB,GB,2018-05-26,medium,APAC,,synthetic
-CUST-0270,individual,Lucas Petersen,1977-08-28,SG,DE,2019-06-27,low,AMER,,synthetic
-CUST-0271,individual,Elena Almeida,1947-11-15,GB,GB,2020-07-01,low,EMEA,,synthetic
-CUST-0272,individual,Ana Thompson,1969-02-13,FR,SG,2021-08-02,medium,APAC,Onboarded in branch.,synthetic
-CUST-0273,individual,Kenji Mancini,1946-05-20,SE,SG,2022-09-03,low,AMER,Onboarded in branch.,synthetic
-CUST-0274,individual,Farah Lindqvist,1974-08-06,NL,FR,2023-10-04,low,EMEA,,synthetic
-CUST-0275,company,Iris Consulting Pte Ltd,,CH,CH,2024-11-05,medium,APAC,,synthetic
-CUST-0276,individual,Wanjiru Jensen,1970-12-08,CH,DE,2014-12-06,low,AMER,,synthetic
-CUST-0277,individual,Sanjay Adeyemi,1984-10-26,CH,CH,2015-01-07,medium,EMEA,,synthetic
-CUST-0278,individual,Jonas Mancini,1952-02-04,IT,SE,2016-02-08,medium,APAC,Address verified by utility bill.,synthetic
-CUST-0279,individual,Aroha Jensen,1962-05-01,IE,GB,2017-03-09,low,AMER,,synthetic
-CUST-0280,individual,Nadia Schmidt,1958-08-14,SG,AE,2018-04-10,low,EMEA,,synthetic
-CUST-0281,company,Meridian Holdings Inc,,IE,IE,2019-05-11,medium,APAC,,synthetic
-CUST-0282,individual,Andrei Bauer,1947-03-16,DE,CH,2020-06-12,low,AMER,,synthetic
-CUST-0283,individual,Ursula Moreau,1990-03-27,HK,SG,2021-07-13,high,EMEA,,synthetic
-CUST-0284,individual,Olivia Thompson,1947-03-09,SG,HK,2022-08-14,low,APAC,,synthetic
-CUST-0285,individual,Gabriel Ugarte,1994-01-14,DE,CH,2023-09-15,medium,AMER,Relationship manager changed.,synthetic
-CUST-0286,individual,Gabriel Lambert,1992-08-12,CH,IT,2024-10-16,medium,EMEA,,synthetic
-CUST-0287,company,Zenith Textiles Ltd,,IT,IT,2014-11-17,medium,APAC,,synthetic
-CUST-0288,individual,Mei Nakamura,1991-02-13,ES,AE,2015-12-18,medium,AMER,,synthetic
-CUST-0289,individual,Mateo Fernandes,1955-02-20,IE,SG,2016-01-19,low,EMEA,,synthetic
-CUST-0290,individual,Lucas Lambert,1987-04-20,GB,NL,2017-02-20,low,APAC,,synthetic
-CUST-0291,individual,Felix Dubois,2003-08-13,CH,HK,2018-03-21,low,AMER,,synthetic
-CUST-0292,individual,Laila Gruber,1970-05-16,IT,CH,2019-04-22,medium,EMEA,,synthetic
-CUST-0293,company,Iris Logistics B.V.,,CH,CH,2020-05-23,medium,APAC,Onboarded in branch.,synthetic
-CUST-0294,individual,Lucas Lindqvist,1985-04-22,ES,SE,2021-06-24,high,AMER,,synthetic
-CUST-0295,individual,Nils Hansen,1992-09-22,ES,AE,2022-07-25,medium,EMEA,,synthetic
-CUST-0296,individual,Pedro Okafor,1982-02-21,SE,AE,2023-08-26,low,APAC,,synthetic
-CUST-0297,individual,Camille Adeyemi,1957-01-20,AE,HK,2024-09-27,medium,AMER,Address verified by utility bill.,synthetic
-CUST-0298,individual,Hannah Pereira,1954-10-04,AE,DE,2014-10-01,low,EMEA,Relationship manager changed.,synthetic
-CUST-0299,company,Vertex Consulting S.A.,,GB,GB,2015-11-02,medium,APAC,,synthetic
-CUST-0300,individual,Emeka Dubois,1978-07-06,NL,AE,2016-12-03,high,AMER,,synthetic
-CUST-0301,individual,Quentin Gruber,1980-08-21,SG,SG,2017-01-04,high,EMEA,,synthetic
-CUST-0302,individual,Bruno Oliveira,1957-01-12,DE,IT,2018-02-05,low,APAC,Address verified by utility bill.,synthetic
-CUST-0303,individual,Carlos Weber,1957-03-27,IT,GB,2019-03-06,medium,AMER,,synthetic
-CUST-0304,individual,Nadia Fischer,1992-05-17,SE,GB,2020-04-07,low,EMEA,Annual review completed.,synthetic
-CUST-0305,company,Nova Consulting Ltd,,HK,HK,2021-05-08,medium,APAC,,synthetic
+CUST-0268,company,Orchid Foods B.V.,,ES,ES,2017-04-25,medium,EMEA,,synthetic
+CUST-0269,individual,Rania Lambert,2002-06-15,IT,FR,2018-05-26,medium,APAC,,synthetic
+CUST-0270,individual,Daniel Petersen,1977-11-19,IE,SE,2019-06-27,medium,AMER,,synthetic
+CUST-0271,individual,Zoe Chaudhry,1971-03-10,GB,HK,2020-07-01,medium,EMEA,,synthetic
+CUST-0272,individual,Aroha Thompson,1976-01-01,AE,GB,2021-08-02,low,APAC,,synthetic
+CUST-0273,individual,Maja Jensen,1971-03-01,CH,ES,2022-09-03,low,AMER,Source of funds documented.,synthetic
+CUST-0274,company,Union Logistics S.A.,,CH,CH,2023-10-04,medium,EMEA,,synthetic
+CUST-0275,individual,Daniel Fischer,1947-03-13,FR,FR,2024-11-05,low,APAC,,synthetic
+CUST-0276,individual,Nadia Haddad,2001-07-16,IE,DE,2014-12-06,low,AMER,,synthetic
+CUST-0277,individual,Maja Dubois,1976-06-17,SG,SE,2015-01-07,low,EMEA,,synthetic
+CUST-0278,individual,Zoe Vasquez,1987-04-20,CH,AE,2016-02-08,high,APAC,,synthetic
+CUST-0279,individual,Wanjiru Eriksson,1967-02-08,IE,NL,2017-03-09,low,AMER,,synthetic
+CUST-0280,company,Quarry Energy Inc,,GB,GB,2018-04-10,medium,EMEA,,synthetic
+CUST-0281,individual,Camille Santos,1994-07-25,IE,HK,2019-05-11,low,APAC,,synthetic
+CUST-0282,individual,Kofi Okafor,2000-03-05,GB,IE,2020-06-12,low,AMER,,synthetic
+CUST-0283,individual,Yara Tanaka,1992-03-25,CH,ES,2021-07-13,medium,EMEA,,synthetic
+CUST-0284,individual,Julia Kowalski,1997-09-10,IT,IT,2022-08-14,low,APAC,,synthetic
+CUST-0285,individual,Wanjiru Lambert,1957-05-22,NL,NL,2023-09-15,medium,AMER,,synthetic
+CUST-0286,company,Quarry Marine GmbH,,AE,AE,2024-10-16,medium,EMEA,,synthetic
+CUST-0287,individual,Nils Rossi,1997-12-22,SG,IE,2014-11-17,low,APAC,,synthetic
+CUST-0288,individual,Kofi Bauer,1975-02-20,NL,GB,2015-12-18,low,AMER,,synthetic
+CUST-0289,individual,Yara Dubois,1997-11-22,HK,AE,2016-01-19,low,EMEA,,synthetic
+CUST-0290,individual,Kenji Petersen,1984-06-26,CH,DE,2017-02-20,low,APAC,Onboarded in branch.,synthetic
+CUST-0291,individual,Zoe Fernandes,1995-05-14,SG,ES,2018-03-21,low,AMER,,synthetic
+CUST-0292,company,Fjord Capital S.A.,,AE,AE,2019-04-22,medium,EMEA,,synthetic
+CUST-0293,individual,Jonas Vasquez,1964-05-03,NL,HK,2020-05-23,low,APAC,,synthetic
+CUST-0294,individual,Hannah Mancini,1991-07-16,CH,NL,2021-06-24,low,AMER,,synthetic
+CUST-0295,individual,Laila Garcia,1960-07-22,SG,AE,2022-07-25,medium,EMEA,,synthetic
+CUST-0296,individual,Mei Pereira,2001-04-06,CH,ES,2023-08-26,low,APAC,,synthetic
+CUST-0297,individual,Tariq Lambert,1977-09-09,IT,FR,2024-09-27,medium,AMER,,synthetic
+CUST-0298,company,Tidal Energy GmbH,,SE,SE,2014-10-01,medium,EMEA,,synthetic
+CUST-0299,individual,Viktor Fernandes,1970-08-08,SG,ES,2015-11-02,medium,APAC,,synthetic
+CUST-0300,individual,Dara Bauer,1963-10-18,DE,SE,2016-12-03,low,AMER,,synthetic
+CUST-0301,individual,Carlos Hansen,1999-05-27,DE,DE,2017-01-04,high,EMEA,,synthetic
+CUST-0302,individual,Rania Bianchi,1989-01-27,SE,SG,2018-02-05,low,APAC,,synthetic
+CUST-0303,individual,Quentin Carvalho,1991-02-08,CH,AE,2019-03-06,low,AMER,,synthetic
+CUST-0304,company,Vertex Consulting S.A.,,GB,GB,2020-04-07,medium,EMEA,,synthetic
+CUST-0305,individual,Emeka Dubois,1978-07-06,NL,AE,2021-05-08,high,APAC,,synthetic
+CUST-0306,individual,Quentin Gruber,1980-08-21,SG,SG,2022-06-09,high,AMER,,synthetic
+CUST-0307,individual,Bruno Oliveira,1957-01-12,DE,IT,2023-07-10,low,EMEA,Address verified by utility bill.,synthetic
+CUST-0308,individual,Carlos Weber,1957-03-27,IT,GB,2024-08-11,medium,APAC,,synthetic
+CUST-0309,individual,Nadia Fischer,1992-05-17,SE,GB,2014-09-12,low,AMER,Annual review completed.,synthetic
+CUST-0310,company,Nova Consulting Ltd,,HK,HK,2015-10-13,medium,EMEA,,synthetic

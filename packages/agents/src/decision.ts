@@ -1,4 +1,4 @@
-import { DecisionSchema, type ModelUseInput } from "@sanctions-desk/shared";
+import { AppError, DecisionSchema, type ModelUseInput } from "@sanctions-desk/shared";
 import { z } from "zod";
 import type { EvidenceBundle } from "./evidence.js";
 import type { MatchResult } from "./matching.js";
@@ -8,15 +8,45 @@ import type { AgentDeps, FactCitation } from "./types.js";
 /** The Decision agent: reads the evidence and the comparison and recommends one of four outcomes. */
 
 /** One cited fact: the row is found by the table's own key, so the model only names the key value. */
+/** A model sometimes writes a number or a true/false where the data holds text; the text of it is what is cited. */
+const asText = (v: unknown): unknown => (typeof v === "number" || typeof v === "boolean" ? String(v) : v);
+
 export const FactSchema = z.object({
   table: z.string().min(1),
-  key_value: z.string().min(1),
+  key_value: z.preprocess(asText, z.string().min(1)),
   column: z.string().min(1),
-  value: z.string().nullable(),
+  value: z.preprocess(asText, z.string().nullable()),
 });
 
+/** The ways a model commonly spells the four decisions. Anything else is not guessed at. */
+const DECISION_SPELLINGS: Record<string, string> = {
+  ESCALATE: "ESCALATE_L2",
+  ESCALATE_TO_L2: "ESCALATE_L2",
+  ESCALATE_LEVEL_2: "ESCALATE_L2",
+  ESCALATE_L2_REVIEW: "ESCALATE_L2",
+  CLOSE: "CLOSE_FALSE_POSITIVE",
+  CLOSE_AS_FALSE_POSITIVE: "CLOSE_FALSE_POSITIVE",
+  FALSE_POSITIVE: "CLOSE_FALSE_POSITIVE",
+  BLOCK: "RECOMMEND_BLOCK",
+  RECOMMEND_BLOCKING: "RECOMMEND_BLOCK",
+  MORE_INFO: "NEED_MORE_INFO",
+  NEEDS_MORE_INFO: "NEED_MORE_INFO",
+  NEED_MORE_INFORMATION: "NEED_MORE_INFO",
+  REQUEST_MORE_INFO: "NEED_MORE_INFO",
+};
+
+/** Same decision, different spelling: upper case, words joined with underscores, a few known variants. */
+export function normaliseDecision(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  const key = value
+    .trim()
+    .toUpperCase()
+    .replace(/[\s-]+/g, "_");
+  return DECISION_SPELLINGS[key] ?? key;
+}
+
 export const DecisionOutputSchema = z.object({
-  decision: DecisionSchema,
+  decision: z.preprocess(normaliseDecision, DecisionSchema),
   confidence: z.number().min(0).max(1),
   rationale: clipped(1500),
   facts: z.array(FactSchema).min(1).max(8),
@@ -221,6 +251,38 @@ export function decisionPrompt(
 export interface DecisionResult {
   output: DecisionOutput;
   calls: ModelUseInput[];
+  /** Set when no model produced a usable recommendation. The output is then a safe escalation, never a close. */
+  unavailable?: string;
+  unavailableCause?: UnavailableCause;
+}
+
+export const DECISION_UNAVAILABLE = "model decision unavailable";
+
+/**
+ * Why no usable decision came back. "provider": the model service failed or answered with nothing (an HTTP error,
+ * a timeout, an empty answer). "parsing": the model answered but not in a form we can use (cut off, no JSON, an
+ * unknown decision word). The two are reported separately because only the second is ours to fix.
+ */
+export type UnavailableCause = "provider" | "parsing";
+
+const PROVIDER_TYPES = new Set(["http_error", "network", "timeout", "route_dead"]);
+
+export function unavailableCause(err: AppError): UnavailableCause {
+  if (PROVIDER_TYPES.has(err.type) || /empty answer|all model providers failed|returned HTTP/i.test(err.message)) {
+    return "provider";
+  }
+  return "parsing";
+}
+
+/** The recommendation used when the decision step could not get a usable answer: a person looks at the case. */
+function unavailableDecision(alertId: string): DecisionOutput {
+  return {
+    decision: "ESCALATE_L2",
+    confidence: 0.3,
+    rationale: `${DECISION_UNAVAILABLE}: no usable recommendation came back from the models, so the case goes to a person unreviewed by the desk.`,
+    facts: [{ table: "alert", key_value: alertId, column: "alert_id", value: alertId }],
+    what_would_change: ["A model answer that completes, or a review by a person"],
+  };
 }
 
 export async function decide(
@@ -230,13 +292,37 @@ export async function decide(
   feedback: readonly string[],
   options: { fast?: boolean } = {},
 ): Promise<DecisionResult> {
-  const { value, calls } = await askJson(deps, {
-    agent: "decision",
-    system: DECISION_SYSTEM,
-    prompt: decisionPrompt(deps, evidence, match, feedback),
-    schema: DecisionOutputSchema,
-    fast: options.fast,
-  });
+  let asked: Awaited<ReturnType<typeof askJson<typeof DecisionOutputSchema>>>;
+  try {
+    asked = await askJson(deps, {
+      agent: "decision",
+      system: DECISION_SYSTEM,
+      prompt: decisionPrompt(deps, evidence, match, feedback),
+      schema: DecisionOutputSchema,
+      fast: options.fast,
+    });
+  } catch (err) {
+    // An unusable answer or a provider that is down becomes an escalation; a fault in our own setup still stops the run.
+    if (!(err instanceof AppError) || err.type === "validation" || err.type === "config_missing") throw err;
+    const alertId = evidence.alert.alert_id ?? "";
+    deps.trace.log({
+      agent: "decision",
+      action: "recommend",
+      status: "error",
+      target_agent: "policy_guard",
+      confidence: 0.3,
+      output_summary: `${DECISION_UNAVAILABLE}: escalating to a person (${err.message.slice(0, 160)})`,
+      detail: { cause: unavailableCause(err) },
+    });
+    const cause = unavailableCause(err);
+    return {
+      output: unavailableDecision(alertId),
+      calls: [],
+      unavailable: `${DECISION_UNAVAILABLE} (${cause === "provider" ? "the model service failed" : "the answer was unusable"})`,
+      unavailableCause: cause,
+    };
+  }
+  const { value, calls } = asked;
   deps.trace.log({
     agent: "decision",
     action: "recommend",

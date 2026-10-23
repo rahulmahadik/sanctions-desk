@@ -6,7 +6,7 @@ import {
   rescreen,
 } from "@sanctions-desk/engines";
 import { loadUslModel, quoteLiteral } from "@sanctions-desk/zetaris";
-import type { AgentDeps, Row } from "./types.js";
+import { type AgentDeps, clientFor, type Row } from "./types.js";
 
 /**
  * List-change replay. After a sanctions list is updated, find the earlier decisions whose listed entry changed
@@ -48,7 +48,7 @@ export interface ListChangeReport {
 const list = (ids: readonly string[]): string => ids.map(quoteLiteral).join(", ");
 
 async function read(deps: AgentDeps, sql: string): Promise<Row[]> {
-  const result = await deps.zetaris.query("evidence", sql);
+  const result = await clientFor(deps, "evidence").query("evidence", sql);
   deps.trace.log({
     agent: "memory",
     action: "list_change_read",

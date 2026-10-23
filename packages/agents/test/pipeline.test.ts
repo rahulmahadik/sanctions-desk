@@ -1,3 +1,4 @@
+import { AppError } from "@sanctions-desk/shared";
 import { describe, expect, it } from "vitest";
 import { runReview } from "../src/index.js";
 import { caseFacts, sampleDeps, scriptedGenerator } from "./helpers.js";
@@ -86,14 +87,25 @@ describe("runReview with a scripted model", () => {
     expect(res.critic?.final_verdict).toBe("escalated");
   });
 
-  it("fails with a structured error when the model never returns a valid answer", async () => {
+  it("escalates to a person when the model never returns a valid answer", async () => {
     const { generator } = scripted(["I cannot help with that."]);
-    await expect(runReview(sampleDeps({ generator }), request)).rejects.toMatchObject({ type: "bad_response" });
+    const res = await runReview(sampleDeps({ generator }), request);
+    expect(res).toMatchObject({ decision: "ESCALATE_L2", critic: { final_verdict: "not_run" } });
+    expect(res.guards?.some((g) => g.guard === "model_decision")).toBe(true);
   });
 
-  it("passes a model failure through as a structured error", async () => {
-    const { generator } = scripted([Object.assign(new Error("all model providers failed"), { type: "http_error" })]);
-    await expect(runReview(sampleDeps({ generator }), request)).rejects.toThrow(/all model providers failed/);
+  it("escalates, and never closes, when every model provider is down", async () => {
+    const down = new AppError("http_error", "all model providers failed", { recoverable: true });
+    const { generator } = scripted([down]);
+    const res = await runReview(sampleDeps({ generator }), request);
+    expect(res.decision).toBe("ESCALATE_L2");
+    expect(res.rationale).toContain("model decision unavailable");
+  });
+
+  it("still stops on a fault in the desk's own setup", async () => {
+    const broken = new AppError("config_missing", "no model is configured", { recoverable: false });
+    const { generator } = scripted([broken]);
+    await expect(runReview(sampleDeps({ generator }), request)).rejects.toThrow(/no model is configured/);
   });
 
   it("stops at the number of critic rounds the policy allows", async () => {

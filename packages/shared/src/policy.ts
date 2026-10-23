@@ -142,6 +142,12 @@ export const PolicySchema = z.strictObject({
   /** Zetaris role each agent queries under. The role decides which columns it can see. */
   masking: perAgent(nonEmpty),
 
+  /**
+   * What each agent may read, checked by our own SQL guard before a query is sent, whichever credential answers:
+   * the tables it may name and the columns it may never name. An agent with no tables reads no data.
+   */
+  agentAccess: perAgent(z.strictObject({ tables: z.array(nonEmpty), denyColumns: z.array(nonEmpty) })),
+
   guards: z.strictObject({
     tippingOffPolicy: z.string().min(20),
     injectionPatterns: z.array(regexSource).min(1),

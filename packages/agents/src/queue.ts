@@ -32,7 +32,9 @@ export async function readAlertQueue(deps: Pick<AgentDeps, "zetaris" | "config">
   if (!table)
     throw new AppError("config_missing", "the semantic layer has no active alert table", { recoverable: true });
   const sql = `SELECT ${COLUMNS.map((c) => `\`${c}\``).join(", ")} FROM ${table.qualifiedName} ORDER BY \`alert_id\` LIMIT ${config.zetaris.maxRows}`;
-  const result = await zetaris.query("evidence", sql);
+  const result = await zetaris
+    .scoped({ agent: "evidence", tables: ["alert"], denyColumns: ["id_number"] })
+    .query("evidence", sql);
   return result.objects.map((row) => ({
     alert_id: String(row.alert_id),
     alert_type: String(row.alert_type),

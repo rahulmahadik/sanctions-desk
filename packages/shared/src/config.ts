@@ -64,6 +64,11 @@ const ConfigSchema = z.strictObject({
         eval: secret.optional(),
       })
       .default({}),
+    /**
+     * When a role token is refused for lack of permission, retry once with the admin key and stop using that
+     * role token. Every record says which credential answered. Turn off to make a refusal an error.
+     */
+    fallbackOnDenied: z.boolean().default(true),
     /** The USL namespace and model the agents are allowed to read. */
     namespace: nonEmpty,
     usl: nonEmpty,

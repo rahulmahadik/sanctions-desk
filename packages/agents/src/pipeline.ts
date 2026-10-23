@@ -17,7 +17,7 @@ import { applyPolicyGuard } from "./policy-guard.js";
 import { buildDecisionRecord, writeDecisionRecord } from "./record.js";
 import { screenInbound } from "./safety.js";
 import { judgeDifficulty, triage } from "./triage.js";
-import type { AgentDeps } from "./types.js";
+import { type AgentDeps, clientFor } from "./types.js";
 
 /**
  * One review, start to finish: Triage, Evidence, Matching, Decision, Critic (up to the policy's round
@@ -58,11 +58,10 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
   }
   judgeDifficulty(deps, match);
 
-  const tools = buildEvidenceTools(evidence.model, deps.zetaris, {
-    role: "evidence",
-    defaultLimit: deps.config.zetaris.maxRows,
-    maskSensitive: true,
-  });
+  const toolOptions = { role: "evidence", defaultLimit: deps.config.zetaris.maxRows, maskSensitive: true } as const;
+  // Memory reads earlier decisions under the evidence step's access; the critic has its own, narrower one.
+  const tools = buildEvidenceTools(evidence.model, clientFor(deps, "evidence"), toolOptions);
+  const criticTools = buildEvidenceTools(evidence.model, clientFor(deps, "critic"), toolOptions);
   const memory = options?.memory === false ? undefined : await recallMemory(deps, tools, evidence, evidence.queries);
   if (memory) evidence.memory = memory;
   // A still-valid earlier clearance on a case the definitions also call a false positive is an easy case:
@@ -76,7 +75,7 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
       output_summary: "earlier clearance still valid: fast path, no reasoning",
     });
   }
-  return { evidence, match, tools, easy, models: [...inbound.calls] as ModelUseInput[] };
+  return { evidence, match, tools, criticTools, easy, models: [...inbound.calls] as ModelUseInput[] };
 }
 
 /** The Decision and Critic loop, up to the number of rounds the policy allows. */
@@ -85,7 +84,7 @@ async function deliberate(
   prepared: Awaited<ReturnType<typeof prepare>>,
   options: ReviewRequest["options"],
 ) {
-  const { evidence, match, tools, easy, models } = prepared;
+  const { evidence, match, criticTools, easy, models } = prepared;
   const { policy, trace } = deps;
   const criticQueries: QueryEvidenceInput[] = [];
   let output: DecisionOutput | undefined;
@@ -97,7 +96,15 @@ async function deliberate(
     // Comparison setup: one recommendation, no critic. The policy guard still applies afterwards.
     const decision = await decide(deps, evidence, match, [], { fast: easy });
     models.push(...decision.calls);
-    return { output: decision.output, approved: true, rounds: 0, criticQueries, models, criticRan: false };
+    return {
+      output: decision.output,
+      approved: true,
+      rounds: 0,
+      criticQueries,
+      models,
+      criticRan: false,
+      unavailable: decision.unavailable,
+    };
   }
 
   while (rounds < policy.critic.maxRounds && !approved) {
@@ -105,7 +112,19 @@ async function deliberate(
     const decision = await decide(deps, evidence, match, feedback, { fast: easy });
     models.push(...decision.calls);
     output = decision.output;
-    const verdict = await review(deps, tools, evidence, match, output);
+    // No usable recommendation: the critic has nothing to check, and a person gets the case.
+    if (decision.unavailable) {
+      return {
+        output,
+        approved: true,
+        rounds: 0,
+        criticQueries,
+        models,
+        criticRan: false,
+        unavailable: decision.unavailable,
+      };
+    }
+    const verdict = await review(deps, criticTools, evidence, match, output);
     models.push(...verdict.calls);
     criticQueries.push(...verdict.checks.flatMap((c) => (c.evidence ? [c.evidence] : [])));
     approved = verdict.approved;
@@ -122,7 +141,7 @@ async function deliberate(
     }
   }
   if (!output) throw new AppError("internal", "no recommendation was produced");
-  return { output, approved, rounds, criticQueries, models, criticRan: true };
+  return { output, approved, rounds, criticQueries, models, criticRan: true, unavailable: undefined };
 }
 
 export async function runReview(deps: AgentDeps, request: ReviewRequest): Promise<ReviewResponse> {
@@ -132,13 +151,17 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
 
   const prepared = await prepare(deps, request.alertId, request.options);
   const { evidence, match } = prepared;
-  const { output, approved, rounds, criticQueries, models, criticRan } = await deliberate(
+  const { output, approved, rounds, criticQueries, models, criticRan, unavailable } = await deliberate(
     deps,
     prepared,
     request.options,
   );
 
   const guard = applyPolicyGuard({ policy, decision: output, match, evidence, criticUnresolved: !approved });
+  if (unavailable) {
+    guard.verdicts.push({ guard: "model_decision", verdict: "block", detail: unavailable });
+    guard.confidence = Math.min(guard.confidence, 0.3);
+  }
   trace.log({
     agent: "policy_guard",
     action: "apply_policy",

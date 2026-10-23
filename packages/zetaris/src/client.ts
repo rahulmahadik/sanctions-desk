@@ -60,8 +60,17 @@ export interface ZetarisClientOptions {
   offline?: boolean;
 }
 
+/** What one agent may read: its tables, and columns it must never name. Enforced here, whatever the credential. */
+export interface AgentScope {
+  agent: string;
+  tables: readonly string[];
+  denyColumns: readonly string[];
+}
+
 export interface ZetarisClient {
   query(role: ZetarisRole, sql: string, signal?: AbortSignal): Promise<QueryResult>;
+  /** The same client, limited to one agent's tables and columns by our own guard. */
+  scoped(scope: AgentScope): ZetarisClient;
   /** Replace the list of tables the guard allows (taken from the semantic layer's own metadata). */
   setAllowedTables(tables: readonly string[]): void;
   allowedTables(): string[];
@@ -102,27 +111,82 @@ function messageOf(text: string): string {
   }
 }
 
+/** The platform's wording when a signed-in user lacks a permission. */
+const ACCESS_DENIED = /does not have access|not permitted|permission denied/i;
+
 export function createZetarisClient(options: ZetarisClientOptions): ZetarisClient {
   const { config } = options;
   const z = config.zetaris;
   let allowed: string[] = [];
 
   const tokenFor = (role: ZetarisRole): { token: string; source: TokenSource } | undefined => {
-    const own = z.tokens[role];
+    const own = refused.has(role) ? undefined : z.tokens[role];
     if (own) return { token: own.reveal(), source: "role" };
     if (z.apiKey) return { token: z.apiKey.reveal(), source: "fallback" };
     if (options.offline) return { token: "offline", source: "role" };
     return undefined;
   };
 
-  return {
-    setAllowedTables: (tables) => {
-      allowed = [...new Set(tables.map((t) => t.toLowerCase()))];
-    },
-    allowedTables: () => [...allowed],
-    tokenSource: (role) => tokenFor(role)?.source ?? "missing",
+  const refused = new Set<ZetarisRole>();
 
-    async query(role, sql, signal) {
+  type Verdict = Extract<ReturnType<typeof guardSql>, { ok: true }>;
+  type Sent = { ok: true; result: QueryResult } | { ok: false; denied: boolean; error: AppError };
+
+  /** One request to Zetaris with the given credential; every outcome is reported through `onQuery`. */
+  async function send(
+    role: ZetarisRole,
+    verdict: Verdict,
+    credential: { token: string; source: TokenSource },
+    signal?: AbortSignal,
+  ): Promise<Sent> {
+    const queryId = randomUUID();
+    const base = {
+      query_id: queryId,
+      role,
+      sql: verdict.sql,
+      sql_hash: sha256Hex(verdict.sql),
+      cache_hit: options.offline === true,
+    };
+    const record = { ...base, token_source: credential.source, kind: verdict.kind, tables: verdict.tables };
+    let result: { status: number; text: string; ms: number };
+    try {
+      result = await httpRequest(`${z.restUrl}/sql-editor/sqls/run`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${credential.token}`, "X-Org-ID": z.orgId, "X-Request-ID": queryId },
+        body: { queryId, sql: verdict.sql, source: "SqlEditor", limit: z.maxRows },
+        timeoutMs: z.requestTimeoutMs,
+        signal,
+        fetchImpl: options.fetchImpl,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      options.onQuery?.({ ...record, status: "error", row_count: 0, latency_ms: 0, error: message });
+      throw err;
+    }
+    const latency = Math.round(result.ms);
+    if (result.status !== 200) {
+      const message = messageOf(result.text);
+      options.onQuery?.({ ...record, status: "error", row_count: 0, latency_ms: latency, error: message });
+      const denied = result.status === 401 || result.status === 403 || ACCESS_DENIED.test(message);
+      return {
+        ok: false,
+        denied,
+        error: new AppError("query_failed", `Zetaris rejected the query (HTTP ${result.status}): ${message}`, {
+          recoverable: !denied && result.status >= 500,
+          details: { status: result.status, query_id: queryId },
+        }),
+      };
+    }
+    const parsed = parseRunResponse(result.text);
+    const rows = parsed.data.map((r) => r.map((v) => (v === null || v === undefined ? null : String(v))));
+    const objects = rows.map((r) => Object.fromEntries(parsed.headers.map((h, i) => [h, r[i] ?? null])));
+    const final: QueryRecord = { ...record, status: "ok", row_count: rows.length, latency_ms: latency };
+    options.onQuery?.(final);
+    return { ok: true, result: { ...final, headers: parsed.headers, rows, objects } };
+  }
+
+  async function run(scope: AgentScope | undefined, role: ZetarisRole, sql: string, signal?: AbortSignal) {
+    {
       const queryId = randomUUID();
       // Offline means the answer is replayed from saved real queries, which the record says plainly.
       const base = { query_id: queryId, role, sql, sql_hash: sha256Hex(sql), cache_hit: options.offline === true };
@@ -141,48 +205,59 @@ export function createZetarisClient(options: ZetarisClientOptions): ZetarisClien
         });
         throw new AppError("guard_blocked", `query blocked: ${verdict.reason}`, { details: { code: verdict.code } });
       }
+      const outside = scope ? scopeViolation(scope, verdict.tables, verdict.sql) : undefined;
+      if (outside) {
+        options.onQuery?.({
+          ...base,
+          token_source: tokenFor(role)?.source ?? "fallback",
+          kind: verdict.kind,
+          tables: verdict.tables,
+          status: "blocked",
+          row_count: 0,
+          latency_ms: 0,
+          error: outside,
+          blocked_by: "agent_scope",
+        });
+        throw new AppError("guard_blocked", `query blocked: ${outside}`, { details: { code: "agent_scope" } });
+      }
       const credential = tokenFor(role);
       if (!credential) {
         throw new AppError("config_missing", `no Zetaris token is set for the ${role} identity`, { recoverable: true });
       }
-      const record = { ...base, token_source: credential.source, kind: verdict.kind, tables: verdict.tables };
-
-      let result: { status: number; text: string; ms: number };
-      try {
-        result = await httpRequest(`${z.restUrl}/sql-editor/sqls/run`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${credential.token}`,
-            "X-Org-ID": z.orgId,
-            "X-Request-ID": queryId,
-          },
-          body: { queryId, sql: verdict.sql, source: "SqlEditor", limit: z.maxRows },
-          timeoutMs: z.requestTimeoutMs,
-          signal,
-          fetchImpl: options.fetchImpl,
-        });
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        options.onQuery?.({ ...record, status: "error", row_count: 0, latency_ms: 0, error: message });
-        throw err;
+      const first = await send(role, verdict, credential, signal);
+      if (first.ok) return first.result;
+      // A role token the platform refuses (its permissions are not in place yet) falls back to the admin key once,
+      // visibly: the failed attempt is recorded under the role, the retry under "fallback", and the role is not
+      // tried again. The SQL guard above has already limited what the retry can read.
+      if (first.denied && credential.source === "role" && z.apiKey && z.fallbackOnDenied) {
+        refused.add(role);
+        const retry = await send(role, verdict, { token: z.apiKey.reveal(), source: "fallback" }, signal);
+        if (retry.ok) return retry.result;
+        throw retry.error;
       }
+      throw first.error;
+    }
+  }
 
-      const latency = Math.round(result.ms);
-      if (result.status !== 200) {
-        const message = messageOf(result.text);
-        options.onQuery?.({ ...record, status: "error", row_count: 0, latency_ms: latency, error: message });
-        const denied = result.status === 401 || result.status === 403;
-        throw new AppError("query_failed", `Zetaris rejected the query (HTTP ${result.status}): ${message}`, {
-          recoverable: !denied && result.status >= 500,
-          details: { status: result.status, query_id: queryId },
-        });
-      }
-      const parsed = parseRunResponse(result.text);
-      const rows = parsed.data.map((r) => r.map((v) => (v === null || v === undefined ? null : String(v))));
-      const objects = rows.map((r) => Object.fromEntries(parsed.headers.map((h, i) => [h, r[i] ?? null])));
-      const final: QueryRecord = { ...record, status: "ok", row_count: rows.length, latency_ms: latency };
-      options.onQuery?.(final);
-      return { ...final, headers: parsed.headers, rows, objects };
+  const api: ZetarisClient = {
+    setAllowedTables: (tables) => {
+      allowed = [...new Set(tables.map((t) => t.toLowerCase()))];
     },
+    allowedTables: () => [...allowed],
+    tokenSource: (role) => tokenFor(role)?.source ?? "missing",
+    query: (role, sql, signal) => run(undefined, role, sql, signal),
+    scoped: (scope) => ({ ...api, query: (role, sql, signal) => run(scope, role, sql, signal), scoped: api.scoped }),
   };
+  return api;
+}
+
+/** Why a statement is outside an agent's scope, or undefined when it is inside. */
+export function scopeViolation(scope: AgentScope, tables: readonly string[], sql: string): string | undefined {
+  const allowed = new Set(scope.tables.map((t) => t.toLowerCase()));
+  const outside = tables.map((t) => t.split(".").pop() ?? t).filter((t) => !allowed.has(t.toLowerCase()));
+  if (outside.length > 0) return `the ${scope.agent} step may not read ${[...new Set(outside)].join(", ")}`;
+  const words = new Set(sql.toLowerCase().match(/[a-z_][a-z0-9_]*/g) ?? []);
+  const denied = scope.denyColumns.find((c) => words.has(c.toLowerCase()));
+  if (denied) return `the ${scope.agent} step may not name the column ${denied}`;
+  return undefined;
 }

@@ -10,7 +10,7 @@ import {
 import type { MemoryEvidence } from "./memory.js";
 import type { OwnershipEvidence } from "./ownership.js";
 import type { SafetyResult } from "./safety.js";
-import type { AgentDeps, Row } from "./types.js";
+import { type AgentDeps, clientFor, type Row } from "./types.js";
 
 /**
  * The Evidence agent reads what it needs from the semantic layer. It learns the tables, columns and keys
@@ -86,7 +86,8 @@ function overlapSql(model: UslModel, customerId: string, entryId: string): strin
 }
 
 export async function gatherEvidence(deps: AgentDeps, alertId: string): Promise<EvidenceBundle> {
-  const { zetaris, policy, trace } = deps;
+  const { policy, trace } = deps;
+  const zetaris = clientFor(deps, "evidence");
   const role = policy.masking.evidence;
   const { model } = await loadUslModel(zetaris, "evidence", deps.config.zetaris.namespace, deps.config.zetaris.usl);
   trace.log({
@@ -256,7 +257,7 @@ async function checkDataQuality(
   const keyColumn = table.columns.find((c) => c.primaryKey)?.name;
   const findings: DqFinding[] = [];
   for (const rule of table.dqRules) {
-    const result = await deps.zetaris.query(
+    const result = await clientFor(deps, "evidence").query(
       "evidence",
       `SHOW DQ INVALID RECORD ${rule.name} TABLE ${table.qualifiedName}`,
     );

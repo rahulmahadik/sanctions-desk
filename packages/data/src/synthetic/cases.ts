@@ -987,6 +987,7 @@ function paymentRoute(
   title: string,
   route: { country: string; beneficiaryBank?: string; intermediaryBank?: string; reference: string },
   outcome: { expected: Decision; acceptable: readonly Decision[]; mustNot: readonly Decision[]; note: string },
+  group: ExamGroup = "payment_jurisdiction",
 ): Build {
   return (b) => {
     const c = b.pick(
@@ -1012,7 +1013,7 @@ function paymentRoute(
     const alert = b.alert({ customer, candidate: c, source: "payment", paymentId: payment.payment_id });
     b.addCase({
       kind,
-      group: "payment_jurisdiction",
+      group,
       title,
       alert_id: alert.alert_id,
       alert_type: "payment",
@@ -1067,6 +1068,123 @@ const paymentJurisdiction: Build[] = [
   ),
 ];
 
+/** A listed party, found under a name a plain name-score rule would not connect to it, or would wrongly connect. */
+const hasStrongLatinAlias = (c: Candidate) =>
+  hasDobAndNationality(c) &&
+  c.party.aliases.some((a) => a.strong && a.name !== c.natural && /^[\p{Script=Latin}\s.'-]+$/u.test(a.name));
+const yearOnly = (c: Candidate) =>
+  person(c) && fullDobOf(c.party) === null && yearOf(c.party) !== null && nationalityOf(c.party) !== null;
+
+/**
+ * Cases a plain name-similarity rule is likely to get wrong, whichever way it is set: a true match written in a
+ * way the name score misses, and facts that only the data can settle. They are labelled by what is true, not by
+ * what the system did.
+ */
+const rulesGap: Build[] = [
+  (b) => {
+    const c = b.pick("rg_reversed_true", hasDobAndNationality);
+    const customer = samePerson(b, c, reorder(c.natural));
+    const alert = b.alert({ customer, candidate: c, source: "customer_name" });
+    b.addCase({
+      kind: "rg_reversed_true",
+      group: "rules_gap",
+      title: "Family name first, same birth date and nationality as the listed person",
+      alert_id: alert.alert_id,
+      alert_type: "customer",
+      customer_id: customer.customer_id,
+      entry_id: c.party.entryId,
+      expected: "ESCALATE_L2",
+      acceptable: ESCALATE,
+      must_not: NOT_CLOSE,
+      edge_cases: ["name_order"],
+      note: "The same person with the name order reversed: a score that is lower for reordered names can let it through.",
+    });
+  },
+  (b) => {
+    const c = b.pick("rg_alias_true", hasStrongLatinAlias);
+    const alias = c.party.aliases.find((a) => a.strong && a.name !== c.natural) as ListedAlias;
+    const customer = samePerson(b, c, alias.name);
+    const alert = b.alert({ customer, candidate: c, source: "customer_name" });
+    b.addCase({
+      kind: "rg_alias_true",
+      group: "rules_gap",
+      title: "Customer name is a strong alias of the listed person, with the same birth date and nationality",
+      alert_id: alert.alert_id,
+      alert_type: "customer",
+      customer_id: customer.customer_id,
+      entry_id: c.party.entryId,
+      expected: "ESCALATE_L2",
+      acceptable: ESCALATE,
+      must_not: NOT_CLOSE,
+      edge_cases: ["aliases"],
+      note: "The name matches an alias, not the primary name, and everything else agrees.",
+    });
+  },
+  (b) => {
+    const c = b.pick("rg_year_only_compatible", yearOnly);
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: c.natural,
+      date_of_birth: `${yearOf(c.party)}-03-14`,
+      nationality: nationalityOf(c.party),
+      residence_country: b.rng.pick(["GB", "DE", "SG", "AE", "CH", "NL"]),
+    });
+    const alert = b.alert({ customer, candidate: c, source: "customer_name" });
+    b.addCase({
+      kind: "rg_year_only_compatible",
+      group: "rules_gap",
+      title: "Exact name and nationality; the listed birth date is only a year and agrees",
+      alert_id: alert.alert_id,
+      alert_type: "customer",
+      customer_id: customer.customer_id,
+      entry_id: c.party.entryId,
+      expected: "ESCALATE_L2",
+      acceptable: ["NEED_MORE_INFO", ...ESCALATE],
+      must_not: NOT_CLOSE,
+      edge_cases: ["partial_dob"],
+      note: "A partial date of birth that does not conflict settles nothing, so the case cannot be closed.",
+    });
+  },
+  (b) => {
+    const c = b.pick("rg_same_name_dob_other_nationality", hasDobAndNationality);
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: c.natural,
+      date_of_birth: fullDobOf(c.party),
+      nationality: otherCountry(b.rng, [nationalityOf(c.party)]),
+      residence_country: b.rng.pick(["GB", "DE", "SG", "AE", "CH", "NL"]),
+    });
+    b.identifier(customer.customer_id, "passport", `ZZ${b.rng.int(1000000, 9999999)}`, customer.nationality ?? "GB");
+    const alert = b.alert({ customer, candidate: c, source: "customer_name" });
+    b.addCase({
+      kind: "rg_same_name_dob_other_nationality",
+      group: "rules_gap",
+      title: "Same name and birth date, different nationality, different passport number",
+      alert_id: alert.alert_id,
+      alert_type: "customer",
+      customer_id: customer.customer_id,
+      entry_id: c.party.entryId,
+      expected: "ESCALATE_L2",
+      acceptable: ["NEED_MORE_INFO"],
+      must_not: NOT_CLOSE,
+      edge_cases: ["dob_exact", "nationality_conflict"],
+      note: "A birth date match with a conflicting nationality is not a clean false positive: a person decides.",
+    });
+  },
+  paymentRoute(
+    "rg_reference_place",
+    "Payment reference names a watched place; every country on the route is clean",
+    { country: "NL", beneficiaryBank: "NL", intermediaryBank: "DE", reference: "Spare parts, final delivery Havana" },
+    {
+      expected: "ESCALATE_L2",
+      acceptable: ESCALATE,
+      mustNot: NOT_CLOSE,
+      note: "Only the free-text reference points at a watched jurisdiction.",
+    },
+    "rules_gap",
+  ),
+];
+
 export const CASE_BUILDERS: Record<ExamGroup, Build[]> = {
   false_positive: falsePositives,
   true_match: trueMatches,
@@ -1079,6 +1197,7 @@ export const CASE_BUILDERS: Record<ExamGroup, Build[]> = {
   injection,
   tipping_off: tippingOff,
   payment_jurisdiction: paymentJurisdiction,
+  rules_gap: rulesGap,
 };
 
 /** Build all exam cases in a fixed order. Each group must produce exactly its planned number. */

@@ -4,15 +4,6 @@
 -- @@ uncache_payments
 UNCACHE TABLE sanctions_payments.payments_raw
 
--- @@ drop_role_evidence_agent
-DROP ROLE 'role_evidence_agent'
-
--- @@ drop_role_reviewer
-DROP ROLE 'role_reviewer'
-
--- @@ drop_role_eval
-DROP ROLE 'role_eval'
-
 -- @@ remove_model
 REMOVE USL screening_usl NAMESPACE lightning.metastore.sanctions
 

@@ -22,6 +22,13 @@ export interface ScoredCase {
   cost?: number;
   critic_rounds?: number;
   critic_final?: string;
+  /**
+   * The decision step got no usable model answer, so the case was escalated to a person. "provider" when the model
+   * service failed or answered with nothing, "parsing" when it answered in a form that could not be used.
+   */
+  decision_unavailable?: "provider" | "parsing";
+  /** For the name-score baseline: the score the rule saw. */
+  score?: number;
   error?: string;
 }
 
@@ -64,6 +71,12 @@ export interface Metrics {
   forbidden_answers: number;
   /** Share of alerts answered "need more information". */
   abstain_rate: number;
+  /** Cases where no model produced a usable decision and the desk escalated them. They are in the totals above. */
+  decision_unavailable: number;
+  /** The same cases split by cause: a provider failure is not our parsing error. */
+  decision_unavailable_by_cause: { provider: number; parsing: number };
+  /** The same accuracy without those cases, so a model outage is not mistaken for a wrong answer. */
+  excluding_unavailable: { cases: number; exact_accuracy: number; acceptable_accuracy: number };
   by_group: Record<string, GroupMetrics>;
   latency_s: { mean: number; p50: number; p95: number };
   tokens: { in: number; out: number };
@@ -110,6 +123,22 @@ export function summarise(cases: readonly ScoredCase[]): Metrics {
     false_close_rate: ratio(falseCloses, riskCases),
     forbidden_answers: scores.filter(({ s }) => s.forbidden).length,
     abstain_rate: ratio(alertAnswers.filter((c) => c.got === "NEED_MORE_INFO").length, alertAnswers.length),
+    decision_unavailable: scores.filter(({ c }) => c.decision_unavailable).length,
+    decision_unavailable_by_cause: {
+      provider: scores.filter(({ c }) => c.decision_unavailable === "provider").length,
+      parsing: scores.filter(({ c }) => c.decision_unavailable === "parsing").length,
+    },
+    excluding_unavailable: {
+      cases: scores.filter(({ c }) => !c.decision_unavailable).length,
+      exact_accuracy: ratio(
+        scores.filter(({ c, s }) => !c.decision_unavailable && s.exact).length,
+        scores.filter(({ c }) => !c.decision_unavailable).length,
+      ),
+      acceptable_accuracy: ratio(
+        scores.filter(({ c, s }) => !c.decision_unavailable && s.acceptable).length,
+        scores.filter(({ c }) => !c.decision_unavailable).length,
+      ),
+    },
     by_group: byGroup,
     latency_s: {
       mean: latencies.length === 0 ? 0 : round(latencies.reduce((a, b) => a + b, 0) / latencies.length, 2),

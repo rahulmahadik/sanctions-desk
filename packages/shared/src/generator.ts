@@ -40,6 +40,11 @@ export interface GenerateRequest {
   maxTokens?: number;
   timeoutMs?: number;
   signal?: AbortSignal;
+  /**
+   * Ask for a JSON object and nothing else. Ollama honours it by constraining the answer to JSON, which stops a
+   * thinking model from spending its whole budget on reasoning text. Nightshift ignores it.
+   */
+  jsonMode?: boolean;
 }
 
 /** A Nightshift mode that no longer routes. */
@@ -60,6 +65,8 @@ export interface GenerateResult {
   routeKind: RouteKind | null;
   latencyMs: number;
   usage?: { promptTokens?: number; completionTokens?: number; totalTokens?: number };
+  /** Why the model stopped: "stop" for a finished answer, "length" when the token limit cut it off. */
+  finishReason?: string;
   /** The mode the runtime says it served. If it differs from `requestedModel`, `modeMismatch` is true. */
   servedMode?: string;
   modeMismatch: boolean;
@@ -212,6 +219,7 @@ function readNightshiftAnswer(
       routeKind: kind === "local" || kind === "cloud" ? kind : null,
       latencyMs,
       usage: extractUsage(body),
+      finishReason: finishReasonOf(body),
       servedMode,
       modeMismatch: servedMode !== undefined && servedMode !== mode,
       fromCache: typeof meterless?.from_cache === "boolean" ? meterless.from_cache : undefined,
@@ -257,7 +265,10 @@ export function createOllamaGenerator(opts: OllamaOptions): Generator {
     try {
       sent = await httpRequest(joinUrl(opts.baseUrl, "/chat/completions"), {
         method: "POST",
-        body: chatBody(requestedModel, req),
+        body: {
+          ...chatBody(requestedModel, req),
+          ...(req.jsonMode ? { response_format: { type: "json_object" } } : {}),
+        },
         timeoutMs: req.timeoutMs ?? opts.timeoutMs,
         signal: req.signal,
         fetchImpl: opts.fetchImpl,
@@ -284,6 +295,7 @@ export function createOllamaGenerator(opts: OllamaOptions): Generator {
         routeKind: "local",
         latencyMs,
         usage: extractUsage(body),
+        finishReason: finishReasonOf(body),
         modeMismatch: false,
       };
       opts.onAttempt?.({
@@ -513,6 +525,11 @@ function extractContent(provider: Provider, body: Record<string, unknown>): stri
     );
   }
   return out;
+}
+
+function finishReasonOf(body: Record<string, unknown>): string | undefined {
+  const choices = body.choices;
+  return asString(asRecord(Array.isArray(choices) ? choices[0] : undefined)?.finish_reason);
 }
 
 function extractUsage(body: Record<string, unknown>): GenerateResult["usage"] {

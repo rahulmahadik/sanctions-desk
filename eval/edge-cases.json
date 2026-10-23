@@ -318,6 +318,27 @@
         "exam:pj_clean_route",
         "test:packages/agents/test/policy-guard.test.ts::payment routes that stay clear of watched jurisdictions"
       ]
+    },
+    {
+      "id": "aliases",
+      "area": "names",
+      "what": "The customer's name is a strong alias of the listed person, not the primary name",
+      "expected": "Escalate when birth date and nationality agree",
+      "covered_by": ["exam:rg_alias_true"]
+    },
+    {
+      "id": "dob_exact",
+      "area": "names",
+      "what": "Same name and same birth date, but a different nationality and passport number",
+      "expected": "Not closed as a false positive; a person decides",
+      "covered_by": ["exam:rg_same_name_dob_other_nationality"]
+    },
+    {
+      "id": "nationality_conflict",
+      "area": "names",
+      "what": "Birth date agrees but the nationality conflicts",
+      "expected": "Escalate or ask for more information; never close",
+      "covered_by": ["exam:rg_same_name_dob_other_nationality"]
     }
   ]
 }

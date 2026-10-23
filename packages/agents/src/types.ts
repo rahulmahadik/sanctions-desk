@@ -23,3 +23,11 @@ export interface FactCitation {
   column: string;
   value: string | null;
 }
+
+/** The Zetaris client limited to what one agent may read, as the active policy says. */
+export function clientFor(
+  deps: Pick<AgentDeps, "zetaris" | "policy">,
+  agent: keyof AgentDeps["policy"]["agentAccess"],
+): ZetarisClient {
+  return deps.zetaris.scoped({ agent, ...deps.policy.agentAccess[agent] });
+}

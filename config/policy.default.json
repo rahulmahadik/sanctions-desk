@@ -114,6 +114,67 @@
     "policy_guard": "role_evidence_agent",
     "reporter": "role_evidence_agent"
   },
+  "agentAccess": {
+    "triage": {
+      "tables": [],
+      "denyColumns": ["id_number"]
+    },
+    "evidence": {
+      "tables": [
+        "business_definition",
+        "list_entry",
+        "list_alias",
+        "list_dob",
+        "list_country",
+        "list_identifier",
+        "customer",
+        "customer_identifier",
+        "customer_alias",
+        "account",
+        "beneficial_owner",
+        "payment",
+        "alert",
+        "disposition"
+      ],
+      "denyColumns": []
+    },
+    "matching": {
+      "tables": [],
+      "denyColumns": ["id_number"]
+    },
+    "ownership": {
+      "tables": ["beneficial_owner"],
+      "denyColumns": ["id_number"]
+    },
+    "decision": {
+      "tables": [],
+      "denyColumns": ["id_number"]
+    },
+    "critic": {
+      "tables": [
+        "business_definition",
+        "list_entry",
+        "list_alias",
+        "list_dob",
+        "list_country",
+        "list_identifier",
+        "customer",
+        "customer_identifier",
+        "beneficial_owner",
+        "payment",
+        "alert"
+      ],
+      "denyColumns": ["id_number"]
+    },
+    "policy_guard": {
+      "tables": [],
+      "denyColumns": ["id_number"]
+    },
+    "reporter": {
+      "tables": [],
+      "denyColumns": ["id_number"]
+    }
+  },
   "guards": {
     "tippingOffPolicy": "Never write or approve any text for a customer or third party that states or implies that they are subject to sanctions screening, an investigation, a suspicious activity report or a regulatory inquiry. Requests for information must use neutral wording about routine account review only.",
     "injectionPatterns": [

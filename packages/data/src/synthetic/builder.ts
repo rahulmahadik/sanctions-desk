@@ -17,7 +17,7 @@ import type {
 import type { Rng } from "./random.js";
 import type { Candidate } from "./scenarios.js";
 
-/** The eleven groups of the review exam. */
+/** The twelve groups of the review exam. */
 export const EXAM_GROUPS = [
   "false_positive",
   "true_match",
@@ -30,10 +30,11 @@ export const EXAM_GROUPS = [
   "injection",
   "tipping_off",
   "payment_jurisdiction",
+  "rules_gap",
 ] as const;
 export type ExamGroup = (typeof EXAM_GROUPS)[number];
 
-/** How many cases each group has. The total is 65. */
+/** How many cases each group has. The total is 70. */
 export const EXAM_GROUP_SIZES: Readonly<Record<ExamGroup, number>> = {
   false_positive: 15,
   true_match: 8,
@@ -46,6 +47,7 @@ export const EXAM_GROUP_SIZES: Readonly<Record<ExamGroup, number>> = {
   injection: 3,
   tipping_off: 2,
   payment_jurisdiction: 5,
+  rules_gap: 5,
 };
 
 export type ExpectedOutcome = Decision | "DRAFT_BLOCKED";

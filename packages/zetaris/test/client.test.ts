@@ -122,6 +122,93 @@ describe("createZetarisClient", () => {
   });
 });
 
+describe("a role token the platform refuses", () => {
+  it("falls back to the admin key once, labels it, and stops trying the role token", async () => {
+    let calls = 0;
+    const api = fakeZetaris((sql) => {
+      calls += 1;
+      return calls === 1
+        ? { status: 400, body: { msg: "User 'X' does not have access to USL: m.s.customer" } }
+        : { body: rowsOf(["a"], [["1"]]) };
+    });
+    const records: QueryRecord[] = [];
+    const client = createZetarisClient({
+      config: testConfig(tokens),
+      fetchImpl: api.fetchImpl,
+      onQuery: (r) => records.push(r),
+    });
+    client.setAllowedTables([T]);
+    const result = await client.query("evidence", `SELECT a FROM ${T}`);
+    expect(result.token_source).toBe("fallback");
+    expect(api.sent.map((s) => s.headers.Authorization)).toEqual(["Bearer evidence-token-1", "Bearer admin-key-1"]);
+    expect(records.map((r) => [r.token_source, r.status])).toEqual([
+      ["role", "error"],
+      ["fallback", "ok"],
+    ]);
+    await client.query("evidence", `SELECT a FROM ${T}`);
+    expect(api.sent[2]?.headers.Authorization).toBe("Bearer admin-key-1");
+    expect(client.tokenSource("evidence")).toBe("fallback");
+  });
+
+  it("does not use the admin key when the fallback is switched off", async () => {
+    const api = fakeZetaris(() => ({ status: 400, body: { msg: "User 'X' does not have access to USL: a.b" } }));
+    const config = testConfig(tokens);
+    const off = createZetarisClient({
+      config: { ...config, zetaris: { ...config.zetaris, fallbackOnDenied: false } },
+      fetchImpl: api.fetchImpl,
+    });
+    off.setAllowedTables([T]);
+    await expect(off.query("evidence", `SELECT a FROM ${T}`)).rejects.toMatchObject({ type: "query_failed" });
+    expect(api.sent).toHaveLength(1);
+  });
+
+  it("does not retry other failures with the admin key", async () => {
+    const api = fakeZetaris(() => ({ status: 400, body: { msg: "syntax error near x" } }));
+    const client = createZetarisClient({ config: testConfig(tokens), fetchImpl: api.fetchImpl });
+    client.setAllowedTables([T]);
+    await expect(client.query("evidence", `SELECT a FROM ${T}`)).rejects.toMatchObject({ type: "query_failed" });
+    expect(api.sent).toHaveLength(1);
+  });
+});
+
+describe("a client limited to one agent's tables and columns", () => {
+  const OTHER = "lightning.metastore.sanctions.screening_usl.customer_identifier";
+  const scope = { agent: "critic", tables: ["customer"], denyColumns: ["id_number"] };
+
+  it("allows its own tables, even when the credential could read more", async () => {
+    const { api, client } = setup({ ZETARIS_API_KEY: "admin-key-1" });
+    client.setAllowedTables([T, OTHER]);
+    await client.scoped(scope).query("evidence", `SELECT a FROM ${T}`);
+    expect(api.sent).toHaveLength(1);
+  });
+
+  it("blocks another table and a denied column before anything is sent, and records the block", async () => {
+    const { api, client, records } = setup({ ZETARIS_API_KEY: "admin-key-1" });
+    client.setAllowedTables([T, OTHER]);
+    const critic = client.scoped(scope);
+    await expect(critic.query("evidence", `SELECT a FROM ${OTHER}`)).rejects.toMatchObject({
+      type: "guard_blocked",
+      details: { code: "agent_scope" },
+    });
+    await expect(critic.query("evidence", `SELECT id_number FROM ${T}`)).rejects.toThrow(
+      /may not name the column id_number/,
+    );
+    expect(api.sent).toHaveLength(0);
+    expect(records.map((r) => [r.status, r.blocked_by])).toEqual([
+      ["blocked", "agent_scope"],
+      ["blocked", "agent_scope"],
+    ]);
+  });
+
+  it("gives an agent with no tables no data at all, but the unscoped client still works", async () => {
+    const { api, client } = setup({ ZETARIS_API_KEY: "admin-key-1" });
+    const none = client.scoped({ agent: "decision", tables: [], denyColumns: [] });
+    await expect(none.query("evidence", `SELECT a FROM ${T}`)).rejects.toThrow(/may not read customer/);
+    await client.query("evidence", `SELECT a FROM ${T}`);
+    expect(api.sent).toHaveLength(1);
+  });
+});
+
 describe("identityOfPolicyRole", () => {
   it("maps policy role names to identities and rejects unknown ones", () => {
     expect(identityOfPolicyRole("role_evidence_agent")).toBe("evidence");

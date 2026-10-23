@@ -144,7 +144,7 @@ async function attemptOnce<T extends z.ZodType>(
     prompt,
     // The fast retry goes to the fast lane: the deep lane may think aloud and never reach the JSON.
     ...(route === "own" ? laneOrModel(config.model) : { lane: "fast" as const }),
-    ...(route === "backup" ? { provider: "ollama" as const } : {}),
+    ...(route === "backup" ? { provider: "ollama" as const, jsonMode: true } : {}),
     // Without reasoning the answer starts straight away with "{"; with it the model thinks first.
     ...(reasoning ? {} : { prefill: "{" }),
     temperature: 0,
@@ -152,6 +152,17 @@ async function attemptOnce<T extends z.ZodType>(
     timeoutMs: config.timeoutMs,
   });
   return { result, outcome: problemOf(result.text, options.schema) };
+}
+
+/** What a failed answer looked like, kept short: how it ended, how long it was, and its first and last words. */
+function failureExcerpt(result: GenerateResult): Record<string, unknown> {
+  const text = result.text;
+  return {
+    finish_reason: result.finishReason ?? null,
+    answer_chars: text.length,
+    answer_head: text.slice(0, 200),
+    answer_tail: text.length > 200 ? text.slice(-200) : undefined,
+  };
 }
 
 function logStep(
@@ -167,7 +178,11 @@ function logStep(
     retry_count: step.attempt - 1,
     output_summary: step.summary.slice(0, 300),
     ...fields,
-    detail: { ...(fields.detail ?? {}), reasoning: step.reasoning },
+    detail: {
+      ...(fields.detail ?? {}),
+      reasoning: step.reasoning,
+      ...(!step.ok && step.result ? failureExcerpt(step.result) : {}),
+    },
   });
 }
 

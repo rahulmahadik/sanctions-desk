@@ -94,7 +94,7 @@ describe("the review desk routes", () => {
   it("returns the exam size and whatever results have been saved", async () => {
     const { app } = await sampleApp();
     const body = (await app.inject({ method: "GET", url: "/exam" })).json() as { cases: number; results: unknown[] };
-    expect(body.cases).toBe(65);
+    expect(body.cases).toBe(70);
     expect(Array.isArray(body.results)).toBe(true);
   });
 

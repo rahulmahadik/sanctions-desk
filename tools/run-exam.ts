@@ -101,8 +101,9 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
   };
   if (variant === "escalate_all" || variant === "fuzzy") {
     if (c.alert_id === null) return { ...base, got: "DRAFT_ALLOWED" };
-    const got = variant === "escalate_all" ? escalateAll() : fuzzyThreshold(alertScores.get(c.alert_id) ?? 0, 0.9);
-    return { ...base, got };
+    const score = alertScores.get(c.alert_id) ?? 0;
+    const got = variant === "escalate_all" ? escalateAll() : fuzzyThreshold(score, 0.9);
+    return { ...base, got, ...(variant === "fuzzy" ? { score } : {}) };
   }
   const runId = `eval-${variant}-${c.case_id}`;
   const trace = createTraceLogger({ runId, dir: logDir, stdout: false, policyVersion: policy.version });
@@ -142,6 +143,11 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
     cost: trace4?.cost.totals.total_cost,
     critic_rounds: res.critic?.rounds,
     critic_final: res.critic?.final_verdict,
+    decision_unavailable: res.guards?.some((g) => g.guard === "model_decision")
+      ? res.guards.some((g) => g.guard === "model_decision" && g.detail?.includes("service failed"))
+        ? "provider"
+        : "parsing"
+      : undefined,
   };
 }
 

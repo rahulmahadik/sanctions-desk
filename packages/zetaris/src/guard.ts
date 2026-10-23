@@ -30,7 +30,8 @@ export type GuardCode =
   | "forbidden_function"
   | "table_not_allowed"
   | "no_table"
-  | "unsupported_statement";
+  | "unsupported_statement"
+  | "agent_scope";
 
 const DEFAULT_MAX_LENGTH = 4000;
 

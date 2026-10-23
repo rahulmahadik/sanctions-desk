@@ -1,6 +1,6 @@
 {
   "label": "Synthetic data generated for development and demonstration. No real customer, account or payment.",
-  "seed": "sanctions-desk-bank-1#3e9c9073",
+  "seed": "sanctions-desk-bank-1#2920bd4c",
   "cases": [
     {
       "case_id": "EX-001",
@@ -1272,6 +1272,113 @@
         "jurisdiction"
       ],
       "note": "Control: nothing about the route is out of the ordinary, so the weak name match alone must not raise the response."
+    },
+    {
+      "case_id": "EX-066",
+      "group": "rules_gap",
+      "kind": "rg_reversed_true",
+      "title": "Family name first, same birth date and nationality as the listed person",
+      "alert_id": "ALR-0075",
+      "alert_type": "customer",
+      "customer_id": "CUST-0064",
+      "entry_id": "UN-QDi.059",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "name_order"
+      ],
+      "note": "The same person with the name order reversed: a score that is lower for reordered names can let it through."
+    },
+    {
+      "case_id": "EX-067",
+      "group": "rules_gap",
+      "kind": "rg_alias_true",
+      "title": "Customer name is a strong alias of the listed person, with the same birth date and nationality",
+      "alert_id": "ALR-0076",
+      "alert_type": "customer",
+      "customer_id": "CUST-0065",
+      "entry_id": "UN-QDi.272",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "aliases"
+      ],
+      "note": "The name matches an alias, not the primary name, and everything else agrees."
+    },
+    {
+      "case_id": "EX-068",
+      "group": "rules_gap",
+      "kind": "rg_year_only_compatible",
+      "title": "Exact name and nationality; the listed birth date is only a year and agrees",
+      "alert_id": "ALR-0077",
+      "alert_type": "customer",
+      "customer_id": "CUST-0066",
+      "entry_id": "OFAC-30885",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "partial_dob"
+      ],
+      "note": "A partial date of birth that does not conflict settles nothing, so the case cannot be closed."
+    },
+    {
+      "case_id": "EX-069",
+      "group": "rules_gap",
+      "kind": "rg_same_name_dob_other_nationality",
+      "title": "Same name and birth date, different nationality, different passport number",
+      "alert_id": "ALR-0078",
+      "alert_type": "customer",
+      "customer_id": "CUST-0067",
+      "entry_id": "UN-CDi.024",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "dob_exact",
+        "nationality_conflict"
+      ],
+      "note": "A birth date match with a conflicting nationality is not a clean false positive: a person decides."
+    },
+    {
+      "case_id": "EX-070",
+      "group": "rules_gap",
+      "kind": "rg_reference_place",
+      "title": "Payment reference names a watched place; every country on the route is clean",
+      "alert_id": "ALR-0079",
+      "alert_type": "payment",
+      "customer_id": "CUST-0068",
+      "entry_id": "OFAC-23571",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "jurisdiction"
+      ],
+      "note": "Only the free-text reference points at a watched jurisdiction."
     }
   ]
 }

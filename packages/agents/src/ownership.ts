@@ -10,7 +10,7 @@ import type { QueryEvidenceInput } from "@sanctions-desk/shared";
 import { quoteLiteral, type UslModel } from "@sanctions-desk/zetaris";
 import type { DqFinding, EvidenceBundle } from "./evidence.js";
 import type { MatchResult } from "./matching.js";
-import type { AgentDeps, Row } from "./types.js";
+import { type AgentDeps, clientFor, type Row } from "./types.js";
 
 /**
  * The Ownership step: who owns the customer, how much each listed owner effectively holds, and whether that
@@ -70,7 +70,7 @@ export async function gatherOwnership(
   for (let level = 0; level <= deps.policy.ownership.maxChainDepth && frontier.length > 0; level += 1) {
     const list = frontier.map(quoteLiteral).join(", ");
     const sql = `SELECT ${COLUMNS.map((c) => `\`${c}\``).join(", ")} FROM ${table.qualifiedName} WHERE \`owned_party_id\` IN (${list}) ORDER BY \`ownership_id\``;
-    const result = await deps.zetaris.query("evidence", sql);
+    const result = await clientFor(deps, "ownership").query("evidence", sql);
     deps.trace.log({
       agent: "ownership",
       action: "read_register",
@@ -136,7 +136,7 @@ export async function ownershipQuality(
   const inChain = new Set(rows.map((r) => r.ownership_id ?? ""));
   const findings: DqFinding[] = [];
   for (const rule of table.dqRules) {
-    const result = await deps.zetaris.query(
+    const result = await clientFor(deps, "ownership").query(
       "evidence",
       `SHOW DQ INVALID RECORD ${rule.name} TABLE ${table.qualifiedName}`,
     );
