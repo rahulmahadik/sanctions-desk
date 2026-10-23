@@ -4,6 +4,7 @@ name: sanctions-desk
 # service; they join the Zetaris network only, publish no ports, and are read by Zetaris alone.
 #
 #   docker compose up --build                  the API and the review desk interface (sample mode needs no credentials)
+#   PORT=8010 WEB_PORT=3011 docker compose up --build   the same on other ports, if 8000 or 3001 is taken
 #   docker compose --profile data up --build   the API plus bankdb and payments-api
 #
 # The data profile reads BANKDB_ADMIN_PASSWORD, BANKDB_READER_PASSWORD and PAYMENTS_API_KEY from the
@@ -30,6 +31,8 @@ services:
       HOST: 0.0.0.0
       PORT: "8000"
       SAMPLE_MODE: ${SAMPLE_MODE:-false}
+      # The review desk's address, so the browser may call the API; follows WEB_PORT.
+      WEB_ORIGINS: ${WEB_ORIGINS:-http://localhost:${WEB_PORT:-3001},http://127.0.0.1:${WEB_PORT:-3001}}
       METERLESS_BASE_URL: ${DOCKER_METERLESS_BASE_URL:-http://host.docker.internal:8088/v1}
       OLLAMA_BASE_URL: ${DOCKER_OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
       ZETARIS_REST_URL: ${DOCKER_ZETARIS_REST_URL:-http://host.docker.internal:8888/api/v1.0}
@@ -45,10 +48,10 @@ services:
       target: web
       args:
         NODE_VERSION: ${NODE_VERSION:-26}
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:${PORT:-8000}}
     image: sanctions-desk-web:local
     ports:
-      - "3001:3001"
+      - "${WEB_PORT:-3001}:3001"
     depends_on:
       api:
         condition: service_healthy
