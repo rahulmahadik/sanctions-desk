@@ -245,6 +245,62 @@ function logStep(
 
 type Round = { done: true; value: unknown } | { done: false; problem: string };
 
+interface RoundContext {
+  attempt: number;
+  last: boolean;
+  reasoning: boolean;
+  structured: boolean;
+  route: "own" | "fast" | "backup";
+  lane: string;
+}
+
+/** A try that threw: log it, give a provider that just failed a moment, and let the next lane have a go. */
+async function failedRound(deps: AgentDeps, agent: AgentName, ctx: RoundContext, failure: unknown): Promise<Round> {
+  const problem = failure instanceof Error ? failure.message : String(failure);
+  logStep(deps, agent, {
+    attempt: ctx.attempt,
+    last: ctx.last,
+    ok: false,
+    summary: `model call failed: ${problem}`,
+    reasoning: ctx.reasoning,
+    structured: ctx.structured,
+    route: ctx.route,
+    lane: ctx.lane,
+  });
+  if (ctx.last) throw failure;
+  if (isProviderFailure(failure)) await (deps.sleep ?? sleep)(PROVIDER_BACKOFF_MS * ctx.attempt);
+  return { done: false, problem };
+}
+
+/** A try that answered: keep the signed receipt beside the trace, log the step, and say whether the answer is usable. */
+function answeredRound(
+  deps: AgentDeps,
+  agent: AgentName,
+  ctx: RoundContext,
+  calls: ModelUseInput[],
+  thinking: ModelUseInput["thinking"],
+  tried: Attempt,
+): Round {
+  const { result, outcome } = tried;
+  calls.push(modelUseOf(agent, result, ctx.reasoning ? thinking : "off"));
+  if (result.receipt && result.receiptEnvelope) {
+    writeReceiptFile(deps.config.logging.dir, result.receipt.receipt_id, result.receiptEnvelope);
+  }
+  const ok = "value" in outcome;
+  logStep(deps, agent, {
+    attempt: ctx.attempt,
+    last: ctx.last,
+    ok,
+    summary: ok ? `valid answer on attempt ${ctx.attempt}` : outcome.problem,
+    reasoning: ctx.reasoning,
+    result,
+    structured: tried.structured,
+    route: ctx.route,
+    lane: ctx.lane,
+  });
+  return ok ? { done: true, value: outcome.value } : { done: false, problem: outcome.problem };
+}
+
 /** One round of asking: reasoning on the first try, the fast local path on the retry. */
 async function askRound<T extends z.ZodType>(
   deps: AgentDeps,
@@ -254,59 +310,29 @@ async function askRound<T extends z.ZodType>(
 ): Promise<Round> {
   const config = deps.policy.models[options.agent as keyof typeof deps.policy.models];
   const { attempt } = round;
-  const last = attempt >= round.attempts;
-  const reasoning = reasoningBudget(config.thinking) > 0 && attempt === 1 && options.fast !== true;
   const route = routeOf(attempt, config.thinking, round.attempts);
-  const lane = route === "own" ? config.model : route === "fast" ? "fast" : "ollama";
-  const structured = Boolean(options.jsonSchema && deps.policy.structuredOutput);
+  const ctx: RoundContext = {
+    attempt,
+    last: attempt >= round.attempts,
+    reasoning: reasoningBudget(config.thinking) > 0 && attempt === 1 && options.fast !== true,
+    structured: Boolean(options.jsonSchema && deps.policy.structuredOutput),
+    route,
+    lane: route === "own" ? config.model : route === "fast" ? "fast" : "ollama",
+  };
   const retryNote = `\n\nNote: the previous answer could not be used (${round.previousProblem}). Answer again with the JSON object only.`;
-
   let tried: Attempt;
   try {
     tried = await attemptOnce(
       deps,
       options,
       attempt === 1 ? options.prompt : options.prompt + retryNote,
-      reasoning,
+      ctx.reasoning,
       route,
     );
   } catch (failure) {
-    const problem = failure instanceof Error ? failure.message : String(failure);
-    logStep(deps, options.agent, {
-      attempt,
-      last,
-      ok: false,
-      summary: `model call failed: ${problem}`,
-      reasoning,
-      structured,
-      route,
-      lane,
-    });
-    if (last) throw failure;
-    // A provider that just failed is given a moment before the next lane is tried.
-    if (isProviderFailure(failure)) await (deps.sleep ?? sleep)(PROVIDER_BACKOFF_MS * attempt);
-    return { done: false, problem };
+    return failedRound(deps, options.agent, ctx, failure);
   }
-
-  const { result, outcome } = tried;
-  calls.push(modelUseOf(options.agent, result, reasoning ? config.thinking : "off"));
-  // Keep the full signed receipt beside the trace, so anyone can verify it later.
-  if (result.receipt && result.receiptEnvelope) {
-    writeReceiptFile(deps.config.logging.dir, result.receipt.receipt_id, result.receiptEnvelope);
-  }
-  const ok = "value" in outcome;
-  logStep(deps, options.agent, {
-    attempt,
-    last,
-    ok,
-    summary: ok ? `valid answer on attempt ${attempt}` : outcome.problem,
-    reasoning,
-    result,
-    structured: tried.structured,
-    route,
-    lane,
-  });
-  return ok ? { done: true, value: outcome.value } : { done: false, problem: outcome.problem };
+  return answeredRound(deps, options.agent, ctx, calls, config.thinking, tried);
 }
 
 /** Ask the agent's configured model for one JSON object that matches `schema`. Tries again once on a bad answer. */

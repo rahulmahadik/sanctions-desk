@@ -1,6 +1,7 @@
 import {
   AppError,
   type Citation,
+  type DecisionRecord,
   type ModelUseInput,
   type QueryEvidenceInput,
   type ReviewResponse,
@@ -211,19 +212,70 @@ async function deliberate(
   return { output, approved, rounds, criticQueries, models, criticRan: true, unavailable: undefined };
 }
 
-export async function runReview(deps: AgentDeps, request: ReviewRequest): Promise<ReviewResponse> {
-  const started = performance.now();
-  const { trace, policy } = deps;
-  triage(deps, "customer", request.alertId);
+/** Values the review took from verified notes, shown as such and never as values of the customer record. */
+function documentaryOf(match: MatchResult): DecisionRecord["documentary"] {
+  if (match.documentaryDateOfBirth === undefined || match.documentaryCheckReference === undefined) return undefined;
+  return [
+    {
+      field: "date_of_birth" as const,
+      value: match.documentaryDateOfBirth,
+      source: "customer.notes",
+      check_reference: match.documentaryCheckReference,
+      label: `date of birth from verified note (check ref ${match.documentaryCheckReference})`,
+    },
+  ];
+}
 
-  const prepared = await prepare(deps, request.alertId, request.options);
+const unmetNames = (a: NonNullable<DecisionRecord["autonomy"]>): string =>
+  a.conditions
+    .filter((c) => !c.met)
+    .map((c) => c.name)
+    .join(", ") || "sampled for quality assurance";
+
+/** What the autonomy setting does with this recommendation. At level 0 nothing is recorded: a person decides. */
+function autonomyOf(
+  deps: AgentDeps,
+  evidence: EvidenceBundle,
+  modelDecision: DecisionOutput["decision"],
+  guard: ReturnType<typeof applyPolicyGuard>,
+  criticVerdict: "approved" | "rejected" | "escalated" | "not_run",
+): DecisionRecord["autonomy"] {
+  if (deps.policy.autonomy.level !== 1) return undefined;
+  const autonomy = decideAutonomy({
+    policy: deps.policy,
+    killSwitch: deps.killSwitch?.() ?? false,
+    final: guard.decision,
+    modelDecision,
+    firstFinding: evidence.hybrid
+      ? { decision: evidence.hybrid.decision, settled: evidence.hybrid.settled }
+      : undefined,
+    confidence: guard.confidence,
+    critic: { final_verdict: criticVerdict },
+    guards: guard.verdicts,
+    dataQualityFailed: evidence.dq.some((d) => d.failed),
+    autoClosedToday: deps.autoClosedToday?.() ?? 0,
+    draw: deps.random?.() ?? randomDraw(),
+  });
+  deps.trace.log({
+    agent: "policy_guard",
+    action: "autonomy",
+    status: "ok",
+    output_summary: autonomy.statement ?? `${autonomy.outcome}: ${unmetNames(autonomy)}`,
+    detail: { outcome: autonomy.outcome, level_in_force: autonomy.level_in_force },
+  });
+  return autonomy;
+}
+
+/** The policy guard, then the challenger's last look at a close, then the guard again if the challenger changed it. */
+async function settle(
+  deps: AgentDeps,
+  request: ReviewRequest,
+  prepared: Awaited<ReturnType<typeof prepare>>,
+  deliberated: Awaited<ReturnType<typeof deliberate>>,
+) {
   const { evidence, match } = prepared;
-  const { output, approved, rounds, criticQueries, models, criticRan, unavailable } = await deliberate(
-    deps,
-    prepared,
-    request.options,
-  );
-
+  const { output, approved, models, unavailable } = deliberated;
+  const { policy } = deps;
   let finalOutput = output;
   let guard = applyPolicyGuard({ policy, decision: output, match, evidence, criticUnresolved: !approved });
   // A close that the policy guard has not already raised gets a last look from the challenger, when the policy
@@ -244,7 +296,7 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     guard.verdicts.push({ guard: "model_decision", verdict: "block", detail: unavailable });
     guard.confidence = Math.min(guard.confidence, 0.3);
   }
-  trace.log({
+  deps.trace.log({
     agent: "policy_guard",
     action: "apply_policy",
     status: guard.changed ? "blocked" : "ok",
@@ -252,61 +304,32 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     output_summary: guard.changed ? `${finalOutput.decision} raised to ${guard.decision}` : `${guard.decision} stands`,
     detail: { verdicts: guard.verdicts.map((v) => `${v.guard}:${v.verdict}`) },
   });
+  return { finalOutput, guard, challenged: challenged !== undefined };
+}
 
+const rationaleOf = (finalOutput: DecisionOutput, guard: ReturnType<typeof applyPolicyGuard>): string => {
   const reasons = guard.verdicts
     .filter((v) => v.verdict === "block")
     .map((v) => v.detail)
     .filter((d): d is string => !!d);
-  const rationale = guard.changed
-    ? `${finalOutput.rationale} Policy check: ${reasons.join("; ")}.`
-    : finalOutput.rationale;
-  const documentary =
-    match.documentaryDateOfBirth !== undefined && match.documentaryCheckReference !== undefined
-      ? [
-          {
-            field: "date_of_birth" as const,
-            value: match.documentaryDateOfBirth,
-            source: "customer.notes",
-            check_reference: match.documentaryCheckReference,
-            label: `date of birth from verified note (check ref ${match.documentaryCheckReference})`,
-          },
-        ]
-      : undefined;
-  // What the autonomy setting does with this recommendation. At level 0 nothing is recorded: a person decides.
-  const autonomy =
-    policy.autonomy.level === 1
-      ? decideAutonomy({
-          policy,
-          killSwitch: deps.killSwitch?.() ?? false,
-          final: guard.decision,
-          modelDecision: output.decision,
-          firstFinding: evidence.hybrid
-            ? { decision: evidence.hybrid.decision, settled: evidence.hybrid.settled }
-            : undefined,
-          confidence: guard.confidence,
-          critic: { final_verdict: !criticRan ? "not_run" : approved ? "approved" : "escalated" },
-          guards: guard.verdicts,
-          dataQualityFailed: evidence.dq.some((d) => d.failed),
-          autoClosedToday: deps.autoClosedToday?.() ?? 0,
-          draw: deps.random?.() ?? randomDraw(),
-        })
-      : undefined;
-  if (autonomy) {
-    trace.log({
-      agent: "policy_guard",
-      action: "autonomy",
-      status: autonomy.outcome === "human_review" ? "ok" : "ok",
-      output_summary:
-        autonomy.statement ??
-        `${autonomy.outcome}: ${
-          autonomy.conditions
-            .filter((c) => !c.met)
-            .map((c) => c.name)
-            .join(", ") || "sampled for quality assurance"
-        }`,
-      detail: { outcome: autonomy.outcome, level_in_force: autonomy.level_in_force },
-    });
-  }
+  return guard.changed ? `${finalOutput.rationale} Policy check: ${reasons.join("; ")}.` : finalOutput.rationale;
+};
+
+export async function runReview(deps: AgentDeps, request: ReviewRequest): Promise<ReviewResponse> {
+  const started = performance.now();
+  const { trace, policy } = deps;
+  triage(deps, "customer", request.alertId);
+
+  const prepared = await prepare(deps, request.alertId, request.options);
+  const { evidence, match } = prepared;
+  const deliberated = await deliberate(deps, prepared, request.options);
+  const { output, approved, rounds, criticQueries, models, criticRan } = deliberated;
+  const { finalOutput, guard, challenged } = await settle(deps, request, prepared, deliberated);
+
+  const rationale = rationaleOf(finalOutput, guard);
+  const criticVerdict = !criticRan ? "not_run" : approved ? "approved" : "escalated";
+  const documentary = documentaryOf(match);
+  const autonomy = autonomyOf(deps, evidence, output.decision, guard, criticVerdict);
   const record = buildDecisionRecord({
     autonomy,
     documentary,
@@ -320,7 +343,7 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     criticQueries,
     models,
     criticRounds: rounds,
-    criticVerdict: !criticRan ? "not_run" : approved ? "approved" : "escalated",
+    criticVerdict,
   });
   const file = writeDecisionRecord(deps.config.logging.dir, record);
   trace.log({

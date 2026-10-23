@@ -108,6 +108,68 @@ async function decide(
   return { decision: (answer.decision ?? "ERROR") as Decision | "ERROR", autonomy: answer.autonomy?.outcome };
 }
 
+const RISK = "CLOSE_FALSE_POSITIVE";
+
+/** One case replayed under both policies. */
+async function replayCase(
+  deps: WhatIfDeps,
+  input: { current: Policy; proposed: Policy },
+  dir: string,
+  c: WhatIfCase,
+  closedSoFar: number,
+): Promise<{ row: WhatIfRow; closed: boolean }> {
+  const base = { case_id: c.case_id, kind: c.kind, group: c.group, expected: c.expected };
+  try {
+    const current = (await decide(deps, input.current, dir, `v${input.current.version}`, c)).decision;
+    const answer = await decide(deps, input.proposed, dir, `v${input.proposed.version}`, c, () => closedSoFar);
+    const proposed = answer.decision;
+    return {
+      closed: answer.autonomy === "auto_closed",
+      row: {
+        ...base,
+        current,
+        proposed,
+        changed: current !== proposed,
+        new_false_close: proposed === RISK && c.must_not.includes(RISK),
+        less_cautious: (CAUTION[proposed] ?? 0) < (CAUTION[current] ?? 0),
+        ...(answer.autonomy
+          ? {
+              autonomy: answer.autonomy,
+              autonomy_false_close: answer.autonomy === "auto_closed" && c.must_not.includes(RISK),
+            }
+          : {}),
+      },
+    };
+  } catch (err) {
+    return {
+      closed: false,
+      row: {
+        ...base,
+        current: "ERROR",
+        proposed: "ERROR",
+        changed: false,
+        new_false_close: false,
+        less_cautious: false,
+        error: (err instanceof Error ? err.message : String(err)).slice(0, 200),
+      },
+    };
+  }
+}
+
+const autonomySummary = (proposed: Policy, rows: readonly WhatIfRow[]): AutonomyWhatIf | undefined =>
+  proposed.autonomy.level === 1
+    ? {
+        level: 1,
+        cases: rows.length,
+        auto_closed: rows.filter((r) => r.autonomy === "auto_closed").length,
+        qa_sample: rows.filter((r) => r.autonomy === "qa_sample").length,
+        human_review: rows.filter((r) => r.autonomy === "human_review").length,
+        false_closes: rows.filter((r) => r.autonomy_false_close).length,
+        cap: proposed.autonomy.autoClose.dailyCap,
+        qa_rate: proposed.autonomy.autoClose.qaSampleRate,
+      }
+    : undefined;
+
 /**
  * Review the same cases under the active policy and under a draft, and report what changes. Nothing is kept:
  * the runs write into a temporary folder that is removed, so the audit trail and the sealed records of real
@@ -122,41 +184,14 @@ export async function replayWhatIf(
   let closedSoFar = 0;
   try {
     for (const c of input.cases) {
-      const base = { case_id: c.case_id, kind: c.kind, group: c.group, expected: c.expected };
-      try {
-        const current = (await decide(deps, input.current, dir, `v${input.current.version}`, c)).decision;
-        const answer = await decide(deps, input.proposed, dir, `v${input.proposed.version}`, c, () => closedSoFar);
-        const proposed = answer.decision;
-        if (answer.autonomy === "auto_closed") closedSoFar += 1;
-        rows.push({
-          ...base,
-          current,
-          proposed,
-          changed: current !== proposed,
-          new_false_close: proposed === "CLOSE_FALSE_POSITIVE" && c.must_not.includes("CLOSE_FALSE_POSITIVE"),
-          less_cautious: (CAUTION[proposed] ?? 0) < (CAUTION[current] ?? 0),
-          ...(answer.autonomy
-            ? {
-                autonomy: answer.autonomy,
-                autonomy_false_close: answer.autonomy === "auto_closed" && c.must_not.includes("CLOSE_FALSE_POSITIVE"),
-              }
-            : {}),
-        });
-      } catch (err) {
-        rows.push({
-          ...base,
-          current: "ERROR",
-          proposed: "ERROR",
-          changed: false,
-          new_false_close: false,
-          less_cautious: false,
-          error: (err instanceof Error ? err.message : String(err)).slice(0, 200),
-        });
-      }
+      const done = await replayCase(deps, input, dir, c, closedSoFar);
+      if (done.closed) closedSoFar += 1;
+      rows.push(done.row);
     }
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+  const autonomy = autonomySummary(input.proposed, rows);
   return {
     current_version: input.current.version,
     proposed_version: input.proposed.version,
@@ -165,20 +200,7 @@ export async function replayWhatIf(
     new_false_closes: rows.filter((r) => r.new_false_close).length,
     less_cautious: rows.filter((r) => r.less_cautious).length,
     errors: rows.filter((r) => r.current === "ERROR" || r.proposed === "ERROR").length,
-    ...(input.proposed.autonomy.level === 1
-      ? {
-          autonomy: {
-            level: 1 as const,
-            cases: rows.length,
-            auto_closed: rows.filter((r) => r.autonomy === "auto_closed").length,
-            qa_sample: rows.filter((r) => r.autonomy === "qa_sample").length,
-            human_review: rows.filter((r) => r.autonomy === "human_review").length,
-            false_closes: rows.filter((r) => r.autonomy_false_close).length,
-            cap: input.proposed.autonomy.autoClose.dailyCap,
-            qa_rate: input.proposed.autonomy.autoClose.qaSampleRate,
-          },
-        }
-      : {}),
+    ...(autonomy ? { autonomy } : {}),
     rows,
   };
 }

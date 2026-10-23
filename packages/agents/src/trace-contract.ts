@@ -73,31 +73,36 @@ function thinkingText(thinking: DecisionRecord["models"][number]["thinking"]): s
   return thinking === "on" ? "token budget" : `budget ${thinking.budgetTokens} tokens`;
 }
 
-export function buildTraceContract(record: DecisionRecord, costs: Config["costs"]): TraceContract {
-  const models = record.models.map((m) => {
-    const cloud = m.route_kind === "cloud";
-    const tokensIn = m.tokens_in ?? 0;
-    const tokensOut = m.tokens_out ?? 0;
-    const cost = cloud
+type ModelRow = TraceContract["cost"]["models"][number];
+
+/** One model call as the ledger shows it: what was asked, what answered, the receipt, and the cost under the unit costs. */
+function modelRowOf(m: DecisionRecord["models"][number], costs: Config["costs"]): ModelRow {
+  const tokensIn = m.tokens_in ?? 0;
+  const tokensOut = m.tokens_out ?? 0;
+  const cost =
+    m.route_kind === "cloud"
       ? (tokensIn * costs.cloudInputPerMillionTokens + tokensOut * costs.cloudOutputPerMillionTokens) / 1_000_000
       : ((tokensIn + tokensOut) * costs.localPerMillionTokens) / 1_000_000;
-    return {
-      agent: m.agent,
-      model_requested: m.model_requested,
-      model_routed: m.model_routed,
-      provider: m.provider,
-      route_kind: m.route_kind,
-      reasoning: thinkingText(m.thinking),
-      ...(m.tokens_in !== undefined ? { tokens_in: m.tokens_in } : {}),
-      ...(m.tokens_out !== undefined ? { tokens_out: m.tokens_out } : {}),
-      ...(m.latency_ms !== undefined ? { latency_ms: m.latency_ms } : {}),
-      receipt_status: m.receipt?.verification ?? "none",
-      ...(m.receipt?.receipt_id ? { receipt_id: m.receipt.receipt_id } : {}),
-      ...(m.app ? { app: m.app } : {}),
-      ...(m.receipt?.from_cache !== undefined ? { from_cache: m.receipt.from_cache } : {}),
-      cost: round(cost),
-    };
-  });
+  return {
+    agent: m.agent,
+    model_requested: m.model_requested,
+    model_routed: m.model_routed,
+    provider: m.provider,
+    route_kind: m.route_kind,
+    reasoning: thinkingText(m.thinking),
+    ...(m.tokens_in !== undefined ? { tokens_in: m.tokens_in } : {}),
+    ...(m.tokens_out !== undefined ? { tokens_out: m.tokens_out } : {}),
+    ...(m.latency_ms !== undefined ? { latency_ms: m.latency_ms } : {}),
+    receipt_status: m.receipt?.verification ?? "none",
+    ...(m.receipt?.receipt_id ? { receipt_id: m.receipt.receipt_id } : {}),
+    ...(m.app ? { app: m.app } : {}),
+    ...(m.receipt?.from_cache !== undefined ? { from_cache: m.receipt.from_cache } : {}),
+    cost: round(cost),
+  };
+}
+
+export function buildTraceContract(record: DecisionRecord, costs: Config["costs"]): TraceContract {
+  const models = record.models.map((m) => modelRowOf(m, costs));
 
   const byRole = new Map<string, { queries: number; sources: Set<string>; masked: Set<string> }>();
   for (const q of record.queries) {

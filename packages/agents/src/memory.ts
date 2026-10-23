@@ -61,6 +61,43 @@ function memoryOf(deps: AgentDeps, evidence: EvidenceBundle, disposition: Row, t
   };
 }
 
+type Source = Map<string, { row: Row; desk: boolean }>;
+
+/** A person's later decision beats an earlier one: the earlier memory stops influencing reviews, and the ledger says who and why. */
+function supersedeEarlier(memory: PointerMemory, source: Source): void {
+  for (const [id, mine] of source) {
+    if (!mine.desk) continue;
+    for (const [otherId, other] of source) {
+      if (otherId === id || (other.row.decided_at ?? "") >= (mine.row.decided_at ?? "")) continue;
+      if ((other.row.decision ?? "") === (mine.row.decision ?? "")) continue;
+      try {
+        memory.override({
+          memoryId: otherId,
+          actor: mine.row.decided_by ?? "analyst",
+          reason: mine.row.reason ?? "a later decision on this desk",
+        });
+      } catch {
+        // already overridden by an earlier pass
+      }
+    }
+  }
+}
+
+function detailsOf(recalled: readonly RecalledMemory[], source: Source): Map<string, MemoryDetail> {
+  const details = new Map<string, MemoryDetail>();
+  for (const r of recalled) {
+    const s = source.get(r.memory.memory_id);
+    details.set(r.memory.memory_id, {
+      decision: r.memory.decision,
+      state: r.overridden ? "overridden" : r.usable ? "fresh" : "stale",
+      decided_by: s?.row.decided_by ?? "bank record",
+      reason: s?.row.reason ?? s?.row.reason_codes ?? "",
+      source: s?.desk ? "desk_decision" : "bank_disposition",
+    });
+  }
+  return details;
+}
+
 /** Recall what was decided before about this customer and listed party, and check it still holds. */
 export async function recallMemory(
   deps: AgentDeps,
@@ -101,8 +138,7 @@ export async function recallMemory(
   const bankRows = found.rows.filter((d) => d.entry_id === evidence.entry.entry_id);
   // Decisions people made on this desk about the same customer and entry. They are kept as pointers too.
   const deskRows = deps.analystDecisions?.(customerId, evidence.entry.entry_id ?? "") ?? [];
-  const relevant = [...bankRows, ...deskRows];
-  const source = new Map<string, { row: Row; desk: boolean }>();
+  const source: Source = new Map();
   for (const [rows, desk] of [
     [bankRows, false],
     [deskRows, true],
@@ -112,37 +148,8 @@ export async function recallMemory(
       source.set(record.id, { row: disposition, desk });
     }
   }
-  // A person's later decision beats an earlier one: the earlier memory stops influencing reviews, and the ledger
-  // records who overrode it and why.
-  for (const [id, mine] of source) {
-    if (!mine.desk) continue;
-    for (const [otherId, other] of source) {
-      if (otherId === id || (other.row.decided_at ?? "") >= (mine.row.decided_at ?? "")) continue;
-      if ((other.row.decision ?? "") === (mine.row.decision ?? "")) continue;
-      try {
-        memory.override({
-          memoryId: otherId,
-          actor: mine.row.decided_by ?? "analyst",
-          reason: mine.row.reason ?? "a later decision on this desk",
-        });
-      } catch {
-        // already overridden by an earlier pass
-      }
-    }
-  }
-  const recalled =
-    relevant.length > 0 ? await memory.recall(entryTable, { entry_id: evidence.entry.entry_id ?? "" }) : [];
-  const details = new Map<string, MemoryDetail>();
-  for (const r of recalled) {
-    const s = source.get(r.memory.memory_id);
-    details.set(r.memory.memory_id, {
-      decision: r.memory.decision,
-      state: r.overridden ? "overridden" : r.usable ? "fresh" : "stale",
-      decided_by: s?.row.decided_by ?? "bank record",
-      reason: s?.row.reason ?? s?.row.reason_codes ?? "",
-      source: s?.desk ? "desk_decision" : "bank_disposition",
-    });
-  }
+  supersedeEarlier(memory, source);
+  const recalled = source.size > 0 ? await memory.recall(entryTable, { entry_id: evidence.entry.entry_id ?? "" }) : [];
 
   const fresh = recalled.some((r) => r.usable && r.memory.decision === "CLOSE_FALSE_POSITIVE");
   const stale = recalled.some((r) => r.reopen);
@@ -163,5 +170,5 @@ export async function recallMemory(
         : `${recalled.length} earlier decision(s): ${recalled.map((r) => `${r.memory.decision} (${r.pointerStates.join("+")})`).join("; ")}`,
     detail: { fresh, stale },
   });
-  return { recalled, fresh, stale, uses, details };
+  return { recalled, fresh, stale, uses, details: detailsOf(recalled, source) };
 }
