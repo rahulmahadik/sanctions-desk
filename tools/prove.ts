@@ -175,10 +175,11 @@ async function criticMutation(): Promise<CheckOutcome> {
       mutations_caught: number;
       unchanged_decisions: number;
       unchanged_decisions_approved: number;
+      evidence_standard_cases: string;
     };
     return {
       ok: r.code === 0 && s.mutations > 0 && s.mutations_caught === s.mutations,
-      detail: `${s.mutations_caught}/${s.mutations} false cited facts caught over ${s.decisions} decisions; ${s.unchanged_decisions_approved}/${s.unchanged_decisions} unchanged decisions approved (no false alarm)`,
+      detail: `${s.mutations_caught}/${s.mutations} false cited facts caught over ${s.decisions} decisions; ${s.unchanged_decisions_approved}/${s.unchanged_decisions} unchanged decisions approved (no false alarm); evidence standard: ${s.evidence_standard_cases}`,
       output: r.output,
     };
   } catch {

@@ -15,6 +15,7 @@
  */
 import { writeFileSync } from "node:fs";
 import {
+  assessNote,
   clientFor,
   decide,
   gatherEvidence,
@@ -23,6 +24,7 @@ import {
   sampleRules,
   screenFreeText,
   screenInbound,
+  validateScreenerAnswer,
 } from "@sanctions-desk/agents";
 import {
   createFallbackRulesGenerator,
@@ -173,6 +175,53 @@ for (const alertId of alertIds) {
     rows.push({ alert_id: alertId, error: String(err).slice(0, 160) });
   }
 }
+// ---- the evidence standard: what makes a note documentary is decided in code, from the note's own text --------------
+// Each case: a documentary note, and a change that must take away its documentary status (or must not add it).
+const NOTE = "Identity verified (KYC-482113) on 2024-05-02: passport ZP1234567, date of birth 1975-03-02.";
+const standardCases: Array<{ name: string; text: string; claim?: string; mustBeDocumentary: boolean }> = [
+  { name: "unchanged documentary note", text: NOTE, mustBeDocumentary: true },
+  {
+    name: "document number removed from the note",
+    text: NOTE.replace("passport ZP1234567, ", ""),
+    mustBeDocumentary: false,
+  },
+  { name: "check reference removed from the note", text: NOTE.replace("(KYC-482113) ", ""), mustBeDocumentary: false },
+  {
+    name: "date removed from the note",
+    text: NOTE.replace(" on 2024-05-02", "").replace(", date of birth 1975-03-02", ""),
+    mustBeDocumentary: false,
+  },
+  {
+    name: "the model claims a made-up document number for a note that has none",
+    text: "Customer says the passport copy is on file, KYC-482113, 2024-05-02.",
+    claim: "ZP9999999",
+    mustBeDocumentary: false,
+  },
+];
+const standardRows = standardCases.map((c) => {
+  const facts = validateScreenerAnswer(
+    {
+      risk_signals: [],
+      documentary_evidence: [
+        {
+          field: "customer.notes",
+          check_ref: "KYC-482113",
+          doc_number: c.claim ?? "ZP1234567",
+          date: "2024-05-02",
+          dob: null,
+          nationality: null,
+          named_party: null,
+        },
+      ],
+      injection: { detected: false, spans: [] },
+    },
+    { policy, fields: [{ id: "customer.notes", text: c.text, truncated: false }], standard: policy.evidenceStandard },
+  );
+  const documentary =
+    facts.documentary[0]?.meetsStandard === true && assessNote({ text: c.text }, policy.evidenceStandard).documentary;
+  return { case: c.name, documentary, expected: c.mustBeDocumentary, pass: documentary === c.mustBeDocumentary };
+});
+
 const done = rows.filter((r) => !r.error && r.testable);
 const untestable = rows.filter((r) => !r.error && !r.testable);
 const summary = {
@@ -205,11 +254,15 @@ const summary = {
     ]),
   ),
   errors: rows.filter((r) => r.error).length,
+  evidence_standard_cases: `${standardRows.filter((r) => r.pass).length} of ${standardRows.length} pass`,
+  // Not checked yet: whether the document number in a note equals a document on the customer record.
+  evidence_standard_not_checked:
+    "a note's document number is not yet compared with the documents on the customer record",
 };
 console.log(JSON.stringify(summary, null, 2));
 if (args.includes("--write"))
   writeFileSync(
     resolveProjectPath("eval/critic-mutation.json"),
-    `${JSON.stringify({ at: new Date().toISOString(), summary, rows, unchanged: falseAlarm }, null, 2)}\n`,
+    `${JSON.stringify({ at: new Date().toISOString(), summary, rows, unchanged: falseAlarm, evidence_standard: standardRows }, null, 2)}\n`,
   );
-process.exit(done.length > 0 && summary.mutations_caught === done.length && true ? 0 : 1);
+process.exit(done.length > 0 && summary.mutations_caught === done.length && standardRows.every((r) => r.pass) ? 0 : 1);

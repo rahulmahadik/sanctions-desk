@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-23T20:31:38.269Z",
+  "at": "2026-10-23T20:43:08.294Z",
   "summary": {
     "mode": "sample mode: saved Zetaris answers, rules-based stand-in for the models",
     "decisions": 25,
@@ -20,7 +20,9 @@
       "other list entry": "25 of 25",
       "other country code": "25 of 25"
     },
-    "errors": 0
+    "errors": 0,
+    "evidence_standard_cases": "5 of 5 pass",
+    "evidence_standard_not_checked": "a note's document number is not yet compared with the documents on the customer record"
   },
   "rows": [
     {
@@ -1894,6 +1896,38 @@
       "alert_id": "ALR-0025",
       "approved": true,
       "fact_rejections": []
+    }
+  ],
+  "evidence_standard": [
+    {
+      "case": "unchanged documentary note",
+      "documentary": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "case": "document number removed from the note",
+      "documentary": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "case": "check reference removed from the note",
+      "documentary": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "case": "date removed from the note",
+      "documentary": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "case": "the model claims a made-up document number for a note that has none",
+      "documentary": false,
+      "expected": false,
+      "pass": true
     }
   ]
 }
