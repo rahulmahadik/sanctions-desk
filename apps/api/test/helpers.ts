@@ -7,6 +7,7 @@ import {
   type Generator,
   loadConfig,
   loadPolicyFile,
+  type Policy,
   PolicyStore,
   RunEventBus,
   type UsersFile,
@@ -41,6 +42,8 @@ export interface TestAppOptions {
   /** Most tests run with no sign-in. The auth tests set the mode and the users. */
   authMode?: AuthMode;
   users?: UsersFile;
+  /** Change the starting policy, for example to switch autonomy on. */
+  policy?: (p: Policy) => Policy;
 }
 
 const unusedGenerator: Generator = async () => {
@@ -65,7 +68,8 @@ export async function makeApp(
 
   const config = loadConfig({ env: opts.env ?? {}, overridesPath });
   const bus = new RunEventBus({ replayLimit: config.events.replayLimit, maxRuns: config.events.maxRuns });
-  const policies = new PolicyStore({ ...loadPolicyFile(config.policy.file), version: 1 });
+  const startPolicy = { ...loadPolicyFile(config.policy.file), version: 1 };
+  const policies = new PolicyStore(opts.policy ? opts.policy(startPolicy) : startPolicy);
   const app = await buildApp({
     config,
     logger: createLogger(config),

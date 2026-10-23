@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -26,6 +27,10 @@ export interface WhatIfRow {
   new_false_close: boolean;
   /** The proposed policy is less cautious: it moves toward closing. */
   less_cautious: boolean;
+  /** What the proposed policy's autonomy setting would do with the case; absent when it is at level 0. */
+  autonomy?: "human_review" | "auto_closed" | "qa_sample";
+  /** The case would be closed automatically although the exam says it carries real risk. */
+  autonomy_false_close?: boolean;
   error?: string;
 }
 
@@ -37,7 +42,22 @@ export interface WhatIfReport {
   new_false_closes: number;
   less_cautious: number;
   errors: number;
+  /** For a draft at autonomy level 1: how it would treat these cases. The exam's false closes must be 0. */
+  autonomy?: AutonomyWhatIf;
   rows: WhatIfRow[];
+}
+
+export interface AutonomyWhatIf {
+  level: 1;
+  cases: number;
+  auto_closed: number;
+  qa_sample: number;
+  human_review: number;
+  /** Cases closed automatically that carry real risk. */
+  false_closes: number;
+  /** The daily cap and the sample rate used. */
+  cap: number;
+  qa_rate: number;
 }
 
 /** From most to least cautious. */
@@ -55,15 +75,37 @@ export interface WhatIfDeps {
   now: () => Date;
 }
 
-async function decide(deps: WhatIfDeps, policy: Policy, dir: string, tag: string, c: WhatIfCase) {
+/** A stable number in [0, 1) for a case, so a replay samples the same cases every time. */
+const drawFor = (policyVersion: number, caseId: string): number => {
+  const h = createHash("sha256").update(`${policyVersion}:${caseId}`).digest();
+  return h.readUInt32BE(0) / 2 ** 32;
+};
+
+async function decide(
+  deps: WhatIfDeps,
+  policy: Policy,
+  dir: string,
+  tag: string,
+  c: WhatIfCase,
+  closedSoFar: () => number = () => 0,
+) {
   const runId = `whatif-${tag}-${c.case_id}`;
   const trace = createTraceLogger({ runId, dir, stdout: false, policyVersion: policy.version });
   const config = { ...deps.config, logging: { ...deps.config.logging, dir } };
   const answer = await runReview(
-    { config, policy, zetaris: deps.zetaris, generator: deps.generator, trace, now: deps.now },
+    {
+      config,
+      policy,
+      zetaris: deps.zetaris,
+      generator: deps.generator,
+      trace,
+      now: deps.now,
+      random: () => drawFor(policy.version, c.case_id),
+      autoClosedToday: closedSoFar,
+    },
     { runId, alertId: c.alert_id, sampleMode: deps.config.sampleMode },
   );
-  return (answer.decision ?? "ERROR") as Decision | "ERROR";
+  return { decision: (answer.decision ?? "ERROR") as Decision | "ERROR", autonomy: answer.autonomy?.outcome };
 }
 
 /**
@@ -77,12 +119,15 @@ export async function replayWhatIf(
 ): Promise<WhatIfReport> {
   const dir = mkdtempSync(join(tmpdir(), "whatif-"));
   const rows: WhatIfRow[] = [];
+  let closedSoFar = 0;
   try {
     for (const c of input.cases) {
       const base = { case_id: c.case_id, kind: c.kind, group: c.group, expected: c.expected };
       try {
-        const current = await decide(deps, input.current, dir, `v${input.current.version}`, c);
-        const proposed = await decide(deps, input.proposed, dir, `v${input.proposed.version}`, c);
+        const current = (await decide(deps, input.current, dir, `v${input.current.version}`, c)).decision;
+        const answer = await decide(deps, input.proposed, dir, `v${input.proposed.version}`, c, () => closedSoFar);
+        const proposed = answer.decision;
+        if (answer.autonomy === "auto_closed") closedSoFar += 1;
         rows.push({
           ...base,
           current,
@@ -90,6 +135,12 @@ export async function replayWhatIf(
           changed: current !== proposed,
           new_false_close: proposed === "CLOSE_FALSE_POSITIVE" && c.must_not.includes("CLOSE_FALSE_POSITIVE"),
           less_cautious: (CAUTION[proposed] ?? 0) < (CAUTION[current] ?? 0),
+          ...(answer.autonomy
+            ? {
+                autonomy: answer.autonomy,
+                autonomy_false_close: answer.autonomy === "auto_closed" && c.must_not.includes("CLOSE_FALSE_POSITIVE"),
+              }
+            : {}),
         });
       } catch (err) {
         rows.push({
@@ -114,6 +165,20 @@ export async function replayWhatIf(
     new_false_closes: rows.filter((r) => r.new_false_close).length,
     less_cautious: rows.filter((r) => r.less_cautious).length,
     errors: rows.filter((r) => r.current === "ERROR" || r.proposed === "ERROR").length,
+    ...(input.proposed.autonomy.level === 1
+      ? {
+          autonomy: {
+            level: 1 as const,
+            cases: rows.length,
+            auto_closed: rows.filter((r) => r.autonomy === "auto_closed").length,
+            qa_sample: rows.filter((r) => r.autonomy === "qa_sample").length,
+            human_review: rows.filter((r) => r.autonomy === "human_review").length,
+            false_closes: rows.filter((r) => r.autonomy_false_close).length,
+            cap: input.proposed.autonomy.autoClose.dailyCap,
+            qa_rate: input.proposed.autonomy.autoClose.qaSampleRate,
+          },
+        }
+      : {}),
     rows,
   };
 }
