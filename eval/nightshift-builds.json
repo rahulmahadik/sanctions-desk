@@ -1,0 +1,15 @@
+{
+  "note": "Nightshift builds the runs were made on. The runtime version is as told by Meterless (the runtime has no version endpoint); the app bundle version is read from the installed application. Each run takes the build whose period contains its start time.",
+  "builds": [
+    {
+      "runtime": "0.6.2",
+      "app_bundle": "1.2.1",
+      "from": "2026-10-20T00:00:00Z",
+      "until": null,
+      "known_limits": [
+        "explicit model IDs are coerced to auto",
+        "cloud first-token limit fixed at 45 s (502s on slow cloud answers)"
+      ]
+    }
+  ]
+}

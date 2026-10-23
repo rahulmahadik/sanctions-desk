@@ -36,6 +36,18 @@ const secretValues = Object.entries(process.env)
   .map(([, v]) => v as string);
 
 const counts = new Map<string, number>();
+/** The Nightshift build in force when a run started, from eval/nightshift-builds.json (null if not listed). */
+function nightshiftBuildAt(startedAt: string): { runtime: string; app_bundle: string; known_limits: string[] } | null {
+  const file = resolveProjectPath("eval/nightshift-builds.json");
+  if (!existsSync(file)) return null;
+  const { builds } = JSON.parse(readFileSync(file, "utf8")) as {
+    builds: Array<{ runtime: string; app_bundle: string; from: string; until: string | null; known_limits: string[] }>;
+  };
+  const at = Date.parse(startedAt);
+  const b = builds.find((x) => at >= Date.parse(x.from) && (x.until === null || at < Date.parse(x.until)));
+  return b ? { runtime: b.runtime, app_bundle: b.app_bundle, known_limits: b.known_limits } : null;
+}
+
 function redact(text: string): string {
   let out = text.split(`${root}/`).join("");
   for (const value of secretValues) out = out.split(value).join("[redacted]");
@@ -134,6 +146,7 @@ for (const { file, r } of chosen.values()) {
     policy_version: r.policy_version,
     features: r.features ?? null,
     // How the Nightshift cockpit bound each app identity during the run (also inside features).
+    nightshift_build: nightshiftBuildAt(r.started_at),
     app_binds: (r.features as { cockpit_binds?: Record<string, string> } | undefined)?.cockpit_binds ?? null,
     models: r.models,
     cases: r.cases.length,
