@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { FirstRun } from "../components/FirstRun";
 import { HeadlineStrip } from "../components/HeadlineStrip";
 import { UserSwitcher } from "../components/UserSwitcher";
 import "./globals.css";
@@ -22,9 +23,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link href="/policy">Policy studio</Link>
               <Link href="/exam">Exam results</Link>
               <Link href="/governance">Governance</Link>
+              <Link href="/help">Help</Link>
             </nav>
             <UserSwitcher />
           </header>
+          <FirstRun />
           <HeadlineStrip />
           <main>{children}</main>
         </div>

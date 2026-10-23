@@ -10,6 +10,22 @@ Everything below works in sample mode (`SAMPLE_MODE=true`), which needs no exter
 
 The `request_id` is also returned in the `x-request-id` header; send your own `x-request-id` to correlate (letters, digits, `.`, `_`, `-`, up to 64 characters).
 
+## People and decisions
+
+Once sign-in is on, every route except `/health` needs `Authorization: Bearer <token>`. In sample mode a demo user can be chosen with the header `X-Demo-User` (`analyst_demo`, `approver_demo`, `admin_demo`).
+
+| Route                                                             | What it does                                                                                     |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `GET /me`                                                         | Who you are, what you may do, and the demo users in sample mode                                  |
+| `GET /cases/{alertId}/human`                                      | Where a recommendation stands after people acted, and the records prepared from their decision   |
+| `POST /cases/{alertId}/decision`                                  | Approve or override with a reason (`action`, `outcome` for an override, `reason`, `record_hash`) |
+| `POST /cases/{alertId}/second-approval`                           | The second approver confirms or declines a block (`approve`, `reason`, `record_hash`)            |
+| `POST /cases/{alertId}/reopen`                                    | Reopen a close the desk made automatically                                                       |
+| `GET /cases/{alertId}/actions`                                    | The prepared records, each with its seal check                                                   |
+| `GET /cases/{alertId}/file?format=md\|pdf`                        | The case file                                                                                    |
+| `GET /autonomy`, `POST /autonomy/kill-switch`, `GET /auto-closed` | The autonomy level in force, the kill switch, and the automatic closes for review                |
+| `GET /receipts/{receiptId}/verify`                                | Check a stored signed receipt: signature, pinned key, app, modes, serving model                  |
+
 ## Review an alert
 
 ```bash

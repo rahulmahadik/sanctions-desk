@@ -705,3 +705,29 @@ describe("the case file download", () => {
     expect((await screen.findByRole("alert")).textContent).toContain("no recommendation yet");
   });
 });
+
+describe("help and the first-run pointer", () => {
+  it("walks through the whole flow and says what never changes", async () => {
+    const { Help } = await import("../components/Help");
+    render(<Help />);
+    expect(screen.getByText("Try the whole flow in two minutes")).toBeTruthy();
+    for (const word of ["analyst_demo", "approver_demo", "Download case file (PDF)", "Verify receipt"]) {
+      expect(document.body.textContent).toContain(word);
+    }
+    expect(screen.getByText("What never changes")).toBeTruthy();
+    expect(document.body.textContent).toContain("A recommended block needs two different approvers.");
+  });
+
+  it("shows once, until it is dismissed, and remembers that in this browser", async () => {
+    window.localStorage.removeItem("desk.tourSeen");
+    const { FirstRun } = await import("../components/FirstRun");
+    const first = render(<FirstRun />);
+    expect(await screen.findByTestId("first-run")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+    expect(screen.queryByTestId("first-run")).toBeNull();
+    expect(window.localStorage.getItem("desk.tourSeen")).toBe("yes");
+    first.unmount();
+    render(<FirstRun />);
+    await waitFor(() => expect(screen.queryByTestId("first-run")).toBeNull());
+  });
+});
