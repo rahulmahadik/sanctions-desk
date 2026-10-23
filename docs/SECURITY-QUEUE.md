@@ -2,7 +2,7 @@
 
 Problems found by the security checks that sit in files this pass did not change (the agents, shared and data packages, the configuration and policy files, the exam tool). Each entry says what is wrong, where, the proposed fix and the test that proves it.
 
-Items 1, 2 and 3 are done (24 Oct 2026, commit `b2dae21`): the guard now splits a statement into tokens and reads every table position, and refuses what it cannot read. See the SQL guard section of [SECURITY.md](SECURITY.md).
+Items 4 and 5 are done (24 Oct 2026, see each item). Items 1, 2 and 3 are done (24 Oct 2026, commit `b2dae21`): the guard now splits a statement into tokens and reads every table position, and refuses what it cannot read. See the SQL guard section of [SECURITY.md](SECURITY.md).
 
 ## 1. The SQL guard misses a comma join after a table alias (medium) — done 24 Oct 2026, `b2dae21`
 
@@ -44,7 +44,9 @@ Items 1, 2 and 3 are done (24 Oct 2026, commit `b2dae21`): the guard now splits 
 
 **Test.** The "disguises" block in `apps/api/test/pentest-sql-guard.test.ts`: tighten each case from "refused or harmless" to "refused".
 
-## 4. The server listens on every network interface by default (low)
+## 4. The server listens on every network interface by default (low) — done 24 Oct 2026, `84432f2`, test `55b33b9`
+
+**Done.** `server.host` is `127.0.0.1` in `config/default.json` and `HOST=127.0.0.1` in `.env.example` (commit `84432f2`); the image and the compose file set `HOST=0.0.0.0` inside the container. `packages/shared/test/config.test.ts` checks the default and `apps/api/test/compose.test.ts` checks that compose still sets `HOST` for the `api` service (commit `55b33b9`).
 
 **What.** `server.host` is `0.0.0.0` in `config/default.json` and `.env.example`. Outside a container, `npm run dev` or `npm start` is then reachable from the local network, and in sample mode anyone who reaches it can pick the approver or policy-admin demo user with a header. The compose file now publishes ports on `127.0.0.1` only; the default for a bare process is still open.
 
@@ -54,7 +56,9 @@ Items 1, 2 and 3 are done (24 Oct 2026, commit `b2dae21`): the guard now splits 
 
 **Test.** `loadConfig({ env: {} }).server.host === "127.0.0.1"`, and the compose test still finds `HOST` set for the `api` service.
 
-## 5. No limit on how often a person can start reviews or call the API (medium for a shared deployment)
+## 5. No limit on how often a person can start reviews or call the API (medium for a shared deployment) — done 24 Oct 2026, `55b33b9`
+
+**Done.** `server.rateLimit` in the configuration (`RATE_LIMIT_*` in the environment): a fixed window per caller, 60 requests a minute to any route that is not a read and 10 a minute to `POST /run` and `POST /policy/whatif`, and at most 4 reviews running at once, refused rather than queued above that. The caller is the signed-in user when sign-in is on, otherwise the remote address (a demo user is only a header, so it does not count as a separate caller). Above a limit the answer is 429 with `Retry-After` and the usual error body with type `rate_limited`. Reads and `/health` are not limited. The limits are kept in memory per process. `apps/api/test/rate-limit.test.ts` covers the limit plus one, another caller, the window reset with an injected clock, per-user counting, the in-flight cap and its slot being freed when a review ends or fails.
 
 **What.** `POST /run` starts a review that makes model calls and data queries. 120 parallel `POST /guard/outbound` calls were all answered; nothing slows a caller down. A signed-in analyst, or in sample mode anyone, can run up cost and load. The body size limit (1 MiB) and the per-call timeouts exist; a per-person rate limit and a cap on reviews in flight do not.
 
