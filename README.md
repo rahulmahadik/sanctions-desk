@@ -212,6 +212,18 @@ npm run exam:report                   # builds eval/REPORT.md from the saved res
 
 Results from real runs are in `eval/results/` and summarised in [eval/REPORT.md](eval/REPORT.md). Nothing in them is edited by hand.
 
+### Check which model served each call
+
+The final runs are exported to `eval/runs/<run-id>/`: `results.json`, `run-meta.json`, `trace.jsonl.gz` (the decision events, with local paths, addresses, e-mail addresses and tokens removed) and `receipts.jsonl.gz` (the runtime's signed receipts, untouched). Anyone can check them from a fresh clone:
+
+```bash
+npm ci
+npm run evidence:verify                      # every signature, every call has a receipt, trace model = receipt model
+npm run evidence:verify -- eval/runs/<run-id>   # one run: the share of calls each model served, per step
+```
+
+The third command, `gunzip -c eval/runs/<run-id>/receipts.jsonl.gz | head -1`, shows one signed receipt: `winning_route.model` is the model that served the call and `routing` records whether the runtime coerced the requested mode. `npm run evidence:export` rebuilds the folder from `logs/` and `eval/results/` and refuses to write anything that still matches a redaction pattern.
+
 ### Benchmark command
 
 One command runs the exam unattended, once or many times, or on random batches of alert cases, and writes a results file and a summary:

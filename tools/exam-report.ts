@@ -630,6 +630,17 @@ if (have.length === 0) {
 }
 
 lines.push(
+  "## Public evidence",
+  "",
+  "The final runs are exported to `eval/runs/<run-id>/` (results, trace and the runtime's signed receipts, with local paths, addresses, e-mail addresses and tokens removed from the trace). To check which model served each call:",
+  "",
+  "1. `npm ci`",
+  "2. `npm run evidence:verify` checks every receipt signature, that every call in the trace has a receipt, that the trace and the signed receipt name the same model, and prints the share of calls each model served per step.",
+  "3. `gunzip -c eval/runs/<run-id>/receipts.jsonl.gz | head -1` shows one receipt; `winning_route.model` is the serving model.",
+  "",
+);
+
+lines.push(
   "## Limits of this exam",
   "",
   "- The customers, payments and owners are synthetic; the listed parties are real public entries. The exam shows how the system behaves on planted situations, not how it would perform on a bank's real alert volume.",

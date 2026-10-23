@@ -24,3 +24,21 @@ config/local.json
 .local/
 .next/
 apps/web/next-env.d.ts
+
+# Editor, OS and tool leftovers
+.DS_Store
+.vscode/
+.idea/
+*.log
+npm-debug.log*
+.eslintcache
+.turbo/
+test-results/
+playwright-report/
+tmp/
+*.tgz
+
+# Runtime output that is not part of the project
+action-outbox/
+outbox/
+.runtime/

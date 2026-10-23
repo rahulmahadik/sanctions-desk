@@ -11,6 +11,8 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { extname } from "node:path";
+import { gunzipSync } from "node:zlib";
+import { matches } from "./redaction-patterns.mjs";
 import { SKIP_FILES, SKIP_PREFIXES, TEXT_EXTENSIONS } from "./voice-rules.mjs";
 
 const git = (args) => execFileSync("git", args, { encoding: "utf8", maxBuffer: 1 << 30 });
@@ -87,6 +89,19 @@ for (const file of tracked) {
         findings.tracked.push({ group: r.group, file, line: i + 1, text: line.trim().slice(0, 120) });
     }
   });
+}
+
+// 1b. Exported run evidence is compressed; look inside it with the same patterns the export used.
+for (const file of tracked.filter((f) => /^eval\/runs\/.+\.gz$/.test(f))) {
+  gunzipSync(readFileSync(file))
+    .toString("utf8")
+    .split("\n")
+    .forEach((line, i) => {
+      // Receipts are signed and cannot be edited, so only the trace and results are held to the redaction patterns.
+      if (file.endsWith("receipts.jsonl.gz")) return;
+      for (const m of matches(line))
+        findings.tracked.push({ group: `exported evidence: ${m}`, file, line: i + 1, text: line.slice(0, 80) });
+    });
 }
 
 // 2. Commit messages.
