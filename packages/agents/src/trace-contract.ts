@@ -47,6 +47,10 @@ export interface TraceContract {
       tokens_out?: number;
       latency_ms?: number;
       receipt_status: string;
+      /** The id of the signed receipt, so it can be read and checked. */
+      receipt_id?: string;
+      /** The Nightshift app identity the call was sent under. */
+      app?: string;
       from_cache?: boolean;
       cost: number;
     }>;
@@ -88,6 +92,8 @@ export function buildTraceContract(record: DecisionRecord, costs: Config["costs"
       ...(m.tokens_out !== undefined ? { tokens_out: m.tokens_out } : {}),
       ...(m.latency_ms !== undefined ? { latency_ms: m.latency_ms } : {}),
       receipt_status: m.receipt?.verification ?? "none",
+      ...(m.receipt?.receipt_id ? { receipt_id: m.receipt.receipt_id } : {}),
+      ...(m.app ? { app: m.app } : {}),
       ...(m.receipt?.from_cache !== undefined ? { from_cache: m.receipt.from_cache } : {}),
       cost: round(cost),
     };

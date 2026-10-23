@@ -1,8 +1,9 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { generateKeyPairSync, sign } from "node:crypto";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { sampleRules } from "@sanctions-desk/agents";
 import { examCase, loadExam } from "@sanctions-desk/data";
-import { createFallbackRulesGenerator, loadConfig, resolveProjectPath } from "@sanctions-desk/shared";
+import { canonicalJson, createFallbackRulesGenerator, loadConfig, resolveProjectPath } from "@sanctions-desk/shared";
 import { createZetarisClient, loadQueryCache, replayFetch } from "@sanctions-desk/zetaris";
 import { describe, expect, it } from "vitest";
 import { makeApp } from "./helpers.js";
@@ -144,3 +145,52 @@ describe("the audit link", () => {
     expect((await app.inject({ method: "GET", url: "/runs/run-audit/trace" })).json().audit).toBeUndefined();
   });
 });
+
+describe("GET /receipts/:id/verify", () => {
+  it("checks a stored receipt: valid signature, pinned or not, and what it says about the call", async () => {
+    const { app, config } = await makeApp();
+    const signed = signedReceiptForTest();
+    mkdirSync(join(resolveProjectPath(config.logging.dir), "receipts"), { recursive: true });
+    writeFileSync(join(resolveProjectPath(config.logging.dir), "receipts", "rcpt_t1.json"), JSON.stringify(signed));
+    const res = await app.inject({ method: "GET", url: "/receipts/rcpt_t1/verify" });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({
+      receipt_id: "rcpt_t1",
+      status: "valid_unpinned",
+      key_pinned: false,
+      app: "sanctions-desk-guard",
+      requested_mode: "fast",
+      routed_mode: "local",
+      mode_coerced: true,
+      served_by: "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      route_kind: "local",
+    });
+    expect(res.json().body_hash).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it("reports an altered receipt as invalid, and an unknown or unsafe id as not found", async () => {
+    const { app, config } = await makeApp();
+    const signed = signedReceiptForTest();
+    signed.body.receipt.winning_route.model = "something-else";
+    mkdirSync(join(resolveProjectPath(config.logging.dir), "receipts"), { recursive: true });
+    writeFileSync(join(resolveProjectPath(config.logging.dir), "receipts", "rcpt_t2.json"), JSON.stringify(signed));
+    expect((await app.inject({ method: "GET", url: "/receipts/rcpt_t2/verify" })).json().status).toBe("invalid");
+    expect((await app.inject({ method: "GET", url: "/receipts/rcpt_missing/verify" })).statusCode).toBe(404);
+    expect((await app.inject({ method: "GET", url: "/receipts/..%2F..%2Fetc/verify" })).statusCode).toBe(404);
+  });
+});
+
+function signedReceiptForTest() {
+  const { publicKey, privateKey } = generateKeyPairSync("ed25519");
+  const body = {
+    signer: "test",
+    receipt: {
+      app: "sanctions-desk-guard",
+      app_policy: { requested_mode: "fast", routed_mode: "local", mode_coerced: true },
+      winning_route: { kind: "local", model: "local-runtime/nemotron-3.5-lightning-30b-a3b" },
+    },
+  };
+  const sig = sign(null, Buffer.from(canonicalJson(body)), privateKey).toString("base64");
+  const der = publicKey.export({ format: "der", type: "spki" });
+  return { body, pubkey_b64: der.subarray(der.length - 32).toString("base64"), sig_b64: sig };
+}

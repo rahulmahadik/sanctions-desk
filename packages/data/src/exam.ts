@@ -3,13 +3,13 @@ import { resolveProjectPath } from "@sanctions-desk/shared";
 import { z } from "zod";
 import { EXAM_GROUPS } from "./synthetic/builder.js";
 
-/** The 60-case exam: each case, the right answer, and what must never happen. */
+/** The exam files (the 70 main cases and the held-out set): each case, the right answer, and what must never happen. */
 
 const DecisionWord = z.enum(["CLOSE_FALSE_POSITIVE", "ESCALATE_L2", "RECOMMEND_BLOCK", "NEED_MORE_INFO"]);
 
 export const ExamCaseSchema = z.strictObject({
-  case_id: z.string().regex(/^EX-\d{3}$/),
-  group: z.enum(EXAM_GROUPS),
+  case_id: z.string().regex(/^(EX|HO)-\d{3}$/),
+  group: z.enum([...EXAM_GROUPS, "beyond_rules"]),
   kind: z.string().min(1),
   title: z.string().min(1),
   alert_id: z.string().nullable(),

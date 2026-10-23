@@ -1,5 +1,14 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { buildTraceContract, readDecisionRecords } from "@sanctions-desk/agents";
-import { AppError, type Config, type DecisionRecord, RunIdSchema } from "@sanctions-desk/shared";
+import {
+  AppError,
+  type Config,
+  type DecisionRecord,
+  RunIdSchema,
+  resolveProjectPath,
+  verifyReceipt,
+} from "@sanctions-desk/shared";
 import { auditToken, fetchQueryHistory, matchAudit } from "@sanctions-desk/zetaris";
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
@@ -47,5 +56,40 @@ export const traceRoutes: FastifyPluginAsync<TraceOptions> = async (app, { confi
     if (!record) throw new AppError("not_found", `no recommendation was recorded for run ${id.data}`);
     const contract = buildTraceContract(record, config.costs);
     return wantsAudit(req.query) ? { ...contract, audit: await auditOf(config, record) } : contract;
+  });
+
+  /**
+   * Check one signed receipt now, from the file stored beside the trace: the signature over the receipt body, whether
+   * the signing key is the one pinned in the configuration, and what the receipt says about the call (the app, the
+   * mode asked for and routed, and the model that served it). Nothing here asks the runtime.
+   */
+  app.get<{ Params: { receiptId: string } }>("/receipts/:receiptId/verify", async (req) => {
+    const id = z
+      .string()
+      .regex(/^[A-Za-z0-9._-]{1,100}$/)
+      .safeParse(req.params.receiptId);
+    if (!id.success) throw new AppError("not_found", "no such receipt");
+    const file = join(resolveProjectPath(config.logging.dir), "receipts", `${id.data}.json`);
+    if (!existsSync(file)) throw new AppError("not_found", `no stored receipt ${id.data}`);
+    const envelope: unknown = JSON.parse(readFileSync(file, "utf8"));
+    const result = verifyReceipt(envelope, config.nightshift.receiptPublicKeys);
+    const body = (envelope as { body?: { receipt?: Record<string, unknown> }; pubkey_b64?: string }).body;
+    const r = (body?.receipt ?? {}) as Record<string, unknown>;
+    const policy = (r.app_policy ?? {}) as Record<string, unknown>;
+    const route = (r.winning_route ?? {}) as Record<string, unknown>;
+    return {
+      receipt_id: id.data,
+      status: result.status,
+      ...(result.reason ? { reason: result.reason } : {}),
+      body_hash: result.bodyHash ?? null,
+      signer_public_key: (envelope as { pubkey_b64?: string }).pubkey_b64 ?? null,
+      key_pinned: result.status === "valid_pinned",
+      app: r.app ?? null,
+      requested_mode: policy.requested_mode ?? null,
+      routed_mode: policy.routed_mode ?? null,
+      mode_coerced: policy.mode_coerced ?? null,
+      served_by: route.model ?? null,
+      route_kind: route.kind ?? null,
+    };
   });
 };

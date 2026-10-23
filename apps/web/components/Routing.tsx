@@ -1,5 +1,71 @@
-import { label, modelName, money, seconds } from "../lib/format";
-import type { RoutingSplit, TraceView } from "../lib/types";
+"use client";
+
+import { useState } from "react";
+import { fetchReceiptCheck } from "../lib/api";
+import { label, modelName, money, seconds, shortHash } from "../lib/format";
+import type { ReceiptCheck, RoutingSplit, TraceView } from "../lib/types";
+
+const RECEIPT_TEXT: Record<ReceiptCheck["status"], string> = {
+  valid_pinned: "signature valid, and the signing key is the one pinned in the configuration",
+  valid_unpinned:
+    "signature valid; the key came with the receipt, so it shows the receipt was not altered, not who signed it",
+  invalid: "the signature does not match the receipt",
+  malformed: "this is not a well-formed receipt",
+};
+
+/** Checks one signed receipt through the API and says, in words, what it proves. */
+function VerifyReceipt({ receiptId }: { receiptId: string }) {
+  const [check, setCheck] = useState<ReceiptCheck>();
+  const [problem, setProblem] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  const run = async () => {
+    setBusy(true);
+    setProblem(undefined);
+    try {
+      setCheck(await fetchReceiptCheck(receiptId));
+    } catch (err) {
+      setProblem(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <>
+      <button
+        type="button"
+        className="secondary"
+        disabled={busy}
+        onClick={() => void run()}
+        aria-label={`Verify receipt ${receiptId}`}
+      >
+        {busy ? "Checking…" : "Verify receipt"}
+      </button>
+      {problem ? (
+        <span role="alert" className="tone-stop">
+          {" "}
+          {problem}
+        </span>
+      ) : null}
+      {check ? (
+        <div className="muted" data-testid={`receipt-${receiptId}`}>
+          <strong className={check.status.startsWith("valid") ? "tone-calm" : "tone-stop"}>
+            {check.status.startsWith("valid") ? "Verified" : "Not verified"}
+          </strong>
+          : {RECEIPT_TEXT[check.status]}.
+          {check.served_by ? (
+            <>
+              {" "}
+              Served by <strong>{modelName(check.served_by)}</strong> ({check.route_kind}) for app {check.app}; asked
+              for {check.requested_mode}, routed as {check.routed_mode}
+              {check.mode_coerced ? " (the cockpit's bind replaced the request)" : ""}. Body{" "}
+              {shortHash(check.body_hash)}.
+            </>
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
+}
 
 /**
  * The measured split: for each step, the share of its calls each model served, read from the signed receipts of the
@@ -66,6 +132,7 @@ export function RoutingPanel({ trace, split }: { trace: TraceView; split?: Routi
               <th>Reasoning budget (ours)</th>
               <th>Time</th>
               <th>Tokens in / out</th>
+              <th>App</th>
               <th>Receipt</th>
               <th>Cost</th>
             </tr>
@@ -76,7 +143,9 @@ export function RoutingPanel({ trace, split }: { trace: TraceView; split?: Routi
               <tr key={i}>
                 <td>{label(m.agent)}</td>
                 <td>{m.model_requested}</td>
-                <td>{m.model_routed}</td>
+                <td>
+                  {modelName(m.model_routed)} <span className="muted">({m.model_routed})</span>
+                </td>
                 <td>
                   <span className={`badge lane-${m.route_kind ?? "local"}`}>{m.route_kind ?? "local"}</span>
                 </td>
@@ -85,13 +154,22 @@ export function RoutingPanel({ trace, split }: { trace: TraceView; split?: Routi
                 <td>
                   {m.tokens_in ?? 0} / {m.tokens_out ?? 0}
                 </td>
-                <td>{label(m.receipt_status)}</td>
+                <td>{m.app ?? "—"}</td>
+                <td>
+                  {label(m.receipt_status)}
+                  {m.receipt_id ? (
+                    <>
+                      {" "}
+                      <VerifyReceipt receiptId={m.receipt_id} />
+                    </>
+                  ) : null}
+                </td>
                 <td>{money(m.cost, cost.currency)}</td>
               </tr>
             ))}
             {cost.models.length === 0 ? (
               <tr>
-                <td colSpan={9} className="muted">
+                <td colSpan={10} className="muted">
                   No model was called for this recommendation.
                 </td>
               </tr>

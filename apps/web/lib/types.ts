@@ -123,11 +123,28 @@ export interface TraceView {
       tokens_out?: number;
       latency_ms?: number;
       receipt_status: string;
+      receipt_id?: string;
+      app?: string;
       cost: number;
     }>;
     data_queries: { count: number; total_latency_ms: number; rows_returned: number; cache_hits: number; cost: number };
     totals: { tokens_in: number; tokens_out: number; local_calls: number; cloud_calls: number; total_cost: number };
   };
+}
+
+export interface ReceiptCheck {
+  receipt_id: string;
+  status: "valid_pinned" | "valid_unpinned" | "invalid" | "malformed";
+  reason?: string;
+  body_hash: string | null;
+  signer_public_key: string | null;
+  key_pinned: boolean;
+  app: string | null;
+  requested_mode: string | null;
+  routed_mode: string | null;
+  mode_coerced: boolean | null;
+  served_by: string | null;
+  route_kind: string | null;
 }
 
 export interface RecordView {

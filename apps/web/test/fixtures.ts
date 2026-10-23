@@ -127,6 +127,8 @@ export const TRACE: TraceView = {
         tokens_out: 500,
         latency_ms: 21000,
         receipt_status: "valid_pinned",
+        receipt_id: "rcpt_test_1",
+        app: "sanctions-desk-reasoning",
         cost: 0.02,
       },
     ],

@@ -11,6 +11,7 @@ import type {
   PolicyAuditEntry,
   PolicyVersionRow,
   QueueAlert,
+  ReceiptCheck,
   RecordView,
   ReviewAnswer,
   RunEvent,
@@ -68,6 +69,8 @@ export const startReview = (alertId: string, runId: string) =>
     body: JSON.stringify({ alert_id: alertId, run_id: runId }),
   });
 
+export const fetchReceiptCheck = (receiptId: string) =>
+  getJson<ReceiptCheck>(`/receipts/${encodeURIComponent(receiptId)}/verify`);
 export const fetchMe = () => getJson<MeView>("/me");
 export const fetchHuman = (alertId: string) => getJson<HumanView>(`/cases/${encodeURIComponent(alertId)}/human`);
 

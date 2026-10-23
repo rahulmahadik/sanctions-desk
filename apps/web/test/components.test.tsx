@@ -27,6 +27,7 @@ vi.mock("../lib/api", () => ({
   fetchEvents: vi.fn(),
   startReview: vi.fn(),
   followRun: vi.fn(),
+  fetchReceiptCheck: vi.fn(),
   fetchMe: vi.fn(),
   fetchHuman: vi.fn(),
   postDecision: vi.fn(),
@@ -109,7 +110,9 @@ describe("EvidenceCards", () => {
 describe("RoutingPanel", () => {
   it("shows model, lane, receipt status and cost per step", () => {
     render(<RoutingPanel trace={TRACE} />);
-    const row = screen.getByText("nvidia/nemotron-3-ultra-550b-a55b").closest("tr");
+    const row = screen.getByText(/Nemotron 3 Ultra 550B/, { selector: "td" }).closest("tr");
+    expect(row?.textContent).toContain("nvidia/nemotron-3-ultra-550b-a55b");
+    expect(row?.textContent).toContain("sanctions-desk-reasoning");
     expect(row?.textContent).toContain("cloud");
     expect(row?.textContent).toContain("valid pinned");
     expect(row?.textContent).toContain("0.02 USD");
@@ -626,5 +629,53 @@ describe("a date of birth from a verified note", () => {
   it("is absent when there is no verified note", () => {
     render(<EvidenceCards view={EVIDENCE} />);
     expect(screen.queryByTestId("documentary")).toBeNull();
+  });
+});
+
+describe("Verify receipt", () => {
+  it("checks the signed receipt through the API and says which model served the call and under which app", async () => {
+    vi.mocked(api.fetchReceiptCheck).mockResolvedValue({
+      receipt_id: "rcpt_test_1",
+      status: "valid_pinned",
+      body_hash: "c".repeat(64),
+      signer_public_key: "k",
+      key_pinned: true,
+      app: "sanctions-desk-reasoning",
+      requested_mode: "deep",
+      routed_mode: "auto",
+      mode_coerced: true,
+      served_by: "nvidia/nemotron-3-ultra-550b-a55b",
+      route_kind: "cloud",
+    });
+    render(<RoutingPanel trace={TRACE} />);
+    fireEvent.click(screen.getByRole("button", { name: "Verify receipt rcpt_test_1" }));
+    const result = await screen.findByTestId("receipt-rcpt_test_1");
+    expect(api.fetchReceiptCheck).toHaveBeenCalledWith("rcpt_test_1");
+    expect(result.textContent).toContain("Verified");
+    expect(result.textContent).toContain("signing key is the one pinned");
+    expect(result.textContent).toContain("Served by Nemotron 3 Ultra 550B (cloud) for app sanctions-desk-reasoning");
+    expect(result.textContent).toContain("the cockpit's bind replaced the request");
+  });
+
+  it("says plainly when a receipt does not verify, and when the check itself fails", async () => {
+    vi.mocked(api.fetchReceiptCheck).mockResolvedValueOnce({
+      receipt_id: "rcpt_test_1",
+      status: "invalid",
+      body_hash: null,
+      signer_public_key: null,
+      key_pinned: false,
+      app: null,
+      requested_mode: null,
+      routed_mode: null,
+      mode_coerced: null,
+      served_by: null,
+      route_kind: null,
+    });
+    render(<RoutingPanel trace={TRACE} />);
+    fireEvent.click(screen.getByRole("button", { name: "Verify receipt rcpt_test_1" }));
+    expect((await screen.findByTestId("receipt-rcpt_test_1")).textContent).toContain("Not verified");
+    vi.mocked(api.fetchReceiptCheck).mockRejectedValueOnce(new Error("no stored receipt rcpt_test_1"));
+    fireEvent.click(screen.getByRole("button", { name: "Verify receipt rcpt_test_1" }));
+    expect((await screen.findByRole("alert")).textContent).toContain("no stored receipt");
   });
 });

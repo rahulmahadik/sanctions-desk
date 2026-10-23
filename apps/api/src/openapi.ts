@@ -237,6 +237,22 @@ export const ROUTES: RouteDoc[] = [
     summary: "Closes made automatically, for a person to review and reopen",
   },
   {
+    method: "get",
+    path: "/receipts/{receiptId}/verify",
+    tag: "Review",
+    summary:
+      "Check a stored signed receipt: the signature, whether the key is pinned, the app, the modes and the model that served the call",
+    params: [
+      {
+        name: "receiptId",
+        in: "path",
+        required: true,
+        schema: { type: "string" },
+        description: "The receipt id from the model ledger",
+      },
+    ],
+  },
+  {
     method: "post",
     path: "/list-change/replay",
     tag: "Review",
