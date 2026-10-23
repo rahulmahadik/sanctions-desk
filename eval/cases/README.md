@@ -23,17 +23,26 @@ The cases are not loaded into Zetaris or the bank database until the main exam v
 
 ## Held-out v2
 
-- `heldout2.json`: 15 cases, HO2-001 to HO2-015, group `beyond_rules_v2`. Date: 24 October 2026.
-- sha256 of `eval/cases/heldout2.json`: `88439234fddb459babdd039551acddc09463fabd733573a7e9cba3bf63a29dbe`
+- `heldout2.json`: 19 cases, HO2-001 to HO2-019, group `beyond_rules_v2`. Date: 23 October 2026.
+- sha256 of `eval/cases/heldout2.json`: `5b338bd72e54f1f2a00b3b6b25b9dd76f0afdf7eca25c3fea40748d02466f9a8`
 
-This set was written before any system output on it was seen, and without knowing how the free-text screening step is designed. It will not be changed after this hash is recorded; `packages/agents/test/heldout2-standard.test.ts` pins the hash and fails if the file changes. Labels apply the approved definitions and the documentary evidence standard exactly as written (policy version 5, `false_positive@2`); each case has a one-sentence reason in `note`. Customers and payments are synthetic; the listed side is real public entries from the committed list sample, none of which the first held-out set used.
+This set was written by a separate author from the v1 case files and the written definitions, after the v1 results were known and before any run of the changed system; no system output for v2 existed when it was frozen. It will not be changed after this hash is recorded; `packages/agents/test/heldout2-standard.test.ts` pins the hash and fails if the file changes; it also pins a hash of the rows the cases point at (`a2a0eba3d0edc67adf832b181cc5fcefc235ec448d6e42545868ccad562138ad`, the notes, references and fields the labels were written against). Labels apply the approved definitions and the documentary evidence standard exactly as written (policy version 5, `false_positive@2`, `counterparty_match@1`); each case has a one-sentence reason in `note`. Customers and payments are synthetic; the listed side is real public entries from the committed list sample, none of which the first held-out set used.
 
 The set has the same three families as the first, with new names, new wording and the text in other places (customer notes, payment references, the listed entry's remarks), some of it in Spanish, German or French:
 
 | Family | Cases | Expected | Why it is there |
 | --- | --- | --- | --- |
 | Risk stated only in free text | HO2-001 to HO2-007 (a ship's IMO number and an agent's name in payment references, an alias in a Spanish reference, a Spanish maiden name, a German spouse link, a French branch location, a founder named only in the listed remarks) | ESCALATE_L2 (NEED_MORE_INFO acceptable; for HO2-005 and HO2-007 that is the only other acceptable answer); a close is a miss | Tests whether risk that no structured field carries, and that the first set showed was invisible to the decision step, is now seen, in more than one language. |
-| Clears backed by documentary evidence | HO2-008 to HO2-012 (a Spanish and a French identity check, a landlord's ID in a payment reference, a registered company, a themed bar) | CLOSE_FALSE_POSITIVE; an escalation is a miss | Every text meets the standard (check reference, document number, date, named counterparty for a payment). Two carry near-miss wording (a street name that resembles a listed group, a bar named after a weapons maker) that must not raise risk. Keeps the set from rewarding a system that escalates everything. |
+| Risk where plain rules would close | HO2-016 and HO2-017 (a power of attorney for the listed person in a customer note; the listed remarks naming the customer as the listed person's father) | ESCALATE_L2 (NEED_MORE_INFO acceptable); a close is a miss | The structured fields alone meet the false-positive definition (birth date present and conflicting, nationality differs, no document matches), so only the free text shows the risk. |
+| Clears backed by documentary evidence | HO2-008, HO2-011, HO2-012, HO2-018, HO2-019 | CLOSE_FALSE_POSITIVE; an escalation is a miss | No birth date on record, an exact or strong-alias name match, another nationality, no document match, and a note that meets the standard and states a labelled birth date that conflicts with every listed date. HO2-011 carries near-miss wording (a bar named after a weapons maker) that must not raise risk, as does HO2-009 (a street name that resembles a listed group). Keeps the set from rewarding a system that escalates everything. |
 | Notes that look documentary but are only claims | HO2-013 to HO2-015 (no check reference; the counterparty recorded as unknown; a year of birth but no date) | NEED_MORE_INFO (ESCALATE_L2 acceptable); a close is a miss | Each fails the standard for exactly one reason, which a test checks, so a close that relies on it breaks the rule. |
+| Documentary text, but no usable counterparty country | HO2-009 and HO2-010 | NEED_MORE_INFO (ESCALATE_L2 acceptable); a close is a miss | See the changes below. |
+
+Changes made before the hash was recorded and before any run (no system output for v2 existed):
+
+| Cases | Change | Reason |
+| --- | --- | --- |
+| HO2-009, HO2-010 | Relabelled from CLOSE_FALSE_POSITIVE to NEED_MORE_INFO (ESCALATE_L2 acceptable, a close is a miss) | The written policy says a counterparty with no usable country cannot be cleared (approved definition `counterparty_match@1` in `data/sample/business_definition.json`, and the failing payment rule `counterparty_country_valid`), so a close would mean ignoring a failing data-quality rule. |
+| HO2-016 to HO2-019 | Added | So the set tests false closes where the structured fields alone would close, and clears that the written policy allows. |
 
 The rows are built from their own seed and id marker (`CUST-J0001`, `ALR-J0001`, ...) after the first set's rows. `npm run data:synthetic -- --include-heldout2` writes them into `data/synthetic/` after the first set's rows, and `npm run heldout2:load` loads them into the bank database (dry run unless `--apply` is given). Without the flag every existing output is unchanged; a test checks the main and first-set outputs byte for byte against the committed files.
