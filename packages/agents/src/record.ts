@@ -7,12 +7,14 @@ import {
   type ModelUseInput,
   policyRef,
   type QueryEvidenceInput,
+  type ScreenerRecord,
   sealDecisionRecord,
   sha256Hex,
 } from "@sanctions-desk/shared";
 import type { DecisionOutput } from "./decision.js";
 import type { EvidenceBundle } from "./evidence.js";
 import type { GuardOutcome } from "./policy-guard.js";
+import type { ScreenerFacts } from "./screener.js";
 import type { AgentDeps } from "./types.js";
 
 /** The Reporter seals everything that was known at decision time into a hash-protected record. */
@@ -31,6 +33,28 @@ export interface RecordInput {
   models: ModelUseInput[];
   criticRounds: number;
   criticVerdict: "approved" | "rejected" | "escalated" | "not_run";
+}
+
+/** The screener's result as the record keeps it: structured facts and where they were found, never the text. */
+function screenerRecord(s: ScreenerFacts): ScreenerRecord {
+  const call = s.calls.at(-1);
+  return {
+    status: s.status,
+    ...(s.failure ? { failure: s.failure } : {}),
+    fields_read: s.fieldsRead,
+    signals: s.signals.map((x) => ({
+      type: x.type,
+      confidence: x.confidence,
+      span_id: x.spanId,
+      span_valid: x.spanValid,
+    })),
+    documentary: s.documentary.map((d) => ({ field: d.field, meets_standard: d.meetsStandard, missing: d.missing })),
+    injection: s.injection.flagged,
+    served_by_cloud: s.servedByCloud,
+    ...(s.truncatedFields.length > 0 ? { truncated_fields: s.truncatedFields } : {}),
+    ...(call ? { model: call.model_routed } : {}),
+    ...(call?.receipt?.receipt_id ? { receipt_id: call.receipt.receipt_id } : {}),
+  };
 }
 
 export function buildDecisionRecord(input: RecordInput): DecisionRecord {
@@ -79,6 +103,8 @@ export function buildDecisionRecord(input: RecordInput): DecisionRecord {
     ...(evidence.hybrid ? { first_finding: evidence.hybrid.decision, review_path: evidence.hybrid.path } : {}),
     ...(input.autonomy ? { autonomy: input.autonomy } : {}),
     ...(input.documentary ? { documentary: input.documentary } : {}),
+    ...(evidence.screener ? { screener: screenerRecord(evidence.screener) } : {}),
+    ...(evidence.cloudPayloads && evidence.cloudPayloads.length > 0 ? { cloud_payloads: evidence.cloudPayloads } : {}),
   });
 }
 

@@ -3,6 +3,7 @@ import type { DecisionOutput } from "./decision.js";
 import type { EvidenceBundle } from "./evidence.js";
 import { assessNote } from "./evidence-standard.js";
 import type { MatchResult } from "./matching.js";
+import type { ScreenerFacts, ScreenerSignal } from "./screener.js";
 
 /**
  * The Policy guard applies the hard rules of the active policy. It can make a recommendation more
@@ -31,6 +32,48 @@ export interface GuardInput {
   evidence: EvidenceBundle;
   /** True when the critic could not approve within the allowed rounds. */
   criticUnresolved: boolean;
+}
+
+/** The screener's risk signals that block a close: at or above the policy's confidence threshold. */
+export function blockingSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
+  return (facts?.signals ?? []).filter((s) => s.confidence >= signalThreshold(policy, s));
+}
+
+/** "other" is the type a model reaches for when nothing fits, so it needs more confidence to block. */
+const signalThreshold = (policy: Policy, s: ScreenerSignal): number =>
+  s.type === "other" ? policy.screener.otherConfidenceThreshold : policy.screener.confidenceThreshold;
+
+/** Signals at or above the normal threshold that do not block (an "other" below its own threshold): shown as a flag. */
+export function flaggedSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
+  return (facts?.signals ?? []).filter(
+    (s) => s.confidence >= policy.screener.confidenceThreshold && s.confidence < signalThreshold(policy, s),
+  );
+}
+
+/** The data-quality rule a verified note may stand in for: the date of birth on an individual's record. */
+export const DOB_RULE = "dob_present_for_individuals";
+
+/** Failing data-quality rules that still count: all of them, less the date-of-birth rule when a verified note supplies it. */
+export function blockingDataQuality(evidence: EvidenceBundle, documentaryDob: boolean): string[] {
+  return evidence.dq.filter((d) => d.failed && !(documentaryDob && d.rule === DOB_RULE)).map((d) => d.rule);
+}
+
+/**
+ * Why the policy guard would refuse a close whatever the comparison says: a blocking risk signal, a screener that
+ * could not read or did not read all of the free text, instruction-like text in the data, or a failing data-quality
+ * rule that a verified note does not answer. Matching uses this so that the approved definition of a false positive is
+ * never reported as met for a case the guard will not let close; the critic and the first finding then agree.
+ */
+export function closeBlockers(policy: Policy, evidence: EvidenceBundle, documentaryDob: boolean): string[] {
+  const s = evidence.screener;
+  const reasons: string[] = [];
+  if (blockingSignals(policy, s).length > 0) reasons.push("a risk signal in the free text");
+  if (s?.status === "failed") reasons.push("the free text could not be read");
+  if ((s?.truncatedFields.length ?? 0) > 0) reasons.push("part of the free text was not read");
+  if (findInjection(policy, evidence.freeText).length > 0) reasons.push("instruction-like text in the data");
+  const dq = blockingDataQuality(evidence, documentaryDob);
+  if (dq.length > 0) reasons.push(`a failing data-quality rule (${dq.join(", ")})`);
+  return reasons;
 }
 
 /** Instructions hidden in data: the policy's patterns, matched case-insensitively. */
@@ -120,12 +163,10 @@ const definitionRule: Rule = ({ evidence }) => {
  * date) supplies the date. The finding stays in the record and is shown as a flag, and the date is always labelled as
  * coming from the note.
  */
-const DOB_RULE = "dob_present_for_individuals";
-
 const dataQualityRule: Rule = ({ policy, evidence, match }) => {
   const failed = evidence.dq.filter((d) => d.failed);
   const suppliedByNote = match.documentaryDateOfBirth !== undefined;
-  const blocking = failed.filter((d) => !(suppliedByNote && d.rule === DOB_RULE));
+  const blocking = blockingDataQuality(evidence, suppliedByNote).map((rule) => ({ rule }));
   if (failed.length > 0 && blocking.length === 0 && suppliedByNote) {
     return {
       guard: "data_quality",
@@ -234,6 +275,76 @@ const evidenceStandardRule: Rule = ({ closing, policy, decision, evidence, match
     : passes("evidence_standard", `${relied.map((r) => r.label).join(" and ")} meets the documentary standard`);
 };
 
+/**
+ * The screener read the free text on a local model. A risk signal at or above the policy's threshold means the case
+ * cannot be closed. If the screener could not answer, the free text is unread and the case cannot be closed either.
+ * A signal below the threshold is recorded and changes nothing. The pipeline always sets the result; a bundle without
+ * one (a direct call in a test) is passed with a note saying so.
+ */
+const signalText = (list: readonly ScreenerSignal[]): string =>
+  list.map((s) => `${s.type.replaceAll("_", " ")} (confidence ${s.confidence}, ${s.spanId})`).join("; ");
+
+/** Not closing: what would block a close is recorded as a flag. Closing: it raises the case to an escalation. */
+const blockOrFlag = (closing: boolean, guard: string, detail: string): Finding =>
+  closing
+    ? fails(guard, "ESCALATE_L2", `${detail}; no close`)
+    : { guard, detail: `${detail}; not closing`, flag: true };
+
+/** The screener's own state: off, missing, failed or not complete. Undefined when it read everything. */
+function screenerState(facts: ScreenerFacts | undefined): Finding | string | undefined {
+  if (facts?.status === "off") return passes("screener", "screener off by policy: the free text was not read");
+  if (!facts) return "no screener result on this case: the free text was not assessed";
+  if (facts.status === "failed") return `${facts.reason ?? "screener unavailable"}: the free text was not read`;
+  if (facts.truncatedFields.length > 0)
+    return `part of the free text was not read (${facts.truncatedFields.join(", ")} is longer than the policy lets the screener read)`;
+  return undefined;
+}
+
+/**
+ * The screener read the free text on a local model. A risk signal at or above the policy's threshold ("other" has a
+ * higher one) means the case cannot be closed. A screener that is missing, could not answer, or did not read all of the
+ * text cannot support a close either. A signal below the threshold is recorded and changes nothing. If the answer came
+ * from a cloud route, that is shown as a flag of its own.
+ */
+const screenerRule: Rule = ({ closing, policy, evidence }) => {
+  const facts = evidence.screener;
+  const out: Finding[] = [];
+  if (facts?.servedByCloud) {
+    out.push({
+      guard: "screener_locality",
+      detail: "the screener's answer came from a cloud route, so the free text left the machine",
+      flag: true,
+    });
+  }
+  const state = screenerState(facts);
+  if (typeof state === "object") return [...out, state];
+  if (state !== undefined) return [...out, blockOrFlag(closing, "screener", state)];
+  const blocking = blockingSignals(policy, facts);
+  const flagged = flaggedSignals(policy, facts);
+  if (blocking.length > 0) {
+    out.push(blockOrFlag(closing, "screener", `risk signal in the free text: ${signalText(blocking)}`));
+  } else if (flagged.length > 0) {
+    out.push({
+      guard: "screener",
+      detail: `signal typed "other" below its own threshold ${policy.screener.otherConfidenceThreshold}: ${signalText(flagged)}`,
+      flag: true,
+    });
+  } else {
+    const low = facts?.signals.length ?? 0;
+    out.push(
+      passes(
+        "screener",
+        low > 0
+          ? `${low} signal(s) below the confidence threshold ${policy.screener.confidenceThreshold}; recorded, not blocking`
+          : facts?.status === "nothing_to_read"
+            ? "no free text to read"
+            : "no risk signal in the free text",
+      ),
+    );
+  }
+  return out;
+};
+
 const underReactionRule: Rule = ({ decision, match }) =>
   match.comparison.definitions.true_match && decision.decision === "NEED_MORE_INFO"
     ? fails("true_match_met", "ESCALATE_L2", "the approved definition of a true match is met; it goes to a person")
@@ -298,6 +409,7 @@ const RULES: readonly Rule[] = [
   dataQualityRule,
   closeRules,
   evidenceStandardRule,
+  screenerRule,
   underReactionRule,
   ownershipRule,
   jurisdictionRule,

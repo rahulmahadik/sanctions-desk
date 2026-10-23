@@ -189,6 +189,52 @@ export const DocumentaryValueSchema = z.strictObject({
 });
 export type DocumentaryValue = z.infer<typeof DocumentaryValueSchema>;
 
+/**
+ * What the screener found in the free text of the case, as structured facts. Nothing here is the text itself: a span is
+ * a field and a character range, and every value was checked by code against the text it came from.
+ */
+export const ScreenerRecordSchema = z.strictObject({
+  status: z.enum(["ok", "nothing_to_read", "failed", "off"]),
+  /** Why it failed, when it did: the model service, or an answer that could not be used. */
+  failure: z.enum(["provider", "parsing", "withheld"]).optional(),
+  /** True when the answer used came from a cloud route, so the text did leave the machine. */
+  served_by_cloud: z.boolean().optional(),
+  truncated_fields: z.array(nonEmpty).optional(),
+  fields_read: z.array(nonEmpty),
+  signals: z.array(
+    z.strictObject({
+      type: nonEmpty,
+      confidence: unit,
+      span_id: nonEmpty,
+      /** False when the span the model named does not point into the field; the signal still counts. */
+      span_valid: z.boolean(),
+    }),
+  ),
+  documentary: z.array(
+    z.strictObject({
+      field: nonEmpty,
+      meets_standard: z.boolean(),
+      missing: z.array(nonEmpty),
+    }),
+  ),
+  injection: z.boolean(),
+  model: nonEmpty.optional(),
+  receipt_id: nonEmpty.optional(),
+});
+export type ScreenerRecord = z.infer<typeof ScreenerRecordSchema>;
+
+/** What one model-bound step was sent: field names and counts, and a hash of the whole payload. Never the text. */
+export const CloudPayloadSchema = z.strictObject({
+  step: nonEmpty,
+  prompt_hash: sha256,
+  prompt_chars: count,
+  /** Top-level names in the evidence block and how many items each holds (1 for a single value). */
+  fields: z.record(z.string(), count),
+  /** True when a customer note, payment reference or list remark appears in the payload. It must never be true. */
+  raw_free_text_present: z.boolean(),
+});
+export type CloudPayload = z.infer<typeof CloudPayloadSchema>;
+
 export const DECISION_RECORD_VERSION = 1 as const;
 
 const DecisionRecordBody = z.strictObject({
@@ -225,6 +271,8 @@ const DecisionRecordBody = z.strictObject({
   review_path: z.enum(["confirm", "reason"]).optional(),
   autonomy: AutonomyRecordSchema.optional(),
   documentary: z.array(DocumentaryValueSchema).optional(),
+  screener: ScreenerRecordSchema.optional(),
+  cloud_payloads: z.array(CloudPayloadSchema).optional(),
   human: z.array(HumanActionSchema).default([]),
   /** Hash of the record this one supersedes (for example after a human action). */
   previous_record_hash: sha256.optional(),
@@ -347,6 +395,15 @@ export const ReviewResponseSchema = RunResponseSchema.extend({
   /** Values taken from verified notes and shown as such. */
   documentary: z.array(DocumentaryValueSchema).optional(),
   approvals_required: z.number().int().min(1).optional(),
+  /** The model that gave the recommendation used, and which try it was: the own lane, the fast retry, the backup. */
+  decision_model: nonEmpty.optional(),
+  decision_route: z.enum(["own", "fast", "backup"]).optional(),
+  /** True when the recommendation came from a fallback (a retry lane, the backup provider, the rules stand-in) or none came. */
+  decided_by_fallback: z.boolean().optional(),
+  /** The decision model's own last recommendation, before the challenger and the policy guard. */
+  model_last_recommendation: DecisionSchema.optional(),
+  /** True when the critic could not approve within the allowed rounds. */
+  critic_unresolved: z.boolean().optional(),
   sample_mode: z.boolean().optional(),
   sample_notice: z.string().optional(),
 });

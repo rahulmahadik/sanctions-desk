@@ -10,12 +10,13 @@
  *   npm run exam -- --variant escalate_all    baseline: every alert goes to a person
  *   npm run exam -- --variant no_memory       the full system with memory off (previously cleared cases only)
  *
- * Options: --groups a,b  --kinds x,y  --limit N  --exam heldout (the held-out set, run ids eval-heldout-...). Results go to eval/results/<time>-<variant>.json and are
+ * Options: --groups a,b  --kinds x,y  --limit N  --exam heldout|heldout2 (a held-out set, run ids eval-heldout-...),
+ *   --system sys2 (the version of the system under test, put into run ids and the result). Results go to eval/results/<time>-<variant>.json and are
  * never edited by hand; eval/REPORT.md is built from them (npm run exam:report).
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import {
@@ -31,7 +32,13 @@ import {
   screenOutbound,
   summarise,
 } from "@sanctions-desk/agents";
-import { type ExamCaseRecord, HELDOUT_EXAM_FILE, loadExam, MAIN_EXAM_FILE } from "@sanctions-desk/data";
+import {
+  type ExamCaseRecord,
+  HELDOUT_EXAM_FILE,
+  HELDOUT2_EXAM_FILE,
+  loadExam,
+  MAIN_EXAM_FILE,
+} from "@sanctions-desk/data";
 import {
   buildGenerator,
   createFallbackRulesGenerator,
@@ -57,10 +64,15 @@ const variant = flag("--variant") ?? "routed";
 const groups = flag("--groups")?.split(",");
 const kinds = flag("--kinds")?.split(",");
 const tag = flag("--tag");
-// --exam heldout runs the held-out "beyond the rules" set instead of the main 70 cases.
+// --exam heldout or heldout2 runs a held-out "beyond the rules" set instead of the main 70 cases.
 const examName = flag("--exam") ?? "exam";
-if (!["exam", "heldout"].includes(examName)) throw new Error("--exam must be exam or heldout");
-const runPrefix = examName === "heldout" ? "eval-heldout" : "eval";
+if (!["exam", "heldout", "heldout2"].includes(examName)) throw new Error("--exam must be exam, heldout or heldout2");
+// --system names the version of the system under test (for example sys2); it goes into the run ids and the result, so
+// runs of different versions never share a trace file.
+const system = flag("--system");
+if (system !== undefined && !/^[a-z0-9]+$/.test(system))
+  throw new Error("--system must be lower-case letters and digits");
+const runPrefix = `${examName === "exam" ? "eval" : `eval-${examName}`}${system ? `-${system}` : ""}`;
 const limit = flag("--limit") ? Number(flag("--limit")) : undefined;
 const VARIANTS = ["routed", "single", "local", "lightning", "rules", "fuzzy", "escalate_all", "no_memory"];
 if (!VARIANTS.includes(variant)) throw new Error(`--variant must be one of ${VARIANTS.join(", ")}`);
@@ -68,6 +80,8 @@ if (!VARIANTS.includes(variant)) throw new Error(`--variant must be one of ${VAR
 const baseConfig = loadConfig();
 const config = forEvaluation(baseConfig);
 let policy: Policy = loadPolicyFile(config.policy.file);
+// --screener off: the ablation run, with every other change kept. Recorded in the run's features.
+if (flag("--screener") === "off") policy = { ...policy, screener: { ...policy.screener, enabled: false } };
 if (variant === "local") {
   const off = { thinking: "off" as const };
   policy = {
@@ -95,7 +109,12 @@ if (variant === "lightning") {
   };
 }
 
-let cases: ExamCaseRecord[] = loadExam(examName === "heldout" ? HELDOUT_EXAM_FILE : MAIN_EXAM_FILE).cases;
+const EXAM_FILES: Record<string, string> = {
+  exam: MAIN_EXAM_FILE,
+  heldout: HELDOUT_EXAM_FILE,
+  heldout2: HELDOUT2_EXAM_FILE,
+};
+let cases: ExamCaseRecord[] = loadExam(EXAM_FILES[examName] as string).cases;
 if (variant === "no_memory") cases = cases.filter((c) => c.group.startsWith("previously_cleared"));
 if (groups) cases = cases.filter((c) => groups.includes(c.group));
 if (kinds) cases = cases.filter((c) => kinds.includes(c.kind));
@@ -174,11 +193,31 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
     ...(res.path ? { path: res.path, first_finding: res.first_finding } : {}),
     critic_rounds: res.critic?.rounds,
     critic_final: res.critic?.final_verdict,
-    decision_unavailable: res.guards?.some((g) => g.guard === "model_decision")
-      ? res.guards.some((g) => g.guard === "model_decision" && g.detail?.includes("service failed"))
-        ? "provider"
-        : "parsing"
-      : undefined,
+    decision_unavailable: unavailableOf(res.guards),
+    decision_model: res.decision_model,
+    decision_route: res.decision_route,
+    decided_by_fallback: res.decided_by_fallback,
+    model_last_recommendation: res.model_last_recommendation,
+    critic_unresolved: res.critic_unresolved,
+    screener: screenerFields(res.guards),
+  };
+}
+
+/** Why no usable decision came back, when none did: the model service, an unusable answer, or a prompt not sent. */
+function unavailableOf(guards: Array<{ guard: string; detail?: string }> | undefined) {
+  const g = guards?.find((v) => v.guard === "model_decision");
+  if (!g) return undefined;
+  if (g.detail?.includes("service failed")) return "provider";
+  return g.detail?.includes("not sent") ? "withheld" : "parsing";
+}
+
+/** The screener's verdict on this case, and whether a cloud route served it. */
+function screenerFields(guards: Array<{ guard: string; verdict: string; detail?: string }> | undefined) {
+  const v = guards?.find((g) => g.guard === "screener");
+  return {
+    verdict: v?.verdict,
+    unavailable: v?.detail?.includes("screener unavailable") === true,
+    served_by_cloud: guards?.some((g) => g.guard === "screener_locality") === true,
   };
 }
 
@@ -234,6 +273,7 @@ function runFeatures(p: Policy) {
     commit,
     structured_output: p.structuredOutput,
     challenger: p.challenger,
+    screener: { enabled: p.screener.enabled, confidence_threshold: p.screener.confidenceThreshold },
     cockpit_binds: cockpitBinds(p),
     app_identities: Object.fromEntries(Object.entries(p.models).map(([step, m]) => [step, m.identity])),
     tries_per_model_step: "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
@@ -253,9 +293,36 @@ const withTimeout = <T>(p: Promise<T>, ms: number): Promise<T> =>
 const startedAt = new Date().toISOString();
 const outcomes: ScoredCase[] = [];
 console.log(`exam variant ${variant}: ${cases.length} cases`);
+// --thermal-gate <file>: a marker file that exists while the model runtime reports a serious thermal state. Before each
+// case the run cools down for 25 s while it exists, and waits until it is gone once it has existed for over 10 minutes.
+// Every pause and each case's posture are logged so the report can show whether provider failures track heat.
+const gate = flag("--thermal-gate");
+const pauseLog = join(logDir, `run-pauses-${runPrefix}-${variant}.jsonl`);
+const nap = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const logPause = (entry: Record<string, unknown>) =>
+  appendFileSync(pauseLog, `${JSON.stringify({ ts: new Date().toISOString(), run: runPrefix, variant, ...entry })}\n`);
+async function coolDown(caseId: string): Promise<{ posture: "normal" | "serious"; paused_s: number }> {
+  if (!gate || !existsSync(gate)) return { posture: "normal", paused_s: 0 };
+  const started = Date.now();
+  if (Date.now() - statSync(gate).mtimeMs > 10 * 60_000) {
+    logPause({ case_id: caseId, event: "paused", reason: "thermal serious for over 10 minutes" });
+    while (existsSync(gate)) await nap(30_000);
+    logPause({ case_id: caseId, event: "resumed", waited_s: Math.round((Date.now() - started) / 1000) });
+  } else {
+    await nap(25_000);
+    logPause({ case_id: caseId, event: "cool_down", waited_s: 25 });
+  }
+  return { posture: "serious", paused_s: Math.round((Date.now() - started) / 1000) };
+}
+
 for (const c of cases) {
+  const thermal = await coolDown(c.case_id);
   try {
-    const outcome = await withTimeout(runCase(c), 10 * 60_000);
+    const outcome = {
+      ...(await withTimeout(runCase(c), 10 * 60_000)),
+      thermal_posture: thermal.posture,
+      paused_s: thermal.paused_s,
+    };
     outcomes.push(outcome);
     const ok = outcome.got === c.expected || c.acceptable.includes(outcome.got as never);
     console.log(
@@ -282,7 +349,7 @@ const dir = resolveProjectPath("eval/results");
 mkdirSync(dir, { recursive: true });
 const file = join(
   dir,
-  `${startedAt.replace(/[:.]/g, "-")}-${examName === "heldout" ? "heldout-" : ""}${variant}${tag ? `-${tag}` : ""}.json`,
+  `${startedAt.replace(/[:.]/g, "-")}-${examName === "exam" ? "" : `${examName}-`}${system ? `${system}-` : ""}${variant}${tag ? `-${tag}` : ""}.json`,
 );
 const describeModels = (p: Policy) =>
   Object.fromEntries(
@@ -293,7 +360,7 @@ const describeModels = (p: Policy) =>
   );
 writeFileSync(
   file,
-  `${JSON.stringify({ variant, ...(examName === "heldout" ? { exam: "heldout" } : {}), ...(tag ? { tag } : {}), features: runFeatures(policy), selection: { groups, kinds: kinds?.length, limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: describeModels(policy), cases: outcomes, metrics }, null, 2)}\n`,
+  `${JSON.stringify({ variant, ...(examName === "exam" ? {} : { exam: examName }), ...(system ? { system } : {}), ...(tag ? { tag } : {}), features: runFeatures(policy), selection: { groups, kinds: kinds?.length, limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: describeModels(policy), cases: outcomes, metrics }, null, 2)}\n`,
 );
 console.log(
   JSON.stringify({

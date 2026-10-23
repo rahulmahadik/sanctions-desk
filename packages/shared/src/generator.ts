@@ -435,7 +435,16 @@ function allProvidersFailed(failures: readonly Failure[]): AppError {
   return new AppError("http_error", "all model providers failed", {
     recoverable: true,
     details: {
-      attempts: failures.map((f) => ({ provider: f.provider, type: f.error.type, message: f.error.message })),
+      attempts: failures.map((f) => ({
+        provider: f.provider,
+        type: f.error.type,
+        message: f.error.message,
+        // The HTTP status, the start of the error body and the dead routes, so a failure can be classified later
+        // (a retired model answers 404 or 410; a slow cloud answer times out).
+        ...(typeof f.error.details?.status === "number" ? { status: f.error.details.status } : {}),
+        ...(typeof f.error.details?.body === "string" ? { body: (f.error.details.body as string).slice(0, 160) } : {}),
+        ...(Array.isArray(f.error.details?.dead_routes) ? { dead_routes: f.error.details.dead_routes } : {}),
+      })),
     },
   });
 }

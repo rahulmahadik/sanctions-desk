@@ -20,6 +20,7 @@ import { readDecisionRecords } from "./record.js";
  *   evidence_standard    free text relied on meets the documentary standard (or none was relied on)
  *   no_data_quality_issue no data-quality rule fails on the records
  *   no_policy_block      the policy guard raised nothing
+ *   screener_clean       the screener read all of the free text on a local route and recorded no signal at all
  *   confidence           the confidence is at least the policy's line
  * and then within the daily cap; a random share (at least 5 percent) goes to a person as a quality-assurance sample.
  */
@@ -36,6 +37,8 @@ export interface AutonomyInput {
   critic: { final_verdict: string };
   guards: readonly GuardVerdictInput[];
   dataQualityFailed: boolean;
+  /** What the screener did. Missing means it is not known, and then nothing closes without a person. */
+  screener?: { status: string; signals: number; servedByCloud: boolean; truncated: boolean };
   autoClosedToday: number;
   /** A number in [0, 1) drawn for the quality-assurance sample. */
   draw: number;
@@ -45,7 +48,7 @@ export const randomDraw = (): number => randomInt(0, 1_000_000) / 1_000_000;
 
 type Conditions = AutonomyRecord["conditions"];
 
-/** The ten conditions of an automatic close, each with whether it holds and a note where one helps. */
+/** The eleven conditions of an automatic close, each with whether it holds and a note where one helps. */
 function conditionsOf(input: AutonomyInput, levelInForce: 0 | 1): Conditions {
   const a = input.policy.autonomy;
   const verdict = (name: string) => input.guards.find((g) => g.guard === name)?.verdict;
@@ -66,12 +69,29 @@ function conditionsOf(input: AutonomyInput, levelInForce: 0 | 1): Conditions {
     { name: "evidence_standard", met: verdict("evidence_standard") === "pass" },
     { name: "no_data_quality_issue", met: !input.dataQualityFailed },
     { name: "no_policy_block", met: input.guards.every((g) => g.verdict !== "block") },
+    screenerCondition(input.screener),
     {
       name: "confidence",
       met: input.confidence >= a.autoClose.confidenceAtLeast,
       detail: `${input.confidence} against ${a.autoClose.confidenceAtLeast}`,
     },
   ];
+}
+
+/** A close is automatic only if the screener read all of the free text locally and found nothing at all. */
+function screenerCondition(s: AutonomyInput["screener"]): Conditions[number] {
+  const problem = !s
+    ? "no screener result"
+    : !["ok", "nothing_to_read"].includes(s.status)
+      ? `screener ${s.status}`
+      : s.signals > 0
+        ? `${s.signals} signal(s) recorded`
+        : s.servedByCloud
+          ? "the screener was served by a cloud route"
+          : s.truncated
+            ? "part of the free text was not read"
+            : undefined;
+  return { name: "screener_clean", met: problem === undefined, ...(problem ? { detail: problem } : {}) };
 }
 
 export function decideAutonomy(input: AutonomyInput): AutonomyRecord {

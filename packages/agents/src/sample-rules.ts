@@ -1,4 +1,5 @@
 import type { GenerateRequest } from "@sanctions-desk/shared";
+import { INJECTION, screenerAnswer } from "./sample-screener.js";
 
 /**
  * The labelled fallback "model" used by sample mode. It answers the Decision and Critic prompts with plain
@@ -15,6 +16,8 @@ export interface Evidence {
   list_entry?: { entry_id?: string; primary_name?: string };
   list_dob?: Array<{ dob_id?: string; dob_value?: string | null }>;
   data_quality?: Array<{ failed?: boolean }>;
+  date_of_birth_from_verified_note?: { value?: string; check_reference?: string };
+  screener_facts?: { status?: string; risk_signals?: Array<{ type: string; confidence: number }> };
   comparison?: {
     assessment?: string;
     date_of_birth?: string;
@@ -27,6 +30,7 @@ export interface Evidence {
       ownership?: string;
     };
     assessment_note?: string;
+    close_blockers?: string[];
   };
 }
 
@@ -53,6 +57,20 @@ export interface Choice {
  * model. It is the stand-in model's answer in sample mode and the first finding of every review.
  */
 export function chooseDecision(e: Evidence): Choice {
+  const pick = structuralChoice(e);
+  const blockers = e.comparison?.close_blockers ?? [];
+  if (pick.decision !== "CLOSE_FALSE_POSITIVE" || blockers.length === 0) return pick;
+  // Never a close the policy guard would refuse: say why instead.
+  const onlyDataQuality = blockers.every((b) => b.startsWith("a failing data-quality rule"));
+  return {
+    decision: onlyDataQuality ? "NEED_MORE_INFO" : "ESCALATE_L2",
+    confidence: 0.7,
+    why: `a close is not open to this case: ${blockers.join("; ")}`,
+    settled: onlyDataQuality,
+  };
+}
+
+function structuralChoice(e: Evidence): Choice {
   const c = e.comparison ?? {};
   const met = c.definitions_met ?? {};
   if (met.ownership === "met" || met.ownership === "limit") {
@@ -87,7 +105,10 @@ export function chooseDecision(e: Evidence): Choice {
       settled: true,
     };
   }
-  if (e.data_quality?.some((d) => d.failed)) {
+  // A date of birth from a verified note answers the date-of-birth rule; matching has already withdrawn the false
+  // positive when any other rule fails, so the definition comes first here.
+  const documentaryClear = met.false_positive === true && e.date_of_birth_from_verified_note !== undefined;
+  if (e.data_quality?.some((d) => d.failed) && !documentaryClear) {
     return {
       decision: "NEED_MORE_INFO",
       confidence: 0.7,
@@ -148,8 +169,23 @@ function factsOf(e: Evidence): Fact[] {
   return facts;
 }
 
-function decisionAnswer(e: Evidence): string {
-  const pick = chooseDecision(e);
+/** The screener's risk signals at or above the policy's threshold, as the decision prompt states them. */
+function screenerBlocks(e: Evidence, prompt: string): string[] {
+  const threshold = Number(/"screener_confidence_threshold":\s*([0-9.]+)/.exec(prompt)?.[1] ?? 0.5);
+  return (e.screener_facts?.risk_signals ?? []).filter((s) => s.confidence >= threshold).map((s) => s.type);
+}
+
+function decisionAnswer(e: Evidence, prompt = ""): string {
+  const base = chooseDecision(e);
+  const pick: Choice =
+    screenerBlocks(e, prompt).length > 0 || e.screener_facts?.status === "failed"
+      ? {
+          decision: "ESCALATE_L2",
+          confidence: 0.7,
+          why: "the screener found a risk signal in the free text, or could not read it",
+          settled: false,
+        }
+      : base;
   const comparison = e.comparison;
   return JSON.stringify({
     decision: pick.decision,
@@ -164,8 +200,6 @@ function decisionAnswer(e: Evidence): string {
 }
 
 /** The labelled rules used when SAMPLE_MODE is on and no model service answers. */
-const INJECTION =
-  /ignore (all )?(previous|prior|above) (instructions|rules)|disregard (the )?(above|system|previous)|you are now (a|an|the)|(reveal|print|show) .{0,30}(system prompt|api key|token|password)|<\/?\s*(system|assistant)\s*>/i;
 const TIPPING =
   /sanction(s|ed)?\b|watch ?list|\bOFAC\b|screening|investigat|suspicious (activity|transaction)|\bSAR\b|frozen|regulator/i;
 
@@ -182,6 +216,7 @@ function safetyAnswer(prompt: string): string {
 
 export function sampleRules(req: GenerateRequest): string {
   if (req.prompt.startsWith("TASK: safety_")) return safetyAnswer(req.prompt);
+  if (req.prompt.startsWith("TASK: screener")) return screenerAnswer(req.prompt);
   const evidence = evidenceOf(req.prompt);
   if (req.prompt.startsWith("TASK: challenge")) {
     return JSON.stringify({
@@ -191,5 +226,5 @@ export function sampleRules(req: GenerateRequest): string {
     });
   }
   if (req.prompt.startsWith("TASK: critic")) return JSON.stringify({ verdict: "approve", issues: [] });
-  return decisionAnswer(evidence);
+  return decisionAnswer(evidence, req.prompt);
 }

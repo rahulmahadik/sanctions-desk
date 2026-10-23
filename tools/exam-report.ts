@@ -41,6 +41,8 @@ interface LabelSet {
 interface Result {
   features?: Features;
   variant: string;
+  /** The version of the system under test (for example sys2); absent for the first system. */
+  system?: string;
   tag?: string;
   /** "heldout" for a run of the held-out set; absent for the main exam. */
   exam?: string;
@@ -91,7 +93,12 @@ const earlier: Array<Result & { file: string; original?: Metrics }> = [];
 for (const f of files) {
   const r = JSON.parse(readFileSync(join(dir, f), "utf8")) as Result;
   const partial =
-    r.exam !== undefined || r.tag !== undefined || r.selection?.kinds || r.selection?.groups || r.selection?.limit;
+    r.exam !== undefined ||
+    r.system !== undefined ||
+    r.tag !== undefined ||
+    r.selection?.kinds ||
+    r.selection?.groups ||
+    r.selection?.limit;
   if (!partial) {
     const previous = newest.get(r.variant);
     if (previous) earlier.push({ ...previous, original: originalScore.get(r.variant) });
@@ -100,12 +107,20 @@ for (const f of files) {
   }
 }
 
+/** Newest complete runs of later system versions and of baselines on the second held-out set, by "system|exam|variant". */
+const laterRuns = new Map<string, Result & { file: string }>();
 /** The newest complete run of each variant on the held-out set, scored against the held-out labels. */
 const heldoutNewest = new Map<string, Result & { file: string }>();
 for (const f of files) {
   const r = JSON.parse(readFileSync(join(dir, f), "utf8")) as Result;
-  if (r.exam === "heldout" && r.tag === undefined && !r.selection?.kinds && !r.selection?.groups && !r.selection?.limit)
+  const whole = r.tag === undefined && !r.selection?.kinds && !r.selection?.groups && !r.selection?.limit;
+  if (r.exam === "heldout" && r.system === undefined && whole)
     heldoutNewest.set(r.variant, { ...r, metrics: summarise(r.cases), file: f });
+  // Runs of a later system version, kept apart so they never replace the first system's numbers.
+  if (r.system !== undefined && whole)
+    laterRuns.set(`${r.system}|${r.exam ?? "exam"}|${r.variant}`, { ...r, metrics: summarise(r.cases), file: f });
+  if (r.exam === "heldout2" && r.system === undefined && whole)
+    laterRuns.set(`baseline|heldout2|${r.variant}`, { ...r, metrics: summarise(r.cases), file: f });
 }
 
 const config = loadConfig();
@@ -448,6 +463,103 @@ if (full || hoFull) {
     ...(hoFull ? byPath(hoFull.cases).map((p) => pathRow("held-out", p)) : []),
     "",
   );
+}
+
+// ---- before and after the free-text screener ----------------------------------------------------------
+const after = (exam: string) => laterRuns.get(`sys2|${exam}|routed`);
+if ([...laterRuns.keys()].some((k) => k.startsWith("sys2|"))) {
+  const fcRow = (label: string, r: Result | undefined) => {
+    if (!r) return `| ${label} | not run | | | |`;
+    const d = directions(r.cases);
+    const fc = d.risk - d.caught;
+    return `| ${label} | ${fc} of ${d.risk} | ${d.caught} of ${d.risk} | ${d.clears > 0 ? `${d.made} of ${d.clears}` : "none in this set"} | ${d.acceptable} of ${d.total} |`;
+  };
+  lines.push(
+    "### (e) Before and after the free-text screener",
+    "",
+    "The first held-out run showed that risk stated only in free text (a customer note, a payment reference, a list remark) never reached the decision step: two such cases were wrongly closed. The system was then changed: a local model now reads the free text and passes only structured facts (risk signals and validated documentary evidence) to the cloud steps, and a risk signal blocks a close. A second held-out set was written and frozen before the changed system was run on it, so it is the blind test of the change; the first held-out set is no longer blind for the changed system. The first system's numbers are kept as they were.",
+    "",
+    "| Set and system | Risk cases wrongly closed | Risks caught | Correct clears made | Acceptable |",
+    "|---|---:|---:|---:|---:|",
+    fcRow("70 cases, first system", full),
+    fcRow("70 cases, changed system", after("exam")),
+    fcRow("Held-out v1, first system (blind)", hoFull),
+    fcRow("Held-out v1, changed system (after the fix, not blind)", after("heldout")),
+    fcRow("Held-out v2, changed system (blind)", after("heldout2")),
+    fcRow("Held-out v2, deterministic pipeline", laterRuns.get("baseline|heldout2|rules")),
+    fcRow("Held-out v2, every alert goes to a person", laterRuns.get("baseline|heldout2|escalate_all")),
+    fcRow(
+      "Held-out v2, changed system with the screener switched off (ablation)",
+      laterRuns.get("sys2noscreen|heldout2|routed"),
+    ),
+    "",
+  );
+  // How each changed-system outcome came about: a model answer, the guard after a critic deadlock, a fallback route, or no
+  // model answer at all. Cases with no model answer are shown, and the counts are repeated without them.
+  const how = (label: string, r: Result | undefined) => {
+    if (!r) return undefined;
+    const extra = (c: ScoredCase) => c as ScoredCase & Record<string, unknown>;
+    const unavailable = r.cases.filter((c) => c.decision_unavailable || extra(c).decision_withheld);
+    const answered = r.cases.filter((c) => !unavailable.includes(c));
+    const d = directions(answered);
+    const deadlock = r.cases.filter((c) => extra(c).critic_unresolved === true).length;
+    const fallback = r.cases.filter((c) => extra(c).decided_by_fallback === true).length;
+    return `| ${label} | ${unavailable.length} | ${deadlock} | ${fallback} | ${d.risk - d.caught} of ${d.risk} | ${d.clears > 0 ? `${d.made} of ${d.clears}` : "none"} |`;
+  };
+  const howRows = [
+    how("70 cases", after("exam")),
+    how("Held-out v1 (after the fix, not blind)", after("heldout")),
+    how("Held-out v2 (blind)", after("heldout2")),
+  ].filter((x): x is string => x !== undefined);
+  if (howRows.length > 0) {
+    lines.push(
+      "How the changed system's outcomes came about. *No model answer* counts cases where every provider failed or a prompt was withheld because it carried free text; such cases are escalated, never closed, and the last two columns leave them out. *Guard after a deadlock* counts cases where the critic never approved and the policy guard raised the outcome; *fallback route* counts cases whose final recommendation came from a retry on another route.",
+      "",
+      "| Set | No model answer | Guard after a deadlock | Fallback route | Risk cases wrongly closed (answered cases) | Correct clears (answered cases) |",
+      "|---|---:|---:|---:|---:|---:|",
+      ...howRows,
+      "",
+    );
+  }
+  // Whether provider failures track heat: cases with no model answer, by the runtime's thermal posture when they began.
+  const heatRows = [
+    ["70 cases", after("exam")],
+    ["Held-out v1 (after the fix)", after("heldout")],
+    ["Held-out v2", after("heldout2")],
+  ]
+    .filter((x): x is [string, Result & { file: string }] => x[1] !== undefined)
+    .map(([label, r]) => {
+      const extra = (c: ScoredCase) => c as ScoredCase & Record<string, unknown>;
+      const by = (posture: string) => r.cases.filter((c) => (extra(c).thermal_posture ?? "not recorded") === posture);
+      const failed = (xs: ScoredCase[]) => xs.filter((c) => c.decision_unavailable).length;
+      const cell = (posture: string) => `${failed(by(posture))} of ${by(posture).length}`;
+      return `| ${label} | ${cell("normal")} | ${cell("serious")} |`;
+    });
+  if (heatRows.length > 0) {
+    lines.push(
+      "Provider failures by the runtime's thermal posture when the case began (the laptop reports a serious thermal state under long runs; the runner cools down between cases while it lasts):",
+      "",
+      "| Set | Failures, posture normal | Failures, posture serious |",
+      "|---|---:|---:|",
+      ...heatRows,
+      "",
+    );
+  }
+  const changesPath = resolveProjectPath("eval/cases/heldout2-changes.json");
+  if (existsSync(changesPath)) {
+    const log = JSON.parse(readFileSync(changesPath, "utf8")) as {
+      final_freeze_commit: string | null;
+      changes: Array<{ cases: string; change: string; trigger: string }>;
+    };
+    lines.push(
+      `Held-out v2 was changed before its final freeze, each time before any system output for it existed (\`eval/cases/README.md\`). Final freeze: ${log.final_freeze_commit ? `commit \`${log.final_freeze_commit}\`` : "not yet recorded"}.`,
+      "",
+      "| Cases | Change | Trigger |",
+      "|---|---|---|",
+      ...log.changes.map((c) => `| ${c.cases} | ${c.change} | ${c.trigger} |`),
+      "",
+    );
+  }
 }
 
 const det = get("rules");

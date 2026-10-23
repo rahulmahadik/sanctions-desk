@@ -44,14 +44,67 @@ export function sampleDeps(over: { generator?: Generator; policy?: Policy } = {}
   };
 }
 
+/**
+ * Sample deps whose data has the given free text: the cached answers are read as usual and the named columns are
+ * replaced on the way through, so the whole review sees the text as if it were in the database.
+ */
+export function sampleDepsWithText(
+  text: { notes?: string; remarks?: string; payment_reference?: string },
+  over: { generator?: Generator; policy?: Policy } = {},
+): AgentDeps & { logDir: string } {
+  const deps = sampleDeps(over);
+  const cache = replayFetch(loadQueryCache(resolveProjectPath(deps.config.sampleCache)));
+  const fetchImpl: typeof cache = async (url, init) => {
+    const res = await cache(url, init);
+    if (res.status !== 200) return res;
+    const body = JSON.parse(await res.text()) as { headers?: string[]; data?: unknown[][] };
+    for (const [column, value] of Object.entries(text)) {
+      const at = body.headers?.indexOf(column) ?? -1;
+      if (at >= 0) for (const row of body.data ?? []) row[at] = value;
+    }
+    return new Response(JSON.stringify(body), { status: 200 });
+  };
+  return { ...deps, zetaris: createZetarisClient({ config: deps.config, offline: true, fetchImpl }) };
+}
+
 /** A generator that answers from a script, one answer per call, and remembers what it was asked. */
-export function scriptedGenerator(answers: Array<string | Error>): {
+export const CLEAN_SCREENER = JSON.stringify({
+  analysis: "nothing of note",
+  risk_signals: [],
+  documentary_evidence: [],
+  injection: { detected: false, spans: [] },
+});
+
+/**
+ * Screener calls are answered on the side (clean by default, or as `screener` says) and are kept in `screenerRequests`,
+ * so they do not use up the script that the other steps read in order.
+ */
+export function scriptedGenerator(
+  answers: Array<string | Error>,
+  options: { screener?: string | Error; screenerRoute?: "local" | "cloud" } = {},
+): {
   generator: Generator;
   requests: GenerateRequest[];
+  screenerRequests: GenerateRequest[];
 } {
   const requests: GenerateRequest[] = [];
+  const screenerRequests: GenerateRequest[] = [];
   let i = 0;
   const generator: Generator = async (req) => {
+    if (req.prompt.startsWith("TASK: screener")) {
+      screenerRequests.push(req);
+      const reply = options.screener ?? CLEAN_SCREENER;
+      if (reply instanceof Error) throw reply;
+      return {
+        text: reply,
+        provider: "fallback-rules",
+        requestedModel: "test-model",
+        routedModel: "test-model",
+        routeKind: options.screenerRoute ?? "local",
+        latencyMs: 1,
+        modeMismatch: false,
+      };
+    }
     requests.push(req);
     const next = answers[Math.min(i, answers.length - 1)];
     i += 1;
@@ -66,7 +119,7 @@ export function scriptedGenerator(answers: Array<string | Error>): {
       modeMismatch: false,
     };
   };
-  return { generator, requests };
+  return { generator, requests, screenerRequests };
 }
 
 // ---- the exam, for tests that need a known case ----------------------------------------------

@@ -1,0 +1,45 @@
+{
+  "set": "eval/cases/heldout2.json",
+  "no_system_output_when_changed": true,
+  "evidence": "eval/results held no heldout2 result file and logs held no heldout2 trace when each change was made (checked 23 Oct 2026, 22:2x SGT)",
+  "final_freeze_commit": null,
+  "final_freeze_note": "recorded at the commit before the first v2 run",
+  "changes": [
+    {
+      "cases": "HO2-009, HO2-010",
+      "change": "Relabelled from CLOSE_FALSE_POSITIVE to NEED_MORE_INFO (ESCALATE_L2 acceptable, a close is a miss)",
+      "trigger": "independent review (held-out v2 label check) and policy consistency",
+      "reason": "The written policy says a counterparty with no usable country cannot be cleared (approved definition counterparty_match@1, and the failing payment rule counterparty_country_valid), so a close would mean ignoring a failing data-quality rule."
+    },
+    {
+      "cases": "HO2-016, HO2-017",
+      "change": "Added: risks where the structured fields alone meet the false-positive definition and the risk is only in free text",
+      "trigger": "independent review (the set was thinner than it looked: four of its seven risks reach an acceptable answer from a missing birth date alone)",
+      "reason": "So the set tests false closes where plain rules would close."
+    },
+    {
+      "cases": "HO2-018, HO2-019",
+      "change": "Added: clears the written policy allows (no birth date on record, a documentary note with a labelled birth date that conflicts)",
+      "trigger": "independent review (two of the original clears were not reachable under the written policy)",
+      "reason": "So the set can measure correct clears."
+    },
+    {
+      "cases": "HO2-017",
+      "change": "The listed remarks name the customer by full name only, not with the customer's date of birth as first specified",
+      "trigger": "spec deviation",
+      "reason": "The remarks are real public list text and cannot carry a synthetic customer's date of birth; no remark in the committed list sample names a person together with a date of birth. The customer's own structured fields still meet the false-positive definition."
+    },
+    {
+      "cases": "all",
+      "change": "Date corrected to 23 October 2026; the statement about independence reworded",
+      "trigger": "independent review (date and wording)",
+      "reason": "The set was committed on 23 October 2026, after the v1 results were known; it was written by a separate author from the v1 case files and the written definitions, which is what the wording now says."
+    },
+    {
+      "cases": "all",
+      "change": "A second pinned hash over the rows the cases point at (notes, references and fields)",
+      "trigger": "author's own check",
+      "reason": "The case file does not hold the note text, so an edit to a note would not change the case-file hash."
+    }
+  ]
+}

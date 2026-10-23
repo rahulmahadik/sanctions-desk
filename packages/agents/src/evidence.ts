@@ -1,5 +1,5 @@
 import { type BusinessDefinition, checkDefinitions, type DefinitionCheck } from "@sanctions-desk/data";
-import { AppError, type QueryEvidenceInput } from "@sanctions-desk/shared";
+import { AppError, type CloudPayload, type QueryEvidenceInput } from "@sanctions-desk/shared";
 import {
   buildEvidenceTools,
   type EvidenceTool,
@@ -11,6 +11,7 @@ import type { FirstFinding } from "./hybrid.js";
 import type { MemoryEvidence } from "./memory.js";
 import type { OwnershipEvidence } from "./ownership.js";
 import type { SafetyResult } from "./safety.js";
+import type { ScreenerFacts } from "./screener.js";
 import { type AgentDeps, clientFor, type Row } from "./types.js";
 
 /**
@@ -38,6 +39,10 @@ export interface EvidenceBundle {
   memory?: MemoryEvidence;
   /** What the safety guard found in the free text of the data. Filled in after the data is read. */
   safety?: SafetyResult;
+  /** What the local screener found in the free text. The cloud models see this and nothing of the text. */
+  screener?: ScreenerFacts;
+  /** What each model-bound step was sent (names, counts, hash). Filled in as the steps run. */
+  cloudPayloads?: CloudPayload[];
   customerIdentifiers: Row[];
   entry: Row;
   aliases: Row[];

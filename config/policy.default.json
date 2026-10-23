@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "name": "Default screening policy",
   "description": "Baseline behaviour of the sanctions review desk. The jurisdiction list is a configurable example, not a complete or current list. Changes go through a reviewed, four-eyes publish.",
   "lists": {
@@ -74,6 +74,21 @@
     "moreInfoAlwaysToPerson": true,
     "blockNeedsTwoApprovers": true
   },
+  "screener": {
+    "enabled": true,
+    "confidenceThreshold": 0.5,
+    "otherConfidenceThreshold": 0.7,
+    "signalTypes": [
+      "alias_or_former_name",
+      "relationship_to_listed_party",
+      "ownership_or_control_claim",
+      "sanctioned_jurisdiction_link",
+      "adverse_media",
+      "instruction_to_reviewer",
+      "other"
+    ],
+    "maxFieldChars": 4000
+  },
   "models": {
     "triage": {
       "model": "fast",
@@ -84,6 +99,12 @@
       "model": "fast",
       "thinking": "off",
       "timeoutMs": 60000
+    },
+    "screener": {
+      "model": "fast",
+      "thinking": "off",
+      "timeoutMs": 60000,
+      "identity": "guard"
     },
     "matching": {
       "model": "fast",
@@ -103,7 +124,8 @@
         "budgetTokens": 500
       },
       "timeoutMs": 90000,
-      "identity": "reasoning"
+      "identity": "reasoning",
+      "retryIdentity": "guard"
     },
     "critic": {
       "model": "judge",
@@ -111,7 +133,8 @@
         "budgetTokens": 400
       },
       "timeoutMs": 90000,
-      "identity": "reasoning"
+      "identity": "reasoning",
+      "retryIdentity": "guard"
     },
     "challenger": {
       "model": "deep",
@@ -119,7 +142,8 @@
         "budgetTokens": 500
       },
       "timeoutMs": 90000,
-      "identity": "reasoning"
+      "identity": "reasoning",
+      "retryIdentity": "guard"
     },
     "policy_guard": {
       "model": "fast",
@@ -136,6 +160,7 @@
   "masking": {
     "triage": "role_evidence_agent",
     "evidence": "role_evidence_agent",
+    "screener": "role_evidence_agent",
     "matching": "role_evidence_agent",
     "ownership": "role_evidence_agent",
     "decision": "role_evidence_agent",
@@ -167,6 +192,10 @@
         "disposition"
       ],
       "denyColumns": []
+    },
+    "screener": {
+      "tables": [],
+      "denyColumns": ["id_number"]
     },
     "matching": {
       "tables": [],

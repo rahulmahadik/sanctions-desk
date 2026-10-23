@@ -33,6 +33,7 @@ export interface RoutingSplit {
 
 export const STEP_NAMES: Record<string, string> = {
   policy_guard: "Safety guard",
+  screener: "Screener",
   decision: "Decision",
   critic: "Critic",
   challenger: "Challenger",

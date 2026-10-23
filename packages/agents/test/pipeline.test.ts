@@ -35,7 +35,7 @@ describe("runReview with a scripted model", () => {
     const { generator } = scripted([decision(), approve]);
     const res = await runReview(sampleDeps({ generator }), request);
     expect(res).toMatchObject({ decision: "CLOSE_FALSE_POSITIVE", critic: { rounds: 1, final_verdict: "approved" } });
-    expect(res.models.map((m) => m.agent)).toEqual(["policy_guard", "decision", "critic"]);
+    expect(res.models.map((m) => m.agent)).toEqual(["policy_guard", "screener", "decision", "critic"]);
   });
 
   it("sends the recommendation back with neutral notes when the critic objects, then accepts the correction", async () => {

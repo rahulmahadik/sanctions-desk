@@ -69,6 +69,7 @@ describe("POST /run on the sample", () => {
     expect(body.agents).toEqual([
       "triage",
       "evidence",
+      "screener",
       "matching",
       "memory",
       "decision",
@@ -82,6 +83,7 @@ describe("POST /run on the sample", () => {
     expect(body.what_would_change.length).toBeGreaterThan(0);
     expect(body.models.map((m) => [m.agent, m.provider])).toEqual([
       ["policy_guard", "fallback-rules"],
+      ["screener", "fallback-rules"],
       ["decision", "fallback-rules"],
       ["critic", "fallback-rules"],
       ["challenger", "fallback-rules"],
@@ -107,6 +109,7 @@ describe("POST /run on the sample", () => {
         "system",
         "triage",
         "evidence",
+        "screener",
         "matching",
         "memory",
         "decision",

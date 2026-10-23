@@ -11,20 +11,21 @@ import { buildEvidenceTools } from "@sanctions-desk/zetaris";
 import { decideAutonomy, randomDraw } from "./autonomy.js";
 import { challenge, challengeTriggers } from "./challenger.js";
 import { review } from "./critic.js";
-import { type DecisionOutput, decide } from "./decision.js";
+import { type DecisionOutput, type DecisionResult, decide } from "./decision.js";
 import { type EvidenceBundle, gatherEvidence } from "./evidence.js";
 import { firstFinding } from "./hybrid.js";
 import { type MatchResult, matchEvidence, partyOf } from "./matching.js";
 import { recallMemory } from "./memory.js";
 import { gatherOwnership, matchOwnership, ownershipQuality } from "./ownership.js";
-import { applyPolicyGuard } from "./policy-guard.js";
+import { applyPolicyGuard, closeBlockers } from "./policy-guard.js";
 import { buildDecisionRecord, writeDecisionRecord } from "./record.js";
 import { screenInbound } from "./safety.js";
+import { screenFreeText } from "./screener.js";
 import { judgeDifficulty, triage } from "./triage.js";
 import { type AgentDeps, clientFor } from "./types.js";
 
 /**
- * One review, start to finish: Triage, Evidence, Matching, Decision, Critic (up to the policy's round
+ * One review, start to finish: Triage, Evidence, Screener, Matching, Decision, Critic (up to the policy's round
  * limit), Policy guard, Reporter. The result is a recommendation for a person to act on.
  */
 
@@ -37,7 +38,18 @@ export interface ReviewRequest {
   options?: { memory?: boolean; critic?: boolean; challenger?: boolean };
 }
 
-const AGENT_ORDER = ["triage", "evidence", "matching", "memory", "decision", "critic", "policy_guard", "reporter"];
+const AGENT_ORDER = [
+  "triage",
+  "evidence",
+  "screener",
+  "matching",
+  "memory",
+  "decision",
+  "critic",
+  "policy_guard",
+  "reporter",
+];
+const CHALLENGER_AT = AGENT_ORDER.indexOf("policy_guard");
 
 /** Everything read and worked out before a recommendation is asked for. */
 async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest["options"]) {
@@ -45,6 +57,20 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
   // Text that came out of the data is read as data. Anything that tries to instruct the reviewer is flagged first.
   const inbound = await screenInbound(deps, evidence.freeText);
   evidence.safety = inbound;
+  // The local screener reads the notes, payment references and list remarks and keeps only structured facts. Matching
+  // and the cloud steps work from those facts; the text itself stays on the machine.
+  const screened = await screenFreeText(deps, evidence);
+  evidence.screener = screened;
+  // One local model's say-so is not enough to mark the data as instructing the reviewer: the screener's verdict counts
+  // only with a pattern hit (when the inbound guard already agrees, the data is marked already).
+  if (screened.injection.flagged && screened.injection.patternHits > 0 && !inbound.violation) {
+    evidence.safety = {
+      ...inbound,
+      violation: true,
+      category: "prompt_injection",
+      reasons: [...inbound.reasons, "the screener found text that tries to instruct the reviewer"],
+    };
+  }
 
   let match: MatchResult;
   if (evidence.alert.alert_source === "ownership") {
@@ -57,6 +83,7 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
     evidence.ownership = ownership;
     evidence.dq.push(...(await ownershipQuality(deps, evidence.model, ownership.rows, evidence.queries)));
     match = matchOwnership(deps, evidence, ownership, partyOf(evidence));
+    match.closeBlockers = closeBlockers(deps.policy, evidence, false);
   } else {
     match = matchEvidence(deps, evidence);
   }
@@ -90,7 +117,14 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
       output_summary: "earlier clearance still valid: fast path, no reasoning",
     });
   }
-  return { evidence, match, tools, criticTools, easy, models: [...inbound.calls] as ModelUseInput[] };
+  return {
+    evidence,
+    match,
+    tools,
+    criticTools,
+    easy,
+    models: [...inbound.calls, ...screened.calls] as ModelUseInput[],
+  };
 }
 
 /** The lines a reviewer should read first: what the comparison found, then the check that changed the outcome. */
@@ -159,6 +193,7 @@ async function deliberate(
   let feedback: string[] = [];
   let rounds = 0;
   let approved = false;
+  let last: DecisionResult | undefined;
 
   if (options?.critic === false) {
     // Comparison setup: one recommendation, no critic. The policy guard still applies afterwards.
@@ -172,6 +207,7 @@ async function deliberate(
       models,
       criticRan: false,
       unavailable: decision.unavailable,
+      last: decision,
     };
   }
 
@@ -180,6 +216,7 @@ async function deliberate(
     const decision = await decide(deps, evidence, match, feedback, { fast: easy });
     models.push(...decision.calls);
     output = decision.output;
+    last = decision;
     // No usable recommendation: the critic has nothing to check, and a person gets the case.
     if (decision.unavailable) {
       return {
@@ -190,6 +227,7 @@ async function deliberate(
         models,
         criticRan: false,
         unavailable: decision.unavailable,
+        last: decision,
       };
     }
     const verdict = await review(deps, criticTools, evidence, match, output);
@@ -209,7 +247,7 @@ async function deliberate(
     }
   }
   if (!output) throw new AppError("internal", "no recommendation was produced");
-  return { output, approved, rounds, criticQueries, models, criticRan: true, unavailable: undefined };
+  return { output, approved, rounds, criticQueries, models, criticRan: true, unavailable: undefined, last };
 }
 
 /** Values the review took from verified notes, shown as such and never as values of the customer record. */
@@ -253,6 +291,14 @@ function autonomyOf(
     critic: { final_verdict: criticVerdict },
     guards: guard.verdicts,
     dataQualityFailed: evidence.dq.some((d) => d.failed),
+    screener: evidence.screener
+      ? {
+          status: evidence.screener.status,
+          signals: evidence.screener.signals.length,
+          servedByCloud: evidence.screener.servedByCloud,
+          truncated: evidence.screener.truncatedFields.length > 0,
+        }
+      : undefined,
     autoClosedToday: deps.autoClosedToday?.() ?? 0,
     draw: deps.random?.() ?? randomDraw(),
   });
@@ -315,6 +361,27 @@ const rationaleOf = (finalOutput: DecisionOutput, guard: ReturnType<typeof apply
   return guard.changed ? `${finalOutput.rationale} Policy check: ${reasons.join("; ")}.` : finalOutput.rationale;
 };
 
+/**
+ * Who made the recommendation: the model and route of the answer that was used, whether a fallback produced it, the
+ * model's own last recommendation before the challenger and the guard, and whether the critic was left unresolved.
+ */
+function decisionSource(deliberated: Awaited<ReturnType<typeof deliberate>>) {
+  const { last, output, approved, criticRan } = deliberated;
+  const call = last?.calls.at(-1);
+  const route = last?.route;
+  return {
+    ...(call ? { decision_model: call.model_routed } : {}),
+    ...(route ? { decision_route: route } : {}),
+    decided_by_fallback:
+      last?.unavailable !== undefined ||
+      (route !== undefined && route !== "own") ||
+      call?.provider === "ollama" ||
+      call?.provider === "fallback-rules",
+    model_last_recommendation: output.decision,
+    critic_unresolved: criticRan && !approved,
+  };
+}
+
 export async function runReview(deps: AgentDeps, request: ReviewRequest): Promise<ReviewResponse> {
   const started = performance.now();
   const { trace, policy } = deps;
@@ -368,9 +435,12 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     ...(evidence.hybrid ? { path: evidence.hybrid.path, first_finding: evidence.hybrid.decision } : {}),
     ...(autonomy ? { autonomy } : {}),
     ...(documentary ? { documentary } : {}),
+    ...decisionSource(deliberated),
     ...(record.confidence_cap ? { confidence_cap: record.confidence_cap } : {}),
     citations,
-    agents: challenged ? [...AGENT_ORDER.slice(0, 6), "challenger", ...AGENT_ORDER.slice(6)] : AGENT_ORDER,
+    agents: challenged
+      ? [...AGENT_ORDER.slice(0, CHALLENGER_AT), "challenger", ...AGENT_ORDER.slice(CHALLENGER_AT)]
+      : AGENT_ORDER,
     models: record.models,
     guards: record.guards,
     critic: record.critic,

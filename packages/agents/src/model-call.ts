@@ -68,6 +68,8 @@ export interface AskJsonOptions<T extends z.ZodType> {
 export interface AskJsonResult<T> {
   value: T;
   calls: ModelUseInput[];
+  /** Which try gave the answer: the step's own lane, the fast retry, or the backup provider. */
+  route: "own" | "fast" | "backup";
 }
 
 const laneOrModel = (value: string): { lane: Lane } | { model: string } =>
@@ -157,6 +159,12 @@ function isProviderFailure(err: unknown): boolean {
 const identityOf = (config: { identity?: "default" | "reasoning" | "guard" }) =>
   config.identity && config.identity !== "default" ? { identity: config.identity } : {};
 
+/** The identity of a try: the fast retry may go out under another identity so a bound lane cannot fail it twice. */
+const identityFor = (
+  config: { identity?: "default" | "reasoning" | "guard"; retryIdentity?: "default" | "reasoning" | "guard" },
+  route: "own" | "fast" | "backup",
+) => identityOf(route === "fast" && config.retryIdentity ? { identity: config.retryIdentity } : config);
+
 async function attemptOnce<T extends z.ZodType>(
   deps: AgentDeps,
   options: AskJsonOptions<T>,
@@ -171,7 +179,7 @@ async function attemptOnce<T extends z.ZodType>(
       system: `${options.system}\n\n${reasoning ? STRUCTURED_REASONING : STRUCTURED_BRIEF}`,
       prompt,
       ...(route === "own" ? laneOrModel(config.model) : { lane: "fast" as const }),
-      ...(route === "backup" ? { provider: "ollama" as const } : identityOf(config)),
+      ...(route === "backup" ? { provider: "ollama" as const } : identityFor(config, route)),
       jsonSchema: options.jsonSchema,
       temperature: 0,
       maxTokens: STRUCTURED_TOKENS,
@@ -184,7 +192,7 @@ async function attemptOnce<T extends z.ZodType>(
     prompt,
     // The fast retry goes to the fast lane: the deep lane may think aloud and never reach the JSON.
     ...(route === "own" ? laneOrModel(config.model) : { lane: "fast" as const }),
-    ...(route === "backup" ? { provider: "ollama" as const, jsonMode: true } : identityOf(config)),
+    ...(route === "backup" ? { provider: "ollama" as const, jsonMode: true } : identityFor(config, route)),
     // Without reasoning the answer starts straight away with "{"; with it the model thinks first.
     ...(reasoning ? {} : { prefill: "{" }),
     temperature: 0,
@@ -220,6 +228,8 @@ function logStep(
     route?: "own" | "fast" | "backup";
     /** The mode asked for, known even when the call failed before any answer. */
     lane?: string;
+    /** For a failed call: the error type and, per provider tried, its error type and message. */
+    failure?: Record<string, unknown>;
   },
 ): void {
   const fields = step.result ? modelTraceFields(step.result) : {};
@@ -239,11 +249,12 @@ function logStep(
       // Whether the answer arrived as a bare JSON object, which is what schema-constrained output should give.
       ...(step.result ? { pure_json: /^\s*\{[\s\S]*\}\s*$/.test(step.result.text) } : {}),
       ...(!step.ok && step.result ? failureExcerpt(step.result) : {}),
+      ...(step.failure ?? {}),
     },
   });
 }
 
-type Round = { done: true; value: unknown } | { done: false; problem: string };
+type Round = { done: true; value: unknown; route: "own" | "fast" | "backup" } | { done: false; problem: string };
 
 interface RoundContext {
   attempt: number;
@@ -257,7 +268,12 @@ interface RoundContext {
 /** A try that threw: log it, give a provider that just failed a moment, and let the next lane have a go. */
 async function failedRound(deps: AgentDeps, agent: AgentName, ctx: RoundContext, failure: unknown): Promise<Round> {
   const problem = failure instanceof Error ? failure.message : String(failure);
+  const known = failure as { type?: string; details?: { attempts?: unknown } } | undefined;
   logStep(deps, agent, {
+    failure: {
+      error_type: known?.type ?? "unknown",
+      ...(Array.isArray(known?.details?.attempts) ? { provider_errors: known.details.attempts } : {}),
+    },
     attempt: ctx.attempt,
     last: ctx.last,
     ok: false,
@@ -298,7 +314,7 @@ function answeredRound(
     route: ctx.route,
     lane: ctx.lane,
   });
-  return ok ? { done: true, value: outcome.value } : { done: false, problem: outcome.problem };
+  return ok ? { done: true, value: outcome.value, route: ctx.route } : { done: false, problem: outcome.problem };
 }
 
 /** One round of asking: reasoning on the first try, the fast local path on the retry. */
@@ -348,11 +364,29 @@ export async function askJson<T extends z.ZodType>(
   let problem = "";
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const round = await askRound(deps, options, { attempt, attempts, previousProblem: problem }, calls);
-    if (round.done) return { value: round.value as z.infer<T>, calls };
+    if (round.done) return { value: round.value as z.infer<T>, calls, route: round.route };
     problem = round.problem;
   }
   throw new AppError("bad_response", `the ${options.agent} model did not return a valid answer: ${problem}`, {
     recoverable: true,
     details: { calls: calls.length },
   });
+}
+
+/**
+ * Why no usable answer came back. "provider": the model service failed or answered with nothing (an HTTP error, a
+ * timeout, an empty answer). "parsing": the model answered but not in a form we can use. The two are reported
+ * separately because only the second is ours to fix.
+ */
+export type UnavailableCause = "provider" | "parsing" | "withheld";
+
+const PROVIDER_TYPES = new Set(["http_error", "network", "timeout", "route_dead"]);
+
+export function unavailableCause(err: AppError): UnavailableCause {
+  // The call was never made: the prompt held free text from the data, which is not sent to a model service.
+  if (err.type === "guard_blocked") return "withheld";
+  if (PROVIDER_TYPES.has(err.type) || /empty answer|all model providers failed|returned HTTP/i.test(err.message)) {
+    return "provider";
+  }
+  return "parsing";
 }

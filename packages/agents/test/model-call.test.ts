@@ -158,6 +158,55 @@ describe("askJson", () => {
     expect(failed.detail).toMatchObject({ structured: true, route: "own", lane: "deep" });
   });
 
+  it("sends the fast retry under the retry identity, so a bound lane cannot fail it twice", async () => {
+    const down = new AppError("http_error", "all model providers failed", { recoverable: true });
+    const { generator, requests } = scriptedGenerator([down, '{"decision": "Y", "confidence": 1}']);
+    const base = sampleDeps({ generator });
+    const decision = {
+      ...base.policy.models.decision,
+      identity: "reasoning" as const,
+      retryIdentity: "guard" as const,
+    };
+    const deps = {
+      ...base,
+      policy: { ...base.policy, models: { ...base.policy.models, decision } },
+      sleep: async () => {},
+    };
+    await askJson(deps, { agent: "decision", system: "s", prompt: "p", schema });
+    expect(requests.map((r) => r.identity)).toEqual(["reasoning", "guard"]);
+  });
+
+  it("keeps the step's own identity on the retry when no retry identity is set", async () => {
+    const { generator, requests } = scriptedGenerator(["not json", '{"decision": "Y", "confidence": 1}']);
+    const base = sampleDeps({ generator });
+    const decision = { ...base.policy.models.decision, identity: "reasoning" as const, retryIdentity: undefined };
+    const deps = { ...base, policy: { ...base.policy, models: { ...base.policy.models, decision } } };
+    await askJson(deps, { agent: "decision", system: "s", prompt: "p", schema });
+    expect(requests.map((r) => r.identity)).toEqual(["reasoning", "reasoning"]);
+  });
+
+  it("records the error type and each provider's error on a failed try", async () => {
+    const down = new AppError("http_error", "all model providers failed", {
+      recoverable: true,
+      details: {
+        attempts: [
+          { provider: "nightshift", type: "timeout", message: "no first token in time" },
+          { provider: "ollama", type: "http_error", message: "HTTP 500" },
+        ],
+      },
+    });
+    const { generator } = scriptedGenerator([down, '{"decision": "Y", "confidence": 1}']);
+    const deps = { ...sampleDeps({ generator }), sleep: async () => {} };
+    await askJson(deps, { agent: "decision", system: "s", prompt: "p", schema });
+    const lines = readFileSync(`${deps.logDir}/trace-agents-test.jsonl`, "utf8").split("\n").filter(Boolean);
+    const failed = JSON.parse(lines.find((l) => l.includes("model call failed")) as string);
+    expect(failed.detail.error_type).toBe("http_error");
+    expect(failed.detail.provider_errors).toEqual([
+      { provider: "nightshift", type: "timeout", message: "no first token in time" },
+      { provider: "ollama", type: "http_error", message: "HTTP 500" },
+    ]);
+  });
+
   it("does not wait after an answer that merely could not be used", async () => {
     const waits: number[] = [];
     const { generator } = scriptedGenerator(["not json", '{"decision": "Y", "confidence": 1}']);

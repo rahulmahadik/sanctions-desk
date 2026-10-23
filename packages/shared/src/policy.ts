@@ -43,6 +43,12 @@ export const AgentModelSchema = z.strictObject({
    * cockpit (the guard to the local model, reasoning to the deep mode); "default" uses the application's own identity.
    */
   identity: z.enum(["default", "reasoning", "guard"]).default("default"),
+  /**
+   * The identity the fast retry is sent under after a failed or unusable try. A cockpit bind replaces the mode a request
+   * asks for, so a retry under the same bound identity goes back to the same lane; "guard" sends it to the local model
+   * instead. Absent means the step's own identity. Added in policy version 6.
+   */
+  retryIdentity: z.enum(["default", "reasoning", "guard"]).optional(),
 });
 export type AgentModel = z.infer<typeof AgentModelSchema>;
 
@@ -50,6 +56,7 @@ const perAgent = <T extends z.ZodType>(schema: T) =>
   z.strictObject({
     triage: schema,
     evidence: schema,
+    screener: schema,
     matching: schema,
     ownership: schema,
     decision: schema,
@@ -58,6 +65,22 @@ const perAgent = <T extends z.ZodType>(schema: T) =>
     policy_guard: schema,
     reporter: schema,
   });
+
+/**
+ * The kinds of risk the screener may report from free text. The list is closed: anything else the model names is
+ * recorded as "other", which blocks a close like every other type.
+ */
+export const SCREENER_SIGNAL_TYPES = [
+  "alias_or_former_name",
+  "relationship_to_listed_party",
+  "ownership_or_control_claim",
+  "sanctioned_jurisdiction_link",
+  "adverse_media",
+  "instruction_to_reviewer",
+  "other",
+] as const;
+export const ScreenerSignalTypeSchema = z.enum(SCREENER_SIGNAL_TYPES);
+export type ScreenerSignalType = z.infer<typeof ScreenerSignalTypeSchema>;
 
 const regexSource = nonEmpty.refine((s) => {
   try {
@@ -162,6 +185,51 @@ const PolicyShape = z.strictObject({
       requireDocumentNumber: true,
       requireDate: true,
       requireNamedCounterpartyForPayments: true,
+    }),
+
+  /**
+   * The screener reads the free text of a case (customer notes, payment references, list remarks) on the local model
+   * and returns structured facts only. Those facts, never the text, are what the cloud models see. The model it runs
+   * on is `models.screener` (identity "guard", bound to the local model in the cockpit). Added in policy version 6.
+   */
+  screener: z
+    .strictObject({
+      /**
+       * Off only for a comparison run: the free text is then not read, there are no signals, and the policy guard's
+       * screener rule passes with a note saying the screener is off.
+       */
+      enabled: z.boolean().default(true),
+      /**
+       * A risk signal at or above this confidence blocks a close. It is capped so that the threshold cannot be set
+       * high enough to let every signal through.
+       */
+      confidenceThreshold: z.number().min(0).max(0.9),
+      /**
+       * "other" is the type a model reaches for when nothing fits, so it blocks a close only from this confidence;
+       * between the normal threshold and this one it is shown as a flag.
+       */
+      otherConfidenceThreshold: z.number().min(0).max(0.95).default(0.7),
+      /** The closed list of signal types. It must keep "other" so that a type nobody listed is still counted. */
+      signalTypes: z
+        .array(ScreenerSignalTypeSchema)
+        .min(1)
+        .refine(unique, "signal types must be unique")
+        .refine((t) => t.includes("other") && t.includes("instruction_to_reviewer"), {
+          message: 'signal types must keep "other" and "instruction_to_reviewer"',
+        }),
+      /** The longest stretch of one field the screener reads; the rest is not read and the case says so. */
+      maxFieldChars: positiveInt.max(20_000),
+    })
+    .refine((s) => s.otherConfidenceThreshold >= s.confidenceThreshold, {
+      message: "otherConfidenceThreshold must not be below confidenceThreshold",
+      path: ["otherConfidenceThreshold"],
+    })
+    .default({
+      enabled: true,
+      confidenceThreshold: 0.5,
+      otherConfidenceThreshold: 0.7,
+      signalTypes: [...SCREENER_SIGNAL_TYPES],
+      maxFieldChars: 4000,
     }),
 
   models: perAgent(AgentModelSchema),

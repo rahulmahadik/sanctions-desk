@@ -96,10 +96,16 @@ describe("long text in a prompt", () => {
   it("applies to the evidence given to the model", async () => {
     const deps = sampleDeps();
     const evidence = await gatherEvidence(deps, caseFacts("inj_payment_reference_0").alertId);
-    const longRef = "y".repeat(900);
-    if (evidence.payment) evidence.payment.payment_reference = longRef;
+    const longName = "y".repeat(900);
+    if (evidence.payment) {
+      evidence.payment.counterparty_name = longName;
+      evidence.payment.payment_reference = "a free-text reference that must not be sent";
+    }
     const payload = JSON.parse(renderEvidence(evidence, matchEvidence(deps, evidence)));
-    expect(payload.payment.payment_reference.length).toBeLessThan(400);
-    expect(payload.payment.payment_reference).toContain("more characters left out");
+    expect(payload.payment.counterparty_name.length).toBeLessThan(400);
+    expect(payload.payment.counterparty_name).toContain("more characters left out");
+    // The payment reference is free text: the screener reads it locally and the model sees only its facts.
+    expect(payload.payment).not.toHaveProperty("payment_reference");
+    expect(payload.list_entry).not.toHaveProperty("remarks");
   });
 });
