@@ -89,12 +89,14 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
     const runId = parsed.data;
     reply.hijack();
     const res = reply.raw;
+    // The origin is echoed only when it is one of the configured web origins (allowedOrigin checks the list).
+    const origin = allowedOrigin(config, req.headers.origin);
     res.writeHead(200, {
       "content-type": "text/event-stream",
       "cache-control": "no-store",
       connection: "keep-alive",
       "x-accel-buffering": "no",
-      "access-control-allow-origin": allowedOrigin(config, req.headers.origin) ?? "",
+      ...(origin !== undefined ? { "access-control-allow-origin": origin, vary: "Origin" } : {}),
     });
     const send = (event: string, data: unknown) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
     const timer = setInterval(() => res.write(": keep-alive\n\n"), KEEP_ALIVE_MS);

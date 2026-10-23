@@ -111,6 +111,7 @@ export async function buildApp(deps: AppDeps) {
     reply.header("cache-control", "no-store");
     const origin = allowedOrigin(config, req.headers.origin);
     if (origin !== undefined) {
+      // nosemgrep: javascript.express.security.cors-misconfiguration.cors-misconfiguration -- origin is one of the configured web origins
       reply.header("access-control-allow-origin", origin);
       reply.header("vary", "Origin");
     }
