@@ -63,6 +63,18 @@ Answer with one JSON object only: {"analysis": "brief reasoning, at most 100 wor
 
 const sameValue = (a: string | null, b: string | null): boolean => (a ?? "") === (b ?? "");
 
+/**
+ * The note sent back when a citation names a table that does not exist. It says which tables may be cited and by
+ * which key, and that the computed blocks (comparison, definitions, ownership) are not tables.
+ */
+function unknownTable(tools: ReadonlyMap<string, EvidenceTool>, evidence: EvidenceBundle, table: string): string {
+  const allowed = [...tools.values()]
+    .map((t) => `${t.table.name} (key ${t.table.columns.find((c) => c.primaryKey)?.name ?? "n/a"})`)
+    .sort();
+  if ((evidence.memory?.recalled.length ?? 0) > 0) allowed.push("memory (key memory_id, for an earlier decision)");
+  return `unknown table "${table}". Cite only rows of these tables: ${allowed.join(", ")}. The comparison, definitions and ownership blocks are worked out by code and cannot be cited; say what they show in the rationale instead`;
+}
+
 /** A fact that cites an earlier decision is checked against the memory the step recalled, not against a table. */
 function checkMemoryFact(evidence: EvidenceBundle, fact: FactCitation): FactCheck {
   const detail = evidence.memory?.details.get(fact.key_value);
@@ -87,7 +99,7 @@ async function checkFact(
 ): Promise<FactCheck> {
   if (fact.table === "memory") return checkMemoryFact(evidence, fact);
   const tool = tools.get(`find_${fact.table}`);
-  if (!tool) return { fact, ok: false, reason: `unknown table "${fact.table}"` };
+  if (!tool) return { fact, ok: false, reason: unknownTable(tools, evidence, fact.table) };
   const keyColumn = tool.table.columns.find((c) => c.primaryKey)?.name;
   if (!keyColumn) return { fact, ok: false, reason: `${fact.table} has no key to find a row by` };
   if (!tool.columns.includes(fact.column)) return { fact, ok: false, reason: `unknown column in ${fact.table}` };

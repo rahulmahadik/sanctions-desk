@@ -99,6 +99,7 @@ Rules:
 - Choose RECOMMEND_BLOCK only when the definition of a true match is met. It still needs two human approvals.
 - Never write text for the customer. Never say or imply that the customer is under investigation.
 - Give 2 to 6 facts that support the decision. A fact names a row by its key value: use the keys listed in <keys> (for example customer: customer_id, list_entry: entry_id). Copy table, key_value, column and value exactly from the evidence rows; value is a string or null (null when the field is empty). Facts come from evidence rows only, never from the comparison block.
+- Cite only rows of the tables listed in <keys>, and an earlier decision as table "memory". The comparison, definitions, ownership and earlier_decisions blocks are not tables: use them in the rationale, never as the table of a fact. When an earlier clearance applies, say so in the rationale and cite the customer and list-entry rows (or the memory) that support it.
 - "what_would_change" lists what new information would change your recommendation.
 Answer with one JSON object only, with these keys:
 {"analysis": "brief reasoning, at most 120 words", "decision": "...", "confidence": 0.0-1.0, "rationale": "2-4 plain sentences", "facts": [{"table": "...", "key_value": "...", "column": "...", "value": "..."}], "what_would_change": ["..."]}`;
