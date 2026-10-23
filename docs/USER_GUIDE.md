@@ -12,6 +12,8 @@ Sample mode needs Docker and nothing else. It uses saved real answers and a labe
 SAMPLE_MODE=true docker compose up --build        # the desk on http://localhost:3001, the API on http://localhost:8000
 ```
 
+To check the main claims without Docker or the desk, run `npm ci && npm run prove`. It prints one PASS or FAIL line for each of six checks (a sample review with a sealed record, the engine conformance suites, the signed receipts of the saved runs, the role and four-eyes tests, the preregistered held-out files and a scan for secrets) and a summary, and needs no keys. See [Try it in two minutes](../README.md#try-it-in-two-minutes) in the README.
+
 To run it live against Zetaris and Nightshift, follow [Run it live](../README.md#run-it-live) in the README.
 
 ## 2. Choose a demo user

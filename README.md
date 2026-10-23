@@ -19,6 +19,10 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 | **Traces and receipts**     | the **Decision trace** and **Model routing** panels of every case (with a _Verify receipt_ button); `eval/runs/<run-id>/` holds the exported events and Nightshift's signed receipts; check them with `npm run evidence:verify` ([Check which model served each call](#check-which-model-served-each-call))                     |
 | **Evidence for the claims** | [eval/REPORT.md](eval/REPORT.md), [docs/EVALUATION.md](docs/EVALUATION.md), [docs/SPONSORS.md](docs/SPONSORS.md), [docs/ZETARIS.md](docs/ZETARIS.md#zetaris-checklist)                                                                                                                                                          |
 
+<!-- prove:start -->
+**One-command proof** (`npm run prove`, no credentials or services): a sample-mode review end to end with a sealed record that verifies, the engine conformance suites, every signed receipt in `eval/runs`, the role and four-eyes tests, the preregistered held-out hashes and a scan for secrets, one PASS or FAIL line each. `npm run prove -- --write` writes the list from a real run here and in [eval/PROVE.md](eval/PROVE.md); `npm run prove -- --fresh` runs the same checks in a clean clone of this commit.
+<!-- prove:end -->
+
 **Headline numbers** (from the saved runs; refreshed by `npm run exam:report`):
 
 <!-- judges:start -->
@@ -92,6 +96,19 @@ curl -s localhost:8000/list-change/replay -X POST -H 'content-type: application/
 ```
 
 Open http://localhost:3001 for the review desk: pick an alert, press **Review this alert** and watch the steps light up as the real events arrive. See [Review desk interface](#review-desk-interface). Sample mode runs the real agents on saved answers from real Zetaris queries, with a labelled rules-based stand-in for the language model. See [docs/SAMPLE_MODE.md](docs/SAMPLE_MODE.md). Example inputs are in `input_examples/` and real outputs saved from live runs are in `output_examples/`.
+
+**Check the claims without Docker.** With Node 24, `npm ci && npm run prove` runs six checks in a few seconds once installed and prints one PASS or FAIL line each, then a summary; it exits with 1 if any check fails. It needs no credentials and no services, forces sample mode and never reads `.env`:
+
+| Check                  | What it does                                                                                                                                                         |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sample-mode review     | Starts the API in the same process, runs `POST /run` for ALR-0004 and checks the sealed record on disk: its SHA-256 hash verifies and the answer carries the sample notice |
+| Engine conformance     | Runs the vendored conformance suites of H-MEM, the World Model and the Markovian engine (`npm run test:engines`) and reports each score                               |
+| Signed evidence        | Verifies every receipt signature in `eval/runs` and that every model call in the traces has its receipt naming the same model (`npm run evidence:verify`)            |
+| Roles and four-eyes    | Runs the API's access tests (every role against every route that changes something) and the human-decision tests, and reports the pass counts                        |
+| Preregistration        | Recomputes the held-out case-file hashes pinned in the tests, and checks that the final freeze commit of the second held-out set is in the history                   |
+| No secrets in the tree | Scans the tracked text files for credential-bearing URLs, private keys and tokens, and reports counts only                                                           |
+
+`npm run prove -- --verbose` also prints what each check printed. `npm run prove -- --fresh` clones the current commit into a temporary folder, runs `npm ci --no-audit --no-fund` there and runs the same checks inside it; it needs network access for npm and takes a few minutes. `npm run prove -- --write` writes the list to `eval/PROVE.md` and to the block at the top of this README.
 
 ## How it works
 

@@ -22,6 +22,7 @@
     "test:coverage": "vitest run --coverage",
     "test:live": "LIVE_TESTS=1 vitest run packages/shared/test/live packages/zetaris/test/live",
     "ci": "npm run typecheck && npm run lint && npm run lint:voice && npm run test:coverage",
+    "prove": "tsx tools/prove.ts",
     "verify": "uv run python scripts/verify_setup.py",
     "check:zetaris": "uv run python scripts/check_zetaris.py",
     "check:nemotron": "uv run python scripts/check_nemotron.py",
