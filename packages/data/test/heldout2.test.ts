@@ -26,9 +26,9 @@ const read = (path: string) => readFileSync(path, "utf8");
 
 describe("the second held-out set and the files that already exist", () => {
   it("reproduces the committed data (main, first and second set rows), tables and cases byte for byte", () => {
-    // The committed data/synthetic holds the rows of both held-out sets, as loaded into the running bank.
+    // The committed data/synthetic holds the rows of every held-out set, as loaded into the running bank.
     const dir = tempDir();
-    writeBank(dir, bank, { includeHeldout2: true });
+    writeBank(dir, bank, { includeHeldout3: true });
     for (const name of SYNTHETIC_TABLE_NAMES) {
       for (const ext of ["json", "csv"]) {
         expect(read(join(dir, `${name}.${ext}`)), `${name}.${ext}`).toBe(
@@ -52,7 +52,7 @@ describe("the second held-out set and the files that already exist", () => {
       const committed = JSON.parse(read(resolveProjectPath(`data/synthetic/${name}.json`))) as Array<
         Record<string, string>
       >;
-      const withoutHeldout = committed.filter((r) => !Object.values(r)[0]?.match(/^[A-Z]+-[HJ]\d/));
+      const withoutHeldout = committed.filter((r) => !Object.values(r)[0]?.match(/^[A-Z]+-[HJK]\d/));
       expect(JSON.parse(read(join(dir, `${name}.json`))), name).toEqual(withoutHeldout);
     }
   });
