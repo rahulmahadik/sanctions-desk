@@ -9,6 +9,29 @@ import { HumanBanner } from "./Banner";
 
 type Filter = "all" | "open" | "reviewed";
 
+function RecommendationBadge({ alert: a }: { alert: QueueAlert }) {
+  if (!a.recommendation) return <span className="muted">not yet reviewed</span>;
+  return <span className={`badge tone-${DECISION_TONE[a.recommendation]}`}>{DECISION_LABEL[a.recommendation]}</span>;
+}
+
+/** Where people have taken the recommendation: auto-closed, a quality-assurance sample, human-approved, or waiting. */
+function PersonBadge({ alert: a }: { alert: QueueAlert }) {
+  if (a.autonomy_outcome === "auto_closed" && a.human_status === "auto_closed")
+    return <span className="badge tone-wait">auto-closed</span>;
+  if (a.autonomy_outcome === "qa_sample" && a.human_status === "awaiting")
+    return <span className="badge tone-alert">QA sample: a person decides</span>;
+  if (a.human_status && a.human_status !== "awaiting") {
+    const text =
+      a.human_status === "block_pending"
+        ? "block approval pending"
+        : a.human_final
+          ? `human-approved: ${DECISION_LABEL[a.human_final]}`
+          : "human-approved";
+    return <span className="badge tone-calm">{text}</span>;
+  }
+  return a.recommendation ? <span className="muted">waiting for a person</span> : null;
+}
+
 export function Queue() {
   const [alerts, setAlerts] = useState<QueueAlert[]>();
   const [sampleMode, setSampleMode] = useState(false);
@@ -93,30 +116,10 @@ export function Queue() {
                   <td>{a.matched_name}</td>
                   <td>{a.match_score.toFixed(2)}</td>
                   <td>
-                    {a.recommendation ? (
-                      <span className={`badge tone-${DECISION_TONE[a.recommendation]}`}>
-                        {DECISION_LABEL[a.recommendation]}
-                      </span>
-                    ) : (
-                      <span className="muted">not yet reviewed</span>
-                    )}
+                    <RecommendationBadge alert={a} />
                   </td>
                   <td>
-                    {a.autonomy_outcome === "auto_closed" && a.human_status === "auto_closed" ? (
-                      <span className="badge tone-wait">auto-closed</span>
-                    ) : a.autonomy_outcome === "qa_sample" && a.human_status === "awaiting" ? (
-                      <span className="badge tone-alert">QA sample: a person decides</span>
-                    ) : a.human_status && a.human_status !== "awaiting" ? (
-                      <span className="badge tone-calm">
-                        {a.human_status === "block_pending"
-                          ? "block approval pending"
-                          : a.human_final
-                            ? `human-approved: ${DECISION_LABEL[a.human_final]}`
-                            : "human-approved"}
-                      </span>
-                    ) : a.recommendation ? (
-                      <span className="muted">waiting for a person</span>
-                    ) : null}
+                    <PersonBadge alert={a} />
                   </td>
                   <td className="muted">{shortHash(a.record_hash)}</td>
                 </tr>

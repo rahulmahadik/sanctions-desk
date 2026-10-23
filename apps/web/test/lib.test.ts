@@ -74,3 +74,29 @@ describe("format", () => {
     expect(DECISION_LABEL.RECOMMEND_BLOCK).toContain("two approvals");
   });
 });
+
+describe("reading the live stream", () => {
+  it("takes complete run events and leaves an unfinished block for the next chunk", async () => {
+    const { takeEvents } = await import("../lib/api");
+    const event = (seq: number, action = "x") =>
+      JSON.stringify({ ts: "t", run_id: "r", seq, agent: "evidence", action, status: "ok" });
+    const first = takeEvents(
+      `event: run_event\ndata: ${event(1)}\n\n: keep-alive\n\nevent: run_event\ndata: ${event(2)}`,
+    );
+    expect(first.events.map((e) => e.seq)).toEqual([1]);
+    const second = takeEvents(`${first.rest}\n\nevent: run_event\ndata: ${event(3)}\n\n`);
+    expect(second.events.map((e) => e.seq)).toEqual([2, 3]);
+    expect(second.rest).toBe("");
+  });
+
+  it("knows the event that ends a run", async () => {
+    const { endsRun } = await import("../lib/api");
+    const e = (agent: string, action: string) =>
+      ({ ts: "t", run_id: "r", seq: 1, agent, action, status: "ok" }) as never;
+    expect(endsRun(e("system", "run_completed"))).toBe(true);
+    expect(endsRun(e("system", "run_failed"))).toBe(true);
+    expect(endsRun(e("system", "run_rejected"))).toBe(true);
+    expect(endsRun(e("system", "run_started"))).toBe(false);
+    expect(endsRun(e("critic", "run_completed"))).toBe(false);
+  });
+});

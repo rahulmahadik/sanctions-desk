@@ -6,6 +6,88 @@ import { graphAt } from "../lib/graph";
 import type { RecordView, ReviewAnswer, RunEvent, TraceView } from "../lib/types";
 import { RunGraph } from "./RunGraph";
 
+function PathLine({ answer }: { answer: ReviewAnswer }) {
+  if (!answer.path || !answer.decision) return null;
+  const first = answer.first_finding;
+  return (
+    <p className="muted" data-testid="path">
+      {answer.path === "confirm"
+        ? `Path: the structured evidence settles it (code's first finding: ${DECISION_LABEL[first ?? answer.decision]}); the agents confirmed and explained it.`
+        : `Path: the structured evidence did not settle it, or there is free text to weigh (code's first finding: ${first ? DECISION_LABEL[first] : "none"}); the agents reasoned over all of it.`}
+    </p>
+  );
+}
+
+function AutonomyNote({ answer }: { answer: ReviewAnswer }) {
+  if (answer.autonomy?.outcome === "auto_closed") {
+    return (
+      <p className="banner" role="note" data-testid="auto-closed">
+        {answer.autonomy.statement}. A person can reopen it from the decision panel.
+      </p>
+    );
+  }
+  if (answer.autonomy?.outcome === "qa_sample") {
+    return (
+      <p className="banner" role="note">
+        This close met every condition for an automatic close and was picked for a quality-assurance review: a person
+        decides it.
+      </p>
+    );
+  }
+  return null;
+}
+
+function ConfidenceLine({ answer }: { answer: ReviewAnswer }) {
+  const cap = answer.confidence_cap;
+  const auto = answer.autonomy?.outcome === "auto_closed";
+  const approvals = answer.approvals_required ?? 1;
+  const tail = auto
+    ? "Closed under the autonomy setting."
+    : approvals > 1
+      ? `A person decides — this one needs ${approvals} approvals.`
+      : "A person decides.";
+  return (
+    <p data-testid="confidence">
+      Confidence {percent(answer.confidence ?? 0)}
+      {cap ? ` (capped at ${percent(cap.value)}: ${cap.reason})` : ""}. {tail}
+    </p>
+  );
+}
+
+function Checks({ answer }: { answer: ReviewAnswer }) {
+  const rounds = answer.critic?.rounds;
+  return (
+    <>
+      <h2>Checks</h2>
+      <ul>
+        {(answer.guards ?? []).map((g) => (
+          <li key={`${g.guard}-${g.detail ?? ""}`} className={g.verdict === "pass" ? undefined : "tone-alert"}>
+            {label(g.guard)}: {g.verdict}
+            {g.detail ? ` — ${g.detail}` : ""}
+          </li>
+        ))}
+        {answer.critic ? (
+          <li>
+            critic: {answer.critic.final_verdict} after {rounds} round{rounds === 1 ? "" : "s"}
+          </li>
+        ) : null}
+      </ul>
+    </>
+  );
+}
+
+const BulletList = ({ title, items, testId }: { title: string; items: readonly string[]; testId?: string }) =>
+  items.length === 0 ? null : (
+    <>
+      <h2>{title}</h2>
+      <ul data-testid={testId}>
+        {items.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
+      </ul>
+    </>
+  );
+
 /** The recommendation, why, and what would change it. A person acts on it. */
 export function Outcome({ answer }: { answer: ReviewAnswer }) {
   if (answer.status === "error" || !answer.decision) {
@@ -17,78 +99,19 @@ export function Outcome({ answer }: { answer: ReviewAnswer }) {
       </section>
     );
   }
-  const tone = DECISION_TONE[answer.decision];
-  const cap = answer.confidence_cap;
-  const evidence = answer.key_evidence ?? [];
   return (
     <section className="panel" aria-labelledby="outcome-title">
       <h2 id="outcome-title">Recommendation</h2>
-      <p className={`verdict tone-${tone}`} data-testid="verdict">
+      <p className={`verdict tone-${DECISION_TONE[answer.decision]}`} data-testid="verdict">
         {DECISION_LABEL[answer.decision]}
       </p>
-      {answer.path ? (
-        <p className="muted" data-testid="path">
-          {answer.path === "confirm"
-            ? `Path: the structured evidence settles it (code's first finding: ${DECISION_LABEL[answer.first_finding ?? answer.decision]}); the agents confirmed and explained it.`
-            : `Path: the structured evidence did not settle it, or there is free text to weigh (code's first finding: ${answer.first_finding ? DECISION_LABEL[answer.first_finding] : "none"}); the agents reasoned over all of it.`}
-        </p>
-      ) : null}
-      {answer.autonomy?.outcome === "auto_closed" ? (
-        <p className="banner" role="note" data-testid="auto-closed">
-          {answer.autonomy.statement}. A person can reopen it from the decision panel.
-        </p>
-      ) : answer.autonomy?.outcome === "qa_sample" ? (
-        <p className="banner" role="note">
-          This close met every condition for an automatic close and was picked for a quality-assurance review: a person
-          decides it.
-        </p>
-      ) : null}
-      <p data-testid="confidence">
-        Confidence {percent(answer.confidence ?? 0)}
-        {cap ? ` (capped at ${percent(cap.value)}: ${cap.reason})` : ""}.{" "}
-        {answer.autonomy?.outcome === "auto_closed" ? "Closed under the autonomy setting." : "A person decides"}
-        {answer.autonomy?.outcome !== "auto_closed" && answer.approvals_required && answer.approvals_required > 1
-          ? ` — this one needs ${answer.approvals_required} approvals.`
-          : answer.autonomy?.outcome === "auto_closed"
-            ? ""
-            : "."}
-      </p>
-      {evidence.length > 0 ? (
-        <>
-          <h2>What decided it</h2>
-          <ul data-testid="key-evidence">
-            {evidence.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
-        </>
-      ) : null}
+      <PathLine answer={answer} />
+      <AutonomyNote answer={answer} />
+      <ConfidenceLine answer={answer} />
+      <BulletList title="What decided it" items={answer.key_evidence ?? []} testId="key-evidence" />
       <p>{answer.rationale}</p>
-      {answer.what_would_change.length > 0 ? (
-        <>
-          <h2>What would change this</h2>
-          <ul>
-            {answer.what_would_change.map((w) => (
-              <li key={w}>{w}</li>
-            ))}
-          </ul>
-        </>
-      ) : null}
-      <h2>Checks</h2>
-      <ul>
-        {(answer.guards ?? []).map((g) => (
-          <li key={`${g.guard}-${g.detail ?? ""}`} className={g.verdict === "pass" ? undefined : "tone-alert"}>
-            {label(g.guard)}: {g.verdict}
-            {g.detail ? ` — ${g.detail}` : ""}
-          </li>
-        ))}
-        {answer.critic ? (
-          <li>
-            critic: {answer.critic.final_verdict} after {answer.critic.rounds} round
-            {answer.critic.rounds === 1 ? "" : "s"}
-          </li>
-        ) : null}
-      </ul>
+      <BulletList title="What would change this" items={answer.what_would_change} />
+      <Checks answer={answer} />
     </section>
   );
 }

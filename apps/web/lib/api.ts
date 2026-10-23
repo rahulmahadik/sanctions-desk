@@ -126,6 +126,28 @@ export const postReopen = (alertId: string, input: { reason: string; record_hash
 export const postSecondApproval = (alertId: string, input: { approve: boolean; reason: string; record_hash: string }) =>
   post<HumanView>(`/cases/${encodeURIComponent(alertId)}/second-approval`, input);
 
+const END_ACTIONS = ["run_completed", "run_failed", "run_rejected"];
+
+/** True for the event that closes a run. */
+export const endsRun = (event: RunEvent): boolean => event.agent === "system" && END_ACTIONS.includes(event.action);
+
+/** The run events in the complete blocks of a server-sent stream, and what is left of an unfinished block. */
+export function takeEvents(buffer: string): { events: RunEvent[]; rest: string } {
+  const events: RunEvent[] = [];
+  let rest = buffer;
+  for (let cut = rest.indexOf("\n\n"); cut >= 0; cut = rest.indexOf("\n\n")) {
+    const block = rest.slice(0, cut);
+    rest = rest.slice(cut + 2);
+    const data = block
+      .split("\n")
+      .filter((l) => l.startsWith("data:"))
+      .map((l) => l.slice(5).trim())
+      .join("");
+    if (block.includes("event: run_event") && data) events.push(JSON.parse(data) as RunEvent);
+  }
+  return { events, rest };
+}
+
 /**
  * Follow a run's events as they happen. Returns a function that stops listening. It reads the stream with fetch, not
  * EventSource, so the sign-in header can be sent and no token ever appears in an address.
@@ -139,44 +161,31 @@ export function followRun(runId: string, onEvent: (event: RunEvent) => void, onC
     abort.abort();
     onClose();
   };
-  void (async () => {
-    try {
-      const res = await fetch(`${API_URL}/runs/${encodeURIComponent(runId)}/stream`, {
-        headers: { ...authHeaders(), accept: "text/event-stream" },
-        signal: abort.signal,
-        cache: "no-store",
-      });
-      if (!res.ok || !res.body) return finish();
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      for (;;) {
-        const { value, done: ended } = await reader.read();
-        if (ended) break;
-        buffer += decoder.decode(value, { stream: true });
-        let cut = buffer.indexOf("\n\n");
-        while (cut >= 0) {
-          const block = buffer.slice(0, cut);
-          buffer = buffer.slice(cut + 2);
-          const data = block
-            .split("\n")
-            .filter((l) => l.startsWith("data:"))
-            .map((l) => l.slice(5).trim())
-            .join("");
-          if (block.includes("event: run_event") && data) {
-            const event = JSON.parse(data) as RunEvent;
-            onEvent(event);
-            if (event.agent === "system" && ["run_completed", "run_failed", "run_rejected"].includes(event.action))
-              return finish();
-          }
-          cut = buffer.indexOf("\n\n");
-        }
+  const read = async (): Promise<void> => {
+    const res = await fetch(`${API_URL}/runs/${encodeURIComponent(runId)}/stream`, {
+      headers: { ...authHeaders(), accept: "text/event-stream" },
+      signal: abort.signal,
+      cache: "no-store",
+    });
+    if (!res.ok || !res.body) return;
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    for (;;) {
+      const { value, done: ended } = await reader.read();
+      if (ended) return;
+      const taken = takeEvents(buffer + decoder.decode(value, { stream: true }));
+      buffer = taken.rest;
+      for (const event of taken.events) {
+        onEvent(event);
+        if (endsRun(event)) return;
       }
-    } catch {
-      // aborted by the caller, or the connection dropped; the recorded history is read afterwards
     }
-    finish();
-  })();
+  };
+  // aborted by the caller, or the connection dropped; the recorded history is read afterwards
+  void read()
+    .catch(() => undefined)
+    .then(finish);
   return () => {
     done = true;
     abort.abort();

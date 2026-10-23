@@ -205,12 +205,94 @@ function ChangeAutonomy({ view, me, onDone }: { view: AutonomyView; me?: MeView;
   );
 }
 
+/** What the exam replay of a draft found, with the autonomy counts when the draft is at level 1. */
+function WhatIfResult({ version, report }: { version: number; report: WhatIfView }) {
+  const a = report.autonomy;
+  return (
+    <div data-testid={`whatif-${version}`}>
+      <p>
+        {report.cases} exam cases replayed: {report.changed} would change, {report.less_cautious} less cautious,{" "}
+        <strong className={report.new_false_closes > 0 ? "tone-stop" : "tone-calm"}>
+          {report.new_false_closes} new false closes
+        </strong>
+        .
+      </p>
+      {a ? (
+        <p data-testid="whatif-autonomy">
+          At level 1: <strong>{a.auto_closed}</strong> would be closed automatically, <strong>{a.qa_sample}</strong>{" "}
+          sampled for quality assurance ({Math.round(a.qa_rate * 100)}%), {a.human_review} left to a person. False
+          closes on the exam:{" "}
+          <strong className={a.false_closes > 0 ? "tone-stop" : "tone-calm"}>{a.false_closes}</strong> (must be 0)
+          {a.false_closes > 0 ? ". Do not publish this draft." : "."}
+        </p>
+      ) : (
+        <p className="muted">This draft stays at level 0.</p>
+      )}
+    </div>
+  );
+}
+
+const publishBlocker = (me: MeView | undefined, draft: PolicyVersionRow): string | undefined => {
+  if (!me?.permissions.publish_policy) return "Only a policy admin can publish.";
+  return me.user.id === draft.proposed_by
+    ? "You wrote this draft; a different policy admin must publish it."
+    : undefined;
+};
+
+interface DraftActions {
+  preview: (version: number) => Promise<void>;
+  act: (fn: () => Promise<unknown>) => Promise<void>;
+}
+
+function DraftCard({
+  draft: d,
+  me,
+  report,
+  actions,
+}: {
+  draft: PolicyVersionRow;
+  me?: MeView;
+  report?: WhatIfView | "running";
+  actions: DraftActions;
+}) {
+  const blocked = publishBlocker(me, d);
+  return (
+    <article aria-label={`Draft ${d.version}`}>
+      <h3>
+        Version {d.version} <span className="muted">proposed by {d.proposed_by}</span>
+      </h3>
+      {d.reason ? <p className="muted">{d.reason}</p> : null}
+      <button
+        type="button"
+        className="secondary"
+        disabled={report === "running"}
+        onClick={() => void actions.preview(d.version)}
+      >
+        {report === "running" ? "Replaying the exam…" : "Preview on the exam"}
+      </button>{" "}
+      <button
+        type="button"
+        disabled={blocked !== undefined}
+        onClick={() => void actions.act(() => postPublish(d.version))}
+      >
+        Publish
+      </button>{" "}
+      <button type="button" className="secondary" onClick={() => void actions.act(() => postDiscard(d.version))}>
+        Discard
+      </button>{" "}
+      {blocked ? <span className="muted">{blocked}</span> : null}
+      {report && report !== "running" ? <WhatIfResult version={d.version} report={report} /> : null}
+    </article>
+  );
+}
+
 function Drafts({ versions, me, onChange }: { versions: PolicyVersionRow[]; me?: MeView; onChange: () => void }) {
   const [views, setViews] = useState<Record<number, WhatIfView | "running">>({});
   const [problem, setProblem] = useState<string>();
   const drafts = versions.filter((v) => v.status === "draft");
   if (drafts.length === 0) return null;
 
+  const fail = (err: unknown) => setProblem(err instanceof Error ? err.message : String(err));
   const preview = async (version: number) => {
     setViews((v) => ({ ...v, [version]: "running" }));
     try {
@@ -221,7 +303,7 @@ function Drafts({ versions, me, onChange }: { versions: PolicyVersionRow[]; me?:
         const { [version]: _gone, ...rest } = v;
         return rest;
       });
-      setProblem(err instanceof Error ? err.message : String(err));
+      fail(err);
     }
   };
   const act = async (fn: () => Promise<unknown>) => {
@@ -230,76 +312,16 @@ function Drafts({ versions, me, onChange }: { versions: PolicyVersionRow[]; me?:
       await fn();
       onChange();
     } catch (err) {
-      setProblem(err instanceof Error ? err.message : String(err));
+      fail(err);
     }
   };
 
   return (
     <section className="panel" aria-labelledby="drafts-h">
       <h2 id="drafts-h">Drafts</h2>
-      {drafts.map((d) => {
-        const report = views[d.version];
-        const own = me?.user.id === d.proposed_by;
-        const cannotPublish = !me?.permissions.publish_policy
-          ? "Only a policy admin can publish."
-          : own
-            ? "You wrote this draft; a different policy admin must publish it."
-            : undefined;
-        return (
-          <article key={d.version} aria-label={`Draft ${d.version}`}>
-            <h3>
-              Version {d.version} <span className="muted">proposed by {d.proposed_by}</span>
-            </h3>
-            {d.reason ? <p className="muted">{d.reason}</p> : null}
-            <button
-              type="button"
-              className="secondary"
-              disabled={report === "running"}
-              onClick={() => void preview(d.version)}
-            >
-              {report === "running" ? "Replaying the exam…" : "Preview on the exam"}
-            </button>{" "}
-            <button
-              type="button"
-              disabled={cannotPublish !== undefined}
-              onClick={() => void act(() => postPublish(d.version))}
-            >
-              Publish
-            </button>{" "}
-            <button type="button" className="secondary" onClick={() => void act(() => postDiscard(d.version))}>
-              Discard
-            </button>{" "}
-            {cannotPublish ? <span className="muted">{cannotPublish}</span> : null}
-            {report && report !== "running" ? (
-              <div data-testid={`whatif-${d.version}`}>
-                <p>
-                  {report.cases} exam cases replayed: {report.changed} would change, {report.less_cautious} less
-                  cautious,{" "}
-                  <strong className={report.new_false_closes > 0 ? "tone-stop" : "tone-calm"}>
-                    {report.new_false_closes} new false closes
-                  </strong>
-                  .
-                </p>
-                {report.autonomy ? (
-                  <p data-testid="whatif-autonomy">
-                    At level 1: <strong>{report.autonomy.auto_closed}</strong> would be closed automatically,{" "}
-                    <strong>{report.autonomy.qa_sample}</strong> sampled for quality assurance (
-                    {Math.round(report.autonomy.qa_rate * 100)}%), {report.autonomy.human_review} left to a person.
-                    False closes on the exam:{" "}
-                    <strong className={report.autonomy.false_closes > 0 ? "tone-stop" : "tone-calm"}>
-                      {report.autonomy.false_closes}
-                    </strong>{" "}
-                    (must be 0)
-                    {report.autonomy.false_closes > 0 ? ". Do not publish this draft." : "."}
-                  </p>
-                ) : (
-                  <p className="muted">This draft stays at level 0.</p>
-                )}
-              </div>
-            ) : null}
-          </article>
-        );
-      })}
+      {drafts.map((d) => (
+        <DraftCard key={d.version} draft={d} me={me} report={views[d.version]} actions={{ preview, act }} />
+      ))}
       {problem ? (
         <p role="alert" className="tone-stop">
           {problem}
