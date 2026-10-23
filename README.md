@@ -77,18 +77,18 @@ flowchart LR
   R --> H{{A person decides}}
 ```
 
-| Step         | What it does                                                                                                                                                                                                              | Uses a model                          |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| Triage       | Chooses the path, judges whether the case is clear or contested                                                                                                                                                           | No                                    |
-| Evidence     | Reads the semantic layer's own description, then builds one read-only tool per table and reads the alert, customer, list entry, aliases, dates, countries, identifiers, data-quality results and the approved definitions | No                                    |
-| Safety guard | Screens text from the data for instructions aimed at the reviewer                                                                                                                                                         | Yes (fast, local)                     |
-| Matching     | Field-by-field comparison with the approved definitions applied by code (true match, false positive, counterparty match)                                                                                                  | No                                    |
-| Ownership    | Reads the register level by level; the ownership engine works out effective ownership                                                                                                                                     | No                                    |
-| Memory       | Recalls earlier decisions as pointers (table, row key, content hash) and checks them against the entry now                                                                                                                | No                                    |
-| Decision     | Recommends one of four outcomes with cited facts                                                                                                                                                                          | Yes (Nemotron, reasoning on, bounded) |
-| Critic       | Re-reads every cited fact from the data, checks the recommendation against the definitions, asks a model for unsupported claims; may send it back, up to the policy's limit                                               | Yes                                   |
-| Policy guard | Applies the hard rules. It can make a recommendation more cautious, never less                                                                                                                                            | No                                    |
-| Reporter     | Seals a hash-protected decision record and returns the answer                                                                                                                                                             | No                                    |
+| Step         | What it does                                                                                                                                                                                                              | Uses a model                                      |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Triage       | Chooses the path, judges whether the case is clear or contested                                                                                                                                                           | No                                                |
+| Evidence     | Reads the semantic layer's own description, then builds one read-only tool per table and reads the alert, customer, list entry, aliases, dates, countries, identifiers, data-quality results and the approved definitions | No                                                |
+| Safety guard | Screens text from the data for instructions aimed at the reviewer                                                                                                                                                         | Yes (fast, local)                                 |
+| Matching     | Field-by-field comparison with the approved definitions applied by code (true match, false positive, counterparty match)                                                                                                  | No                                                |
+| Ownership    | Reads the register level by level; the ownership engine works out effective ownership                                                                                                                                     | No                                                |
+| Memory       | Recalls earlier decisions as pointers (table, row key, content hash) and checks them against the entry now                                                                                                                | No                                                |
+| Decision     | Recommends one of four outcomes with cited facts                                                                                                                                                                          | Yes (Nemotron; brief reasoning budget of our own) |
+| Critic       | Re-reads every cited fact from the data, checks the recommendation against the definitions, asks a model for unsupported claims; may send it back, up to the policy's limit                                               | Yes                                               |
+| Policy guard | Applies the hard rules. It can make a recommendation more cautious, never less                                                                                                                                            | No                                                |
+| Reporter     | Seals a hash-protected decision record and returns the answer                                                                                                                                                             | No                                                |
 
 The outcomes are `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs two human approvals) and `NEED_MORE_INFO`.
 
@@ -114,16 +114,18 @@ Result of the last run: **H-MEM 13/13, World Model 8/8, Markovian 8/8** checks p
 
 ### Meterless power: Nightshift runs every model call
 
-Nightshift, an OpenAI-compatible runtime, is the AI provider for all model calls. Nothing in the code names a model provider: one injected `generator` function asks Nightshift with a **pinned mode** (`meterless/fast`, `meterless/deep`, `meterless/judge`; `meterless/auto` is rejected), falls back to the Ollama backup only if Nightshift cannot answer, and a labelled rules stand-in exists for sample mode only.
+Nightshift, an OpenAI-compatible runtime, is the AI provider for all model calls. Nothing in the code names a model provider: one injected `generator` function asks Nightshift for a **pinned mode** (`meterless/fast`, `meterless/deep`, `meterless/judge`; `meterless/auto` is rejected), falls back to the Ollama backup only if Nightshift cannot answer, and a labelled rules stand-in exists for sample mode only.
 
-| Step         | Mode asked for | Reasoning            | What it does                                                                                                       |
-| ------------ | -------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Safety guard | `fast`         | off                  | Reads text that came out of the data for instructions aimed at the reviewer; checks drafts for tipping off         |
-| Decision     | `deep`         | on, 500-token budget | Recommends one of four outcomes with cited facts                                                                   |
-| Critic       | `judge`        | on, 400-token budget | Checks the recommendation against the evidence the code re-read                                                    |
-| Challenger   | `deep`         | on, 500-token budget | Argues against a close that could slip through (low confidence, a very close name, or a failing data-quality rule) |
+| Step         | Mode we ask for | Reasoning budget (ours) | What it does                                                                                                       |
+| ------------ | --------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Safety guard | `fast`          | none                    | Reads text that came out of the data for instructions aimed at the reviewer; checks drafts for tipping off         |
+| Decision     | `deep`          | 500 tokens              | Recommends one of four outcomes with cited facts                                                                   |
+| Critic       | `judge`         | 400 tokens              | Checks the recommendation against the evidence the code re-read                                                    |
+| Challenger   | `deep`          | 500 tokens              | Argues against a close that could slip through (low confidence, a very close name, or a failing data-quality rule) |
 
-Triage, evidence, matching, ownership, memory, the policy guard and the reporter are code and call no model. The runtime decides whether a mode is answered on the **local lane** (Nemotron 3.5 Lightning 30B on this machine) or the **cloud lane** (Nemotron 3 Ultra 550B); the desk records which. **Every call logs the model asked for, the model and lane that answered, reasoning on or off, latency, tokens and its signed receipt, and the cost under the configured unit costs** (calls on the local lane are priced at zero). Answers are requested as schema-constrained JSON, with the reasoning in a field of the answer. See [docs/MODELS.md](docs/MODELS.md).
+The **reasoning budget** is our own token limit plus an instruction to put brief reasoning in the answer's `analysis` field; it is not a model parameter and nothing is sent to Nightshift to switch thinking on. Triage, evidence, matching, ownership, memory, the policy guard and the reporter are code and call no model.
+
+**Which model serves a mode is Nightshift's decision, not ours.** Its learned router chooses: every receipt shows the requested mode replaced by `auto` (`mode_coerced` true) under the routing policy `learned-router`. We do not route by difficulty and we do not pin the cloud. What we do is record, for every call, the mode asked for, the model that answered (`routed_model`), reasoning budget, latency, tokens, the signed receipt and the cost under the configured unit costs (tokens served by the local model are priced at zero). Answers are requested as schema-constrained JSON, with the reasoning in a field of the answer. See [docs/MODELS.md](docs/MODELS.md).
 
 ### Zetaris
 
@@ -136,16 +138,13 @@ The agents read the model's own description at run time and build their read-onl
 
 ### NVIDIA Nemotron
 
-The language work is done by Nemotron models through Nightshift:
+The language work is done by Nemotron models through Nightshift: **Nemotron 3 Ultra 550B** (served in the cloud) and **Nemotron 3.5 Lightning 30B** (served on this machine). Which of them answers a call is decided by Nightshift's router, so the split below is a measurement, not a setting:
 
-| Agent        | Model and lane                                                                                               | Evidence     |
-| ------------ | ------------------------------------------------------------------------------------------------------------ | ------------ |
-| Safety guard | Nemotron 3.5 Lightning 30B, local lane                                                                       | model ledger |
-| Decision     | Nemotron 3 Ultra 550B on the cloud lane when the runtime routes there, otherwise Lightning on the local lane | model ledger |
-| Critic       | the same two models, by the runtime's routing                                                                | model ledger |
-| Challenger   | the same two models, by the runtime's routing                                                                | model ledger |
+<!-- routing:start -->
+The split is written here by `npm run exam:report` after the full exam has been run.
+<!-- routing:end -->
 
-The **model ledger** of every recommendation lists, per step, the model asked for, the model and lane that answered, reasoning, tokens, latency and the signed receipt with its verification status (`GET /cases/:alertId/trace`, `npm run ledger -- --case <alert id>`, the routing panel of the review desk, and the saved decision records in `output_examples/`). The exam report counts the calls by lane and the share that went to the cloud.
+The **model ledger** of every recommendation lists, per step, the mode asked for, the model that answered, reasoning budget, tokens, latency and the signed receipt with its verification status (`GET /cases/:alertId/trace`, `npm run ledger -- --case <alert id>`, the routing panel of the review desk, and the saved decision records in `output_examples/`).
 
 ### What is distinctive
 
@@ -158,12 +157,12 @@ The **model ledger** of every recommendation lists, per step, the model asked fo
 
 `GET /cases/:alertId/trace` (or `/runs/:runId/trace`) answers four questions from the sealed record, and says if the record no longer verifies:
 
-| Question                               | Answer in the trace                                                                                                                                               |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Which approved definition was applied? | `definitions`: id, version and a hash of the wording                                                                                                              |
-| What data is it based on?              | `data`: model version, list snapshots, every query (id, statement hash, rows, latency, cache hit), row hashes                                                     |
-| Who was allowed to see what?           | `access`: the role of each query, whether it ran under its own token or the labelled fallback, the masked columns, the policy version and hash                    |
-| What did it cost to produce?           | `cost`: per call model, route, reasoning on or off, tokens, latency, receipt status; Zetaris query time and rows; totals and cost under the configured unit costs |
+| Question                               | Answer in the trace                                                                                                                                                                           |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Which approved definition was applied? | `definitions`: id, version and a hash of the wording                                                                                                                                          |
+| What data is it based on?              | `data`: model version, list snapshots, every query (id, statement hash, rows, latency, cache hit), row hashes                                                                                 |
+| Who was allowed to see what?           | `access`: the role of each query, whether it ran under its own token or the labelled fallback, the masked columns, the policy version and hash                                                |
+| What did it cost to produce?           | `cost`: per call the mode asked for, the model that answered, reasoning budget, tokens, latency, receipt status; Zetaris query time and rows; totals and cost under the configured unit costs |
 
 ## Review desk interface
 
@@ -174,7 +173,7 @@ A small Next.js application (`apps/web`) on http://localhost:3001. It works in s
 | Alert queue                     | Every alert read through the semantic layer, with the latest recommendation and record hash; filter by type and by reviewed or not                                                                                                  |
 | Case: live run                  | The nine review steps lighting up from the real run events (a server-sent stream, not a timer), the critic's round count against the three allowed, retries on each step, and which model answered each model step and where it ran |
 | Case: evidence                  | The customer, the listed party, the payment route and the data-quality results. Identifier numbers are drawn as `••••`; the API names the masked columns                                                                            |
-| Case: model routing and cost    | Per step: requested and answering model, local or cloud lane, reasoning, time, tokens, signed-receipt status and cost under the configured unit costs                                                                               |
+| Case: model routing and cost    | Per step: the mode asked for and the model that answered (cloud or local), reasoning budget, time, tokens, signed-receipt status and cost under the configured unit costs, with the measured split of the latest full exam          |
 | Case: decision trace and replay | The four questions answered from the sealed record, and a slider that replays the run as of any recorded event                                                                                                                      |
 | Exam results                    | Variants compared from the saved result files, with false closes and results by case group                                                                                                                                          |
 
@@ -196,7 +195,7 @@ The exam has 65 cases built from real public list entries and synthetic customer
 ```bash
 npm run exam -- --variant routed      # the full system, live
 npm run exam -- --variant single      # one recommendation, no critic, no memory
-npm run exam -- --variant local       # local lane only, reasoning off
+npm run exam -- --variant local       # fast mode only, no reasoning budget
 npm run exam -- --variant rules       # rules stand-in, no language model
 npm run exam -- --variant fuzzy       # baseline: a name-score threshold
 npm run exam:report                   # builds eval/REPORT.md from the saved results
@@ -215,7 +214,7 @@ npm run bench -- --variant routed --batch 20 --runs 5   # five random batches of
 npm run bench -- --variant routed,single --runs 2        # several variants, one after another
 ```
 
-`--seed N` repeats the random batches exactly, `--name` labels the output, and `--dry-run` prints what would run. Each run is a separate `npm run exam`, so one failing run does not stop the rest. The summary (`eval/results/bench-*.md` and `.json`) gives the mean and range of accuracy, false-close rate and median time over the runs, the model calls by lane, and the model cost: cloud tokens are priced under the unit costs in `config/default.json`, and calls on the local lane are counted and cost nothing per call. `npm run json:rate` reports how often a model answer could not be used as JSON, from the traces of the runs.
+`--seed N` repeats the random batches exactly, `--name` labels the output, and `--dry-run` prints what would run. Each run is a separate `npm run exam`, so one failing run does not stop the rest. The summary (`eval/results/bench-*.md` and `.json`) gives the mean and range of accuracy, false-close rate and median time over the runs, the model calls by the model that served them, and the model cost: cloud tokens are priced under the unit costs in `config/default.json`, and tokens served by the local model are counted and cost nothing. `npm run json:rate` reports how often a model answer could not be used as JSON, from the traces of the runs.
 
 ## Edge cases handled
 
@@ -306,7 +305,7 @@ A review writes `logs/trace-<run>.jsonl` (one JSON event per step), the sealed `
 
 ## Policy
 
-`config/policy.default.json` is the initial policy: lists and weights, name threshold, ownership threshold and depth, watched jurisdictions (a configurable example, to be checked against current sanctions programmes before use; each has place names that count when found in a payment reference), automation limits, the critic's round limit and confidence floor, the model and reasoning budget per step, the Zetaris role per step, the guard texts and patterns.
+`config/policy.default.json` is the initial policy: lists and weights, name threshold, ownership threshold and depth, watched jurisdictions (a configurable example, to be checked against current sanctions programmes before use; each has place names that count when found in a payment reference), automation limits, the critic's round limit and confidence floor, the mode and reasoning budget per step, the Zetaris role per step, the guard texts and patterns.
 
 The hard limits are fixed in the policy schema, so no draft can lift them: no automatic block, no customer messages, read-only data access. A change is a draft, then a publish by a different person (four-eyes). A published version applies to the next run without a restart, every sealed decision record names the policy version it used, and `POST /policy/whatif` shows what a draft would change on the exam before anyone publishes it. Versions and the audit log are kept in memory; a restart returns to the policy file.
 

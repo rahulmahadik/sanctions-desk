@@ -1,8 +1,55 @@
-import { label, money, seconds } from "../lib/format";
-import type { TraceView } from "../lib/types";
+import { label, modelName, money, seconds } from "../lib/format";
+import type { RoutingSplit, TraceView } from "../lib/types";
 
-/** Which model answered each step, where it ran, what it took, and whether its signed receipt checks out. */
-export function RoutingPanel({ trace }: { trace: TraceView }) {
+/**
+ * The measured split: for each step, the share of its calls each model served, read from the signed receipts of the
+ * latest full exam. We ask Nightshift for a pinned mode; its learned router decides which model serves it.
+ */
+export function SplitTable({ split }: { split: RoutingSplit }) {
+  const models = [...new Set(split.rows.flatMap((r) => r.models.map((m) => m.model)))].sort();
+  const kind = (model: string) => split.rows.flatMap((r) => r.models).find((m) => m.model === model)?.kind;
+  return (
+    <>
+      <h3>Where the calls were answered (latest full exam)</h3>
+      <div className="table-wrap">
+        <table data-testid="routing-split">
+          <caption className="sr-only">Share of each step's calls served by each model</caption>
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Calls</th>
+              {models.map((m) => (
+                <th key={m}>
+                  {modelName(m)} ({kind(m)})
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {split.rows.map((row) => (
+              <tr key={row.step}>
+                <td>{row.step}</td>
+                <td>{row.calls}</td>
+                {models.map((m) => {
+                  const x = row.models.find((y) => y.model === m);
+                  return <td key={m}>{x ? `${(x.share * 100).toFixed(1)}% (${x.calls})` : "0"}</td>;
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="muted">
+        We ask for a pinned mode and record the model that answered. Which model serves a mode is Nightshift's learned
+        router's choice: in {split.mode_coerced} of {split.receipts} receipts the requested mode was replaced by auto.
+        We do not route by difficulty and do not pin the cloud.
+      </p>
+    </>
+  );
+}
+
+/** Which model answered each step, what it took, and whether its signed receipt checks out. */
+export function RoutingPanel({ trace, split }: { trace: TraceView; split?: RoutingSplit | null }) {
   const { cost } = trace;
   return (
     <section aria-labelledby="routing-title" className="panel">
@@ -13,10 +60,10 @@ export function RoutingPanel({ trace }: { trace: TraceView }) {
           <thead>
             <tr>
               <th>Step</th>
-              <th>Asked for</th>
+              <th>Mode asked for</th>
               <th>Answered by</th>
-              <th>Lane</th>
-              <th>Reasoning</th>
+              <th>Served</th>
+              <th>Reasoning budget (ours)</th>
               <th>Time</th>
               <th>Tokens in / out</th>
               <th>Receipt</th>
@@ -59,6 +106,7 @@ export function RoutingPanel({ trace }: { trace: TraceView }) {
         {money(cost.totals.total_cost, cost.currency)}.
       </p>
       <p className="muted">{cost.assumption}</p>
+      {split ? <SplitTable split={split} /> : null}
     </section>
   );
 }

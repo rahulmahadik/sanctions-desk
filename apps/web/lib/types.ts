@@ -175,6 +175,17 @@ export interface Headline {
   assumptions: { minutesPerAlert: number; minutesToConfirmClose: number };
 }
 
+export interface RoutingSplit {
+  rows: Array<{
+    step: string;
+    calls: number;
+    models: Array<{ model: string; kind: "cloud" | "local" | "unknown"; calls: number; share: number }>;
+  }>;
+  receipts: number;
+  mode_coerced: number;
+  routers: string[];
+}
+
 export interface ExamAnswer {
   label: string;
   cases: number;
@@ -183,4 +194,5 @@ export interface ExamAnswer {
   headline?: Headline | null;
   headline_sentence?: string | null;
   headline_run?: string | null;
+  routing_split?: RoutingSplit | null;
 }

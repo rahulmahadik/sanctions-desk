@@ -72,7 +72,7 @@ describe("summariseRuns", () => {
   it("writes a readable summary", () => {
     const text = renderBenchSummary("Benchmark: routed", "the full exam, 3 times", s);
     expect(text).toContain("2 of 3 runs completed (10 cases each)");
-    expect(text).toContain("40 on the local lane (no API cost), 10 on the cloud lane");
+    expect(text).toContain("40 served by the local model (no API cost), 10 served by the cloud model");
     expect(text).toContain("70.0% (60.0% to 80.0%)");
     expect(text).toContain("1 false closes in total");
   });

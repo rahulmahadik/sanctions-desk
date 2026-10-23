@@ -52,7 +52,7 @@ export interface BenchSummary {
   false_closes_total: number;
   decision_unavailable_total: number;
   latency_p50_s: Spread;
-  /** Calls by lane across all completed runs. Local calls run on the machine and cost nothing per call. */
+  /** Calls by the model that served them, across all completed runs. Calls served locally cost nothing per call. */
   model_calls: { local: number; cloud: number };
   /** What the runs cost under the configured unit costs: only cloud tokens are priced. */
   cost: { total: number; per_run: Spread; local_calls_cost: 0 };
@@ -101,7 +101,7 @@ export function renderBenchSummary(title: string, selection: string, summary: Be
     `| False-close rate on risk cases | ${range(summary.false_close_rate, pct)}; ${summary.false_closes_total} false closes in total |`,
     `| Escalated because no model decision was usable | ${summary.decision_unavailable_total} in total |`,
     `| Median time per case | ${range(summary.latency_p50_s, (n) => `${n.toFixed(1)} s`)} |`,
-    `| Model calls | ${summary.model_calls.local} on the local lane (no API cost), ${summary.model_calls.cloud} on the cloud lane |`,
+    `| Model calls | ${summary.model_calls.local} served by the local model (no API cost), ${summary.model_calls.cloud} served by the cloud model |`,
     `| Tokens | ${summary.tokens.in} in, ${summary.tokens.out} out |`,
     `| Model cost per run | ${range(summary.cost.per_run, money)} (cloud tokens under the configured unit costs; local calls 0) |`,
     `| Model cost, all runs | ${money(summary.cost.total)} |`,

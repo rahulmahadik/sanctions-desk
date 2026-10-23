@@ -14,14 +14,16 @@ import type { AgentDeps } from "./types.js";
  * and its reason is shown to the reviewer. If it cannot answer, the close does not stand either.
  */
 
+export const MAX_POINTS = 8;
+
 export const ChallengeSchema = z.object({
   credible: z.boolean(),
   argument: clipped(600),
-  // A model that lists more than four points is not wrong to; the first four are kept.
+  // Up to eight points, strongest first (the prompt asks for that order). A longer list is cut at eight, not rejected.
   points: z
     .array(clipped(240))
     .default([])
-    .transform((p) => p.slice(0, 4)),
+    .transform((p) => p.slice(0, MAX_POINTS)),
 });
 export type Challenge = z.infer<typeof ChallengeSchema>;
 
@@ -33,7 +35,7 @@ export const CHALLENGE_JSON_SCHEMA = {
       analysis: { type: "string", description: "Brief reasoning, at most 100 words, before the conclusion." },
       credible: { type: "boolean" },
       argument: { type: "string" },
-      points: { type: "array", items: { type: "string" } },
+      points: { type: "array", items: { type: "string" }, maxItems: 8 },
     },
     required: ["analysis", "credible", "argument", "points"],
     additionalProperties: false,
@@ -47,7 +49,8 @@ Rules:
 - The comparison block was computed by code under the approved definitions in <definitions>. A real conflict (a different birth date, a different nationality, a different identifier) is a reason the argument is not credible. Do not invent facts or ignore conflicts.
 - credible is true only if a careful analyst could reasonably still believe the two are the same party: for example the conflicts have an innocent explanation in the data (a partial or approximate birth date, an alias, a data-quality problem on the customer record, a name that matches an alias exactly), or key data is missing.
 - Never write text for the customer. Never say or imply the customer is under investigation.
-Answer with one JSON object only: {"analysis": "brief reasoning, at most 100 words", "credible": true | false, "argument": "2-4 plain sentences", "points": ["short evidence point", ...]}`;
+Answer with one JSON object only: {"analysis": "brief reasoning, at most 100 words", "credible": true | false, "argument": "2-4 plain sentences", "points": ["short evidence point", ...]}
+List at most eight points and put the strongest first: the one that would most change a careful analyst's mind comes first.`;
 
 /** Why the challenger should look at a close, or an empty list when it should stay silent. */
 export function challengeTriggers(

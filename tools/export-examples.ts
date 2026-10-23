@@ -51,10 +51,15 @@ for (const spec of values("--case")) {
   const [record] = readDecisionRecords(config.logging.dir, (r) => r.run_id === runId);
   if (!record) throw new Error(`no sealed record for ${runId}; run the exam variant first`);
   const traceFile = join(config.logging.dir, `trace-${runId}.jsonl`);
-  const events = readFileSync(traceFile, "utf8")
+  const all = readFileSync(traceFile, "utf8")
     .split("\n")
     .filter(Boolean)
     .map((l) => JSON.parse(l) as TraceEvent);
+  // The file holds every run of this case, each starting again at event 0. The sealed record is the newest run's.
+  const start = all.map((e) => e.seq).lastIndexOf(0);
+  const events = all
+    .slice(Math.max(0, start))
+    .filter((e) => e.ts <= new Date(Date.parse(record.decided_at) + 5000).toISOString());
   const contract = buildTraceContract(record, config.costs);
   const dir = join(outRoot, slug);
   write(join(dir, "decision-record.json"), `${JSON.stringify(record, null, 2)}\n`);

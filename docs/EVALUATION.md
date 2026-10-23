@@ -21,10 +21,10 @@ One measure is used everywhere (the report, the README and the interface), compu
 
 | Variant        | What it is                                                                                                                                                                                                                      |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `routed`       | The full system: Nemotron models through Nightshift on the local and cloud lanes, safety guard, decision, critic, challenger, memory, policy guard                                                                              |
+| `routed`       | The full system: Nemotron models through Nightshift (Nightshift's router decides which model serves each call), safety guard, decision, critic, challenger, memory, policy guard                                                |
 | `single`       | One recommendation: no critic, no challenger, no memory                                                                                                                                                                         |
 | `no_memory`    | The full system with memory off, run on the earlier-cleared cases                                                                                                                                                               |
-| `local`        | The full system on the local lane only, reasoning off                                                                                                                                                                           |
+| `local`        | The full system asking for the fast mode only, with no reasoning budget. Nightshift still decides which model serves it, so this is not a guarantee of local answers                                                            |
 | `rules`        | The **deterministic pipeline**: our own matching, ownership and policy code with a labelled rules stand-in in place of a language model. It reads the same evidence as the full system, so it shows what the code alone settles |
 | `fuzzy`        | The **name-match rules baseline**, which stands for typical screening: a name score at or above 0.90 escalates, below closes, with no ownership, data-quality or evidence reasoning                                             |
 | `escalate_all` | Every alert goes to a person                                                                                                                                                                                                    |
@@ -38,7 +38,7 @@ npm run exam:report                       # rebuild eval/REPORT.md and the headl
 npm run json:rate                         # how often a model answer could not be used as JSON, from the traces
 ```
 
-`npm run bench` runs the exam, or random batches of alert cases, any number of times without attention. It writes the usual result file of every run and a summary (`eval/results/bench-*.md` and `.json`): mean and range of accuracy, false-close rate and median time, the model calls by lane, and the model cost, with calls on the local lane counted and priced at zero. Options: `--runs N`, `--batch K`, `--seed N` (repeat the same random batches), `--name`, `--case-timeout-min`, `--dry-run`, and several variants separated by commas.
+`npm run bench` runs the exam, or random batches of alert cases, any number of times without attention. It writes the usual result file of every run and a summary (`eval/results/bench-*.md` and `.json`): mean and range of accuracy, false-close rate and median time, the model calls by the model that served them, and the model cost, with tokens served by the local model counted and priced at zero. Options: `--runs N`, `--batch K`, `--seed N` (repeat the same random batches), `--name`, `--case-timeout-min`, `--dry-run`, and several variants separated by commas.
 
 Runs that were limited to some cases (a tag, `--kinds`, `--groups` or `--limit`) are kept apart: the report uses only complete runs.
 

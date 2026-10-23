@@ -33,4 +33,11 @@ export function shortHash(hash: string | null | undefined): string {
   return hash ? `${hash.slice(0, 8)}…${hash.slice(-4)}` : "—";
 }
 
+/** A short name for a model id. */
+export function modelName(model: string): string {
+  if (/ultra/i.test(model)) return "Nemotron 3 Ultra 550B";
+  if (/lightning/i.test(model)) return "Nemotron 3.5 Lightning 30B";
+  return model;
+}
+
 export const label = (text: string): string => text.replaceAll("_", " ");

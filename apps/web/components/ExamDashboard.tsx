@@ -8,7 +8,7 @@ import type { ExamAnswer, ExamResult } from "../lib/types";
 const VARIANT_NOTE: Record<string, string> = {
   routed: "Full system: local and cloud Nemotron through Nightshift, critic and memory",
   single: "One recommendation: no critic, no memory",
-  local: "Local lane only, reasoning off",
+  local: "Fast mode only, no reasoning budget",
   rules: "Rules stand-in, no language model",
   no_memory: "Full system without memory",
   fuzzy: "Baseline: name-score threshold only",

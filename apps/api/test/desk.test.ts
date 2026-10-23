@@ -103,7 +103,9 @@ describe("the review desk routes", () => {
     const body = (await app.inject({ method: "GET", url: "/exam" })).json() as {
       headline: { alerts: number; false_closes: number; assumptions: { minutesPerAlert: number } } | null;
       headline_sentence: string | null;
+      routing_split: { rows: unknown[] } | null;
     };
+    expect("routing_split" in body).toBe(true);
     // Whatever results are saved, the answer is either the measure with its assumptions, or null.
     if (body.headline === null) expect(body.headline_sentence).toBeNull();
     else {

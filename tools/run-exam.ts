@@ -192,7 +192,7 @@ function runFeatures(p: Policy) {
     challenger: p.challenger,
     tries_per_model_step: "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
     provider_backoff_ms: PROVIDER_BACKOFF_MS,
-    challenger_points_clipped: true,
+    challenger_points: "up to eight, strongest first",
   };
 }
 

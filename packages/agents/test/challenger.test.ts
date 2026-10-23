@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  CHALLENGE_JSON_SCHEMA,
+  CHALLENGER_SYSTEM,
   ChallengeSchema,
   challengeTriggers,
   type DecisionOutput,
@@ -84,9 +86,21 @@ const notCredible = JSON.stringify({ credible: false, argument: "Every identifyi
 const request = { runId: "challenger-test", alertId: fp.alertId, sampleMode: true };
 
 describe("the challenger's answer", () => {
-  it("keeps the first four points when the model lists more, instead of failing", () => {
-    const parsed = ChallengeSchema.parse({ credible: false, argument: "a", points: ["1", "2", "3", "4", "5", "6"] });
-    expect(parsed.points).toEqual(["1", "2", "3", "4"]);
+  it("accepts up to eight points in the order given, and cuts a longer list at eight instead of failing", () => {
+    const six = ChallengeSchema.parse({ credible: false, argument: "a", points: ["1", "2", "3", "4", "5", "6"] });
+    expect(six.points).toEqual(["1", "2", "3", "4", "5", "6"]);
+    const ten = ChallengeSchema.parse({
+      credible: false,
+      argument: "a",
+      points: Array.from({ length: 10 }, (_, i) => `p${i}`),
+    });
+    expect(ten.points).toHaveLength(8);
+    expect(ten.points[0]).toBe("p0");
+  });
+
+  it("asks for the strongest point first and allows eight points in the schema", () => {
+    expect(CHALLENGER_SYSTEM).toContain("strongest first");
+    expect(CHALLENGE_JSON_SCHEMA.schema.properties.points.maxItems).toBe(8);
   });
 });
 

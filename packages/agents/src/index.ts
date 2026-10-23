@@ -15,6 +15,7 @@ export * from "./pipeline.js";
 export * from "./policy-guard.js";
 export * from "./queue.js";
 export * from "./record.js";
+export * from "./routing-split.js";
 export * from "./safety.js";
 export * from "./sample-rules.js";
 export * from "./trace-contract.js";

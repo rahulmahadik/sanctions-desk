@@ -1,12 +1,14 @@
 import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import {
   gatherEvidence,
   type Headline,
   headlineOf,
   headlineSentence,
+  type RoutingSplit,
   readAlertQueue,
   readDecisionRecords,
+  routingSplit,
   type ScoredCase,
 } from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
@@ -189,14 +191,26 @@ interface SavedRun {
 function headlineFromRuns(
   results: unknown[],
   config: Config,
-): { headline: Headline | null; headline_sentence: string | null; headline_run: string | null } {
+): {
+  headline: Headline | null;
+  headline_sentence: string | null;
+  headline_run: string | null;
+  routing_split: RoutingSplit | null;
+} {
   const run = (results as SavedRun[]).find(
     (r) =>
       r.variant === "routed" && !r.tag && !r.selection?.kinds && !r.selection?.groups && !r.selection?.limit && r.cases,
   );
-  if (!run?.cases) return { headline: null, headline_sentence: null, headline_run: null };
+  if (!run?.cases) return { headline: null, headline_sentence: null, headline_run: null, routing_split: null };
   const headline = headlineOf(run.cases, config.report);
-  return { headline, headline_sentence: headlineSentence(headline), headline_run: run.started_at ?? run.file };
+  // Where that run's model calls were answered, read from its signed receipts.
+  const split = run.started_at ? routingSplit(resolve(config.logging.dir), "routed", run.started_at) : null;
+  return {
+    headline,
+    headline_sentence: headlineSentence(headline),
+    headline_run: run.started_at ?? run.file,
+    routing_split: split && split.rows.length > 0 ? split : null,
+  };
 }
 
 /** The request's origin if it is one of the configured interface origins. */

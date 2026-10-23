@@ -13,6 +13,9 @@ import {
   headlineOf,
   headlineSentence,
   type Metrics,
+  modelLabel,
+  type RoutingSplit,
+  routingSplit,
   type ScoredCase,
   summarise,
 } from "@sanctions-desk/agents";
@@ -24,7 +27,7 @@ interface Features {
   structured_output?: boolean;
   challenger?: { enabled: boolean };
   provider_backoff_ms?: number;
-  challenger_points_clipped?: boolean;
+  challenger_points?: string;
 }
 
 interface LabelSet {
@@ -114,7 +117,7 @@ function challengerOutcomes(variant: string, since: string) {
 
 /**
  * How the model calls went in a run, from its traces: calls and provider failures (a call that ended before any
- * answer, because every provider failed) by lane, and any answer that was not schema-constrained.
+ * answer, because every provider failed) by the mode asked for, and any answer that was not schema-constrained.
  */
 function callStats(variant: string, since: string) {
   const entryLane: Record<string, string> = {
@@ -158,12 +161,30 @@ function callStats(variant: string, since: string) {
   return { lanes, failedBy, unstructured };
 }
 
+/** The measured split as a markdown table: for each step, the share of its calls each model served, from receipts. */
+function splitTable(split: RoutingSplit): string[] {
+  const models = [...new Set(split.rows.flatMap((r) => r.models.map((m) => m.model)))].sort();
+  const head = models.map(
+    (m) => `${modelLabel(m)} (${split.rows.flatMap((r) => r.models).find((x) => x.model === m)?.kind})`,
+  );
+  const out = [`| Step | Calls | ${head.join(" | ")} |`, `|---|---:|${models.map(() => "---:").join("|")}|`];
+  for (const r of split.rows) {
+    const cells = models.map((m) => {
+      const x = r.models.find((y) => y.model === m);
+      return x ? `${pct(x.share)} (${x.calls})` : "0";
+    });
+    out.push(`| ${r.step} | ${r.calls} | ${cells.join(" | ")} |`);
+  }
+  return out;
+}
+
 const ORDER = ["routed", "single", "no_memory", "local", "rules", "fuzzy", "escalate_all"];
 const LABEL: Record<string, string> = {
-  routed: "Full system (routed across the model lanes, critic, challenger, memory)",
+  routed: "Full system (Nemotron models through Nightshift, critic, challenger, memory)",
   single: "Single recommendation (no critic, no challenger, no memory)",
   no_memory: "Full system with memory off (earlier-cleared cases only)",
-  local: "Full system, local lane only, reasoning off",
+  local:
+    "Full system asking for the fast mode only, no reasoning budget (Nightshift still decides which model serves it)",
   rules: "Deterministic pipeline (our own matching, ownership and policy code; no language model)",
   fuzzy: "Name-match rules baseline (name score at or above 0.90 escalates, below closes)",
   escalate_all: "Baseline: every alert goes to a person",
@@ -230,7 +251,7 @@ if (have.length === 0) {
     "",
     "- *Deterministic pipeline* is our own code (matching, ownership engine, policy guard) with a labelled rules stand-in in place of a language model. It is not typical screening: it reads the same evidence, so it shows what the code alone settles. *Name-match rules baseline* is typical screening: it sees only a name score, with no ownership, data-quality or evidence reasoning.",
     '- *No usable decision* counts the cases where the decision step got no usable model answer and the desk escalated them with the reason "model decision unavailable". **Provider** means the model service failed or answered with nothing; **parsing** means it answered in a form that could not be used. They are in the totals; the next column leaves them out.',
-    `- Model cost uses the illustrative unit costs in \`config/default.json\` (\`costs\`, currency ${config.costs.currency}); they are assumptions, not prices. Calls on the local lane run on this machine and cost nothing per call; only cloud tokens are priced.`,
+    `- Model cost uses the illustrative unit costs in \`config/default.json\` (\`costs\`, currency ${config.costs.currency}); they are assumptions, not prices. Calls served by the local model run on this machine and cost nothing per call; only tokens served by the cloud model are priced.`,
     "",
   );
 
@@ -244,8 +265,8 @@ if (have.length === 0) {
     const f = r.features;
     lines.push(
       f
-        ? `| ${v} | ${r.started_at} | ${f.commit ?? "?"} | ${f.structured_output ? "yes" : "no"} | ${f.challenger?.enabled ? "on" : "off"} | ${f.provider_backoff_ms ? `${f.provider_backoff_ms} ms` : "none"} | ${f.challenger_points_clipped ? "clipped to four points" : "failed above four points"} |`
-        : `| ${v} | ${r.started_at} | not recorded | see the run's traces | see the run's traces | none (started before it was added) | failed above four points (started before the fix) |`,
+        ? `| ${v} | ${r.started_at} | ${f.commit ?? "?"} | ${f.structured_output ? "yes" : "no"} | ${f.challenger?.enabled ? "on" : "off"} | ${f.provider_backoff_ms ? `${f.provider_backoff_ms} ms` : "none"} | ${f.challenger_points ?? "limited to four points; a longer list failed"} |`
+        : `| ${v} | ${r.started_at} | not recorded | see the run's traces | see the run's traces | none (started before it was added) | limited to four points; a longer list failed (started before the fix) |`,
     );
   }
   lines.push("");
@@ -253,9 +274,9 @@ if (have.length === 0) {
     const r = get(v) as Result;
     const stats = callStats(v, r.started_at);
     if (stats.lanes.size === 0) continue;
-    lines.push(`#### Model calls by lane: ${v}`, "");
+    lines.push(`#### Model calls by mode asked for: ${v}`, "");
     lines.push(
-      "| Lane asked for | Calls | Ended before any answer (every provider failed) | Rate |",
+      "| Mode asked for | Calls | Ended before any answer (every provider failed) | Rate |",
       "|---|---:|---:|---:|",
     );
     for (const [lane, row] of [...stats.lanes].sort()) {
@@ -344,13 +365,24 @@ if (have.length === 0) {
     for (const [agent, model] of Object.entries(full.models)) lines.push(`- ${agent}: ${model}`);
     lines.push(
       "",
-      `- **Model calls:** ${m.model_calls.local} on the local lane (no API cost), ${m.model_calls.cloud} on the cloud lane; ${m.tokens.in} tokens in and ${m.tokens.out} out.`,
+      `- **Model calls:** ${m.model_calls.local} served by the local model (no API cost), ${m.model_calls.cloud} served by the cloud model; ${m.tokens.in} tokens in and ${m.tokens.out} out.`,
       `- **Cost of the run:** ${m.cost.total.toFixed(4)} ${config.costs.currency} under the assumed cloud rates (${m.cost.per_case.toFixed(4)} per case); the local calls add nothing.`,
       `- **Time:** median ${m.latency_s.p50} s and p95 ${m.latency_s.p95} s per case, mean ${m.latency_s.mean} s.`,
       `- **Critic:** ${m.critic.reviewed} reviews, ${m.critic.sent_back} sent back at least once, ${m.critic.unresolved} unresolved after the allowed rounds (mean ${m.critic.mean_rounds} rounds).`,
       `- **Forbidden answers:** ${m.forbidden_answers}.`,
       "",
     );
+    const split = routingSplit(resolveProjectPath(config.logging.dir), full.variant, full.started_at);
+    if (split.rows.length > 0) {
+      lines.push(
+        "### Where the model calls were answered",
+        "",
+        `We ask Nightshift for a pinned mode (\`meterless/fast\`, \`meterless/deep\`, \`meterless/judge\`) and record, for every call, the model that answered (\`routed_model\`). Which model serves a mode is decided by Nightshift's learned router: in ${split.mode_coerced} of the ${split.receipts} receipts read, the requested mode was replaced by \`auto\` (\`mode_coerced\` true) under the routing policy \`${split.routers.join(", ")}\`. We do not route by difficulty and we do not pin the cloud. The table is a measurement of this run, read from the signed receipts' winning route.`,
+        "",
+        ...splitTable(split),
+        "",
+      );
+    }
     const ch = m.challenger;
     if (ch) {
       const outcomes = challengerOutcomes(full.variant, full.started_at);
@@ -407,7 +439,7 @@ lines.push(
   "- The customers, payments and owners are synthetic; the listed parties are real public entries. The exam shows how the system behaves on planted situations, not how it would perform on a bank's real alert volume.",
   "- **A label changed after the first full run.** The two year-only false-positive cases (EX-008, EX-009) now accept ESCALATE_L2 as well as a close. The listed birth year is approximate and the name is an exact match to a listed individual, so closing rests on a year gap plus a different nationality with no document either way: closing is right under the approved definition, and escalating is a fair, cautious call. The change was made after seeing the first run escalate EX-008, for that reason and not to raise a score; every variant in this report is scored against the current labels, and the system was not changed for it. Effect: two more acceptable answers wherever a variant escalates them; false-close figures do not move.",
   "- Cases were written together with the rules they test (the approved definitions), so a high score shows consistency with those definitions rather than proof that the definitions are right. Five cases were added later to test where plain name matching fails; the system was not tuned to them.",
-  "- Time depends on this machine, on whether the cloud lane answers within the runtime's time limit, on what else is running, and on the runtime's answer cache.",
+  "- Time depends on this machine, on whether the cloud model answers within the runtime's time limit, on what else is running, and on the runtime's answer cache.",
   "- Each variant is one run; the file of that run is named in `eval/results/`.",
   "",
 );
@@ -425,6 +457,23 @@ if (head && full && readme.includes(START) && readme.includes(END)) {
     END,
   ].join("\n");
   writeFileSync(readmePath, readme.replace(new RegExp(`${START}[\\s\\S]*?${END}`), block));
+}
+// The README carries the measured split between two markers as well.
+const readmeNow = readFileSync(readmePath, "utf8");
+const RS = "<!-- routing:start -->";
+const RE = "<!-- routing:end -->";
+if (full && readmeNow.includes(RS) && readmeNow.includes(RE)) {
+  const split = routingSplit(resolveProjectPath(config.logging.dir), full.variant, full.started_at);
+  if (split.rows.length > 0) {
+    const block = [
+      RS,
+      `Measured in the full exam run of ${full.started_at.slice(0, 10)}, from the signed receipts (the model that served each call; Nightshift's learned router decides this, we only ask for a pinned mode):`,
+      "",
+      ...splitTable(split),
+      RE,
+    ].join("\n");
+    writeFileSync(readmePath, readmeNow.replace(new RegExp(`${RS}[\\s\\S]*?${RE}`), block));
+  }
 }
 console.log(
   `wrote eval/REPORT.md from ${have.length} variant(s)${notRun.length ? `; not run: ${notRun.join(", ")}` : ""}`,

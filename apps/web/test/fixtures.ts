@@ -122,7 +122,7 @@ export const TRACE: TraceView = {
         model_requested: "meterless/deep",
         model_routed: "nvidia/nemotron-3-ultra-550b-a55b",
         route_kind: "cloud",
-        reasoning: "on (budget 500 tokens)",
+        reasoning: "budget 500 tokens",
         tokens_in: 3000,
         tokens_out: 500,
         latency_ms: 21000,
@@ -147,4 +147,30 @@ export const RECORD: RecordView = {
   critic: { rounds: 2, final_verdict: "approved" },
   human: [],
   record_hash: "b".repeat(64),
+};
+
+export const SPLIT = {
+  rows: [
+    {
+      step: "Safety guard",
+      calls: 48,
+      models: [{ model: "local-runtime/nemotron-3.5-lightning-30b-a3b", kind: "local" as const, calls: 48, share: 1 }],
+    },
+    {
+      step: "Decision",
+      calls: 69,
+      models: [{ model: "nvidia/nemotron-3-ultra-550b-a55b", kind: "cloud" as const, calls: 69, share: 1 }],
+    },
+    {
+      step: "Critic",
+      calls: 68,
+      models: [
+        { model: "nvidia/nemotron-3-ultra-550b-a55b", kind: "cloud" as const, calls: 65, share: 0.9559 },
+        { model: "local-runtime/nemotron-3.5-lightning-30b-a3b", kind: "local" as const, calls: 3, share: 0.0441 },
+      ],
+    },
+  ],
+  receipts: 185,
+  mode_coerced: 185,
+  routers: ["learned-router"],
 };

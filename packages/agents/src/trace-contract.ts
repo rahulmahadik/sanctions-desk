@@ -65,8 +65,8 @@ export interface TraceContract {
 const round = (n: number): number => Math.round(n * 1_000_000) / 1_000_000;
 
 function thinkingText(thinking: DecisionRecord["models"][number]["thinking"]): string {
-  if (thinking === undefined || thinking === "off") return "off";
-  return thinking === "on" ? "on" : `on (budget ${thinking.budgetTokens} tokens)`;
+  if (thinking === undefined || thinking === "off") return "none";
+  return thinking === "on" ? "token budget" : `budget ${thinking.budgetTokens} tokens`;
 }
 
 export function buildTraceContract(record: DecisionRecord, costs: Config["costs"]): TraceContract {

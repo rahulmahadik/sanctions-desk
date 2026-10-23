@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { fetchEvents, fetchEvidence, fetchRecord, fetchTrace, followRun, startReview } from "../lib/api";
+import { fetchEvents, fetchEvidence, fetchExam, fetchRecord, fetchTrace, followRun, startReview } from "../lib/api";
 import { graphAt } from "../lib/graph";
-import type { EvidenceView, RecordView, ReviewAnswer, RunEvent, TraceView } from "../lib/types";
+import type { EvidenceView, RecordView, ReviewAnswer, RoutingSplit, RunEvent, TraceView } from "../lib/types";
 import { HumanBanner } from "./Banner";
 import { EvidenceCards } from "./Evidence";
 import { FourQuestions, Outcome, Replay } from "./Record";
@@ -20,6 +20,7 @@ export function CaseView({ alertId }: { alertId: string }) {
   const [evidence, setEvidence] = useState<EvidenceView>();
   const [trace, setTrace] = useState<TraceView>();
   const [record, setRecord] = useState<RecordView>();
+  const [split, setSplit] = useState<RoutingSplit | null>();
   const [problem, setProblem] = useState<string>();
   const stop = useRef<() => void>(() => undefined);
 
@@ -34,6 +35,10 @@ export function CaseView({ alertId }: { alertId: string }) {
   // The facts can be read before any review: they come from the evidence role, masked.
   useEffect(() => {
     void loadDetails();
+    // The measured split from the latest full exam is context for the routing panel; the case does not depend on it.
+    fetchExam()
+      .then((exam) => setSplit(exam.routing_split ?? null))
+      .catch(() => setSplit(null));
     return () => stop.current();
   }, [loadDetails]);
 
@@ -85,7 +90,7 @@ export function CaseView({ alertId }: { alertId: string }) {
       {phase !== "ready" ? <RunGraph view={view} /> : null}
       {trace ? <FourQuestions trace={trace} /> : null}
       {evidence ? <EvidenceCards view={evidence} /> : null}
-      {trace ? <RoutingPanel trace={trace} /> : null}
+      {trace ? <RoutingPanel trace={trace} split={split} /> : null}
       {phase === "finished" && events.length > 0 ? <Replay events={events} record={record} /> : null}
     </>
   );

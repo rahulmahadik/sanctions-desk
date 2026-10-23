@@ -77,11 +77,11 @@ describe("buildTraceContract", () => {
     });
     expect(t.cost.models[0]).toMatchObject({
       route_kind: "cloud",
-      reasoning: "on (budget 500 tokens)",
+      reasoning: "budget 500 tokens",
       cost: 0.003,
       receipt_status: "none",
     });
-    expect(t.cost.models[1]).toMatchObject({ route_kind: "local", reasoning: "off", cost: 0 });
+    expect(t.cost.models[1]).toMatchObject({ route_kind: "local", reasoning: "none", cost: 0 });
     expect(t.cost.totals).toMatchObject({
       tokens_in: 3000,
       tokens_out: 600,
@@ -102,7 +102,7 @@ describe("buildTraceContract", () => {
     expect(t.definitions).toEqual([{ definition_id: "true_match", version: "1", statement_hash: sha("b") }]);
   });
 
-  it("marks a query with no recorded identity as unknown, and reasoning 'on' as on", () => {
+  it("marks a query with no recorded identity as unknown, and a plain reasoning setting as a token budget", () => {
     const base = record();
     const t = buildTraceContract(
       record({
@@ -126,7 +126,7 @@ describe("buildTraceContract", () => {
       costs,
     );
     expect(t.access.by_role[0]?.token_source).toBe("unknown");
-    expect(t.cost.models[0]?.reasoning).toBe("on");
+    expect(t.cost.models[0]?.reasoning).toBe("token budget");
     expect(t.cost.models[0]?.cost).toBe(0);
   });
 

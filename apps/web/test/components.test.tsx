@@ -12,7 +12,7 @@ import { RoutingPanel } from "../components/Routing";
 import { RunGraph } from "../components/RunGraph";
 import { graphAt } from "../lib/graph";
 import type { ExamAnswer, QueueAlert } from "../lib/types";
-import { ANSWER, EVENTS, EVIDENCE, RECORD, TRACE } from "./fixtures";
+import { ANSWER, EVENTS, EVIDENCE, RECORD, SPLIT, TRACE } from "./fixtures";
 
 vi.mock("../lib/api", () => ({
   fetchQueue: vi.fn(),
@@ -32,7 +32,10 @@ import { CaseView } from "../components/CaseView";
 import * as api from "../lib/api";
 
 afterEach(cleanup);
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  vi.mocked(api.fetchExam).mockResolvedValue({ label: "x", cases: 70, results: [], policy_version: 1 });
+});
 
 describe("RunGraph", () => {
   it("draws every step, the critic round count and where the models ran", () => {
@@ -92,7 +95,28 @@ describe("RoutingPanel", () => {
     expect(row?.textContent).toContain("cloud");
     expect(row?.textContent).toContain("valid pinned");
     expect(row?.textContent).toContain("0.02 USD");
+    expect(row?.textContent).toContain("budget 500 tokens");
     expect(screen.getByText(/Unit costs are assumptions/)).toBeTruthy();
+  });
+
+  it("shows the measured split of calls by serving model, and says the router decides", () => {
+    render(<RoutingPanel trace={TRACE} split={SPLIT} />);
+    const table = screen.getByTestId("routing-split");
+    const rows = within(table).getAllByRole("row");
+    expect(rows[0]?.textContent).toContain("Nemotron 3 Ultra 550B (cloud)");
+    expect(rows[0]?.textContent).toContain("Nemotron 3.5 Lightning 30B (local)");
+    const safety = rows.find((r) => r.textContent?.startsWith("Safety guard"));
+    expect(safety?.textContent).toContain("100.0% (48)");
+    const critic = rows.find((r) => r.textContent?.startsWith("Critic"));
+    expect(critic?.textContent).toContain("95.6% (65)");
+    expect(critic?.textContent).toContain("4.4% (3)");
+    expect(screen.getByText(/learned router/)).toBeTruthy();
+    expect(screen.getByText(/do not route by difficulty and do not pin the cloud/)).toBeTruthy();
+  });
+
+  it("leaves the split out when the exam has not been run", () => {
+    render(<RoutingPanel trace={TRACE} split={null} />);
+    expect(screen.queryByTestId("routing-split")).toBeNull();
   });
 
   it("says so when no model was called", () => {
