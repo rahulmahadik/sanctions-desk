@@ -119,7 +119,12 @@ export async function buildApp(deps: AppDeps) {
     generator: deps.generator,
     zetaris: deps.zetaris,
   });
-  await app.register(policyRoutes, { policies: deps.policies });
+  await app.register(policyRoutes, {
+    policies: deps.policies,
+    config,
+    generator: deps.generator,
+    zetaris: deps.zetaris,
+  });
 
   return app;
 }

@@ -16,3 +16,4 @@ export * from "./sample-rules.js";
 export * from "./trace-contract.js";
 export * from "./triage.js";
 export * from "./types.js";
+export * from "./whatif.js";
