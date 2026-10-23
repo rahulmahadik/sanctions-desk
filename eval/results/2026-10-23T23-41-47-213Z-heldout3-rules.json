@@ -1,0 +1,523 @@
+{
+  "variant": "rules",
+  "exam": "heldout3",
+  "features": {
+    "commit": "414dcc1",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "screener": {
+      "enabled": true,
+      "confidence_threshold": 0.5
+    },
+    "cockpit_binds": {
+      "sanctions-desk-eval": "auto",
+      "sanctions-desk-guard": "local",
+      "sanctions-desk-reasoning": "deep"
+    },
+    "app_identities": {
+      "triage": "default",
+      "evidence": "default",
+      "screener": "guard",
+      "matching": "default",
+      "ownership": "default",
+      "decision": "reasoning",
+      "critic": "reasoning",
+      "challenger": "reasoning",
+      "policy_guard": "guard",
+      "reporter": "default"
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "retry_identities": {
+      "decision": "guard",
+      "critic": "guard",
+      "challenger": "guard"
+    },
+    "note": "payments served from the Zetaris cache (re-cached and verified 24 Oct about 07:50 SGT by stopping the payments service; 376 rows = source)",
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "selection": {},
+  "started_at": "2026-10-23T23:41:47.213Z",
+  "finished_at": "2026-10-23T23:42:23.422Z",
+  "policy_version": 7,
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "screener": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "deep / reasoning 500",
+    "critic": "judge / reasoning 400",
+    "challenger": "deep / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": [
+    {
+      "case_id": "HO3-001",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_rules_close_note_son",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 2.94,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO3-002",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_note_director_portuguese",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 2.63,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO3-003",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_rules_close_note_nominee",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 2.72,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "ESCALATE_L2",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO3-004",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_ref_company_owned_by_listed",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 3.47,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO3-005",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_rules_close_note_partner_italian",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 2.68,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "CLOSE_FALSE_POSITIVE",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO3-006",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_note_trustee_dutch",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 2.74,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO3-007",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_name_check_note",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 2.87,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO3-008",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_fathers_name",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 2.78,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO3-009",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_director_of_studies",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 2.77,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO3-010",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_award_nominee",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 2.88,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "NEED_MORE_INFO",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO3-011",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_sister_company",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 3.23,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 4,
+      "cloud_calls": 0,
+      "cost": 0,
+      "path": "reason",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "ESCALATE_L2",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "flag",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    },
+    {
+      "case_id": "HO3-012",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_payee_name_check",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 4.49,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "local_calls": 5,
+      "cloud_calls": 0,
+      "cost": 0,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 0,
+      "challenger_cost": 0,
+      "path": "reason",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 1,
+      "critic_final": "approved",
+      "decision_model": "fallback-rules",
+      "decision_route": "own",
+      "decided_by_fallback": true,
+      "model_last_recommendation": "CLOSE_FALSE_POSITIVE",
+      "critic_unresolved": false,
+      "screener": {
+        "verdict": "pass",
+        "unavailable": false,
+        "served_by_cloud": false
+      },
+      "thermal_posture": "normal",
+      "paused_s": 0
+    }
+  ],
+  "metrics": {
+    "cases": 12,
+    "errors": 0,
+    "exact_accuracy": 0.4167,
+    "acceptable_accuracy": 0.5,
+    "risk_cases": 6,
+    "false_closes": 1,
+    "false_close_rate": 0.1667,
+    "forbidden_answers": 1,
+    "abstain_rate": 0.4167,
+    "decision_unavailable": 0,
+    "decision_unavailable_by_cause": {
+      "provider": 0,
+      "parsing": 0,
+      "withheld": 0
+    },
+    "excluding_unavailable": {
+      "cases": 12,
+      "exact_accuracy": 0.4167,
+      "acceptable_accuracy": 0.5
+    },
+    "by_group": {
+      "beyond_rules_v3": {
+        "cases": 12,
+        "exact": 5,
+        "acceptable": 6
+      }
+    },
+    "latency_s": {
+      "mean": 3.02,
+      "p50": 2.78,
+      "p95": 4.49
+    },
+    "tokens": {
+      "in": 0,
+      "out": 0
+    },
+    "model_calls": {
+      "local": 49,
+      "cloud": 0,
+      "cloud_share": 0
+    },
+    "cost": {
+      "total": 0,
+      "per_case": 0
+    },
+    "challenger": {
+      "fired": 1,
+      "changed": 0,
+      "added_seconds": 0,
+      "added_cost": 0
+    },
+    "critic": {
+      "reviewed": 12,
+      "sent_back": 0,
+      "unresolved": 0,
+      "mean_rounds": 1
+    }
+  }
+}
