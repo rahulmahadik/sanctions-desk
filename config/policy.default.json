@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "name": "Default screening policy",
   "description": "Baseline behaviour of the sanctions review desk. The jurisdiction list is a configurable example, not a complete or current list. Changes go through a reviewed, four-eyes publish.",
   "lists": {
@@ -102,26 +102,30 @@
       "thinking": {
         "budgetTokens": 500
       },
-      "timeoutMs": 90000
+      "timeoutMs": 90000,
+      "identity": "reasoning"
     },
     "critic": {
       "model": "judge",
       "thinking": {
         "budgetTokens": 400
       },
-      "timeoutMs": 90000
+      "timeoutMs": 90000,
+      "identity": "reasoning"
     },
     "challenger": {
       "model": "deep",
       "thinking": {
         "budgetTokens": 500
       },
-      "timeoutMs": 90000
+      "timeoutMs": 90000,
+      "identity": "reasoning"
     },
     "policy_guard": {
       "model": "fast",
       "thinking": "off",
-      "timeoutMs": 60000
+      "timeoutMs": 60000,
+      "identity": "guard"
     },
     "reporter": {
       "model": "fast",

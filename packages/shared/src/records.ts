@@ -129,6 +129,8 @@ export const ModelUseSchema = z.strictObject({
   model_routed: nonEmpty,
   provider: nonEmpty,
   route_kind: z.enum(["local", "cloud"]).nullable(),
+  /** The Nightshift app identity the call was sent under (reasoning or guard), which the cockpit may bind. */
+  app: nonEmpty.optional(),
   thinking: ThinkingSchema.optional(),
   tokens_in: count.optional(),
   tokens_out: count.optional(),

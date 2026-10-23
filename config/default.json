@@ -41,7 +41,15 @@
       "judge": "meterless/judge"
     },
     "receiptPublicKeys": [],
-    "evalAppId": "sanctions-desk-eval"
+    "evalAppId": "sanctions-desk-eval",
+    "apps": {
+      "reasoning": "sanctions-desk-reasoning",
+      "guard": "sanctions-desk-guard"
+    },
+    "rateLimit": {
+      "retries": 3,
+      "baseDelayMs": 3000
+    }
   },
   "ollama": {
     "baseUrl": "http://localhost:11434/v1",

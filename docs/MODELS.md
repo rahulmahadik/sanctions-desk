@@ -26,6 +26,30 @@ Triage, evidence reading, matching, ownership, memory and the policy guard are p
 - A try that gives no usable answer is repeated on the fast mode and then on the Ollama backup, with a short pause after a provider failure.
 - **The reasoning budget is ours, not a model parameter.** It is a token limit for the answer plus an instruction to put brief reasoning in the answer's `analysis` field. Nothing is sent to Nightshift to switch thinking on, and the runtime stops waiting for a slow model after about 45 seconds, which is why the budget is small.
 
+### Two app identities, and what the cockpit does with them
+
+Nightshift decides routing **per app**, and the cockpit can bind an app to a routing mode. By default every app, including a newly seen one, is bound to `auto`, and a bind **overrides what the client asked for** (the receipt records both). That is why an unbound desk saw every requested mode and even a request for a named model id served as `auto`: we tested it (`npm run lab:routing`, results in `eval/routing-lab*.json`) and a request naming the local Lightning model id was answered by cloud Ultra under an `auto` bind, so a model id does not pin.
+
+The desk therefore sends its calls under two app identities, named in `nightshift.apps` (`METERLESS_APP_REASONING`, `METERLESS_APP_GUARD`), and the policy says which step uses which (`models.<step>.identity`):
+
+| Identity                   | Steps                                   | Cockpit bind                                   | What was measured on this machine                                                                                                                 |
+| -------------------------- | --------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sanctions-desk-guard`     | the safety guard (inbound and outbound) | **local** (on-device only, no cloud)           | 24 of 24 calls served by Nemotron 3.5 Lightning 30B (local), with the mode asked for `fast` or `deep`                                             |
+| `sanctions-desk-reasoning` | decision, critic, challenger            | **deep** (frontier routes and second opinions) | 19 of 21 answered calls served by Nemotron 3 Ultra 550B (cloud); 2 of 21 won by Lightning, because `deep` races both and no lane allowlist is set |
+
+So the guard is deterministic, and reasoning is mostly but not guaranteed to be Ultra. Reasoning could be made deterministic with a per-app **lane allowlist**; the runtime supports one (`lanes` in the app's entry, matched by lane id or model id) but this cockpit build shows no screen for it, so we do not claim it. The receipts remain the proof: the split reported for any run is read from them, never assumed from the setting.
+
+**Cockpit setup (about two minutes).** Start the desk once so the identities appear, or run `npm run lab:routing -- --only apps --apps sanctions-desk-reasoning,sanctions-desk-guard`. Open the Nightshift Console and its list of connected apps. Bind `Sanctions Desk Guard` to **local** and `Sanctions Desk Reasoning` to **deep**. Check from the command line, which changes nothing:
+
+```bash
+ns route --app sanctions-desk-guard --mode fast --prompt "x"        # bound local; only Lightning is raced
+ns route --app sanctions-desk-reasoning --mode fast --prompt "x"    # bound deep; Ultra and Lightning are raced
+```
+
+Without these two binds the desk still works: the identities are then bound to `auto` like every other app, and the old behaviour applies (the learned router decides, and the split is whatever the receipts show).
+
+**Rate limits.** The cloud model sometimes answers 429 (too many requests). The generator waits (3 s, then 6 s, then 12 s; `nightshift.rateLimit`), holds back the calls that follow for the rest of the wait, and sends the same request again before the agent's own fallback (the fast mode, then Ollama) is used.
+
 ## The model ledger
 
 Every recommendation carries a ledger of the model calls behind it: step, the mode asked for and the model that answered (cloud or local), reasoning budget, tokens in and out, latency and the signed receipt.

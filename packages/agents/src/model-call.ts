@@ -86,6 +86,7 @@ export function modelUseOf(
     model_routed: result.routedModel,
     provider: result.provider,
     route_kind: result.routeKind,
+    ...(result.app ? { app: result.app } : {}),
     ...(thinking !== undefined ? { thinking } : {}),
     ...(result.usage?.promptTokens !== undefined ? { tokens_in: result.usage.promptTokens } : {}),
     ...(result.usage?.completionTokens !== undefined ? { tokens_out: result.usage.completionTokens } : {}),
@@ -152,6 +153,10 @@ function isProviderFailure(err: unknown): boolean {
   );
 }
 
+/** The app identity a step's calls go out under, when the policy names one. */
+const identityOf = (config: { identity?: "default" | "reasoning" | "guard" }) =>
+  config.identity && config.identity !== "default" ? { identity: config.identity } : {};
+
 async function attemptOnce<T extends z.ZodType>(
   deps: AgentDeps,
   options: AskJsonOptions<T>,
@@ -166,7 +171,7 @@ async function attemptOnce<T extends z.ZodType>(
       system: `${options.system}\n\n${reasoning ? STRUCTURED_REASONING : STRUCTURED_BRIEF}`,
       prompt,
       ...(route === "own" ? laneOrModel(config.model) : { lane: "fast" as const }),
-      ...(route === "backup" ? { provider: "ollama" as const } : {}),
+      ...(route === "backup" ? { provider: "ollama" as const } : identityOf(config)),
       jsonSchema: options.jsonSchema,
       temperature: 0,
       maxTokens: STRUCTURED_TOKENS,
@@ -179,7 +184,7 @@ async function attemptOnce<T extends z.ZodType>(
     prompt,
     // The fast retry goes to the fast lane: the deep lane may think aloud and never reach the JSON.
     ...(route === "own" ? laneOrModel(config.model) : { lane: "fast" as const }),
-    ...(route === "backup" ? { provider: "ollama" as const, jsonMode: true } : {}),
+    ...(route === "backup" ? { provider: "ollama" as const, jsonMode: true } : identityOf(config)),
     // Without reasoning the answer starts straight away with "{"; with it the model thinks first.
     ...(reasoning ? {} : { prefill: "{" }),
     temperature: 0,

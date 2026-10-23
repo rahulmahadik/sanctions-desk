@@ -136,6 +136,16 @@ const ConfigSchema = z.strictObject({
     /** Ed25519 public keys (base64) of the runtime whose receipts we trust. Public, so not a secret. */
     receiptPublicKeys: z.array(z.string().regex(/^[A-Za-z0-9+/]{43}=$/, "expected a base64 Ed25519 public key")),
     runtimeToken: secret.optional(),
+    /**
+     * App identities for the two kinds of work. The cockpit can bind each app to a routing mode, so the guard identity
+     * can be bound to the local model and the reasoning identity to the deep mode. A step without one uses `appId`.
+     */
+    apps: z.strictObject({ reasoning: nonEmpty, guard: nonEmpty }).optional(),
+    /** After a 429 from the runtime (or the cloud behind it): wait, then try the same mode again. */
+    rateLimit: z.strictObject({ retries: z.number().int().min(0).max(6), baseDelayMs: positiveInt }).default({
+      retries: 3,
+      baseDelayMs: 3000,
+    }),
   }),
   ollama: z.strictObject({
     baseUrl: z.url(),
@@ -190,6 +200,8 @@ const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "METERLESS_BASE_URL", path: ["nightshift", "baseUrl"], kind: "string" },
   { env: "METERLESS_APP_ID", path: ["nightshift", "appId"], kind: "string" },
   { env: "METERLESS_EVAL_APP_ID", path: ["nightshift", "evalAppId"], kind: "string" },
+  { env: "METERLESS_APP_REASONING", path: ["nightshift", "apps", "reasoning"], kind: "string" },
+  { env: "METERLESS_APP_GUARD", path: ["nightshift", "apps", "guard"], kind: "string" },
   { env: "METERLESS_RUNTIME_TOKEN", path: ["nightshift", "runtimeToken"], kind: "string" },
   { env: "METERLESS_MODEL_FAST", path: ["nightshift", "models", "fast"], kind: "string" },
   { env: "METERLESS_MODEL_DEEP", path: ["nightshift", "models", "deep"], kind: "string" },

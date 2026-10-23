@@ -67,7 +67,7 @@ async function call(p: Probe, i: number) {
     },
     body: JSON.stringify({
       model: p.model,
-      max_tokens: 24,
+      max_tokens: Number(arg("--max-tokens") ?? 24),
       temperature: 0,
       messages: [
         {
@@ -115,7 +115,7 @@ const rows: unknown[] = [];
 for (const p of probes) {
   for (let i = 0; i < reps; i += 1) {
     try {
-      await new Promise((r) => setTimeout(r, 2500));
+      await new Promise((r) => setTimeout(r, Number(arg("--pace") ?? 2500)));
       const row = await call(p, i);
       rows.push(row);
       const r = row as Record<string, unknown>;

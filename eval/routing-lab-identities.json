@@ -1,12 +1,12 @@
 {
   "label": "routing lab, not part of the exam",
-  "at": "2026-10-23T07:34:43.906Z",
+  "at": "2026-10-23T07:46:03.843Z",
   "rows": [
     {
       "app": "sanctions-desk-reasoning",
       "model": "meterless/deep",
       "status": 200,
-      "ms": 3322,
+      "ms": 1654,
       "asked": "meterless/deep",
       "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
       "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
@@ -14,29 +14,8 @@
       "from_cache": false,
       "app_policy": {
         "requested_mode": "deep",
-        "routed_mode": "auto",
-        "mode_coerced": true,
-        "lanes": null,
-        "has_rule": false
-      },
-      "receipt_app": "sanctions-desk-reasoning",
-      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
-      "tokens": 234
-    },
-    {
-      "app": "sanctions-desk-reasoning",
-      "model": "meterless/fast",
-      "status": 200,
-      "ms": 2356,
-      "asked": "meterless/fast",
-      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
-      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
-      "route_kind": "cloud",
-      "from_cache": false,
-      "app_policy": {
-        "requested_mode": "fast",
-        "routed_mode": "auto",
-        "mode_coerced": true,
+        "routed_mode": "deep",
+        "mode_coerced": false,
         "lanes": null,
         "has_rule": true
       },
@@ -45,19 +24,115 @@
       "tokens": 248
     },
     {
-      "app": "sanctions-desk-guard",
+      "app": "sanctions-desk-reasoning",
       "model": "meterless/deep",
-      "status": 502,
-      "ms": 2462,
+      "status": 200,
+      "ms": 1965,
       "asked": "meterless/deep",
-      "app_policy": {},
-      "error": "429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "deep",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 262
     },
     {
-      "app": "sanctions-desk-guard",
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 2612,
+      "asked": "meterless/deep",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "deep",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 513
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 3491,
+      "asked": "meterless/deep",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "deep",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 625
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 1926,
+      "asked": "meterless/deep",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "deep",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 270
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 17419,
+      "asked": "meterless/deep",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "deep",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 280
+    },
+    {
+      "app": "sanctions-desk-reasoning",
       "model": "meterless/fast",
       "status": 200,
-      "ms": 2133,
+      "ms": 1726,
       "asked": "meterless/fast",
       "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
       "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
@@ -65,14 +140,359 @@
       "from_cache": false,
       "app_policy": {
         "requested_mode": "fast",
-        "routed_mode": "auto",
+        "routed_mode": "deep",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 284
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 1756,
+      "asked": "meterless/fast",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "deep",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 283
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 1708,
+      "asked": "meterless/fast",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "deep",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 283
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/fast",
+      "status": 502,
+      "ms": 3592,
+      "asked": "meterless/fast",
+      "app_policy": {},
+      "error": "429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 1613,
+      "asked": "meterless/fast",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "deep",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 281
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 1632,
+      "asked": "meterless/fast",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "deep",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 282
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 3019,
+      "asked": "meterless/deep",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "local",
         "mode_coerced": true,
         "lanes": null,
         "has_rule": true
       },
       "receipt_app": "sanctions-desk-guard",
-      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
-      "tokens": 247
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 375
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 2234,
+      "asked": "meterless/deep",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "local",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-guard",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 287
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 2764,
+      "asked": "meterless/deep",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "local",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-guard",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 348
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 2382,
+      "asked": "meterless/deep",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "local",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-guard",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 305
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 2602,
+      "asked": "meterless/deep",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "local",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-guard",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 325
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 3372,
+      "asked": "meterless/deep",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "local",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-guard",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 419
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 2782,
+      "asked": "meterless/fast",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "local",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-guard",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 349
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 2574,
+      "asked": "meterless/fast",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "local",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-guard",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 321
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 2159,
+      "asked": "meterless/fast",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "local",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-guard",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 276
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 3143,
+      "asked": "meterless/fast",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "local",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-guard",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 390
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 2376,
+      "asked": "meterless/fast",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "local",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-guard",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 300
+    },
+    {
+      "app": "sanctions-desk-guard",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 3274,
+      "asked": "meterless/fast",
+      "body_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "routed_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "route_kind": "local",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "local",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-guard",
+      "receipt_winning_model": "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 405
     }
   ]
 }

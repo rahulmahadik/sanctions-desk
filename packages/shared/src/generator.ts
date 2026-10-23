@@ -36,6 +36,8 @@ export interface GenerateRequest {
   prefill?: string;
   /** Ask this provider only (when it is in the chain). Used for a last try after the primary gave unusable answers. */
   provider?: Provider;
+  /** Which app identity to send the request under: the one for reasoning or the one for the guard. */
+  identity?: "reasoning" | "guard";
   temperature?: number;
   maxTokens?: number;
   timeoutMs?: number;
@@ -79,6 +81,8 @@ export interface GenerateResult {
   fromCache?: boolean;
   /** Modes that were dead and skipped before this answer. */
   deadRoutes?: DeadRoute[];
+  /** The app identity the request was sent under. */
+  app?: string;
   /** Signed receipt summary and the full envelope it was taken from (store the envelope beside the trace). */
   receipt?: ReceiptSummary;
   receiptEnvelope?: ReceiptEnvelope;
@@ -114,6 +118,13 @@ export interface NightshiftOptions {
   models: Record<Lane, string>;
   timeoutMs: number;
   receiptPublicKeys?: readonly string[];
+  /** Identities for reasoning and for the guard; a request names one with `identity`. */
+  apps?: { reasoning: string; guard: string };
+  /** What to do after a 429. Wait `baseDelayMs`, then twice that, and so on, up to `retries` times. */
+  rateLimit?: { retries: number; baseDelayMs: number };
+  /** Replaceable in tests. */
+  sleep?: (ms: number) => Promise<void>;
+  now?: () => number;
   onAttempt?: AttemptHook;
   fetchImpl?: FetchLike;
 }
@@ -130,7 +141,7 @@ export function createNightshiftGenerator(opts: NightshiftOptions): Generator {
 
     const deadRoutes: DeadRoute[] = [];
     for (const mode of modesToTry(opts.models, primary)) {
-      const sent = await sendToNightshift(opts, req, mode);
+      const sent = await sendPaced(opts, req, mode);
       const dead = deadRouteOf(mode, sent.status, sent.text);
       if (dead) {
         deadRoutes.push(dead);
@@ -143,7 +154,7 @@ export function createNightshiftGenerator(opts: NightshiftOptions): Generator {
         });
         continue;
       }
-      const answer = readNightshiftAnswer(opts, mode, sent, deadRoutes);
+      const answer = readNightshiftAnswer(opts, mode, sent, deadRoutes, appFor(opts, req));
       return { ...answer, text: withPrefill(answer.text, req.prefill) };
     }
     throw new AppError("route_dead", "no Nightshift mode could route this request", {
@@ -162,13 +173,51 @@ function modesToTry(models: Record<Lane, string>, primary: string): string[] {
   return next === undefined ? [primary] : [primary, next];
 }
 
+const appFor = (opts: NightshiftOptions, req: GenerateRequest): string =>
+  (req.identity ? opts.apps?.[req.identity] : undefined) ?? opts.appId;
+
+/** The runtime or the cloud behind it said "too many requests" (the runtime wraps it in a 502). */
+export const isRateLimited = (status: number, text: string): boolean =>
+  status === 429 || (status >= 500 && /\b429\b|Too Many Requests/i.test(text));
+
+const realSleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Send, and when the answer is a 429, wait and send the same request again (up to the configured number of times).
+ * The wait also holds back the calls that follow, so a burst does not keep tripping the same limit.
+ */
+async function sendPaced(opts: NightshiftOptions, req: GenerateRequest, mode: string) {
+  const policy = opts.rateLimit ?? { retries: 0, baseDelayMs: 0 };
+  const sleep = opts.sleep ?? realSleep;
+  const now = opts.now ?? Date.now;
+  for (let attempt = 0; ; attempt += 1) {
+    const hold = cooldowns.get(opts.baseUrl) ?? 0;
+    if (hold > now()) await sleep(hold - now());
+    const sent = await sendToNightshift(opts, req, mode);
+    if (!isRateLimited(sent.status, sent.text) || attempt >= policy.retries) return sent;
+    const wait = policy.baseDelayMs * 2 ** attempt;
+    cooldowns.set(opts.baseUrl, now() + wait);
+    opts.onAttempt?.({
+      provider: "nightshift",
+      requestedModel: mode,
+      status: sent.status,
+      outcome: "error",
+      errorType: "rate_limited",
+      latencyMs: Math.round(sent.ms),
+    });
+  }
+}
+
+/** When each runtime may be called again after a 429, shared by every generator talking to it. */
+const cooldowns = new Map<string, number>();
+
 async function sendToNightshift(opts: NightshiftOptions, req: GenerateRequest, mode: string) {
   try {
     return await httpRequest(joinUrl(opts.baseUrl, "/chat/completions"), {
       method: "POST",
       headers: {
         Authorization: `Bearer ${opts.token?.reveal() ?? ""}`,
-        "meterless-app": opts.appId,
+        "meterless-app": appFor(opts, req),
         "meterless-scope": opts.scope,
       },
       body: chatBody(mode, req),
@@ -207,6 +256,7 @@ function readNightshiftAnswer(
   mode: string,
   sent: { status: number; text: string; ms: number },
   deadRoutes: DeadRoute[],
+  app: string,
 ): GenerateResult {
   const latencyMs = Math.round(sent.ms);
   try {
@@ -219,6 +269,7 @@ function readNightshiftAnswer(
     const result: GenerateResult = {
       text: extractContent("nightshift", body),
       provider: "nightshift",
+      app,
       requestedModel: mode,
       routedModel,
       routeKind: kind === "local" || kind === "cloud" ? kind : null,
@@ -408,6 +459,8 @@ export function buildGenerator(cfg: Config, deps: BuildGeneratorDeps = {}): Gene
         baseUrl: nightshift.baseUrl,
         token: nightshift.runtimeToken,
         appId: nightshift.appId,
+        apps: nightshift.apps,
+        rateLimit: nightshift.rateLimit,
         scope: nightshift.scope,
         models: nightshift.models,
         timeoutMs: nightshift.requestTimeoutMs,

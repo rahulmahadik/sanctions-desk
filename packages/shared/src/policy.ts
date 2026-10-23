@@ -38,6 +38,11 @@ export const AgentModelSchema = z.strictObject({
   model: AgentModelIdSchema,
   thinking: ThinkingSchema,
   timeoutMs: positiveInt.max(600_000),
+  /**
+   * Which app identity the step's calls are sent under. "reasoning" and "guard" are bound separately in the Nightshift
+   * cockpit (the guard to the local model, reasoning to the deep mode); "default" uses the application's own identity.
+   */
+  identity: z.enum(["default", "reasoning", "guard"]).default("default"),
 });
 export type AgentModel = z.infer<typeof AgentModelSchema>;
 
