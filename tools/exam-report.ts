@@ -119,8 +119,8 @@ for (const f of files) {
   // Runs of a later system version, kept apart so they never replace the first system's numbers.
   if (r.system !== undefined && whole)
     laterRuns.set(`${r.system}|${r.exam ?? "exam"}|${r.variant}`, { ...r, metrics: summarise(r.cases), file: f });
-  if (r.exam === "heldout2" && r.system === undefined && whole)
-    laterRuns.set(`baseline|heldout2|${r.variant}`, { ...r, metrics: summarise(r.cases), file: f });
+  if ((r.exam === "heldout2" || r.exam === "heldout3") && r.system === undefined && whole)
+    laterRuns.set(`baseline|${r.exam}|${r.variant}`, { ...r, metrics: summarise(r.cases), file: f });
 }
 
 const config = loadConfig();
@@ -495,6 +495,10 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2"))) {
     fcRow("Held-out v2, deterministic pipeline", laterRuns.get("baseline|heldout2|rules")),
     fcRow("Held-out v2, name-match rules baseline", laterRuns.get("baseline|heldout2|fuzzy")),
     fcRow("Held-out v2, every alert goes to a person", laterRuns.get("baseline|heldout2|escalate_all")),
+    fcRow("Held-out v3, fixed system (new held-out set, frozen before the fix)", laterRuns.get("sys3|heldout3|routed")),
+    fcRow("Held-out v3, fixed system with critic and challenger off (single)", laterRuns.get("sys3|heldout3|single")),
+    fcRow("Held-out v3, deterministic pipeline", laterRuns.get("baseline|heldout3|rules")),
+    fcRow("Held-out v3, every alert goes to a person", laterRuns.get("baseline|heldout3|escalate_all")),
     fcRow(
       "Held-out v2, changed system with the screener switched off (ablation)",
       laterRuns.get("sys2bnoscreen|heldout2|routed"),
@@ -551,6 +555,12 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2"))) {
       "| Set | Failures, posture normal | Failures, posture serious |",
       "|---|---:|---:|",
       ...heatRows,
+      "",
+    );
+  }
+  if (laterRuns.has("sys3|heldout3|routed")) {
+    lines.push(
+      "**Held-out v3: a new held-out set, frozen before the fix.** After held-out v2 showed the screener over-flagging and the critic deadlocking, a third set of 12 cases (6 risks, including relationship notes where plain rules would close, and 6 clears, including notes that mention a listed name in a harmless way) was written from the definitions only, by an author who saw no result, trace or screener code, and frozen in commit `8d7458b` at 04:04:03 SGT on 24 Oct 2026. The fixes (span grounding of screener signals, the document-number check against the customer record, exact source spans for the check reference and date, and setting aside citations the critic cannot check) were committed afterwards, in `b6617cd` at 05:20:14 SGT. The v3 file was checked against its freeze commit before the run (same sha256). v3 was run once on the fixed system; its run note gives the payments cache check time as about 07:50, but the check was at about 07:16 SGT.",
       "",
     );
   }
