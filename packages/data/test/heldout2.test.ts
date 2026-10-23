@@ -25,9 +25,10 @@ const bank = buildBank(loadSampleTables(), SNAPSHOTS);
 const read = (path: string) => readFileSync(path, "utf8");
 
 describe("the second held-out set and the files that already exist", () => {
-  it("leaves the first set's output byte-identical to the committed data, tables and cases", () => {
+  it("reproduces the committed data (main, first and second set rows), tables and cases byte for byte", () => {
+    // The committed data/synthetic holds the rows of both held-out sets, as loaded into the running bank.
     const dir = tempDir();
-    writeBank(dir, bank, { includeHeldout: true });
+    writeBank(dir, bank, { includeHeldout2: true });
     for (const name of SYNTHETIC_TABLE_NAMES) {
       for (const ext of ["json", "csv"]) {
         expect(read(join(dir, `${name}.${ext}`)), `${name}.${ext}`).toBe(
@@ -44,14 +45,14 @@ describe("the second held-out set and the files that already exist", () => {
     expect(read(join(dir, "heldout.json"))).toBe(read(resolveProjectPath("eval/cases/heldout.json")));
   });
 
-  it("without the flag writes the main rows only: the committed rows minus the first set's", () => {
+  it("without the flags writes the main rows only: the committed rows minus both held-out sets'", () => {
     const dir = tempDir();
     writeBank(dir, bank);
     for (const name of SYNTHETIC_TABLE_NAMES) {
       const committed = JSON.parse(read(resolveProjectPath(`data/synthetic/${name}.json`))) as Array<
         Record<string, string>
       >;
-      const withoutHeldout = committed.filter((r) => !Object.values(r)[0]?.match(/^[A-Z]+-H\d/));
+      const withoutHeldout = committed.filter((r) => !Object.values(r)[0]?.match(/^[A-Z]+-[HJ]\d/));
       expect(JSON.parse(read(join(dir, `${name}.json`))), name).toEqual(withoutHeldout);
     }
   });

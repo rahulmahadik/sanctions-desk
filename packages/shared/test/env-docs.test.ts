@@ -28,6 +28,8 @@ function envNamesInCode(): string[] {
       }
     }
   }
+  // Variables of the operating system, read only to pass them on to a child process, are not configuration.
+  for (const system of ["HOME", "PATH", "TMPDIR", "LANG", "LC_ALL", "USER", "SHELL"]) names.delete(system);
   return [...names].sort();
 }
 

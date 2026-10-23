@@ -352,3 +352,15 @@ describe("a refused prompt says what matched without keeping the text", () => {
     expect(fragmentType("said he would come back")).toBe("other");
   });
 });
+
+describe("the screener's call to the local model", () => {
+  it("asks for a plain JSON answer, not schema-constrained output, which the local model answers with nothing", async () => {
+    const { screenFreeText } = await import("../src/screener.js");
+    const deps = sampleDepsWithText({ notes: "Customer met at branch; passport checked." });
+    const evidence = await gatherEvidence(deps, fp.alertId);
+    const { generator, screenerRequests } = scriptedGenerator([]);
+    await screenFreeText({ ...deps, generator }, evidence);
+    expect(screenerRequests.length).toBeGreaterThan(0);
+    expect(screenerRequests.every((r) => r.jsonSchema === undefined)).toBe(true);
+  });
+});

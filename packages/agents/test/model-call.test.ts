@@ -176,6 +176,31 @@ describe("askJson", () => {
     expect(requests.map((r) => r.identity)).toEqual(["reasoning", "guard"]);
   });
 
+  it("asks the local retry and the backup for plain JSON, and only the own route for schema-constrained output", async () => {
+    const down = new AppError("http_error", "all model providers failed", { recoverable: true });
+    const { generator, requests } = scriptedGenerator([down, "not json", '{"decision": "Y", "confidence": 1}']);
+    const base = sampleDeps({ generator });
+    const decision = {
+      ...base.policy.models.decision,
+      identity: "reasoning" as const,
+      retryIdentity: "guard" as const,
+    };
+    const deps = {
+      ...base,
+      policy: { ...base.policy, models: { ...base.policy.models, decision } },
+      sleep: async () => {},
+    };
+    await askJson(deps, {
+      agent: "decision",
+      system: "s",
+      prompt: "p",
+      schema,
+      jsonSchema: { name: "x", schema: { type: "object" } },
+    });
+    expect(requests.map((r) => r.jsonSchema !== undefined)).toEqual([true, false, false]);
+    expect(requests[1]?.prefill).toBe("{");
+  });
+
   it("keeps the step's own identity on the retry when no retry identity is set", async () => {
     const { generator, requests } = scriptedGenerator(["not json", '{"decision": "Y", "confidence": 1}']);
     const base = sampleDeps({ generator });

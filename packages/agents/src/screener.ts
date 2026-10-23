@@ -510,7 +510,8 @@ export async function screenFreeText(deps: AgentDeps, evidence: EvidenceBundle):
       system: SCREENER_SYSTEM,
       prompt: screenerPrompt(deps, evidence, fields),
       schema: ScreenerAnswerSchema,
-      jsonSchema: SCREENER_JSON_SCHEMA,
+      // No schema-constrained output: the local model answers it with an empty response (HTTP 502 from the runtime,
+      // an empty answer from the backup), measured on 24 Oct 2026. The plain JSON answer is checked by the schema.
     });
     calls = asked.calls;
     const checked = validateScreenerAnswer(asked.value, {

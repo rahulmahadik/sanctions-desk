@@ -165,6 +165,21 @@ const identityFor = (
   route: "own" | "fast" | "backup",
 ) => identityOf(route === "fast" && config.retryIdentity ? { identity: config.retryIdentity } : config);
 
+/**
+ * Whether a try asks for schema-constrained output. Only the step's own route does: a retry sent to the local model
+ * (the retry identity) and the backup get a plain JSON answer, because the local model answers schema-constrained
+ * requests with an empty response (measured 24 Oct 2026). Either way the answer is checked against the schema.
+ */
+function structuredFor<T extends z.ZodType>(
+  deps: AgentDeps,
+  options: AskJsonOptions<T>,
+  config: { retryIdentity?: string },
+  route: "own" | "fast" | "backup",
+): boolean {
+  if (!options.jsonSchema || !deps.policy.structuredOutput) return false;
+  return route === "own" || (route === "fast" && config.retryIdentity === undefined);
+}
+
 async function attemptOnce<T extends z.ZodType>(
   deps: AgentDeps,
   options: AskJsonOptions<T>,
@@ -174,7 +189,7 @@ async function attemptOnce<T extends z.ZodType>(
 ): Promise<Attempt> {
   const config = deps.policy.models[options.agent as keyof typeof deps.policy.models];
   const budget = reasoningBudget(config.thinking);
-  if (options.jsonSchema && deps.policy.structuredOutput) {
+  if (structuredFor(deps, options, config, route)) {
     const result = await (deps.generator as Generator)({
       system: `${options.system}\n\n${reasoning ? STRUCTURED_REASONING : STRUCTURED_BRIEF}`,
       prompt,
@@ -331,7 +346,7 @@ async function askRound<T extends z.ZodType>(
     attempt,
     last: attempt >= round.attempts,
     reasoning: reasoningBudget(config.thinking) > 0 && attempt === 1 && options.fast !== true,
-    structured: Boolean(options.jsonSchema && deps.policy.structuredOutput),
+    structured: structuredFor(deps, options, config, route),
     route,
     lane: route === "own" ? config.model : route === "fast" ? "fast" : "ollama",
   };

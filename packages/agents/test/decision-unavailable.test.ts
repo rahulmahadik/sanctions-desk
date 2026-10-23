@@ -61,10 +61,9 @@ describe("a decision step that never gets a usable answer", () => {
     expect(res.critic).toMatchObject({ final_verdict: "not_run" });
     // The safety guard, then three tries at the decision (own model, fast lane, backup provider); no critic call.
     expect(requests).toHaveLength(4);
-    expect(requests.at(-1)).toMatchObject({
-      provider: "ollama",
-      jsonSchema: { name: "sanctions_decision" },
-    });
+    // The backup is the local model: it gets a plain JSON request, not schema-constrained output.
+    expect(requests.at(-1)).toMatchObject({ provider: "ollama", prefill: "{" });
+    expect(requests.at(-1)?.jsonSchema).toBeUndefined();
   });
 
   it("keeps the failed answer's ending and length in the trace to explain it", async () => {

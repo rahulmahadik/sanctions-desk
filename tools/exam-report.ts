@@ -466,8 +466,11 @@ if (full || hoFull) {
 }
 
 // ---- before and after the free-text screener ----------------------------------------------------------
-const after = (exam: string) => laterRuns.get(`sys2|${exam}|routed`);
-if ([...laterRuns.keys()].some((k) => k.startsWith("sys2|"))) {
+// The changed system: "sys2" is the first version, whose local screener failed on every case (the local model answers
+// schema-constrained requests with nothing); "sys2b" is the same system with that fixed. The blind v2 run is sys2.
+const after = (exam: string) => laterRuns.get(`sys2b|${exam}|routed`);
+const blindV2 = () => laterRuns.get("sys2|heldout2|routed");
+if ([...laterRuns.keys()].some((k) => k.startsWith("sys2"))) {
   const fcRow = (label: string, r: Result | undefined) => {
     if (!r) return `| ${label} | not run | | | |`;
     const d = directions(r.cases);
@@ -479,18 +482,22 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2|"))) {
     "",
     "The first held-out run showed that risk stated only in free text (a customer note, a payment reference, a list remark) never reached the decision step: two such cases were wrongly closed. The system was then changed: a local model now reads the free text and passes only structured facts (risk signals and validated documentary evidence) to the cloud steps, and a risk signal blocks a close. A second held-out set was written and frozen before the changed system was run on it, so it is the blind test of the change; the first held-out set is no longer blind for the changed system. The first system's numbers are kept as they were.",
     "",
+    '**The blind v2 run tested a broken screener.** In that run the local screener failed on every case: the local model answered its schema-constrained request with an empty response (the runtime returned HTTP 502 "empty_response", the backup an empty answer). A failed screener never allows a close, so every case came out as need-more-information or escalate: no risk case was closed, and no clear was made. That says the fail-closed rule works; it says nothing about how well the screener reads text. The fix (a plain JSON request to the local model, the same as the safety guard) was made after the blind run, and every changed-system run after it is labelled *after the screener fix*. The blind result is shown unchanged.',
+    "",
     "| Set and system | Risk cases wrongly closed | Risks caught | Correct clears made | Acceptable |",
     "|---|---:|---:|---:|---:|",
     fcRow("70 cases, first system", full),
     fcRow("70 cases, changed system", after("exam")),
     fcRow("Held-out v1, first system (blind)", hoFull),
     fcRow("Held-out v1, changed system (after the fix, not blind)", after("heldout")),
-    fcRow("Held-out v2, changed system (blind)", after("heldout2")),
+    fcRow("Held-out v2, changed system (blind; the screener failed on every case)", blindV2()),
+    fcRow("Held-out v2, changed system after the screener fix (not blind)", after("heldout2")),
     fcRow("Held-out v2, deterministic pipeline", laterRuns.get("baseline|heldout2|rules")),
+    fcRow("Held-out v2, name-match rules baseline", laterRuns.get("baseline|heldout2|fuzzy")),
     fcRow("Held-out v2, every alert goes to a person", laterRuns.get("baseline|heldout2|escalate_all")),
     fcRow(
       "Held-out v2, changed system with the screener switched off (ablation)",
-      laterRuns.get("sys2noscreen|heldout2|routed"),
+      laterRuns.get("sys2bnoscreen|heldout2|routed"),
     ),
     "",
   );
@@ -509,7 +516,8 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2|"))) {
   const howRows = [
     how("70 cases", after("exam")),
     how("Held-out v1 (after the fix, not blind)", after("heldout")),
-    how("Held-out v2 (blind)", after("heldout2")),
+    how("Held-out v2 (blind; screener failed)", blindV2()),
+    how("Held-out v2 (after the screener fix, not blind)", after("heldout2")),
   ].filter((x): x is string => x !== undefined);
   if (howRows.length > 0) {
     lines.push(
@@ -525,7 +533,8 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2|"))) {
   const heatRows = [
     ["70 cases", after("exam")],
     ["Held-out v1 (after the fix)", after("heldout")],
-    ["Held-out v2", after("heldout2")],
+    ["Held-out v2 (blind)", blindV2()],
+    ["Held-out v2 (after the screener fix)", after("heldout2")],
   ]
     .filter((x): x is [string, Result & { file: string }] => x[1] !== undefined)
     .map(([label, r]) => {
