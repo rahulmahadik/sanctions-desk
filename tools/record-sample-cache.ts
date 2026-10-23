@@ -3,6 +3,7 @@
  * and save each real answer. Sample mode later replays these answers with the same client and SQL guard.
  *
  *   npm run sample:record
+ *   npm run sample:record -- --append   keep every saved answer as it is and add only answers to queries not saved yet
  */
 import { existsSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -16,7 +17,13 @@ import {
   loadPolicyFile,
   resolveProjectPath,
 } from "@sanctions-desk/shared";
-import { createZetarisClient, emptyCache, recordingFetch, saveQueryCache } from "@sanctions-desk/zetaris";
+import {
+  createZetarisClient,
+  emptyCache,
+  loadQueryCache,
+  recordingFetch,
+  saveQueryCache,
+} from "@sanctions-desk/zetaris";
 
 const envFile = resolveProjectPath(".env");
 if (existsSync(envFile)) process.loadEnvFile(envFile);
@@ -85,5 +92,17 @@ try {
 } catch (err) {
   console.log(`replay skipped: ${err instanceof Error ? err.message : String(err)}`);
 }
-saveQueryCache(resolveProjectPath(config.sampleCache), cache);
-console.log(`saved ${Object.keys(cache.entries).length} answers to ${config.sampleCache}`);
+if (process.argv.includes("--append")) {
+  // The answers already saved stay byte for byte; only queries that were not saved before are added.
+  const path = resolveProjectPath(config.sampleCache);
+  const saved = existsSync(path) ? loadQueryCache(path) : emptyCache();
+  const added = Object.keys(cache.entries).filter((k) => !(k in saved.entries));
+  for (const k of added) saved.entries[k] = cache.entries[k] as (typeof saved.entries)[string];
+  saveQueryCache(path, saved);
+  console.log(
+    `appended ${added.length} new answers to ${config.sampleCache} (${Object.keys(saved.entries).length} in all)`,
+  );
+} else {
+  saveQueryCache(resolveProjectPath(config.sampleCache), cache);
+  console.log(`saved ${Object.keys(cache.entries).length} answers to ${config.sampleCache}`);
+}
