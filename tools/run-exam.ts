@@ -9,7 +9,7 @@
  *   npm run exam -- --variant escalate_all    baseline: every alert goes to a person
  *   npm run exam -- --variant no_memory       the full system with memory off (previously cleared cases only)
  *
- * Options: --groups a,b  --kinds x,y  --limit N. Results go to eval/results/<time>-<variant>.json and are
+ * Options: --groups a,b  --kinds x,y  --limit N  --exam heldout (the held-out set, run ids eval-heldout-...). Results go to eval/results/<time>-<variant>.json and are
  * never edited by hand; eval/REPORT.md is built from them (npm run exam:report).
  */
 
@@ -29,7 +29,7 @@ import {
   screenOutbound,
   summarise,
 } from "@sanctions-desk/agents";
-import { type ExamCaseRecord, loadExam } from "@sanctions-desk/data";
+import { type ExamCaseRecord, HELDOUT_EXAM_FILE, loadExam, MAIN_EXAM_FILE } from "@sanctions-desk/data";
 import {
   buildGenerator,
   createFallbackRulesGenerator,
@@ -55,6 +55,10 @@ const variant = flag("--variant") ?? "routed";
 const groups = flag("--groups")?.split(",");
 const kinds = flag("--kinds")?.split(",");
 const tag = flag("--tag");
+// --exam heldout runs the held-out "beyond the rules" set instead of the main 70 cases.
+const examName = flag("--exam") ?? "exam";
+if (!["exam", "heldout"].includes(examName)) throw new Error("--exam must be exam or heldout");
+const runPrefix = examName === "heldout" ? "eval-heldout" : "eval";
 const limit = flag("--limit") ? Number(flag("--limit")) : undefined;
 const VARIANTS = ["routed", "single", "local", "rules", "fuzzy", "escalate_all", "no_memory"];
 if (!VARIANTS.includes(variant)) throw new Error(`--variant must be one of ${VARIANTS.join(", ")}`);
@@ -74,7 +78,7 @@ if (variant === "local") {
   };
 }
 
-let cases: ExamCaseRecord[] = loadExam().cases;
+let cases: ExamCaseRecord[] = loadExam(examName === "heldout" ? HELDOUT_EXAM_FILE : MAIN_EXAM_FILE).cases;
 if (variant === "no_memory") cases = cases.filter((c) => c.group.startsWith("previously_cleared"));
 if (groups) cases = cases.filter((c) => groups.includes(c.group));
 if (kinds) cases = cases.filter((c) => kinds.includes(c.kind));
@@ -109,7 +113,7 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
     const got = variant === "escalate_all" ? escalateAll() : fuzzyThreshold(score, 0.9);
     return { ...base, got, ...(variant === "fuzzy" ? { score } : {}) };
   }
-  const runId = `eval-${variant}-${c.case_id}`;
+  const runId = `${runPrefix}-${variant}-${c.case_id}`;
   const trace = createTraceLogger({ runId, dir: logDir, stdout: false, policyVersion: policy.version });
   const deps = { config, policy, zetaris, generator, trace, now };
   const started = performance.now();
@@ -235,7 +239,10 @@ for (const c of cases) {
 const metrics = summarise(outcomes);
 const dir = resolveProjectPath("eval/results");
 mkdirSync(dir, { recursive: true });
-const file = join(dir, `${startedAt.replace(/[:.]/g, "-")}-${variant}${tag ? `-${tag}` : ""}.json`);
+const file = join(
+  dir,
+  `${startedAt.replace(/[:.]/g, "-")}-${examName === "heldout" ? "heldout-" : ""}${variant}${tag ? `-${tag}` : ""}.json`,
+);
 const describeModels = (p: Policy) =>
   Object.fromEntries(
     Object.entries(p.models).map(([k, v]) => [
@@ -245,7 +252,7 @@ const describeModels = (p: Policy) =>
   );
 writeFileSync(
   file,
-  `${JSON.stringify({ variant, ...(tag ? { tag } : {}), features: runFeatures(policy), selection: { groups, kinds: kinds?.length, limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: describeModels(policy), cases: outcomes, metrics }, null, 2)}\n`,
+  `${JSON.stringify({ variant, ...(examName === "heldout" ? { exam: "heldout" } : {}), ...(tag ? { tag } : {}), features: runFeatures(policy), selection: { groups, kinds: kinds?.length, limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: describeModels(policy), cases: outcomes, metrics }, null, 2)}\n`,
 );
 console.log(
   JSON.stringify({

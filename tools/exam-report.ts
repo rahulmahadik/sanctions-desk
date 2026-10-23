@@ -40,6 +40,8 @@ interface Result {
   features?: Features;
   variant: string;
   tag?: string;
+  /** "heldout" for a run of the held-out set; absent for the main exam. */
+  exam?: string;
   selection?: { groups?: string[]; kinds?: number; limit?: number };
   started_at: string;
   policy_version: number;
@@ -86,7 +88,8 @@ const newest = new Map<string, Result & { file: string }>();
 const earlier: Array<Result & { file: string; original?: Metrics }> = [];
 for (const f of files) {
   const r = JSON.parse(readFileSync(join(dir, f), "utf8")) as Result;
-  const partial = r.tag !== undefined || r.selection?.kinds || r.selection?.groups || r.selection?.limit;
+  const partial =
+    r.exam !== undefined || r.tag !== undefined || r.selection?.kinds || r.selection?.groups || r.selection?.limit;
   if (!partial) {
     const previous = newest.get(r.variant);
     if (previous) earlier.push({ ...previous, original: originalScore.get(r.variant) });

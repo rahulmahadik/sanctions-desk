@@ -28,12 +28,20 @@ export type ExamCaseRecord = z.infer<typeof ExamCaseSchema>;
 export const ExamFileSchema = z.strictObject({
   label: z.string(),
   seed: z.string(),
-  cases: z.array(ExamCaseSchema).length(70),
+  cases: z.array(ExamCaseSchema).min(1),
 });
 export type ExamFile = z.infer<typeof ExamFileSchema>;
 
-export function loadExam(path = "eval/cases/exam.json"): ExamFile {
-  return ExamFileSchema.parse(JSON.parse(readFileSync(resolveProjectPath(path), "utf8")));
+export const MAIN_EXAM_FILE = "eval/cases/exam.json";
+export const HELDOUT_EXAM_FILE = "eval/cases/heldout.json";
+
+/** The main exam has exactly 70 cases; the held-out set is read the same way but has its own size. */
+export function loadExam(path = MAIN_EXAM_FILE): ExamFile {
+  const exam = ExamFileSchema.parse(JSON.parse(readFileSync(resolveProjectPath(path), "utf8")));
+  if (path === MAIN_EXAM_FILE && exam.cases.length !== 70) {
+    throw new Error(`the main exam has ${exam.cases.length} cases, expected 70`);
+  }
+  return exam;
 }
 
 /** One case by its kind, for tests and demos. */

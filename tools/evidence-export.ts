@@ -90,7 +90,7 @@ for (const { file, r } of chosen.values()) {
   const lines: string[] = [];
   const receiptIds = new Set<string>();
   for (const c of r.cases) {
-    const name = join(logs, `trace-eval-${r.variant}-${c.case_id}.jsonl`);
+    const name = join(logs, `trace-${r.exam === "heldout" ? "eval-heldout" : "eval"}-${r.variant}-${c.case_id}.jsonl`);
     if (!existsSync(name)) continue;
     const events = readFileSync(name, "utf8")
       .split("\n")

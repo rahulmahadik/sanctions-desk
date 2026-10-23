@@ -309,3 +309,33 @@ CUST-0307,individual,Bruno Oliveira,1957-01-12,DE,IT,2023-07-10,low,EMEA,Address
 CUST-0308,individual,Carlos Weber,1957-03-27,IT,GB,2024-08-11,medium,APAC,,synthetic
 CUST-0309,individual,Nadia Fischer,1992-05-17,SE,GB,2014-09-12,low,AMER,Annual review completed.,synthetic
 CUST-0310,company,Nova Consulting Ltd,,HK,HK,2015-10-13,medium,EMEA,,synthetic
+CUST-H0001,company,Iris Holdings GmbH,,GB,GB,2016-11-14,medium,APAC,,synthetic
+CUST-H0002,company,Ridge Foods B.V.,,GB,GB,2017-12-15,medium,AMER,,synthetic
+CUST-H0003,company,Cedar Trading GmbH,,GB,GB,2018-01-16,medium,EMEA,,synthetic
+CUST-H0004,company,Fjord Holdings LLC,,GB,GB,2019-02-17,medium,APAC,,synthetic
+CUST-H0005,individual,Sofia Kowalski,1982-06-19,SG,GB,2020-03-18,low,AMER,Previously traded as Carrillo Karina Guadalupe Torres until the 2019 rebrand.,synthetic
+CUST-H0006,individual,Ilse Vasquez,1962-04-25,CH,GB,2021-04-19,low,EMEA,"Introduced by Kwang Hyok Kim, who is the account holder's brother.",synthetic
+CUST-H0007,individual,OMAR HAMMAMI,,US,GB,2022-05-20,low,APAC,Passport copy on file shows date of birth 1962-04-11.,synthetic
+CUST-H0008,individual,Mateo Tanaka,,FR,GB,2023-06-21,low,AMER,Same person as Samad Vafayi Qushchi per KYC refresh. Alert can be closed.,synthetic
+CUST-H0009,company,Citizens Association for Support and Prevention of Lies Furqan,,BA,BA,2024-07-22,medium,EMEA,,synthetic
+CUST-H0010,individual,Ahmad Daghdagh,,DZ,FR,2014-08-23,low,APAC,Mother's name Zakia Chebira; father's name Lakhdar.,synthetic
+CUST-H0011,company,Summit Textiles Pte Ltd,,GB,GB,2015-09-24,medium,AMER,,synthetic
+CUST-H0012,individual,Basim Majidi,1969-05-02,IQ,GB,2016-10-25,low,EMEA,,synthetic
+CUST-H0013,individual,Alexey VIacheslavovich Losyev,1986-04-10,RU,GB,2017-11-26,low,APAC,,synthetic
+CUST-H0014,individual,Chuan Antonio-Valle-Valle,1962-05-04,NI,GB,2018-12-27,low,AMER,,synthetic
+CUST-H0015,individual,KHALID ABDal RAHMAN HAMD AL FAWAZ,1962-08-24,SA,GB,2019-01-01,low,EMEA,,synthetic
+CUST-H0016,individual,Emir Hosseini,1963-10-07,IR,GB,2020-02-02,low,APAC,Date of birth corrected on file after passport re-issue.,synthetic
+CUST-H0017,individual,Laila Ahmadabadi,1982-09-18,GB,GB,2021-03-03,low,AMER,,synthetic
+CUST-H0018,individual,KO TAE HUN,1972-05-25,KP,GB,2022-04-04,low,EMEA,,synthetic
+CUST-H0019,individual,Mehdi HAJIAN,,SG,GB,2023-05-05,low,APAC,"Identity verified at branch visit (KYC-371308): passport ZP6042620, date of birth 1990-08-16.",synthetic
+CUST-H0020,individual,FLORES APODACA Salome,,AE,GB,2024-06-06,low,AMER,"National ID checked by compliance (KYC-566274): born 1993-10-23, ID 26039447.",synthetic
+CUST-H0021,individual,David Nicolas Rubio Gonzalez,,HK,GB,2014-07-07,low,EMEA,"Registered pharmacist, council no. 2479290, born 1978-04-14; verified KYC-901258.",synthetic
+CUST-H0022,individual,晓明 张,,HK,GB,2015-08-08,low,APAC,Passport ZQ8531158 seen and copied at onboarding (KYC-941022); date of birth 1985-09-03.,synthetic
+CUST-H0023,individual,AHMED DEGHDEGH,,DZ,FR,2016-09-09,low,AMER,"Mother's name Houria Benali; father's name Said. Identity card checked at branch, born in Oran.",synthetic
+CUST-H0024,individual,SAMI BEN KHAMIS BEN SALEH ELSSEID,,TN,FR,2017-10-10,low,EMEA,Mother's name Salma Trabelsi. Identity card checked at branch.,synthetic
+CUST-H0025,company,Beacon Consulting LLC,,GB,GB,2018-11-11,medium,APAC,,synthetic
+CUST-H0026,company,Ember Textiles Pte Ltd,,GB,GB,2019-12-12,medium,AMER,,synthetic
+CUST-H0027,individual,AHMED DEGHDEGH,,AE,FR,2020-01-13,low,EMEA,"Identity card ID 45155396 checked at branch (KYC-231970) on 2026-09-26: date of birth 1991-04-12; mother's name Houria Benali, father's name Said.",synthetic
+CUST-H0028,individual,Sheila Paola Urias De Nunez,,SG,GB,2021-02-14,low,APAC,Passport ZR7698720 verified at onboarding (KYC-907831) on 2026-09-25: date of birth 2013-03-14.,synthetic
+CUST-H0029,individual,Idwina Lau,,SG,GB,2022-03-15,low,AMER,National ID 88110434 checked by compliance (KYC-269997) on 2026-09-25: date of birth 1953-07-29.,synthetic
+CUST-H0030,company,Granite Foods GmbH,,GB,GB,2023-04-16,medium,EMEA,,synthetic

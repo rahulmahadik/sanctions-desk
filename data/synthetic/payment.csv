@@ -357,3 +357,11 @@ PAY-00355,CUST-0126,ACC-00131,outbound,12500.00,EUR,Willow Foods GmbH,ES,,,,Long
 PAY-00356,CUST-0065,ACC-00065,outbound,12500.00,CHF,Nova Energy LLC,CU,,,,Trade settlement,2026-10-23,pending
 PAY-00357,CUST-0066,ACC-00066,outbound,12500.00,EUR,Meridian Marine LLC,IR,,,,Trade settlement,2026-10-23,pending
 PAY-00358,CUST-0164,ACC-00176,outbound,12500.00,EUR,Meridian Software LLC,KP,,,,Trade settlement,2026-10-23,pending
+PAY-H00001,CUST-H0001,ACC-H00001,outbound,16129,CHF,Quarry Consulting Pte Ltd,NL,,,,"Payment on behalf of TD AGROTORG, OOO",2026-10-23,pending
+PAY-H00002,CUST-H0002,ACC-H00002,outbound,24032,EUR,Summit Logistics LLC,NL,,,,"c/o Islamic Republic of Iran Shipping Lines, invoice 4471",2026-10-23,pending
+PAY-H00003,CUST-H0003,ACC-H00003,outbound,68141,GBP,Lumen Consulting GmbH,NL,,,,"Final instalment, goods shipped for ZAMUDIO LERMA LUIS ALFONSO, Dubai",2026-10-23,pending
+PAY-H00004,CUST-H0004,ACC-H00004,outbound,78734,USD,Juniper Textiles Inc,NL,,,,Settlement - AL LLC contract 88/2026,2026-10-23,pending
+PAY-H00005,CUST-H0011,ACC-H00011,outbound,45000,CHF,Bridge Marine Services Ltd,HK,,,,"Charter hire, vessel ASIA BRIDGE 1, October",2026-10-23,pending
+PAY-H00006,CUST-H0025,ACC-H00025,outbound,13018,SGD,Joint Stock Company Russian Agricultural Bank,XX,,,,"Invoice 20261-77 to Joint Stock Company Russian Agricultural Bank (Pty), company no. 941005900, Auckland NZ; unrelated to any listed entity of the same name",2026-10-23,pending
+PAY-H00007,CUST-H0026,ACC-H00026,outbound,3266,CHF,Kelvin Kong,XX,,,,"Salary April, employee 6891, born 1999-05-22, payroll batch 26-04",2026-10-23,pending
+PAY-H00008,CUST-H0030,ACC-H00030,outbound,39430,SGD,OJSC SAMOTLORNEFTEGAZ,XX,,,,"Deposit refund to OJSC SAMOTLORNEFTEGAZ (Pty), Auckland NZ; company no. 214834671 verified (KYC-761459) on 2026-09-13; no link to the listed entity",2026-10-23,pending
