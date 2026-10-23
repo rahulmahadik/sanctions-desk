@@ -61,6 +61,8 @@ const ConfigSchema = z.strictObject({
     level: z.enum(LOG_LEVELS),
     dir: nonEmpty,
     stdout: z.boolean(),
+    /** Echo one short readable line per trace event instead of the JSON line. The file always gets the JSON. */
+    pretty: z.boolean().default(false),
   }),
   sampleMode: z.boolean(),
   /** Illustrative unit costs for the cost panel. They are assumptions, not prices: set your own. */
@@ -195,6 +197,7 @@ const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "PORT", path: ["server", "port"], kind: "number" },
   { env: "LOG_LEVEL", path: ["logging", "level"], kind: "string" },
   { env: "LOG_DIR", path: ["logging", "dir"], kind: "string" },
+  { env: "TRACE_STDOUT_PRETTY", path: ["logging", "pretty"], kind: "boolean" },
   { env: "SAMPLE_MODE", path: ["sampleMode"], kind: "boolean" },
   { env: "ZETARIS_REST_URL", path: ["zetaris", "restUrl"], kind: "string" },
   { env: "ZETARIS_ORG_ID", path: ["zetaris", "orgId"], kind: "string" },

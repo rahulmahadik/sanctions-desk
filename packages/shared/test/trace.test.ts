@@ -1,6 +1,15 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
-import { AppError, createTraceLogger, makeRedactor, RunIdSchema, RunRequestSchema, readTrace } from "../src/index.js";
+import { describe, expect, it, vi } from "vitest";
+import {
+  AppError,
+  createTraceLogger,
+  makeRedactor,
+  prettyTraceLine,
+  RunIdSchema,
+  RunRequestSchema,
+  readTrace,
+  TRACE_LINE_FIELDS,
+} from "../src/index.js";
 import { tempDir } from "./helpers.js";
 
 const fixedNow = () => new Date("2026-10-23T01:02:03.000Z");
@@ -61,6 +70,46 @@ describe("createTraceLogger", () => {
     const trace = createTraceLogger({ runId: "run-bad", dir: tempDir(), stdout: false });
     expect(() => trace.log({ agent: "wizard" as never, action: "x", status: "ok" })).toThrow();
     expect(() => trace.log({ agent: "triage", action: "x", status: "ok", confidence: 1.5 })).toThrow();
+  });
+
+  it("writes every common field on every line, null when it does not apply", () => {
+    const trace = createTraceLogger({ runId: "run-fields", dir: tempDir(), stdout: false, now: fixedNow });
+    trace.log({ agent: "triage", action: "classify", status: "ok" });
+    trace.log({ agent: "decision", action: "generate", status: "ok", model_used: "nemotron-3-ultra", confidence: 0.9 });
+    trace.log({
+      agent: "screener",
+      action: "screen",
+      status: "ok",
+      detail: { model_routed: "nemotron-3.5-lightning" },
+    });
+    const lines = readFileSync(trace.file, "utf8")
+      .trim()
+      .split("\n")
+      .map((l) => JSON.parse(l) as Record<string, unknown>);
+    for (const line of lines) {
+      for (const field of TRACE_LINE_FIELDS) expect(line, field).toHaveProperty(field);
+      expect(line.timestamp).toBe(line.ts);
+      expect(line.agent_name).toBe(line.agent);
+      expect(line.run_id).toBe("run-fields");
+    }
+    expect(lines[0]).toMatchObject({ model: null, confidence: null, target_agent: null, retry_count: null });
+    expect(lines[1]).toMatchObject({ model: "nemotron-3-ultra", model_used: "nemotron-3-ultra", confidence: 0.9 });
+    expect(lines[2]?.model).toBe("nemotron-3.5-lightning");
+    // The lines still read back as events, without the added names.
+    expect(readTrace(trace.file)[0]).not.toHaveProperty("confidence");
+  });
+
+  it("prints one short readable line per event when pretty output is on", () => {
+    const write = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    try {
+      const trace = createTraceLogger({ runId: "run-pretty", dir: tempDir(), pretty: true, now: fixedNow });
+      trace.log({ agent: "critic", action: "verify", status: "ok", output_summary: "every citation checked" });
+      const printed = String(write.mock.calls[0]?.[0]);
+      expect(printed).toMatch(/^01:02:03 critic +verify +ok +every citation checked\n$/);
+      expect(printed).toBe(`${prettyTraceLine(readTrace(trace.file)[0] as never)}\n`);
+    } finally {
+      write.mockRestore();
+    }
   });
 
   it("refuses run ids that could escape the log directory", () => {
