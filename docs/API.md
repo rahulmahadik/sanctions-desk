@@ -46,6 +46,31 @@ curl -s localhost:8000/run -H 'content-type: application/json' \
 
 `decision` is one of `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs two approvals) and `NEED_MORE_INFO`. Every answer says a review by a person is required. A review that could not run is an error body, never an invented decision. Only one review of the same alert runs at a time.
 
+Every answer, including an error, also carries the run's bookkeeping:
+
+| Field                    | What it is                                                                                    |
+| ------------------------ | --------------------------------------------------------------------------------------------- |
+| `run_id`, `trace_id`     | The run's id; the trace id is the same value                                                  |
+| `status`                 | `ok`, or `error` with `error: {type, message, recoverable}`                                   |
+| `agents`                 | The steps that ran, in order (for example `triage`, `evidence`, ..., `policy_guard`, `reporter`) |
+| `log_file`               | The run's trace file, relative to the project root: `logs/trace-<run_id>.jsonl`               |
+| `record_hash`            | SHA-256 of the sealed decision record                                                         |
+| `execution_time_seconds` | Time the review took                                                                          |
+| `sample_mode`            | `true` when the run used saved data and the labelled rules-based model (absent in a live run) |
+
+### The same review from the command line
+
+```bash
+npm run -s case -- input_examples/run-ALR-0004.json                              # readable trace lines, then the answer
+TRACE_STDOUT_PRETTY=false npm run -s case -- input_examples/run-ALR-0004.json | jq   # only the answer
+```
+
+The file holds the same body as `POST /run`. The command runs the `/run` route inside the process (no server, no sign-in step), prints one JSON object with `run_id`, `status`, `decision`, `confidence`, `agents`, `trace_id`, `log_file`, `record_hash`, `execution_time_seconds` and `sample_mode`, and exits with a non-zero code and `{"error": {"type", "message"}}` when the review could not run. See [input_examples/README.md](../input_examples/README.md).
+
+### Trace lines
+
+Each line of `logs/trace-<run_id>.jsonl` is one event. Besides the event's own fields it always carries `run_id`, `timestamp` (same value as `ts`), `agent_name` (same as `agent`), `action`, `status`, `input_summary`, `output_summary`, `target_agent`, `confidence`, `retry_count` and `model` (the model that answered, when the event is a model call), each `null` when it does not apply. Model calls also carry `provider`, `model_requested`, `model_used`, `route_kind`, `latency_ms`, tokens and the signed Nightshift `receipt`; data reads carry `zetaris_query_id`. With `TRACE_STDOUT_PRETTY=true` the process prints one short line per event (time in UTC, agent, action, status, summary, receipt id) instead of the JSON line.
+
 ### Follow a run while it works
 
 Give `/run` a `run_id` of your own, and open the stream first (or after: recorded events are replayed):

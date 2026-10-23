@@ -119,6 +119,7 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (
       dir: config.logging.dir,
       redact,
       stdout: config.logging.stdout,
+      pretty: config.logging.pretty,
       bus,
       policyVersion: policy.version,
     });

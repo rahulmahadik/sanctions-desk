@@ -48,6 +48,7 @@ export const listChangeRoutes: FastifyPluginAsync<ListChangeOptions> = async (ap
       dir: deps.config.logging.dir,
       redact,
       stdout: deps.config.logging.stdout,
+      pretty: deps.config.logging.pretty,
       policyVersion: policy.version,
     });
     const agentDeps: AgentDeps = {

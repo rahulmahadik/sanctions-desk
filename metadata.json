@@ -1,8 +1,64 @@
 {
   "name": "sanctions-desk",
-  "summary": "An AI review desk for bank sanctions-screening alerts. It recommends; a person decides.",
-  "track": "Track 03 - Reasoning Architecture",
+  "summary": "An AI review desk for bank sanctions-screening alerts. For every alert it reads the evidence through Zetaris, compares the parties under approved definitions, asks NVIDIA Nemotron models through Meterless Nightshift for a recommendation, re-reads every cited fact, applies a written policy and hands a recommendation with its evidence to a person. It recommends; a person decides.",
+  "track": "Track 03 Reasoning Architecture",
   "licence": "Apache-2.0",
+  "agents": [
+    { "step": "triage", "role": "plans the review path and grades how hard the case is", "model": "code" },
+    {
+      "step": "evidence",
+      "role": "reads every fact through the Zetaris semantic layer under its own role",
+      "model": "code"
+    },
+    {
+      "step": "safety guard",
+      "role": "screens free text from the data for instructions aimed at the reviewer, and checks drafts for a customer against the tipping-off policy",
+      "model": "Nemotron 3.5 Lightning 30B, local, via Nightshift"
+    },
+    {
+      "step": "screener",
+      "role": "reads customer notes, payment references and list remarks for risk no structured field shows",
+      "model": "Nemotron 3.5 Lightning 30B, local, via Nightshift"
+    },
+    {
+      "step": "matching",
+      "role": "compares names, dates of birth, countries and identifiers with the listed party",
+      "model": "code"
+    },
+    {
+      "step": "ownership",
+      "role": "works out effective ownership and the 50 percent rule (World Model engine)",
+      "model": "code"
+    },
+    { "step": "memory", "role": "recalls earlier decisions about the same pair (H-MEM engine)", "model": "code" },
+    {
+      "step": "decision",
+      "role": "recommends one of four outcomes with cited facts",
+      "model": "mostly Nemotron 3 Ultra 550B, cloud, via Nightshift"
+    },
+    {
+      "step": "critic",
+      "role": "looks for claims the evidence does not support, after code re-reads every cited fact; at most 3 rounds",
+      "model": "mostly Nemotron 3 Ultra 550B, cloud, via Nightshift"
+    },
+    {
+      "step": "challenger",
+      "role": "argues the case against a close that could slip through",
+      "model": "mostly Nemotron 3 Ultra 550B, cloud, via Nightshift"
+    },
+    { "step": "policy guard", "role": "applies the active written policy and the hard limits", "model": "code" },
+    { "step": "reporter", "role": "seals the hash-chained decision record", "model": "code" }
+  ],
+  "data_platform": {
+    "name": "Zetaris",
+    "status": "working",
+    "role": "the only data path: agents send one read-only SQL statement at a time to the Zetaris REST API, under per-agent roles and data-quality rules",
+    "sources": [
+      "semantic layer over the public list files (OFAC, UN, GLEIF)",
+      "Postgres synthetic bank database via JDBC",
+      "synthetic payments REST service"
+    ]
+  },
   "sponsor_technology": {
     "zetaris": {
       "status": "working",
@@ -11,22 +67,36 @@
     "meterless_engines": {
       "status": "working",
       "engines": ["H-MEM", "World Model", "Markovian"],
+      "uses": {
+        "H-MEM": "agent and analyst memory",
+        "World Model": "ownership and the 50 percent rule",
+        "Markovian": "re-screening after a list change"
+      },
       "tests": "npm run test:engines"
     },
     "meterless_nightshift": {
       "status": "working",
-      "role": "all model calls through pinned modes with signed receipts"
+      "provider": "primary model provider for every model call (OpenAI-compatible runtime); Ollama is the backup",
+      "role": "all model calls through pinned modes with signed receipts",
+      "signed_receipts": "each call's signed receipt is stored with the decision record and in the trace; check them with npm run evidence:verify"
     },
     "nvidia_nemotron": {
       "status": "working",
-      "role": "safety guard (Nemotron 3.5 Lightning 30B, local), decision, critic and challenger (mostly Nemotron 3 Ultra 550B, cloud), via Nightshift; the model ledger and signed receipts show which model answered each step"
+      "role": "safety guard and screener (Nemotron 3.5 Lightning 30B, local), decision, critic and challenger (mostly Nemotron 3 Ultra 550B, cloud), via Nightshift; the model ledger and signed receipts show which model answered each step"
     }
   },
-  "sample_mode": { "status": "working", "needs": "nothing: no Zetaris, no Nightshift, no credentials" },
+  "sample_mode": {
+    "status": "working",
+    "needs": "nothing: no Zetaris, no Nightshift, no credentials",
+    "what_runs": "the real agent logic on saved answers from real Zetaris queries, with a labelled rules-based stand-in for the models",
+    "command": "SAMPLE_MODE=true npm run -s case -- input_examples/run-ALR-0004.json"
+  },
   "user_interface": {
     "status": "working",
     "stack": "Next.js; a person approves or overrides with a reason, a block needs two approvers; works in sample mode"
   },
   "data": "public lists (OFAC, UN, GLEIF CC0) plus synthetic customers, payments and owners",
+  "pre_existing_components": "none; first commit 22 Oct 2026",
+  "coding_tool": "Claude Code (scaffolding, tests, debugging and documentation; all generated code reviewed and tested; Cursor was not used)",
   "ai_usage": "Built with the help of an AI coding assistant (Claude Code). Product models are NVIDIA Nemotron via Meterless Nightshift."
 }

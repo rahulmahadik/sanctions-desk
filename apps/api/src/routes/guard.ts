@@ -44,6 +44,7 @@ export const guardRoutes: FastifyPluginAsync<GuardOptions> = async (app, { confi
       dir: config.logging.dir,
       redact,
       stdout: config.logging.stdout,
+      pretty: config.logging.pretty,
       policyVersion: policy.version,
     });
     const deps: AgentDeps = { config, policy, zetaris, generator, trace, now: () => new Date() };
