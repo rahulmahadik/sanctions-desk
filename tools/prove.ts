@@ -160,6 +160,32 @@ async function engines(): Promise<CheckOutcome> {
   return { ok: r.code === 0 && scores.length === 3 && scores.every((m) => m[1] === "PASS"), detail, output: r.output };
 }
 
+// ---- 2b. critic mutation test ------------------------------------------------------------------------------------
+
+async function criticMutation(): Promise<CheckOutcome> {
+  const r = await runChild(bin("tsx"), [join(ROOT, "tools", "critic-mutation.ts"), "--limit", "25"], {
+    cwd: ROOT,
+    env: sampleEnv(),
+    timeoutMs: 110_000,
+  });
+  try {
+    const s = JSON.parse(r.output.slice(r.output.indexOf("{"))) as {
+      decisions: number;
+      mutations: number;
+      mutations_caught: number;
+      unchanged_decisions: number;
+      unchanged_decisions_approved: number;
+    };
+    return {
+      ok: r.code === 0 && s.mutations > 0 && s.mutations_caught === s.mutations,
+      detail: `${s.mutations_caught}/${s.mutations} false cited facts caught over ${s.decisions} decisions; ${s.unchanged_decisions_approved}/${s.unchanged_decisions} unchanged decisions approved (no false alarm)`,
+      output: r.output,
+    };
+  } catch {
+    return { ok: false, detail: r.timedOut ? "timed out" : "no summary printed", output: r.output };
+  }
+}
+
 // ---- 3. signed evidence -------------------------------------------------------------------------------------------
 
 async function evidence(): Promise<CheckOutcome> {
@@ -366,6 +392,7 @@ async function secrets(): Promise<CheckOutcome> {
 const CHECKS: Check[] = [
   { name: "Sample-mode review", timeoutMs: 90_000, run: sampleReview },
   { name: "Engine conformance", timeoutMs: 180_000, run: engines },
+  { name: "Critic mutation test", timeoutMs: 120_000, run: criticMutation },
   { name: "Signed evidence", timeoutMs: 120_000, run: evidence },
   { name: "Roles and four-eyes", timeoutMs: 180_000, run: rolesAndFourEyes },
   { name: "Preregistration", timeoutMs: 30_000, run: preregistration },

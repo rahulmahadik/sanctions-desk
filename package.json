@@ -42,6 +42,7 @@
     "exam": "tsx tools/run-exam.ts",
     "exam:alone": "tsx tools/nemotron-alone.ts",
     "failures": "tsx tools/provider-failures.ts",
+    "critic:mutation": "tsx tools/critic-mutation.ts",
     "exam:report": "tsx tools/exam-report.ts",
     "examples": "tsx tools/export-examples.ts",
     "citations": "tsx tools/citation-errors.ts",

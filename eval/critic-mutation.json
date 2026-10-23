@@ -1,0 +1,1899 @@
+{
+  "at": "2026-10-23T20:31:38.269Z",
+  "summary": {
+    "mode": "sample mode: saved Zetaris answers, rules-based stand-in for the models",
+    "decisions": 25,
+    "mutations": 147,
+    "mutations_caught": 147,
+    "untestable_citations": 25,
+    "untestable_reasons": {
+      "Zetaris rejected the query ": 22,
+      "query blocked: the critic step may not name the column id_number": 3
+    },
+    "unchanged_decisions": 25,
+    "unchanged_decisions_approved": 25,
+    "unchanged_decisions_with_a_true_fact_rejected": 0,
+    "unchanged_fact_rejection_reasons": [],
+    "by_kind": {
+      "changed text value": "52 of 52",
+      "date moved by 7 years": "45 of 45",
+      "other list entry": "25 of 25",
+      "other country code": "25 of 25"
+    },
+    "errors": 0
+  },
+  "rows": [
+    {
+      "alert_id": "ALR-0001",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0001",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0001",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0001",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0001",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0001",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0001",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0002",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0002",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0002",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0002",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0002",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0002",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0003",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0003",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0003",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0003",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0003",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0003",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0003",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0004",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0004",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0004",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0004",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0004",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0004",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0004",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0005",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0005",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0005",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0005",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0005",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0005",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0006",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0006",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0006",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0006",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0006",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0006",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0006",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0007",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0007",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0007",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0007",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0007",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0007",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0007",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0008",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0008",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0008",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0008",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0008",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0008",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0008",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0009",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0009",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0009",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0009",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0009",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0009",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0009",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0010",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0010",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0010",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0010",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0010",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0010",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0010",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0011",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0011",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0011",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0011",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0011",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0011",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0011",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0012",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0012",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0012",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0012",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0012",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0012",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0012",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0013",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0013",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0013",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0013",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0013",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0013",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0013",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0014",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0014",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0014",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0014",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0014",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0014",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0014",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0015",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0015",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0015",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0015",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0015",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0015",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0015",
+      "decision": "CLOSE_FALSE_POSITIVE",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0016",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0016",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0016",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0016",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0016",
+      "decision": "ESCALATE_L2",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0016",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0016",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0017",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0017",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0017",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0017",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0017",
+      "decision": "ESCALATE_L2",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0017",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0017",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0018",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0018",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0018",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0018",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0018",
+      "decision": "ESCALATE_L2",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0018",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0018",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0019",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0019",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0019",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0019",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0019",
+      "decision": "ESCALATE_L2",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0019",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0019",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0020",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0020",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0020",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0020",
+      "decision": "ESCALATE_L2",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0020",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0020",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0020",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer_identifier.id_type",
+      "kind": "made-up document (identifier) reference",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "query blocked: the critic step may not name the column id_number"
+    },
+    {
+      "alert_id": "ALR-0021",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0021",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0021",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0021",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0021",
+      "decision": "ESCALATE_L2",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0021",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0021",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0022",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0022",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0022",
+      "decision": "ESCALATE_L2",
+      "mutated": "payment.counterparty_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0022",
+      "decision": "ESCALATE_L2",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0022",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0022",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0022",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer_identifier.id_type",
+      "kind": "made-up document (identifier) reference",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "query blocked: the critic step may not name the column id_number"
+    },
+    {
+      "alert_id": "ALR-0023",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0023",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0023",
+      "decision": "ESCALATE_L2",
+      "mutated": "payment.counterparty_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0023",
+      "decision": "ESCALATE_L2",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0023",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0023",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0023",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer_identifier.id_type",
+      "kind": "made-up document (identifier) reference",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "query blocked: the critic step may not name the column id_number"
+    },
+    {
+      "alert_id": "ALR-0024",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0024",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0024",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0024",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0024",
+      "decision": "ESCALATE_L2",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0024",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0024",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_country.country_iso2",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": true,
+      "original_approved": false,
+      "testable": false,
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
+    },
+    {
+      "alert_id": "ALR-0025",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.full_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0025",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.date_of_birth",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0025",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_entry.primary_name",
+      "kind": "changed text value",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0025",
+      "decision": "ESCALATE_L2",
+      "mutated": "list_dob.dob_value",
+      "kind": "date moved by 7 years",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0025",
+      "decision": "ESCALATE_L2",
+      "mutated": "alert.entry_id",
+      "kind": "other list entry",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    },
+    {
+      "alert_id": "ALR-0025",
+      "decision": "ESCALATE_L2",
+      "mutated": "customer.nationality",
+      "kind": "other country code",
+      "caught": true,
+      "original_fact_alarm": false,
+      "original_approved": true,
+      "testable": true
+    }
+  ],
+  "unchanged": [
+    {
+      "alert_id": "ALR-0001",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0002",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0003",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0004",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0005",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0006",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0007",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0008",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0009",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0010",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0011",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0012",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0013",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0014",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0015",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0016",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0017",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0018",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0019",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0020",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0021",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0022",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0023",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0024",
+      "approved": true,
+      "fact_rejections": []
+    },
+    {
+      "alert_id": "ALR-0025",
+      "approved": true,
+      "fact_rejections": []
+    }
+  ]
+}
