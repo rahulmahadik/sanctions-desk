@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ChallengeSchema,
   challengeTriggers,
   type DecisionOutput,
   type EvidenceBundle,
@@ -81,6 +82,13 @@ const credible = JSON.stringify({
 });
 const notCredible = JSON.stringify({ credible: false, argument: "Every identifying field conflicts.", points: [] });
 const request = { runId: "challenger-test", alertId: fp.alertId, sampleMode: true };
+
+describe("the challenger's answer", () => {
+  it("keeps the first four points when the model lists more, instead of failing", () => {
+    const parsed = ChallengeSchema.parse({ credible: false, argument: "a", points: ["1", "2", "3", "4", "5", "6"] });
+    expect(parsed.points).toEqual(["1", "2", "3", "4"]);
+  });
+});
 
 describe("a close that is challenged", () => {
   it("becomes an escalation, with the challenger's argument shown, when the argument is credible", async () => {

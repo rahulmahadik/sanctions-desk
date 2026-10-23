@@ -140,6 +140,18 @@ function routeOf(attempt: number, thinking: unknown, attempts: number): "own" | 
   return reasoningBudget(thinking as Parameters<typeof reasoningBudget>[0]) > 0 ? "fast" : "own";
 }
 
+/** How long to wait after a provider failure before the next try, times the number of the try. */
+export const PROVIDER_BACKOFF_MS = 1500;
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+function isProviderFailure(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err);
+  const type = (err as { type?: string } | undefined)?.type ?? "";
+  return (
+    ["http_error", "network", "timeout", "route_dead"].includes(type) || /all model providers failed/i.test(message)
+  );
+}
+
 async function attemptOnce<T extends z.ZodType>(
   deps: AgentDeps,
   options: AskJsonOptions<T>,
@@ -199,6 +211,10 @@ function logStep(
     reasoning: boolean;
     result?: GenerateResult;
     structured?: boolean;
+    /** Which try this was: the agent's own lane, the fast lane, or the backup provider. */
+    route?: "own" | "fast" | "backup";
+    /** The mode asked for, known even when the call failed before any answer. */
+    lane?: string;
   },
 ): void {
   const fields = step.result ? modelTraceFields(step.result) : {};
@@ -213,6 +229,8 @@ function logStep(
       ...(fields.detail ?? {}),
       reasoning: step.reasoning,
       structured: step.structured === true,
+      ...(step.route ? { route: step.route } : {}),
+      ...(step.lane ? { lane: step.lane } : {}),
       // Whether the answer arrived as a bare JSON object, which is what schema-constrained output should give.
       ...(step.result ? { pure_json: /^\s*\{[\s\S]*\}\s*$/.test(step.result.text) } : {}),
       ...(!step.ok && step.result ? failureExcerpt(step.result) : {}),
@@ -233,6 +251,9 @@ async function askRound<T extends z.ZodType>(
   const { attempt } = round;
   const last = attempt >= round.attempts;
   const reasoning = reasoningBudget(config.thinking) > 0 && attempt === 1 && options.fast !== true;
+  const route = routeOf(attempt, config.thinking, round.attempts);
+  const lane = route === "own" ? config.model : route === "fast" ? "fast" : "ollama";
+  const structured = Boolean(options.jsonSchema && deps.policy.structuredOutput);
   const retryNote = `\n\nNote: the previous answer could not be used (${round.previousProblem}). Answer again with the JSON object only.`;
 
   let tried: Attempt;
@@ -242,12 +263,23 @@ async function askRound<T extends z.ZodType>(
       options,
       attempt === 1 ? options.prompt : options.prompt + retryNote,
       reasoning,
-      routeOf(attempt, config.thinking, round.attempts),
+      route,
     );
   } catch (failure) {
     const problem = failure instanceof Error ? failure.message : String(failure);
-    logStep(deps, options.agent, { attempt, last, ok: false, summary: `model call failed: ${problem}`, reasoning });
+    logStep(deps, options.agent, {
+      attempt,
+      last,
+      ok: false,
+      summary: `model call failed: ${problem}`,
+      reasoning,
+      structured,
+      route,
+      lane,
+    });
     if (last) throw failure;
+    // A provider that just failed is given a moment before the next lane is tried.
+    if (isProviderFailure(failure)) await (deps.sleep ?? sleep)(PROVIDER_BACKOFF_MS * attempt);
     return { done: false, problem };
   }
 
@@ -266,6 +298,8 @@ async function askRound<T extends z.ZodType>(
     reasoning,
     result,
     structured: tried.structured,
+    route,
+    lane,
   });
   return ok ? { done: true, value: outcome.value } : { done: false, problem: outcome.problem };
 }

@@ -13,6 +13,8 @@ export interface AgentDeps {
   generator: Generator;
   trace: TraceLogger;
   now: () => Date;
+  /** Wait between tries after a provider failure. Tests pass a no-op; the default really waits. */
+  sleep?: (ms: number) => Promise<void>;
 }
 
 export type Row = Record<string, string | null>;

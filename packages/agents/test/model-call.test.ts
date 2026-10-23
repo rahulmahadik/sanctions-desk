@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { AppError } from "@sanctions-desk/shared";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { askJson, clipped, extractJsonObject, extractLastJsonObject, reasoningBudget } from "../src/model-call.js";
@@ -134,6 +136,39 @@ describe("askJson", () => {
     });
     expect(requests[0]?.jsonSchema).toBeUndefined();
     expect(requests[0]?.system).toContain("Keep any reasoning");
+  });
+
+  it("waits a moment after a provider failure before the next lane, and logs which lane failed", async () => {
+    const waits: number[] = [];
+    const down = new AppError("http_error", "all model providers failed", { recoverable: true });
+    const { generator, requests } = scriptedGenerator([down, '{"decision": "Y", "confidence": 1}']);
+    const deps = { ...sampleDeps({ generator }), sleep: async (ms: number) => void waits.push(ms) };
+    const out = await askJson(deps, {
+      agent: "decision",
+      system: "s",
+      prompt: "p",
+      schema: z.object({ decision: z.string(), confidence: z.number() }),
+      jsonSchema: { name: "x", schema: { type: "object" } },
+    });
+    expect(out.value.decision).toBe("Y");
+    expect(waits).toEqual([1500]);
+    expect(requests.map((r) => r.lane)).toEqual(["deep", "fast"]);
+    const lines = readFileSync(`${deps.logDir}/trace-agents-test.jsonl`, "utf8").split("\n").filter(Boolean);
+    const failed = JSON.parse(lines.find((l) => l.includes("model call failed")) as string);
+    expect(failed.detail).toMatchObject({ structured: true, route: "own", lane: "deep" });
+  });
+
+  it("does not wait after an answer that merely could not be used", async () => {
+    const waits: number[] = [];
+    const { generator } = scriptedGenerator(["not json", '{"decision": "Y", "confidence": 1}']);
+    const deps = { ...sampleDeps({ generator }), sleep: async (ms: number) => void waits.push(ms) };
+    await askJson(deps, {
+      agent: "decision",
+      system: "s",
+      prompt: "p",
+      schema: z.object({ decision: z.string(), confidence: z.number() }),
+    });
+    expect(waits).toEqual([]);
   });
 
   it("makes the last try on the backup provider", async () => {

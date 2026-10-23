@@ -17,7 +17,11 @@ import type { AgentDeps } from "./types.js";
 export const ChallengeSchema = z.object({
   credible: z.boolean(),
   argument: clipped(600),
-  points: z.array(clipped(240)).max(4).default([]),
+  // A model that lists more than four points is not wrong to; the first four are kept.
+  points: z
+    .array(clipped(240))
+    .default([])
+    .transform((p) => p.slice(0, 4)),
 });
 export type Challenge = z.infer<typeof ChallengeSchema>;
 

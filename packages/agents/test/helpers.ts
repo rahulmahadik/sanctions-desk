@@ -39,6 +39,7 @@ export function sampleDeps(over: { generator?: Generator; policy?: Policy } = {}
     generator: over.generator ?? createFallbackRulesGenerator(sampleRules),
     trace: createTraceLogger({ runId: "agents-test", dir: logDir, stdout: false }),
     now: () => new Date("2026-10-22T12:00:00.000Z"),
+    sleep: async () => {},
     logDir,
   };
 }
