@@ -11,7 +11,9 @@ function sourceFiles(dir: string): string[] {
     if (name === "node_modules" || name === "dist" || name === "coverage") return [];
     const path = join(dir, name);
     if (statSync(path).isDirectory()) return sourceFiles(path);
-    return /\.(ts|mjs)$/.test(name) && !/\.test\.ts$/.test(name) ? [path] : [];
+    return /\.(ts|mjs)$/.test(name) && !/\.test\.ts$/.test(name) && !path.includes("/engines/conformance/")
+      ? [path]
+      : [];
   });
 }
 

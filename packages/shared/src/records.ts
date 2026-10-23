@@ -193,6 +193,9 @@ const DecisionRecordBody = z.strictObject({
     rounds: z.number().int().min(0).max(3),
     final_verdict: z.enum(["approved", "rejected", "escalated", "not_run"]),
   }),
+  /** The hybrid: what code concluded from the structured fields, and the path the review took because of it. */
+  first_finding: DecisionSchema.optional(),
+  review_path: z.enum(["confirm", "reason"]).optional(),
   human: z.array(HumanActionSchema).default([]),
   /** Hash of the record this one supersedes (for example after a human action). */
   previous_record_hash: sha256.optional(),
@@ -291,6 +294,10 @@ const RunCitationSchema = z.strictObject({
 export const ReviewResponseSchema = RunResponseSchema.extend({
   /** The two or three lines of evidence that decided the case, for the reviewer to read first. */
   key_evidence: z.array(z.string()).max(3).default([]),
+  /** The path the review took: code settled it and the agents confirmed, or the agents reasoned over free text. */
+  path: z.enum(["confirm", "reason"]).optional(),
+  /** What code alone concluded from the structured fields. */
+  first_finding: DecisionSchema.optional(),
   /** Set when the confidence was capped, with the reason (for example a failing data-quality rule). */
   confidence_cap: z.strictObject({ value: z.number(), reason: z.string() }).optional(),
   citations: z.array(RunCitationSchema).default([]),

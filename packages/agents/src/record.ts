@@ -74,6 +74,7 @@ export function buildDecisionRecord(input: RecordInput): DecisionRecord {
     models: input.models,
     guards: guard.verdicts as GuardVerdictInput[],
     critic: { rounds: input.criticRounds, final_verdict: input.criticVerdict },
+    ...(evidence.hybrid ? { first_finding: evidence.hybrid.decision, review_path: evidence.hybrid.path } : {}),
   });
 }
 

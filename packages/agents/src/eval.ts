@@ -27,6 +27,9 @@ export interface ScoredCase {
    * service failed or answered with nothing, "parsing" when it answered in a form that could not be used.
    */
   decision_unavailable?: "provider" | "parsing";
+  /** The hybrid path the review took, and what code alone concluded from the structured fields. */
+  path?: "confirm" | "reason";
+  first_finding?: string;
   /** The challenger looked at a close. */
   challenger_fired?: boolean;
   /** It turned the close into an escalation (a credible argument, or it could not answer). */
@@ -199,4 +202,47 @@ export const escalateAll = (): Decision => "ESCALATE_L2";
 /** A plain name-score rule: escalate at or above the threshold, otherwise close. */
 export function fuzzyThreshold(score: number, threshold: number): Decision {
   return score >= threshold ? "ESCALATE_L2" : "CLOSE_FALSE_POSITIVE";
+}
+
+export interface PathStats {
+  path: "confirm" | "reason";
+  cases: number;
+  /** The system's own answer scored against the labels. */
+  exact: number;
+  acceptable: number;
+  false_closes: number;
+  risk_cases: number;
+  /** What code alone concluded from the structured fields, scored the same way. */
+  first_finding_acceptable: number;
+  median_s: number;
+  mean_cost: number;
+  mean_cloud_calls: number;
+}
+
+const mean = (xs: readonly number[]): number => (xs.length === 0 ? 0 : xs.reduce((t, x) => t + x, 0) / xs.length);
+
+/** Results per hybrid path: how many cases took it, how well they did, and what they cost in time and money. */
+export function byPath(cases: readonly ScoredCase[]): PathStats[] {
+  const out: PathStats[] = [];
+  for (const path of ["confirm", "reason"] as const) {
+    const rows = cases.filter((c) => c.path === path && c.error === undefined);
+    if (rows.length === 0) continue;
+    const scores = rows.map((c) => scoreCase(c));
+    const latencies = rows.flatMap((c) => (c.latency_s === undefined ? [] : [c.latency_s])).sort((a, b) => a - b);
+    out.push({
+      path,
+      cases: rows.length,
+      exact: scores.filter((s) => s.exact).length,
+      acceptable: scores.filter((s) => s.acceptable).length,
+      false_closes: scores.filter((s) => s.falseClose).length,
+      risk_cases: scores.filter((s) => s.riskCase).length,
+      first_finding_acceptable: rows.filter(
+        (c) => c.first_finding !== undefined && scoreCase({ ...c, got: c.first_finding }).acceptable,
+      ).length,
+      median_s: percentile(latencies, 50),
+      mean_cost: Math.round(mean(rows.map((c) => c.cost ?? 0)) * 10_000) / 10_000,
+      mean_cloud_calls: Math.round(mean(rows.map((c) => c.cloud_calls ?? 0)) * 100) / 100,
+    });
+  }
+  return out;
 }

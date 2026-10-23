@@ -6,7 +6,7 @@ import type { GenerateRequest } from "@sanctions-desk/shared";
  * the semantic-layer reads, the fact checks and the policy guard around it are the real ones.
  */
 
-interface Evidence {
+export interface Evidence {
   customer?: { customer_id?: string; full_name?: string; date_of_birth?: string | null };
   payment?: { payment_id?: string; counterparty_name?: string };
   ownership?: {
@@ -40,7 +40,19 @@ function evidenceOf(prompt: string): Evidence {
   }
 }
 
-function chooseDecision(e: Evidence): { decision: string; confidence: number; why: string } {
+export interface Choice {
+  decision: string;
+  confidence: number;
+  why: string;
+  /** True when an approved definition, an identifier, a failing rule or the ownership engine decided it. */
+  settled: boolean;
+}
+
+/**
+ * The deterministic finding: the decision the approved definitions and the code's own checks give, with no language
+ * model. It is the stand-in model's answer in sample mode and the first finding of every review.
+ */
+export function chooseDecision(e: Evidence): Choice {
   const c = e.comparison ?? {};
   const met = c.definitions_met ?? {};
   if (met.ownership === "met" || met.ownership === "limit") {
@@ -48,6 +60,7 @@ function chooseDecision(e: Evidence): { decision: string; confidence: number; wh
       decision: "ESCALATE_L2",
       confidence: 0.85,
       why: "a listed party effectively owns the customer, or the chain is too long to judge",
+      settled: true,
     };
   }
   if (met.ownership === "unknown") {
@@ -55,16 +68,23 @@ function chooseDecision(e: Evidence): { decision: string; confidence: number; wh
       decision: "NEED_MORE_INFO",
       confidence: 0.7,
       why: "an ownership percentage is missing, so control cannot be ruled in or out",
+      settled: true,
     };
   }
   if (met.ownership === "below") {
-    return { decision: "CLOSE_FALSE_POSITIVE", confidence: 0.8, why: "effective ownership is below the threshold" };
+    return {
+      decision: "CLOSE_FALSE_POSITIVE",
+      confidence: 0.8,
+      why: "effective ownership is below the threshold",
+      settled: true,
+    };
   }
   if (met.true_match || met.counterparty_match || c.identifiers === "match" || c.assessment === "strong") {
     return {
       decision: "ESCALATE_L2",
       confidence: 0.85,
       why: "an approved match definition is met, or a document number agrees with the listed party",
+      settled: true,
     };
   }
   if (e.data_quality?.some((d) => d.failed)) {
@@ -72,6 +92,7 @@ function chooseDecision(e: Evidence): { decision: string; confidence: number; wh
       decision: "NEED_MORE_INFO",
       confidence: 0.7,
       why: "the record fails a data-quality rule, so the data cannot be relied on yet",
+      settled: true,
     };
   }
   if (met.false_positive) {
@@ -79,6 +100,7 @@ function chooseDecision(e: Evidence): { decision: string; confidence: number; wh
       decision: "CLOSE_FALSE_POSITIVE",
       confidence: 0.85,
       why: "the approved definition of a false positive is met and no identifier matches",
+      settled: true,
     };
   }
   if (c.date_of_birth === "missing_customer") {
@@ -86,9 +108,15 @@ function chooseDecision(e: Evidence): { decision: string; confidence: number; wh
       decision: "NEED_MORE_INFO",
       confidence: 0.7,
       why: "the customer has no date of birth on file, so the match can be neither confirmed nor ruled out",
+      settled: false,
     };
   }
-  return { decision: "ESCALATE_L2", confidence: 0.7, why: "the match cannot be ruled out with the data available" };
+  return {
+    decision: "ESCALATE_L2",
+    confidence: 0.7,
+    why: "the match cannot be ruled out with the data available",
+    settled: false,
+  };
 }
 
 type Fact = Record<string, string | null>;

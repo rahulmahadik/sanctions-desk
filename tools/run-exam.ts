@@ -150,6 +150,7 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
     cloud_calls: trace4?.cost.totals.cloud_calls,
     cost: trace4?.cost.totals.total_cost,
     ...challengerFields(res, trace4),
+    ...(res.path ? { path: res.path, first_finding: res.first_finding } : {}),
     critic_rounds: res.critic?.rounds,
     critic_final: res.critic?.final_verdict,
     decision_unavailable: res.guards?.some((g) => g.guard === "model_decision")

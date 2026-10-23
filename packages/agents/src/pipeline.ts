@@ -11,6 +11,7 @@ import { challenge, challengeTriggers } from "./challenger.js";
 import { review } from "./critic.js";
 import { type DecisionOutput, decide } from "./decision.js";
 import { type EvidenceBundle, gatherEvidence } from "./evidence.js";
+import { firstFinding } from "./hybrid.js";
 import { type MatchResult, matchEvidence, partyOf } from "./matching.js";
 import { recallMemory } from "./memory.js";
 import { gatherOwnership, matchOwnership, ownershipQuality } from "./ownership.js";
@@ -67,7 +68,18 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
   if (memory) evidence.memory = memory;
   // A still-valid earlier clearance on a case the definitions also call a false positive is an easy case:
   // the fast local model is enough and no reasoning is spent.
-  const easy = memory?.fresh === true && match.comparison.definitions.false_positive;
+  // The hybrid: code gives a first finding from the structured fields; the path says whether the agents confirm it
+  // or have to reason over the free text.
+  evidence.hybrid = firstFinding(evidence, match);
+  deps.trace.log({
+    agent: "triage",
+    action: "path",
+    status: "ok",
+    output_summary: `${evidence.hybrid.path}: ${evidence.hybrid.why}`.slice(0, 300),
+    detail: { first_finding: evidence.hybrid.decision, settled: evidence.hybrid.settled, path: evidence.hybrid.path },
+  });
+  const easy =
+    (memory?.fresh === true && match.comparison.definitions.false_positive) || evidence.hybrid.path === "confirm";
   if (easy) {
     deps.trace.log({
       agent: "triage",
@@ -276,6 +288,7 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     rationale,
     what_would_change: finalOutput.what_would_change,
     key_evidence: keyEvidence(match, guard),
+    ...(evidence.hybrid ? { path: evidence.hybrid.path, first_finding: evidence.hybrid.decision } : {}),
     ...(record.confidence_cap ? { confidence_cap: record.confidence_cap } : {}),
     citations,
     agents: challenged ? [...AGENT_ORDER.slice(0, 6), "challenger", ...AGENT_ORDER.slice(6)] : AGENT_ORDER,

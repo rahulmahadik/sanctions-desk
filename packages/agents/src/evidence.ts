@@ -7,6 +7,7 @@ import {
   type ToolResult,
   type UslModel,
 } from "@sanctions-desk/zetaris";
+import type { FirstFinding } from "./hybrid.js";
 import type { MemoryEvidence } from "./memory.js";
 import type { OwnershipEvidence } from "./ownership.js";
 import type { SafetyResult } from "./safety.js";
@@ -24,6 +25,8 @@ export interface DqFinding {
 }
 
 export interface EvidenceBundle {
+  /** The first finding from code and the path the review takes (see hybrid.ts). Set after matching. */
+  hybrid?: FirstFinding;
   model: UslModel;
   alert: Row;
   customer: Row;

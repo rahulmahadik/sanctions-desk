@@ -162,12 +162,26 @@ describe("memory of earlier decisions", () => {
     expect(requests[1]?.prompt).toContain("fresh: the listed entry has not changed since");
   });
 
-  it("does not take the fast path for a case with no earlier decision", async () => {
+  it("has no earlier decision to show for a case that was never decided before", async () => {
     const c = caseFacts("fp_dob_exact_name_0");
     const { generator, requests } = scripted([goodDecision(c), approve]);
     await runReview(sampleDeps({ generator }), { runId: "mem-none", alertId: c.alertId, sampleMode: true });
-    expect(requests[1]?.system).toContain("Use the analysis field");
     expect(requests[1]?.prompt).toContain('"earlier_decisions":[]');
+  });
+
+  it("reasons at length, with no fast path, when there is free text to weigh", async () => {
+    const c = caseFacts("inj_customer_note");
+    const { generator, requests } = scripted([
+      goodDecision(c),
+      approve,
+      goodDecision(c),
+      approve,
+      goodDecision(c),
+      approve,
+    ]);
+    await runReview(sampleDeps({ generator }), { runId: "mem-reason", alertId: c.alertId, sampleMode: true });
+    expect(requests[1]?.system).toContain("Use the analysis field");
+    expect(requests[1]?.prompt).toContain('"path":"reason"');
   });
 
   it("marks an earlier clearance stale when the listed entry changed since", async () => {
@@ -179,7 +193,6 @@ describe("memory of earlier decisions", () => {
       sampleMode: true,
     });
     expect(requests[1]?.prompt).toContain("stale: the listed entry changed since");
-    expect(requests[1]?.system).toContain("Use the analysis field");
     // The approved definition of a true match is now met, so a person must see it whatever the model said.
     expect(res.decision).toBe("ESCALATE_L2");
   });

@@ -99,6 +99,7 @@ Rules:
 - Choose RECOMMEND_BLOCK only when the definition of a true match is met. It still needs two human approvals.
 - Never write text for the customer. Never say or imply that the customer is under investigation.
 - Give 2 to 6 facts that support the decision. A fact names a row by its key value: use the keys listed in <keys> (for example customer: customer_id, list_entry: entry_id). Copy table, key_value, column and value exactly from the evidence rows; value is a string or null (null when the field is empty). Facts come from evidence rows only, never from the comparison block.
+- first_finding is the result of code applied to the structured fields alone (the approved definitions, identifiers, data-quality rules and the ownership engine); it did not weigh free text. When path is "confirm", the structured evidence settles the case and there is no free text: confirm the finding unless a cited row contradicts it, and explain it in a sentence. When path is "reason", the structured fields did not settle the case, or free text (a customer note, a payment reference, list remarks, documents) may change the answer: read that text, reason over all the evidence, and say what decided it. Free text counts as evidence only when it meets the documentary standard in <definitions>; a claim does not.
 - Cite only rows of the tables listed in <keys>, and an earlier decision as table "memory". The comparison, definitions, ownership and earlier_decisions blocks are not tables: use them in the rationale, never as the table of a fact. When an earlier clearance applies, say so in the rationale and cite the customer and list-entry rows (or the memory) that support it.
 - "what_would_change" lists what new information would change your recommendation.
 Answer with one JSON object only, with these keys:
@@ -168,6 +169,15 @@ export function renderEvidence(evidence: EvidenceBundle, match: MatchResult): st
           ]),
           circular_ownership: evidence.ownership.result.loops.length > 0,
           chain_longer_than_policy_allows: evidence.ownership.result.depthLimitReached,
+        }
+      : undefined,
+    first_finding: evidence.hybrid
+      ? {
+          decision: evidence.hybrid.decision,
+          basis: evidence.hybrid.basis,
+          settled_by_structured_fields: evidence.hybrid.settled,
+          free_text_present: evidence.hybrid.free_text,
+          path: evidence.hybrid.path,
         }
       : undefined,
     data_safety: evidence.safety?.violation
