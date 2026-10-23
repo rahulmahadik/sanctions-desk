@@ -1,20 +1,9 @@
 import { existsSync } from "node:fs";
-import { loadSigner } from "@sanctions-desk/agents";
-import {
-  buildGenerator,
-  ConfigError,
-  describeConfig,
-  loadConfig,
-  loadPolicyFile,
-  loadUsersFile,
-  PolicyStore,
-  RunEventBus,
-  resolveProjectPath,
-} from "@sanctions-desk/shared";
-import { checkRoleAccess, createZetarisClient, describeAccessFailure } from "@sanctions-desk/zetaris";
+import { ConfigError, describeConfig, loadConfig, resolveProjectPath } from "@sanctions-desk/shared";
+import { checkRoleAccess, describeAccessFailure } from "@sanctions-desk/zetaris";
 import { buildApp } from "./app.js";
 import { createLogger } from "./logger.js";
-import { SAMPLE_NOTICE, sampleGenerator, sampleZetaris } from "./sample.js";
+import { buildRuntime } from "./runtime.js";
 
 const ENV_FILE = ".env";
 
@@ -26,31 +15,6 @@ async function main(): Promise<void> {
 
   const config = loadConfig();
   const logger = createLogger(config);
-  const generator = config.sampleMode
-    ? sampleGenerator()
-    : buildGenerator(config, {
-        onFallback: (from, error) =>
-          logger.warn({ provider: from, error_type: error.type }, "model provider failed, falling back"),
-        onAttempt: (a) => {
-          const fields = {
-            provider: a.provider,
-            requested_model: a.requestedModel,
-            routed_model: a.routedModel,
-            served_mode: a.servedMode,
-            status: a.status,
-            outcome: a.outcome,
-            error_type: a.errorType,
-            latency_ms: a.latencyMs,
-          };
-          if (a.outcome === "ok" && a.servedMode !== undefined && a.servedMode !== a.requestedModel) {
-            logger.warn(fields, "model call served a different mode than requested");
-          } else if (a.outcome === "ok") {
-            logger.info(fields, "model call");
-          } else {
-            logger.warn(fields, "model call failed");
-          }
-        },
-      });
   // A live run reads the model with each agent's own token. After a rebuild their access is gone, so say so now,
   // with the steps that fix it, rather than failing in the middle of a review.
   if (!config.sampleMode && config.zetaris.requireRoleAccess && !config.zetaris.fallbackOnDenied) {
@@ -64,42 +28,10 @@ async function main(): Promise<void> {
     }
     logger.info({ roles: access.map((r) => `${r.role}:${r.state}`) }, "role access to the semantic layer verified");
   }
-  const bus = new RunEventBus({
-    replayLimit: config.events.replayLimit,
-    maxRuns: config.events.maxRuns,
-    onListenerError: (err) => logger.warn({ err }, "run event subscriber failed"),
-  });
-  const policies = new PolicyStore(loadPolicyFile(config.policy.file), {
-    onListenerError: (err) => logger.warn({ err }, "policy change subscriber failed"),
-  });
-
-  // The only data path. In sample mode the same client replays saved answers, so no Zetaris is needed.
-  const zetaris = config.sampleMode
-    ? sampleZetaris(config)
-    : createZetarisClient({
-        config,
-        onQuery: (q) =>
-          logger.info(
-            {
-              query_id: q.query_id,
-              role: q.role,
-              token_source: q.token_source,
-              status: q.status,
-              rows: q.row_count,
-              latency_ms: q.latency_ms,
-            },
-            "zetaris query",
-          ),
-      });
-  const sampleNotice = config.sampleMode ? SAMPLE_NOTICE : undefined;
-
-  // The people allowed in (tokens are stored as hashes, in a file outside the repository) and the key that signs
-  // the records written after an approval. Without a key those records are hash-sealed, and say so.
-  const users = config.server.usersFile ? loadUsersFile(config.server.usersFile) : undefined;
-  const signer = loadSigner(config.actions.signingKeyFile);
-  const app = await buildApp({ config, logger, generator, zetaris, sampleNotice, bus, policies, users, signer });
+  const runtime = buildRuntime(config, logger);
+  const app = await buildApp({ config, logger, ...runtime });
   logger.info(
-    { config: describeConfig(config), policy_version: policies.activeVersion() },
+    { config: describeConfig(config), policy_version: runtime.policies.activeVersion() },
     "starting sanctions-desk api",
   );
 

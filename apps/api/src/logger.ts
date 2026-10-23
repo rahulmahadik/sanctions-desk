@@ -1,5 +1,5 @@
 import { type Config, secretValues } from "@sanctions-desk/shared";
-import { type Logger, pino } from "pino";
+import { type DestinationStream, type Logger, type LoggerOptions, pino } from "pino";
 
 const REDACT_PATHS = [
   "req.headers.authorization",
@@ -11,10 +11,13 @@ const REDACT_PATHS = [
   "*.runtimeToken",
 ];
 
-/** Application logger (pino). Known secret values and sensitive fields are masked in every line. */
-export function createLogger(cfg: Config): Logger {
+/**
+ * Application logger (pino). Known secret values and sensitive fields are masked in every line. Lines go to stdout
+ * unless another destination is given (`npm run case` sends them to stderr, so stdout carries only the run).
+ */
+export function createLogger(cfg: Config, destination?: DestinationStream): Logger {
   const secrets = secretValues(cfg);
-  return pino({
+  const options: LoggerOptions<never> = {
     level: cfg.logging.stdout ? cfg.logging.level : "silent",
     base: { service: "sanctions-desk-api" },
     redact: { paths: REDACT_PATHS, censor: "[REDACTED]" },
@@ -27,7 +30,8 @@ export function createLogger(cfg: Config): Logger {
       },
     },
     timestamp: pino.stdTimeFunctions.isoTime,
-  });
+  };
+  return destination ? pino(options, destination) : pino(options);
 }
 
 function maskSecrets(text: string, secrets: readonly string[]): string {

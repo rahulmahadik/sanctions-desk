@@ -91,7 +91,7 @@ export const ROUTES: RouteDoc[] = [
     tag: "Review",
     summary: "Review one alert and return a recommendation for a person to act on",
     description:
-      "Identify the alert by alert_id. The answer carries the recommendation, rationale, cited facts, the checks that ran, the model ledger and the record hash. Pass a run_id of your own to follow the run on /runs/{runId}/stream while it works.",
+      "Identify the alert by alert_id. The answer carries the recommendation (decision, confidence), rationale, cited facts, the checks that ran, the model ledger and the record hash, plus the steps that ran in order (agents), the trace id and the trace file (trace_id, log_file: logs/trace-<run_id>.jsonl), the time taken (execution_time_seconds) and, in sample mode, sample_mode and sample_notice. A failure has status error and a structured error. Pass a run_id of your own to follow the run on /runs/{runId}/stream while it works. `npm run case -- <request file>` runs the same route from the command line.",
     body: schemaOf(RunRequestSchema),
     response: schemaOf(ReviewResponseSchema),
   },
