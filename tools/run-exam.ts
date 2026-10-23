@@ -80,6 +80,8 @@ if (!VARIANTS.includes(variant)) throw new Error(`--variant must be one of ${VAR
 const baseConfig = loadConfig();
 const config = forEvaluation(baseConfig);
 let policy: Policy = loadPolicyFile(config.policy.file);
+// --screener off: the ablation run, with every other change kept. Recorded in the run's features.
+if (flag("--screener") === "off") policy = { ...policy, screener: { ...policy.screener, enabled: false } };
 if (variant === "local") {
   const off = { thinking: "off" as const };
   policy = {

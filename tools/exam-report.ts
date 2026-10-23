@@ -474,8 +474,54 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2|"))) {
     fcRow("Held-out v2, changed system (blind)", after("heldout2")),
     fcRow("Held-out v2, deterministic pipeline", laterRuns.get("baseline|heldout2|rules")),
     fcRow("Held-out v2, every alert goes to a person", laterRuns.get("baseline|heldout2|escalate_all")),
+    fcRow(
+      "Held-out v2, changed system with the screener switched off (ablation)",
+      laterRuns.get("sys2noscreen|heldout2|routed"),
+    ),
     "",
   );
+  // How each changed-system outcome came about: a model answer, the guard after a critic deadlock, a fallback route, or no
+  // model answer at all. Cases with no model answer are shown, and the counts are repeated without them.
+  const how = (label: string, r: Result | undefined) => {
+    if (!r) return undefined;
+    const extra = (c: ScoredCase) => c as ScoredCase & Record<string, unknown>;
+    const unavailable = r.cases.filter((c) => c.decision_unavailable || extra(c).decision_withheld);
+    const answered = r.cases.filter((c) => !unavailable.includes(c));
+    const d = directions(answered);
+    const deadlock = r.cases.filter((c) => extra(c).critic_unresolved === true).length;
+    const fallback = r.cases.filter((c) => extra(c).decided_by_fallback === true).length;
+    return `| ${label} | ${unavailable.length} | ${deadlock} | ${fallback} | ${d.risk - d.caught} of ${d.risk} | ${d.clears > 0 ? `${d.made} of ${d.clears}` : "none"} |`;
+  };
+  const howRows = [
+    how("70 cases", after("exam")),
+    how("Held-out v1 (after the fix, not blind)", after("heldout")),
+    how("Held-out v2 (blind)", after("heldout2")),
+  ].filter((x): x is string => x !== undefined);
+  if (howRows.length > 0) {
+    lines.push(
+      "How the changed system's outcomes came about. *No model answer* counts cases where every provider failed or a prompt was withheld because it carried free text; such cases are escalated, never closed, and the last two columns leave them out. *Guard after a deadlock* counts cases where the critic never approved and the policy guard raised the outcome; *fallback route* counts cases whose final recommendation came from a retry on another route.",
+      "",
+      "| Set | No model answer | Guard after a deadlock | Fallback route | Risk cases wrongly closed (answered cases) | Correct clears (answered cases) |",
+      "|---|---:|---:|---:|---:|---:|",
+      ...howRows,
+      "",
+    );
+  }
+  const changesPath = resolveProjectPath("eval/cases/heldout2-changes.json");
+  if (existsSync(changesPath)) {
+    const log = JSON.parse(readFileSync(changesPath, "utf8")) as {
+      final_freeze_commit: string | null;
+      changes: Array<{ cases: string; change: string; trigger: string }>;
+    };
+    lines.push(
+      `Held-out v2 was changed before its final freeze, each time before any system output for it existed (\`eval/cases/README.md\`). Final freeze: ${log.final_freeze_commit ? `commit \`${log.final_freeze_commit}\`` : "not yet recorded"}.`,
+      "",
+      "| Cases | Change | Trigger |",
+      "|---|---|---|",
+      ...log.changes.map((c) => `| ${c.cases} | ${c.change} | ${c.trigger} |`),
+      "",
+    );
+  }
 }
 
 const det = get("rules");
