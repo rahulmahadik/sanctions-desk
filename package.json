@@ -52,6 +52,7 @@
     "zetaris:agents": "tsx tools/zetaris-agents.ts",
     "zetaris:rebuild": "tsx tools/zetaris-rebuild.ts",
     "zetaris:definitions": "tsx tools/zetaris-definitions.ts",
+    "readme:refresh": "tsx tools/readme-facts.ts",
     "zetaris:queries": "tsx tools/zetaris-queries.ts",
     "zetaris:usl": "tsx tools/zetaris-usl.ts",
     "compare:hand-coded": "sh compare/hand-coded/run.sh",

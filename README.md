@@ -8,8 +8,38 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 **Headline result** (full system on the 68-alert exam, one run): 31% of alerts closed with cited evidence, 69% escalated; about 401 analyst minutes saved per 100 alerts (assuming 15 minutes per alert and 2 to confirm a close); false closes on cases that carry real risk: 0 of 42. Details, assumptions and the comparison with plain name matching: [eval/REPORT.md](eval/REPORT.md).
 <!-- headline:end -->
 
+## For judges
+
+|                             |                                                                                                                                                                                                                                                                                                                                 |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Video**                   | link added when the video is recorded                                                                                                                                                                                                                                                                                           |
+| **Deck**                    | link added with the submission                                                                                                                                                                                                                                                                                                  |
+| **Two-minute sample path**  | `SAMPLE_MODE=true docker compose up --build`, open http://localhost:3001, pick a demo user, open alert **ALR-0004** and press **Review this alert**. No account, key or model is needed; the data is replayed from saved real answers and the language model is a labelled stand-in ([AI and Model Usage](#ai-and-model-usage)) |
+| **Live path**               | Zetaris, Nightshift and the synthetic bank running locally: [Run it live](#run-it-live)                                                                                                                                                                                                                                         |
+| **Traces and receipts**     | the **Decision trace** and **Model routing** panels of every case (with a _Verify receipt_ button); `eval/runs/<run-id>/` holds the exported events and Nightshift's signed receipts; check them with `npm run evidence:verify` ([Check which model served each call](#check-which-model-served-each-call))                     |
+| **Evidence for the claims** | [eval/REPORT.md](eval/REPORT.md), [docs/EVALUATION.md](docs/EVALUATION.md), [docs/SPONSORS.md](docs/SPONSORS.md), [docs/ZETARIS.md](docs/ZETARIS.md#zetaris-checklist)                                                                                                                                                          |
+
+**Headline numbers** (from the saved runs; refreshed by `npm run exam:report`):
+
+<!-- judges:start -->
+- **Wrongly closed on the exam's risk cases:** full system **0** of 42, plain name matching 10 of 42.
+<!-- judges:end -->
+
+Counts in this README (<!--fact:exam_cases-->70<!--/fact--> exam cases in <!--fact:exam_groups-->12<!--/fact--> groups, <!--fact:heldout_cases-->30<!--/fact--> held-out cases, <!--fact:edge_cases-->43<!--/fact--> edge cases) are written by `npm run readme:refresh` from the committed data.
+
+## Track 3 fit
+
+Track 3 asks for a reasoning architecture, not a prompt. Each stage of the desk is a separate, checked step:
+- **Data:** every fact comes through one Unified Semantic Layer in Zetaris, under per-agent roles and data-quality rules.
+- **Knowledge:** approved, versioned definitions are data; ownership is worked out by the World Model engine and the 50 percent rule runs in code.
+- **Memory:** H-MEM keeps earlier decisions, and the decisions people make on the desk, as pointers that go stale when the listed entry changes; a decision can cite one and the critic checks it.
+- **Reasoning:** code gives a first finding, Nemotron models decide, a critic re-reads every cited fact from the data, a challenger argues against a close, and a policy guard can only make the result more cautious.
+- **Human decision and action:** a person approves or overrides with a reason (a block needs two), and only then is the next action prepared. Nothing is sent or changed in a source system.
+
 ## Contents
 
+- [For judges](#for-judges)
+- [Track 3 fit](#track-3-fit)
 - [What it does](#what-it-does)
 - [Try it in two minutes](#try-it-in-two-minutes)
 - [How it works](#how-it-works)
@@ -184,9 +214,11 @@ A small Next.js application (`apps/web`) on http://localhost:3001. It works in s
 | Case: evidence                  | The customer, the listed party, the payment route and the data-quality results. Identifier numbers are drawn as `••••`; the API names the masked columns                                                                            |
 | Case: model routing and cost    | Per step: the mode asked for and the model that answered (cloud or local), reasoning budget, time, tokens, signed-receipt status and cost under the configured unit costs, with the measured split of the latest full exam          |
 | Case: decision trace and replay | The four questions answered from the sealed record, and a slider that replays the run as of any recorded event                                                                                                                      |
+| Case: decision and next action  | Approve or override with a reason; the second approval of a block; the prepared next action with its seal; the case file as PDF or Markdown; reopen an automatic close. Which buttons appear depends on the signed-in role          |
+| Policy studio                   | The active policy, drafts, a replay of a draft on the exam, publishing by a different person, the autonomy card and its kill switch, and the audit log                                                                              |
 | Exam results                    | Variants compared from the saved result files, with false closes and results by case group                                                                                                                                          |
 
-The interface shows a recommendation only. It has no button that blocks, approves or contacts anyone. It respects the visitor's reduced-motion setting (the working step is marked with a double border instead of a pulse) and follows the light or dark theme of the system.
+The interface recommends and records. A person with the right role can **approve or override** a recommendation with a reason, and the next action (a closure note, an escalation ticket, a request for information or a hold instruction) is prepared only after that decision; a block needs a second, different approver. Nothing in it blocks an account, writes to a source system or contacts a customer. Roles, demo users and the decision step are described under [People, roles and the decision step](#people-roles-and-the-decision-step). It respects the visitor's reduced-motion setting (the working step is marked with a double border instead of a pulse) and follows the light or dark theme of the system.
 
 ```bash
 npm install
@@ -217,18 +249,25 @@ In sample mode, with no setup, three **demo users** (`analyst_demo`, `approver_d
 
 ## Evaluation
 
-The exam has 65 cases built from real public list entries and synthetic customers, payments and owners, in eleven groups (false positives, true matches, transliteration, missing data, hidden ownership at and above 50 percent, ownership below 50 percent, earlier clearances that still hold, earlier clearances that no longer hold, injection, tipping-off drafts, payment routes through watched jurisdictions). Each case has one right answer, acceptable alternatives, and answers that must never be given. The most important number is the **false-close rate**: how often a case that carries real risk is recommended for closing. The target is zero.
+The exam has <!--fact:exam_cases-->70<!--/fact--> cases built from real public list entries and synthetic customers, payments and owners, in <!--fact:exam_groups-->12<!--/fact--> groups (false positives, true matches, transliteration, missing data, hidden ownership at and above 50 percent, ownership below 50 percent, earlier clearances that still hold, earlier clearances that no longer hold, injection, tipping-off drafts, payment routes through watched jurisdictions). Each case has one right answer, acceptable alternatives, and answers that must never be given. The most important number is the **false-close rate**: how often a case that carries real risk is recommended for closing. The target is zero.
+
+Every variant is one command, and each is a separate saved result:
 
 ```bash
-npm run exam -- --variant routed      # the full system, live
-npm run exam -- --variant single      # one recommendation, no critic, no memory
-npm run exam -- --variant local       # fast mode only, no reasoning budget
-npm run exam -- --variant rules       # rules stand-in, no language model
-npm run exam -- --variant fuzzy       # baseline: a name-score threshold
-npm run exam:report                   # builds eval/REPORT.md from the saved results
+npm run exam -- --variant routed          # the full system, live
+npm run exam -- --variant single          # one recommendation: no critic, no challenger, no memory
+npm run exam -- --variant no_memory       # the full system with memory off (the previously cleared cases only)
+npm run exam -- --variant local           # reasoning off everywhere, the local model only
+npm run exam -- --variant lightning       # decision, critic and challenger sent to the local model
+npm run exam -- --variant rules           # our deterministic pipeline, no language model
+npm run exam -- --variant fuzzy           # baseline: a name-score threshold
+npm run exam -- --variant escalate_all    # baseline: every alert goes to a person
+npm run exam -- --variant routed --exam heldout   # the same, on the held-out set the rules were not written for
+npm run bench -- --variant routed --runs 3        # repeat runs or random batches unattended
+npm run exam:report                       # builds eval/REPORT.md from the saved results
 ```
 
-Results from real runs are in `eval/results/` and summarised in [eval/REPORT.md](eval/REPORT.md). Nothing in them is edited by hand.
+Results from real runs are in `eval/results/` and summarised in [eval/REPORT.md](eval/REPORT.md). The exported evidence of the final runs (events, signed receipts and results, with local paths and addresses removed) is committed in `eval/runs/` and can be checked from a fresh clone, as shown below. Nothing in them is edited by hand.
 
 ### Check which model served each call
 
@@ -257,7 +296,7 @@ npm run bench -- --variant routed,single --runs 2        # several variants, one
 
 ## Edge cases handled
 
-34 edge cases (names, ownership, lists and memory, data and systems, security) each have an expected outcome and a check: [docs/EDGE_CASES.md](docs/EDGE_CASES.md). Highlights: exactly 50 percent counts; 49.9 does not; 25 plus 25 from two listed owners does; circular ownership ends; a missing percentage is unknown, not zero; look-alike Cyrillic letters in a Latin name are seen through; a customer note that says "ignore previous instructions" is data; a draft that tells a customer they are being screened is refused.
+<!--fact:edge_cases-->43<!--/fact--> edge cases (names, ownership, lists and memory, data and systems, security) each have an expected outcome and a check: [docs/EDGE_CASES.md](docs/EDGE_CASES.md). Highlights: exactly 50 percent counts; 49.9 does not; 25 plus 25 from two listed owners does; circular ownership ends; a missing percentage is unknown, not zero; look-alike Cyrillic letters in a Latin name are seen through; a customer note that says "ignore previous instructions" is data; a draft that tells a customer they are being screened is refused.
 
 ## Guardrails
 
@@ -289,7 +328,7 @@ cp .env.example .env                       # then add your own values; never com
 docker compose --env-file .env.data --profile data up -d --build bankdb payments-api   # synthetic bank + payments (see below)
 npm run zetaris:rebuild                    # create everything in Zetaris from the committed scripts
 npm run dev                                # the API on http://localhost:8000
-npm run exam -- --variant routed           # the 60-case exam against live services
+npm run exam -- --variant routed           # the <!--fact:exam_cases-->70<!--/fact-->-case exam against live services
 ```
 
 The `data` profile needs `BANKDB_ADMIN_PASSWORD`, `BANKDB_READER_PASSWORD` and `PAYMENTS_API_KEY` (any random values; keep them in a git-ignored file such as `.env.data`). The two containers join the Zetaris network only and publish no ports; `npm run check:isolation` proves that Zetaris can reach them and nothing else can.
@@ -401,7 +440,7 @@ The governance view, mapped to the headings of the Monetary Authority of Singapo
 - **Evidence you can check.** Every cited fact is re-read from the data by code before the critic's model sees it; a claim that does not match is never approved. Each recommendation has a sealed decision record and a trace that answers four questions: which approved definition applied, what data it rested on, who could see what, and what it cost.
 - **Synthetic data only.** Customers, accounts, owners and payments are generated; only the listed parties are real public entries.
 - **Memory without personal data.** Earlier decisions are remembered as an outcome, reason codes and a pointer to the row (table, key, content hash). The pointer is re-checked each time and goes stale when the listed entry changes; a memory can inform a decision but cannot close an alert on its own.
-- **Least privilege.** Each agent can read only its own tables and columns; identifier numbers are masked; the model service never receives them.
+- **Least privilege.** Each agent can read only its own tables and columns; identifier numbers are hidden by the application (see below); the model service never receives them. Zetaris's HIDE policy for `customer_identifier.id_number` is configured for the evidence role, but this local edition does not enforce it. The application enforces it instead: the SQL guard stops every agent except the evidence step from naming the column, the evidence step's masking returns only the last two characters, and a customer identifier is compared with a listed one by a join inside Zetaris so the number is never read into the application. Tests prove each part (`packages/zetaris/test/guard.test.ts`, `client.test.ts`, `tools.test.ts`).
 - **Fairness in name matching across languages.** What was measured: six transliteration cases across Cyrillic, Arabic and Han scripts, look-alike letters, accents, name order and spelling variants, and every one of those that carried real risk was escalated, none closed. What was not measured: other scripts and naming conventions, and how often common names in any one culture are escalated without cause. Name matching tends to raise more alerts for people whose names are common or transliterated in many ways, and the cost of that falls on those customers as extra review. Before any real use, measure the escalation rate by name origin and set the thresholds with that in mind.
 - **Where the models run.** Most decision and critic calls are answered by a cloud model through Nightshift. That is acceptable for synthetic data; with real customer data it needs an explicit decision about what may leave the machine.
 
@@ -414,7 +453,7 @@ The governance view, mapped to the headings of the Monetary Authority of Singapo
 - Cost figures use illustrative unit costs, and the minutes-saved figure rests on stated assumptions, not measurement.
 - Sanctions law and list programmes change; the jurisdiction list is an example.
 - Embeddings are not used: this Nightshift build serves no embedding route.
-- Zetaris model access is set in its interface and is emptied by a rebuild; the column policy on identifier numbers is not enforced on this instance, so the application masks them itself. See `docs/ZETARIS.md`.
+- Zetaris model access is set in its interface and is emptied by a rebuild; the HIDE policy on identifier numbers is configured but not enforced by this local edition, so the application enforces it in the SQL guard and the masking, and tests prove it. See `docs/ZETARIS.md`.
 - Model answers vary between runs, and cloud routing is decided by the runtime.
 
 ## AI and Model Usage
@@ -423,12 +462,14 @@ Disclosure under section 6 of the event's AI Usage Policy.
 
 **Models, through Meterless Nightshift.** Every model call in the product goes through Nightshift, an OpenAI-compatible runtime, as the primary provider. The models are NVIDIA Nemotron: **Nemotron 3.5 Lightning 30B** (on a local laptop) and **Nemotron 3 Ultra 550B** (cloud). Nightshift's router decides which of them answers a call unless the cockpit binds the app; the table under [NVIDIA Nemotron](#nvidia-nemotron) is the split measured from the signed receipts, and [docs/MODELS.md](docs/MODELS.md) explains each step.
 
-| Step                                | Model                             | What it does                                                                                                                                   |
-| ----------------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Safety guard (inbound and outbound) | Nemotron 3.5 Lightning 30B, local | Reads free text that came out of the data for instructions aimed at the reviewer; checks a draft for a customer against the tipping-off policy |
-| Decision                            | Nemotron 3 Ultra 550B, cloud      | Reads the evidence and the approved definitions; recommends one of four outcomes with cited facts                                              |
-| Critic                              | Nemotron 3 Ultra 550B, cloud      | Looks for claims the evidence does not support (cited facts are re-read from the data by code first)                                           |
-| Challenger                          | Nemotron 3 Ultra 550B, cloud      | Argues the case against a close that could slip through                                                                                        |
+| Step                                | Model                                         | What it does                                                                                                                                                                                                                                                                  |
+| ----------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Safety guard (inbound and outbound) | Nemotron 3.5 Lightning 30B, on a local laptop | Reads free text that came out of the data for instructions aimed at the reviewer; checks a draft for a customer against the tipping-off policy. The guard's app identity is bound to _local_ in the Nightshift cockpit, and 24 of 24 lab calls were served locally (receipts) |
+| Decision                            | mostly Nemotron 3 Ultra 550B (cloud)          | Reads the evidence and the approved definitions; recommends one of four outcomes with cited facts                                                                                                                                                                             |
+| Critic                              | mostly Nemotron 3 Ultra 550B (cloud)          | Looks for claims the evidence does not support (cited facts are re-read from the data by code first)                                                                                                                                                                          |
+| Challenger                          | mostly Nemotron 3 Ultra 550B (cloud)          | Argues the case against a close that could slip through                                                                                                                                                                                                                       |
+
+"Mostly" is a measurement, not a promise: Nightshift's router chooses the model for these three steps, and the split from the signed receipts is in the table under [NVIDIA Nemotron](#nvidia-nemotron). We tried binding their app identity to the _deep_ mode in the cockpit; that races both models, so it did not make the routing deterministic (19 of 21 lab calls were served by Ultra, 2 by Lightning). The cockpit variables and the steps to set them are in [docs/MODELS.md](docs/MODELS.md#two-app-identities-and-what-the-cockpit-does-with-them).
 
 The Ollama backup (`nemotron-3.5-lightning:30b`) answers only if Nightshift cannot. In sample mode a labelled rules-based stand-in answers instead. No other model provider is named anywhere in the code.
 

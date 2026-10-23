@@ -793,6 +793,25 @@ if (full && readmeNow.includes(RS) && readmeNow.includes(RE)) {
     writeFileSync(readmePath, readmeNow.replace(new RegExp(`${RS}[\\s\\S]*?${RE}`), block));
   }
 }
+// The "For judges" box carries the headline numbers between two markers as well.
+const JS = "<!-- judges:start -->";
+const JE = "<!-- judges:end -->";
+const readmeJudges = readFileSync(readmePath, "utf8");
+if (full && readmeJudges.includes(JS) && readmeJudges.includes(JE)) {
+  const fuzzy = get("fuzzy");
+  const hoFullNow = heldoutNewest.get("routed");
+  const rows = [
+    `- **Wrongly closed on the ${full.metrics.risk_cases} risk cases of the exam:** full system **${full.metrics.false_closes}**${fuzzy ? `, plain name matching ${fuzzy.metrics.false_closes}` : ""}.`,
+  ];
+  if (hoFullNow) {
+    const d = directions(hoFullNow.cases);
+    rows.push(
+      `- **Held-out set (cases the rules were not written for):** ${d.caught} of ${d.risk} risks caught, ${d.made} of ${d.clears} correct clears made (escalate-everything catches every risk and makes none).`,
+    );
+  }
+  const block = [JS, ...rows, JE].join("\n");
+  writeFileSync(readmePath, readmeJudges.replace(new RegExp(`${JS}[\\s\\S]*?${JE}`), block));
+}
 console.log(
   `wrote eval/REPORT.md from ${have.length} variant(s)${notRun.length ? `; not run: ${notRun.join(", ")}` : ""}`,
 );
