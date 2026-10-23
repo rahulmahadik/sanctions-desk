@@ -482,7 +482,7 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2"))) {
     "",
     "The first held-out run showed that risk stated only in free text (a customer note, a payment reference, a list remark) never reached the decision step: two such cases were wrongly closed. The system was then changed: a local model now reads the free text and passes only structured facts (risk signals and validated documentary evidence) to the cloud steps, and a risk signal blocks a close. A second held-out set was written and frozen before the changed system was run on it, so it is the blind test of the change; the first held-out set is no longer blind for the changed system. The first system's numbers are kept as they were.",
     "",
-    '**The blind v2 run tested a broken screener.** In that run the local screener failed on every case: the local model answered its schema-constrained request with an empty response (the runtime returned HTTP 502 "empty_response", the backup an empty answer). A failed screener never allows a close, so every case came out as need-more-information or escalate: no risk case was closed, and no clear was made. That says the fail-closed rule works; it says nothing about how well the screener reads text. The fix (a plain JSON request to the local model, the same as the safety guard) was made after the blind run, and every changed-system run after it is labelled *after the screener fix*. The blind result is shown unchanged.',
+    '**The blind v2 run tested a broken screener.** In that run the local screener failed on every case: the local model answered its schema-constrained request with an empty response (the runtime returned HTTP 502 "empty_response", the backup an empty answer). A failed screener never allows a close, so every case came out as need-more-information or escalate: no risk case was closed, and no clear was made. That says the fail-closed rule works; it says nothing about how well the screener reads text. The fix was made after the blind run; the blind result is shown unchanged, and the run of the same frozen v2 cases after it is labelled *re-run after an infrastructure fix, not blind*. What changed between the two versions (blind run from commit `da7aff4`; the fixed version from commit `f6ed38a`): in `packages/agents/src/screener.ts` the screener no longer asks for schema-constrained output and gets a plain JSON answer, checked by the same schema, as the safety guard does; in `packages/agents/src/model-call.ts` a retry sent to the local model and the backup also ask for plain JSON (only the step's own route asks for schema-constrained output). With plain JSON the request starts the answer with "{" and the system prompt no longer carries the one-line note appended for schema-constrained answers ("Keep the analysis field to one short sentence."). No prompt wording of any step, rule, threshold, definition, label or case-specific logic changed. The other commits in between touch the report tool, the proof command, the sample-mode wiring of the API, tests and the v2 change log, none of which is on the path of a review.',
     "",
     "| Set and system | Risk cases wrongly closed | Risks caught | Correct clears made | Acceptable |",
     "|---|---:|---:|---:|---:|",
@@ -491,7 +491,7 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2"))) {
     fcRow("Held-out v1, first system (blind)", hoFull),
     fcRow("Held-out v1, changed system (after the fix, not blind)", after("heldout")),
     fcRow("Held-out v2, changed system (blind; the screener failed on every case)", blindV2()),
-    fcRow("Held-out v2, changed system after the screener fix (not blind)", after("heldout2")),
+    fcRow("Held-out v2, same frozen cases, re-run after an infrastructure fix (not blind)", after("heldout2")),
     fcRow("Held-out v2, deterministic pipeline", laterRuns.get("baseline|heldout2|rules")),
     fcRow("Held-out v2, name-match rules baseline", laterRuns.get("baseline|heldout2|fuzzy")),
     fcRow("Held-out v2, every alert goes to a person", laterRuns.get("baseline|heldout2|escalate_all")),
@@ -517,7 +517,7 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2"))) {
     how("70 cases", after("exam")),
     how("Held-out v1 (after the fix, not blind)", after("heldout")),
     how("Held-out v2 (blind; screener failed)", blindV2()),
-    how("Held-out v2 (after the screener fix, not blind)", after("heldout2")),
+    how("Held-out v2 (re-run after an infrastructure fix, not blind)", after("heldout2")),
   ].filter((x): x is string => x !== undefined);
   if (howRows.length > 0) {
     lines.push(
@@ -534,7 +534,7 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2"))) {
     ["70 cases", after("exam")],
     ["Held-out v1 (after the fix)", after("heldout")],
     ["Held-out v2 (blind)", blindV2()],
-    ["Held-out v2 (after the screener fix)", after("heldout2")],
+    ["Held-out v2 (re-run after an infrastructure fix)", after("heldout2")],
   ]
     .filter((x): x is [string, Result & { file: string }] => x[1] !== undefined)
     .map(([label, r]) => {
