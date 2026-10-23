@@ -55,6 +55,7 @@
     "adversarial:guard": "tsx tools/adversarial-guard.ts",
     "readme:refresh": "tsx tools/readme-facts.ts",
     "zetaris:cache-check": "tsx tools/zetaris-cache-check.ts",
+    "lab:pinning": "tsx tools/pinning-lab.ts",
     "zetaris:queries": "tsx tools/zetaris-queries.ts",
     "zetaris:usl": "tsx tools/zetaris-usl.ts",
     "compare:hand-coded": "sh compare/hand-coded/run.sh",
