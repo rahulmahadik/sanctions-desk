@@ -1,8 +1,12 @@
 # Security queue
 
-Problems found by the security checks that sit in files this pass did not change (the agents, shared and data packages, the configuration and policy files, the exam tool). Each entry says what is wrong, where, the proposed fix and the test that proves it. The test for item 1 already exists and is marked as a known gap; flip it when the fix lands.
+Problems found by the security checks that sit in files this pass did not change (the agents, shared and data packages, the configuration and policy files, the exam tool). Each entry says what is wrong, where, the proposed fix and the test that proves it.
 
-## 1. The SQL guard misses a comma join after a table alias (medium)
+Items 1, 2 and 3 are done (24 Oct 2026, commit `b2dae21`): the guard now splits a statement into tokens and reads every table position, and refuses what it cannot read. See the SQL guard section of [SECURITY.md](SECURITY.md).
+
+## 1. The SQL guard misses a comma join after a table alias (medium) — done 24 Oct 2026, `b2dae21`
+
+**Done.** The guard reads the whole FROM list: each table, an optional alias (with or without `AS`, with an optional column list), and then only a comma, a join keyword, `ON`, `USING (`, a clause keyword, `)` or the end. A comma inside a FROM list, at any bracket depth, starts another table. Anything else in a table position is refused with `unrecognised_table`. The block "comma join after an alias" in `apps/api/test/pentest-sql-guard.test.ts` is now `it.each` and passes; the same statements and a `scopeViolation` case are in `packages/zetaris/test/guard.test.ts`.
 
 **What.** `FROM customer c, other.users u` is accepted as a read of `customer` only. The check that finds the tables after `FROM` and `JOIN` allows a comma only straight after the table name, so an alias in between hides the second table. The second table is then checked neither against the model's list nor against the calling agent's own tables (`scopeViolation` uses the same list of tables).
 
@@ -14,7 +18,9 @@ Problems found by the security checks that sit in files this pass did not change
 
 **Test that proves it.** `apps/api/test/pentest-sql-guard.test.ts`, the block "comma join after an alias". It passes today because it is written with `it.fails.each`; after the fix it fails, and `it.fails.each` should become `it.each`. Add the same three statements to `packages/zetaris/test/guard.test.ts` and one for `scopeViolation`.
 
-## 2. The guard and the literal quoting disagree with the SQL engine about a backslash (low, not proven)
+## 2. The guard and the literal quoting disagree with the SQL engine about a backslash (low, not proven) — done 24 Oct 2026, `b2dae21`
+
+**Done.** The guard refuses any statement that contains a backslash (code `backslash`), so it never has to guess where the engine ends a string. `quoteLiteral` refuses a value with a backslash or `${`, and the identifier overlap query in `packages/agents/src/evidence.ts` now uses `quoteLiteral` instead of its own copy. `blankLiterals` keeps a backslash and the next character inside the literal. Whether the live engine honours the backslash escape is still unconfirmed; with the refusal it no longer matters to the guard.
 
 **What.** The guard treats `''` as an escaped quote and nothing else. Spark-style engines also treat `\'` as an escaped quote. `quoteLiteral` doubles single quotes and refuses control characters and semicolons, but leaves a backslash alone. A value ending in a backslash, written as `'abc\'`, would be read by such an engine as an unfinished string that swallows the text after it. With two values in one statement this could change what the second value means.
 
@@ -26,7 +32,9 @@ Problems found by the security checks that sit in files this pass did not change
 
 **Test that proves it.** `quoteLiteral("a\\")` throws (or yields a literal the engine reads as complete); `guardSql` refuses `WHERE a = 'x\' OR 1 IN (SELECT 1 FROM other.users) OR b = \'y'` (already refused today, because the guard sees the table; keep it as a regression test).
 
-## 3. The SQL guard accepts non-ASCII characters outside string values (low, hardening)
+## 3. The SQL guard accepts non-ASCII characters outside string values (low, hardening) — done 24 Oct 2026, `b2dae21`
+
+**Done.** Outside single-quoted values only printable ASCII, tab, carriage return and line feed are accepted (code `non_ascii`), including inside backquoted and double-quoted names. Only ASCII spacing is trimmed from the ends, so a byte order mark or a no-break space is refused rather than removed. The "disguises" block now expects a refusal for every case except the doubled quote, which stays one harmless value.
 
 **What.** A full-width semicolon, a no-break space or a zero-width space outside a string is not rejected by the character checks. Every disguise tried in `pentest-sql-guard.test.ts` was still refused or harmless, because the keyword and table checks caught what followed, but nothing states the rule.
 
