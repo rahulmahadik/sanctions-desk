@@ -67,6 +67,51 @@ function VerifyReceipt({ receiptId }: { receiptId: string }) {
   );
 }
 
+/** True when the model named in a receipt is a Nemotron model. */
+export const isNemotron = (model: string | null | undefined): boolean => /nemotron/i.test(model ?? "");
+
+/** Checks every receipt of the recommendation in turn and says how many verified and how many name a Nemotron model. */
+function VerifyAll({ receiptIds }: { receiptIds: readonly string[] }) {
+  const [checks, setChecks] = useState<ReceiptCheck[]>();
+  const [problem, setProblem] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  const run = async () => {
+    setBusy(true);
+    setProblem(undefined);
+    try {
+      setChecks(await Promise.all(receiptIds.map((id) => fetchReceiptCheck(id))));
+    } catch (err) {
+      setProblem(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const valid = checks?.filter((c) => c.status.startsWith("valid")).length ?? 0;
+  const nemotron = checks?.filter((c) => isNemotron(c.served_by)).length ?? 0;
+  return (
+    <p>
+      <button type="button" className="secondary" disabled={busy} onClick={() => void run()}>
+        {busy ? "Checking…" : `Verify all ${receiptIds.length} receipts`}
+      </button>
+      {problem ? (
+        <span role="alert" className="tone-stop">
+          {" "}
+          {problem}
+        </span>
+      ) : null}
+      {checks ? (
+        <span data-testid="verify-all">
+          {" "}
+          <strong className={valid === checks.length ? "tone-calm" : "tone-stop"}>
+            {valid} of {checks.length} signatures valid
+          </strong>
+          ; {nemotron} of {checks.length} name a Nemotron model as the one that served the call.
+        </span>
+      ) : null}
+    </p>
+  );
+}
+
 /**
  * The measured split: for each step, the share of its calls each model served, read from the signed receipts of the
  * latest full exam. We ask Nightshift for a pinned mode; its learned router decides which model serves it.
@@ -177,6 +222,9 @@ export function RoutingPanel({ trace, split }: { trace: TraceView; split?: Routi
           </tbody>
         </table>
       </div>
+      {cost.models.some((m) => m.receipt_id) ? (
+        <VerifyAll receiptIds={cost.models.flatMap((m) => (m.receipt_id ? [m.receipt_id] : []))} />
+      ) : null}
       <p>
         Totals: {cost.totals.local_calls} local and {cost.totals.cloud_calls} cloud calls, {cost.totals.tokens_in}{" "}
         tokens in, {cost.totals.tokens_out} out. Data: {cost.data_queries.count} queries,{" "}

@@ -681,6 +681,29 @@ describe("Verify receipt", () => {
   });
 });
 
+describe("Verify all receipts", () => {
+  it("checks every receipt of the recommendation and counts the Nemotron ones", async () => {
+    vi.mocked(api.fetchReceiptCheck).mockResolvedValue({
+      receipt_id: "rcpt_test_1",
+      status: "valid_pinned",
+      body_hash: "c".repeat(64),
+      signer_public_key: "k",
+      key_pinned: true,
+      app: "sanctions-desk-reasoning",
+      requested_mode: "deep",
+      routed_mode: "auto",
+      mode_coerced: true,
+      served_by: "nvidia/nemotron-3-ultra-550b-a55b",
+      route_kind: "cloud",
+    });
+    render(<RoutingPanel trace={TRACE} />);
+    fireEvent.click(screen.getByRole("button", { name: /^Verify all \d+ receipts$/ }));
+    const result = await screen.findByTestId("verify-all");
+    expect(result.textContent).toMatch(/\d+ of \d+ signatures valid/);
+    expect(result.textContent).toMatch(/\d+ of \d+ name a Nemotron model/);
+  });
+});
+
 describe("the case file download", () => {
   it("offers the case file as PDF and Markdown once there is a recommendation", async () => {
     vi.mocked(api.fetchMe).mockResolvedValue(ME_ANALYST);
