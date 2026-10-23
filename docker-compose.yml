@@ -19,8 +19,12 @@ services:
       args:
         NODE_VERSION: ${NODE_VERSION:-26}
     image: sanctions-desk-api:local
+    # Published on this machine only. Set BIND_ADDRESS=0.0.0.0 to reach it from another machine, and put sign-in
+    # (AUTH_MODE=on) and TLS in front of it first.
     ports:
-      - "${PORT:-8000}:8000"
+      - "${BIND_ADDRESS:-127.0.0.1}:${PORT:-8000}:8000"
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
     # Optional: a clean clone runs without a .env file (sample mode needs no credentials).
     env_file:
       - path: .env
@@ -51,7 +55,9 @@ services:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:${PORT:-8000}}
     image: sanctions-desk-web:local
     ports:
-      - "${WEB_PORT:-3001}:3001"
+      - "${BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-3001}:3001"
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
     depends_on:
       api:
         condition: service_healthy

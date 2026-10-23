@@ -26,7 +26,7 @@ import {
 } from "@sanctions-desk/shared";
 import type { ZetarisClient } from "@sanctions-desk/zetaris";
 import type { FastifyPluginAsync } from "fastify";
-import { z } from "zod";
+import { SafeIdSchema } from "../ids.js";
 
 interface DeskOptions {
   config: Config;
@@ -35,7 +35,7 @@ interface DeskOptions {
   zetaris: ZetarisClient;
 }
 
-const CaseIdSchema = z.string().regex(/^[A-Za-z0-9._-]{1,100}$/);
+const CaseIdSchema = SafeIdSchema;
 const KEEP_ALIVE_MS = 15_000;
 
 /** Results saved by the exam runner, newest first. A file that cannot be read is skipped. */

@@ -37,6 +37,7 @@ import {
 import type { ZetarisClient } from "@sanctions-desk/zetaris";
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
+import { SafeIdSchema } from "../ids.js";
 import { refuseGenerator, silentTrace } from "./desk.js";
 
 interface DecisionOptions {
@@ -47,7 +48,7 @@ interface DecisionOptions {
   mode: AuthMode;
 }
 
-const CaseIdSchema = z.string().regex(/^[A-Za-z0-9._-]{1,100}$/);
+const CaseIdSchema = SafeIdSchema;
 const RecordHash = z.string().regex(/^[0-9a-f]{64}$/);
 const DecisionBody = z.strictObject({
   action: z.enum(["approve", "override"]),

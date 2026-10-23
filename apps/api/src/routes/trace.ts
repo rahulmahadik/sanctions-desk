@@ -11,7 +11,7 @@ import {
 } from "@sanctions-desk/shared";
 import { auditToken, fetchQueryHistory, matchAudit } from "@sanctions-desk/zetaris";
 import type { FastifyPluginAsync } from "fastify";
-import { z } from "zod";
+import { SafeIdSchema } from "../ids.js";
 
 interface TraceOptions {
   config: Config;
@@ -56,7 +56,7 @@ function describeReceipt(receiptId: string, envelope: unknown, pinned: readonly 
   };
 }
 
-const CaseIdSchema = z.string().regex(/^[A-Za-z0-9._-]{1,100}$/);
+const CaseIdSchema = SafeIdSchema;
 
 /**
  * The decision trace of a recommendation: which definitions applied, what data it rested on, who could see
@@ -87,10 +87,7 @@ export const traceRoutes: FastifyPluginAsync<TraceOptions> = async (app, { confi
    * mode asked for and routed, and the model that served it). Nothing here asks the runtime.
    */
   app.get<{ Params: { receiptId: string } }>("/receipts/:receiptId/verify", async (req) => {
-    const id = z
-      .string()
-      .regex(/^[A-Za-z0-9._-]{1,100}$/)
-      .safeParse(req.params.receiptId);
+    const id = SafeIdSchema.safeParse(req.params.receiptId);
     if (!id.success) throw new AppError("not_found", "no such receipt");
     const file = join(resolveProjectPath(config.logging.dir), "receipts", `${id.data}.json`);
     if (!existsSync(file)) throw new AppError("not_found", `no stored receipt ${id.data}`);
