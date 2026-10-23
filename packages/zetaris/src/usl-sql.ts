@@ -271,6 +271,9 @@ function resetScript(): string {
     [
       // The cached payments table outlives the database it was created in, so it is released first.
       block("uncache_payments", "UNCACHE TABLE sanctions_payments.payments_raw"),
+      // Grants name the model by an internal id, so a rebuilt model needs fresh roles and grants. Dropping a role
+      // also removes its user assignments; 09_agents_create.sql puts the users back.
+      ...USL_ROLES.map((r) => block(`drop_${r.name}`, `DROP ROLE '${r.name}'`)),
       block("remove_model", `REMOVE USL ${USL} NAMESPACE ${NAMESPACE}`),
       block("drop_lists", "DROP LIGHTNING DATABASE sanctions_lists"),
       block("drop_bank_files", "DROP LIGHTNING DATABASE sanctions_bank_files"),

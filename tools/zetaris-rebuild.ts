@@ -27,6 +27,7 @@ const steps: Array<{ label: string; args: string[] }> = [
   { label: "activate", args: sql(files ? "06_activate_files_create.sql" : "06_activate_create.sql") },
   { label: "data quality", args: sql("07_dq_create.sql") },
   { label: "access", args: sql("08_access_create.sql") },
+  { label: "runtime users", args: sql("09_agents_create.sql") },
 ];
 
 for (const step of steps) {

@@ -38,18 +38,16 @@ The application uses three **non-admin** identities, never the admin account, ea
 | `role_reviewer`       | people reviewing a case | every model table in full                    |
 | `role_eval`           | evaluation runs         | read-only                                    |
 
-`npm run zetaris:rebuild` creates the roles and the grants (and assigns the three users to them). The users are created through the REST endpoint `POST /users` (header `X-Org-ID`; there is no SQL to create a user):
+`npm run zetaris:rebuild` creates the roles and the grants and puts the three users in their roles. The users and their tokens are made by one command, which needs only the admin key:
 
 ```bash
-npm run zetaris:agents -- --apply --passwords     # create agent_evidence, agent_reviewer, agent_eval at the GENERAL level
-npm run zetaris:sql -- zetaris/sql/09_agents_create.sql --apply --skip-exists   # ASSIGN USER ... TO ROLE ...
+npm run zetaris:agents                 # lists what it would do
+npm run zetaris:agents -- --apply      # creates agent_evidence, agent_reviewer and agent_eval, assigns the roles, issues a token each
 ```
 
-The passwords are random, are never printed, and are written only to `.local/zetaris-agent-passwords.txt` (git-ignored, owner-only). The REST API issues an API token only to the signed-in user, so each token is created once in the interface:
-1. Open the Zetaris interface (http://localhost:3000) and sign in as `agent_evidence@sanctions-desk.local` with its password from that file.
-2. Open the API keys page of the profile menu, create a key, copy it into `.env` as `ZETARIS_TOKEN_EVIDENCE`. Sign out.
-3. Repeat for `agent_reviewer@sanctions-desk.local` (`ZETARIS_TOKEN_REVIEWER`) and `agent_eval@sanctions-desk.local` (`ZETARIS_TOKEN_EVAL`).
-4. Optionally, in the access-control screens, add a column policy that masks `customer_identifier.id_number` for `role_evidence_agent`.
+For each user it creates the account at the GENERAL level through `POST /users` (there is no SQL to create a user) with a random password that exists only in memory, assigns the role, signs in once through the web interface's own sign-in call, asks for an API key (`POST /auth/api-key`, valid 90 days) and writes it to `.env` as `ZETARIS_TOKEN_EVIDENCE`, `ZETARIS_TOKEN_REVIEWER` or `ZETARIS_TOKEN_EVAL`. Passwords and keys are never printed or logged. A password cannot be changed over REST (`PATCH /users/{email}` accepts the call and leaves the account unable to sign in), so a user whose password is unknown is dropped and created again.
+
+Masking `customer_identifier.id_number` for `role_evidence_agent` is a setting in the Zetaris interface (access-control screens); there is no SQL or REST call for it.
 
 Until a role has its own token, the adapter uses `ZETARIS_API_KEY` as a **labelled fallback**: every query record says `token_source: fallback`, and the decision trace shows it. The identifier numbers are masked by the adapter as well as by Zetaris (defence in depth), and a customer identifier is compared with a listed one by a join **inside Zetaris**, so the number is never read into the application.
 
@@ -110,12 +108,25 @@ Measured: the Evidence, Matching, Ownership and Memory steps read through ten ge
 
 From building this:
 - **Masking and row filters.** No SQL statement or REST endpoint for column or row policies was found; they appear to be interface-only, which makes them hard to keep in a repeatable script.
-- **Users and tokens.** There is no `CREATE USER` in SQL. Users can be created with `POST /users`, but an API token can only be created by the signed-in user in the interface, so a fully scripted setup is not possible.
+- **Users and tokens.** There is no `CREATE USER` in SQL; users are created with `POST /users`. A token is issued through the interface's own sign-in and `POST /auth/api-key` calls, which works but is not documented, and a password cannot be changed over REST. The tokens then could not read the model's tables (see "Access control" above), which is the larger gap.
 - **API specification.** The OpenAPI document needs an administrator login that the API key does not satisfy; a read-only role for it would help.
 - **Values as strings.** Every value returns as a string, so each query casts explicitly.
 - **Reserved words.** A column named `precision` is stored with its quotes and breaks the model; a clear error at compile time would have saved time.
 - **Cached tables outlive their database.** A cached REST table survived `DROP DATABASE` and had to be released first.
 - **No MCP endpoint or lineage read**, so the adapter uses REST and the statement history only.
+
+### Access control: what the live checks showed
+
+`npm run test:live` runs `packages/zetaris/test/live/roles.live.test.ts` against a running Zetaris with raw REST calls (the application's own guard is bypassed on purpose). Result of the last run, 12 of 12 checks as written:
+
+| Check                                    | evidence                                             | reviewer    | eval        |
+| ---------------------------------------- | ---------------------------------------------------- | ----------- | ----------- |
+| Signs in with its own token (`SELECT 1`) | yes                                                  | yes         | yes         |
+| `CREATE`, `DROP`, `GRANT`                | refused: "User is not permitted to run this command" | refused     | refused     |
+| Reads a table outside the model          | refused (table not found)                            | refused     | refused     |
+| Reads a table of the model               | **refused by the platform**                          | **refused** | **refused** |
+
+The last row is a limitation of the platform version used here, not of the setup: table-level `SELECT` grants exist for each role on all 14 tables (`SHOW GRANT ROLE ... ON ALL`), the users are assigned to the roles, and the tokens work, yet every read of a model table answers `User '...' does not have access to USL: metastore.sanctions.<table>`, a name that leaves out the model. Namespace-level grants, assigning the underlying databases and the data source to the role, and re-issuing the tokens did not change it (the extra assignments were removed again). Until that is resolved the application reads the model with the admin key as a **labelled fallback**: every query record says `token_source: fallback`, and the decision trace shows it. Because the roles cannot read the model, the checks that the evidence role gets a masked `id_number` and the reviewer the full value could not be run; masking is applied by the adapter, which is tested.
 
 ## The SQL guard
 
@@ -147,7 +158,7 @@ Only objects with our own names are touched (`sanctions_*`, `lightning.metastore
 
 ## What this build does not offer
 
-- **Column and row policies by SQL or REST**: not found (the API specification needs an administrator login and was not available to read). Table-level grants are SQL; masking, hiding and row filters are therefore described as interface steps above, and masking is also done in the adapter.
+- **Column and row policies by SQL or REST**: not found (the OpenAPI document needs an administrator sign-in with a password, which the API key does not satisfy). Table-level grants are SQL; masking, hiding and row filters are therefore described as interface steps above, and masking is also done in the adapter.
 - **Automated PII classification**: no SQL statement or endpoint for it exists in this build.
 - **MCP endpoint**: none is exposed, so the adapter uses REST only.
 - **Lineage**: this application does not read Zetaris lineage; evidence is linked through query ids and the platform's statement history instead.
