@@ -34,6 +34,44 @@ Rules settle what structured data can; agents add value where rules stop. On the
 
 Counts in this README (<!--fact:exam_cases-->70<!--/fact--> exam cases in <!--fact:exam_groups-->12<!--/fact--> groups, <!--fact:heldout_cases-->30<!--/fact--> held-out cases, <!--fact:edge_cases-->43<!--/fact--> edge cases) are written by `npm run readme:refresh` from the committed data.
 
+## Run one case
+
+One review from the command line, without the interface or a server. The request file holds the same body as `POST /run`; with `SAMPLE_MODE=true` no service or key is needed.
+
+```bash
+npm install
+SAMPLE_MODE=true npm run -s case -- input_examples/run-ALR-0004.json
+```
+
+The same review over HTTP, with the API running (`npm run dev`, or `docker compose up --build`):
+
+```bash
+curl -s localhost:8000/run -H 'content-type: application/json' -d @input_examples/run-ALR-0004.json
+```
+
+While it runs, `npm run case` prints one short line per step (time, agent, action, status, summary, receipt id; turn off with `TRACE_STDOUT_PRETTY=false`), then one JSON object. Shape of the answer (values from a sample-mode run; `POST /run` returns these fields and more):
+
+```json
+{
+  "run_id": "ae3c6311-1d7f-4718-9a8d-52bae7447275",
+  "status": "ok",
+  "decision": "CLOSE_FALSE_POSITIVE",
+  "confidence": 0.85,
+  "agents": ["triage", "evidence", "screener", "matching", "memory", "decision", "critic", "challenger", "policy_guard", "reporter"],
+  "trace_id": "ae3c6311-1d7f-4718-9a8d-52bae7447275",
+  "log_file": "logs/trace-ae3c6311-1d7f-4718-9a8d-52bae7447275.jsonl",
+  "record_hash": "f7c9ecf5702f91183f60c8a58ff01f95ae41c3f211f785773e69e567be67d9ff",
+  "execution_time_seconds": 0.026,
+  "sample_mode": true
+}
+```
+
+A review that cannot run prints `{"status": "error", ..., "error": {"type": "...", "message": "..."}}` and exits with a non-zero code. The request files and the kind of outcome each one gives are in [input_examples/README.md](input_examples/README.md).
+
+## Demo video
+
+Link added when recorded.
+
 ## Track 3 fit
 
 Track 3 asks for a reasoning architecture, not a prompt. Each stage of the desk is a separate, checked step:
@@ -46,6 +84,8 @@ Track 3 asks for a reasoning architecture, not a prompt. Each stage of the desk 
 ## Contents
 
 - [For judges](#for-judges)
+- [Run one case](#run-one-case)
+- [Demo video](#demo-video)
 - [Track 3 fit](#track-3-fit)
 - [What it does](#what-it-does)
 - [Try it in two minutes](#try-it-in-two-minutes)
@@ -381,13 +421,15 @@ The `data` profile needs `BANKDB_ADMIN_PASSWORD`, `BANKDB_READER_PASSWORD` and `
 
 Create the three non-admin Zetaris users and tokens as described in [docs/ZETARIS.md](docs/ZETARIS.md#roles-identities-and-tokens).
 
+**Running the API in Docker against live services.** `SAMPLE_MODE=false docker compose up --build` runs the API in a container. Inside a container, `localhost` is the container itself, so Zetaris, Nightshift and Ollama on the host are reached at `http://host.docker.internal:<port>`: `ZETARIS_REST_URL=http://host.docker.internal:8888/api/v1.0`, `METERLESS_BASE_URL=http://host.docker.internal:8088/v1`, `OLLAMA_BASE_URL=http://host.docker.internal:11434/v1`. Compose sets these three for the `api` service (override them with `DOCKER_ZETARIS_REST_URL`, `DOCKER_METERLESS_BASE_URL`, `DOCKER_OLLAMA_BASE_URL`) and adds `extra_hosts: host.docker.internal:host-gateway`, which makes the name resolve on Linux as well as on Docker Desktop. The image sets `HOST=0.0.0.0` so the API listens inside the container; outside a container the default is `127.0.0.1`, and compose publishes the port on `127.0.0.1` unless `BIND_ADDRESS` says otherwise.
+
 ## Configuration
 
 No URL, model name or timeout is written in the source. Configuration is layered, lowest priority first: `config/default.json` (committed defaults), `config/local.json` (git-ignored, this machine's non-secret settings such as a pinned receipt key), the file named by `CONFIG_FILE`, then environment variables, which are the only place secrets may come from. Invalid configuration stops the process at start-up. Secrets print as `[REDACTED]`.
 
 | Variable                                                              | Overrides                      | Notes                                                                                                                                          |
 | --------------------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `HOST`, `PORT`                                                        | `server.*`                     | Defaults `0.0.0.0`, `8000`.                                                                                                                    |
+| `HOST`, `PORT`                                                        | `server.*`                     | Defaults `127.0.0.1`, `8000`. The container image and compose set `HOST=0.0.0.0` inside the container.                                        |
 | `WEB_ORIGINS`                                                         | `server.webOrigins`            | Browser origins allowed to call the API (the review desk interface). Comma separated.                                                          |
 | `DOCS_ENABLED`                                                        | `server.docs`                  | Serve the OpenAPI description and Swagger UI at `/docs`. On by default.                                                                        |
 | `METERLESS_APP_REASONING`                                             | `nightshift.apps.reasoning`    | App identity for the decision, critic and challenger calls; bind it to `deep` in the Nightshift cockpit.                                       |
@@ -399,6 +441,7 @@ No URL, model name or timeout is written in the source. Configuration is layered
 | `DESK_SIGNING_PUBLIC_KEY`                                             | `actions.publicKey`            | Ed25519 public key (base64) that signed records are checked against.                                                                           |
 | `NEXT_PUBLIC_API_URL`                                                 | none                           | Where the browser reaches the API (the review desk interface, `apps/web`). Default `http://localhost:8000`. Fixed when the interface is built. |
 | `LOG_LEVEL`, `LOG_DIR`                                                | `logging.*`                    | A relative `LOG_DIR` is resolved from the project root.                                                                                        |
+| `TRACE_STDOUT_PRETTY`                                                 | `logging.pretty`               | `true` prints one short line per trace event (time, agent, action, status, summary, receipt id) instead of the JSON line. Off by default; `npm run case` turns it on. |
 | `SAMPLE_MODE`                                                         | `sampleMode`                   | `true` runs on saved answers and the labelled stand-in.                                                                                        |
 | `ZETARIS_REST_URL`, `ZETARIS_ORG_ID`                                  | `zetaris.*`                    |                                                                                                                                                |
 | `ZETARIS_UI_URL`                                                      | none                           | The Zetaris web interface, used only by `npm run zetaris:agents` to issue the runtime tokens. Default `http://localhost:3000`.                 |
@@ -528,7 +571,7 @@ The Ollama backup (`nemotron-3.5-lightning:30b`) answers only if Nightshift cann
 - **Meterless Nightshift** is the primary model provider. The app connects with `METERLESS_BASE_URL`, a bearer key and the `meterless-app` header, asks for a pinned mode per step, and stores each call's signed receipt.
 - **NVIDIA Nemotron** is the only family of language models used, in the steps above.
 
-**Development tools.** Built with Claude Code. AI-assisted coding was used for scaffolding, tests, debugging and documentation. All generated code was reviewed and tested.
+**Development tools.** Built with Claude Code. AI-assisted coding was used for scaffolding, tests, debugging and documentation. All generated code was reviewed and tested. Cursor was not used.
 
 **External tools and libraries.** Node.js, TypeScript, Fastify, Zod, Pino, Next.js and React, Vitest and Biome, and `tsx`; Postgres for the synthetic bank database; Docker for packaging. Security checks used npm audit, Semgrep, Trivy, Gitleaks and ZAP. Versions are in `package-lock.json`.
 
@@ -541,6 +584,8 @@ The Ollama backup (`nemotron-3.5-lightning:30b`) answers only if Nightshift cann
 **Sample mode.** With `SAMPLE_MODE=true` the desk runs without Zetaris or Nightshift. It replays saved answers recorded from real Zetaris runs, runs the real agent logic on them, and uses a rules-based stand-in in place of the language models. The interface says so in a banner on every page, and every record made this way carries a sample notice. Sample mode never presents the stand-in's output as a Nemotron answer.
 
 ## Pre-existing work
+
+Pre-existing components: none; first commit 22 Oct 2026.
 
 No pre-existing code; everything in this repository was built during the build window (22–27 Oct 2026). Third-party code: Meterless engine specs/reference and conformance suites (Apache-2.0), see `NOTICE`.
 
