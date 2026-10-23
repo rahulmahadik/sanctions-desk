@@ -4,6 +4,7 @@
  *   npm run exam -- --variant routed          the full system, routed across the model lanes
  *   npm run exam -- --variant single          one recommendation, no critic, no memory
  *   npm run exam -- --variant local           reasoning off everywhere (local lane only)
+ *   npm run exam -- --variant lightning       decision, critic and challenger sent under the guard identity (bound to the local model)
  *   npm run exam -- --variant rules           the labelled rules model instead of a language model
  *   npm run exam -- --variant fuzzy           baseline: name score threshold, no model, no data layer
  *   npm run exam -- --variant escalate_all    baseline: every alert goes to a person
@@ -15,6 +16,7 @@
 
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { join } from "node:path";
 import {
   buildTraceContract,
@@ -60,7 +62,7 @@ const examName = flag("--exam") ?? "exam";
 if (!["exam", "heldout"].includes(examName)) throw new Error("--exam must be exam or heldout");
 const runPrefix = examName === "heldout" ? "eval-heldout" : "eval";
 const limit = flag("--limit") ? Number(flag("--limit")) : undefined;
-const VARIANTS = ["routed", "single", "local", "rules", "fuzzy", "escalate_all", "no_memory"];
+const VARIANTS = ["routed", "single", "local", "lightning", "rules", "fuzzy", "escalate_all", "no_memory"];
 if (!VARIANTS.includes(variant)) throw new Error(`--variant must be one of ${VARIANTS.join(", ")}`);
 
 const baseConfig = loadConfig();
@@ -74,6 +76,21 @@ if (variant === "local") {
       ...policy.models,
       decision: { ...policy.models.decision, ...off, model: "fast" },
       critic: { ...policy.models.critic, ...off, model: "fast" },
+    },
+  };
+}
+
+if (variant === "lightning") {
+  // A labelled comparison run: the decision, critic and challenger calls go out under the guard identity, which the
+  // cockpit binds to the local model, so Nemotron 3.5 Lightning answers them all.
+  const local = { model: "fast", identity: "guard" as const };
+  policy = {
+    ...policy,
+    models: {
+      ...policy.models,
+      decision: { ...policy.models.decision, ...local },
+      critic: { ...policy.models.critic, ...local },
+      challenger: { ...policy.models.challenger, ...local },
     },
   };
 }
@@ -181,6 +198,28 @@ function challengerFields(
   };
 }
 
+/**
+ * How the Nightshift cockpit routes the app identities this run used, read from the runtime's own app-policy file when
+ * this machine has it. The receipts say the same thing per call; this puts it in one line of the result file.
+ */
+function cockpitBinds(p: Policy): Record<string, string> | undefined {
+  try {
+    const file = join(homedir(), "Library", "Application Support", "ai.meterless.runtime", "state", "app-policy.json");
+    const doc = JSON.parse(readFileSync(file, "utf8")) as Record<
+      string,
+      { mode?: string | null; lanes?: string[] | null }
+    >;
+    const out: Record<string, string> = {};
+    for (const identity of new Set(Object.values(p.models).map((m) => m.identity))) {
+      const app = identity === "default" ? config.nightshift.appId : config.nightshift.apps?.[identity];
+      if (app) out[app] = doc[app]?.mode ?? "unbound";
+    }
+    return out;
+  } catch {
+    return undefined;
+  }
+}
+
 /** What this run had: the code version and the settings that change behaviour, so a report can say which runs had what. */
 function runFeatures(p: Policy) {
   let commit = "unknown";
@@ -195,6 +234,8 @@ function runFeatures(p: Policy) {
     commit,
     structured_output: p.structuredOutput,
     challenger: p.challenger,
+    cockpit_binds: cockpitBinds(p),
+    app_identities: Object.fromEntries(Object.entries(p.models).map(([step, m]) => [step, m.identity])),
     tries_per_model_step: "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
     provider_backoff_ms: PROVIDER_BACKOFF_MS,
     challenger_points: "up to eight, strongest first",

@@ -55,6 +55,7 @@
     "heldout:load": "tsx tools/heldout-load.ts",
     "screenshots": "tsx tools/screenshots.ts",
     "mcp": "tsx tools/mcp-server.ts",
+    "study:models": "tsx tools/model-study.ts",
     "bench:api": "tsx tools/load-test.ts",
     "lab:routing": "tsx tools/nightshift-lab.ts",
     "users:add": "tsx tools/users-add.ts",
