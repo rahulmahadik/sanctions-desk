@@ -395,6 +395,169 @@
         "documents_disagree"
       ],
       "note": "The name, birth date and nationality agree; a one-character difference in the document number is more likely a typing slip than a different person."
+    },
+    {
+      "case_id": "HO-019",
+      "group": "beyond_rules",
+      "kind": "ho_clear_verified_passport",
+      "title": "Exact name, no birth date on record; a note gives a verified passport with another date of birth",
+      "alert_id": "ALR-H0019",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0019",
+      "entry_id": "OFAC-56890",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "clearing_evidence_in_text"
+      ],
+      "note": "The structured birth date is empty, so the rules cannot clear it. The note names the check, a document number that is not the listed one and a birth date years away from the listed one."
+    },
+    {
+      "case_id": "HO-020",
+      "group": "beyond_rules",
+      "kind": "ho_clear_verified_id_age",
+      "title": "Exact name; a note gives a verified identity card and an age that cannot be the listed person",
+      "alert_id": "ALR-H0020",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0020",
+      "entry_id": "OFAC-15003",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "clearing_evidence_in_text"
+      ],
+      "note": "The note quotes a verified identity card with a date of birth about thirty years from the listed one."
+    },
+    {
+      "case_id": "HO-021",
+      "group": "beyond_rules",
+      "kind": "ho_clear_namesake_registered",
+      "title": "Exact name; a note identifies a registered professional with a different birth date",
+      "alert_id": "ALR-H0021",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0021",
+      "entry_id": "OFAC-27247",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "clearing_evidence_in_text"
+      ],
+      "note": "The note gives a professional registration number and a birth date that conflicts with every listed date."
+    },
+    {
+      "case_id": "HO-022",
+      "group": "beyond_rules",
+      "kind": "ho_clear_alias_other_person",
+      "title": "The customer's name equals a strong alias; a note gives a passport and a birth date twenty years away",
+      "alert_id": "ALR-H0022",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0022",
+      "entry_id": "OFAC-29259",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "alias_pattern",
+        "free_text_note",
+        "clearing_evidence_in_text"
+      ],
+      "note": "The name matches a strong alias exactly, which looks serious, but the note gives a document number that is not listed and a birth date that conflicts."
+    },
+    {
+      "case_id": "HO-023",
+      "group": "beyond_rules",
+      "kind": "ho_clear_remarks_parents_differ",
+      "title": "Exact name and the same nationality; the parents' names in the note differ from those in the listed remarks",
+      "alert_id": "ALR-H0023",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0023",
+      "entry_id": "UN-QDi.252",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_list_remarks",
+        "free_text_note",
+        "clearing_evidence_in_text"
+      ],
+      "note": "The listed remarks give the parents' names. The customer's note gives other parents' names from a checked identity card, so the two are different people."
+    },
+    {
+      "case_id": "HO-024",
+      "group": "beyond_rules",
+      "kind": "ho_clear_remarks_mother_differs",
+      "title": "Exact name and the same nationality; the mother's name in the note differs from the listed remarks",
+      "alert_id": "ALR-H0024",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0024",
+      "entry_id": "UN-QDi.064",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_list_remarks",
+        "free_text_note",
+        "clearing_evidence_in_text"
+      ],
+      "note": "The listed remarks name the mother. The customer's note names another mother from a checked identity card."
+    },
+    {
+      "case_id": "HO-025",
+      "group": "beyond_rules",
+      "kind": "ho_clear_ref_other_company",
+      "title": "The counterparty name equals a listed company and has no country; the reference gives a registered company elsewhere",
+      "alert_id": "ALR-H0025",
+      "alert_type": "payment",
+      "customer_id": "CUST-H0025",
+      "entry_id": "OFAC-17014",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_payment_reference",
+        "clearing_evidence_in_text"
+      ],
+      "note": "A counterparty with no usable country cannot be cleared by the rules. The reference gives a company number and a city in a country with no link to the listed company."
+    },
+    {
+      "case_id": "HO-026",
+      "group": "beyond_rules",
+      "kind": "ho_clear_ref_other_individual",
+      "title": "The counterparty name equals a listed individual and has no country; the reference is a payroll line with another birth date",
+      "alert_id": "ALR-H0026",
+      "alert_type": "payment",
+      "customer_id": "CUST-H0026",
+      "entry_id": "OFAC-30965",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_payment_reference",
+        "clearing_evidence_in_text"
+      ],
+      "note": "The reference shows a salary payment to an employee whose birth date is decades from the listed individual's."
     }
   ]
 }

@@ -7,7 +7,7 @@ import { shortHash, type TableRows } from "../model.js";
 import { csvOf } from "../snapshot.js";
 import { BankBuilder, CURRENT_TIME, EXAM_GROUP_SIZES, type ExamCase } from "./builder.js";
 import { addDelistingExtras, buildExamCases } from "./cases.js";
-import { buildHeldoutCases, heldoutCaseIds } from "./heldout.js";
+import { buildClearingCases, buildHeldoutCases, heldoutCaseIds } from "./heldout.js";
 import {
   emptySyntheticTables,
   SYNTHETIC_LABEL,
@@ -324,6 +324,7 @@ export function buildBank(
     "H",
   );
   buildHeldoutCases(hb);
+  buildClearingCases(hb);
   const heldout = heldoutCaseIds(hb.cases);
 
   const problems = validateBank(tables, list, [...b.cases, ...heldout]);

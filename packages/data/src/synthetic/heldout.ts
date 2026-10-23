@@ -27,6 +27,8 @@ interface Spec {
   acceptable: ExamCase["acceptable"];
   note: string;
   edge: string[];
+  /** Answers that must never be given; by default a close, since most of the set is cautious. */
+  mustNot?: ExamCase["must_not"];
 }
 
 function record(b: BankBuilder, s: Spec): void {
@@ -40,7 +42,7 @@ function record(b: BankBuilder, s: Spec): void {
     entry_id: s.entryId,
     expected: s.expected,
     acceptable: s.acceptable,
-    must_not: [...NOT_CLOSE],
+    must_not: [...(s.mustNot ?? NOT_CLOSE)],
     edge_cases: s.edge,
     note: s.note,
   });
@@ -458,6 +460,229 @@ export function buildHeldoutCases(b: BankBuilder): void {
       acceptable: ESCALATE_OR_ASK,
       note: "The name, birth date and nationality agree; a one-character difference in the document number is more likely a typing slip than a different person.",
       edge: ["documents_disagree"],
+    });
+  }
+}
+
+/**
+ * The second part of the held-out set, added before any run on it: cases where free text correctly clears a match
+ * that looks strong. They are labelled with a close as the only right answer, so escalating them is a miss. They
+ * keep the set from rewarding a system that escalates everything. Each clearing fact is specific and checkable
+ * (a document number, a date of birth, a registry number, a named unlisted party), not a bare claim.
+ */
+export function buildClearingCases(b: BankBuilder): void {
+  const CLOSE = "CLOSE_FALSE_POSITIVE" as const;
+  const yearsLater = (dob: string, years: number): string => `${Number(dob.slice(0, 4)) + years}${dob.slice(4)}`;
+  const kyc = () => `KYC-${b.rng.int(100000, 999999)}`;
+  const base = (kind: string, title: string, note: string, edge: string[]) => ({
+    kind,
+    title,
+    expected: CLOSE,
+    acceptable: [] as ExamCase["acceptable"],
+    mustNot: ["RECOMMEND_BLOCK"] as ExamCase["must_not"],
+    note,
+    edge,
+  });
+  const individual = (c: Candidate) => person(c) && fullDobOf(c.party) !== null && nationalityOf(c.party) !== null;
+
+  // F. The customer's note carries a verified document that shows a different person.
+  const verified: Array<{ kind: string; title: string; note: string; text: (c: Candidate) => string; years: number }> =
+    [
+      {
+        kind: "ho_clear_verified_passport",
+        title: "Exact name, no birth date on record; a note gives a verified passport with another date of birth",
+        note: "The structured birth date is empty, so the rules cannot clear it. The note names the check, a document number that is not the listed one and a birth date years away from the listed one.",
+        text: (c) =>
+          `Identity verified at branch visit (${kyc()}): passport ZP${b.rng.int(1000000, 9999999)}, date of birth ${yearsLater(fullDobOf(c.party) as string, 14)}.`,
+        years: 14,
+      },
+      {
+        kind: "ho_clear_verified_id_age",
+        title: "Exact name; a note gives a verified identity card and an age that cannot be the listed person",
+        note: "The note quotes a verified identity card with a date of birth about thirty years from the listed one.",
+        text: (c) =>
+          `National ID checked by compliance (${kyc()}): born ${yearsLater(fullDobOf(c.party) as string, 31)}, ID ${b.rng.int(10000000, 99999999)}.`,
+        years: 31,
+      },
+      {
+        kind: "ho_clear_namesake_registered",
+        title: "Exact name; a note identifies a registered professional with a different birth date",
+        note: "The note gives a professional registration number and a birth date that conflicts with every listed date.",
+        text: (c) =>
+          `Registered pharmacist, council no. ${b.rng.int(2000000, 2999999)}, born ${yearsLater(fullDobOf(c.party) as string, -9)}; verified ${kyc()}.`,
+        years: -9,
+      },
+    ];
+  for (const v of verified) {
+    const c = b.pick(v.kind, individual);
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: c.natural,
+      date_of_birth: null,
+      nationality: otherCountry(b.rng, [nationalityOf(c.party)]),
+      residence_country: "GB",
+      notes: v.text(c),
+    });
+    const alert = b.alert({ customer, candidate: c, source: "customer_name", matchedName: c.natural, score: 0.97 });
+    record(b, {
+      ...base(v.kind, v.title, v.note, ["free_text_note", "clearing_evidence_in_text"]),
+      alertId: alert.alert_id,
+      alertType: "customer",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+    });
+  }
+
+  // G. A strong alias match, cleared by a verified document in the note.
+  {
+    const c = b.pick("ho_clear_alias_other_person", (x) => individual(x) && x.party.aliases.some((a) => a.strong));
+    const alias = c.party.aliases.find((a) => a.strong)?.name ?? c.natural;
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: alias,
+      date_of_birth: null,
+      nationality: otherCountry(b.rng, [nationalityOf(c.party)]),
+      residence_country: "GB",
+      notes: `Passport ZQ${b.rng.int(1000000, 9999999)} seen and copied at onboarding (${kyc()}); date of birth ${yearsLater(fullDobOf(c.party) as string, 22)}.`,
+    });
+    const alert = b.alert({ customer, candidate: c, source: "customer_name", matchedName: alias, score: 0.96 });
+    record(b, {
+      ...base(
+        "ho_clear_alias_other_person",
+        "The customer's name equals a strong alias; a note gives a passport and a birth date twenty years away",
+        "The name matches a strong alias exactly, which looks serious, but the note gives a document number that is not listed and a birth date that conflicts.",
+        ["alias_pattern", "free_text_note", "clearing_evidence_in_text"],
+      ),
+      alertId: alert.alert_id,
+      alertType: "customer",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+    });
+  }
+
+  // H. The listed party's remarks exclude the customer.
+  {
+    const c = byEntry(b, "UN-QDi.252");
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: c.natural,
+      date_of_birth: null,
+      nationality: nationalityOf(c.party) ?? "DZ",
+      residence_country: "FR",
+      notes: "Mother's name Houria Benali; father's name Said. Identity card checked at branch, born in Oran.",
+    });
+    const alert = b.alert({ customer, candidate: c, source: "customer_name", matchedName: c.natural, score: 0.95 });
+    record(b, {
+      ...base(
+        "ho_clear_remarks_parents_differ",
+        "Exact name and the same nationality; the parents' names in the note differ from those in the listed remarks",
+        "The listed remarks give the parents' names. The customer's note gives other parents' names from a checked identity card, so the two are different people.",
+        ["free_text_list_remarks", "free_text_note", "clearing_evidence_in_text"],
+      ),
+      alertId: alert.alert_id,
+      alertType: "customer",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+    });
+  }
+  {
+    const c = byEntry(b, "UN-QDi.064");
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: c.natural,
+      date_of_birth: null,
+      nationality: nationalityOf(c.party) ?? "TN",
+      residence_country: "FR",
+      notes: "Mother's name Salma Trabelsi. Identity card checked at branch.",
+    });
+    const alert = b.alert({ customer, candidate: c, source: "customer_name", matchedName: c.natural, score: 0.95 });
+    record(b, {
+      ...base(
+        "ho_clear_remarks_mother_differs",
+        "Exact name and the same nationality; the mother's name in the note differs from the listed remarks",
+        "The listed remarks name the mother. The customer's note names another mother from a checked identity card.",
+        ["free_text_list_remarks", "free_text_note", "clearing_evidence_in_text"],
+      ),
+      alertId: alert.alert_id,
+      alertType: "customer",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+    });
+  }
+
+  // I. A payment reference names a different party that is not listed.
+  {
+    const c = b.pick("ho_clear_ref_other_company", (x) => company(x));
+    const customer = b.customer({
+      customer_type: "company",
+      full_name: companyName(b.rng),
+      nationality: "GB",
+      residence_country: "GB",
+    });
+    b.identifier(customer.customer_id, "registration", `REG-${b.rng.int(100000, 999999)}`, "GB");
+    const payment = b.payment({
+      customer_id: customer.customer_id,
+      counterparty_name: c.natural,
+      counterparty_country: "XX",
+      payment_reference: `Invoice 20261-77 to ${c.natural} (Pty), company no. ${b.rng.int(100000000, 999999999)}, Auckland NZ; unrelated to any listed entity of the same name`,
+      amount: String(b.rng.int(3000, 40000)),
+    });
+    const alert = b.alert({
+      customer,
+      candidate: c,
+      source: "payment",
+      paymentId: payment.payment_id,
+      matchedName: c.natural,
+      score: 0.96,
+    });
+    record(b, {
+      ...base(
+        "ho_clear_ref_other_company",
+        "The counterparty name equals a listed company and has no country; the reference gives a registered company elsewhere",
+        "A counterparty with no usable country cannot be cleared by the rules. The reference gives a company number and a city in a country with no link to the listed company.",
+        ["free_text_payment_reference", "clearing_evidence_in_text"],
+      ),
+      alertId: alert.alert_id,
+      alertType: "payment",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+    });
+  }
+  {
+    const c = b.pick("ho_clear_ref_other_individual", individual);
+    const customer = b.customer({
+      customer_type: "company",
+      full_name: companyName(b.rng),
+      nationality: "GB",
+      residence_country: "GB",
+    });
+    b.identifier(customer.customer_id, "registration", `REG-${b.rng.int(100000, 999999)}`, "GB");
+    const payment = b.payment({
+      customer_id: customer.customer_id,
+      counterparty_name: c.natural,
+      counterparty_country: "XX",
+      payment_reference: `Salary April, employee ${b.rng.int(1000, 9999)}, born ${yearsLater(fullDobOf(c.party) as string, 27)}, payroll batch 26-04`,
+      amount: String(b.rng.int(2000, 6000)),
+    });
+    const alert = b.alert({
+      customer,
+      candidate: c,
+      source: "payment",
+      paymentId: payment.payment_id,
+      matchedName: c.natural,
+      score: 0.95,
+    });
+    record(b, {
+      ...base(
+        "ho_clear_ref_other_individual",
+        "The counterparty name equals a listed individual and has no country; the reference is a payroll line with another birth date",
+        "The reference shows a salary payment to an employee whose birth date is decades from the listed individual's.",
+        ["free_text_payment_reference", "clearing_evidence_in_text"],
+      ),
+      alertId: alert.alert_id,
+      alertType: "payment",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
     });
   }
 }
