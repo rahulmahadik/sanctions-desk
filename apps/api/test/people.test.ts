@@ -350,7 +350,7 @@ describe("with auth on", () => {
       bearer(TOKENS.analyst.slice(0, -1)),
       { authorization: "Bearer " },
       { authorization: TOKENS.analyst },
-      bearer(`${TOKENS.analyst} `.trim() + "x"),
+      bearer(`${TOKENS.analyst}x`),
     ])
       expect((await ctx.app.inject({ method: "GET", url: "/me", headers: h })).statusCode).toBe(401);
   });
