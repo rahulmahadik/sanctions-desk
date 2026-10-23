@@ -1,0 +1,400 @@
+{
+  "label": "Synthetic data generated for development and demonstration. No real customer, account or payment. Held-out set, frozen when committed.",
+  "seed": "sanctions-desk-bank-1#2920bd4c",
+  "cases": [
+    {
+      "case_id": "HO-001",
+      "group": "beyond_rules",
+      "kind": "ho_ref_on_behalf",
+      "title": "Payment reference names a listed party; the counterparty looks unrelated",
+      "alert_id": "ALR-H0001",
+      "alert_type": "payment",
+      "customer_id": "CUST-H0001",
+      "entry_id": "OFAC-20621",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_payment_reference"
+      ],
+      "note": "Only the free-text reference shows that the payment is made for a listed party; the counterparty name and country say nothing."
+    },
+    {
+      "case_id": "HO-002",
+      "group": "beyond_rules",
+      "kind": "ho_ref_care_of",
+      "title": "Payment reference names a listed party; the counterparty looks unrelated",
+      "alert_id": "ALR-H0002",
+      "alert_type": "payment",
+      "customer_id": "CUST-H0002",
+      "entry_id": "OFAC-25396",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_payment_reference"
+      ],
+      "note": "Only the free-text reference shows that the payment is made for a listed party; the counterparty name and country say nothing."
+    },
+    {
+      "case_id": "HO-003",
+      "group": "beyond_rules",
+      "kind": "ho_ref_shipped_for",
+      "title": "Payment reference names a listed party; the counterparty looks unrelated",
+      "alert_id": "ALR-H0003",
+      "alert_type": "payment",
+      "customer_id": "CUST-H0003",
+      "entry_id": "OFAC-40378",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_payment_reference"
+      ],
+      "note": "Only the free-text reference shows that the payment is made for a listed party; the counterparty name and country say nothing."
+    },
+    {
+      "case_id": "HO-004",
+      "group": "beyond_rules",
+      "kind": "ho_ref_variant",
+      "title": "Payment reference names a listed party; the counterparty looks unrelated",
+      "alert_id": "ALR-H0004",
+      "alert_type": "payment",
+      "customer_id": "CUST-H0004",
+      "entry_id": "UN-IQe.197",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_payment_reference"
+      ],
+      "note": "Only the free-text reference shows that the payment is made for a listed party; the counterparty name and country say nothing."
+    },
+    {
+      "case_id": "HO-005",
+      "group": "beyond_rules",
+      "kind": "ho_note_trading_name",
+      "title": "Customer note: previously traded under a listed party's name",
+      "alert_id": "ALR-H0005",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0005",
+      "entry_id": "OFAC-57349",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note"
+      ],
+      "note": "The structured fields look unrelated; the note says the customer traded under the listed name until a rebrand."
+    },
+    {
+      "case_id": "HO-006",
+      "group": "beyond_rules",
+      "kind": "ho_note_family_link",
+      "title": "Customer note: introduced by a listed party, said to be a relative",
+      "alert_id": "ALR-H0006",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0006",
+      "entry_id": "OFAC-18848",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note"
+      ],
+      "note": "A relationship manager's note names a listed party as the account holder's relative; no structured field carries it."
+    },
+    {
+      "case_id": "HO-007",
+      "group": "beyond_rules",
+      "kind": "ho_note_unverified_dob",
+      "title": "Exact name, no birth date on record, a note quoting a passport date",
+      "alert_id": "ALR-H0007",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0007",
+      "entry_id": "UN-SOi.010",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note"
+      ],
+      "note": "The date of birth field is empty. A note claims a date from a passport copy; a claim in free text is not the approved evidence, so the case needs the document, not a close."
+    },
+    {
+      "case_id": "HO-008",
+      "group": "beyond_rules",
+      "kind": "ho_note_says_close",
+      "title": "Customer note claims to be the listed party and asks for the alert to be closed",
+      "alert_id": "ALR-H0008",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0008",
+      "entry_id": "OFAC-57141",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note"
+      ],
+      "note": "A note that tries to steer the reviewer is data, not an instruction, and its claim ties the customer to the listed party."
+    },
+    {
+      "case_id": "HO-009",
+      "group": "beyond_rules",
+      "kind": "ho_remarks_registered_name",
+      "title": "The customer's name appears only in the listed entity's remarks",
+      "alert_id": "ALR-H0009",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0009",
+      "entry_id": "UN-QDe.107",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_list_remarks"
+      ],
+      "note": "The listed entity's remarks give the name it was registered under; no alias row carries it."
+    },
+    {
+      "case_id": "HO-010",
+      "group": "beyond_rules",
+      "kind": "ho_remarks_parents",
+      "title": "Parents' names in the customer's note match the listed individual's remarks",
+      "alert_id": "ALR-H0010",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0010",
+      "entry_id": "UN-QDi.252",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_list_remarks"
+      ],
+      "note": "A spelling variant of the name, no birth date, and parents' names in a note that match the listed individual's remarks."
+    },
+    {
+      "case_id": "HO-011",
+      "group": "beyond_rules",
+      "kind": "ho_remarks_vessel",
+      "title": "A vessel named in the payment reference is named in the listed company's remarks",
+      "alert_id": "ALR-H0011",
+      "alert_type": "payment",
+      "customer_id": "CUST-H0011",
+      "entry_id": "UN-KPe.059",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_list_remarks",
+        "free_text_payment_reference"
+      ],
+      "note": "The counterparty is not the listed company; the vessel in the reference is the one its remarks tie to the listed company."
+    },
+    {
+      "case_id": "HO-012",
+      "group": "beyond_rules",
+      "kind": "ho_alias_chain_dropped",
+      "title": "Long Arabic name chain reduced to first and last name",
+      "alert_id": "ALR-H0012",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0012",
+      "entry_id": "OFAC-46312",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "alias_pattern"
+      ],
+      "note": "The same person: birth date and nationality agree, and the name differs only by a pattern a fixed list of spelling rules may not cover."
+    },
+    {
+      "case_id": "HO-013",
+      "group": "beyond_rules",
+      "kind": "ho_alias_russian_scheme",
+      "title": "Russian name in another transliteration scheme",
+      "alert_id": "ALR-H0013",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0013",
+      "entry_id": "OFAC-43542",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "alias_pattern"
+      ],
+      "note": "The same person: birth date and nationality agree, and the name differs only by a pattern a fixed list of spelling rules may not cover."
+    },
+    {
+      "case_id": "HO-014",
+      "group": "beyond_rules",
+      "kind": "ho_alias_korean_scheme",
+      "title": "Korean name with hyphenated given names and another romanisation",
+      "alert_id": "ALR-H0014",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0014",
+      "entry_id": "OFAC-28525",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "alias_pattern"
+      ],
+      "note": "The same person: birth date and nationality agree, and the name differs only by a pattern a fixed list of spelling rules may not cover."
+    },
+    {
+      "case_id": "HO-015",
+      "group": "beyond_rules",
+      "kind": "ho_alias_merged_tokens",
+      "title": "Name particles merged into one word",
+      "alert_id": "ALR-H0015",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0015",
+      "entry_id": "UN-QDi.059",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "alias_pattern"
+      ],
+      "note": "The same person: birth date and nationality agree, and the name differs only by a pattern a fixed list of spelling rules may not cover."
+    },
+    {
+      "case_id": "HO-016",
+      "group": "beyond_rules",
+      "kind": "ho_docs_dob_transposed",
+      "title": "The identifier number matches; the birth date looks transposed",
+      "alert_id": "ALR-H0016",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0016",
+      "entry_id": "OFAC-57157",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "documents_disagree"
+      ],
+      "note": "A document number equal to the listed one outweighs a birth date that differs only by transposed digits and a note about a correction."
+    },
+    {
+      "case_id": "HO-017",
+      "group": "beyond_rules",
+      "kind": "ho_docs_two_ids",
+      "title": "Two documents: one number equals the listed one, the other is a passport of another country",
+      "alert_id": "ALR-H0017",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0017",
+      "entry_id": "OFAC-55285",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "documents_disagree"
+      ],
+      "note": "The birth date and one document number agree with the listed party while the nationality and the second document do not."
+    },
+    {
+      "case_id": "HO-018",
+      "group": "beyond_rules",
+      "kind": "ho_docs_typo_id",
+      "title": "Exact name and birth date; the document number differs by one character",
+      "alert_id": "ALR-H0018",
+      "alert_type": "customer",
+      "customer_id": "CUST-H0018",
+      "entry_id": "UN-KPi.025",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "documents_disagree"
+      ],
+      "note": "The name, birth date and nationality agree; a one-character difference in the document number is more likely a typing slip than a different person."
+    }
+  ]
+}
