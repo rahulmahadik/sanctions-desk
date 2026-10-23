@@ -41,6 +41,8 @@ interface LabelSet {
 interface Result {
   features?: Features;
   variant: string;
+  /** The version of the system under test (for example sys2); absent for the first system. */
+  system?: string;
   tag?: string;
   /** "heldout" for a run of the held-out set; absent for the main exam. */
   exam?: string;
@@ -91,7 +93,12 @@ const earlier: Array<Result & { file: string; original?: Metrics }> = [];
 for (const f of files) {
   const r = JSON.parse(readFileSync(join(dir, f), "utf8")) as Result;
   const partial =
-    r.exam !== undefined || r.tag !== undefined || r.selection?.kinds || r.selection?.groups || r.selection?.limit;
+    r.exam !== undefined ||
+    r.system !== undefined ||
+    r.tag !== undefined ||
+    r.selection?.kinds ||
+    r.selection?.groups ||
+    r.selection?.limit;
   if (!partial) {
     const previous = newest.get(r.variant);
     if (previous) earlier.push({ ...previous, original: originalScore.get(r.variant) });
@@ -100,12 +107,20 @@ for (const f of files) {
   }
 }
 
+/** Newest complete runs of later system versions and of baselines on the second held-out set, by "system|exam|variant". */
+const laterRuns = new Map<string, Result & { file: string }>();
 /** The newest complete run of each variant on the held-out set, scored against the held-out labels. */
 const heldoutNewest = new Map<string, Result & { file: string }>();
 for (const f of files) {
   const r = JSON.parse(readFileSync(join(dir, f), "utf8")) as Result;
-  if (r.exam === "heldout" && r.tag === undefined && !r.selection?.kinds && !r.selection?.groups && !r.selection?.limit)
+  const whole = r.tag === undefined && !r.selection?.kinds && !r.selection?.groups && !r.selection?.limit;
+  if (r.exam === "heldout" && r.system === undefined && whole)
     heldoutNewest.set(r.variant, { ...r, metrics: summarise(r.cases), file: f });
+  // Runs of a later system version, kept apart so they never replace the first system's numbers.
+  if (r.system !== undefined && whole)
+    laterRuns.set(`${r.system}|${r.exam ?? "exam"}|${r.variant}`, { ...r, metrics: summarise(r.cases), file: f });
+  if (r.exam === "heldout2" && r.system === undefined && whole)
+    laterRuns.set(`baseline|heldout2|${r.variant}`, { ...r, metrics: summarise(r.cases), file: f });
 }
 
 const config = loadConfig();
@@ -432,6 +447,33 @@ if (full || hoFull) {
     "|---|---|---:|---:|---:|---:|---:|---:|",
     ...(full ? byPath(full.cases).map((p) => pathRow("70 cases", p)) : []),
     ...(hoFull ? byPath(hoFull.cases).map((p) => pathRow("held-out", p)) : []),
+    "",
+  );
+}
+
+// ---- before and after the free-text screener ----------------------------------------------------------
+const after = (exam: string) => laterRuns.get(`sys2|${exam}|routed`);
+if ([...laterRuns.keys()].some((k) => k.startsWith("sys2|"))) {
+  const fcRow = (label: string, r: Result | undefined) => {
+    if (!r) return `| ${label} | not run | | | |`;
+    const d = directions(r.cases);
+    const fc = d.risk - d.caught;
+    return `| ${label} | ${fc} of ${d.risk} | ${d.caught} of ${d.risk} | ${d.clears > 0 ? `${d.made} of ${d.clears}` : "none in this set"} | ${d.acceptable} of ${d.total} |`;
+  };
+  lines.push(
+    "### (e) Before and after the free-text screener",
+    "",
+    "The first held-out run showed that risk stated only in free text (a customer note, a payment reference, a list remark) never reached the decision step: two such cases were wrongly closed. The system was then changed: a local model now reads the free text and passes only structured facts (risk signals and validated documentary evidence) to the cloud steps, and a risk signal blocks a close. A second held-out set was written and frozen before the changed system was run on it, so it is the blind test of the change; the first held-out set is no longer blind for the changed system. The first system's numbers are kept as they were.",
+    "",
+    "| Set and system | Risk cases wrongly closed | Risks caught | Correct clears made | Acceptable |",
+    "|---|---:|---:|---:|---:|",
+    fcRow("70 cases, first system", full),
+    fcRow("70 cases, changed system", after("exam")),
+    fcRow("Held-out v1, first system (blind)", hoFull),
+    fcRow("Held-out v1, changed system (after the fix, not blind)", after("heldout")),
+    fcRow("Held-out v2, changed system (blind)", after("heldout2")),
+    fcRow("Held-out v2, deterministic pipeline", laterRuns.get("baseline|heldout2|rules")),
+    fcRow("Held-out v2, every alert goes to a person", laterRuns.get("baseline|heldout2|escalate_all")),
     "",
   );
 }
