@@ -1,6 +1,7 @@
 import type { Decision, GuardVerdictInput, Policy } from "@sanctions-desk/shared";
 import type { DecisionOutput } from "./decision.js";
 import type { EvidenceBundle } from "./evidence.js";
+import { assessNote } from "./evidence-standard.js";
 import type { MatchResult } from "./matching.js";
 
 /**
@@ -172,6 +173,40 @@ const closeRules: Rule = ({ closing, match, policy, decision }) => {
   return out;
 };
 
+/**
+ * A close may rest on free text only when the text meets the documentary standard of the active policy. The text is
+ * read from the evidence rows, not from the model's quotation of it.
+ */
+const evidenceStandardRule: Rule = ({ closing, policy, decision, evidence, match }) => {
+  const standard = policy.evidenceStandard;
+  const cited = (table: string, column: string) =>
+    decision.facts.some((f) => f.table.toLowerCase() === table && f.column.toLowerCase() === column);
+  const relied: Array<{ label: string; missing: string[] }> = [];
+  if (cited("customer", "notes") || match.documentaryDateOfBirth)
+    relied.push({ label: "customer note", missing: assessNote({ text: evidence.customer.notes }, standard).missing });
+  if (evidence.payment && cited("payment", "payment_reference"))
+    relied.push({
+      label: "payment reference",
+      missing: assessNote(
+        {
+          text: evidence.payment.payment_reference,
+          payment: { counterpartyName: evidence.payment.counterparty_name },
+        },
+        standard,
+      ).missing,
+    });
+  if (!closing || relied.length === 0)
+    return passes("evidence_standard", closing ? "no free text relied on" : "not closing");
+  const claims = relied.filter((r) => r.missing.length > 0);
+  return claims.length > 0
+    ? fails(
+        "evidence_standard",
+        "NEED_MORE_INFO",
+        `the ${claims.map((c) => `${c.label} lacks ${c.missing.join(", ")}`).join("; ")}: a claim, not documentary evidence (policy version ${policy.version})`,
+      )
+    : passes("evidence_standard", `${relied.map((r) => r.label).join(" and ")} meets the documentary standard`);
+};
+
 const underReactionRule: Rule = ({ decision, match }) =>
   match.comparison.definitions.true_match && decision.decision === "NEED_MORE_INFO"
     ? fails("true_match_met", "ESCALATE_L2", "the approved definition of a true match is met; it goes to a person")
@@ -235,6 +270,7 @@ const RULES: readonly Rule[] = [
   definitionRule,
   dataQualityRule,
   closeRules,
+  evidenceStandardRule,
   underReactionRule,
   ownershipRule,
   jurisdictionRule,

@@ -47,3 +47,15 @@ Runs that were limited to some cases (a tag, `--kinds`, `--groups` or `--limit`)
 - Each variant in the report is **one run**. Model answers vary between runs.
 - The runtime may answer a repeated prompt from its cache; evaluation runs use their own app id so that live use does not warm it, but a second run of the same variant can still be faster and cheaper than the first.
 - A case where no model gave a usable decision is escalated with the reason "model decision unavailable". It is counted in the totals and reported separately (provider failure or unusable answer), together with the accuracy without those cases.
+
+## Definition changes
+
+Every change to what the system treats as evidence is listed here with the policy version that introduced it, so a result can be read against the rules in force when it was produced.
+
+| Policy version | Change | Made | Effect on labels |
+| --- | --- | --- | --- |
+| 2 | **Documentary evidence standard.** A customer note or payment reference counts as documentary evidence only when it carries a check reference, a document number and a date (and, for a payment, a named counterparty). Anything less is a claim and leads to NEED_MORE_INFO. A qualifying note that states a date of birth supplies it when the customer has none on record. | After the main exam runs and before the held-out run | None. Held-out labels are unchanged (freeze commits in `eval/cases/README.md`). |
+
+The definition was clarified before the held-out run, and the held-out labels were not changed. Four of the eight held-out cases labelled as clear (HO-019 to HO-022) carry notes that meet the standard. The other four (HO-023 to HO-026) rest on text that does not (no check reference, no date, or no document number), so under the standard a close on them goes to NEED_MORE_INFO and counts as a miss against their labels. That is reported as it is, with the number of clears reachable under the standard next to the number made.
+
+The rule is enforced by the policy guard (`evidence_standard`), which reads the note from the evidence rows rather than from the model's quotation, and it is recorded in every sealed decision record as a guard verdict beside the policy version. Tests cover both sides: `packages/agents/test/evidence-standard.test.ts`, `policy-guard.test.ts`, `documentary-matching.test.ts` and `heldout-standard.test.ts`.

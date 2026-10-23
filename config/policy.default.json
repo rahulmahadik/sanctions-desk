@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "name": "Default screening policy",
   "description": "Baseline behaviour of the sanctions review desk. The jurisdiction list is a configurable example, not a complete or current list. Changes go through a reviewed, four-eyes publish.",
   "lists": {
@@ -55,6 +55,13 @@
     "maxRounds": 3,
     "confidenceFloorForClose": 0.7,
     "abstainOnInvalidData": true
+  },
+  "evidenceStandard": {
+    "statement": "A note counts as documentary evidence only when it carries a check reference, a document number and a date (and, for a payment, a named counterparty). Anything less is a claim: it is shown to the reviewer and leads to NEED_MORE_INFO, never to a close.",
+    "requireCheckReference": true,
+    "requireDocumentNumber": true,
+    "requireDate": true,
+    "requireNamedCounterpartyForPayments": true
   },
   "models": {
     "triage": {

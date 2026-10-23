@@ -21,7 +21,8 @@ const errorsFor = (input: unknown): string[] => {
 describe("policy schema", () => {
   it("accepts the committed default policy", () => {
     const policy = loadPolicyFile("config/policy.default.json");
-    expect(policy.version).toBe(1);
+    expect(policy.version).toBe(2);
+    expect(policy.evidenceStandard.requireCheckReference).toBe(true);
     expect(policy.ownership.thresholdPercent).toBe(50);
     expect(policy.lists.enabled).toEqual(["OFAC", "UN"]);
     expect(policy.jurisdictions.map((j) => j.country)).toEqual(["CU", "IR", "KP"]);

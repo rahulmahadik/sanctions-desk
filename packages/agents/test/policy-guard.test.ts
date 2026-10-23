@@ -203,3 +203,78 @@ describe("payment routes that touch a watched jurisdiction", () => {
     expect(out.verdicts.find((v) => v.guard === "jurisdiction")?.verdict).toBe("block");
   });
 });
+
+describe("the documentary evidence standard", () => {
+  const documentary = "Identity verified at branch visit (KYC-482113): passport ZP1234567, date of birth 1975-03-02.";
+  const claim = "Passport copy on file shows date of birth 1975-03-02.";
+  const closeCiting = (table: string, column: string): DecisionOutput => ({
+    ...decision("CLOSE_FALSE_POSITIVE"),
+    facts: [{ table, key_value: "k", column, value: "v" }],
+  });
+  const withNote = (notes: string) =>
+    evidence({ customer: { nationality: "DE", residence_country: "GB", notes } as never });
+  const guard = (out: ReturnType<typeof run>) => out.verdicts.find((v) => v.guard === "evidence_standard");
+
+  it("lets a close rest on a note that carries a check reference, a document number and a date", () => {
+    const out = run(closeCiting("customer", "notes"), match({ assessment: "weak" }), withNote(documentary));
+    expect(out.decision).toBe("CLOSE_FALSE_POSITIVE");
+    expect(guard(out)).toMatchObject({ verdict: "pass", detail: "customer note meets the documentary standard" });
+  });
+
+  it("sends a close that rests on a claim to NEED_MORE_INFO and says what the note lacks", () => {
+    const out = run(closeCiting("customer", "notes"), match({ assessment: "weak" }), withNote(claim));
+    expect(out).toMatchObject({ decision: "NEED_MORE_INFO", changed: true });
+    expect(guard(out)).toMatchObject({ verdict: "block" });
+    expect(guard(out)?.detail).toContain("lacks a check reference, a document number");
+    expect(guard(out)?.detail).toContain(`policy version ${policy.version}`);
+  });
+
+  it("reads the evidence row, not the text the model quotes", () => {
+    const quoted: DecisionOutput = {
+      ...decision("CLOSE_FALSE_POSITIVE"),
+      facts: [{ table: "customer", key_value: "k", column: "notes", value: documentary }],
+    };
+    expect(run(quoted, match({ assessment: "weak" }), withNote(claim)).decision).toBe("NEED_MORE_INFO");
+  });
+
+  it("holds a payment reference to the same standard and also asks for a named counterparty", () => {
+    const reference = "Refund checked (KYC-482113): passport ZP1234567 issued 2019-05-02.";
+    const payment = (counterparty_name: string | null, payment_reference: string) =>
+      evidence({ payment: { counterparty_name, payment_reference, counterparty_country: "NL" } as never });
+    const cite = closeCiting("payment", "payment_reference");
+    expect(run(cite, match({ assessment: "weak" }), payment("Bridge Marine Ltd", reference)).decision).toBe(
+      "CLOSE_FALSE_POSITIVE",
+    );
+    const noName = run(cite, match({ assessment: "weak" }), payment(null, reference));
+    expect(noName.decision).toBe("NEED_MORE_INFO");
+    expect(guard(noName)?.detail).toContain("lacks a named counterparty");
+    expect(run(cite, match({ assessment: "weak" }), payment("Bridge Marine Ltd", "Invoice 4471")).decision).toBe(
+      "NEED_MORE_INFO",
+    );
+  });
+
+  it("leaves a close alone when it does not rest on free text, and never lowers an escalation", () => {
+    const out = run(decision("CLOSE_FALSE_POSITIVE"), match({ assessment: "weak" }), withNote(claim));
+    expect(out.decision).toBe("CLOSE_FALSE_POSITIVE");
+    expect(guard(out)).toMatchObject({ verdict: "pass", detail: "no free text relied on" });
+    expect(run(closeCiting("customer", "notes"), match({ assessment: "weak" }), withNote(claim)).decision).not.toBe(
+      "CLOSE_FALSE_POSITIVE",
+    );
+    expect(guard(run(decision("ESCALATE_L2"), match({ assessment: "weak" }), withNote(claim)))?.verdict).toBe("pass");
+  });
+
+  it("follows the policy: a requirement switched off is not checked", () => {
+    const relaxed = {
+      ...policy,
+      evidenceStandard: { ...policy.evidenceStandard, requireCheckReference: false, requireDocumentNumber: false },
+    };
+    const out = applyPolicyGuard({
+      policy: relaxed,
+      decision: closeCiting("customer", "notes"),
+      match: match({ assessment: "weak" }),
+      evidence: withNote(claim),
+      criticUnresolved: false,
+    });
+    expect(out.decision).toBe("CLOSE_FALSE_POSITIVE");
+  });
+});

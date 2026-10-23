@@ -5,6 +5,7 @@ export * from "./critic.js";
 export * from "./decision.js";
 export * from "./eval.js";
 export * from "./evidence.js";
+export * from "./evidence-standard.js";
 export * from "./headline.js";
 export * from "./list-change.js";
 export * from "./matching.js";

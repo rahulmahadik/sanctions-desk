@@ -81,6 +81,8 @@ function walkTo(root: Json, path: string): { parent: Json | unknown[]; key: stri
 /** The committed default policy as plain JSON, optionally edited by path (for example "ownership.thresholdPercent"). */
 export function policyJson(edit?: (e: Editor) => void): Json {
   const root = JSON.parse(readFileSync(resolveProjectPath("config/policy.default.json"), "utf8")) as Json;
+  // The store and schema tests start from version 1 whatever version the shipped policy is at.
+  (root as Record<string, unknown>).version = 1;
   edit?.({
     set(path, value) {
       const { parent, key } = walkTo(root, path);

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { type AppError, loadPolicyFile, type Policy, type PolicyChange, PolicyStore } from "../src/index.js";
 import { type Editor, policyJson } from "./helpers.js";
 
-const base = (): Policy => loadPolicyFile("config/policy.default.json");
+const base = (): Policy => ({ ...loadPolicyFile("config/policy.default.json"), version: 1 });
 const candidate = (edit?: (e: Editor) => void) => policyJson(edit);
 
 function fixedClock() {

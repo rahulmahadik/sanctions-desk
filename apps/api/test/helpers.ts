@@ -53,7 +53,7 @@ export async function makeApp(
 
   const config = loadConfig({ env: opts.env ?? {}, overridesPath });
   const bus = new RunEventBus({ replayLimit: config.events.replayLimit, maxRuns: config.events.maxRuns });
-  const policies = new PolicyStore(loadPolicyFile(config.policy.file));
+  const policies = new PolicyStore({ ...loadPolicyFile(config.policy.file), version: 1 });
   const app = await buildApp({
     config,
     logger: createLogger(config),

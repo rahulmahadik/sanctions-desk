@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { makeApp } from "./helpers.js";
 
 const exam = loadExam();
-const base = loadPolicyFile("config/policy.default.json");
+const base = { ...loadPolicyFile("config/policy.default.json"), version: 1 };
 
 async function sampleApp() {
   const config = loadConfig({ env: { SAMPLE_MODE: "true" } });
