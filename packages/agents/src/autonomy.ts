@@ -43,27 +43,22 @@ export interface AutonomyInput {
 
 export const randomDraw = (): number => randomInt(0, 1_000_000) / 1_000_000;
 
-export function decideAutonomy(input: AutonomyInput): AutonomyRecord {
-  const { policy } = input;
-  const a = policy.autonomy;
-  const levelInForce: 0 | 1 = a.level === 1 && !input.killSwitch ? 1 : 0;
+type Conditions = AutonomyRecord["conditions"];
+
+/** The ten conditions of an automatic close, each with whether it holds and a note where one helps. */
+function conditionsOf(input: AutonomyInput, levelInForce: 0 | 1): Conditions {
+  const a = input.policy.autonomy;
   const verdict = (name: string) => input.guards.find((g) => g.guard === name)?.verdict;
   const closes = input.final === "CLOSE_FALSE_POSITIVE";
-  const conditions: AutonomyRecord["conditions"] = [
-    {
-      name: "level_one",
-      met: levelInForce === 1,
-      ...(input.killSwitch && a.level === 1 ? { detail: "the kill switch is on" } : {}),
-    },
+  const first = input.firstFinding;
+  const killed = input.killSwitch && a.level === 1;
+  return [
+    { name: "level_one", met: levelInForce === 1, ...(killed ? { detail: "the kill switch is on" } : {}) },
     { name: "outcome_is_close", met: closes, ...(closes ? {} : { detail: `the recommendation is ${input.final}` }) },
     {
       name: "deterministic_close",
-      met: input.firstFinding?.decision === "CLOSE_FALSE_POSITIVE" && input.firstFinding.settled,
-      ...(input.firstFinding
-        ? {
-            detail: `first finding ${input.firstFinding.decision}${input.firstFinding.settled ? "" : " (not settled)"}`,
-          }
-        : {}),
+      met: first?.decision === "CLOSE_FALSE_POSITIVE" && first.settled,
+      ...(first ? { detail: `first finding ${first.decision}${first.settled ? "" : " (not settled)"}` } : {}),
     },
     { name: "decision_agrees", met: input.modelDecision === "CLOSE_FALSE_POSITIVE" },
     { name: "critic_approved", met: input.critic.final_verdict === "approved" },
@@ -77,6 +72,12 @@ export function decideAutonomy(input: AutonomyInput): AutonomyRecord {
       detail: `${input.confidence} against ${a.autoClose.confidenceAtLeast}`,
     },
   ];
+}
+
+export function decideAutonomy(input: AutonomyInput): AutonomyRecord {
+  const a = input.policy.autonomy;
+  const levelInForce: 0 | 1 = a.level === 1 && !input.killSwitch ? 1 : 0;
+  const conditions = conditionsOf(input, levelInForce);
   const allMet = conditions.every((c) => c.met);
   const underCap = input.autoClosedToday < a.autoClose.dailyCap;
   if (allMet && !underCap) {
@@ -96,14 +97,12 @@ export function decideAutonomy(input: AutonomyInput): AutonomyRecord {
     qa_draw: input.draw,
     qa_rate: a.autoClose.qaSampleRate,
   };
-  return outcome === "auto_closed"
-    ? {
-        ...base,
-        statement: `closed automatically under policy v${policy.version}, level 1, conditions met: ${conditions
-          .map((c) => c.name)
-          .join(", ")}`,
-      }
-    : base;
+  if (outcome !== "auto_closed") return base;
+  const met = conditions.map((c) => c.name).join(", ");
+  return {
+    ...base,
+    statement: `closed automatically under policy v${input.policy.version}, level 1, conditions met: ${met}`,
+  };
 }
 
 // ---- the kill switch ----------------------------------------------------------------------------

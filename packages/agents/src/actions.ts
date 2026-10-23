@@ -113,86 +113,93 @@ export function rfiText(policy: Policy, items: readonly string[]): string {
     : `${general}\n- A recent proof of identity and address`;
 }
 
-/** The records that follow a person's decision. Empty while nothing has been decided. */
-export function planActions(record: DecisionRecord, policy: Policy, now: Date): ActionBody[] {
-  const state = humanState(record);
-  if (state.status === "awaiting") return [];
-  if (state.status === "auto_closed") {
-    return [
-      {
-        kind: "closure_note",
-        alert_id: record.alert_ref,
-        alert_type: record.alert_type,
-        record_hash: record.record_hash,
-        recommended: record.decision,
-        final: "CLOSE_FALSE_POSITIVE",
-        status: "closed automatically; a person can reopen it",
-        title: `Closure note (automatic): ${record.alert_ref}`,
-        content: `${record.autonomy?.statement ?? "closed automatically"}. Basis: ${record.rationale}`,
-        decided_by: [],
-        policy: { version: policy.version, hash: record.policy.hash },
-        sent: false,
-        created_at: now.toISOString(),
-      },
-    ];
-  }
-  const base = {
-    alert_id: record.alert_ref,
-    alert_type: record.alert_type,
-    record_hash: record.record_hash,
-    recommended: record.decision,
-    decided_by: people(record),
-    policy: { version: policy.version, hash: record.policy.hash },
-    sent: false as const,
-    created_at: now.toISOString(),
-  };
-  const reasonOf = (a?: HumanAction) => (a?.reason ? ` Reason given: ${a.reason}` : "");
-  const out: ActionBody[] = [];
-  const final: Decision = state.status === "block_pending" ? "RECOMMEND_BLOCK" : (state.final as Decision);
-  const b = { ...base, final };
-  if (state.status === "block_pending") {
-    out.push({
-      ...b,
-      kind: "escalation_ticket",
-      status: "block approval pending",
-      title: `Block approval pending: ${record.alert_ref}`,
-      content: `A block is recommended for this alert and has one approval. A second, different approver must confirm before the sanctions officer receives a block recommendation. Nothing has been blocked.${reasonOf(state.first)}`,
-    });
-    return out;
-  }
+type Base = Omit<ActionBody, "kind" | "status" | "title" | "content">;
+
+const reasonOf = (a?: HumanAction): string => (a?.reason ? ` Reason given: ${a.reason}` : "");
+
+/** The record that follows a settled decision other than a block waiting for its second approval. */
+function settledAction(record: DecisionRecord, policy: Policy, state: HumanState): Omit<ActionBody, keyof Base> {
   if (state.status === "block_approved") {
-    out.push({
-      ...b,
+    return {
       kind: "block_recommendation",
       status: "ready for the sanctions officer",
       title: `Block recommendation for the sanctions officer: ${record.alert_ref}`,
       content: `Two different approvers support a block. This is a recommendation for the sanctions officer to act on; the desk has not blocked anything.${reasonOf(state.first)}${reasonOf(state.second)}`,
-    });
-  } else if (state.final === "CLOSE_FALSE_POSITIVE") {
-    out.push({
-      ...b,
+    };
+  }
+  if (state.final === "CLOSE_FALSE_POSITIVE") {
+    return {
       kind: "closure_note",
       status: "closed by a person",
       title: `Closure note: ${record.alert_ref}`,
       content: `Alert ${record.alert_ref} was ${REASON_TEXT.CLOSE_FALSE_POSITIVE} by ${state.first?.actor}.${reasonOf(state.first)} Basis: ${record.rationale}`,
-    });
-  } else if (state.final === "NEED_MORE_INFO") {
-    out.push({
-      ...b,
+    };
+  }
+  if (state.final === "NEED_MORE_INFO") {
+    return {
       kind: "rfi_draft",
       status: "draft, not sent",
       title: `Request for information (draft): ${record.alert_ref}`,
       content: rfiText(policy, record.what_would_change),
-    });
-  } else {
-    out.push({
-      ...b,
-      kind: "escalation_ticket",
-      status: state.status === "block_declined" ? "escalated after the block was declined" : "open",
-      title: `Level 2 review: ${record.alert_ref}`,
-      content: `Alert ${record.alert_ref} was ${REASON_TEXT.ESCALATE_L2}.${reasonOf(state.status === "block_declined" ? state.second : state.first)} Basis: ${record.rationale}`,
-    });
+    };
   }
+  const declined = state.status === "block_declined";
+  return {
+    kind: "escalation_ticket",
+    status: declined ? "escalated after the block was declined" : "open",
+    title: `Level 2 review: ${record.alert_ref}`,
+    content: `Alert ${record.alert_ref} was ${REASON_TEXT.ESCALATE_L2}.${reasonOf(declined ? state.second : state.first)} Basis: ${record.rationale}`,
+  };
+}
+
+/** The closure note for a close the desk made on its own. */
+function autoClosedAction(record: DecisionRecord, policy: Policy, now: Date): ActionBody {
+  return {
+    kind: "closure_note",
+    alert_id: record.alert_ref,
+    alert_type: record.alert_type,
+    record_hash: record.record_hash,
+    recommended: record.decision,
+    final: "CLOSE_FALSE_POSITIVE",
+    status: "closed automatically; a person can reopen it",
+    title: `Closure note (automatic): ${record.alert_ref}`,
+    content: `${record.autonomy?.statement ?? "closed automatically"}. Basis: ${record.rationale}`,
+    decided_by: [],
+    policy: { version: policy.version, hash: record.policy.hash },
+    sent: false,
+    created_at: now.toISOString(),
+  };
+}
+
+/** The records that follow a person's decision. Empty while nothing has been decided. */
+export function planActions(record: DecisionRecord, policy: Policy, now: Date): ActionBody[] {
+  const state = humanState(record);
+  if (state.status === "awaiting") return [];
+  if (state.status === "auto_closed") return [autoClosedAction(record, policy, now)];
+  const final: Decision = state.status === "block_pending" ? "RECOMMEND_BLOCK" : (state.final as Decision);
+  const b: Base = {
+    alert_id: record.alert_ref,
+    alert_type: record.alert_type,
+    record_hash: record.record_hash,
+    recommended: record.decision,
+    final,
+    decided_by: people(record),
+    policy: { version: policy.version, hash: record.policy.hash },
+    sent: false,
+    created_at: now.toISOString(),
+  };
+  if (state.status === "block_pending") {
+    return [
+      {
+        ...b,
+        kind: "escalation_ticket",
+        status: "block approval pending",
+        title: `Block approval pending: ${record.alert_ref}`,
+        content: `A block is recommended for this alert and has one approval. A second, different approver must confirm before the sanctions officer receives a block recommendation. Nothing has been blocked.${reasonOf(state.first)}`,
+      },
+    ];
+  }
+  const out: ActionBody[] = [{ ...b, ...settledAction(record, policy, state) }];
   if (record.alert_type === "payment" && (final === "ESCALATE_L2" || final === "RECOMMEND_BLOCK")) {
     out.push({
       ...b,

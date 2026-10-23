@@ -68,23 +68,17 @@ function timeline(events: readonly TraceEvent[]): string[] {
   );
 }
 
-/** A case file a person can read without running anything: what happened, why, and what it rested on. */
-export function renderCaseFile(input: CaseFileInput): string {
-  const { record, contract } = input;
-  const lines: string[] = [
-    `# ${input.title}`,
-    "",
-    `> Synthetic customers, payments and owners; the listed parties are public sanctions-list entries. The desk recommends; a person decides.`,
-    "",
-    input.summary,
-    "",
+const pct = (n: number): number => Math.round(n * 100);
+const word = (text: string): string => text.replaceAll("_", " ");
+
+function recommendationSection({ record }: CaseFileInput): string[] {
+  const cap = record.confidence_cap
+    ? ` (capped at ${pct(record.confidence_cap.value)}%: ${record.confidence_cap.reason})`
+    : "";
+  const lines = [
     "## Recommendation",
     "",
-    `**${DECISION_TEXT[record.decision] ?? record.decision}** · confidence ${Math.round(record.confidence * 100)}%${
-      record.confidence_cap
-        ? ` (capped at ${Math.round(record.confidence_cap.value * 100)}%: ${record.confidence_cap.reason})`
-        : ""
-    }`,
+    `**${DECISION_TEXT[record.decision] ?? record.decision}** · confidence ${pct(record.confidence)}%${cap}`,
     "",
     record.rationale,
     "",
@@ -92,120 +86,181 @@ export function renderCaseFile(input: CaseFileInput): string {
   if (record.what_would_change.length > 0) {
     lines.push("**What would change this**", "", ...record.what_would_change.map((w) => `- ${w}`), "");
   }
-  if (record.review_path) {
-    lines.push(
-      "## Path",
-      "",
-      record.review_path === "confirm"
-        ? `Code's first finding from the structured fields was **${DECISION_TEXT[record.first_finding ?? ""] ?? record.first_finding}**, and the structured evidence settles the case, so the agents confirmed and explained it.`
-        : `Code's first finding from the structured fields was **${DECISION_TEXT[record.first_finding ?? ""] ?? record.first_finding}**, but the structured evidence does not settle the case or there is free text to weigh, so the agents reasoned over all of it.`,
-      "",
-    );
-  }
-  if (record.documentary?.length) {
-    lines.push(
-      "## Values taken from verified notes",
-      "",
-      ...record.documentary.map(
-        (d) =>
-          `- ${d.label}: **${d.value}**. This is not a value of the customer record; the data-quality finding stays.`,
-      ),
-      "",
-    );
-  }
-  if (input.facts?.length) {
-    lines.push("## Facts the case rests on", "", ...input.facts.map((f) => `- **${f.label}:** ${f.value}`), "");
-  }
-  if (record.autonomy) {
-    lines.push(
-      "## Autonomy",
-      "",
-      record.autonomy.outcome === "auto_closed"
-        ? `**${record.autonomy.statement}.**`
-        : record.autonomy.outcome === "qa_sample"
-          ? "This close met every condition for an automatic close and was picked at random for a quality-assurance review by a person."
-          : `Level ${record.autonomy.level_in_force} was in force; the recommendation goes to a person. Conditions not met: ${
-              record.autonomy.conditions
-                .filter((c) => !c.met)
-                .map((c) => c.name.replaceAll("_", " "))
-                .join(", ") || "none"
-            }.`,
-      "",
-    );
-  }
-  lines.push("## How the desk got there", "", ...timeline(input.events), "");
+  return lines;
+}
 
-  const state = humanState(record);
-  lines.push("## What people did", "", `Status: ${STATUS_TEXT[state.status] ?? state.status}.`, "");
-  if (record.human.length > 0) {
-    lines.push("| Who | Role | Action | Outcome | When | Reason |", "|---|---|---|---|---|---|");
-    for (const h of record.human) {
-      lines.push(
-        `| ${cell(h.actor)} | ${(h.role ?? "").replaceAll("_", " ")} | ${h.action.replaceAll("_", " ")} | ${h.outcome ? (DECISION_TEXT[h.outcome] ?? h.outcome) : ""} | ${h.at} | ${cell(h.reason ?? "")} |`,
-      );
-    }
-    lines.push("");
-  } else {
-    lines.push("No person has acted on this recommendation yet.", "");
-  }
-  if (input.actions && input.actions.length > 0) {
-    lines.push("## What was prepared next", "", "Nothing here was sent or executed.", "");
-    lines.push("| Record | Status | Seal | Text |", "|---|---|---|---|");
-    for (const a of input.actions) {
-      lines.push(
-        `| ${a.body.kind.replaceAll("_", " ")} | ${cell(a.body.status)} | ${cell(CHECK_TEXT[a.check ?? (a.seal.type === "ed25519" ? "signed_unpinned" : "hash_sealed")] ?? "")} | ${cell(a.body.content)} |`,
-      );
-    }
-    lines.push("");
-  }
-
-  lines.push("## Checks", "", "| Check | Result | Detail |", "|---|---|---|");
-  for (const g of record.guards)
-    lines.push(`| ${cell(g.guard.replaceAll("_", " "))} | ${g.verdict} | ${cell(g.detail ?? "")} |`);
-  lines.push(
-    `| critic | ${record.critic.final_verdict} | ${record.critic.rounds} round${record.critic.rounds === 1 ? "" : "s"} |`,
+function pathSection({ record }: CaseFileInput): string[] {
+  if (!record.review_path) return [];
+  const finding = `Code's first finding from the structured fields was **${DECISION_TEXT[record.first_finding ?? ""] ?? record.first_finding}**`;
+  return [
+    "## Path",
     "",
-  );
+    record.review_path === "confirm"
+      ? `${finding}, and the structured evidence settles the case, so the agents confirmed and explained it.`
+      : `${finding}, but the structured evidence does not settle the case or there is free text to weigh, so the agents reasoned over all of it.`,
+    "",
+  ];
+}
 
-  lines.push("## The decision trace", "");
-  lines.push(
-    `- **Which approved definition applied:** ${record.definitions.map((d) => `${d.definition_id.replaceAll("_", " ")} v${d.version}`).join(", ") || "none"}`,
+function documentarySection({ record }: CaseFileInput): string[] {
+  if (!record.documentary?.length) return [];
+  return [
+    "## Values taken from verified notes",
+    "",
+    ...record.documentary.map(
+      (d) =>
+        `- ${d.label}: **${d.value}**. This is not a value of the customer record; the data-quality finding stays.`,
+    ),
+    "",
+  ];
+}
+
+function factsSection({ facts }: CaseFileInput): string[] {
+  return facts?.length
+    ? ["## Facts the case rests on", "", ...facts.map((f) => `- **${f.label}:** ${f.value}`), ""]
+    : [];
+}
+
+function autonomyText(a: NonNullable<DecisionRecord["autonomy"]>): string {
+  if (a.outcome === "auto_closed") return `**${a.statement}.**`;
+  if (a.outcome === "qa_sample")
+    return "This close met every condition for an automatic close and was picked at random for a quality-assurance review by a person.";
+  const unmet =
+    a.conditions
+      .filter((c) => !c.met)
+      .map((c) => word(c.name))
+      .join(", ") || "none";
+  return `Level ${a.level_in_force} was in force; the recommendation goes to a person. Conditions not met: ${unmet}.`;
+}
+
+function autonomySection({ record }: CaseFileInput): string[] {
+  return record.autonomy ? ["## Autonomy", "", autonomyText(record.autonomy), ""] : [];
+}
+
+function peopleSection({ record }: CaseFileInput): string[] {
+  const lines = [
+    "## What people did",
+    "",
+    `Status: ${STATUS_TEXT[humanState(record).status] ?? humanState(record).status}.`,
+    "",
+  ];
+  if (record.human.length === 0) return [...lines, "No person has acted on this recommendation yet.", ""];
+  lines.push("| Who | Role | Action | Outcome | When | Reason |", "|---|---|---|---|---|---|");
+  for (const h of record.human) {
+    const outcome = h.outcome ? (DECISION_TEXT[h.outcome] ?? h.outcome) : "";
+    lines.push(
+      `| ${cell(h.actor)} | ${word(h.role ?? "")} | ${word(h.action)} | ${outcome} | ${h.at} | ${cell(h.reason ?? "")} |`,
+    );
+  }
+  return [...lines, ""];
+}
+
+function actionsSection({ actions }: CaseFileInput): string[] {
+  if (!actions || actions.length === 0) return [];
+  const lines = [
+    "## What was prepared next",
+    "",
+    "Nothing here was sent or executed.",
+    "",
+    "| Record | Status | Seal | Text |",
+    "|---|---|---|---|",
+  ];
+  for (const a of actions) {
+    const check = a.check ?? (a.seal.type === "ed25519" ? "signed_unpinned" : "hash_sealed");
+    lines.push(
+      `| ${word(a.body.kind)} | ${cell(a.body.status)} | ${cell(CHECK_TEXT[check] ?? "")} | ${cell(a.body.content)} |`,
+    );
+  }
+  return [...lines, ""];
+}
+
+function checksSection({ record }: CaseFileInput): string[] {
+  const rounds = record.critic.rounds;
+  return [
+    "## Checks",
+    "",
+    "| Check | Result | Detail |",
+    "|---|---|---|",
+    ...record.guards.map((g) => `| ${cell(word(g.guard))} | ${g.verdict} | ${cell(g.detail ?? "")} |`),
+    `| critic | ${record.critic.final_verdict} | ${rounds} round${rounds === 1 ? "" : "s"} |`,
+    "",
+  ];
+}
+
+function traceSection({ record, contract }: CaseFileInput): string[] {
+  const access = contract.access.by_role
+    .map((r) => {
+      const masked = r.masked_columns.length ? `; masked: ${r.masked_columns.join(", ")}` : "";
+      return `${r.role} ran ${r.queries} queries (${r.token_source === "role" ? "own token" : "labelled fallback key"}${masked})`;
+    })
+    .join("; ");
+  const totals = contract.cost.totals;
+  return [
+    "## The decision trace",
+    "",
+    `- **Which approved definition applied:** ${record.definitions.map((d) => `${word(d.definition_id)} v${d.version}`).join(", ") || "none"}`,
     `- **What data it rests on:** semantic layer ${contract.data.usl.model_version}; ${contract.data.queries.length} read-only queries; list snapshots ${record.list_snapshots.map((s) => `${s.list} ${s.snapshot_id}`).join(", ") || "none"}`,
-    `- **Who could see what:** policy version ${record.policy.version}; ${contract.access.by_role
-      .map(
-        (r) =>
-          `${r.role} ran ${r.queries} queries (${r.token_source === "role" ? "own token" : "labelled fallback key"}${r.masked_columns.length ? `; masked: ${r.masked_columns.join(", ")}` : ""})`,
-      )
-      .join("; ")}`,
-    `- **What it cost to produce:** ${contract.cost.totals.local_calls + contract.cost.totals.cloud_calls} model calls (${contract.cost.totals.local_calls} local, ${contract.cost.totals.cloud_calls} cloud), ${contract.cost.totals.tokens_in} tokens in and ${contract.cost.totals.tokens_out} out, ${contract.cost.data_queries.count} data queries; ${money(contract.cost.totals.total_cost, contract.cost.currency)} under the configured unit costs`,
+    `- **Who could see what:** policy version ${record.policy.version}; ${access}`,
+    `- **What it cost to produce:** ${totals.local_calls + totals.cloud_calls} model calls (${totals.local_calls} local, ${totals.cloud_calls} cloud), ${totals.tokens_in} tokens in and ${totals.tokens_out} out, ${contract.cost.data_queries.count} data queries; ${money(totals.total_cost, contract.cost.currency)} under the configured unit costs`,
     "",
-  );
+  ];
+}
 
-  if (contract.cost.models.length > 0) {
+function modelsSection({ contract }: CaseFileInput): string[] {
+  if (contract.cost.models.length === 0) return [];
+  const lines = [
+    "## Which model answered each step",
+    "",
+    "| Step | Asked for | Answered by | Lane | App | Reasoning | Receipt |",
+    "|---|---|---|---|---|---|---|",
+  ];
+  for (const m of contract.cost.models) {
+    const receipt = `${word(m.receipt_status)}${m.receipt_id ? ` (${m.receipt_id})` : ""}`;
     lines.push(
-      "## Which model answered each step",
-      "",
-      "| Step | Asked for | Answered by | Lane | App | Reasoning | Receipt |",
-      "|---|---|---|---|---|---|---|",
+      `| ${cell(word(m.agent))} | ${cell(m.model_requested)} | ${cell(m.model_routed)} | ${m.route_kind ?? "local"} | ${cell(m.app ?? "")} | ${cell(m.reasoning)} | ${receipt} |`,
     );
-    for (const m of contract.cost.models) {
-      lines.push(
-        `| ${cell(m.agent.replaceAll("_", " "))} | ${cell(m.model_requested)} | ${cell(m.model_routed)} | ${m.route_kind ?? "local"} | ${cell(m.app ?? "")} | ${cell(m.reasoning)} | ${m.receipt_status.replaceAll("_", " ")}${m.receipt_id ? ` (${m.receipt_id})` : ""} |`,
-      );
-    }
-    lines.push("");
   }
+  return [...lines, ""];
+}
 
-  lines.push(
+function recordSection({ record, contract, files }: CaseFileInput): string[] {
+  return [
     "## The record",
     "",
     `Sealed ${record.decided_at} with hash \`${record.record_hash}\`${contract.record.verified ? " (verified: the hash matches the contents)" : ""}. Data and policy as of ${record.as_of}.`,
     "",
-    `- [Decision record](${input.files.record})`,
-    `- [Decision trace](${input.files.trace})`,
-    `- [Run events](${input.files.events})`,
+    `- [Decision record](${files.record})`,
+    `- [Decision trace](${files.trace})`,
+    `- [Run events](${files.events})`,
     "",
-  );
+  ];
+}
+
+/** A case file a person can read without running anything: what happened, why, and what it rested on. */
+export function renderCaseFile(input: CaseFileInput): string {
+  const lines: string[] = [
+    `# ${input.title}`,
+    "",
+    "> Synthetic customers, payments and owners; the listed parties are public sanctions-list entries. The desk recommends; a person decides.",
+    "",
+    input.summary,
+    "",
+    ...recommendationSection(input),
+    ...pathSection(input),
+    ...documentarySection(input),
+    ...factsSection(input),
+    ...autonomySection(input),
+    "## How the desk got there",
+    "",
+    ...timeline(input.events),
+    "",
+    ...peopleSection(input),
+    ...actionsSection(input),
+    ...checksSection(input),
+    ...traceSection(input),
+    ...modelsSection(input),
+    ...recordSection(input),
+  ];
   return `${lines.join("\n").trimEnd()}\n`;
 }
 

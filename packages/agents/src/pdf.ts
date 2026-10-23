@@ -26,44 +26,60 @@ const widthOf = (text: string, size: number): number => {
   return w * size;
 };
 
+/** Cut a word that is wider than the line into pieces that fit (a hash, for example). */
+function cutWord(word: string, size: number, maxWidth: number): string[] {
+  const pieces: string[] = [];
+  let rest = word;
+  while (widthOf(rest, size) > maxWidth) {
+    let cut = rest.length;
+    while (cut > 1 && widthOf(rest.slice(0, cut), size) > maxWidth) cut -= 1;
+    pieces.push(rest.slice(0, cut));
+    rest = rest.slice(cut);
+  }
+  pieces.push(rest);
+  return pieces;
+}
+
+/** Add a piece to the line being built; returns the line to carry on with and the line that was completed, if any. */
+function place(current: string, piece: string, size: number, maxWidth: number): { current: string; done?: string } {
+  const next = current ? `${current} ${piece}` : piece;
+  if (widthOf(next, size) <= maxWidth) return { current: next };
+  return current ? { current: piece, done: current } : { current: piece };
+}
+
 function wrap(text: string, size: number, maxWidth: number): string[] {
   const out: string[] = [];
   let current = "";
   for (const word of text.split(/\s+/).filter(Boolean)) {
-    let piece = word;
-    // a word longer than the line (a hash) is cut
-    while (widthOf(piece, size) > maxWidth) {
-      let cut = piece.length;
-      while (cut > 1 && widthOf(piece.slice(0, cut), size) > maxWidth) cut -= 1;
-      if (current) {
-        out.push(current);
-        current = "";
-      }
-      out.push(piece.slice(0, cut));
-      piece = piece.slice(cut);
-    }
-    const next = current ? `${current} ${piece}` : piece;
-    if (widthOf(next, size) <= maxWidth) current = next;
-    else {
-      out.push(current);
-      current = piece;
+    const pieces = widthOf(word, size) > maxWidth ? cutWord(word, size, maxWidth) : [word];
+    for (const piece of pieces) {
+      const placed = place(current, piece, size, maxWidth);
+      if (placed.done !== undefined) out.push(placed.done);
+      current = placed.current;
     }
   }
   if (current) out.push(current);
   return out.length > 0 ? out : [""];
 }
 
+/** Typographic characters mapped to their plain forms; anything else outside Latin-1 becomes "?". */
+const PLAIN: Readonly<Record<string, string>> = {
+  "—": "-",
+  "–": "-",
+  "‘": "'",
+  "’": "'",
+  "“": '"',
+  "”": '"',
+  "…": "...",
+  "·": "-",
+  "•": "-",
+};
+const COMBINING = /[\u0300-\u036f]/g;
+const drawable = (code: number): boolean => (code >= 32 && code < 127) || (code >= 160 && code <= 255);
+
 const latin1 = (text: string): string =>
-  [...text.normalize("NFKD").replace(/[̀-ͯ]/g, "")]
-    .map((ch) => {
-      const code = ch.codePointAt(0) ?? 63;
-      if (ch === "—" || ch === "–") return "-";
-      if (ch === "‘" || ch === "’") return "'";
-      if (ch === "“" || ch === "”") return '"';
-      if (ch === "…") return "...";
-      if (ch === "·" || ch === "•") return "-";
-      return code >= 32 && code < 127 ? ch : code >= 160 && code <= 255 ? ch : "?";
-    })
+  [...text.normalize("NFKD").replace(COMBINING, "")]
+    .map((ch) => PLAIN[ch] ?? (drawable(ch.codePointAt(0) ?? 0) ? ch : "?"))
     .join("");
 
 const escapePdf = (text: string): string =>
@@ -76,44 +92,57 @@ const stripMarks = (text: string): string =>
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1 ($2)")
     .replace(/^> ?/, "");
 
+interface Styled {
+  text: string;
+  kind: Kind;
+  indent?: number;
+  gapBefore: number;
+  bold?: boolean;
+}
+
+/** How one Markdown line is drawn: heading, table row, list item or paragraph. Undefined for lines that are not drawn. */
+function style(row: string): Styled | undefined {
+  if (row === "" || /^\|[\s:|-]+\|$/.test(row)) return undefined; // blank, or the separator line of a table
+  if (row.startsWith("# ")) return { text: stripMarks(row.slice(2)), kind: "h1", gapBefore: 10 };
+  if (row.startsWith("## ")) return { text: stripMarks(row.slice(3)), kind: "h2", gapBefore: 12 };
+  if (row.startsWith("|")) {
+    const cells = row
+      .split("|")
+      .slice(1, -1)
+      .map((c) => stripMarks(c.trim()));
+    return { text: cells.join("  |  "), kind: "body", indent: 8, gapBefore: 2 };
+  }
+  if (/^\s*[-*] /.test(row)) {
+    return { text: `- ${stripMarks(row.replace(/^\s*[-*] /, ""))}`, kind: "body", indent: 10, gapBefore: 2 };
+  }
+  if (/^\d+\. /.test(row)) return { text: stripMarks(row), kind: "body", indent: 10, gapBefore: 2 };
+  return { text: stripMarks(row), kind: "body", gapBefore: 5 };
+}
+
 /** Turn the Markdown the case file uses into styled lines. */
 function layout(markdown: string): Line[] {
   const lines: Line[] = [];
   const textWidth = PAGE.width - 2 * PAGE.margin;
-  const push = (text: string, kind: Kind, o: { bold?: boolean; indent?: number; gapBefore?: number } = {}) => {
-    const size = SIZES[kind];
-    const indent = o.indent ?? 0;
-    wrap(text, size, textWidth - indent).forEach((t, i) =>
+  for (const raw of markdown.split("\n")) {
+    const styled = style(raw.trimEnd());
+    if (!styled) continue;
+    const indent = styled.indent ?? 0;
+    const gap = lines.length === 0 && styled.kind === "h1" ? 0 : styled.gapBefore;
+    wrap(styled.text, SIZES[styled.kind], textWidth - indent).forEach((t, i) => {
       lines.push({
         text: t,
-        kind,
-        bold: o.bold ?? kind !== "body",
+        kind: styled.kind,
+        bold: styled.bold ?? styled.kind !== "body",
         indent,
-        gapBefore: i === 0 ? (o.gapBefore ?? 0) : 0,
-      }),
-    );
-  };
-  for (const raw of markdown.split("\n")) {
-    const row = raw.trimEnd();
-    if (row === "") continue;
-    if (/^\|[\s:|-]+\|$/.test(row)) continue; // the separator line of a table
-    if (row.startsWith("# ")) push(stripMarks(row.slice(2)), "h1", { gapBefore: lines.length ? 10 : 0 });
-    else if (row.startsWith("## ")) push(stripMarks(row.slice(3)), "h2", { gapBefore: 12 });
-    else if (row.startsWith("|")) {
-      const cells = row
-        .split("|")
-        .slice(1, -1)
-        .map((c) => stripMarks(c.trim()));
-      push(cells.join("  |  "), "body", { indent: 8, gapBefore: 2 });
-    } else if (/^\s*[-*] /.test(row))
-      push(`- ${stripMarks(row.replace(/^\s*[-*] /, ""))}`, "body", { indent: 10, gapBefore: 2 });
-    else if (/^\d+\. /.test(row)) push(stripMarks(row), "body", { indent: 10, gapBefore: 2 });
-    else push(stripMarks(row), "body", { gapBefore: 5 });
+        gapBefore: i === 0 ? gap : 0,
+      });
+    });
   }
   return lines;
 }
 
-export function markdownToPdf(markdown: string, footer = ""): Buffer {
+/** Fill pages with the lines, starting a new page when one is full. Each page is a list of drawing operations. */
+function paginate(lines: readonly Line[]): string[][] {
   const pages: string[][] = [];
   let ops: string[] = [];
   let y = PAGE.height - PAGE.margin;
@@ -122,18 +151,20 @@ export function markdownToPdf(markdown: string, footer = ""): Buffer {
     ops = [];
     y = PAGE.height - PAGE.margin;
   };
-  for (const line of layout(markdown)) {
+  for (const line of lines) {
     const size = SIZES[line.kind];
-    const need = line.gapBefore + size * LEADING;
-    if (y - need < PAGE.margin + 18) newPage();
+    if (y - (line.gapBefore + size * LEADING) < PAGE.margin + 18) newPage();
     y -= line.gapBefore + size * LEADING;
     ops.push(
       `BT /${line.bold ? "F2" : "F1"} ${size} Tf ${PAGE.margin + line.indent} ${y.toFixed(1)} Td (${escapePdf(line.text)}) Tj ET`,
     );
   }
   newPage();
-  if (pages.length === 0) pages.push([]);
+  return pages.length > 0 ? pages : [[]];
+}
 
+export function markdownToPdf(markdown: string, footer = ""): Buffer {
+  const pages = paginate(layout(markdown));
   const objects: string[] = [];
   const add = (body: string): number => objects.push(body);
   add("<< /Type /Catalog /Pages 2 0 R >>"); // 1
@@ -145,14 +176,15 @@ export function markdownToPdf(markdown: string, footer = ""): Buffer {
     const footerOps = `BT /F1 8 Tf ${PAGE.margin} 30 Td (${escapePdf(`${footer}${footer ? "   " : ""}page ${i + 1} of ${pages.length}`)}) Tj ET`;
     const stream = [...content, footerOps].join("\n");
     const contentId = add(`<< /Length ${Buffer.byteLength(stream, "latin1")} >>\nstream\n${stream}\nendstream`);
-    pageIds.push(
-      add(
-        `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PAGE.width} ${PAGE.height}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${contentId} 0 R >>`,
-      ),
-    );
+    const page = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PAGE.width} ${PAGE.height}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${contentId} 0 R >>`;
+    pageIds.push(add(page));
   });
   objects[1] = `<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(" ")}] /Count ${pageIds.length} >>`;
+  return serialise(objects);
+}
 
+/** Write the objects with the cross-reference table that tells a reader where each one starts. */
+function serialise(objects: readonly string[]): Buffer {
   let out = "%PDF-1.4\n";
   const offsets: number[] = [];
   objects.forEach((body, i) => {
