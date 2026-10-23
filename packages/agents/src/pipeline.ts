@@ -79,6 +79,14 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
   return { evidence, match, tools, criticTools, easy, models: [...inbound.calls] as ModelUseInput[] };
 }
 
+/** The lines a reviewer should read first: what the comparison found, then the check that changed the outcome. */
+function keyEvidence(match: MatchResult, guard: ReturnType<typeof applyPolicyGuard>): string[] {
+  const lines = match.comparison.reasons.slice(0, 2).map((r) => `Comparison: ${r}`);
+  const changed = guard.verdicts.find((v) => v.verdict === "block" && v.detail);
+  if (changed?.detail) lines.push(`Check: ${changed.guard.replaceAll("_", " ")}: ${changed.detail}`.slice(0, 220));
+  return lines.slice(0, 3);
+}
+
 /** Run the challenger when the policy's triggers apply to a close, and say what it changed. */
 async function challengeClose(deps: AgentDeps, evidence: EvidenceBundle, match: MatchResult, output: DecisionOutput) {
   const reasons = challengeTriggers(deps.policy, output, match, evidence);
@@ -267,6 +275,8 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     confidence: guard.confidence,
     rationale,
     what_would_change: finalOutput.what_would_change,
+    key_evidence: keyEvidence(match, guard),
+    ...(record.confidence_cap ? { confidence_cap: record.confidence_cap } : {}),
     citations,
     agents: challenged ? [...AGENT_ORDER.slice(0, 6), "challenger", ...AGENT_ORDER.slice(6)] : AGENT_ORDER,
     models: record.models,

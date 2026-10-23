@@ -18,18 +18,31 @@ export function Outcome({ answer }: { answer: ReviewAnswer }) {
     );
   }
   const tone = DECISION_TONE[answer.decision];
+  const cap = answer.confidence_cap;
+  const evidence = answer.key_evidence ?? [];
   return (
     <section className="panel" aria-labelledby="outcome-title">
       <h2 id="outcome-title">Recommendation</h2>
       <p className={`verdict tone-${tone}`} data-testid="verdict">
         {DECISION_LABEL[answer.decision]}
       </p>
-      <p>
-        Confidence {percent(answer.confidence ?? 0)}. A person decides
+      <p data-testid="confidence">
+        Confidence {percent(answer.confidence ?? 0)}
+        {cap ? ` (capped at ${percent(cap.value)}: ${cap.reason})` : ""}. A person decides
         {answer.approvals_required && answer.approvals_required > 1
           ? ` — this one needs ${answer.approvals_required} approvals.`
           : "."}
       </p>
+      {evidence.length > 0 ? (
+        <>
+          <h2>What decided it</h2>
+          <ul data-testid="key-evidence">
+            {evidence.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </>
+      ) : null}
       <p>{answer.rationale}</p>
       {answer.what_would_change.length > 0 ? (
         <>

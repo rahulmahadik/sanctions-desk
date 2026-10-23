@@ -1,6 +1,14 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { gatherEvidence, readAlertQueue, readDecisionRecords } from "@sanctions-desk/agents";
+import {
+  gatherEvidence,
+  type Headline,
+  headlineOf,
+  headlineSentence,
+  readAlertQueue,
+  readDecisionRecords,
+  type ScoredCase,
+} from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
 import {
   AppError,
@@ -140,11 +148,13 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
 
   app.get("/exam", async () => {
     const exam = loadExam();
+    const results = readExamResults(join(projectRoot(), "eval", "results"));
     return {
       label: exam.label,
       cases: exam.cases.length,
-      results: readExamResults(join(projectRoot(), "eval", "results")),
+      results,
       policy_version: policies.active().version,
+      ...headlineFromRuns(results, config),
     };
   });
 };
@@ -161,6 +171,32 @@ function silentTrace(runId: string): TraceLogger {
     file: "",
     log: (event) => ({ ts: new Date().toISOString(), run_id: runId, seq: 0, ...event }) as TraceEvent,
   };
+}
+
+interface SavedRun {
+  file: string;
+  variant: string;
+  tag?: string;
+  selection?: { groups?: unknown; kinds?: unknown; limit?: unknown };
+  started_at?: string;
+  cases?: ScoredCase[];
+}
+
+/**
+ * The headline measure from the newest complete run of the full system. A run limited to some cases (a tag, kinds,
+ * groups or a limit) is not complete. The minutes-saved figure uses the assumptions in the configuration.
+ */
+function headlineFromRuns(
+  results: unknown[],
+  config: Config,
+): { headline: Headline | null; headline_sentence: string | null; headline_run: string | null } {
+  const run = (results as SavedRun[]).find(
+    (r) =>
+      r.variant === "routed" && !r.tag && !r.selection?.kinds && !r.selection?.groups && !r.selection?.limit && r.cases,
+  );
+  if (!run?.cases) return { headline: null, headline_sentence: null, headline_run: null };
+  const headline = headlineOf(run.cases, config.report);
+  return { headline, headline_sentence: headlineSentence(headline), headline_run: run.started_at ?? run.file };
 }
 
 /** The request's origin if it is one of the configured interface origins. */

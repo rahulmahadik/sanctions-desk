@@ -5,6 +5,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { EvidenceCards } from "../components/Evidence";
 import { ExamDashboard } from "../components/ExamDashboard";
+import { HeadlineStrip } from "../components/HeadlineStrip";
 import { Queue } from "../components/Queue";
 import { Outcome, Replay } from "../components/Record";
 import { RoutingPanel } from "../components/Routing";
@@ -107,6 +108,28 @@ describe("Outcome", () => {
     expect(screen.getByText(/A person decides/)).toBeTruthy();
     expect(screen.getByText("A matching identifier number")).toBeTruthy();
     expect(screen.getByText(/critic: approved after 2 rounds/)).toBeTruthy();
+  });
+
+  it("puts the deciding evidence and any confidence cap with its reason right under the recommendation", () => {
+    render(
+      <Outcome
+        answer={{ ...ANSWER, confidence: 0.6, confidence_cap: { value: 0.6, reason: "a data-quality rule fails" } }}
+      />,
+    );
+    expect(screen.getByTestId("confidence").textContent).toContain(
+      "Confidence 60% (capped at 60%: a data-quality rule fails)",
+    );
+    const lines = within(screen.getByTestId("key-evidence")).getAllByRole("listitem");
+    expect(lines).toHaveLength(3);
+    expect(lines[0]?.textContent).toBe("Comparison: name 1.00 (exact)");
+    const heading = screen.getByText("What decided it");
+    const rationale = screen.getByText(ANSWER.rationale ?? "");
+    expect(heading.compareDocumentPosition(rationale) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("shows no evidence heading when the review gave none", () => {
+    render(<Outcome answer={{ ...ANSWER, key_evidence: [] }} />);
+    expect(screen.queryByText("What decided it")).toBeNull();
   });
 
   it("shows a failed review as a failure, never as a decision", () => {
@@ -215,6 +238,11 @@ describe("CaseView", () => {
     expect(screen.getByText("Replay")).toBeTruthy();
     expect(screen.getByText("Decision trace")).toBeTruthy();
     expect(screen.getByText("Model routing and cost")).toBeTruthy();
+    // The value comes first: the recommendation sits above the steps and the trace.
+    const verdict = screen.getByTestId("verdict");
+    const trace = screen.getByText("Decision trace");
+    expect(verdict.compareDocumentPosition(trace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByText("What decided it")).toBeTruthy();
     expect(api.startReview).toHaveBeenCalledWith("ALR-0001", expect.stringMatching(/^ui-ALR-0001-/));
   });
 
@@ -275,6 +303,51 @@ describe("ExamDashboard", () => {
     vi.mocked(api.fetchExam).mockRejectedValue(new Error("down"));
     render(<ExamDashboard />);
     expect((await screen.findByRole("alert")).textContent).toContain("down");
+  });
+});
+
+describe("HeadlineStrip", () => {
+  const exam: ExamAnswer = {
+    label: "x",
+    cases: 70,
+    policy_version: 1,
+    results: [],
+    headline: {
+      alerts: 68,
+      closed_with_evidence: 20,
+      closed_correctly: 20,
+      escalated: 48,
+      closed_share: 0.29,
+      escalated_share: 0.71,
+      risk_cases: 42,
+      false_closes: 0,
+      false_close_rate: 0,
+      true_match_cases: 8,
+      true_match_false_closes: 0,
+      decision_unavailable: 0,
+      minutes_saved_per_100_alerts: 382,
+      assumptions: { minutesPerAlert: 15, minutesToConfirmClose: 2 },
+    },
+    headline_sentence: "29% of alerts closed with cited evidence, 71% escalated; assuming 15 minutes per alert.",
+  };
+
+  it("shows the headline measure with its assumptions", async () => {
+    vi.mocked(api.fetchExam).mockResolvedValue(exam);
+    render(<HeadlineStrip />);
+    expect((await screen.findByTestId("headline-strip")).textContent).toContain(
+      "29% of alerts closed with cited evidence",
+    );
+    expect(screen.getByTestId("headline-strip").textContent).toContain("assuming 15 minutes per alert");
+  });
+
+  it("says so, and invents nothing, when there is no complete run or the results cannot be read", async () => {
+    vi.mocked(api.fetchExam).mockResolvedValue({ ...exam, headline: null, headline_sentence: null });
+    render(<HeadlineStrip />);
+    expect((await screen.findByTestId("headline-strip")).textContent).toContain("No complete exam run is saved yet");
+    cleanup();
+    vi.mocked(api.fetchExam).mockRejectedValue(new Error("down"));
+    render(<HeadlineStrip />);
+    expect((await screen.findByTestId("headline-strip")).textContent).toContain("No complete exam run");
   });
 });
 

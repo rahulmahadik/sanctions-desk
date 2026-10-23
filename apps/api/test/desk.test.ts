@@ -98,6 +98,20 @@ describe("the review desk routes", () => {
     expect(Array.isArray(body.results)).toBe(true);
   });
 
+  it("gives the headline measure from the newest complete run of the full system, or none", async () => {
+    const { app } = await sampleApp();
+    const body = (await app.inject({ method: "GET", url: "/exam" })).json() as {
+      headline: { alerts: number; false_closes: number; assumptions: { minutesPerAlert: number } } | null;
+      headline_sentence: string | null;
+    };
+    // Whatever results are saved, the answer is either the measure with its assumptions, or null.
+    if (body.headline === null) expect(body.headline_sentence).toBeNull();
+    else {
+      expect(body.headline.assumptions.minutesPerAlert).toBe(15);
+      expect(body.headline_sentence).toContain("assuming 15 minutes per alert");
+    }
+  });
+
   it("answers the interface's origin and nobody else's", async () => {
     const { app } = await sampleApp();
     const allowed = await app.inject({ method: "GET", url: "/health", headers: { origin: "http://localhost:3001" } });

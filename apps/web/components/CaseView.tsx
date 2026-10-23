@@ -81,8 +81,8 @@ export function CaseView({ alertId }: { alertId: string }) {
           {problem}
         </p>
       ) : null}
-      {phase !== "ready" ? <RunGraph view={view} /> : null}
       {answer ? <Outcome answer={answer} /> : null}
+      {phase !== "ready" ? <RunGraph view={view} /> : null}
       {trace ? <FourQuestions trace={trace} /> : null}
       {evidence ? <EvidenceCards view={evidence} /> : null}
       {trace ? <RoutingPanel trace={trace} /> : null}

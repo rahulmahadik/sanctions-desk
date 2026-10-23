@@ -42,6 +42,11 @@ export const ANSWER: ReviewAnswer = {
   confidence: 0.9,
   rationale: "Different birth date and nationality.",
   what_would_change: ["A matching identifier number"],
+  key_evidence: [
+    "Comparison: name 1.00 (exact)",
+    "Comparison: date of birth conflicts (1990 against 1975)",
+    "Check: data quality: the customer record fails dob_present_for_individuals",
+  ],
   guards: [{ guard: "jurisdiction", verdict: "pass", detail: "no watched jurisdiction" }],
   critic: { rounds: 2, final_verdict: "approved" },
   record_hash: "a".repeat(64),

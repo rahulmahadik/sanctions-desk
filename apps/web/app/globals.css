@@ -324,3 +324,12 @@ dl.facts dd {
   height: 100%;
   background: var(--calm);
 }
+
+.strip {
+  margin: 0 0 16px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  font-size: 14px;
+}

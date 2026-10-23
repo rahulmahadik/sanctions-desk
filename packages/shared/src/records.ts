@@ -285,6 +285,10 @@ const RunCitationSchema = z.strictObject({
  * hash of the sealed decision record. A recommendation always needs a human to act on it.
  */
 export const ReviewResponseSchema = RunResponseSchema.extend({
+  /** The two or three lines of evidence that decided the case, for the reviewer to read first. */
+  key_evidence: z.array(z.string()).max(3).default([]),
+  /** Set when the confidence was capped, with the reason (for example a failing data-quality rule). */
+  confidence_cap: z.strictObject({ value: z.number(), reason: z.string() }).optional(),
   citations: z.array(RunCitationSchema).default([]),
   models: z.array(ModelUseSchema).default([]),
   guards: z.array(GuardVerdictSchema).default([]),

@@ -43,6 +43,10 @@ export interface ReviewAnswer {
   confidence?: number;
   rationale?: string;
   what_would_change: string[];
+  /** The two or three lines of evidence that decided the case. */
+  key_evidence?: string[];
+  /** Set when the confidence was capped, with the reason. */
+  confidence_cap?: { value: number; reason: string };
   guards?: Array<{ guard: string; verdict: "pass" | "flag" | "block"; detail?: string }>;
   critic?: { rounds: number; final_verdict: string };
   record_hash?: string;
@@ -154,9 +158,29 @@ export interface ExamResult {
   metrics: ExamMetrics;
 }
 
+export interface Headline {
+  alerts: number;
+  closed_with_evidence: number;
+  closed_correctly: number;
+  escalated: number;
+  closed_share: number;
+  escalated_share: number;
+  risk_cases: number;
+  false_closes: number;
+  false_close_rate: number;
+  true_match_cases: number;
+  true_match_false_closes: number;
+  decision_unavailable: number;
+  minutes_saved_per_100_alerts: number;
+  assumptions: { minutesPerAlert: number; minutesToConfirmClose: number };
+}
+
 export interface ExamAnswer {
   label: string;
   cases: number;
   results: ExamResult[];
   policy_version: number;
+  headline?: Headline | null;
+  headline_sentence?: string | null;
+  headline_run?: string | null;
 }

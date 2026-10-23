@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { HeadlineStrip } from "../components/HeadlineStrip";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link href="/exam">Exam results</Link>
             </nav>
           </header>
+          <HeadlineStrip />
           <main>{children}</main>
         </div>
       </body>
