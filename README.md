@@ -57,7 +57,18 @@ While it runs, `npm run case` prints one short line per step (time, agent, actio
   "status": "ok",
   "decision": "CLOSE_FALSE_POSITIVE",
   "confidence": 0.85,
-  "agents": ["triage", "evidence", "screener", "matching", "memory", "decision", "critic", "challenger", "policy_guard", "reporter"],
+  "agents": [
+    "triage",
+    "evidence",
+    "screener",
+    "matching",
+    "memory",
+    "decision",
+    "critic",
+    "challenger",
+    "policy_guard",
+    "reporter"
+  ],
   "trace_id": "ae3c6311-1d7f-4718-9a8d-52bae7447275",
   "log_file": "logs/trace-ae3c6311-1d7f-4718-9a8d-52bae7447275.jsonl",
   "record_hash": "f7c9ecf5702f91183f60c8a58ff01f95ae41c3f211f785773e69e567be67d9ff",
@@ -139,14 +150,14 @@ Open http://localhost:3001 for the review desk: pick an alert, press **Review th
 
 **Check the claims without Docker.** With Node 24, `npm ci && npm run prove` runs six checks in a few seconds once installed and prints one PASS or FAIL line each, then a summary; it exits with 1 if any check fails. It needs no credentials and no services, forces sample mode and never reads `.env`:
 
-| Check                  | What it does                                                                                                                                                         |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Check                  | What it does                                                                                                                                                               |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Sample-mode review     | Starts the API in the same process, runs `POST /run` for ALR-0004 and checks the sealed record on disk: its SHA-256 hash verifies and the answer carries the sample notice |
-| Engine conformance     | Runs the vendored conformance suites of H-MEM, the World Model and the Markovian engine (`npm run test:engines`) and reports each score                               |
-| Signed evidence        | Verifies every receipt signature in `eval/runs` and that every model call in the traces has its receipt naming the same model (`npm run evidence:verify`)            |
-| Roles and four-eyes    | Runs the API's access tests (every role against every route that changes something) and the human-decision tests, and reports the pass counts                        |
-| Preregistration        | Recomputes the held-out case-file hashes pinned in the tests, and checks that the final freeze commit of the second held-out set is in the history                   |
-| No secrets in the tree | Scans the tracked text files for credential-bearing URLs, private keys and tokens, and reports counts only                                                           |
+| Engine conformance     | Runs the vendored conformance suites of H-MEM, the World Model and the Markovian engine (`npm run test:engines`) and reports each score                                    |
+| Signed evidence        | Verifies every receipt signature in `eval/runs` and that every model call in the traces has its receipt naming the same model (`npm run evidence:verify`)                  |
+| Roles and four-eyes    | Runs the API's access tests (every role against every route that changes something) and the human-decision tests, and reports the pass counts                              |
+| Preregistration        | Recomputes the held-out case-file hashes pinned in the tests, and checks that the final freeze commit of the second held-out set is in the history                         |
+| No secrets in the tree | Scans the tracked text files for credential-bearing URLs, private keys and tokens, and reports counts only                                                                 |
 
 `npm run prove -- --verbose` also prints what each check printed. `npm run prove -- --fresh` clones the current commit into a temporary folder, runs `npm ci --no-audit --no-fund` there and runs the same checks inside it; it needs network access for npm and takes a few minutes. `npm run prove -- --write` writes the list to `eval/PROVE.md` and to the block at the top of this README.
 
@@ -262,9 +273,9 @@ Which agent runs on which Nemotron model, and what it does:
 **The signed receipt log of the final runs** (one Ed25519-signed Nightshift receipt per model call; the model that served each call is in `winning_route.model`):
 
 <!-- receipts:start -->
-| Run | Receipts | Receipt log | Check it |
-| --- | ---: | --- | --- |
-| `routed-20261023T010000Z` | 1 | [eval/runs/routed-20261023T010000Z/receipts.jsonl.gz](eval/runs/routed-20261023T010000Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/routed-20261023T010000Z` |
+| Run                       | Receipts | Receipt log                                                                                                | Check it                                                       |
+| ------------------------- | -------: | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `routed-20261023T010000Z` |        1 | [eval/runs/routed-20261023T010000Z/receipts.jsonl.gz](eval/runs/routed-20261023T010000Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/routed-20261023T010000Z` |
 
 `npm run evidence:verify` with no argument checks every run: each signature, that every model call has a receipt, and that the model in the trace equals the model in the receipt.
 <!-- receipts:end -->
@@ -427,37 +438,37 @@ Create the three non-admin Zetaris users and tokens as described in [docs/ZETARI
 
 No URL, model name or timeout is written in the source. Configuration is layered, lowest priority first: `config/default.json` (committed defaults), `config/local.json` (git-ignored, this machine's non-secret settings such as a pinned receipt key), the file named by `CONFIG_FILE`, then environment variables, which are the only place secrets may come from. Invalid configuration stops the process at start-up. Secrets print as `[REDACTED]`.
 
-| Variable                                                              | Overrides                      | Notes                                                                                                                                          |
-| --------------------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `HOST`, `PORT`                                                        | `server.*`                     | Defaults `127.0.0.1`, `8000`. The container image and compose set `HOST=0.0.0.0` inside the container.                                        |
-| `WEB_ORIGINS`                                                         | `server.webOrigins`            | Browser origins allowed to call the API (the review desk interface). Comma separated.                                                          |
-| `DOCS_ENABLED`                                                        | `server.docs`                  | Serve the OpenAPI description and Swagger UI at `/docs`. On by default.                                                                        |
-| `METERLESS_APP_REASONING`                                             | `nightshift.apps.reasoning`    | App identity for the decision, critic and challenger calls; bind it to `deep` in the Nightshift cockpit.                                       |
-| `METERLESS_APP_GUARD`                                                 | `nightshift.apps.guard`        | App identity for the safety guard calls; bind it to `local` in the Nightshift cockpit.                                                         |
-| `AUTH_MODE`                                                           | `server.auth`                  | `auto` (tokens required live, demo users in sample mode), `on`, `demo` or `off` (tests only).                                                  |
-| `DESK_USERS_FILE`                                                     | `server.usersFile`             | File with users, roles and the SHA-256 of each token, outside the repository.                                                                  |
-| `DESK_OUTBOX_DIR`                                                     | `actions.outboxDir`            | Folder for the records written after an approval. Nothing in it is sent anywhere.                                                              |
-| `DESK_SIGNING_KEY_FILE`                                               | `actions.signingKeyFile`       | Ed25519 private key (PEM) outside the repository. Without it, records are hash-sealed, not signed.                                             |
-| `DESK_SIGNING_PUBLIC_KEY`                                             | `actions.publicKey`            | Ed25519 public key (base64) that signed records are checked against.                                                                           |
-| `NEXT_PUBLIC_API_URL`                                                 | none                           | Where the browser reaches the API (the review desk interface, `apps/web`). Default `http://localhost:8000`. Fixed when the interface is built. |
-| `LOG_LEVEL`, `LOG_DIR`                                                | `logging.*`                    | A relative `LOG_DIR` is resolved from the project root.                                                                                        |
+| Variable                                                              | Overrides                      | Notes                                                                                                                                                                 |
+| --------------------------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `HOST`, `PORT`                                                        | `server.*`                     | Defaults `127.0.0.1`, `8000`. The container image and compose set `HOST=0.0.0.0` inside the container.                                                                |
+| `WEB_ORIGINS`                                                         | `server.webOrigins`            | Browser origins allowed to call the API (the review desk interface). Comma separated.                                                                                 |
+| `DOCS_ENABLED`                                                        | `server.docs`                  | Serve the OpenAPI description and Swagger UI at `/docs`. On by default.                                                                                               |
+| `METERLESS_APP_REASONING`                                             | `nightshift.apps.reasoning`    | App identity for the decision, critic and challenger calls; bind it to `deep` in the Nightshift cockpit.                                                              |
+| `METERLESS_APP_GUARD`                                                 | `nightshift.apps.guard`        | App identity for the safety guard calls; bind it to `local` in the Nightshift cockpit.                                                                                |
+| `AUTH_MODE`                                                           | `server.auth`                  | `auto` (tokens required live, demo users in sample mode), `on`, `demo` or `off` (tests only).                                                                         |
+| `DESK_USERS_FILE`                                                     | `server.usersFile`             | File with users, roles and the SHA-256 of each token, outside the repository.                                                                                         |
+| `DESK_OUTBOX_DIR`                                                     | `actions.outboxDir`            | Folder for the records written after an approval. Nothing in it is sent anywhere.                                                                                     |
+| `DESK_SIGNING_KEY_FILE`                                               | `actions.signingKeyFile`       | Ed25519 private key (PEM) outside the repository. Without it, records are hash-sealed, not signed.                                                                    |
+| `DESK_SIGNING_PUBLIC_KEY`                                             | `actions.publicKey`            | Ed25519 public key (base64) that signed records are checked against.                                                                                                  |
+| `NEXT_PUBLIC_API_URL`                                                 | none                           | Where the browser reaches the API (the review desk interface, `apps/web`). Default `http://localhost:8000`. Fixed when the interface is built.                        |
+| `LOG_LEVEL`, `LOG_DIR`                                                | `logging.*`                    | A relative `LOG_DIR` is resolved from the project root.                                                                                                               |
 | `TRACE_STDOUT_PRETTY`                                                 | `logging.pretty`               | `true` prints one short line per trace event (time, agent, action, status, summary, receipt id) instead of the JSON line. Off by default; `npm run case` turns it on. |
-| `SAMPLE_MODE`                                                         | `sampleMode`                   | `true` runs on saved answers and the labelled stand-in.                                                                                        |
-| `ZETARIS_REST_URL`, `ZETARIS_ORG_ID`                                  | `zetaris.*`                    |                                                                                                                                                |
-| `ZETARIS_UI_URL`                                                      | none                           | The Zetaris web interface, used only by `npm run zetaris:agents` to issue the runtime tokens. Default `http://localhost:3000`.                 |
-| `ZETARIS_API_KEY`                                                     | `zetaris.apiKey`               | Secret. Setup tooling and the labelled fallback only.                                                                                          |
-| `ZETARIS_TOKEN_EVIDENCE`, `_REVIEWER`, `_EVAL`                        | `zetaris.tokens.*`             | Secrets. One per runtime identity.                                                                                                             |
-| `METERLESS_BASE_URL`, `METERLESS_APP_ID`, `METERLESS_EVAL_APP_ID`     | `nightshift.*`                 | The evaluation app id keeps the runtime's answer cache separate from live use.                                                                 |
-| `METERLESS_RUNTIME_TOKEN`                                             | `nightshift.runtimeToken`      | Secret.                                                                                                                                        |
-| `METERLESS_MODEL_FAST`, `_DEEP`, `_JUDGE`                             | `nightshift.models.*`          | Must be pinned modes.                                                                                                                          |
-| `METERLESS_RECEIPT_PUBLIC_KEY`                                        | `nightshift.receiptPublicKeys` | Comma separated base64 Ed25519 keys; marks receipts `valid_pinned`.                                                                            |
-| `OLLAMA_BASE_URL`, `OLLAMA_MODEL`                                     | `ollama.*`                     | Backup provider.                                                                                                                               |
-| `DESK_API_URL`, `DESK_TOKEN`, `DESK_DEMO_USER`                        | (MCP server only)              | Where the MCP server finds the desk API, and the token (or, in sample mode, the demo user) it sends. See [docs/MCP.md](docs/MCP.md).           |
-| `METERLESS_ENGINES_DIR`                                               | none                           | Folder with the engine conformance runners for `npm run test:engines`. Default `../meterless-engines`.                                         |
-| `BANKDB_ADMIN_PASSWORD`, `BANKDB_READER_PASSWORD`, `PAYMENTS_API_KEY` | none                           | Used by the `data` Docker profile (synthetic bank and payments service). Secrets.                                                              |
-| `PAYMENTS_FILE`                                                       | none                           | Payments service data file when run outside Docker. Default `data/synthetic/payment.json`.                                                     |
-| `LIVE_TESTS`                                                          | none                           | Set to `1` to run the live model checks (`npm run test:live`).                                                                                 |
-| `ZETARIS_CHECK_CONTAINER`                                             | none                           | Container used by `npm run check:isolation`. Default `zetaris-driver-1`.                                                                       |
+| `SAMPLE_MODE`                                                         | `sampleMode`                   | `true` runs on saved answers and the labelled stand-in.                                                                                                               |
+| `ZETARIS_REST_URL`, `ZETARIS_ORG_ID`                                  | `zetaris.*`                    |                                                                                                                                                                       |
+| `ZETARIS_UI_URL`                                                      | none                           | The Zetaris web interface, used only by `npm run zetaris:agents` to issue the runtime tokens. Default `http://localhost:3000`.                                        |
+| `ZETARIS_API_KEY`                                                     | `zetaris.apiKey`               | Secret. Setup tooling and the labelled fallback only.                                                                                                                 |
+| `ZETARIS_TOKEN_EVIDENCE`, `_REVIEWER`, `_EVAL`                        | `zetaris.tokens.*`             | Secrets. One per runtime identity.                                                                                                                                    |
+| `METERLESS_BASE_URL`, `METERLESS_APP_ID`, `METERLESS_EVAL_APP_ID`     | `nightshift.*`                 | The evaluation app id keeps the runtime's answer cache separate from live use.                                                                                        |
+| `METERLESS_RUNTIME_TOKEN`                                             | `nightshift.runtimeToken`      | Secret.                                                                                                                                                               |
+| `METERLESS_MODEL_FAST`, `_DEEP`, `_JUDGE`                             | `nightshift.models.*`          | Must be pinned modes.                                                                                                                                                 |
+| `METERLESS_RECEIPT_PUBLIC_KEY`                                        | `nightshift.receiptPublicKeys` | Comma separated base64 Ed25519 keys; marks receipts `valid_pinned`.                                                                                                   |
+| `OLLAMA_BASE_URL`, `OLLAMA_MODEL`                                     | `ollama.*`                     | Backup provider.                                                                                                                                                      |
+| `DESK_API_URL`, `DESK_TOKEN`, `DESK_DEMO_USER`                        | (MCP server only)              | Where the MCP server finds the desk API, and the token (or, in sample mode, the demo user) it sends. See [docs/MCP.md](docs/MCP.md).                                  |
+| `METERLESS_ENGINES_DIR`                                               | none                           | Folder with the engine conformance runners for `npm run test:engines`. Default `../meterless-engines`.                                                                |
+| `BANKDB_ADMIN_PASSWORD`, `BANKDB_READER_PASSWORD`, `PAYMENTS_API_KEY` | none                           | Used by the `data` Docker profile (synthetic bank and payments service). Secrets.                                                                                     |
+| `PAYMENTS_FILE`                                                       | none                           | Payments service data file when run outside Docker. Default `data/synthetic/payment.json`.                                                                            |
+| `LIVE_TESTS`                                                          | none                           | Set to `1` to run the live model checks (`npm run test:live`).                                                                                                        |
+| `ZETARIS_CHECK_CONTAINER`                                             | none                           | Container used by `npm run check:isolation`. Default `zetaris-driver-1`.                                                                                              |
 
 ## API
 

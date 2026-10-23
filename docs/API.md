@@ -48,15 +48,15 @@ curl -s localhost:8000/run -H 'content-type: application/json' \
 
 Every answer, including an error, also carries the run's bookkeeping:
 
-| Field                    | What it is                                                                                    |
-| ------------------------ | --------------------------------------------------------------------------------------------- |
-| `run_id`, `trace_id`     | The run's id; the trace id is the same value                                                  |
-| `status`                 | `ok`, or `error` with `error: {type, message, recoverable}`                                   |
+| Field                    | What it is                                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------ |
+| `run_id`, `trace_id`     | The run's id; the trace id is the same value                                                     |
+| `status`                 | `ok`, or `error` with `error: {type, message, recoverable}`                                      |
 | `agents`                 | The steps that ran, in order (for example `triage`, `evidence`, ..., `policy_guard`, `reporter`) |
-| `log_file`               | The run's trace file, relative to the project root: `logs/trace-<run_id>.jsonl`               |
-| `record_hash`            | SHA-256 of the sealed decision record                                                         |
-| `execution_time_seconds` | Time the review took                                                                          |
-| `sample_mode`            | `true` when the run used saved data and the labelled rules-based model (absent in a live run) |
+| `log_file`               | The run's trace file, relative to the project root: `logs/trace-<run_id>.jsonl`                  |
+| `record_hash`            | SHA-256 of the sealed decision record                                                            |
+| `execution_time_seconds` | Time the review took                                                                             |
+| `sample_mode`            | `true` when the run used saved data and the labelled rules-based model (absent in a live run)    |
 
 ### The same review from the command line
 
