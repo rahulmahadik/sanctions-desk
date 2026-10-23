@@ -19,11 +19,11 @@
     },
     "nvidia_nemotron": {
       "status": "working",
-      "role": "decision, critic and safety guard, via Nightshift; the model ledger shows which model answered each step"
+      "role": "safety guard (Nemotron 3.5 Lightning 30B, local), decision, critic and challenger (mostly Nemotron 3 Ultra 550B, cloud), via Nightshift; the model ledger and signed receipts show which model answered each step"
     }
   },
   "sample_mode": { "status": "working", "needs": "nothing: no Zetaris, no Nightshift, no credentials" },
-  "user_interface": { "status": "working", "stack": "Next.js, read-only, works in sample mode" },
+  "user_interface": { "status": "working", "stack": "Next.js; a person approves or overrides with a reason, a block needs two approvers; works in sample mode" },
   "data": "public lists (OFAC, UN, GLEIF CC0) plus synthetic customers, payments and owners",
   "ai_usage": "Built with the help of an AI coding assistant (Claude Code). Product models are NVIDIA Nemotron via Meterless Nightshift."
 }
