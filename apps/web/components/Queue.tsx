@@ -78,6 +78,7 @@ export function Queue() {
                 <th>Matched name</th>
                 <th>Score</th>
                 <th>Recommendation</th>
+                <th>Person</th>
                 <th>Record</th>
               </tr>
             </thead>
@@ -99,6 +100,19 @@ export function Queue() {
                     ) : (
                       <span className="muted">not yet reviewed</span>
                     )}
+                  </td>
+                  <td>
+                    {a.human_status && a.human_status !== "awaiting" ? (
+                      <span className="badge tone-calm">
+                        {a.human_status === "block_pending"
+                          ? "block approval pending"
+                          : a.human_final
+                            ? `decided: ${DECISION_LABEL[a.human_final]}`
+                            : "decided"}
+                      </span>
+                    ) : a.recommendation ? (
+                      <span className="muted">waiting for a person</span>
+                    ) : null}
                   </td>
                   <td className="muted">{shortHash(a.record_hash)}</td>
                 </tr>

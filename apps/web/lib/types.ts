@@ -13,6 +13,9 @@ export interface QueueAlert {
   status: string;
   recommendation: Decision | null;
   record_hash: string | null;
+  /** Where people have taken the recommendation; absent when the API predates the human step. */
+  human_status?: HumanStatus;
+  human_final?: Decision | null;
 }
 
 export interface RunEvent {
@@ -249,4 +252,59 @@ export interface GovernanceView {
     code: string;
   };
   limits: string[];
+}
+
+export type HumanStatus = "awaiting" | "decided" | "block_pending" | "block_approved" | "block_declined";
+export type ActionCheck = "signed_and_pinned" | "signed_unpinned" | "hash_sealed" | "invalid";
+
+export interface MeView {
+  user: { id: string; role: "analyst" | "approver" | "policy_admin" | "viewer"; demo: boolean };
+  auth: "on" | "demo" | "off";
+  demo_users: Array<{ id: string; role: string }>;
+  permissions: {
+    decide: boolean;
+    approve_block: boolean;
+    override_towards_less_caution: boolean;
+    propose_policy: boolean;
+    publish_policy: boolean;
+  };
+  records_sealed_with: "ed25519" | "hash-sealed";
+  signing_public_key?: string;
+}
+
+export interface HumanActionView {
+  action: "approve" | "override" | "second_approval" | "reject";
+  actor: string;
+  role?: string;
+  at: string;
+  reason?: string;
+  outcome?: Decision;
+}
+
+export interface ActionRecordView {
+  action_id: string;
+  body: {
+    kind: "closure_note" | "escalation_ticket" | "rfi_draft" | "hold_instruction" | "block_recommendation";
+    status: string;
+    title: string;
+    content: string;
+    final: Decision;
+    sent: false;
+    created_at: string;
+    decided_by: Array<{ id: string; role?: string; action: string; at: string; reason?: string }>;
+  };
+  body_hash: string;
+  seal: { type: "hash-sealed" } | { type: "ed25519"; key_id: string };
+  check: ActionCheck;
+}
+
+export interface HumanView {
+  alert_id: string;
+  record_hash: string;
+  recommendation: { decision: Decision; confidence: number; rationale: string };
+  status: HumanStatus;
+  final: Decision | null;
+  actions_taken: HumanActionView[];
+  records_sealed_with: "ed25519" | "hash-sealed";
+  next_actions: ActionRecordView[];
 }

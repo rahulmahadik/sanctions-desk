@@ -175,3 +175,113 @@ export const SPLIT = {
   routed_auto: 185,
   routers: ["learned-router"],
 };
+
+import type { HumanView, MeView } from "../lib/types";
+
+const PERMS_NONE = {
+  decide: false,
+  approve_block: false,
+  override_towards_less_caution: false,
+  propose_policy: false,
+  publish_policy: false,
+};
+const DEMO = [
+  { id: "analyst_demo", role: "analyst" },
+  { id: "approver_demo", role: "approver" },
+  { id: "admin_demo", role: "policy_admin" },
+];
+export const ME_VIEWER: MeView = {
+  user: { id: "anonymous", role: "viewer", demo: false },
+  auth: "demo",
+  demo_users: DEMO,
+  permissions: PERMS_NONE,
+  records_sealed_with: "hash-sealed",
+};
+export const ME_ANALYST: MeView = {
+  ...ME_VIEWER,
+  user: { id: "analyst_demo", role: "analyst", demo: true },
+  permissions: { ...PERMS_NONE, decide: true },
+};
+export const ME_APPROVER: MeView = {
+  ...ME_VIEWER,
+  user: { id: "approver_demo", role: "approver", demo: true },
+  permissions: {
+    decide: true,
+    approve_block: true,
+    override_towards_less_caution: true,
+    propose_policy: true,
+    publish_policy: false,
+  },
+};
+
+const base: HumanView = {
+  alert_id: "ALR-0001",
+  record_hash: "a".repeat(64),
+  recommendation: { decision: "CLOSE_FALSE_POSITIVE", confidence: 0.9, rationale: "Dates of birth conflict." },
+  status: "awaiting",
+  final: null,
+  actions_taken: [],
+  records_sealed_with: "hash-sealed",
+  next_actions: [],
+};
+const note = (kind: HumanView["next_actions"][number]["body"]["kind"], status: string, content: string) => ({
+  action_id: `${kind}-1`,
+  body: {
+    kind,
+    status,
+    title: kind,
+    content,
+    final: "CLOSE_FALSE_POSITIVE" as const,
+    sent: false as const,
+    created_at: "2026-10-23T10:00:00.000Z",
+    decided_by: [],
+  },
+  body_hash: "b".repeat(64),
+  seal: { type: "hash-sealed" as const },
+  check: "hash_sealed" as const,
+});
+const taken = (
+  actor: string,
+  role: string,
+  action: HumanView["actions_taken"][number]["action"],
+  outcome: HumanView["final"],
+) => ({
+  action,
+  actor,
+  role,
+  at: "2026-10-23T10:00:00.000Z",
+  reason: "A reason that was given.",
+  ...(outcome ? { outcome } : {}),
+});
+export const HUMAN = {
+  awaiting: base,
+  decided: {
+    ...base,
+    status: "decided",
+    final: "CLOSE_FALSE_POSITIVE",
+    actions_taken: [taken("analyst_demo", "analyst", "approve", "CLOSE_FALSE_POSITIVE")],
+    next_actions: [
+      note("closure_note", "closed by a person", "Alert ALR-0001 was closed as a false positive by analyst_demo."),
+    ],
+  } satisfies HumanView,
+  blockPending: {
+    ...base,
+    recommendation: { decision: "RECOMMEND_BLOCK", confidence: 0.9, rationale: "x" },
+    status: "block_pending",
+    actions_taken: [taken("analyst_demo", "analyst", "approve", "RECOMMEND_BLOCK")],
+    next_actions: [note("escalation_ticket", "block approval pending", "A block is recommended and has one approval.")],
+  } satisfies HumanView,
+  blockApproved: {
+    ...base,
+    recommendation: { decision: "RECOMMEND_BLOCK", confidence: 0.9, rationale: "x" },
+    status: "block_approved",
+    final: "RECOMMEND_BLOCK",
+    actions_taken: [
+      taken("analyst_demo", "analyst", "approve", "RECOMMEND_BLOCK"),
+      taken("approver_demo", "approver", "second_approval", "RECOMMEND_BLOCK"),
+    ],
+    next_actions: [
+      note("block_recommendation", "ready for the sanctions officer", "Two different approvers support a block."),
+    ],
+  } satisfies HumanView,
+};

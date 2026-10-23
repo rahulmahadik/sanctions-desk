@@ -1,7 +1,11 @@
+import { authHeaders } from "./session";
 import type {
+  Decision,
   EvidenceView,
   ExamAnswer,
   GovernanceView,
+  HumanView,
+  MeView,
   QueueAlert,
   RecordView,
   ReviewAnswer,
@@ -22,7 +26,11 @@ export class ApiError extends Error {
 }
 
 async function getJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, { cache: "no-store", ...init });
+  const res = await fetch(`${API_URL}${path}`, {
+    cache: "no-store",
+    ...init,
+    headers: { ...authHeaders(), ...(init?.headers as Record<string, string> | undefined) },
+  });
   const text = await res.text();
   let body: unknown;
   try {
@@ -55,20 +63,80 @@ export const startReview = (alertId: string, runId: string) =>
     body: JSON.stringify({ alert_id: alertId, run_id: runId }),
   });
 
-/** Follow a run's events as they happen. Returns a function that stops listening. */
-export function followRun(runId: string, onEvent: (event: RunEvent) => void, onClose: () => void): () => void {
-  const source = new EventSource(`${API_URL}/runs/${encodeURIComponent(runId)}/stream`);
-  source.addEventListener("run_event", (message) => {
-    const event = JSON.parse((message as MessageEvent<string>).data) as RunEvent;
-    onEvent(event);
-    if (event.agent === "system" && ["run_completed", "run_failed", "run_rejected"].includes(event.action)) {
-      source.close();
-      onClose();
-    }
+export const fetchMe = () => getJson<MeView>("/me");
+export const fetchHuman = (alertId: string) => getJson<HumanView>(`/cases/${encodeURIComponent(alertId)}/human`);
+
+const post = <T>(path: string, body: unknown) =>
+  getJson<T>(path, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
   });
-  source.onerror = () => {
-    source.close();
+
+export interface DecisionInput {
+  action: "approve" | "override";
+  outcome?: Decision;
+  reason: string;
+  record_hash: string;
+}
+export const postDecision = (alertId: string, input: DecisionInput) =>
+  post<HumanView>(`/cases/${encodeURIComponent(alertId)}/decision`, input);
+export const postSecondApproval = (alertId: string, input: { approve: boolean; reason: string; record_hash: string }) =>
+  post<HumanView>(`/cases/${encodeURIComponent(alertId)}/second-approval`, input);
+
+/**
+ * Follow a run's events as they happen. Returns a function that stops listening. It reads the stream with fetch, not
+ * EventSource, so the sign-in header can be sent and no token ever appears in an address.
+ */
+export function followRun(runId: string, onEvent: (event: RunEvent) => void, onClose: () => void): () => void {
+  const abort = new AbortController();
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    abort.abort();
     onClose();
   };
-  return () => source.close();
+  void (async () => {
+    try {
+      const res = await fetch(`${API_URL}/runs/${encodeURIComponent(runId)}/stream`, {
+        headers: { ...authHeaders(), accept: "text/event-stream" },
+        signal: abort.signal,
+        cache: "no-store",
+      });
+      if (!res.ok || !res.body) return finish();
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      for (;;) {
+        const { value, done: ended } = await reader.read();
+        if (ended) break;
+        buffer += decoder.decode(value, { stream: true });
+        let cut = buffer.indexOf("\n\n");
+        while (cut >= 0) {
+          const block = buffer.slice(0, cut);
+          buffer = buffer.slice(cut + 2);
+          const data = block
+            .split("\n")
+            .filter((l) => l.startsWith("data:"))
+            .map((l) => l.slice(5).trim())
+            .join("");
+          if (block.includes("event: run_event") && data) {
+            const event = JSON.parse(data) as RunEvent;
+            onEvent(event);
+            if (event.agent === "system" && ["run_completed", "run_failed", "run_rejected"].includes(event.action))
+              return finish();
+          }
+          cut = buffer.indexOf("\n\n");
+        }
+      }
+    } catch {
+      // aborted by the caller, or the connection dropped; the recorded history is read afterwards
+    }
+    finish();
+  })();
+  return () => {
+    done = true;
+    abort.abort();
+  };
 }

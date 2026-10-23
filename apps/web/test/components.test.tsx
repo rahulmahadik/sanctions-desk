@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { DecisionPanel } from "../components/DecisionPanel";
 import { EvidenceCards } from "../components/Evidence";
 import { ExamDashboard } from "../components/ExamDashboard";
 import { Governance } from "../components/Governance";
@@ -11,9 +12,10 @@ import { Queue } from "../components/Queue";
 import { Outcome, Replay } from "../components/Record";
 import { RoutingPanel } from "../components/Routing";
 import { RunGraph } from "../components/RunGraph";
+import { UserSwitcher } from "../components/UserSwitcher";
 import { graphAt } from "../lib/graph";
 import type { ExamAnswer, QueueAlert } from "../lib/types";
-import { ANSWER, EVENTS, EVIDENCE, RECORD, SPLIT, TRACE } from "./fixtures";
+import { ANSWER, EVENTS, EVIDENCE, HUMAN, ME_ANALYST, ME_APPROVER, ME_VIEWER, RECORD, SPLIT, TRACE } from "./fixtures";
 
 vi.mock("../lib/api", () => ({
   fetchQueue: vi.fn(),
@@ -25,6 +27,18 @@ vi.mock("../lib/api", () => ({
   fetchEvents: vi.fn(),
   startReview: vi.fn(),
   followRun: vi.fn(),
+  fetchMe: vi.fn(),
+  fetchHuman: vi.fn(),
+  postDecision: vi.fn(),
+  postSecondApproval: vi.fn(),
+  ApiError: class ApiError extends Error {
+    constructor(
+      message: string,
+      readonly status: number,
+    ) {
+      super(message);
+    }
+  },
 }));
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
@@ -37,6 +51,8 @@ afterEach(cleanup);
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(api.fetchExam).mockResolvedValue({ label: "x", cases: 70, results: [], policy_version: 1 });
+  vi.mocked(api.fetchMe).mockResolvedValue(ME_VIEWER);
+  vi.mocked(api.fetchHuman).mockRejectedValue(new api.ApiError("no recommendation yet", 404));
 });
 
 describe("RunGraph", () => {
@@ -465,5 +481,121 @@ describe("styles", () => {
   });
   it("has a dark theme", () => {
     expect(css).toContain("prefers-color-scheme: dark");
+  });
+});
+
+describe("UserSwitcher", () => {
+  it("offers the labelled demo users in sample mode", async () => {
+    render(<UserSwitcher />);
+    const select = await screen.findByLabelText("Demo user (sample mode only)");
+    expect(
+      within(select)
+        .getAllByRole("option")
+        .map((o) => o.textContent),
+    ).toEqual([
+      "Visitor (read only)",
+      "analyst_demo — analyst",
+      "approver_demo — approver (sanctions officer)",
+      "admin_demo — policy admin",
+    ]);
+    expect(screen.getByText("Demo user")).toBeTruthy();
+  });
+
+  it("shows who is signed in, with no demo choice, when the deployment has sign-in on", async () => {
+    vi.mocked(api.fetchMe).mockResolvedValue({
+      ...ME_ANALYST,
+      auth: "on",
+      demo_users: [],
+      user: { id: "ann", role: "analyst", demo: false },
+    });
+    render(<UserSwitcher />);
+    expect((await screen.findByText("ann")).textContent).toBe("ann");
+    expect(screen.queryByLabelText("Demo user (sample mode only)")).toBeNull();
+    expect(screen.getByRole("button", { name: "Sign out" })).toBeTruthy();
+  });
+});
+
+describe("DecisionPanel", () => {
+  it("asks for a review first when there is no recommendation", async () => {
+    render(<DecisionPanel alertId="ALR-0001" />);
+    expect((await screen.findByText(/no recommendation yet/i)).textContent).toContain("Review the alert first");
+  });
+
+  it("will not let a visitor decide, and says what to do", async () => {
+    vi.mocked(api.fetchHuman).mockResolvedValue(HUMAN.awaiting);
+    render(<DecisionPanel alertId="ALR-0001" />);
+    expect(await screen.findByText(/Choose a demo user/)).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Approve" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("needs a reason before an analyst can approve, then sends the decision with the record hash", async () => {
+    vi.mocked(api.fetchMe).mockResolvedValue(ME_ANALYST);
+    vi.mocked(api.fetchHuman).mockResolvedValue(HUMAN.awaiting);
+    vi.mocked(api.postDecision).mockResolvedValue(HUMAN.decided);
+    render(<DecisionPanel alertId="ALR-0001" />);
+    const button = (await screen.findByRole("button", { name: "Approve" })) as HTMLButtonElement;
+    await waitFor(() => expect(screen.getByText(/at least 10 characters/)).toBeTruthy());
+    expect(button.disabled).toBe(true);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "Dates of birth differ by 14 years." } });
+    expect(button.disabled).toBe(false);
+    fireEvent.click(button);
+    await waitFor(() =>
+      expect(api.postDecision).toHaveBeenCalledWith("ALR-0001", {
+        action: "approve",
+        reason: "Dates of birth differ by 14 years.",
+        record_hash: HUMAN.awaiting.record_hash,
+      }),
+    );
+    expect(await screen.findByText(/Decided by a person/)).toBeTruthy();
+    expect(screen.getByText("Closure note")).toBeTruthy();
+    expect(screen.getByText(/hash-sealed/)).toBeTruthy();
+  });
+
+  it("stops an analyst from overriding towards a less cautious outcome", async () => {
+    vi.mocked(api.fetchMe).mockResolvedValue(ME_ANALYST);
+    vi.mocked(api.fetchHuman).mockResolvedValue({
+      ...HUMAN.awaiting,
+      recommendation: { decision: "ESCALATE_L2", confidence: 0.8, rationale: "x" },
+    });
+    render(<DecisionPanel alertId="ALR-0001" />);
+    fireEvent.click(await screen.findByLabelText(/Override with/));
+    fireEvent.change(screen.getByLabelText("Outcome for an override"), { target: { value: "CLOSE_FALSE_POSITIVE" } });
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "A long enough reason to submit." } });
+    expect(screen.getByText(/Only an approver can override towards a less cautious outcome/)).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Override" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("shows a block as pending, and only a different approver can give the second approval", async () => {
+    vi.mocked(api.fetchHuman).mockResolvedValue(HUMAN.blockPending);
+    vi.mocked(api.fetchMe).mockResolvedValue({
+      ...ME_APPROVER,
+      user: { id: "analyst_demo", role: "approver", demo: true },
+    });
+    const { unmount } = render(<DecisionPanel alertId="ALR-0001" />);
+    expect(await screen.findByText(/Block approval pending/)).toBeTruthy();
+    expect(screen.getByText("block approval pending")).toBeTruthy();
+    expect(await screen.findByText(/You made the first decision; a different approver must confirm/)).toBeTruthy();
+    unmount();
+
+    vi.mocked(api.fetchMe).mockResolvedValue(ME_APPROVER);
+    vi.mocked(api.postSecondApproval).mockResolvedValue(HUMAN.blockApproved);
+    render(<DecisionPanel alertId="ALR-0001" />);
+    fireEvent.change(await screen.findByRole("textbox"), {
+      target: { value: "Confirmed after reading the evidence." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Give the second approval" }));
+    await waitFor(() => expect(api.postSecondApproval).toHaveBeenCalled());
+    expect(await screen.findByText("Block recommendation for the sanctions officer")).toBeTruthy();
+  });
+
+  it("shows the API's refusal as an alert and keeps the form", async () => {
+    vi.mocked(api.fetchMe).mockResolvedValue(ME_ANALYST);
+    vi.mocked(api.fetchHuman).mockResolvedValue(HUMAN.awaiting);
+    vi.mocked(api.postDecision).mockRejectedValue(new Error("the recommendation changed since you looked at it"));
+    render(<DecisionPanel alertId="ALR-0001" />);
+    fireEvent.change(await screen.findByRole("textbox"), { target: { value: "A long enough reason to submit." } });
+    fireEvent.click(screen.getByRole("button", { name: "Approve" }));
+    expect((await screen.findByRole("alert")).textContent).toContain("changed since you looked");
+    expect(screen.getByRole("button", { name: "Approve" })).toBeTruthy();
   });
 });

@@ -5,6 +5,7 @@ import {
   type Headline,
   headlineOf,
   headlineSentence,
+  humanState,
   type RoutingSplit,
   readAlertQueue,
   readDecisionRecords,
@@ -69,6 +70,12 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
         ...a,
         recommendation: recorded.get(a.alert_id)?.decision ?? null,
         record_hash: recorded.get(a.alert_id)?.record_hash ?? null,
+        human_status: recorded.has(a.alert_id)
+          ? humanState(recorded.get(a.alert_id) as DecisionRecord).status
+          : "awaiting",
+        human_final: recorded.has(a.alert_id)
+          ? (humanState(recorded.get(a.alert_id) as DecisionRecord).final ?? null)
+          : null,
       })),
       sample_mode: config.sampleMode,
     };

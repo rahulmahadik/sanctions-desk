@@ -5,6 +5,7 @@ import { fetchEvents, fetchEvidence, fetchExam, fetchRecord, fetchTrace, followR
 import { graphAt } from "../lib/graph";
 import type { EvidenceView, RecordView, ReviewAnswer, RoutingSplit, RunEvent, TraceView } from "../lib/types";
 import { HumanBanner } from "./Banner";
+import { DecisionPanel } from "./DecisionPanel";
 import { EvidenceCards } from "./Evidence";
 import { FourQuestions, Outcome, Replay } from "./Record";
 import { RoutingPanel } from "./Routing";
@@ -87,6 +88,7 @@ export function CaseView({ alertId }: { alertId: string }) {
         </p>
       ) : null}
       {answer ? <Outcome answer={answer} /> : null}
+      <DecisionPanel alertId={alertId} refreshKey={answer?.run_id ?? record?.record_hash} />
       {phase !== "ready" ? <RunGraph view={view} /> : null}
       {trace ? <FourQuestions trace={trace} /> : null}
       {evidence ? <EvidenceCards view={evidence} /> : null}
