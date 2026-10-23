@@ -10,7 +10,8 @@
  *   npm run exam -- --variant escalate_all    baseline: every alert goes to a person
  *   npm run exam -- --variant no_memory       the full system with memory off (previously cleared cases only)
  *
- * Options: --groups a,b  --kinds x,y  --limit N  --exam heldout (the held-out set, run ids eval-heldout-...). Results go to eval/results/<time>-<variant>.json and are
+ * Options: --groups a,b  --kinds x,y  --limit N  --exam heldout|heldout2 (a held-out set, run ids eval-heldout-...),
+ *   --system sys2 (the version of the system under test, put into run ids and the result). Results go to eval/results/<time>-<variant>.json and are
  * never edited by hand; eval/REPORT.md is built from them (npm run exam:report).
  */
 
@@ -31,7 +32,13 @@ import {
   screenOutbound,
   summarise,
 } from "@sanctions-desk/agents";
-import { type ExamCaseRecord, HELDOUT_EXAM_FILE, loadExam, MAIN_EXAM_FILE } from "@sanctions-desk/data";
+import {
+  type ExamCaseRecord,
+  HELDOUT_EXAM_FILE,
+  HELDOUT2_EXAM_FILE,
+  loadExam,
+  MAIN_EXAM_FILE,
+} from "@sanctions-desk/data";
 import {
   buildGenerator,
   createFallbackRulesGenerator,
@@ -57,10 +64,15 @@ const variant = flag("--variant") ?? "routed";
 const groups = flag("--groups")?.split(",");
 const kinds = flag("--kinds")?.split(",");
 const tag = flag("--tag");
-// --exam heldout runs the held-out "beyond the rules" set instead of the main 70 cases.
+// --exam heldout or heldout2 runs a held-out "beyond the rules" set instead of the main 70 cases.
 const examName = flag("--exam") ?? "exam";
-if (!["exam", "heldout"].includes(examName)) throw new Error("--exam must be exam or heldout");
-const runPrefix = examName === "heldout" ? "eval-heldout" : "eval";
+if (!["exam", "heldout", "heldout2"].includes(examName)) throw new Error("--exam must be exam, heldout or heldout2");
+// --system names the version of the system under test (for example sys2); it goes into the run ids and the result, so
+// runs of different versions never share a trace file.
+const system = flag("--system");
+if (system !== undefined && !/^[a-z0-9]+$/.test(system))
+  throw new Error("--system must be lower-case letters and digits");
+const runPrefix = `${examName === "exam" ? "eval" : `eval-${examName}`}${system ? `-${system}` : ""}`;
 const limit = flag("--limit") ? Number(flag("--limit")) : undefined;
 const VARIANTS = ["routed", "single", "local", "lightning", "rules", "fuzzy", "escalate_all", "no_memory"];
 if (!VARIANTS.includes(variant)) throw new Error(`--variant must be one of ${VARIANTS.join(", ")}`);
@@ -95,7 +107,12 @@ if (variant === "lightning") {
   };
 }
 
-let cases: ExamCaseRecord[] = loadExam(examName === "heldout" ? HELDOUT_EXAM_FILE : MAIN_EXAM_FILE).cases;
+const EXAM_FILES: Record<string, string> = {
+  exam: MAIN_EXAM_FILE,
+  heldout: HELDOUT_EXAM_FILE,
+  heldout2: HELDOUT2_EXAM_FILE,
+};
+let cases: ExamCaseRecord[] = loadExam(EXAM_FILES[examName] as string).cases;
 if (variant === "no_memory") cases = cases.filter((c) => c.group.startsWith("previously_cleared"));
 if (groups) cases = cases.filter((c) => groups.includes(c.group));
 if (kinds) cases = cases.filter((c) => kinds.includes(c.kind));
@@ -282,7 +299,7 @@ const dir = resolveProjectPath("eval/results");
 mkdirSync(dir, { recursive: true });
 const file = join(
   dir,
-  `${startedAt.replace(/[:.]/g, "-")}-${examName === "heldout" ? "heldout-" : ""}${variant}${tag ? `-${tag}` : ""}.json`,
+  `${startedAt.replace(/[:.]/g, "-")}-${examName === "exam" ? "" : `${examName}-`}${system ? `${system}-` : ""}${variant}${tag ? `-${tag}` : ""}.json`,
 );
 const describeModels = (p: Policy) =>
   Object.fromEntries(
@@ -293,7 +310,7 @@ const describeModels = (p: Policy) =>
   );
 writeFileSync(
   file,
-  `${JSON.stringify({ variant, ...(examName === "heldout" ? { exam: "heldout" } : {}), ...(tag ? { tag } : {}), features: runFeatures(policy), selection: { groups, kinds: kinds?.length, limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: describeModels(policy), cases: outcomes, metrics }, null, 2)}\n`,
+  `${JSON.stringify({ variant, ...(examName === "exam" ? {} : { exam: examName }), ...(system ? { system } : {}), ...(tag ? { tag } : {}), features: runFeatures(policy), selection: { groups, kinds: kinds?.length, limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: describeModels(policy), cases: outcomes, metrics }, null, 2)}\n`,
 );
 console.log(
   JSON.stringify({

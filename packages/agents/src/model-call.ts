@@ -157,6 +157,12 @@ function isProviderFailure(err: unknown): boolean {
 const identityOf = (config: { identity?: "default" | "reasoning" | "guard" }) =>
   config.identity && config.identity !== "default" ? { identity: config.identity } : {};
 
+/** The identity of a try: the fast retry may go out under another identity so a bound lane cannot fail it twice. */
+const identityFor = (
+  config: { identity?: "default" | "reasoning" | "guard"; retryIdentity?: "default" | "reasoning" | "guard" },
+  route: "own" | "fast" | "backup",
+) => identityOf(route === "fast" && config.retryIdentity ? { identity: config.retryIdentity } : config);
+
 async function attemptOnce<T extends z.ZodType>(
   deps: AgentDeps,
   options: AskJsonOptions<T>,
@@ -171,7 +177,7 @@ async function attemptOnce<T extends z.ZodType>(
       system: `${options.system}\n\n${reasoning ? STRUCTURED_REASONING : STRUCTURED_BRIEF}`,
       prompt,
       ...(route === "own" ? laneOrModel(config.model) : { lane: "fast" as const }),
-      ...(route === "backup" ? { provider: "ollama" as const } : identityOf(config)),
+      ...(route === "backup" ? { provider: "ollama" as const } : identityFor(config, route)),
       jsonSchema: options.jsonSchema,
       temperature: 0,
       maxTokens: STRUCTURED_TOKENS,
@@ -184,7 +190,7 @@ async function attemptOnce<T extends z.ZodType>(
     prompt,
     // The fast retry goes to the fast lane: the deep lane may think aloud and never reach the JSON.
     ...(route === "own" ? laneOrModel(config.model) : { lane: "fast" as const }),
-    ...(route === "backup" ? { provider: "ollama" as const, jsonMode: true } : identityOf(config)),
+    ...(route === "backup" ? { provider: "ollama" as const, jsonMode: true } : identityFor(config, route)),
     // Without reasoning the answer starts straight away with "{"; with it the model thinks first.
     ...(reasoning ? {} : { prefill: "{" }),
     temperature: 0,
@@ -220,6 +226,8 @@ function logStep(
     route?: "own" | "fast" | "backup";
     /** The mode asked for, known even when the call failed before any answer. */
     lane?: string;
+    /** For a failed call: the error type and, per provider tried, its error type and message. */
+    failure?: Record<string, unknown>;
   },
 ): void {
   const fields = step.result ? modelTraceFields(step.result) : {};
@@ -239,6 +247,7 @@ function logStep(
       // Whether the answer arrived as a bare JSON object, which is what schema-constrained output should give.
       ...(step.result ? { pure_json: /^\s*\{[\s\S]*\}\s*$/.test(step.result.text) } : {}),
       ...(!step.ok && step.result ? failureExcerpt(step.result) : {}),
+      ...(step.failure ?? {}),
     },
   });
 }
@@ -257,7 +266,12 @@ interface RoundContext {
 /** A try that threw: log it, give a provider that just failed a moment, and let the next lane have a go. */
 async function failedRound(deps: AgentDeps, agent: AgentName, ctx: RoundContext, failure: unknown): Promise<Round> {
   const problem = failure instanceof Error ? failure.message : String(failure);
+  const known = failure as { type?: string; details?: { attempts?: unknown } } | undefined;
   logStep(deps, agent, {
+    failure: {
+      error_type: known?.type ?? "unknown",
+      ...(Array.isArray(known?.details?.attempts) ? { provider_errors: known.details.attempts } : {}),
+    },
     attempt: ctx.attempt,
     last: ctx.last,
     ok: false,

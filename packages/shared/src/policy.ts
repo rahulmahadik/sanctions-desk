@@ -43,6 +43,12 @@ export const AgentModelSchema = z.strictObject({
    * cockpit (the guard to the local model, reasoning to the deep mode); "default" uses the application's own identity.
    */
   identity: z.enum(["default", "reasoning", "guard"]).default("default"),
+  /**
+   * The identity the fast retry is sent under after a failed or unusable try. A cockpit bind replaces the mode a request
+   * asks for, so a retry under the same bound identity goes back to the same lane; "guard" sends it to the local model
+   * instead. Absent means the step's own identity. Added in policy version 6.
+   */
+  retryIdentity: z.enum(["default", "reasoning", "guard"]).optional(),
 });
 export type AgentModel = z.infer<typeof AgentModelSchema>;
 

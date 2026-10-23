@@ -122,7 +122,8 @@
         "budgetTokens": 500
       },
       "timeoutMs": 90000,
-      "identity": "reasoning"
+      "identity": "reasoning",
+      "retryIdentity": "guard"
     },
     "critic": {
       "model": "judge",
@@ -130,7 +131,8 @@
         "budgetTokens": 400
       },
       "timeoutMs": 90000,
-      "identity": "reasoning"
+      "identity": "reasoning",
+      "retryIdentity": "guard"
     },
     "challenger": {
       "model": "deep",
@@ -138,7 +140,8 @@
         "budgetTokens": 500
       },
       "timeoutMs": 90000,
-      "identity": "reasoning"
+      "identity": "reasoning",
+      "retryIdentity": "guard"
     },
     "policy_guard": {
       "model": "fast",
