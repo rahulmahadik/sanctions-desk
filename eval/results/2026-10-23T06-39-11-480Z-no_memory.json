@@ -1,0 +1,327 @@
+{
+  "variant": "no_memory",
+  "features": {
+    "commit": "fb5dda0",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "selection": {},
+  "started_at": "2026-10-23T06:39:11.480Z",
+  "finished_at": "2026-10-23T06:48:53.081Z",
+  "policy_version": 1,
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "deep / reasoning 500",
+    "critic": "judge / reasoning 400",
+    "challenger": "deep / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": [
+    {
+      "case_id": "EX-045",
+      "group": "previously_cleared_unchanged",
+      "kind": "pcu_0",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 70.78,
+      "tokens_in": 17663,
+      "tokens_out": 1935,
+      "local_calls": 1,
+      "cloud_calls": 5,
+      "cost": 0.011482,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 11.7,
+      "challenger_cost": 0.001924,
+      "critic_rounds": 2,
+      "critic_final": "approved"
+    },
+    {
+      "case_id": "EX-046",
+      "group": "previously_cleared_unchanged",
+      "kind": "pcu_1",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 42.48,
+      "tokens_in": 11800,
+      "tokens_out": 931,
+      "local_calls": 1,
+      "cloud_calls": 3,
+      "cost": 0.006944,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 7.96,
+      "challenger_cost": 0.001919,
+      "critic_rounds": 1,
+      "critic_final": "approved"
+    },
+    {
+      "case_id": "EX-047",
+      "group": "previously_cleared_unchanged",
+      "kind": "pcu_2",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 35.89,
+      "tokens_in": 13341,
+      "tokens_out": 1236,
+      "local_calls": 1,
+      "cloud_calls": 3,
+      "cost": 0.008261,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 12.72,
+      "challenger_cost": 0.002527,
+      "critic_rounds": 1,
+      "critic_final": "approved"
+    },
+    {
+      "case_id": "EX-048",
+      "group": "previously_cleared_unchanged",
+      "kind": "pcu_3",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 27.95,
+      "tokens_in": 11039,
+      "tokens_out": 1008,
+      "local_calls": 1,
+      "cloud_calls": 3,
+      "cost": 0.00673,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 9.5,
+      "challenger_cost": 0.001931,
+      "critic_rounds": 1,
+      "critic_final": "approved"
+    },
+    {
+      "case_id": "EX-049",
+      "group": "previously_cleared_unchanged",
+      "kind": "pcu_4",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 44.1,
+      "tokens_in": 11588,
+      "tokens_out": 1285,
+      "local_calls": 1,
+      "cloud_calls": 3,
+      "cost": 0.007473,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 8.61,
+      "challenger_cost": 0.002092,
+      "critic_rounds": 1,
+      "critic_final": "approved"
+    },
+    {
+      "case_id": "EX-050",
+      "group": "previously_cleared_unchanged",
+      "kind": "pcu_5",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 109.68,
+      "tokens_in": 19078,
+      "tokens_out": 1684,
+      "local_calls": 1,
+      "cloud_calls": 5,
+      "cost": 0.011809,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 8.19,
+      "challenger_cost": 0.002101,
+      "critic_rounds": 2,
+      "critic_final": "approved"
+    },
+    {
+      "case_id": "EX-051",
+      "group": "previously_cleared_changed",
+      "kind": "pcc_dob_0",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 22.44,
+      "tokens_in": 8296,
+      "tokens_out": 730,
+      "local_calls": 1,
+      "cloud_calls": 2,
+      "cost": 0.004986,
+      "critic_rounds": 1,
+      "critic_final": "approved"
+    },
+    {
+      "case_id": "EX-052",
+      "group": "previously_cleared_changed",
+      "kind": "pcc_dob_1",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 16.25,
+      "tokens_in": 8244,
+      "tokens_out": 657,
+      "local_calls": 1,
+      "cloud_calls": 2,
+      "cost": 0.004852,
+      "critic_rounds": 1,
+      "critic_final": "approved"
+    },
+    {
+      "case_id": "EX-053",
+      "group": "previously_cleared_changed",
+      "kind": "pcc_dob_2",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "latency_s": 36.23,
+      "tokens_in": 8334,
+      "tokens_out": 2062,
+      "local_calls": 2,
+      "cloud_calls": 1,
+      "cost": 0.003282,
+      "critic_rounds": 1,
+      "critic_final": "approved"
+    },
+    {
+      "case_id": "EX-054",
+      "group": "previously_cleared_changed",
+      "kind": "pcc_identifier_0",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 121.09,
+      "tokens_in": 22931,
+      "tokens_out": 2457,
+      "local_calls": 1,
+      "cloud_calls": 6,
+      "cost": 0.014899,
+      "critic_rounds": 3,
+      "critic_final": "escalated"
+    },
+    {
+      "case_id": "EX-055",
+      "group": "previously_cleared_changed",
+      "kind": "pcc_identifier_1",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "latency_s": 54.7,
+      "tokens_in": 23369,
+      "tokens_out": 2257,
+      "local_calls": 1,
+      "cloud_calls": 6,
+      "cost": 0.014819,
+      "critic_rounds": 3,
+      "critic_final": "escalated"
+    }
+  ],
+  "metrics": {
+    "cases": 11,
+    "errors": 0,
+    "exact_accuracy": 0.7273,
+    "acceptable_accuracy": 1,
+    "risk_cases": 5,
+    "false_closes": 0,
+    "false_close_rate": 0,
+    "forbidden_answers": 0,
+    "abstain_rate": 0,
+    "decision_unavailable": 0,
+    "decision_unavailable_by_cause": {
+      "provider": 0,
+      "parsing": 0
+    },
+    "excluding_unavailable": {
+      "cases": 11,
+      "exact_accuracy": 0.7273,
+      "acceptable_accuracy": 1
+    },
+    "by_group": {
+      "previously_cleared_unchanged": {
+        "cases": 6,
+        "exact": 6,
+        "acceptable": 6
+      },
+      "previously_cleared_changed": {
+        "cases": 5,
+        "exact": 2,
+        "acceptable": 5
+      }
+    },
+    "latency_s": {
+      "mean": 52.87,
+      "p50": 42.48,
+      "p95": 121.09
+    },
+    "tokens": {
+      "in": 155683,
+      "out": 16242
+    },
+    "model_calls": {
+      "local": 12,
+      "cloud": 39,
+      "cloud_share": 0.7647
+    },
+    "cost": {
+      "total": 0.095537,
+      "per_case": 0.008685
+    },
+    "challenger": {
+      "fired": 6,
+      "changed": 0,
+      "added_seconds": 58.68,
+      "added_cost": 0.012494
+    },
+    "critic": {
+      "reviewed": 11,
+      "sent_back": 4,
+      "unresolved": 2,
+      "mean_rounds": 1.55
+    }
+  }
+}

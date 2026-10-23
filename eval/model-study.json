@@ -1,0 +1,24 @@
+{
+  "main exam, full system (2026-10-23T04-52-42-248Z-routed.json)": [
+    {
+      "group": "answered by Nemotron 3 Ultra (cloud)",
+      "cases": 67,
+      "exact": 42,
+      "acceptable": 64,
+      "false_closes": 0,
+      "citation_catches": 54,
+      "median_seconds": 51.42,
+      "mean_cost": 0.0094
+    },
+    {
+      "group": "answered by Nemotron 3.5 Lightning (local)",
+      "cases": 1,
+      "exact": 1,
+      "acceptable": 1,
+      "false_closes": 0,
+      "citation_catches": 0,
+      "median_seconds": 56.74,
+      "mean_cost": 0.0118
+    }
+  ]
+}

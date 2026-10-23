@@ -1,14 +1,14 @@
 {
-  "note": "Nightshift builds the runs were made on. The runtime version is as told by Meterless (the runtime has no version endpoint); the app bundle version is read from the installed application. Each run takes the build whose period contains its start time.",
+  "note": "The Nightshift build the runs were made on. The application bundle version is read from the installed application; the runtime does not expose its own version. Each run takes the build whose period contains its start time. Limits listed are the ones we measured, not claims about other builds.",
   "builds": [
     {
-      "runtime": "0.6.2",
+      "runtime": "not exposed by the runtime",
       "app_bundle": "1.2.1",
       "from": "2026-10-20T00:00:00Z",
       "until": null,
       "known_limits": [
-        "explicit model IDs are coerced to auto",
-        "cloud first-token limit fixed at 45 s (502s on slow cloud answers)"
+        "an app bind in the cockpit replaces the mode or model id the client asks for (the receipt records both), so explicit model ids are coerced",
+        "the cloud model sometimes answers slowly or not at all: timeouts and HTTP 502 were seen in the runs"
       ]
     }
   ]

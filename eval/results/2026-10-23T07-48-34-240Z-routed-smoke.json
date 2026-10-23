@@ -1,0 +1,145 @@
+{
+  "variant": "routed",
+  "tag": "smoke",
+  "features": {
+    "commit": "a64c704",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "selection": {
+    "kinds": 2
+  },
+  "started_at": "2026-10-23T07:48:34.240Z",
+  "finished_at": "2026-10-23T07:56:44.385Z",
+  "policy_version": 5,
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "deep / reasoning 500",
+    "critic": "judge / reasoning 400",
+    "challenger": "deep / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": [
+    {
+      "case_id": "EX-001",
+      "group": "false_positive",
+      "kind": "fp_dob_exact_name_0",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "latency_s": 209.61,
+      "tokens_in": 23790,
+      "tokens_out": 5730,
+      "local_calls": 2,
+      "cloud_calls": 2,
+      "cost": 0.011796,
+      "challenger_fired": true,
+      "challenger_changed": false,
+      "challenger_s": 62.79,
+      "challenger_cost": 0.006929,
+      "path": "confirm",
+      "first_finding": "CLOSE_FALSE_POSITIVE",
+      "critic_rounds": 1,
+      "critic_final": "approved"
+    },
+    {
+      "case_id": "EX-030",
+      "group": "missing_data",
+      "kind": "md_no_dob_0",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "latency_s": 280.5,
+      "tokens_in": 37576,
+      "tokens_out": 7676,
+      "local_calls": 3,
+      "cloud_calls": 4,
+      "cost": 0.020575,
+      "path": "confirm",
+      "first_finding": "NEED_MORE_INFO",
+      "critic_rounds": 3,
+      "critic_final": "approved"
+    }
+  ],
+  "metrics": {
+    "cases": 2,
+    "errors": 0,
+    "exact_accuracy": 1,
+    "acceptable_accuracy": 1,
+    "risk_cases": 1,
+    "false_closes": 0,
+    "false_close_rate": 0,
+    "forbidden_answers": 0,
+    "abstain_rate": 0.5,
+    "decision_unavailable": 0,
+    "decision_unavailable_by_cause": {
+      "provider": 0,
+      "parsing": 0
+    },
+    "excluding_unavailable": {
+      "cases": 2,
+      "exact_accuracy": 1,
+      "acceptable_accuracy": 1
+    },
+    "by_group": {
+      "false_positive": {
+        "cases": 1,
+        "exact": 1,
+        "acceptable": 1
+      },
+      "missing_data": {
+        "cases": 1,
+        "exact": 1,
+        "acceptable": 1
+      }
+    },
+    "latency_s": {
+      "mean": 245.06,
+      "p50": 209.61,
+      "p95": 280.5
+    },
+    "tokens": {
+      "in": 61366,
+      "out": 13406
+    },
+    "model_calls": {
+      "local": 5,
+      "cloud": 6,
+      "cloud_share": 0.5455
+    },
+    "cost": {
+      "total": 0.032371,
+      "per_case": 0.016185
+    },
+    "challenger": {
+      "fired": 1,
+      "changed": 0,
+      "added_seconds": 62.79,
+      "added_cost": 0.006929
+    },
+    "critic": {
+      "reviewed": 2,
+      "sent_back": 1,
+      "unresolved": 0,
+      "mean_rounds": 2
+    }
+  }
+}
