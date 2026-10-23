@@ -33,6 +33,7 @@ Conclusion: treated as material. The controls below apply to every recommendatio
 - The policy guard can only make an outcome more cautious.
 - A close is challenged by a second model when confidence is low, the name is very close, or a data-quality rule fails.
 - Text in the data that tries to instruct the reviewer is flagged, treated as data, and cannot close a case.
+- Free text is read locally. A screener on the local model reads the customer note, the payment reference and the list remarks and returns structured facts: risk signals (a closed list of types, where in the text, a confidence) and documentary evidence that code validates against the policy's evidence standard. The decision, critic and challenger prompts carry those facts and never the text. A risk signal at or above the policy's threshold stops a close; a note counts as documentary only with a check reference, a document number and a date (and a named counterparty for a payment); a screener that cannot answer never allows a close. What each model step was sent (field names, counts, a hash) is recorded, not the text. See "What leaves the machine, per step" in `docs/MODELS.md`.
 
 ### Oversight in proportion to risk
 

@@ -8,6 +8,7 @@ export const AgentNameSchema = z.enum([
   "system",
   "triage",
   "evidence",
+  "screener",
   "matching",
   "ownership",
   "memory",

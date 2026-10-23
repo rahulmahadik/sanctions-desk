@@ -3,6 +3,7 @@ import type { DecisionOutput } from "./decision.js";
 import type { EvidenceBundle } from "./evidence.js";
 import { assessNote } from "./evidence-standard.js";
 import type { MatchResult } from "./matching.js";
+import type { ScreenerFacts, ScreenerSignal } from "./screener.js";
 
 /**
  * The Policy guard applies the hard rules of the active policy. It can make a recommendation more
@@ -33,7 +34,12 @@ export interface GuardInput {
   criticUnresolved: boolean;
 }
 
-/** Instructions hidden in data: the policy's patterns, matched case-insensitively. */
+/** The screener's risk signals that block a close: at or above the policy's confidence threshold. */
+export function blockingSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
+  return (facts?.signals ?? []).filter((s) => s.confidence >= policy.screener.confidenceThreshold);
+}
+
+/** Instructions hidden in data:the policy's patterns, matched case-insensitively. */
 export function findInjection(policy: Policy, texts: readonly string[]): string[] {
   const hits: string[] = [];
   for (const pattern of policy.guards.injectionPatterns) {
@@ -234,6 +240,37 @@ const evidenceStandardRule: Rule = ({ closing, policy, decision, evidence, match
     : passes("evidence_standard", `${relied.map((r) => r.label).join(" and ")} meets the documentary standard`);
 };
 
+/**
+ * The screener read the free text on a local model. A risk signal at or above the policy's threshold means the case
+ * cannot be closed. If the screener could not answer, the free text is unread and the case cannot be closed either.
+ * A signal below the threshold is recorded and changes nothing. The pipeline always sets the result; a bundle without
+ * one (a direct call in a test) is passed with a note saying so.
+ */
+const screenerRule: Rule = ({ closing, policy, evidence }) => {
+  const facts = evidence.screener;
+  if (!facts) return passes("screener", "no screener result on this case");
+  if (facts.status === "failed") {
+    const detail = `${facts.reason ?? "screener unavailable"}: the free text was not read, so the case cannot be closed`;
+    return closing ? fails("screener", "ESCALATE_L2", detail) : { guard: "screener", detail, flag: true };
+  }
+  const blocking = blockingSignals(policy, facts);
+  if (blocking.length > 0) {
+    const detail = `risk signal in the free text: ${blocking.map((s) => `${s.type.replaceAll("_", " ")} (confidence ${s.confidence}, ${s.spanId})`).join("; ")}`;
+    return closing
+      ? fails("screener", "ESCALATE_L2", `${detail}; no close`)
+      : { guard: "screener", detail: `${detail}; not closing`, flag: true };
+  }
+  const low = facts.signals.length;
+  return passes(
+    "screener",
+    low > 0
+      ? `${low} signal(s) below the confidence threshold ${policy.screener.confidenceThreshold}; recorded, not blocking`
+      : facts.status === "nothing_to_read"
+        ? "no free text to read"
+        : "no risk signal in the free text",
+  );
+};
+
 const underReactionRule: Rule = ({ decision, match }) =>
   match.comparison.definitions.true_match && decision.decision === "NEED_MORE_INFO"
     ? fails("true_match_met", "ESCALATE_L2", "the approved definition of a true match is met; it goes to a person")
@@ -298,6 +335,7 @@ const RULES: readonly Rule[] = [
   dataQualityRule,
   closeRules,
   evidenceStandardRule,
+  screenerRule,
   underReactionRule,
   ownershipRule,
   jurisdictionRule,

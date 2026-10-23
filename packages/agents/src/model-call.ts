@@ -356,3 +356,19 @@ export async function askJson<T extends z.ZodType>(
     details: { calls: calls.length },
   });
 }
+
+/**
+ * Why no usable answer came back. "provider": the model service failed or answered with nothing (an HTTP error, a
+ * timeout, an empty answer). "parsing": the model answered but not in a form we can use. The two are reported
+ * separately because only the second is ours to fix.
+ */
+export type UnavailableCause = "provider" | "parsing";
+
+const PROVIDER_TYPES = new Set(["http_error", "network", "timeout", "route_dead"]);
+
+export function unavailableCause(err: AppError): UnavailableCause {
+  if (PROVIDER_TYPES.has(err.type) || /empty answer|all model providers failed|returned HTTP/i.test(err.message)) {
+    return "provider";
+  }
+  return "parsing";
+}

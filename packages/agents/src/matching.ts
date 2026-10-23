@@ -8,6 +8,7 @@ import {
 } from "@sanctions-desk/data";
 import type { EvidenceBundle } from "./evidence.js";
 import { documentaryDateOfBirth } from "./evidence-standard.js";
+import { screenerDateOfBirth } from "./screener.js";
 import type { AgentDeps } from "./types.js";
 
 /** The Matching agent compares the customer with the listed party field by field. No model is involved. */
@@ -38,9 +39,13 @@ export function partyOf(evidence: EvidenceBundle): ListedParty {
 export function matchEvidence(deps: AgentDeps, evidence: EvidenceBundle): MatchResult {
   const recorded = customerProfileFromRows(evidence.customer, evidence.customerIdentifiers);
   // A note counts as evidence of the birth date only when it meets the documentary standard; a claim never does.
+  // The date comes from the code's own reading of the note or from the screener's, which code has checked against the
+  // text and the same standard.
   const fromNote = recorded.dateOfBirth
     ? null
-    : documentaryDateOfBirth(evidence.customer.notes, deps.policy.evidenceStandard);
+    : (documentaryDateOfBirth(evidence.customer.notes, deps.policy.evidenceStandard) ??
+      screenerDateOfBirth(evidence.screener) ??
+      null);
   const payer = fromNote ? { ...recorded, dateOfBirth: fromNote.value } : recorded;
   const party = partyOf(evidence);
   // A payment alert is about the other party on the payment, not about the customer who sends it.

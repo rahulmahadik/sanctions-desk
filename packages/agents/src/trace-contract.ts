@@ -33,6 +33,12 @@ export interface TraceContract {
     by_role: Array<{ role: string; queries: number; token_source: string; masked_columns: string[] }>;
     note: string;
   };
+  /** What was read from free text, and what each model step was sent of it (names and counts, never text). */
+  free_text: {
+    screener: DecisionRecord["screener"] | null;
+    sent_to_model_steps: NonNullable<DecisionRecord["cloud_payloads"]>;
+    note: string;
+  };
   cost: {
     currency: string;
     assumption: string;
@@ -173,6 +179,11 @@ export function buildTraceContract(record: DecisionRecord, costs: Config["costs"
         model_cost: round(modelCost),
         total_cost: round(modelCost + dataCost),
       },
+    },
+    free_text: {
+      screener: record.screener ?? null,
+      sent_to_model_steps: record.cloud_payloads ?? [],
+      note: "The screener reads notes, payment references and list remarks on the local model and keeps structured facts only. Each step that calls a model lists the fields it was sent, with counts and a hash of the payload; raw_free_text_present is false when no note, reference or remark was in it.",
     },
   };
 }

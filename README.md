@@ -102,7 +102,8 @@ flowchart LR
   Z --- B[(bank database<br/>JDBC)]
   Z --- P[payments service<br/>REST]
   E --> S[Safety guard]
-  S --> M[Matching<br/>or Ownership]
+  S --> F[Screener<br/>local model]
+  F --> M[Matching<br/>or Ownership]
   M --> Y[Memory<br/>pointers]
   Y --> D[Decision<br/>Nemotron]
   D <--> C[Critic<br/>re-reads cited facts]
@@ -116,6 +117,7 @@ flowchart LR
 | Triage       | Chooses the path, judges whether the case is clear or contested                                                                                                                                                           | No                                                |
 | Evidence     | Reads the semantic layer's own description, then builds one read-only tool per table and reads the alert, customer, list entry, aliases, dates, countries, identifiers, data-quality results and the approved definitions | No                                                |
 | Safety guard | Screens text from the data for instructions aimed at the reviewer                                                                                                                                                         | Yes (fast, local)                                 |
+| Screener | Reads the customer note, the payment reference and the list remarks on the local model and returns structured facts only: risk signals (a type from a closed list, where in the text, a confidence) and documentary evidence that code checks against the evidence standard. The cloud models see these facts and never the text. If it cannot answer, the case cannot be closed | Yes (local) |
 | Matching     | Field-by-field comparison with the approved definitions applied by code (true match, false positive, counterparty match)                                                                                                  | No                                                |
 | Ownership    | Reads the register level by level; the ownership engine works out effective ownership                                                                                                                                     | No                                                |
 | Memory       | Recalls earlier decisions as pointers (table, row key, content hash) and checks them against the entry now                                                                                                                | No                                                |

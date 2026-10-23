@@ -50,6 +50,7 @@ const perAgent = <T extends z.ZodType>(schema: T) =>
   z.strictObject({
     triage: schema,
     evidence: schema,
+    screener: schema,
     matching: schema,
     ownership: schema,
     decision: schema,
@@ -58,6 +59,22 @@ const perAgent = <T extends z.ZodType>(schema: T) =>
     policy_guard: schema,
     reporter: schema,
   });
+
+/**
+ * The kinds of risk the screener may report from free text. The list is closed: anything else the model names is
+ * recorded as "other", which blocks a close like every other type.
+ */
+export const SCREENER_SIGNAL_TYPES = [
+  "alias_or_former_name",
+  "relationship_to_listed_party",
+  "ownership_or_control_claim",
+  "sanctioned_jurisdiction_link",
+  "adverse_media",
+  "instruction_to_reviewer",
+  "other",
+] as const;
+export const ScreenerSignalTypeSchema = z.enum(SCREENER_SIGNAL_TYPES);
+export type ScreenerSignalType = z.infer<typeof ScreenerSignalTypeSchema>;
 
 const regexSource = nonEmpty.refine((s) => {
   try {
@@ -162,6 +179,35 @@ const PolicyShape = z.strictObject({
       requireDocumentNumber: true,
       requireDate: true,
       requireNamedCounterpartyForPayments: true,
+    }),
+
+  /**
+   * The screener reads the free text of a case (customer notes, payment references, list remarks) on the local model
+   * and returns structured facts only. Those facts, never the text, are what the cloud models see. The model it runs
+   * on is `models.screener` (identity "guard", bound to the local model in the cockpit). Added in policy version 6.
+   */
+  screener: z
+    .strictObject({
+      /**
+       * A risk signal at or above this confidence blocks a close. It is capped so that the threshold cannot be set
+       * high enough to let every signal through.
+       */
+      confidenceThreshold: z.number().min(0).max(0.9),
+      /** The closed list of signal types. It must keep "other" so that a type nobody listed is still counted. */
+      signalTypes: z
+        .array(ScreenerSignalTypeSchema)
+        .min(1)
+        .refine(unique, "signal types must be unique")
+        .refine((t) => t.includes("other") && t.includes("instruction_to_reviewer"), {
+          message: 'signal types must keep "other" and "instruction_to_reviewer"',
+        }),
+      /** The longest stretch of one field the screener reads; the rest is not read and the case says so. */
+      maxFieldChars: positiveInt.max(20_000),
+    })
+    .default({
+      confidenceThreshold: 0.5,
+      signalTypes: [...SCREENER_SIGNAL_TYPES],
+      maxFieldChars: 4000,
     }),
 
   models: perAgent(AgentModelSchema),

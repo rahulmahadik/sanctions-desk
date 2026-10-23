@@ -20,11 +20,12 @@ import { gatherOwnership, matchOwnership, ownershipQuality } from "./ownership.j
 import { applyPolicyGuard } from "./policy-guard.js";
 import { buildDecisionRecord, writeDecisionRecord } from "./record.js";
 import { screenInbound } from "./safety.js";
+import { screenFreeText } from "./screener.js";
 import { judgeDifficulty, triage } from "./triage.js";
 import { type AgentDeps, clientFor } from "./types.js";
 
 /**
- * One review, start to finish: Triage, Evidence, Matching, Decision, Critic (up to the policy's round
+ * One review, start to finish: Triage, Evidence, Screener, Matching, Decision, Critic (up to the policy's round
  * limit), Policy guard, Reporter. The result is a recommendation for a person to act on.
  */
 
@@ -37,7 +38,18 @@ export interface ReviewRequest {
   options?: { memory?: boolean; critic?: boolean; challenger?: boolean };
 }
 
-const AGENT_ORDER = ["triage", "evidence", "matching", "memory", "decision", "critic", "policy_guard", "reporter"];
+const AGENT_ORDER = [
+  "triage",
+  "evidence",
+  "screener",
+  "matching",
+  "memory",
+  "decision",
+  "critic",
+  "policy_guard",
+  "reporter",
+];
+const CHALLENGER_AT = AGENT_ORDER.indexOf("policy_guard");
 
 /** Everything read and worked out before a recommendation is asked for. */
 async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest["options"]) {
@@ -45,6 +57,18 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
   // Text that came out of the data is read as data. Anything that tries to instruct the reviewer is flagged first.
   const inbound = await screenInbound(deps, evidence.freeText);
   evidence.safety = inbound;
+  // The local screener reads the notes, payment references and list remarks and keeps only structured facts. Matching
+  // and the cloud steps work from those facts; the text itself stays on the machine.
+  const screened = await screenFreeText(deps, evidence);
+  evidence.screener = screened;
+  if (screened.injection.flagged && !inbound.violation) {
+    evidence.safety = {
+      ...inbound,
+      violation: true,
+      category: "prompt_injection",
+      reasons: [...inbound.reasons, "the screener found text that tries to instruct the reviewer"],
+    };
+  }
 
   let match: MatchResult;
   if (evidence.alert.alert_source === "ownership") {
@@ -90,7 +114,14 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
       output_summary: "earlier clearance still valid: fast path, no reasoning",
     });
   }
-  return { evidence, match, tools, criticTools, easy, models: [...inbound.calls] as ModelUseInput[] };
+  return {
+    evidence,
+    match,
+    tools,
+    criticTools,
+    easy,
+    models: [...inbound.calls, ...screened.calls] as ModelUseInput[],
+  };
 }
 
 /** The lines a reviewer should read first: what the comparison found, then the check that changed the outcome. */
@@ -370,7 +401,9 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     ...(documentary ? { documentary } : {}),
     ...(record.confidence_cap ? { confidence_cap: record.confidence_cap } : {}),
     citations,
-    agents: challenged ? [...AGENT_ORDER.slice(0, 6), "challenger", ...AGENT_ORDER.slice(6)] : AGENT_ORDER,
+    agents: challenged
+      ? [...AGENT_ORDER.slice(0, CHALLENGER_AT), "challenger", ...AGENT_ORDER.slice(CHALLENGER_AT)]
+      : AGENT_ORDER,
     models: record.models,
     guards: record.guards,
     critic: record.critic,
