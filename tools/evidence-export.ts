@@ -181,6 +181,26 @@ if (problems.length > 0) {
   console.error(`evidence export FAILED:\n${problems.map((p) => `  ${p}`).join("\n")}`);
   process.exit(1);
 }
+// The README links the receipt log of each exported run, with the command that checks it.
+const readmePath = resolveProjectPath("README.md");
+const readme = readFileSync(readmePath, "utf8");
+const RS = "<!-- receipts:start -->";
+const RE = "<!-- receipts:end -->";
+if (readme.includes(RS) && readme.includes(RE) && summary.length > 0) {
+  const block = [
+    RS,
+    "| Run | Receipts | Receipt log | Check it |",
+    "| --- | ---: | --- | --- |",
+    ...summary.map(
+      (s) =>
+        `| \`${s.id}\` | ${s.receipts} | [eval/runs/${s.id}/receipts.jsonl.gz](eval/runs/${s.id}/receipts.jsonl.gz) | \`npm run evidence:verify -- eval/runs/${s.id}\` |`,
+    ),
+    "",
+    "`npm run evidence:verify` with no argument checks every run: each signature, that every model call has a receipt, and that the model in the trace equals the model in the receipt.",
+    RE,
+  ].join("\n");
+  writeFileSync(readmePath, readme.replace(new RegExp(`${RS}[\\s\\S]*?${RE}`), block));
+}
 const total = summary.reduce((t, s) => t + s.bytes, 0);
 for (const s of summary)
   console.log(

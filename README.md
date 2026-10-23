@@ -61,6 +61,7 @@ Track 3 asks for a reasoning architecture, not a prompt. Each stage of the desk 
 - [Development](#development)
 - [Limits](#limits)
 - [AI and Model Usage](#ai-and-model-usage)
+- [Pre-existing work](#pre-existing-work)
 - [Third-party code and licence](#third-party-code-and-licence)
 
 ## What it does
@@ -112,19 +113,19 @@ flowchart LR
   R --> H{{A person decides}}
 ```
 
-| Step         | What it does                                                                                                                                                                                                              | Uses a model                                      |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| Triage       | Chooses the path, judges whether the case is clear or contested                                                                                                                                                           | No                                                |
-| Evidence     | Reads the semantic layer's own description, then builds one read-only tool per table and reads the alert, customer, list entry, aliases, dates, countries, identifiers, data-quality results and the approved definitions | No                                                |
-| Safety guard | Screens text from the data for instructions aimed at the reviewer                                                                                                                                                         | Yes (fast, local)                                 |
-| Screener | Reads the customer note, the payment reference and the list remarks on the local model and returns structured facts only: risk signals (a type from a closed list, where in the text, a confidence) and documentary evidence that code checks against the evidence standard. The cloud models see these facts and never the text. If it cannot answer, the case cannot be closed | Yes (local) |
-| Matching     | Field-by-field comparison with the approved definitions applied by code (true match, false positive, counterparty match)                                                                                                  | No                                                |
-| Ownership    | Reads the register level by level; the ownership engine works out effective ownership                                                                                                                                     | No                                                |
-| Memory       | Recalls earlier decisions as pointers (table, row key, content hash) and checks them against the entry now                                                                                                                | No                                                |
-| Decision     | Recommends one of four outcomes with cited facts                                                                                                                                                                          | Yes (Nemotron; brief reasoning budget of our own) |
-| Critic       | Re-reads every cited fact from the data, checks the recommendation against the definitions, asks a model for unsupported claims; may send it back, up to the policy's limit                                               | Yes                                               |
-| Policy guard | Applies the hard rules. It can make a recommendation more cautious, never less                                                                                                                                            | No                                                |
-| Reporter     | Seals a hash-protected decision record and returns the answer                                                                                                                                                             | No                                                |
+| Step         | What it does                                                                                                                                                                                                                                                                                                                                                                     | Uses a model                                      |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Triage       | Chooses the path, judges whether the case is clear or contested                                                                                                                                                                                                                                                                                                                  | No                                                |
+| Evidence     | Reads the semantic layer's own description, then builds one read-only tool per table and reads the alert, customer, list entry, aliases, dates, countries, identifiers, data-quality results and the approved definitions                                                                                                                                                        | No                                                |
+| Safety guard | Screens text from the data for instructions aimed at the reviewer                                                                                                                                                                                                                                                                                                                | Yes (fast, local)                                 |
+| Screener     | Reads the customer note, the payment reference and the list remarks on the local model and returns structured facts only: risk signals (a type from a closed list, where in the text, a confidence) and documentary evidence that code checks against the evidence standard. The cloud models see these facts and never the text. If it cannot answer, the case cannot be closed | Yes (local)                                       |
+| Matching     | Field-by-field comparison with the approved definitions applied by code (true match, false positive, counterparty match)                                                                                                                                                                                                                                                         | No                                                |
+| Ownership    | Reads the register level by level; the ownership engine works out effective ownership                                                                                                                                                                                                                                                                                            | No                                                |
+| Memory       | Recalls earlier decisions as pointers (table, row key, content hash) and checks them against the entry now                                                                                                                                                                                                                                                                       | No                                                |
+| Decision     | Recommends one of four outcomes with cited facts                                                                                                                                                                                                                                                                                                                                 | Yes (Nemotron; brief reasoning budget of our own) |
+| Critic       | Re-reads every cited fact from the data, checks the recommendation against the definitions, asks a model for unsupported claims; may send it back, up to the policy's limit                                                                                                                                                                                                      | Yes                                               |
+| Policy guard | Applies the hard rules. It can make a recommendation more cautious, never less                                                                                                                                                                                                                                                                                                   | No                                                |
+| Reporter     | Seals a hash-protected decision record and returns the answer                                                                                                                                                                                                                                                                                                                    | No                                                |
 
 The outcomes are `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs two human approvals) and `NEED_MORE_INFO`.
 
@@ -188,6 +189,23 @@ Measured in the full exam run of 2026-10-23, from the signed receipts (the model
 | Critic       |   109 |                           6.4% (7) |                   93.6% (102) |
 | Challenger   |    30 |                                  0 |                   100.0% (30) |
 <!-- routing:end -->
+
+Which agent runs on which Nemotron model, and what it does:
+
+| Agent (step)             | Nemotron model               | Where it runs                                 | What it does                                                                                                                                                                |
+| ------------------------ | ---------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Safety guard             | Nemotron 3.5 Lightning 30B   | local laptop (guard identity, bound to local) | Flags text in the data that tries to instruct the reviewer; blocks a customer draft that would tip them off                                                                 |
+| Free-text screener       | Nemotron 3.5 Lightning 30B   | local laptop (guard identity)                 | Reads customer notes, payment references and list remarks and returns structured risk signals and validated documentary evidence only; the raw text never leaves the laptop |
+| Decision                 | mostly Nemotron 3 Ultra 550B | cloud (reasoning identity, bound to deep)     | Recommends one of four outcomes from the structured evidence and the approved definitions, with cited facts                                                                 |
+| Critic                   | mostly Nemotron 3 Ultra 550B | cloud                                         | Checks the recommendation against the evidence after code has re-read every cited fact; can send it back                                                                    |
+| Challenger               | mostly Nemotron 3 Ultra 550B | cloud                                         | Argues against a close that could slip through                                                                                                                              |
+| Retry after a failed try | Nemotron 3.5 Lightning 30B   | local (guard identity)                        | Answers in place of a step whose cloud call failed; such cases are counted in the report                                                                                    |
+
+**The signed receipt log of the final runs** (one Ed25519-signed Nightshift receipt per model call; the model that served each call is in `winning_route.model`):
+
+<!-- receipts:start -->
+Written by `npm run evidence:export` once the final runs are exported.
+<!-- receipts:end -->
 
 The **model ledger** of every recommendation lists, per step, the mode asked for, the model that answered, reasoning budget, tokens, latency and the signed receipt with its verification status (`GET /cases/:alertId/trace`, `npm run ledger -- --case <alert id>`, the routing panel of the review desk, and the saved decision records in `output_examples/`).
 
@@ -498,6 +516,10 @@ The Ollama backup (`nemotron-3.5-lightning:30b`) answers only if Nightshift cann
 **Known limitations.** A person makes every decision by default; the desk only recommends. The exam labels follow the same definitions as the rules, so a high score on the 70 rule-defined cases shows consistency, not that the definitions are right; the held-out set is the test of reasoning beyond them. Model answers vary between runs and cloud routing is decided by the runtime. Cost and time-saved figures rest on stated assumptions. The column policy on identifier numbers is not enforced on the Zetaris instance used, so the application masks them as well. The full list is under [Limits](#limits).
 
 **Sample mode.** With `SAMPLE_MODE=true` the desk runs without Zetaris or Nightshift. It replays saved answers recorded from real Zetaris runs, runs the real agent logic on them, and uses a rules-based stand-in in place of the language models. The interface says so in a banner on every page, and every record made this way carries a sample notice. Sample mode never presents the stand-in's output as a Nemotron answer.
+
+## Pre-existing work
+
+No pre-existing code; everything in this repository was built during the build window (22–27 Oct 2026). Third-party code: Meterless engine specs/reference and conformance suites (Apache-2.0), see `NOTICE`.
 
 ## Third-party code and licence
 
