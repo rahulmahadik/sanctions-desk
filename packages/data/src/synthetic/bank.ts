@@ -8,6 +8,7 @@ import { csvOf } from "../snapshot.js";
 import { BankBuilder, CURRENT_TIME, EXAM_GROUP_SIZES, type ExamCase } from "./builder.js";
 import { addDelistingExtras, buildExamCases } from "./cases.js";
 import { buildClearingCases, buildHeldoutCases, heldoutCaseIds } from "./heldout.js";
+import { buildHeldout2Cases, heldout2CaseIds } from "./heldout2.js";
 import {
   emptySyntheticTables,
   SYNTHETIC_LABEL,
@@ -42,9 +43,13 @@ export interface SyntheticBank {
   tables: SyntheticTables;
   /** The same rows plus those of the held-out set, which are loaded only when the set is run. */
   tablesWithHeldout: SyntheticTables;
+  /** The rows of the main exam, the first held-out set and the second, in that order. */
+  tablesWithHeldout2: SyntheticTables;
   cases: ExamCase[];
   /** The frozen held-out set (HO-001 and up). Its rows are in `tablesWithHeldout`, with ids that carry an H. */
   heldout: ExamCase[];
+  /** The second frozen held-out set (HO2-001 and up). Its rows are in `tablesWithHeldout2`, with ids that carry a J. */
+  heldout2: ExamCase[];
   /** Edits that turn the committed list into the later list the exam runs against. */
   delta: DeltaOp[];
   manifest: BankManifest;
@@ -326,8 +331,26 @@ export function buildBank(
   buildHeldoutCases(hb);
   buildClearingCases(hb);
   const heldout = heldoutCaseIds(hb.cases);
+  const tablesWithHeldout = structuredClone(tables);
 
-  const problems = validateBank(tables, list, [...b.cases, ...heldout]);
+  // The second held-out set: built after the first, with its own seed and marker, and without reusing a listed party
+  // that the first set used. The rows above are copied before it is added, so they do not change.
+  const hb2 = new BankBuilder(
+    createRng(`${options.seed}#heldout2`),
+    `${options.seed}#heldout2`,
+    candidates,
+    tables,
+    hashes,
+    "J",
+  );
+  for (const entryId of hb.used) hb2.used.add(entryId);
+  buildHeldout2Cases(hb2);
+  const heldout2 = heldout2CaseIds(hb2.cases);
+
+  const problems = [
+    ...validateBank(tablesWithHeldout, list, [...b.cases, ...heldout]),
+    ...validateBank(tables, list, [...b.cases, ...heldout, ...heldout2]),
+  ];
   if (problems.length > 0)
     throw new Error(`the synthetic bank is inconsistent:\n- ${problems.slice(0, 10).join("\n- ")}`);
 
@@ -340,9 +363,11 @@ export function buildBank(
 
   return {
     tables: mainTables,
-    tablesWithHeldout: tables,
+    tablesWithHeldout,
+    tablesWithHeldout2: tables,
     cases: b.cases,
     heldout,
+    heldout2,
     delta: b.delta,
     manifest: {
       label: SYNTHETIC_LABEL,
@@ -357,9 +382,18 @@ export function buildBank(
 
 const columnsOf = (name: SyntheticTableName): string[] => Object.keys(SYNTHETIC_TABLES[name].shape);
 
-export function writeBank(dir: string, bank: SyntheticBank, options: { includeHeldout?: boolean } = {}): void {
+export function writeBank(
+  dir: string,
+  bank: SyntheticBank,
+  options: { includeHeldout?: boolean; includeHeldout2?: boolean } = {},
+): void {
   mkdirSync(dir, { recursive: true });
-  const tables = options.includeHeldout ? bank.tablesWithHeldout : bank.tables;
+  // The second set's rows come after the first set's, so asking for the second includes the first.
+  const tables = options.includeHeldout2
+    ? bank.tablesWithHeldout2
+    : options.includeHeldout
+      ? bank.tablesWithHeldout
+      : bank.tables;
   for (const name of SYNTHETIC_TABLE_NAMES) {
     const rows = tables[name] as object[];
     writeFileSync(join(dir, `${name}.json`), `${JSON.stringify(rows)}\n`);
@@ -375,6 +409,15 @@ export function writeHeldout(file: string, bank: SyntheticBank): void {
   writeFileSync(
     file,
     `${JSON.stringify({ label: `${SYNTHETIC_LABEL} Held-out set, frozen when committed.`, seed: bank.manifest.seed, cases: bank.heldout }, null, 2)}\n`,
+  );
+}
+
+/** The second held-out set as an exam file (same shape as the first). */
+export function writeHeldout2(file: string, bank: SyntheticBank): void {
+  mkdirSync(join(file, ".."), { recursive: true });
+  writeFileSync(
+    file,
+    `${JSON.stringify({ label: `${SYNTHETIC_LABEL} Second held-out set, written before any system output on it was seen and frozen when its hash is recorded.`, seed: bank.manifest.seed, cases: bank.heldout2 }, null, 2)}\n`,
   );
 }
 
