@@ -264,3 +264,5 @@ console.log(
   }),
 );
 console.log(`saved ${file}`);
+// Open connections (the Zetaris client's keep-alive sockets) would keep the process alive after the result is saved.
+process.exit(0);
