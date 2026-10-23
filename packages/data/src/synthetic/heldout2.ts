@@ -300,6 +300,15 @@ export function buildHeldout2Cases(b: BankBuilder): void {
     acceptable: [] as ExamCase["acceptable"],
     mustNot: ["RECOMMEND_BLOCK"] as ExamCase["must_not"],
   };
+  // Relabelled before the set was first run: the reference text meets the standard, but the counterparty has no
+  // usable country, which the written policy says cannot be cleared.
+  const noUsableCountry = {
+    expected: "NEED_MORE_INFO" as const,
+    acceptable: ["ESCALATE_L2"] as ExamCase["acceptable"],
+    mustNot: [...NOT_CLOSE] as ExamCase["must_not"],
+  };
+  const NO_COUNTRY_REASON =
+    " Relabelled before any run: the written policy says a counterparty with no usable country cannot be cleared (approved definition counterparty_match@1, and the failing payment rule counterparty_country_valid), so a close would mean ignoring a failing data-quality rule.";
   {
     const c = b.pick("ho2_clear_spanish_passport", individual);
     const customer = b.customer({
@@ -343,7 +352,7 @@ export function buildHeldout2Cases(b: BankBuilder): void {
       score: 0.95,
     });
     record(b, {
-      ...clearing,
+      ...noUsableCountry,
       kind: "ho2_clear_street_name",
       title:
         "The counterparty name equals a listed individual and has no country; the reference documents a landlord and mentions a street whose name looks like a listed group",
@@ -351,8 +360,8 @@ export function buildHeldout2Cases(b: BankBuilder): void {
       alertType: "payment",
       customerId: customer.customer_id,
       entryId: c.party.entryId,
-      note: "The reference carries a check reference, an ID number and a date, and the counterparty is named; its birth date conflicts with every listed date. The street name is a building in Oxford, not a listed party.",
-      edge: ["free_text_payment_reference", "near_miss_wording", "clearing_evidence_in_text"],
+      note: `The reference carries a check reference, an ID number and a date, and the counterparty is named; its birth date conflicts with every listed date. The street name is a building in Oxford, not a listed party.${NO_COUNTRY_REASON}`,
+      edge: ["free_text_payment_reference", "near_miss_wording", "clearing_evidence_in_text", "data_quality_failure"],
     });
   }
   {
@@ -374,7 +383,7 @@ export function buildHeldout2Cases(b: BankBuilder): void {
       score: 0.96,
     });
     record(b, {
-      ...clearing,
+      ...noUsableCountry,
       kind: "ho2_clear_registered_company",
       title:
         "The counterparty name equals a listed company and has no country; the reference gives a registered company in Leeds",
@@ -382,8 +391,8 @@ export function buildHeldout2Cases(b: BankBuilder): void {
       alertType: "payment",
       customerId: customer.customer_id,
       entryId: c.party.entryId,
-      note: "The reference carries a check reference, a company number and a date, and names the counterparty with a city that has no link to the listed company.",
-      edge: ["free_text_payment_reference", "clearing_evidence_in_text"],
+      note: `The reference carries a check reference, a company number and a date, and names the counterparty with a city that has no link to the listed company.${NO_COUNTRY_REASON}`,
+      edge: ["free_text_payment_reference", "clearing_evidence_in_text", "data_quality_failure"],
     });
   }
   {
@@ -517,6 +526,124 @@ export function buildHeldout2Cases(b: BankBuilder): void {
       entryId: c.party.entryId,
       note: "The note has a check reference and a document number but no date, so it is a claim and cannot clear the match.",
       edge: ["free_text_note", "claim_looks_documentary"],
+    });
+  }
+
+  // F. Added before any run: risks where the structured fields alone meet the false-positive definition (the birth
+  // date conflicts, the nationality differs, no document matches), so plain rules would close, and the risk is stated
+  // only in free text.
+  const risk = {
+    expected: "ESCALATE_L2" as const,
+    acceptable: ASK_ONLY,
+    mustNot: [...NOT_CLOSE] as ExamCase["must_not"],
+  };
+  const singleDayDob = (c: Candidate) => individual(c) && c.party.dobs.length === 1;
+  {
+    const c = b.pick("ho2_rules_close_note_power_of_attorney", singleDayDob);
+    const listedDob = fullDobOf(c.party) as string;
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: c.natural,
+      date_of_birth: yearsLater(listedDob, 29),
+      nationality: otherCountry(b.rng, [nationalityOf(c.party)]),
+      residence_country: "GB",
+      notes: `Holds a power of attorney for a cousin of the same name, ${c.natural} (born ${listedDob}), and signs supply contracts in the cousin's name.`,
+    });
+    const alert = b.alert({ customer, candidate: c, source: "customer_name", matchedName: c.natural, score: 0.97 });
+    record(b, {
+      ...risk,
+      kind: "ho2_rules_close_note_power_of_attorney",
+      title:
+        "Exact name with a conflicting birth date and another nationality; the note says the customer acts for the listed person under a power of attorney",
+      alertId: alert.alert_id,
+      alertType: "customer",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+      note: "The structured fields alone meet the false-positive definition, but the note says the customer holds a power of attorney for a namesake cousin, named with the listed birth date, and signs contracts in that person's name.",
+      edge: ["free_text_note", "rules_would_close"],
+    });
+  }
+  {
+    const c = byEntry(b, "UN-TAi.153");
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: "Akhtar Mohammed",
+      date_of_birth: "1938-05-02",
+      nationality: "AE",
+      residence_country: "AE",
+    });
+    const alert = b.alert({ customer, candidate: c, source: "customer_name", score: 0.74 });
+    record(b, {
+      ...risk,
+      kind: "ho2_rules_close_remarks_father",
+      title:
+        "A name in a long alias, a birth date decades away and another nationality; the listed remarks name the customer as the listed person's father",
+      alertId: alert.alert_id,
+      alertType: "customer",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+      note: "The structured fields alone meet the false-positive definition, but the listed individual's remarks name his father as Akhtar Mohammed (also known as Haji Mira Khan), the customer's full name.",
+      edge: ["free_text_list_remarks", "rules_would_close"],
+    });
+  }
+
+  // G. Added before any run: clears the written policy allows. No birth date on record, the name matches exactly or
+  // matches a strong alias, the nationality differs, no document matches, and an English note meets the standard and
+  // states a birth date, with its label, that conflicts with every listed date.
+  {
+    const c = b.pick("ho2_clear_licence_dob", singleDayDob);
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: c.natural,
+      date_of_birth: null,
+      nationality: otherCountry(b.rng, [nationalityOf(c.party)]),
+      residence_country: "GB",
+      notes: `Enhanced review EDD-${b.rng.int(10000, 99999)} closed on 2026-08-30. Driving licence ${b.rng.int(10000000, 99999999)} inspected in person; DOB: ${yearsLater(fullDobOf(c.party) as string, 24)}.`,
+    });
+    const alert = b.alert({ customer, candidate: c, source: "customer_name", matchedName: c.natural, score: 0.98 });
+    record(b, {
+      ...clearing,
+      kind: "ho2_clear_licence_dob",
+      title:
+        "Exact name, no birth date on record; an enhanced review note gives a driving licence and a birth date 24 years away",
+      alertId: alert.alert_id,
+      alertType: "customer",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+      note: "The note carries a check reference, a licence number and a date, and its labelled birth date conflicts with the only listed date; the nationality differs and no document matches.",
+      edge: ["free_text_note", "clearing_evidence_in_text", "data_quality_failure"],
+    });
+  }
+  {
+    const c = b.pick(
+      "ho2_clear_alias_identity_card",
+      (x) =>
+        singleDayDob(x) &&
+        x.party.aliases.some((a) => a.strong && a.type !== "primary" && a.name !== x.natural && isLatin(a.name)),
+    );
+    const alias =
+      c.party.aliases.find((a) => a.strong && a.type !== "primary" && a.name !== c.natural && isLatin(a.name))?.name ??
+      c.natural;
+    const customer = b.customer({
+      customer_type: "individual",
+      full_name: alias,
+      date_of_birth: null,
+      nationality: otherCountry(b.rng, [nationalityOf(c.party)]),
+      residence_country: "GB",
+      notes: `Identity card ${b.rng.int(1000000000, 9999999999)} sighted by the compliance desk, case 2026-${b.rng.int(10000, 99999)}, on 3 Oct 2026; card shows born ${yearsLater(fullDobOf(c.party) as string, -21)}.`,
+    });
+    const alert = b.alert({ customer, candidate: c, source: "customer_name", matchedName: alias, score: 0.95 });
+    record(b, {
+      ...clearing,
+      kind: "ho2_clear_alias_identity_card",
+      title:
+        "The customer's name equals a strong alias, no birth date on record; a compliance note gives an identity card and a birth date 21 years away",
+      alertId: alert.alert_id,
+      alertType: "customer",
+      customerId: customer.customer_id,
+      entryId: c.party.entryId,
+      note: "The note carries a check reference, an identity card number and a date, and its labelled birth date conflicts with the only listed date; the nationality differs and no document matches.",
+      edge: ["free_text_note", "alias_pattern", "clearing_evidence_in_text", "data_quality_failure"],
     });
   }
 }
