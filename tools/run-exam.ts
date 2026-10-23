@@ -51,6 +51,7 @@ const flag = (name: string): string | undefined => (args.includes(name) ? args[a
 const variant = flag("--variant") ?? "routed";
 const groups = flag("--groups")?.split(",");
 const kinds = flag("--kinds")?.split(",");
+const tag = flag("--tag");
 const limit = flag("--limit") ? Number(flag("--limit")) : undefined;
 const VARIANTS = ["routed", "single", "local", "rules", "fuzzy", "escalate_all", "no_memory"];
 if (!VARIANTS.includes(variant)) throw new Error(`--variant must be one of ${VARIANTS.join(", ")}`);
@@ -210,7 +211,7 @@ for (const c of cases) {
 const metrics = summarise(outcomes);
 const dir = resolveProjectPath("eval/results");
 mkdirSync(dir, { recursive: true });
-const file = join(dir, `${startedAt.replace(/[:.]/g, "-")}-${variant}.json`);
+const file = join(dir, `${startedAt.replace(/[:.]/g, "-")}-${variant}${tag ? `-${tag}` : ""}.json`);
 const describeModels = (p: Policy) =>
   Object.fromEntries(
     Object.entries(p.models).map(([k, v]) => [
@@ -220,7 +221,7 @@ const describeModels = (p: Policy) =>
   );
 writeFileSync(
   file,
-  `${JSON.stringify({ variant, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: describeModels(policy), cases: outcomes, metrics }, null, 2)}\n`,
+  `${JSON.stringify({ variant, ...(tag ? { tag } : {}), selection: { groups, kinds: kinds?.length, limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: describeModels(policy), cases: outcomes, metrics }, null, 2)}\n`,
 );
 console.log(
   JSON.stringify({

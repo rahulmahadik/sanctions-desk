@@ -182,6 +182,19 @@ npm run exam:report                   # builds eval/REPORT.md from the saved res
 
 Results from real runs are in `eval/results/` and summarised in [eval/REPORT.md](eval/REPORT.md). Nothing in them is edited by hand.
 
+### Benchmark command
+
+One command runs the exam unattended, once or many times, or on random batches of alert cases, and writes a results file and a summary:
+
+```bash
+npm run bench -- --variant routed                        # the full exam once
+npm run bench -- --variant routed --runs 3               # the full exam three times
+npm run bench -- --variant routed --batch 20 --runs 5   # five random batches of 20 alert cases
+npm run bench -- --variant routed,single --runs 2        # several variants, one after another
+```
+
+`--seed N` repeats the random batches exactly, `--name` labels the output, and `--dry-run` prints what would run. Each run is a separate `npm run exam`, so one failing run does not stop the rest. The summary (`eval/results/bench-*.md` and `.json`) gives the mean and range of accuracy, false-close rate and median time over the runs, the model calls by lane, and the model cost: cloud tokens are priced under the unit costs in `config/default.json`, and calls on the local lane are counted and cost nothing per call. `npm run json:rate` reports how often a model answer could not be used as JSON, from the traces of the runs.
+
 ## Edge cases handled
 
 34 edge cases (names, ownership, lists and memory, data and systems, security) each have an expected outcome and a check: [docs/EDGE_CASES.md](docs/EDGE_CASES.md). Highlights: exactly 50 percent counts; 49.9 does not; 25 plus 25 from two listed owners does; circular ownership ends; a missing percentage is unknown, not zero; look-alike Cyrillic letters in a Latin name are seen through; a customer note that says "ignore previous instructions" is data; a draft that tells a customer they are being screened is refused.
