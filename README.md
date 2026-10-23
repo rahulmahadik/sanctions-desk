@@ -13,7 +13,7 @@ The headline result is written here by `npm run exam:report` after the full exam
 - [What it does](#what-it-does)
 - [Try it in two minutes](#try-it-in-two-minutes)
 - [How it works](#how-it-works)
-- [Sponsor technology](#sponsor-technology)
+- [How sponsor technology is used](#how-sponsor-technology-is-used)
 - [The decision trace](#the-decision-trace)
 - [Review desk interface](#review-desk-interface)
 - [Evaluation](#evaluation)
@@ -94,7 +94,36 @@ The outcomes are `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs
 
 **Approved business definitions** are data in the semantic layer, versioned and cited by id and version in every decision: `true_match`, `false_positive`, `counterparty_match`, `strong_identifier`, `effective_ownership_threshold`. If the approved wording changes and the code has not been reviewed for it, the guard stops automatic closes.
 
-## Sponsor technology
+## How sponsor technology is used
+
+### Meterless build: the engines
+
+Three engines from the Meterless specifications are implemented in TypeScript (Apache-2.0, a "derived from the Meterless reference" header on every file) and each does real work in the product:
+
+| Engine                          | What it does in the product                                                                                                                                                                                                                                                                                          | Where in the code                                                               | Used by                                                                               |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| **H-MEM** (hierarchical memory) | Remembers each earlier decision as its outcome, reason codes and a pointer to the row it rested on (table, key, content hash, list snapshot), never as personal data. On recall the pointer is re-checked: a changed hash makes the memory stale. A person's override beats memory and is written to a trust ledger. | `packages/engines/src/hmem/`, `packages/engines/src/domain/pointer-memory.ts`   | the memory step (`packages/agents/src/memory.ts`)                                     |
+| **World Model**                 | Holds each company's ownership picture with provenance and validity dates. The 50 percent rule runs on it: chains multiply, listed owners add up, exactly the threshold counts, a missing percentage is unknown, loops end and a depth limit escalates.                                                              | `packages/engines/src/world-model/`, `packages/engines/src/domain/ownership.ts` | the ownership step (`packages/agents/src/ownership.ts`)                               |
+| **Markovian**                   | Re-screens earlier decisions after a list update, in bounded batches with a carried cursor: entries that changed are re-opened, removed ones are offered to a person for release.                                                                                                                                    | `packages/engines/src/markovian/`, `packages/engines/src/domain/rescreen.ts`    | list-change replay (`packages/agents/src/list-change.ts`, `POST /list-change/replay`) |
+
+```bash
+npm run test:engines     # the official conformance runners against our code
+```
+
+Result of the last run: **H-MEM 13/13, World Model 8/8, Markovian 8/8** checks passed. The runners are read from `../meterless-engines` (set `METERLESS_ENGINES_DIR` to use another location). The engines also have their own unit tests in `packages/engines/test/`.
+
+### Meterless power: Nightshift runs every model call
+
+Nightshift, an OpenAI-compatible runtime, is the AI provider for all model calls. Nothing in the code names a model provider: one injected `generator` function asks Nightshift with a **pinned mode** (`meterless/fast`, `meterless/deep`, `meterless/judge`; `meterless/auto` is rejected), falls back to the Ollama backup only if Nightshift cannot answer, and a labelled rules stand-in exists for sample mode only.
+
+| Step         | Mode asked for | Reasoning            | What it does                                                                                                       |
+| ------------ | -------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Safety guard | `fast`         | off                  | Reads text that came out of the data for instructions aimed at the reviewer; checks drafts for tipping off         |
+| Decision     | `deep`         | on, 500-token budget | Recommends one of four outcomes with cited facts                                                                   |
+| Critic       | `judge`        | on, 400-token budget | Checks the recommendation against the evidence the code re-read                                                    |
+| Challenger   | `deep`         | on, 500-token budget | Argues against a close that could slip through (low confidence, a very close name, or a failing data-quality rule) |
+
+Triage, evidence, matching, ownership, memory, the policy guard and the reporter are code and call no model. The runtime decides whether a mode is answered on the **local lane** (Nemotron 3.5 Lightning 30B on this machine) or the **cloud lane** (Nemotron 3 Ultra 550B); the desk records which. **Every call logs the model asked for, the model and lane that answered, reasoning on or off, latency, tokens and its signed receipt, and the cost under the configured unit costs** (calls on the local lane are priced at zero). Answers are requested as schema-constrained JSON, with the reasoning in a field of the answer. See [docs/MODELS.md](docs/MODELS.md).
 
 ### Zetaris
 
@@ -103,31 +132,20 @@ Zetaris is the only data path. Three kinds of source meet in one Unified Semanti
 - a **Postgres bank database** over JDBC with a read-only login (customers, ownership, alerts, earlier decisions),
 - a **payments service** read as a cached REST table.
 
-The model has keys, foreign keys, a description for every table and column, and eight data-quality rules on top of the foreign-key rules. The agents read the model's own description at run time and build their tools from it. Three non-admin identities with their own tokens read it; identifier numbers are masked; a second guard in our code allows only one `SELECT` on the model's tables. Failing data-quality records can never support a close. Each query's id is matched to Zetaris's own statement history (`GET /cases/:id/trace?audit=true`), and the key queries' `EXPLAIN` plans are in [docs/QUERY_PLANS.md](docs/QUERY_PLANS.md). Details, setup and what this build does not offer: [docs/ZETARIS.md](docs/ZETARIS.md); how the model was built and what it measured: [Unified Semantic Layer: build and reflection](docs/ZETARIS.md#unified-semantic-layer-build-and-reflection).
+The agents read the model's own description at run time and build their read-only tools from it; each agent is limited by our SQL guard to its own tables and columns; failing data-quality records can never support a close; every query id is matched to Zetaris's own statement history. How the model was built, what it measured, the access control and the problems met: [Unified Semantic Layer: build and reflection](docs/ZETARIS.md#unified-semantic-layer-build-and-reflection), [Access control](docs/ZETARIS.md#access-control) and [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md). Query plans: [docs/QUERY_PLANS.md](docs/QUERY_PLANS.md).
 
-### Meterless engines
+### NVIDIA Nemotron
 
-Three engines were implemented in TypeScript from the Meterless specifications (Apache-2.0, headers on every file) and pass the official conformance runners against our implementations:
+The language work is done by Nemotron models through Nightshift:
 
-| Engine                          | Where it works here                                                                                                                                                                                                                                                                                       | Test                                                             |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| **H-MEM** (hierarchical memory) | Pointer memory: a past decision is remembered as outcome, reason codes and a pointer to the row (table, key, content hash, list snapshot), never as personal data. Recall re-checks the pointer; a changed hash makes the memory stale. A human override beats memory and is written to the trust ledger. | `packages/engines/test/hmem.test.ts`, `pointer-memory.test.ts`   |
-| **World Model**                 | The ownership picture of each company, written with provenance and validity dates; the 50 percent rule runs on it (chains multiply, listed owners add up, exactly the threshold counts, a missing percentage is unknown, loops end, a depth limit escalates).                                             | `packages/engines/test/world-model.test.ts`, `ownership.test.ts` |
-| **Markovian**                   | List-change replay: every earlier decision is checked against the entry as it is now, in bounded batches with a carried cursor.                                                                                                                                                                           | `packages/engines/test/markovian.test.ts`, `rescreen.test.ts`    |
+| Agent        | Model and lane                                                                                               | Evidence     |
+| ------------ | ------------------------------------------------------------------------------------------------------------ | ------------ |
+| Safety guard | Nemotron 3.5 Lightning 30B, local lane                                                                       | model ledger |
+| Decision     | Nemotron 3 Ultra 550B on the cloud lane when the runtime routes there, otherwise Lightning on the local lane | model ledger |
+| Critic       | the same two models, by the runtime's routing                                                                | model ledger |
+| Challenger   | the same two models, by the runtime's routing                                                                | model ledger |
 
-```bash
-npm run test:engines     # the official runners against our code: H-MEM 13/13, World Model 8/8, Markovian 8/8
-```
-
-The runners are read from `../meterless-engines` (set `METERLESS_ENGINES_DIR` to use another location).
-
-### Meterless Nightshift
-
-All model calls go through Nightshift, an OpenAI-compatible runtime, with pinned modes only (`meterless/fast`, `meterless/deep`, `meterless/judge`); `meterless/auto` is rejected. Dead routes are retried once, then Ollama is the backup. Every answer's signed receipt is stored and verified (`valid_pinned`, `valid_unpinned`, `invalid`), and the requested and routed model, local or cloud, are recorded for every call. See [docs/MODELS.md](docs/MODELS.md).
-
-### Where NVIDIA contributes
-
-Nemotron models do the language work: Nemotron 3 Ultra 550B (cloud lane) and Nemotron 3.5 Lightning 30B (local lane) answer the decision, the critic and the safety guard. Each recommendation's model ledger shows which model answered which step, and the signed receipt backs it (`npm run ledger -- --case <alert id>`).
+The **model ledger** of every recommendation lists, per step, the model asked for, the model and lane that answered, reasoning, tokens, latency and the signed receipt with its verification status (`GET /cases/:alertId/trace`, `npm run ledger -- --case <alert id>`, the routing panel of the review desk, and the saved decision records in `output_examples/`). The exam report counts the calls by lane and the share that went to the cloud.
 
 ### What is distinctive
 
