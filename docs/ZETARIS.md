@@ -115,30 +115,40 @@ From building this:
 - **Cached tables outlive their database.** A cached REST table survived `DROP DATABASE` and had to be released first.
 - **No MCP endpoint or lineage read**, so the adapter uses REST and the statement history only.
 
-### Access control: what the live checks showed
+### Access control
 
-`npm run test:live` runs `packages/zetaris/test/live/roles.live.test.ts` against a running Zetaris with raw REST calls (the application's own guard is bypassed on purpose). Result of the last run, 12 of 12 checks as written:
+The three runtime users read the model with their own tokens. Getting there needed four settings that exist only in the Zetaris interface, and that a rebuild of the model partly undoes:
+1. **Management → Permissions:** give `ROLE_EVIDENCE_AGENT`, `ROLE_REVIEWER` and `ROLE_EVAL` the **View** permission on **Unified Semantic Layer**. Without it every read fails with `User '...' does not have access to USL: metastore.sanctions.<table>`, whatever grants exist; this was the missing step.
+2. **Data Product → Unified Semantic Layer → the namespace (`sanctions`) → Access Control:** assign the three roles.
+3. **The model (`screening_usl`) → Access Control:** assign the three roles and tick `SELECT` on all 14 tables.
+4. **`customer_identifier` → Column Access:** a policy that sets `id_number` to HIDE for `ROLE_EVIDENCE_AGENT` only. This edition offers GRANT, DENY and HIDE for columns of a model table, and no pattern mask such as `******56`.
 
-| Check                                    | evidence                                             | reviewer    | eval        |
-| ---------------------------------------- | ---------------------------------------------------- | ----------- | ----------- |
-| Signs in with its own token (`SELECT 1`) | yes                                                  | yes         | yes         |
-| `CREATE`, `DROP`, `GRANT`                | refused: "User is not permitted to run this command" | refused     | refused     |
-| Reads a table outside the model          | refused (table not found)                            | refused     | refused     |
-| Reads a table of the model               | **refused by the platform**                          | **refused** | **refused** |
+**A rebuild resets steps 2 and 3.** The access list belongs to the model's internal id, and rebuilding creates a new model with an empty list; the role-level permission in step 1 stays. Earlier failures came from access set on a model that was then rebuilt. The roles' SQL grants (`08_access_create.sql`) are re-applied by the rebuild, but the Access Control list is not.
 
-The last row is not a missing SQL grant: table-level `SELECT` exists for each role on all 14 tables (`SHOW GRANT ROLE ... ON ALL`), the users are assigned to the roles and the tokens work, yet every read of a model table answers `User '...' does not have access to USL: metastore.sanctions.<table>`. Zetaris support says USL access for non-admin users is set in the interface under Data Product → Unified Semantic Layer → the namespace or model → Access Control (assign the user or role and tick SELECT per table), and the platform's permissions guide adds the View permission on the Unified Semantic Layer under Management → Permissions. Observed on the development instance:
-- That Access Control list was **empty after a rebuild**: rebuilding removes and recreates the model, and the assignment goes with it. Assign it again after every rebuild, and do not re-run `npm run zetaris:agents` afterwards, because it drops and recreates the users.
-- There is **no SQL or REST call to read or write it**. In sections 20 and 21 of the Lightning SQL command reference, `LIST ... FOR`, `ASSIGN` and `REVOKE` accept data sources, databases, data marts, pipelines and streaming sources but not a Unified Semantic Layer, and `GRANT SELECT ON USL TABLE` writes a different store from the one the access check reads. So a rebuild cannot re-apply it from a script.
-- **A rebuild therefore ends with a loud check**: `npm run check:roles` makes each identity read the model with its own token and exits with an error that says what to do when any is refused. `npm run zetaris:rebuild` runs it last.
-- A brand-new user placed in the evidence role, signed in and issued a fresh key, was refused in the same way, so a stale token is not the cause. The error names the table as `metastore.sanctions.<table>`, without the model, which suggests the assignment has to be made at the namespace (`sanctions`) rather than only on the model.
+**It cannot be scripted.** In sections 20 and 21 of the Lightning SQL command reference, `LIST ... FOR`, `ASSIGN` and `REVOKE` accept data sources, databases, data marts, pipelines and streaming sources but not a Unified Semantic Layer, and there is no REST call. `GRANT SELECT ON USL TABLE` writes a different store from the one the check reads, so it does not help. The steps above are therefore the documented procedure, and the repository checks the result instead:
+- `npm run check:roles` makes each identity read the model with its own token and exits with an error naming who is refused and the four steps above. `npm run zetaris:rebuild` runs it last.
+- **The API checks at start-up.** A live run (not sample mode) with role tokens reads the model once as each identity. If one is refused, the API logs the steps and does not start. Set `zetaris.requireRoleAccess` to `false` to turn this off.
+- **No admin fallback by default.** `zetaris.fallbackOnDenied` is `false`: a refused role token is an error. Setting it to `true` retries once with the admin key, visibly (`token_source: fallback`), which is useful only while access is being set up.
 
-Once the read works, `npm run test:live` shows it: its "known limitation" check starts failing, which is the signal to replace it with the masked-versus-full checks (evidence sees a masked `id_number`, reviewer the full value).
+Do not run `npm run zetaris:agents -- --apply` after the access is set: it drops and recreates the users and discards what was assigned to them.
 
-### What happens while a role is refused
+#### Checks on the development instance
 
-- **The role token is tried first.** If Zetaris answers that the user has no access, the same query is sent once with the admin key and the role token is not used again by that process (`zetaris.fallbackOnDenied`, on by default). The refused attempt is recorded under the role as an error and the retry as `token_source: fallback`, so the decision trace shows which credential read what. Set it to `false` to make a refusal an error instead.
-- **Each agent keeps its own allow-list.** Whatever credential answers, our SQL guard first limits each agent to the tables and columns the policy gives it (`agentAccess` in `config/policy.default.json`): the evidence step reads the model's tables, the ownership step only the ownership register, the critic only the tables it re-reads cited facts from, and the steps that read no data (triage, matching, decision, policy guard, reporter) get none. Except for the evidence step, no agent may name the `id_number` column. A query outside an agent's scope is blocked before anything is sent and recorded as `agent_scope`. This is the application's check; with the admin key the platform itself no longer limits an agent, which is why the check is tested (`packages/zetaris/test/client.test.ts`) and why moving the agents onto working role tokens is still the goal.
-- **Masking is applied by the adapter** (identifier numbers come back as `******56` in the evidence step), and a customer identifier is compared with a listed one by a join inside Zetaris, so the number is never read into the application.
+`npm run test:live` (`packages/zetaris/test/live/roles.live.test.ts`) runs raw REST calls, bypassing the application's own guard on purpose. Last result: 13 checks pass and one is an expected failure.
+
+| Check                           | evidence                                             | reviewer | eval     |
+| ------------------------------- | ---------------------------------------------------- | -------- | -------- |
+| Signs in with its own token     | yes                                                  | yes      | yes      |
+| Reads every table of the model  | yes                                                  | yes      | yes      |
+| `CREATE`, `DROP`, `GRANT`       | refused: "User is not permitted to run this command" | refused  | refused  |
+| Reads a table outside the model | refused                                              | refused  | refused  |
+| `id_number` in clear            | **still returned**                                   | returned | returned |
+
+The one gap is the column policy: with HIDE set for the evidence role, a `SELECT id_number` through that role's token still returns the clear value on this instance. The test for it is written the way it should behave and marked as an expected failure, so it starts failing when the platform enforces the policy. Until then the application hides the number itself: the evidence step masks it in the adapter (it comes back as `******56`), a customer identifier is compared with a listed one by a join inside Zetaris so the number is never read into the application, and the interface draws it as `••••`. If the platform starts enforcing HIDE, that join (which names `id_number`) must run under a role that may see the column; check it then.
+
+### Each agent keeps its own allow-list
+
+Whatever credential answers, our SQL guard first limits each agent to the tables and columns the policy gives it (`agentAccess` in `config/policy.default.json`): the evidence step reads the model's tables, the ownership step only the ownership register, the critic only the tables it re-reads cited facts from, and the steps that read no data (triage, matching, decision, challenger, policy guard, reporter) get none. Except for the evidence step, no agent may name the `id_number` column. A query outside an agent's scope is blocked before anything is sent and recorded as `agent_scope`. This is the application's check and is tested (`packages/zetaris/test/client.test.ts`); the platform's own limits now apply as well.
 
 ## The SQL guard
 

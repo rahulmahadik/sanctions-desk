@@ -123,6 +123,11 @@ describe("createZetarisClient", () => {
 });
 
 describe("a role token the platform refuses", () => {
+  const withFallback = () => {
+    const config = testConfig(tokens);
+    return { ...config, zetaris: { ...config.zetaris, fallbackOnDenied: true } };
+  };
+
   it("falls back to the admin key once, labels it, and stops trying the role token", async () => {
     let calls = 0;
     const api = fakeZetaris((sql) => {
@@ -133,7 +138,7 @@ describe("a role token the platform refuses", () => {
     });
     const records: QueryRecord[] = [];
     const client = createZetarisClient({
-      config: testConfig(tokens),
+      config: withFallback(),
       fetchImpl: api.fetchImpl,
       onQuery: (r) => records.push(r),
     });

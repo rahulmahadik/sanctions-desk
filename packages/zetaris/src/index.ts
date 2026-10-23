@@ -1,3 +1,4 @@
+export * from "./access.js";
 export * from "./audit.js";
 export * from "./client.js";
 export * from "./files.js";

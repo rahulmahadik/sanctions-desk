@@ -66,9 +66,14 @@ const ConfigSchema = z.strictObject({
       .default({}),
     /**
      * When a role token is refused for lack of permission, retry once with the admin key and stop using that
-     * role token. Every record says which credential answered. Turn off to make a refusal an error.
+     * role token. Every record says which credential answered. Off by default: a refusal is an error.
      */
-    fallbackOnDenied: z.boolean().default(true),
+    fallbackOnDenied: z.boolean().default(false),
+    /**
+     * At start-up, make each runtime identity read the model and refuse to start, with the fix steps, if any is
+     * refused. Only applies to a live run that has role tokens and no admin fallback.
+     */
+    requireRoleAccess: z.boolean().default(true),
     /** The USL namespace and model the agents are allowed to read. */
     namespace: nonEmpty,
     usl: nonEmpty,

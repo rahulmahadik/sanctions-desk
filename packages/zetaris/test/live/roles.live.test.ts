@@ -21,7 +21,10 @@ const tokens = {
 const ready = live && Object.values(tokens).every(Boolean);
 const identities = Object.keys(tokens) as Array<keyof typeof tokens>;
 
-async function run(token: string | undefined, sql: string): Promise<{ status: number; msg: string }> {
+async function run(
+  token: string | undefined,
+  sql: string,
+): Promise<{ status: number; msg: string; rows?: Array<Array<string | null>> }> {
   const res = await fetch(`${base}/sql-editor/sqls/run`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "X-Org-ID": org, "content-type": "application/json" },
@@ -30,12 +33,15 @@ async function run(token: string | undefined, sql: string): Promise<{ status: nu
   });
   const text = await res.text();
   let msg = text;
+  let rows: Array<Array<string | null>> | undefined;
   try {
-    msg = (JSON.parse(text) as { msg?: string }).msg ?? text;
+    const parsed = JSON.parse(text) as { msg?: string; data?: Array<Array<string | null>> };
+    msg = parsed.msg ?? "";
+    rows = parsed.data;
   } catch {
-    // an answer with rows is not an error message
+    // not JSON
   }
-  return { status: res.status, msg: msg.slice(0, 300) };
+  return { status: res.status, msg: msg.slice(0, 300), rows };
 }
 
 describe.skipIf(!ready)("runtime identities on a live Zetaris", () => {
@@ -60,12 +66,36 @@ describe.skipIf(!ready)("runtime identities on a live Zetaris", () => {
     expect(r.status).toBe(400);
   });
 
-  // On the platform version used for development the model's tables are refused to these identities even though
-  // table-level grants exist (the access check names the table without the model). This test records that, so it
-  // starts failing, and shows the identities can be used, the day the platform allows it.
-  it.each(identities)("%s is refused the model's tables by the platform (known limitation)", async (who) => {
-    const r = await run(tokens[who], "SELECT COUNT(*) FROM lightning.metastore.sanctions.screening_usl.customer");
-    expect(r.status).toBe(400);
-    expect(r.msg).toContain("does not have access to USL");
+  const model = "lightning.metastore.sanctions.screening_usl";
+
+  it.each(identities)("%s can read every table of the model with its own token", async (who) => {
+    for (const t of [
+      "business_definition",
+      "list_entry",
+      "customer",
+      "customer_identifier",
+      "payment",
+      "alert",
+      "disposition",
+    ]) {
+      const r = await run(tokens[who], `SELECT COUNT(*) FROM ${model}.${t}`);
+      expect(r.status, `${who} ${t}: ${r.msg}`).toBe(200);
+    }
+  });
+
+  it("the reviewer sees identifier numbers in full", async () => {
+    const r = await run(tokens.reviewer, `SELECT id_number FROM ${model}.customer_identifier LIMIT 1`);
+    expect(r.status).toBe(200);
+    expect(r.rows?.[0]?.[0]).toBeTruthy();
+  });
+
+  // Column Access on customer_identifier is set to HIDE id_number for the evidence role, and this edition of the
+  // platform returns the clear value anyway. The application masks it itself (adapter and interface). The test is
+  // written the way it should behave and marked as expected to fail; when the platform enforces the policy it starts
+  // failing, which is the cue to remove `fails` and to check that the identifier comparison still works for the role.
+  it.fails("the evidence role does not receive id_number in clear", async () => {
+    const r = await run(tokens.evidence, `SELECT id_number FROM ${model}.customer_identifier LIMIT 1`);
+    const value = r.rows?.[0]?.[0];
+    expect(r.status !== 200 || value === null || value === undefined || /^\W+$/.test(String(value))).toBe(true);
   });
 });

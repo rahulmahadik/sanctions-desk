@@ -11,7 +11,13 @@ import {
   RunEventBus,
   resolveProjectPath,
 } from "@sanctions-desk/shared";
-import { createZetarisClient, loadQueryCache, replayFetch } from "@sanctions-desk/zetaris";
+import {
+  checkRoleAccess,
+  createZetarisClient,
+  describeAccessFailure,
+  loadQueryCache,
+  replayFetch,
+} from "@sanctions-desk/zetaris";
 import { buildApp } from "./app.js";
 import { createLogger } from "./logger.js";
 
@@ -50,6 +56,19 @@ async function main(): Promise<void> {
           }
         },
       });
+  // A live run reads the model with each agent's own token. After a rebuild their access is gone, so say so now,
+  // with the steps that fix it, rather than failing in the middle of a review.
+  if (!config.sampleMode && config.zetaris.requireRoleAccess && !config.zetaris.fallbackOnDenied) {
+    const access = await checkRoleAccess(config);
+    if (access.some((r) => r.state === "refused")) {
+      logger.error(describeAccessFailure(access));
+      process.exit(1);
+    }
+    if (access.some((r) => r.state === "no_token")) {
+      logger.warn("some identities have no token and read with the admin key; run `npm run zetaris:agents -- --apply`");
+    }
+    logger.info({ roles: access.map((r) => `${r.role}:${r.state}`) }, "role access to the semantic layer verified");
+  }
   const bus = new RunEventBus({
     replayLimit: config.events.replayLimit,
     maxRuns: config.events.maxRuns,
