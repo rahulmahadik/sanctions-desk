@@ -274,6 +274,7 @@ No URL, model name or timeout is written in the source. Configuration is layered
 | --------------------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `HOST`, `PORT`                                                        | `server.*`                     | Defaults `0.0.0.0`, `8000`.                                                                                                                    |
 | `WEB_ORIGINS`                                                         | `server.webOrigins`            | Browser origins allowed to call the API (the review desk interface). Comma separated.                                                          |
+| `DOCS_ENABLED`                                                        | `server.docs`                  | Serve the OpenAPI description and Swagger UI at `/docs`. On by default.                                                                        |
 | `NEXT_PUBLIC_API_URL`                                                 | none                           | Where the browser reaches the API (the review desk interface, `apps/web`). Default `http://localhost:8000`. Fixed when the interface is built. |
 | `LOG_LEVEL`, `LOG_DIR`                                                | `logging.*`                    | A relative `LOG_DIR` is resolved from the project root.                                                                                        |
 | `SAMPLE_MODE`                                                         | `sampleMode`                   | `true` runs on saved answers and the labelled stand-in.                                                                                        |
@@ -293,6 +294,8 @@ No URL, model name or timeout is written in the source. Configuration is layered
 | `ZETARIS_CHECK_CONTAINER`                                             | none                           | Container used by `npm run check:isolation`. Default `zetaris-driver-1`.                                                                       |
 
 ## API
+
+Interactive description at `http://localhost:8000/docs` (Swagger UI), and worked examples in [docs/API.md](docs/API.md).
 
 Errors have one shape: `{ "status": "error", "request_id": "...", "error": { "type", "message", "recoverable" } }`.
 

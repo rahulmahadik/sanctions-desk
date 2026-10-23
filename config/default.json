@@ -4,7 +4,8 @@
     "port": 8000,
     "bodyLimitBytes": 1048576,
     "shutdownTimeoutMs": 10000,
-    "webOrigins": ["http://localhost:3001", "http://127.0.0.1:3001"]
+    "webOrigins": ["http://localhost:3001", "http://127.0.0.1:3001"],
+    "docs": true
   },
   "logging": {
     "level": "info",

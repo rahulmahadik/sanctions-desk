@@ -32,6 +32,8 @@ const ConfigSchema = z.strictObject({
     shutdownTimeoutMs: positiveInt,
     /** Browser origins allowed to call the API (the review desk interface). */
     webOrigins: z.array(nonEmpty),
+    /** Serve the OpenAPI description and Swagger UI at /docs. */
+    docs: z.boolean().default(true),
   }),
   logging: z.strictObject({
     level: z.enum(LOG_LEVELS),
@@ -147,6 +149,7 @@ interface EnvBinding {
 const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "HOST", path: ["server", "host"], kind: "string" },
   { env: "WEB_ORIGINS", path: ["server", "webOrigins"], kind: "list" },
+  { env: "DOCS_ENABLED", path: ["server", "docs"], kind: "boolean" },
   { env: "PORT", path: ["server", "port"], kind: "number" },
   { env: "LOG_LEVEL", path: ["logging", "level"], kind: "string" },
   { env: "LOG_DIR", path: ["logging", "dir"], kind: "string" },

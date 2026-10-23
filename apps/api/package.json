@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@fastify/helmet": "^13.2.0",
+    "@fastify/swagger": "^9.9.2",
+    "@fastify/swagger-ui": "^6.1.2",
     "@sanctions-desk/agents": "^0.1.0",
     "@sanctions-desk/shared": "^0.1.0",
     "@sanctions-desk/zetaris": "^0.1.0",

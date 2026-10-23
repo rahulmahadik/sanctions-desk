@@ -1,10 +1,13 @@
 import { randomUUID } from "node:crypto";
 import helmet from "@fastify/helmet";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
 import type { Config, Generator, PolicyStore, RunEventBus } from "@sanctions-desk/shared";
 import type { ZetarisClient } from "@sanctions-desk/zetaris";
 import fastify from "fastify";
 import type { Logger } from "pino";
 import { mapError } from "./errors.js";
+import { buildOpenApi } from "./openapi.js";
 import { createDependencyProber, type DependencyProber } from "./probes.js";
 import { allowedOrigin, deskRoutes } from "./routes/desk.js";
 import { governanceRoutes } from "./routes/governance.js";
@@ -53,6 +56,14 @@ export async function buildApp(deps: AppDeps) {
   });
 
   await app.register(helmet, { contentSecurityPolicy: false });
+
+  // Every route that gets registered, so a test can check that the OpenAPI description covers all of them.
+  const routeTable: string[] = [];
+  app.addHook("onRoute", (route) => {
+    for (const method of [route.method].flat()) {
+      if (method !== "HEAD" && method !== "OPTIONS") routeTable.push(`${method} ${route.url}`);
+    }
+  });
 
   app.addHook("onRequest", async (req, reply) => {
     reply.header("x-request-id", req.id);
@@ -128,7 +139,12 @@ export async function buildApp(deps: AppDeps) {
     zetaris: deps.zetaris,
   });
 
-  return app;
+  if (config.server.docs) {
+    await app.register(swagger, { mode: "static", specification: { document: buildOpenApi("0.1.0") as never } });
+    await app.register(swaggerUi, { routePrefix: "/docs", uiConfig: { docExpansion: "list", deepLinking: false } });
+  }
+
+  return Object.assign(app, { routeTable });
 }
 
 /** The configured server type (its logger is pino, so it is not the default FastifyInstance). */
