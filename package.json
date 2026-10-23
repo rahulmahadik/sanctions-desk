@@ -39,6 +39,7 @@
     "bankdb:reset": "docker compose --env-file .env.data --profile data rm -sf bankdb payments-api && docker volume rm -f sanctions-desk_bankdb-data && docker compose --env-file .env.data --profile data up -d --build bankdb payments-api",
     "ledger": "tsx tools/model-ledger.ts",
     "exam": "tsx tools/run-exam.ts",
+    "exam:alone": "tsx tools/nemotron-alone.ts",
     "exam:report": "tsx tools/exam-report.ts",
     "examples": "tsx tools/export-examples.ts",
     "citations": "tsx tools/citation-errors.ts",
