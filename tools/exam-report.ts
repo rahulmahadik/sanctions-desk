@@ -9,6 +9,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  byPath,
   type Headline,
   headlineOf,
   headlineSentence,
@@ -96,6 +97,14 @@ for (const f of files) {
     newest.set(r.variant, { ...rescore(r), file: f });
     originalScore.set(r.variant, rescore(r, true).metrics);
   }
+}
+
+/** The newest complete run of each variant on the held-out set, scored against the held-out labels. */
+const heldoutNewest = new Map<string, Result & { file: string }>();
+for (const f of files) {
+  const r = JSON.parse(readFileSync(join(dir, f), "utf8")) as Result;
+  if (r.exam === "heldout" && r.tag === undefined && !r.selection?.kinds && !r.selection?.groups && !r.selection?.limit)
+    heldoutNewest.set(r.variant, { ...r, metrics: summarise(r.cases), file: f });
 }
 
 const config = loadConfig();
@@ -340,6 +349,101 @@ if (head && full) {
 } else {
   lines.push("_The full system has not been run yet, so there is no headline figure._", "");
 }
+
+// ---- the results in the order that matters ---------------------------------------------------------
+
+const riskOf = (cases: readonly ScoredCase[]) => cases.filter((c) => c.must_not.includes("CLOSE_FALSE_POSITIVE"));
+const closed = (c: ScoredCase) => c.got === "CLOSE_FALSE_POSITIVE";
+
+/** The two directions on the held-out set: risks caught, and clears correctly made. */
+function directions(cases: readonly ScoredCase[]) {
+  const risk = riskOf(cases).filter((c) => c.error === undefined);
+  const clears = cases.filter((c) => c.expected === "CLOSE_FALSE_POSITIVE" && c.error === undefined);
+  const caught = risk.filter((c) => !closed(c)).length;
+  const made = clears.filter(closed).length;
+  const acceptable = cases.filter((c) => c.error === undefined && summariseOne(c)).length;
+  return { risk: risk.length, caught, clears: clears.length, made, acceptable, total: cases.length };
+}
+const summariseOne = (c: ScoredCase): boolean => c.got === c.expected || c.acceptable.includes(c.got);
+
+const NAME_MATCH = "Name-match rules baseline";
+const mainRow = (label: string, r: Result | undefined) =>
+  r
+    ? `| ${label} | ${r.metrics.false_closes} of ${r.metrics.risk_cases} (${pct(r.metrics.false_close_rate)}) | ${pct0(r.metrics.acceptable_accuracy)} | ${r.metrics.latency_s.p50} |`
+    : `| ${label} | not run | | |`;
+lines.push(
+  "### (a) Against plain name matching, on the 70 cases",
+  "",
+  "Name matching is typical screening: it sees a name score and nothing else. The row to read is how many cases that carry real risk each one wrongly recommends closing.",
+  "",
+  "| System | Risk cases wrongly closed | Acceptable answers | Median s |",
+  "|---|---:|---:|---:|",
+  mainRow("Full system (agents, critic, challenger, memory)", full),
+  mainRow(NAME_MATCH + " (score at or above 0.90 escalates)", get("fuzzy")),
+  mainRow("Every alert goes to a person", get("escalate_all")),
+  "",
+);
+
+const hoFull = heldoutNewest.get("routed");
+if (heldoutNewest.size > 0) {
+  const hoRow = (label: string, r: Result | undefined) => {
+    if (!r) return `| ${label} | not run | | | |`;
+    const d = directions(r.cases);
+    return `| ${label} | ${d.caught} of ${d.risk} (${pct0(d.caught / d.risk)}) | ${d.made} of ${d.clears} (${pct0(d.made / d.clears)}) | ${d.clears - d.made} of ${d.clears} (${pct0((d.clears - d.made) / d.clears)}) | ${d.acceptable} of ${d.total} (${pct0(d.acceptable / d.total)}) |`;
+  };
+  lines.push(
+    "### (b) Beyond the rules: the held-out set, in both directions",
+    "",
+    "The held-out set has 30 cases whose deciding evidence is in free text, in an alias pattern the rules were not written for, or in documents that disagree: 22 carry risk (four of them rest on text that is only a claim and need more information), and 8 should be closed because the text is documentary. It was written, labelled and frozen three times before any run on it (commits in `eval/cases/README.md`), with the evidence standard of policy version 2 made explicit between the freezes, and the system was not tuned on it.",
+    "",
+    "**Risks caught** (recall) is the share of the 22 risk cases not closed. **Clears correctly made** is the share of the 8 closable cases that were closed; its complement is the **over-escalation rate**, the cost of caution. A system that escalates everything catches every risk and clears nothing.",
+    "",
+    "| System | Risks caught | Clears correctly made | Over-escalation (clears missed) | Acceptable overall |",
+    "|---|---:|---:|---:|---:|",
+    hoRow("Full system (agents, critic, challenger, memory)", hoFull),
+    hoRow("Deterministic pipeline (our code, no language model)", heldoutNewest.get("rules")),
+    hoRow(NAME_MATCH, heldoutNewest.get("fuzzy")),
+    hoRow("Every alert goes to a person", heldoutNewest.get("escalate_all")),
+    "",
+  );
+  if (hoFull) {
+    const misses = hoFull.cases.filter((c) => c.got !== c.expected && !c.acceptable.includes(c.got));
+    lines.push(
+      `Run of the full system: started ${hoFull.started_at}, policy version ${hoFull.policy_version}, file \`${hoFull.file}\`. Misses (${misses.length}):`,
+      "",
+      misses.length === 0
+        ? "None."
+        : `| Case | Kind | Expected | Got |\n|---|---|---|---|\n${misses.map((c) => `| ${c.case_id} | ${c.kind} | ${c.expected} | ${c.got} |`).join("\n")}`,
+      "",
+    );
+  }
+}
+
+if (full || hoFull) {
+  const pathRow = (label: string, p: ReturnType<typeof byPath>[number]) =>
+    `| ${label} | ${p.path === "confirm" ? "confirm (structured evidence settles it)" : "reason (free text or missing data)"} | ${p.cases} | ${p.acceptable} | ${p.false_closes} of ${p.risk_cases} | ${p.first_finding_acceptable} | ${p.median_s.toFixed(0)} | ${p.mean_cost.toFixed(4)} ${config.costs.currency} |`;
+  lines.push(
+    "### (c) Cost and time per path",
+    "",
+    "Code gives a first finding from the structured fields. When that settles the case and there is no free text to weigh, the agents confirm and explain it (the *confirm* path, short reasoning); otherwise they reason over all the evidence, with the critic and, for a close, the challenger (the *reason* path). The path is recorded for every case. *First finding acceptable* scores code's own first finding on the same cases.",
+    "",
+    "| Set | Path | Cases | Acceptable | False closes | First finding acceptable | Median s | Mean cost |",
+    "|---|---|---:|---:|---:|---:|---:|---:|",
+    ...(full ? byPath(full.cases).map((p) => pathRow("70 cases", p)) : []),
+    ...(hoFull ? byPath(hoFull.cases).map((p) => pathRow("held-out", p)) : []),
+    "",
+  );
+}
+
+const det = get("rules");
+lines.push(
+  "### (d) The deterministic pipeline on the 70 cases",
+  "",
+  det
+    ? `Our own code with no language model scores **${pct0(det.metrics.exact_accuracy)} exact and ${pct0(det.metrics.acceptable_accuracy)} acceptable** on the 70 cases, with ${det.metrics.false_closes} of ${det.metrics.risk_cases} risk cases wrongly closed. That is because the labels and the rules share the same definitions: the exam shows consistency with the approved definitions, not that the definitions are right. What the agents add is read on the held-out set above, and in the explanations, the cited evidence and the checks around every recommendation.`
+    : "_The deterministic pipeline has not been run on the 70 cases yet._",
+  "",
+);
 
 lines.push(
   "Every number below was produced by `npm run exam` on this machine and is read from `eval/results/*.json`; rebuild this file with `npm run exam:report`.",
