@@ -4,8 +4,9 @@
  *   npm run data:synthetic
  *
  * Writes data/synthetic/ (tables as JSON and CSV, the list update, a manifest), eval/cases/exam.json and
- * eval/cases/heldout.json and eval/cases/heldout2.json. Add --include-heldout to put the held-out rows into
- * data/synthetic/ as well, or --include-heldout2 to put in the first set's rows and then the second set's.
+ * eval/cases/heldout.json, eval/cases/heldout2.json and eval/cases/heldout3.json. Add --include-heldout to put the
+ * held-out rows into data/synthetic/ as well, --include-heldout2 to put in the first set's rows and then the second
+ * set's, or --include-heldout3 to put in all three sets' rows, in order.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -18,6 +19,7 @@ import {
   writeExam,
   writeHeldout,
   writeHeldout2,
+  writeHeldout3,
 } from "@sanctions-desk/data";
 import { resolveProjectPath } from "@sanctions-desk/shared";
 
@@ -37,8 +39,10 @@ const bank = buildBank(
 // The held-out rows are written only on request, so the committed tables stay exactly what the main exam loaded.
 const includeHeldout = process.argv.includes("--include-heldout");
 const includeHeldout2 = process.argv.includes("--include-heldout2");
-writeBank(resolveProjectPath("data/synthetic"), bank, { includeHeldout, includeHeldout2 });
+const includeHeldout3 = process.argv.includes("--include-heldout3");
+writeBank(resolveProjectPath("data/synthetic"), bank, { includeHeldout, includeHeldout2, includeHeldout3 });
 writeHeldout(resolveProjectPath("eval/cases/heldout.json"), bank);
 writeHeldout2(resolveProjectPath("eval/cases/heldout2.json"), bank);
+writeHeldout3(resolveProjectPath("eval/cases/heldout3.json"), bank);
 writeExam(resolveProjectPath("eval/cases/exam.json"), bank);
 console.log(JSON.stringify(bank.manifest, null, 1));
