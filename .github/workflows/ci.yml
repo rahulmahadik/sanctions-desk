@@ -26,6 +26,8 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run test:coverage
+      # The Meterless conformance suites (vendored) against our engines; the scorecards show in the log.
+      - run: npm run test:engines
 
   docker:
     name: Docker image builds

@@ -112,7 +112,7 @@ Three engines from the Meterless specifications are implemented in TypeScript (A
 npm run test:engines     # the official conformance runners against our code
 ```
 
-Result of the last run: **H-MEM 13/13, World Model 8/8, Markovian 8/8** checks passed. The runners are read from `../meterless-engines` (set `METERLESS_ENGINES_DIR` to use another location). The engines also have their own unit tests in `packages/engines/test/`.
+Result of the last run: **H-MEM 13/13, World Model 8/8, Markovian 8/8** checks passed. The official conformance suites are vendored in `packages/engines/conformance/` (copied without change, Apache-2.0, see `NOTICE`), so no other checkout is needed. They run against our engines in `npm test` and in CI, which prints these scorecards on every push. Set `METERLESS_ENGINES_DIR` to run against a newer upstream copy. The engines also have their own unit tests in `packages/engines/test/`.
 
 ### Meterless power: Nightshift runs every model call
 

@@ -4,9 +4,10 @@
  *
  *   npm run test:engines
  *
- * The runners live in the Meterless engines checkout. By default that is ../meterless-engines next to this
- * repository; set METERLESS_ENGINES_DIR to use another location. The runners load an implementation from an
- * environment variable (HMEM_IMPL, WORLD_MODEL_IMPL, MARKOVIAN_IMPL) and are run through tsx.
+ * The runners are vendored in packages/engines/conformance, copied without change from the Meterless engines
+ * repository, so no other checkout is needed. Set METERLESS_ENGINES_DIR to run against a newer upstream copy
+ * instead. The runners load an implementation from an environment variable (HMEM_IMPL, WORLD_MODEL_IMPL,
+ * MARKOVIAN_IMPL) and are run through tsx.
  */
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -14,7 +15,8 @@ import { join, resolve } from "node:path";
 import { projectRoot } from "@sanctions-desk/shared";
 
 const root = projectRoot();
-const enginesDir = resolve(process.env.METERLESS_ENGINES_DIR ?? join(root, "..", "meterless-engines"));
+const upstream = process.env.METERLESS_ENGINES_DIR;
+const enginesDir = upstream ? resolve(upstream) : undefined;
 const TIMEOUT_MS = 120_000;
 
 const suites = [
@@ -35,7 +37,9 @@ const suites = [
 
 let failed = 0;
 for (const suite of suites) {
-  const runner = join(enginesDir, "engines", suite.folder, "conformance", "runner.ts");
+  const runner = enginesDir
+    ? join(enginesDir, "engines", suite.folder, "conformance", "runner.ts")
+    : join(root, "packages", "engines", "conformance", suite.folder, "runner.ts");
   if (!existsSync(runner)) {
     console.error(`${suite.name}: conformance runner not found at ${runner}`);
     failed += 1;

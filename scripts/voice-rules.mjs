@@ -24,7 +24,7 @@ export const SKIP_FILES = new Set([
   "scripts/scan-public.mjs",
 ]);
 // Rows copied from public sanctions lists and GLEIF are data, not our wording.
-export const SKIP_PREFIXES = ["data/sample/", "data/reference/"];
+export const SKIP_PREFIXES = ["data/sample/", "data/reference/", "packages/engines/conformance/"];
 
 export const RULES = [
   { name: "milestone wording", pattern: /\bmilestones?\b/i },
