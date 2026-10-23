@@ -64,7 +64,10 @@ Items 1, 2 and 3 are done (24 Oct 2026, commit `b2dae21`): the guard now splits 
 
 **Test.** Send the limit plus one request; the last gets 429 with `Retry-After`, a different caller is unaffected, and the window resets.
 
-## 6. Rebuild the images (medium until done)
+## 6. Rebuild the images (done, 24 Oct 2026)
+
+Done: both images rebuilt from the fixed Dockerfile (`sanctions-desk-api:final`, `sanctions-desk-web:final`) and scanned with Trivy: 0 vulnerabilities in either. The older `:local` tags are still used by running containers and are left alone.
+
 
 The images `sanctions-desk-api:local` and `sanctions-desk-web:local` were scanned before the Dockerfile change and still contain the package manager with 4 high and 9 other findings in its own dependencies (see [SECURITY.md](SECURITY.md)); the fixed Dockerfile removes it, and an API image built from it scanned clean. Rebuild both once nothing is using them, then scan again:
 
