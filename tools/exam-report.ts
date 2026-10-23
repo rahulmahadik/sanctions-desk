@@ -507,6 +507,30 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2|"))) {
       "",
     );
   }
+  // Whether provider failures track heat: cases with no model answer, by the runtime's thermal posture when they began.
+  const heatRows = [
+    ["70 cases", after("exam")],
+    ["Held-out v1 (after the fix)", after("heldout")],
+    ["Held-out v2", after("heldout2")],
+  ]
+    .filter((x): x is [string, Result & { file: string }] => x[1] !== undefined)
+    .map(([label, r]) => {
+      const extra = (c: ScoredCase) => c as ScoredCase & Record<string, unknown>;
+      const by = (posture: string) => r.cases.filter((c) => (extra(c).thermal_posture ?? "not recorded") === posture);
+      const failed = (xs: ScoredCase[]) => xs.filter((c) => c.decision_unavailable).length;
+      const cell = (posture: string) => `${failed(by(posture))} of ${by(posture).length}`;
+      return `| ${label} | ${cell("normal")} | ${cell("serious")} |`;
+    });
+  if (heatRows.length > 0) {
+    lines.push(
+      "Provider failures by the runtime's thermal posture when the case began (the laptop reports a serious thermal state under long runs; the runner cools down between cases while it lasts):",
+      "",
+      "| Set | Failures, posture normal | Failures, posture serious |",
+      "|---|---:|---:|",
+      ...heatRows,
+      "",
+    );
+  }
   const changesPath = resolveProjectPath("eval/cases/heldout2-changes.json");
   if (existsSync(changesPath)) {
     const log = JSON.parse(readFileSync(changesPath, "utf8")) as {
