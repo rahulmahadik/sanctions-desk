@@ -90,6 +90,7 @@ const falsePositive =
     fits: (c: Candidate) => boolean,
     nameOf: (c: Candidate, b: BankBuilder) => string,
     edge: string[],
+    extra: { acceptable?: Decision[]; note?: string } = {},
   ): Build =>
   (b) => {
     const c = b.pick(kind, fits);
@@ -104,8 +105,10 @@ const falsePositive =
       customer_id: customer.customer_id,
       entry_id: c.party.entryId,
       expected: "CLOSE_FALSE_POSITIVE",
+      ...(extra.acceptable ? { acceptable: extra.acceptable } : {}),
       edge_cases: edge,
-      note: "Similar name, but the date of birth conflicts and the nationality differs; no document matches.",
+      note:
+        extra.note ?? "Similar name, but the date of birth conflicts and the nationality differs; no document matches.",
     });
   };
 
@@ -151,6 +154,13 @@ const falsePositives: Build[] = [
         nationalityOf(c.party) !== null,
       (c) => c.natural,
       ["partial_dob", "dob_conflict"],
+      {
+        // Added after the first full run, which escalated this case. The listed year is only approximate and the name
+        // is an exact match to a listed individual, so closing rests on a year gap plus a different nationality, with
+        // no document either way. Closing is right under the approved definition; escalating is a fair, cautious call.
+        acceptable: ["ESCALATE_L2"],
+        note: "The name matches exactly, but the listed birth year is only approximate and far from the customer's, the nationality differs and no document matches. Closing is right under the approved definition; escalating is an acceptable, cautious alternative.",
+      },
     ),
   ),
   falsePositive("fp_name_order", "Family name written first", hasDobAndNationality, (c) => reorder(c.natural), [

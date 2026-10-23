@@ -12,12 +12,15 @@
  * Options: --groups a,b  --kinds x,y  --limit N. Results go to eval/results/<time>-<variant>.json and are
  * never edited by hand; eval/REPORT.md is built from them (npm run exam:report).
  */
+
+import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   buildTraceContract,
   escalateAll,
   fuzzyThreshold,
+  PROVIDER_BACKOFF_MS,
   type ReviewRequest,
   readDecisionRecords,
   runReview,
@@ -173,6 +176,26 @@ function challengerFields(
   };
 }
 
+/** What this run had: the code version and the settings that change behaviour, so a report can say which runs had what. */
+function runFeatures(p: Policy) {
+  let commit = "unknown";
+  try {
+    commit = execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim();
+    const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], { encoding: "utf8" }).trim();
+    if (dirty) commit += "+local changes";
+  } catch {
+    // not a git checkout
+  }
+  return {
+    commit,
+    structured_output: p.structuredOutput,
+    challenger: p.challenger,
+    tries_per_model_step: "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    provider_backoff_ms: PROVIDER_BACKOFF_MS,
+    challenger_points_clipped: true,
+  };
+}
+
 const round = (n: number) => Math.round(n * 100) / 100;
 const sum = (xs: Array<number | undefined>) => xs.reduce<number>((t, x) => t + (x ?? 0), 0);
 const withTimeout = <T>(p: Promise<T>, ms: number): Promise<T> =>
@@ -221,7 +244,7 @@ const describeModels = (p: Policy) =>
   );
 writeFileSync(
   file,
-  `${JSON.stringify({ variant, ...(tag ? { tag } : {}), selection: { groups, kinds: kinds?.length, limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: describeModels(policy), cases: outcomes, metrics }, null, 2)}\n`,
+  `${JSON.stringify({ variant, ...(tag ? { tag } : {}), features: runFeatures(policy), selection: { groups, kinds: kinds?.length, limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: describeModels(policy), cases: outcomes, metrics }, null, 2)}\n`,
 );
 console.log(
   JSON.stringify({

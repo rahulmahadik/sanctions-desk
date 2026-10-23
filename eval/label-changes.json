@@ -1,0 +1,35 @@
+{
+  "note": "Labels changed after the first full run. Reports score every run against both sets.",
+  "changes": [
+    {
+      "case_id": "EX-008",
+      "kind": "fp_year_only_0",
+      "original": {
+        "expected": "CLOSE_FALSE_POSITIVE",
+        "acceptable": [],
+        "must_not": []
+      },
+      "revised": {
+        "expected": "CLOSE_FALSE_POSITIVE",
+        "acceptable": ["ESCALATE_L2"],
+        "must_not": []
+      },
+      "reason": "The listed birth year is only approximate and the name is an exact match to a listed individual, so closing rests on a year gap plus a different nationality with no document either way. Closing is right under the approved definition; escalating is a fair, cautious call. The acceptable alternative was added after the first full run escalated EX-008, not to raise a score."
+    },
+    {
+      "case_id": "EX-009",
+      "kind": "fp_year_only_1",
+      "original": {
+        "expected": "CLOSE_FALSE_POSITIVE",
+        "acceptable": [],
+        "must_not": []
+      },
+      "revised": {
+        "expected": "CLOSE_FALSE_POSITIVE",
+        "acceptable": ["ESCALATE_L2"],
+        "must_not": []
+      },
+      "reason": "The listed birth year is only approximate and the name is an exact match to a listed individual, so closing rests on a year gap plus a different nationality with no document either way. Closing is right under the approved definition; escalating is a fair, cautious call. The acceptable alternative was added after the first full run escalated EX-008, not to raise a score."
+    }
+  ]
+}

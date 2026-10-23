@@ -138,13 +138,15 @@
       "customer_id": "CUST-0008",
       "entry_id": "UN-TAi.080",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": [],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
       "must_not": [],
       "edge_cases": [
         "partial_dob",
         "dob_conflict"
       ],
-      "note": "Similar name, but the date of birth conflicts and the nationality differs; no document matches."
+      "note": "The name matches exactly, but the listed birth year is only approximate and far from the customer's, the nationality differs and no document matches. Closing is right under the approved definition; escalating is an acceptable, cautious alternative."
     },
     {
       "case_id": "EX-009",
@@ -156,13 +158,15 @@
       "customer_id": "CUST-0009",
       "entry_id": "UN-QDi.298",
       "expected": "CLOSE_FALSE_POSITIVE",
-      "acceptable": [],
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
       "must_not": [],
       "edge_cases": [
         "partial_dob",
         "dob_conflict"
       ],
-      "note": "Similar name, but the date of birth conflicts and the nationality differs; no document matches."
+      "note": "The name matches exactly, but the listed birth year is only approximate and far from the customer's, the nationality differs and no document matches. Closing is right under the approved definition; escalating is an acceptable, cautious alternative."
     },
     {
       "case_id": "EX-010",

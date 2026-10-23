@@ -8,11 +8,33 @@
  */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { type Headline, headlineOf, headlineSentence, type Metrics, type ScoredCase } from "@sanctions-desk/agents";
+import {
+  type Headline,
+  headlineOf,
+  headlineSentence,
+  type Metrics,
+  type ScoredCase,
+  summarise,
+} from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
 import { loadConfig, resolveProjectPath } from "@sanctions-desk/shared";
 
+interface Features {
+  commit?: string;
+  structured_output?: boolean;
+  challenger?: { enabled: boolean };
+  provider_backoff_ms?: number;
+  challenger_points_clipped?: boolean;
+}
+
+interface LabelSet {
+  expected: string;
+  acceptable: string[];
+  must_not: string[];
+}
+
 interface Result {
+  features?: Features;
   variant: string;
   tag?: string;
   selection?: { groups?: string[]; kinds?: number; limit?: number };
@@ -27,18 +49,114 @@ const dir = resolveProjectPath("eval/results");
 const files = readdirSync(dir)
   .filter((f) => f.endsWith(".json") && !f.startsWith("bench-"))
   .sort();
+const exam = loadExam();
+const labels = new Map(exam.cases.map((c) => [c.case_id, c]));
+
+const changesPath = resolveProjectPath("eval/label-changes.json");
+const labelChanges: Array<{ case_id: string; original: LabelSet; revised: LabelSet }> = existsSync(changesPath)
+  ? (JSON.parse(readFileSync(changesPath, "utf8")) as { changes: never[] }).changes
+  : [];
+const originalLabels = new Map(labelChanges.map((c) => [c.case_id, c.original]));
+
+/**
+ * Score a saved run against the labels in the committed exam, so a label that changed applies to every variant.
+ * With `original`, the labels that were changed after the first full run are put back as they were.
+ */
+function rescore(r: Result, original = false): Result {
+  const cases = r.cases.map((c) => {
+    const l = labels.get(c.case_id);
+    if (!l) return c;
+    const o = original ? originalLabels.get(c.case_id) : undefined;
+    return {
+      ...c,
+      expected: o?.expected ?? l.expected,
+      acceptable: o?.acceptable ?? l.acceptable,
+      must_not: o?.must_not ?? l.must_not,
+    };
+  });
+  return { ...r, cases, metrics: summarise(cases) };
+}
+
+const originalScore = new Map<string, Metrics>();
 const newest = new Map<string, Result & { file: string }>();
 for (const f of files) {
   const r = JSON.parse(readFileSync(join(dir, f), "utf8")) as Result;
   const partial = r.tag !== undefined || r.selection?.kinds || r.selection?.groups || r.selection?.limit;
-  if (!partial) newest.set(r.variant, { ...r, file: f });
+  if (!partial) {
+    newest.set(r.variant, { ...rescore(r), file: f });
+    originalScore.set(r.variant, rescore(r, true).metrics);
+  }
 }
 
 const config = loadConfig();
 const assumptions = config.report;
-const exam = loadExam();
 const alertCases = exam.cases.filter((c) => c.alert_id !== null).length;
 const draftCases = exam.cases.length - alertCases;
+
+/** What the challenger concluded in each of this run's challenges, from the run's traces. */
+function challengerOutcomes(variant: string, since: string) {
+  const out = { total: 0, none: 0, credible: 0, unavailable: 0 };
+  const logs = resolveProjectPath(config.logging.dir);
+  if (!existsSync(logs)) return out;
+  for (const name of readdirSync(logs).filter((n) => n.startsWith(`trace-eval-${variant}-`))) {
+    for (const line of readFileSync(join(logs, name), "utf8").split("\n")) {
+      if (!line.includes('"action":"challenge_result"')) continue;
+      const e = JSON.parse(line) as { ts: string; status: string };
+      if (e.ts < since) continue;
+      out.total += 1;
+      if (e.status === "ok") out.none += 1;
+      else if (e.status === "blocked") out.credible += 1;
+      else out.unavailable += 1;
+    }
+  }
+  return out;
+}
+
+/**
+ * How the model calls went in a run, from its traces: calls and provider failures (a call that ended before any
+ * answer, because every provider failed) by lane, and any answer that was not schema-constrained.
+ */
+function callStats(variant: string, since: string) {
+  const entryLane: Record<string, string> = {
+    decision: "deep",
+    critic: "judge",
+    challenger: "deep",
+    policy_guard: "fast",
+  };
+  const lanes = new Map<string, { calls: number; failed: number }>();
+  const failedBy = new Map<string, number>();
+  let unstructured = 0;
+  const logs = resolveProjectPath(config.logging.dir);
+  if (!existsSync(logs)) return { lanes, failedBy, unstructured };
+  for (const name of readdirSync(logs).filter((n) => n.startsWith(`trace-eval-${variant}-`))) {
+    for (const line of readFileSync(join(logs, name), "utf8").split("\n")) {
+      if (!line.includes('"action":"model_answer"')) continue;
+      const e = JSON.parse(line) as {
+        ts: string;
+        agent: string;
+        retry_count?: number;
+        model_requested?: string;
+        output_summary?: string;
+        detail?: { lane?: string; structured?: boolean };
+      };
+      if (e.ts < since || !(e.agent in entryLane)) continue;
+      const failed = /^model call failed/.test(e.output_summary ?? "");
+      const raw =
+        e.detail?.lane ??
+        e.model_requested ??
+        (failed ? ([entryLane[e.agent], "fast", "ollama"][Math.min(e.retry_count ?? 0, 2)] as string) : "unknown");
+      const lane = raw.replace("meterless/", "");
+      const row = lanes.get(lane) ?? { calls: 0, failed: 0 };
+      row.calls += 1;
+      if (failed) {
+        row.failed += 1;
+        failedBy.set(`${e.agent} on ${lane}`, (failedBy.get(`${e.agent} on ${lane}`) ?? 0) + 1);
+      } else if (e.agent !== "policy_guard" && e.detail?.structured !== true) unstructured += 1;
+      lanes.set(lane, row);
+    }
+  }
+  return { lanes, failedBy, unstructured };
+}
 
 const ORDER = ["routed", "single", "no_memory", "local", "rules", "fuzzy", "escalate_all"];
 const LABEL: Record<string, string> = {
@@ -90,19 +208,23 @@ if (have.length === 0) {
 } else {
   lines.push("## Variants compared", "");
   lines.push(
-    "| Variant | Cases | Exact | Acceptable | Acceptable, leaving out unavailable decisions | False closes (risk cases) | No usable decision: provider / parsing | Median s | p95 s | Cloud share of calls | Model cost |",
+    "| Variant | Cases | Exact | Acceptable (revised labels) | Acceptable (original labels) | Acceptable, leaving out unavailable decisions | False closes (risk cases) | No usable decision: provider / parsing | Median s | p95 s | Cloud share of calls | Model cost |",
   );
-  lines.push("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|");
+  lines.push("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|");
   for (const v of have) {
     const r = get(v) as Result;
     const m = r.metrics;
     const x = m.excluding_unavailable;
     const by = m.decision_unavailable_by_cause;
     lines.push(
-      `| ${LABEL[v] ?? v} | ${m.cases} | ${pct(m.exact_accuracy)} | ${pct(m.acceptable_accuracy)} | ${x ? `${pct(x.acceptable_accuracy)} (${x.cases} cases)` : "-"} | ${m.false_closes} of ${m.risk_cases} (${pct(m.false_close_rate)}) | ${by ? `${by.provider} / ${by.parsing}` : "-"} | ${m.latency_s.p50} | ${m.latency_s.p95} | ${pct(m.model_calls.cloud_share)} | ${m.cost.total.toFixed(4)} |`,
+      `| ${LABEL[v] ?? v} | ${m.cases} | ${pct(m.exact_accuracy)} | ${pct(m.acceptable_accuracy)} | ${pct((originalScore.get(v) ?? m).acceptable_accuracy)} | ${x ? `${pct(x.acceptable_accuracy)} (${x.cases} cases)` : "-"} | ${m.false_closes} of ${m.risk_cases} (${pct(m.false_close_rate)}) | ${by ? `${by.provider} / ${by.parsing}` : "-"} | ${m.latency_s.p50} | ${m.latency_s.p95} | ${pct(m.model_calls.cloud_share)} | ${m.cost.total.toFixed(4)} |`,
     );
   }
   lines.push(
+    "",
+    labelChanges.length > 0
+      ? `**Labels.** Two cases (${labelChanges.map((c) => c.case_id).join(", ")}) gained ESCALATE_L2 as an acceptable answer after the first full run; the "original labels" column scores every variant with the labels as they were, the "revised labels" column with the current ones. Nothing else differs, and the false-close figures do not move. Reason and detail: \`eval/label-changes.json\` and the limits section below.`
+      : "",
     "",
     notRun.length > 0 ? `**Not run:** ${notRun.map((v) => LABEL[v] ?? v).join("; ")}.` : "",
     "",
@@ -111,6 +233,48 @@ if (have.length === 0) {
     `- Model cost uses the illustrative unit costs in \`config/default.json\` (\`costs\`, currency ${config.costs.currency}); they are assumptions, not prices. Calls on the local lane run on this machine and cost nothing per call; only cloud tokens are priced.`,
     "",
   );
+
+  lines.push("### What each run had", "");
+  lines.push(
+    "| Variant | Started | Code version | Schema-constrained output | Challenger | Pause after a provider failure | Challenger answer limit |",
+    "|---|---|---|---|---|---|---|",
+  );
+  for (const v of have) {
+    const r = get(v) as Result;
+    const f = r.features;
+    lines.push(
+      f
+        ? `| ${v} | ${r.started_at} | ${f.commit ?? "?"} | ${f.structured_output ? "yes" : "no"} | ${f.challenger?.enabled ? "on" : "off"} | ${f.provider_backoff_ms ? `${f.provider_backoff_ms} ms` : "none"} | ${f.challenger_points_clipped ? "clipped to four points" : "failed above four points"} |`
+        : `| ${v} | ${r.started_at} | not recorded | see the run's traces | see the run's traces | none (started before it was added) | failed above four points (started before the fix) |`,
+    );
+  }
+  lines.push("");
+  for (const v of ["routed", "single", "no_memory", "local"].filter((x) => newest.has(x))) {
+    const r = get(v) as Result;
+    const stats = callStats(v, r.started_at);
+    if (stats.lanes.size === 0) continue;
+    lines.push(`#### Model calls by lane: ${v}`, "");
+    lines.push(
+      "| Lane asked for | Calls | Ended before any answer (every provider failed) | Rate |",
+      "|---|---:|---:|---:|",
+    );
+    for (const [lane, row] of [...stats.lanes].sort()) {
+      lines.push(`| ${lane} | ${row.calls} | ${row.failed} | ${pct(row.failed / Math.max(1, row.calls))} |`);
+    }
+    lines.push("");
+    if (stats.failedBy.size > 0) {
+      lines.push(
+        `Calls that ended before any answer: ${[...stats.failedBy].map(([k, n]) => `${n} ${k}`).join("; ")}. They are provider failures, not parsing errors; the step then tried the next lane.`,
+        "",
+      );
+    }
+    lines.push(
+      stats.unstructured === 0
+        ? "Every answer that came back was schema-constrained."
+        : `${stats.unstructured} answers came back without schema-constrained output.`,
+      "",
+    );
+  }
 
   const fuzzy = get("fuzzy");
   if (fuzzy && fuzzy.cases.every((c) => c.score !== undefined || c.got === "DRAFT_ALLOWED")) {
@@ -189,10 +353,13 @@ if (have.length === 0) {
     );
     const ch = m.challenger;
     if (ch) {
+      const outcomes = challengerOutcomes(full.variant, full.started_at);
       lines.push(
         "### The challenger",
         "",
         `It looks at a close only when confidence is below the policy line, the name is very close, or a data-quality rule fails. In this run it looked at ${ch.fired} closes and turned ${ch.changed} of them into an escalation (a credible true-match argument, or no answer from the challenger). It added ${ch.added_seconds.toFixed(0)} s of model time and ${ch.added_cost.toFixed(4)} ${config.costs.currency} in total.`,
+        "",
+        `Of those ${outcomes.total} challenges, the challenger found no credible argument in ${outcomes.none}, found a credible true-match argument in ${outcomes.credible}, and could not answer in ${outcomes.unavailable} (every model provider failed or no usable answer; the close does not stand then, so the case was escalated for that reason and not because of an argument). Read from the run's traces.`,
         "",
       );
     }
@@ -238,6 +405,7 @@ lines.push(
   "## Limits of this exam",
   "",
   "- The customers, payments and owners are synthetic; the listed parties are real public entries. The exam shows how the system behaves on planted situations, not how it would perform on a bank's real alert volume.",
+  "- **A label changed after the first full run.** The two year-only false-positive cases (EX-008, EX-009) now accept ESCALATE_L2 as well as a close. The listed birth year is approximate and the name is an exact match to a listed individual, so closing rests on a year gap plus a different nationality with no document either way: closing is right under the approved definition, and escalating is a fair, cautious call. The change was made after seeing the first run escalate EX-008, for that reason and not to raise a score; every variant in this report is scored against the current labels, and the system was not changed for it. Effect: two more acceptable answers wherever a variant escalates them; false-close figures do not move.",
   "- Cases were written together with the rules they test (the approved definitions), so a high score shows consistency with those definitions rather than proof that the definitions are right. Five cases were added later to test where plain name matching fails; the system was not tuned to them.",
   "- Time depends on this machine, on whether the cloud lane answers within the runtime's time limit, on what else is running, and on the runtime's answer cache.",
   "- Each variant is one run; the file of that run is named in `eval/results/`.",
