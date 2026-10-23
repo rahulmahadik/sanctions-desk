@@ -45,7 +45,12 @@ const facts: Record<string, string> = {
   ...(saved.tests ? { tests: saved.tests.toLocaleString("en-US") } : {}),
 };
 
-const files = ["README.md", ...readdirSync(resolveProjectPath("docs")).filter((f) => f.endsWith(".md")).map((f) => `docs/${f}`)];
+const files = [
+  "README.md",
+  ...readdirSync(resolveProjectPath("docs"))
+    .filter((f) => f.endsWith(".md"))
+    .map((f) => `docs/${f}`),
+];
 const pattern = /<!--fact:(\w+)-->(.*?)<!--\/fact-->/g;
 let stale = 0;
 for (const file of files) {
@@ -63,4 +68,8 @@ if (process.argv.includes("--check") && stale > 0) {
   console.error(`${stale} marked value(s) are out of date; run npm run readme:refresh`);
   process.exit(1);
 }
-console.log(`facts: ${Object.entries(facts).map(([k, v]) => `${k}=${v}`).join(", ")}${stale ? `; refreshed ${stale}` : ""}`);
+console.log(
+  `facts: ${Object.entries(facts)
+    .map(([k, v]) => `${k}=${v}`)
+    .join(", ")}${stale ? `; refreshed ${stale}` : ""}`,
+);

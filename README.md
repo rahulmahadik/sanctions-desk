@@ -172,6 +172,8 @@ The agents read the model's own description at run time and build their read-onl
 
 The language work is done by Nemotron models through Nightshift: **Nemotron 3 Ultra 550B** (served in the cloud) and **Nemotron 3.5 Lightning 30B** (served on a local laptop). Which of them answers a call is decided by Nightshift's router, so the split below is a measurement, not a setting:
 
+App binds used in the final runs: `sanctions-desk-guard` bound to local and `sanctions-desk-reasoning` bound to deep in the Nightshift cockpit, unchanged for all of them (the report lists them per run).
+
 <!-- routing:start -->
 Measured in the full exam run of 2026-10-23, from the signed receipts (the model that served each call; Nightshift's learned router decides this, we only ask for a pinned mode):
 

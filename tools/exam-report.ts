@@ -29,6 +29,7 @@ interface Features {
   challenger?: { enabled: boolean };
   provider_backoff_ms?: number;
   challenger_points?: string;
+  cockpit_binds?: Record<string, string>;
 }
 
 interface LabelSet {
@@ -493,10 +494,17 @@ if (have.length === 0) {
     "",
   );
 
+  /** "guard: local, reasoning: deep"; runs of variants that call no model have nothing to show. */
+  const bindsText = (b?: Record<string, string>): string =>
+    b && Object.keys(b).length > 0
+      ? Object.entries(b)
+          .map(([app, mode]) => `${app.replace(/^sanctions-desk-?/, "") || "default"}: ${mode}`)
+          .join(", ")
+      : "none (no model call)";
   lines.push("### What each run had", "");
   lines.push(
-    "| Variant | Started | Code version | Schema-constrained output | Challenger | Pause after a provider failure | Challenger answer limit |",
-    "|---|---|---|---|---|---|---|",
+    "| Variant | Started | Code version | App binds used | Schema-constrained output | Challenger | Pause after a provider failure | Challenger answer limit |",
+    "|---|---|---|---|---|---|---|---|",
   );
   const runRows: Array<{ name: string; r: Result }> = [
     ...have.map((v) => ({ name: v, r: get(v) as Result })),
@@ -506,8 +514,8 @@ if (have.length === 0) {
     const f = r.features;
     lines.push(
       f
-        ? `| ${v} | ${r.started_at} | ${f.commit ?? "?"} | ${f.structured_output ? "yes" : "no"} | ${f.challenger?.enabled ? "on" : "off"} | ${f.provider_backoff_ms ? `${f.provider_backoff_ms} ms` : "none"} | ${f.challenger_points ?? "limited to four points; a longer list failed"} |`
-        : `| ${v} | ${r.started_at} | not recorded | see the run's traces | see the run's traces | none (started before it was added) | limited to four points; a longer list failed (started before the fix) |`,
+        ? `| ${v} | ${r.started_at} | ${f.commit ?? "?"} | ${bindsText(f.cockpit_binds)} | ${f.structured_output ? "yes" : "no"} | ${f.challenger?.enabled ? "on" : "off"} | ${f.provider_backoff_ms ? `${f.provider_backoff_ms} ms` : "none"} | ${f.challenger_points ?? "limited to four points; a longer list failed"} |`
+        : `| ${v} | ${r.started_at} | not recorded | not recorded | see the run's traces | see the run's traces | none (started before it was added) | limited to four points; a longer list failed (started before the fix) |`,
     );
   }
   lines.push("");
@@ -793,6 +801,28 @@ if (full && readmeNow.includes(RS) && readmeNow.includes(RE)) {
     writeFileSync(readmePath, readmeNow.replace(new RegExp(`${RS}[\\s\\S]*?${RE}`), block));
   }
 }
+// docs/MODELS.md carries the same split under the binds used in the final runs.
+const modelsPath = resolveProjectPath("docs/MODELS.md");
+const modelsDoc = readFileSync(modelsPath, "utf8");
+const BS = "<!-- binds:start -->";
+const BE = "<!-- binds:end -->";
+if (full && modelsDoc.includes(BS) && modelsDoc.includes(BE)) {
+  const split = routingSplit(resolveProjectPath(config.logging.dir), full.variant, full.started_at);
+  if (split.rows.length > 0) {
+    const binds = Object.entries(full.features?.cockpit_binds ?? {})
+      .map(([app, mode]) => `\`${app}\` ${mode}`)
+      .join(", ");
+    const block = [
+      BS,
+      `Headline run of ${full.started_at.slice(0, 10)} (binds: ${binds || "not recorded"}); the model that served each call, from the signed receipts:`,
+      "",
+      ...splitTable(split),
+      BE,
+    ].join("\n");
+    writeFileSync(modelsPath, modelsDoc.replace(new RegExp(`${BS}[\\s\\S]*?${BE}`), block));
+  }
+}
+
 // The "For judges" box carries the headline numbers between two markers as well.
 const JS = "<!-- judges:start -->";
 const JE = "<!-- judges:end -->";

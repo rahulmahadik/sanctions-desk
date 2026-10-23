@@ -133,6 +133,8 @@ for (const { file, r } of chosen.values()) {
     finished_at: r.finished_at,
     policy_version: r.policy_version,
     features: r.features ?? null,
+    // How the Nightshift cockpit bound each app identity during the run (also inside features).
+    app_binds: (r.features as { cockpit_binds?: Record<string, string> } | undefined)?.cockpit_binds ?? null,
     models: r.models,
     cases: r.cases.length,
     events: lines.length,

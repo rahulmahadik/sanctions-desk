@@ -43,6 +43,14 @@ The desk therefore sends its calls under two app identities, named in `nightshif
 
 So the guard is deterministic, and reasoning is mostly but not guaranteed to be Ultra. Reasoning could be made deterministic with a per-app **lane allowlist**; the runtime supports one (`lanes` in the app's entry, matched by lane id or model id) but this cockpit build shows no screen for it, so we do not claim it. The receipts remain the proof: the split reported for any run is read from them, never assumed from the setting.
 
+### App binds used in the final runs
+
+The cockpit was left unchanged for every final run (held-out, headline routed, single and no_memory): `sanctions-desk-guard` bound to **local** and `sanctions-desk-reasoning` bound to **deep**. Each result file records the binds (`features.cockpit_binds`), `run-meta.json` of each exported run repeats them as `app_binds`, and the report's "What each run had" table shows them. The split below is read from the signed receipts of the headline run.
+
+<!-- binds:start -->
+The split is filled in from the headline run's receipts by `npm run exam:report`.
+<!-- binds:end -->
+
 **Cockpit setup (about two minutes).** Start the desk once so the identities appear, or run `npm run lab:routing -- --only apps --apps sanctions-desk-reasoning,sanctions-desk-guard`. Open the Nightshift Console and its list of connected apps. Bind `Sanctions Desk Guard` to **local** and `Sanctions Desk Reasoning` to **deep**. Check from the command line, which changes nothing:
 
 ```bash
