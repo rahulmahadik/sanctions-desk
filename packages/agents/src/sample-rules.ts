@@ -155,6 +155,13 @@ function safetyAnswer(prompt: string): string {
 export function sampleRules(req: GenerateRequest): string {
   if (req.prompt.startsWith("TASK: safety_")) return safetyAnswer(req.prompt);
   const evidence = evidenceOf(req.prompt);
+  if (req.prompt.startsWith("TASK: challenge")) {
+    return JSON.stringify({
+      credible: false,
+      argument: "Rules stand-in: the comparison computed by code shows no conflict-free argument for a true match.",
+      points: [],
+    });
+  }
   if (req.prompt.startsWith("TASK: critic")) return JSON.stringify({ verdict: "approve", issues: [] });
   return decisionAnswer(evidence);
 }

@@ -73,6 +73,7 @@ describe("POST /run on the sample", () => {
       "memory",
       "decision",
       "critic",
+      "challenger",
       "policy_guard",
       "reporter",
     ]);
@@ -83,6 +84,7 @@ describe("POST /run on the sample", () => {
       ["policy_guard", "fallback-rules"],
       ["decision", "fallback-rules"],
       ["critic", "fallback-rules"],
+      ["challenger", "fallback-rules"],
     ]);
 
     // The sealed decision record is on disk, verifies, and cites the approved definitions it used.
@@ -101,7 +103,18 @@ describe("POST /run on the sample", () => {
     expect(events[0].action).toBe("run_started");
     expect(events.at(-1).action).toBe("run_completed");
     expect(new Set(events.map((e) => e.agent))).toEqual(
-      new Set(["system", "triage", "evidence", "matching", "memory", "decision", "critic", "policy_guard", "reporter"]),
+      new Set([
+        "system",
+        "triage",
+        "evidence",
+        "matching",
+        "memory",
+        "decision",
+        "critic",
+        "challenger",
+        "policy_guard",
+        "reporter",
+      ]),
     );
     expect(events.filter((e) => e.zetaris_query_id).length).toBeGreaterThan(8);
   });

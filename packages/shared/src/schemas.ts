@@ -13,6 +13,7 @@ export const AgentNameSchema = z.enum([
   "memory",
   "decision",
   "critic",
+  "challenger",
   "policy_guard",
   "reporter",
   "human",

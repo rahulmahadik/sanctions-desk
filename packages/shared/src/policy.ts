@@ -49,6 +49,7 @@ const perAgent = <T extends z.ZodType>(schema: T) =>
     ownership: schema,
     decision: schema,
     critic: schema,
+    challenger: schema,
     policy_guard: schema,
     reporter: schema,
   });
@@ -141,6 +142,20 @@ export const PolicySchema = z.strictObject({
 
   /** Zetaris role each agent queries under. The role decides which columns it can see. */
   masking: perAgent(nonEmpty),
+
+  /**
+   * The challenger argues against a recommendation to close. It runs only when one of the triggers applies and can
+   * only make the outcome more cautious.
+   */
+  challenger: z.strictObject({
+    enabled: z.boolean(),
+    /** Challenge a close whose confidence is below this. */
+    confidenceBelow: z.number().min(0).max(1),
+    /** Challenge a close when the name similarity is at least this. */
+    nameScoreAtLeast: z.number().min(0).max(1),
+    /** Challenge a close when a data-quality rule fails on the records. */
+    onDataQualityIssue: z.boolean(),
+  }),
 
   /**
    * Ask the models for answers constrained to a JSON Schema instead of "reason, then end with JSON". The model

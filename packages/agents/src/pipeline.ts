@@ -7,9 +7,10 @@ import {
   ReviewResponseSchema,
 } from "@sanctions-desk/shared";
 import { buildEvidenceTools } from "@sanctions-desk/zetaris";
+import { challenge, challengeTriggers } from "./challenger.js";
 import { review } from "./critic.js";
 import { type DecisionOutput, decide } from "./decision.js";
-import { gatherEvidence } from "./evidence.js";
+import { type EvidenceBundle, gatherEvidence } from "./evidence.js";
 import { type MatchResult, matchEvidence, partyOf } from "./matching.js";
 import { recallMemory } from "./memory.js";
 import { gatherOwnership, matchOwnership, ownershipQuality } from "./ownership.js";
@@ -30,7 +31,7 @@ export interface ReviewRequest {
   sampleMode: boolean;
   sampleNotice?: string;
   /** Switches for comparing the system with simpler setups. Both are on in normal use. */
-  options?: { memory?: boolean; critic?: boolean };
+  options?: { memory?: boolean; critic?: boolean; challenger?: boolean };
 }
 
 const AGENT_ORDER = ["triage", "evidence", "matching", "memory", "decision", "critic", "policy_guard", "reporter"];
@@ -76,6 +77,47 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
     });
   }
   return { evidence, match, tools, criticTools, easy, models: [...inbound.calls] as ModelUseInput[] };
+}
+
+/** Run the challenger when the policy's triggers apply to a close, and say what it changed. */
+async function challengeClose(deps: AgentDeps, evidence: EvidenceBundle, match: MatchResult, output: DecisionOutput) {
+  const reasons = challengeTriggers(deps.policy, output, match, evidence);
+  if (reasons.length === 0) return undefined;
+  const result = await challenge(deps, evidence, match, output, reasons);
+  const credible = result.challenge?.credible === true;
+  if (result.challenge && !credible) {
+    return {
+      calls: result.calls,
+      output: undefined,
+      verdict: {
+        guard: "challenger",
+        verdict: "pass" as const,
+        detail: `ran (${reasons.join("; ")}); no credible true-match argument`,
+      },
+    };
+  }
+  const why = credible
+    ? (result.challenge?.argument ?? "")
+    : `the challenger could not answer: ${result.unavailable ?? "unknown"}`;
+  return {
+    calls: result.calls,
+    output: {
+      ...output,
+      decision: "ESCALATE_L2" as const,
+      confidence: Math.min(output.confidence, 0.6),
+      rationale:
+        `${output.rationale} Challenger: ${credible ? "a credible true-match argument was found" : "the close could not be challenged"}: ${why}`.slice(
+          0,
+          1500,
+        ),
+      what_would_change: [...output.what_would_change, "A person's review of the challenger's argument"].slice(0, 6),
+    },
+    verdict: {
+      guard: "challenger",
+      verdict: "block" as const,
+      detail: `${credible ? "credible argument: " : ""}${why}`.slice(0, 300),
+    },
+  };
 }
 
 /** The Decision and Critic loop, up to the number of rounds the policy allows. */
@@ -157,7 +199,22 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     request.options,
   );
 
-  const guard = applyPolicyGuard({ policy, decision: output, match, evidence, criticUnresolved: !approved });
+  let finalOutput = output;
+  let guard = applyPolicyGuard({ policy, decision: output, match, evidence, criticUnresolved: !approved });
+  // A close that the policy guard has not already raised gets a last look from the challenger, when the policy
+  // says it is the kind of close worth doubting.
+  const challenged =
+    unavailable || request.options?.challenger === false || guard.decision !== "CLOSE_FALSE_POSITIVE"
+      ? undefined
+      : await challengeClose(deps, evidence, match, output);
+  if (challenged) {
+    models.push(...challenged.calls);
+    if (challenged.output) {
+      finalOutput = challenged.output;
+      guard = applyPolicyGuard({ policy, decision: finalOutput, match, evidence, criticUnresolved: !approved });
+    }
+    guard.verdicts.push(challenged.verdict);
+  }
   if (unavailable) {
     guard.verdicts.push({ guard: "model_decision", verdict: "block", detail: unavailable });
     guard.confidence = Math.min(guard.confidence, 0.3);
@@ -167,7 +224,7 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     action: "apply_policy",
     status: guard.changed ? "blocked" : "ok",
     confidence: guard.confidence,
-    output_summary: guard.changed ? `${output.decision} raised to ${guard.decision}` : `${guard.decision} stands`,
+    output_summary: guard.changed ? `${finalOutput.decision} raised to ${guard.decision}` : `${guard.decision} stands`,
     detail: { verdicts: guard.verdicts.map((v) => `${v.guard}:${v.verdict}`) },
   });
 
@@ -175,13 +232,15 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     .filter((v) => v.verdict === "block")
     .map((v) => v.detail)
     .filter((d): d is string => !!d);
-  const rationale = guard.changed ? `${output.rationale} Policy check: ${reasons.join("; ")}.` : output.rationale;
+  const rationale = guard.changed
+    ? `${finalOutput.rationale} Policy check: ${reasons.join("; ")}.`
+    : finalOutput.rationale;
   const record = buildDecisionRecord({
     deps,
     runId: request.runId,
     alertId: request.alertId,
     evidence,
-    decision: output,
+    decision: finalOutput,
     guard,
     rationale,
     criticQueries,
@@ -207,9 +266,9 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     decision: guard.decision,
     confidence: guard.confidence,
     rationale,
-    what_would_change: output.what_would_change,
+    what_would_change: finalOutput.what_would_change,
     citations,
-    agents: AGENT_ORDER,
+    agents: challenged ? [...AGENT_ORDER.slice(0, 6), "challenger", ...AGENT_ORDER.slice(6)] : AGENT_ORDER,
     models: record.models,
     guards: record.guards,
     critic: record.critic,

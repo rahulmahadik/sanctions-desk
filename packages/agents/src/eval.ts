@@ -27,6 +27,12 @@ export interface ScoredCase {
    * service failed or answered with nothing, "parsing" when it answered in a form that could not be used.
    */
   decision_unavailable?: "provider" | "parsing";
+  /** The challenger looked at a close. */
+  challenger_fired?: boolean;
+  /** It turned the close into an escalation (a credible argument, or it could not answer). */
+  challenger_changed?: boolean;
+  challenger_s?: number;
+  challenger_cost?: number;
   /** For the name-score baseline: the score the rule saw. */
   score?: number;
   error?: string;
@@ -83,6 +89,8 @@ export interface Metrics {
   model_calls: { local: number; cloud: number; cloud_share: number };
   cost: { total: number; per_case: number };
   critic: { reviewed: number; sent_back: number; unresolved: number; mean_rounds: number };
+  /** How often the challenger ran, what it changed, and what it added. */
+  challenger: { fired: number; changed: number; added_seconds: number; added_cost: number };
 }
 
 const round = (n: number, digits = 4): number => Math.round(n * 10 ** digits) / 10 ** digits;
@@ -153,6 +161,18 @@ export function summarise(cases: readonly ScoredCase[]): Metrics {
         6,
       ),
       per_case: round(sum((c) => c.cost) / Math.max(1, answered.length), 6),
+    },
+    challenger: {
+      fired: answered.filter((c) => c.challenger_fired).length,
+      changed: answered.filter((c) => c.challenger_changed).length,
+      added_seconds: round(
+        sum((c) => c.challenger_s),
+        2,
+      ),
+      added_cost: round(
+        sum((c) => c.challenger_cost),
+        6,
+      ),
     },
     critic: {
       reviewed: reviewed.length,

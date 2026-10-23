@@ -93,6 +93,13 @@
       },
       "timeoutMs": 90000
     },
+    "challenger": {
+      "model": "deep",
+      "thinking": {
+        "budgetTokens": 500
+      },
+      "timeoutMs": 90000
+    },
     "policy_guard": {
       "model": "fast",
       "thinking": "off",
@@ -112,7 +119,8 @@
     "decision": "role_evidence_agent",
     "critic": "role_evidence_agent",
     "policy_guard": "role_evidence_agent",
-    "reporter": "role_evidence_agent"
+    "reporter": "role_evidence_agent",
+    "challenger": "role_evidence_agent"
   },
   "agentAccess": {
     "triage": {
@@ -173,6 +181,10 @@
     "reporter": {
       "tables": [],
       "denyColumns": ["id_number"]
+    },
+    "challenger": {
+      "tables": [],
+      "denyColumns": ["id_number"]
     }
   },
   "guards": {
@@ -197,5 +209,11 @@
       "report(ed)? (this )?to the authorities",
       "money laundering"
     ]
+  },
+  "challenger": {
+    "enabled": true,
+    "confidenceBelow": 0.85,
+    "nameScoreAtLeast": 0.95,
+    "onDataQualityIssue": true
   }
 }

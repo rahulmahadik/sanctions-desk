@@ -127,7 +127,11 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
     runId,
     alertId: c.alert_id,
     sampleMode: false,
-    options: { memory: variant !== "no_memory" && variant !== "single", critic: variant !== "single" },
+    options: {
+      memory: variant !== "no_memory" && variant !== "single",
+      critic: variant !== "single",
+      challenger: variant !== "single",
+    },
   };
   const res = await runReview(deps, request);
   const [record] = readDecisionRecords(logDir, (r) => r.run_id === runId);
@@ -141,6 +145,7 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
     local_calls: trace4?.cost.totals.local_calls,
     cloud_calls: trace4?.cost.totals.cloud_calls,
     cost: trace4?.cost.totals.total_cost,
+    ...challengerFields(res, trace4),
     critic_rounds: res.critic?.rounds,
     critic_final: res.critic?.final_verdict,
     decision_unavailable: res.guards?.some((g) => g.guard === "model_decision")
@@ -148,6 +153,22 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
         ? "provider"
         : "parsing"
       : undefined,
+  };
+}
+
+/** What the challenger did on this case, read from the review's guards and the sealed record's model ledger. */
+function challengerFields(
+  res: { guards?: Array<{ guard: string; verdict: string }> },
+  trace4: ReturnType<typeof buildTraceContract> | undefined,
+) {
+  const verdict = res.guards?.find((g) => g.guard === "challenger");
+  if (!verdict) return {};
+  const calls = trace4?.cost.models.filter((m) => m.agent === "challenger") ?? [];
+  return {
+    challenger_fired: true,
+    challenger_changed: verdict.verdict === "block",
+    challenger_s: round(sum(calls.map((m) => m.latency_ms)) / 1000),
+    challenger_cost: sum(calls.map((m) => m.cost)),
   };
 }
 

@@ -15,6 +15,15 @@ import {
 import { createZetarisClient, loadQueryCache, replayFetch, type ZetarisClient } from "@sanctions-desk/zetaris";
 import { type AgentDeps, sampleRules } from "../src/index.js";
 
+/**
+ * The default policy with the challenger off, so tests of the other steps do not need to script its answer.
+ * Tests of the challenger turn it on with `withChallenger`.
+ */
+export function quietPolicy(): Policy {
+  const policy = loadPolicyFile("config/policy.default.json");
+  return { ...policy, challenger: { ...policy.challenger, enabled: false } };
+}
+
 export function sampleDeps(over: { generator?: Generator; policy?: Policy } = {}): AgentDeps & { logDir: string } {
   const config: Config = loadConfig({ env: { SAMPLE_MODE: "true" } });
   const logDir = mkdtempSync(join(tmpdir(), "agents-test-"));
@@ -25,7 +34,7 @@ export function sampleDeps(over: { generator?: Generator; policy?: Policy } = {}
   });
   return {
     config: { ...config, logging: { ...config.logging, dir: logDir, stdout: false } },
-    policy: over.policy ?? loadPolicyFile("config/policy.default.json"),
+    policy: over.policy ?? quietPolicy(),
     zetaris,
     generator: over.generator ?? createFallbackRulesGenerator(sampleRules),
     trace: createTraceLogger({ runId: "agents-test", dir: logDir, stdout: false }),
