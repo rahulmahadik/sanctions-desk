@@ -1,3 +1,4 @@
+export * from "./case-file.js";
 export * from "./critic.js";
 export * from "./decision.js";
 export * from "./eval.js";

@@ -37,6 +37,7 @@
     "ledger": "tsx tools/model-ledger.ts",
     "exam": "tsx tools/run-exam.ts",
     "exam:report": "tsx tools/exam-report.ts",
+    "examples": "tsx tools/export-examples.ts",
     "explain": "tsx tools/explain-queries.ts",
     "docs:edge-cases": "tsx tools/generate-edge-cases.ts",
     "zetaris:load-files": "tsx tools/zetaris-load-files.ts",
