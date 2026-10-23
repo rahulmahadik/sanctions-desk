@@ -1,0 +1,132 @@
+{
+  "label": "routing lab, not part of the exam",
+  "at": "2026-10-23T08:09:54.790Z",
+  "rows": [
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 7525,
+      "asked": "meterless/deep",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "deep",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 5513
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 2955,
+      "asked": "meterless/deep",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "deep",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 5528
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/deep",
+      "status": 200,
+      "ms": 2041,
+      "asked": "meterless/deep",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "deep",
+        "routed_mode": "deep",
+        "mode_coerced": false,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 5526
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 3983,
+      "asked": "meterless/fast",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "deep",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 5527
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 1922,
+      "asked": "meterless/fast",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "deep",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 5526
+    },
+    {
+      "app": "sanctions-desk-reasoning",
+      "model": "meterless/fast",
+      "status": 200,
+      "ms": 2988,
+      "asked": "meterless/fast",
+      "body_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "routed_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "route_kind": "cloud",
+      "from_cache": false,
+      "app_policy": {
+        "requested_mode": "fast",
+        "routed_mode": "deep",
+        "mode_coerced": true,
+        "lanes": null,
+        "has_rule": true
+      },
+      "receipt_app": "sanctions-desk-reasoning",
+      "receipt_winning_model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "tokens": 5527
+    }
+  ]
+}

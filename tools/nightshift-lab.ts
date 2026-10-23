@@ -72,7 +72,7 @@ async function call(p: Probe, i: number) {
       messages: [
         {
           role: "user",
-          content: `Routing lab ${randomBytes(6).toString("hex")} call ${i}. Reply with the single word OK.`,
+          content: `Routing lab ${randomBytes(6).toString("hex")} call ${i}. ${"The customer record and the listed entry are compared field by field. ".repeat(Number(arg("--size") ?? 0))}Reply with the single word OK.`,
         },
       ],
     }),
