@@ -1,8 +1,6 @@
 # Sponsor technology: how sanctions-desk uses Zetaris, Meterless and NVIDIA Nemotron
 
-This is the write-up for the sponsor technology part of the submission. Every claim here can be checked in the repository; the commands are given. Numbers that depend on a run are in [the exam report](../eval/REPORT.md) and in the signed evidence under `eval/runs/`, and are not copied here so they cannot drift.
-
-The language models inside the product are NVIDIA Nemotron models reached through Meterless Nightshift.
+Zetaris, Meterless and NVIDIA each do real work in sanctions-desk. This page says what each one does, where it sits in the code, and how to see it working, with commands you can run from a clone. Figures that depend on a run live in [the exam report](../eval/REPORT.md) and in the signed evidence under `eval/runs/`, and are not copied here, so they cannot drift.
 
 ## 1. Zetaris: the only way the desk reads data
 

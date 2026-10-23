@@ -104,6 +104,13 @@ The REST service returns every value as a string, so each query casts explicitly
 
 **One command reproduces it:** `npm run zetaris:usl` checks that the committed DDL still matches the specification, shows that the model lists its tables, counts the registered rules, and runs all eight rules. The joins run with `npm run zetaris:queries -- usl`.
 
+**Access to the model is set in the Zetaris interface, in three steps** (a fourth hides the identifier column; the full list and the checks are under [Access control](#access-control)):
+1. **Management → Permissions:** give each role (`ROLE_EVIDENCE_AGENT`, `ROLE_REVIEWER`, `ROLE_EVAL`) the **View** permission on **Unified Semantic Layer**.
+2. **Data Product → Unified Semantic Layer → the namespace → Access Control:** assign the three roles.
+3. **The model (`screening_usl`) → Access Control:** assign the three roles and tick `SELECT` on every table.
+
+**A rebuild of the model creates a new id and empties steps 2 and 3**, because the access list belongs to the model's id; step 1 stays. After any rebuild, redo them and run `npm run check:roles`, which makes each role read the model with its own token and names who is refused.
+
 ## 2a. Time saved against hand-coding
 
 This is a like-for-like comparison. [compare/hand-coded/](../compare/hand-coded/) does the same three joins and the same eight rules without Zetaris, **and gives the same guarantees our Zetaris path gives the agents**: per-role access where the evidence role cannot see `id_number`, shared definitions and table and column descriptions, a rule registry with a run history, caching of the REST source, retries and timeouts, and an audit of which identity read which table. `npm run compare:hand-coded` runs it (in a container on the same network, because the databases are not published to the host) and prints the same numbers as the Zetaris path, including RU 5 and 15 customers without a date of birth ([RESULT.txt](../compare/hand-coded/RESULT.txt)). `check.mjs` proves the guarantees: the hidden column, a refused read, the audit lines, the retry and the cache hit.

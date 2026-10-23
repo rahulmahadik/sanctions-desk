@@ -30,7 +30,7 @@ const RULES = [
   {
     group: "assistant name or attribution",
     re: /\b(Claude|Anthropic|Claude Code|Co-Authored-By|Generated (with|by)|AI-generated)\b/i,
-    allowedIn: new Set(["README.md", "metadata.json", "LICENSE", "docs/SPONSORS.md"]),
+    allowedIn: new Set(["README.md", "metadata.json", "LICENSE"]),
   },
   {
     group: "local path",
