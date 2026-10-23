@@ -36,3 +36,9 @@ export function threeSources(d, listCountry) {
   }
   return [...byCountry.entries()].sort((x, y) => y[1] - x[1]).slice(0, 3);
 }
+
+export function watchlistByCountry(rows) {
+  const counts = new Map();
+  for (const r of rows) counts.set(r.country_iso2, (counts.get(r.country_iso2) ?? 0) + 1);
+  return [...counts.entries()].sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0])).slice(0, 3);
+}

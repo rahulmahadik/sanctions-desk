@@ -36,6 +36,10 @@ export const rules = {
           (present(p.intermediary_bank_country) && !ISO2.has(p.intermediary_bank_country)),
       ),
   },
+  watchlist_country_valid: {
+    table: "internal_watchlist",
+    failing: (rows) => rows.filter((w) => !ISO2.has(w.country_iso2)),
+  },
   match_score_in_range: {
     table: "alert",
     failing: (rows) => rows.filter((a) => !(Number(a.match_score) >= 0 && Number(a.match_score) <= 1)),

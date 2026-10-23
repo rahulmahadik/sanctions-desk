@@ -140,7 +140,7 @@ The agents read the model's own description at run time and build their read-onl
 
 ### NVIDIA Nemotron
 
-The language work is done by Nemotron models through Nightshift: **Nemotron 3 Ultra 550B** (served in the cloud) and **Nemotron 3.5 Lightning 30B** (served on this machine). Which of them answers a call is decided by Nightshift's router, so the split below is a measurement, not a setting:
+The language work is done by Nemotron models through Nightshift: **Nemotron 3 Ultra 550B** (served in the cloud) and **Nemotron 3.5 Lightning 30B** (served on a local laptop). Which of them answers a call is decided by Nightshift's router, so the split below is a measurement, not a setting:
 
 <!-- routing:start -->
 Measured in the full exam run of 2026-10-23, from the signed receipts (the model that served each call; Nightshift's learned router decides this, we only ask for a pinned mode):
@@ -421,7 +421,7 @@ The governance view, mapped to the headings of the Monetary Authority of Singapo
 
 Disclosure under section 6 of the event's AI Usage Policy.
 
-**Models, through Meterless Nightshift.** Every model call in the product goes through Nightshift, an OpenAI-compatible runtime, as the primary provider. The models are NVIDIA Nemotron: **Nemotron 3.5 Lightning 30B** (on this machine) and **Nemotron 3 Ultra 550B** (cloud). Nightshift's router decides which of them answers a call unless the cockpit binds the app; the table under [NVIDIA Nemotron](#nvidia-nemotron) is the split measured from the signed receipts, and [docs/MODELS.md](docs/MODELS.md) explains each step.
+**Models, through Meterless Nightshift.** Every model call in the product goes through Nightshift, an OpenAI-compatible runtime, as the primary provider. The models are NVIDIA Nemotron: **Nemotron 3.5 Lightning 30B** (on a local laptop) and **Nemotron 3 Ultra 550B** (cloud). Nightshift's router decides which of them answers a call unless the cockpit binds the app; the table under [NVIDIA Nemotron](#nvidia-nemotron) is the split measured from the signed receipts, and [docs/MODELS.md](docs/MODELS.md) explains each step.
 
 | Step                                | Model                             | What it does                                                                                                                                   |
 | ----------------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |

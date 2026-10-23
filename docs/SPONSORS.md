@@ -40,13 +40,13 @@ The agents never write SQL and never open a data file. Each reads the layer's ow
 
 One injected `generator` function asks Nightshift (an OpenAI-compatible runtime) first, the Ollama backup only if Nightshift cannot answer, and a labelled rules stand-in in sample mode only. Nothing else in the code names a provider. The calls carry a pinned mode (`meterless/fast`, `meterless/deep`, `meterless/judge`; `meterless/auto` is rejected), a token limit of our own, and a strict JSON schema so the answer cannot be cut off in reasoning text.
 
-The desk sends its calls under **two app identities**, `sanctions-desk-guard` (the safety guard) and `sanctions-desk-reasoning` (decision, critic, challenger), chosen per step in the policy. The Nightshift cockpit can bind an app to a routing mode, and a bind overrides what the client asked for: with the guard bound to **local**, 24 of 24 guard calls were served by Nemotron 3.5 Lightning on this machine. The exact cockpit steps, and the measurements, are in [MODELS.md](MODELS.md#two-app-identities-and-what-the-cockpit-does-with-them) (lab results: `eval/routing-lab*.json`, from `npm run lab:routing`).
+The desk sends its calls under **two app identities**, `sanctions-desk-guard` (the safety guard) and `sanctions-desk-reasoning` (decision, critic, challenger), chosen per step in the policy. The Nightshift cockpit can bind an app to a routing mode, and a bind overrides what the client asked for: with the guard bound to **local**, 24 of 24 guard calls were served by Nemotron 3.5 Lightning on a local laptop. The exact cockpit steps, and the measurements, are in [MODELS.md](MODELS.md#two-app-identities-and-what-the-cockpit-does-with-them) (lab results: `eval/routing-lab*.json`, from `npm run lab:routing`).
 
 Every call records the mode asked for, the model that answered, the app identity, tokens, latency, cost under stated unit costs, and **Nightshift's signed receipt** (Ed25519). After a 429 the generator waits and sends the same request again before the step's own fallback (the fast mode, then Ollama) is used; if every try fails the case is escalated to a person with the reason, never closed.
 
 ## 4. NVIDIA Nemotron: where it contributes, and how to check which model answered
 
-Two Nemotron models do the language work: **Nemotron 3 Ultra 550B** (served in the cloud) and **Nemotron 3.5 Lightning 30B** (served on this machine). The decision, the critic and the challenger are Ultra answers for the most part; the safety guard is Lightning, locally. The split is a measurement from the receipts, not a setting, and it is in the exam report and the README for each run.
+Two Nemotron models do the language work: **Nemotron 3 Ultra 550B** (served in the cloud) and **Nemotron 3.5 Lightning 30B** (served on a local laptop). The decision, the critic and the challenger are Ultra answers for the most part; the safety guard is Lightning, locally. The split is a measurement from the receipts, not a setting, and it is in the exam report and the README for each run.
 
 **Check which model served each call, in three commands** (details in [the README](../README.md#check-which-model-served-each-call)):
 

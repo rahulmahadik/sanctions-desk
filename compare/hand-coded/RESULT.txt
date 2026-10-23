@@ -1,5 +1,5 @@
-payments cache: miss
-definition false_positive@2: found | tables described: 14
+payments cache: hit
+definition false_positive@2: found | tables described: 15
 join 1: [
   [ 'ALR-0001', 'CUST-0001', 'individual', 'RENEL DESTINA', 'UN' ],
   [ 'ALR-0002', 'CUST-0002', 'individual', 'Yongan HU', 'OFAC' ],
@@ -7,6 +7,7 @@ join 1: [
 ]
 join 2: { customers: 27, payments: 32, value: 1145678.7 }
 join 3: [ [ 'RU', 5 ], [ 'CN', 1 ], [ 'IR', 1 ] ]
+watchlist by country: [ [ 'AE', 1 ], [ 'CH', 1 ], [ 'CN', 1 ] ]
 DQ dob_present_for_individuals invalid = 15
 DQ nationality_is_iso2 invalid = 1
 DQ ownership_pct_in_range invalid = 0
@@ -14,6 +15,7 @@ DQ ownership_pct_present invalid = 1
 DQ payment_amount_positive invalid = 0
 DQ counterparty_country_valid invalid = 4
 DQ payment_bank_countries_valid invalid = 0
+DQ watchlist_country_valid invalid = 1
 DQ match_score_in_range invalid = 0
 id_number visible to evidence: false | to reviewer: true
-elapsed 61 ms
+elapsed 35 ms

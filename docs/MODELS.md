@@ -18,6 +18,10 @@ Triage, evidence reading, matching, ownership, memory and the policy guard are p
 
 **Name matching is deterministic first.** Names are compared with a fold of accents and look-alike letters, token-set Jaro-Winkler scores, a consonant skeleton for spelling variants, initials and legal-form words. Nightshift lists an embedding class and the model `nvidia/nemotron-3-embed-1b`, but this runtime build serves no embedding route (`class_carrier_unsupported`), so embeddings are not used. The matching code does not depend on them.
 
+## The laptop used
+
+Nemotron 3.5 Lightning 30B runs on a local laptop through Nightshift. Everything in this repository was measured on one Apple silicon laptop (a Max-class chip, 128 GB of memory, macOS 27). We did not test smaller machines, so we make no claim about the memory the 30B model needs; on a machine that cannot hold it, ask Nightshift for the cloud route or use the Ollama backup with a smaller build. Sample mode needs none of this.
+
 ## How a call is routed
 
 - The code always asks for a **pinned mode** (`meterless/fast`, `meterless/deep`, `meterless/judge`). `meterless/auto` is rejected by the configuration schema. We do not route by difficulty and we do not pin the cloud.

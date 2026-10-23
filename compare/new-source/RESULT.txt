@@ -1,0 +1,15 @@
+rendered 18 scripts in 2 ms (without the new table)
+rendered 18 scripts in 3 ms (with the new table)
+evidence tools before: 8, after: 9; new: find_internal_watchlist
+agent code changed: 0 lines (the tools are built from the model's own description)
+--- generated lines changed (added/removed) per script
+added 63 removed 
+  01_lists_create.sql: 3
+  01_lists_select.sql: 3
+  05_usl_create.sql: 25
+  06_activate_create.sql: 10
+  06_activate_files_create.sql: 10
+  06_activate_select.sql: 3
+  08_access_create.sql: 9
+--- authored by hand
+   14 compare/new-source/watchlist.spec.ts

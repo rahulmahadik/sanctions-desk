@@ -1,0 +1,11 @@
+Latest applied time of each statement; the model was last compiled at 2026-10-23T03:48:43.409Z
+step                                                 statements  seconds
+create the sources: lists (file store)                       15      1.8
+create the sources: bank database (JDBC)                      2      0.4
+create the sources: payments (REST) and cache it              3      0.7
+compile the model (namespaces and tables)                     3      0.3
+activate the tables                                          14      0.8
+describe tables and columns                                 131      3.9
+register data-quality rules                                   8      2.0
+roles and grants                                             45      3.0
+total                                                               12.9

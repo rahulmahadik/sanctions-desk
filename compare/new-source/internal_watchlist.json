@@ -1,0 +1,86 @@
+[
+  {
+    "watch_id": "WL-001",
+    "party_name": "Northwind Trading Co",
+    "country_iso2": "GB",
+    "reason": "adverse media",
+    "added_on": "2026-01-10"
+  },
+  {
+    "watch_id": "WL-002",
+    "party_name": "Alder Ridge Holdings",
+    "country_iso2": "NL",
+    "reason": "internal investigation",
+    "added_on": "2026-02-11"
+  },
+  {
+    "watch_id": "WL-003",
+    "party_name": "Kestrel Marine Ltd",
+    "country_iso2": "HK",
+    "reason": "law-enforcement request",
+    "added_on": "2026-03-12"
+  },
+  {
+    "watch_id": "WL-004",
+    "party_name": "Bluebird Logistics",
+    "country_iso2": "CN",
+    "reason": "repeated alerts",
+    "added_on": "2026-04-13"
+  },
+  {
+    "watch_id": "WL-005",
+    "party_name": "Cobalt Peak Partners",
+    "country_iso2": "RU",
+    "reason": "high-risk corridor",
+    "added_on": "2026-05-14"
+  },
+  {
+    "watch_id": "WL-006",
+    "party_name": "Marlow & Finch Imports",
+    "country_iso2": "AE",
+    "reason": "adverse media",
+    "added_on": "2026-06-15"
+  },
+  {
+    "watch_id": "WL-007",
+    "party_name": "Sable Harbour Group",
+    "country_iso2": "TR",
+    "reason": "internal investigation",
+    "added_on": "2026-07-16"
+  },
+  {
+    "watch_id": "WL-008",
+    "party_name": "Tern Valley Foods",
+    "country_iso2": "SG",
+    "reason": "law-enforcement request",
+    "added_on": "2026-08-17"
+  },
+  {
+    "watch_id": "WL-009",
+    "party_name": "Orchid Gate Capital",
+    "country_iso2": "DE",
+    "reason": "repeated alerts",
+    "added_on": "2026-09-18"
+  },
+  {
+    "watch_id": "WL-010",
+    "party_name": "Pinnacle Rowan Ltd",
+    "country_iso2": "CH",
+    "reason": "high-risk corridor",
+    "added_on": "2026-01-10"
+  },
+  {
+    "watch_id": "WL-011",
+    "party_name": "Juniper Reach Shipping",
+    "country_iso2": "XX",
+    "reason": "adverse media",
+    "added_on": "2026-02-11"
+  },
+  {
+    "watch_id": "WL-012",
+    "party_name": "Quarry Lane Metals",
+    "country_iso2": "PA",
+    "reason": "internal investigation",
+    "added_on": "2026-03-12"
+  }
+]

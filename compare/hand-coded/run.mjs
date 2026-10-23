@@ -5,7 +5,7 @@ import { cached } from "./cache.mjs";
 import { readBank, readList, readPayments } from "./connectors.mjs";
 import { createDefinitions } from "./definitions.mjs";
 import { runRules } from "./dq.mjs";
-import { alertCustomerEntry, pendingForAlerted, threeSources } from "./joins.mjs";
+import { alertCustomerEntry, pendingForAlerted, threeSources, watchlistByCountry } from "./joins.mjs";
 
 const env = process.env;
 const out = env.OUT_DIR ?? "/out";
@@ -17,6 +17,7 @@ const identity = "evidence";
 const bankRaw = await readBank(env, ["customer", "customer_identifier", "alert", "beneficial_owner"]);
 const payments = await cached(`${out}/cache`, "payments", 60_000, () => readPayments(env));
 const lists = {
+  internal_watchlist: readList(env.EXTRA_DIR, "internal_watchlist"),
   list_entry: readList(env.LISTS_DIR, "list_entry"),
   list_country: readList(env.LISTS_DIR, "list_country"),
   business_definition: readList(env.LISTS_DIR, "business_definition"),
@@ -37,6 +38,7 @@ console.log(
 console.log("join 1:", alertCustomerEntry(data, data.list_entry));
 console.log("join 2:", pendingForAlerted(data));
 console.log("join 3:", threeSources(data, data.list_country));
+console.log("watchlist by country:", watchlistByCountry(data.internal_watchlist));
 for (const r of runRules(data, out)) console.log("DQ", r.rule, "invalid =", r.invalid);
 
 console.log(

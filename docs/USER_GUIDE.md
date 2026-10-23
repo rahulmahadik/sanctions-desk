@@ -66,7 +66,7 @@ Your decision is remembered: the next review of the same customer and listed par
 
 ![Model routing and receipts](screenshots/04-routing-and-receipts.png)
 
-The routing panel lists, for each model step, the mode asked for, the **Nemotron model that answered** (Nemotron 3 Ultra 550B in the cloud, or Nemotron 3.5 Lightning 30B on this machine), the app identity the call was sent under, time, tokens and cost under stated unit costs. **Verify receipt** checks Nightshift's signature on that call and says what it proves. See [MODELS.md](MODELS.md) for how routing works and how to verify a run from the repository.
+The routing panel lists, for each model step, the mode asked for, the **Nemotron model that answered** (Nemotron 3 Ultra 550B in the cloud, or Nemotron 3.5 Lightning 30B on a local laptop), the app identity the call was sent under, time, tokens and cost under stated unit costs. **Verify receipt** checks Nightshift's signature on that call and says what it proves. See [MODELS.md](MODELS.md) for how routing works and how to verify a run from the repository.
 
 ## Autonomy
 

@@ -662,5 +662,36 @@
         "sensitive": false
       }
     }
+  },
+  "internal_watchlist": {
+    "description": "Parties on the bank's own internal watchlist, with the reason they were added.",
+    "source": "lists",
+    "columns": {
+      "watch_id": {
+        "type": "varchar(64)",
+        "description": "Stable key of the watchlist row.",
+        "sensitive": false
+      },
+      "party_name": {
+        "type": "varchar(500)",
+        "description": "Name of the watched party.",
+        "sensitive": false
+      },
+      "country_iso2": {
+        "type": "varchar(2)",
+        "description": "Country of the party (ISO 3166-1 alpha-2).",
+        "sensitive": false
+      },
+      "reason": {
+        "type": "varchar(200)",
+        "description": "Why the party is on the list.",
+        "sensitive": false
+      },
+      "added_on": {
+        "type": "varchar(10)",
+        "description": "Date added (YYYY-MM-DD).",
+        "sensitive": false
+      }
+    }
   }
 }

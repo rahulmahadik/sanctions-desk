@@ -14,6 +14,7 @@ const ALL = [
   "payment",
   "alert",
   "disposition",
+  "internal_watchlist",
 ];
 export const ROLES = {
   evidence: { tables: ALL, hidden: { customer_identifier: ["id_number"], list_identifier: [] } },
