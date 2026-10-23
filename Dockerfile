@@ -31,6 +31,9 @@ COPY data/sample/query-cache.json data/sample/business_definition.json ./data/sa
 
 # The trace folder must be writable by the unprivileged user.
 RUN mkdir -p /app/logs && chown -R node:node /app/logs
+# The package manager is only needed to install; the running service does not use it. Removing it drops the
+# vulnerable copies of its own dependencies that ship with the base image.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 USER node
 
 # ---- the payments service: read-only JSON over the synthetic payments ----
@@ -73,6 +76,10 @@ ENV NODE_ENV=production PORT=3001 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 COPY --from=web-build /app/apps/web/.next/standalone ./
 COPY --from=web-build /app/apps/web/.next/static ./apps/web/.next/static
+# The package manager is only needed to install; the running service does not use it. Removing it drops the
+# vulnerable copies of its own dependencies that ship with the base image.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
+
 USER node
 EXPOSE 3001
 HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 \
