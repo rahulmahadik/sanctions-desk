@@ -91,7 +91,7 @@ export function CaseView({ alertId }: { alertId: string }) {
       <DecisionPanel alertId={alertId} refreshKey={answer?.run_id ?? record?.record_hash} />
       {phase !== "ready" ? <RunGraph view={view} /> : null}
       {trace ? <FourQuestions trace={trace} /> : null}
-      {evidence ? <EvidenceCards view={evidence} /> : null}
+      {evidence ? <EvidenceCards view={evidence} documentary={record?.documentary} /> : null}
       {trace ? <RoutingPanel trace={trace} split={split} /> : null}
       {phase === "finished" && events.length > 0 ? <Replay events={events} record={record} /> : null}
     </>

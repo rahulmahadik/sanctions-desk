@@ -26,12 +26,32 @@ export function Outcome({ answer }: { answer: ReviewAnswer }) {
       <p className={`verdict tone-${tone}`} data-testid="verdict">
         {DECISION_LABEL[answer.decision]}
       </p>
+      {answer.path ? (
+        <p className="muted" data-testid="path">
+          {answer.path === "confirm"
+            ? `Path: the structured evidence settles it (code's first finding: ${DECISION_LABEL[answer.first_finding ?? answer.decision]}); the agents confirmed and explained it.`
+            : `Path: the structured evidence did not settle it, or there is free text to weigh (code's first finding: ${answer.first_finding ? DECISION_LABEL[answer.first_finding] : "none"}); the agents reasoned over all of it.`}
+        </p>
+      ) : null}
+      {answer.autonomy?.outcome === "auto_closed" ? (
+        <p className="banner" role="note" data-testid="auto-closed">
+          {answer.autonomy.statement}. A person can reopen it from the decision panel.
+        </p>
+      ) : answer.autonomy?.outcome === "qa_sample" ? (
+        <p className="banner" role="note">
+          This close met every condition for an automatic close and was picked for a quality-assurance review: a person
+          decides it.
+        </p>
+      ) : null}
       <p data-testid="confidence">
         Confidence {percent(answer.confidence ?? 0)}
-        {cap ? ` (capped at ${percent(cap.value)}: ${cap.reason})` : ""}. A person decides
-        {answer.approvals_required && answer.approvals_required > 1
+        {cap ? ` (capped at ${percent(cap.value)}: ${cap.reason})` : ""}.{" "}
+        {answer.autonomy?.outcome === "auto_closed" ? "Closed under the autonomy setting." : "A person decides"}
+        {answer.autonomy?.outcome !== "auto_closed" && answer.approvals_required && answer.approvals_required > 1
           ? ` — this one needs ${answer.approvals_required} approvals.`
-          : "."}
+          : answer.autonomy?.outcome === "auto_closed"
+            ? ""
+            : "."}
       </p>
       {evidence.length > 0 ? (
         <>

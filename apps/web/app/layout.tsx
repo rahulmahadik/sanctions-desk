@@ -19,6 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <h1>Sanctions review desk</h1>
             <nav aria-label="Main">
               <Link href="/">Alert queue</Link>
+              <Link href="/policy">Policy studio</Link>
               <Link href="/exam">Exam results</Link>
               <Link href="/governance">Governance</Link>
             </nav>

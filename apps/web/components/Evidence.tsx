@@ -1,5 +1,5 @@
 import { MASK, show } from "../lib/format";
-import type { EvidenceView, Row } from "../lib/types";
+import type { DocumentaryValue, EvidenceView, Row } from "../lib/types";
 
 function Facts({ row, columns, masked }: { row: Row | null; columns: string[]; masked: readonly string[] }) {
   if (!row) return <p className="muted">Not part of this case.</p>;
@@ -19,7 +19,7 @@ const maskedOf = (view: EvidenceView, table: string): string[] =>
   view.queries.filter((q) => q.table.endsWith(`.${table}`)).flatMap((q) => q.masked_columns);
 
 /** The facts a case rests on. Columns the evidence role may not see are drawn as dots. */
-export function EvidenceCards({ view }: { view: EvidenceView }) {
+export function EvidenceCards({ view, documentary = [] }: { view: EvidenceView; documentary?: DocumentaryValue[] }) {
   const idMask = maskedOf(view, "customer_identifier");
   return (
     <section aria-labelledby="evidence-title">
@@ -40,6 +40,16 @@ export function EvidenceCards({ view }: { view: EvidenceView }) {
               "notes",
             ]}
           />
+          {documentary.length > 0 ? (
+            <p className="banner" role="note" data-testid="documentary">
+              {documentary.map((d) => (
+                <span key={d.field}>
+                  Not a value of the customer record: {d.label}: <strong>{d.value}</strong>.{" "}
+                </span>
+              ))}
+              The record itself has no date of birth, and the data-quality finding below stays.
+            </p>
+          ) : null}
           <h2 style={{ marginTop: 12 }}>Identifiers held</h2>
           {view.customer_identifiers.length === 0 ? (
             <p className="muted">None on file.</p>

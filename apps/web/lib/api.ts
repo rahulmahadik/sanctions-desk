@@ -1,16 +1,21 @@
 import { authHeaders } from "./session";
 import type {
+  AutoClosedItem,
+  AutonomyView,
   Decision,
   EvidenceView,
   ExamAnswer,
   GovernanceView,
   HumanView,
   MeView,
+  PolicyAuditEntry,
+  PolicyVersionRow,
   QueueAlert,
   RecordView,
   ReviewAnswer,
   RunEvent,
   TraceView,
+  WhatIfView,
 } from "./types";
 
 /** Where the API listens, as the browser reaches it. Set NEXT_PUBLIC_API_URL when it is not on this machine. */
@@ -81,6 +86,21 @@ export interface DecisionInput {
 }
 export const postDecision = (alertId: string, input: DecisionInput) =>
   post<HumanView>(`/cases/${encodeURIComponent(alertId)}/decision`, input);
+export const fetchAutonomy = () => getJson<AutonomyView>("/autonomy");
+export const fetchAutoClosed = () => getJson<{ items: AutoClosedItem[] }>("/auto-closed");
+export const fetchPolicy = () => getJson<{ version: number; hash: string; policy: Record<string, unknown> }>("/policy");
+export const fetchPolicyVersions = () =>
+  getJson<{ active_version: number; versions: PolicyVersionRow[] }>("/policy/versions");
+export const fetchPolicyAudit = () => getJson<{ entries: PolicyAuditEntry[] }>("/policy/audit");
+export const postKillSwitch = (active: boolean, reason: string) =>
+  post<AutonomyView>("/autonomy/kill-switch", { active, reason });
+export const postPolicyDraft = (policy: unknown, reason: string) =>
+  post<PolicyVersionRow>("/policy/drafts", { policy, reason });
+export const postWhatIf = (version: number, limit = 30) => post<WhatIfView>("/policy/whatif", { version, limit });
+export const postPublish = (version: number) => post<{ published: number }>(`/policy/drafts/${version}/publish`, {});
+export const postDiscard = (version: number) => post<{ discarded: number }>(`/policy/drafts/${version}/discard`, {});
+export const postReopen = (alertId: string, input: { reason: string; record_hash: string }) =>
+  post<HumanView>(`/cases/${encodeURIComponent(alertId)}/reopen`, input);
 export const postSecondApproval = (alertId: string, input: { approve: boolean; reason: string; record_hash: string }) =>
   post<HumanView>(`/cases/${encodeURIComponent(alertId)}/second-approval`, input);
 

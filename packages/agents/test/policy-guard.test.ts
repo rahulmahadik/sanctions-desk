@@ -293,3 +293,48 @@ describe("the documentary evidence standard", () => {
     expect(out.decision).toBe("CLOSE_FALSE_POSITIVE");
   });
 });
+
+describe("a date of birth taken from a verified note", () => {
+  const note = "Identity verified at branch visit (KYC-482113): passport ZP1234567, date of birth 1975-03-02.";
+  const dobFails = evidence({
+    customer: { nationality: "DE", residence_country: "GB", notes: note } as never,
+    dq: [{ table: "customer", rule: "dob_present_for_individuals", failed: true }],
+  });
+  const fromNote = (over: Record<string, unknown> = {}) =>
+    ({
+      ...match({ assessment: "weak" }),
+      documentaryDateOfBirth: "1975-03-02",
+      documentaryCheckReference: "KYC-482113",
+      ...over,
+    }) as MatchResult;
+  const dq = (out: ReturnType<typeof run>) => out.verdicts.find((v) => v.guard === "data_quality");
+
+  it("lets the close stand but keeps the data-quality finding visible, naming the note and its check reference", () => {
+    const out = run(decision("CLOSE_FALSE_POSITIVE"), fromNote(), dobFails);
+    expect(out.decision).toBe("CLOSE_FALSE_POSITIVE");
+    expect(dq(out)).toMatchObject({ verdict: "flag" });
+    expect(dq(out)?.detail).toContain("dob_present_for_individuals");
+    expect(dq(out)?.detail).toContain("verified note (check ref KYC-482113)");
+    expect(dq(out)?.detail).toContain("not from the record");
+  });
+
+  it("still sends the close to NEED_MORE_INFO when there is no verified note", () => {
+    const out = run(decision("CLOSE_FALSE_POSITIVE"), match({ assessment: "weak" }), dobFails);
+    expect(out.decision).toBe("NEED_MORE_INFO");
+    expect(dq(out)).toMatchObject({ verdict: "block" });
+  });
+
+  it("makes no exception for any other failing rule", () => {
+    const other = evidence({
+      customer: { nationality: "DE", residence_country: "GB", notes: note } as never,
+      dq: [
+        { table: "customer", rule: "dob_present_for_individuals", failed: true },
+        { table: "customer", rule: "nationality_is_iso2", failed: true },
+      ],
+    });
+    const out = run(decision("CLOSE_FALSE_POSITIVE"), fromNote(), other);
+    expect(out.decision).toBe("NEED_MORE_INFO");
+    expect(dq(out)?.detail).toContain("nationality_is_iso2");
+    expect(dq(out)?.detail).not.toContain("dob_present_for_individuals");
+  });
+});

@@ -218,6 +218,7 @@ const base: HumanView = {
   alert_id: "ALR-0001",
   record_hash: "a".repeat(64),
   recommendation: { decision: "CLOSE_FALSE_POSITIVE", confidence: 0.9, rationale: "Dates of birth conflict." },
+  autonomy: null,
   status: "awaiting",
   final: null,
   actions_taken: [],

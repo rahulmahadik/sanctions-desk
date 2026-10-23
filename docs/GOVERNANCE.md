@@ -29,10 +29,19 @@ Conclusion: treated as material. The controls below apply to every recommendatio
 ## Human oversight
 
 - The desk recommends. It never blocks an account, never writes to a source system and never contacts a customer. These limits are fixed in the policy schema (`autoBlock: false`, `messageCustomers: false`, `dataAccess: read_only`) and a policy draft that tries to change them is rejected.
-- A recommended block needs two approvals.
+- A recommended block needs two different approvers.
 - The policy guard can only make an outcome more cautious.
 - A close is challenged by a second model when confidence is low, the name is very close, or a data-quality rule fails.
 - Text in the data that tries to instruct the reviewer is flagged, treated as data, and cannot close a case.
+
+### Oversight in proportion to risk
+
+The more a mistake would cost, the more people are involved. A mistaken close is the costly one, so only a close can ever be made without waiting, and only under strict conditions. The policy's `autonomy` setting has two levels:
+
+- **Level 0 (default; the headline exam runs here):** a person approves every alert.
+- **Level 1:** a close is closed automatically only when code, the decision agent, the critic and the challenger all agree; the evidence standard is met; no data-quality rule fails; and the confidence is at least the policy's line. A random share of those (at least 5 percent) goes to a person as a quality-assurance sample, there is a daily cap, and a kill switch (an approver or a policy admin) forces level 0 at once. Each automatic close states "closed automatically under policy vX, level 1, conditions met: …", appears in a list for review, and can be reopened by an analyst.
+- **Locked, whatever the level:** an escalation or a request for more information always goes to a person; a recommended block needs two different approvers; no automatic block; no message to a customer; read-only data access. These are fixed in the policy schema and a draft that tries to change them is rejected (tests: `packages/agents/test/autonomy.test.ts`).
+- **Change control:** autonomy changes only through a draft, a preview on the exam (automatic closes, quality-assurance samples and false closes, which must be 0), and a publish by a different policy admin. Every step is in the audit log. The people, roles and four-eyes rules are described in the README.
 
 ## Explainability
 

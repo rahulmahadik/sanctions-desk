@@ -599,3 +599,32 @@ describe("DecisionPanel", () => {
     expect(screen.getByRole("button", { name: "Approve" })).toBeTruthy();
   });
 });
+
+describe("a date of birth from a verified note", () => {
+  it("is shown as coming from the note, with its check reference, and never as a value of the customer record", () => {
+    render(
+      <EvidenceCards
+        view={EVIDENCE}
+        documentary={[
+          {
+            field: "date_of_birth",
+            value: "1975-03-02",
+            source: "customer.notes",
+            check_reference: "KYC-482113",
+            label: "date of birth from verified note (check ref KYC-482113)",
+          },
+        ]}
+      />,
+    );
+    const note = screen.getByTestId("documentary");
+    expect(note.textContent).toContain("Not a value of the customer record");
+    expect(note.textContent).toContain("date of birth from verified note (check ref KYC-482113)");
+    expect(note.textContent).toContain("1975-03-02");
+    expect(note.textContent).toContain("data-quality finding below stays");
+  });
+
+  it("is absent when there is no verified note", () => {
+    render(<EvidenceCards view={EVIDENCE} />);
+    expect(screen.queryByTestId("documentary")).toBeNull();
+  });
+});

@@ -284,3 +284,19 @@ describe("the what-if view of a draft at level 1", () => {
     expect(res.json().autonomy).toBeUndefined();
   });
 });
+
+describe("the governance view", () => {
+  it("maps autonomy to human oversight in proportion to risk, and names what is locked", async () => {
+    const ctx = await sampleApp(levelOne());
+    const body = (await ctx.app.inject({ method: "GET", url: "/governance" })).json();
+    const p = body.human_oversight.proportionate_to_risk;
+    expect(p.principle).toContain("Human oversight proportional to risk");
+    expect(p.current).toMatchObject({ policy_level: 1 });
+    expect(p.always_to_a_person).toEqual([
+      "an escalation",
+      "a request for more information",
+      "a recommended block (and it needs two different approvers)",
+    ]);
+    expect(p.level_1).toContain("kill switch");
+  });
+});

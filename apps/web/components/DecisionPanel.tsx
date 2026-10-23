@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ApiError, fetchHuman, fetchMe, postDecision, postSecondApproval } from "../lib/api";
+import { ApiError, fetchHuman, fetchMe, postDecision, postReopen, postSecondApproval } from "../lib/api";
 import { DECISION_LABEL, DECISION_TONE, shortHash } from "../lib/format";
 import { SESSION_EVENT } from "../lib/session";
 import type { ActionCheck, ActionRecordView, Decision, HumanView, MeView } from "../lib/types";
@@ -30,6 +30,7 @@ const CHECK_LABEL: Record<ActionCheck, string> = {
 };
 const STATUS_LABEL: Record<HumanView["status"], string> = {
   awaiting: "Waiting for a person to decide",
+  auto_closed: "Closed automatically under the autonomy setting; a person can reopen it",
   decided: "Decided by a person",
   block_pending: "Block approval pending: a second, different approver must confirm",
   block_approved: "Block recommendation approved by two people",
@@ -114,6 +115,11 @@ export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refres
     }
   };
 
+  const reopenBlocked = !canDecide
+    ? "Choose a demo user who can decide (analyst or approver), or sign in."
+    : !reasonOk
+      ? `Give a reason of at least ${MIN_REASON} characters.`
+      : undefined;
   const first = view.actions_taken[0];
   const waitingForSecond = view.status === "block_pending";
   const secondBlocked = !me
@@ -139,6 +145,35 @@ export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refres
         </p>
       ) : null}
 
+      {view.autonomy?.outcome === "qa_sample" && view.status === "awaiting" ? (
+        <p className="banner" role="note">
+          Picked for a quality-assurance review: this close met every condition for an automatic close, and a person
+          decides it.
+        </p>
+      ) : null}
+
+      {view.status === "auto_closed" ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!reopenBlocked)
+              void submit(() => postReopen(alertId, { reason: reason.trim(), record_hash: view.record_hash }));
+          }}
+        >
+          <p data-testid="auto-closed-statement">{view.autonomy?.statement}.</p>
+          <p>
+            <label>
+              Reason for reopening{" "}
+              <textarea rows={2} value={reason} maxLength={600} onChange={(e) => setReason(e.target.value)} />
+            </label>
+          </p>
+          <button type="submit" disabled={busy || reopenBlocked !== undefined}>
+            Reopen this close
+          </button>{" "}
+          {reopenBlocked ? <span className="muted">{reopenBlocked}</span> : null}
+        </form>
+      ) : null}
+
       {view.actions_taken.length > 0 ? (
         <ol className="events" aria-label="What people did">
           {view.actions_taken.map((a) => (
@@ -150,7 +185,9 @@ export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refres
                   ? "overrode to"
                   : a.action === "second_approval"
                     ? "gave the second approval for"
-                    : "declined the block, so"}{" "}
+                    : a.action === "reopen"
+                      ? "reopened the automatic close"
+                      : "declined the block, so"}{" "}
               {a.outcome ? DECISION_LABEL[a.outcome] : ""}: <em>{a.reason}</em>{" "}
               <span className="muted">{new Date(a.at).toLocaleString()}</span>
             </li>

@@ -112,6 +112,27 @@ export function Governance() {
             <li key={c}>{c}</li>
           ))}
         </ul>
+        {oversight.proportionate_to_risk ? (
+          <div data-testid="proportionate">
+            <h3>Oversight in proportion to risk</h3>
+            <p>{oversight.proportionate_to_risk.principle}</p>
+            <dl className="facts">
+              <dt>Level 0</dt>
+              <dd>{oversight.proportionate_to_risk.level_0}</dd>
+              <dt>Level 1</dt>
+              <dd>{oversight.proportionate_to_risk.level_1}</dd>
+              <dt>Always to a person</dt>
+              <dd>{oversight.proportionate_to_risk.always_to_a_person.join("; ")}</dd>
+              <dt>In force now</dt>
+              <dd>
+                Level {oversight.proportionate_to_risk.current.policy_level} (policy version{" "}
+                {oversight.proportionate_to_risk.current.version})
+              </dd>
+              <dt>Changing it</dt>
+              <dd>{oversight.proportionate_to_risk.change_control}</dd>
+            </dl>
+          </div>
+        ) : null}
       </section>
 
       <section className="panel" aria-labelledby="g-explain">

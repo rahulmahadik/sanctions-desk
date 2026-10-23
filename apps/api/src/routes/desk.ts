@@ -70,6 +70,7 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
         ...a,
         recommendation: recorded.get(a.alert_id)?.decision ?? null,
         record_hash: recorded.get(a.alert_id)?.record_hash ?? null,
+        autonomy_outcome: recorded.get(a.alert_id)?.autonomy?.outcome ?? null,
         human_status: recorded.has(a.alert_id)
           ? humanState(recorded.get(a.alert_id) as DecisionRecord).status
           : "awaiting",

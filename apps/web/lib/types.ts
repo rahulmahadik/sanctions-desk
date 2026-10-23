@@ -16,6 +16,7 @@ export interface QueueAlert {
   /** Where people have taken the recommendation; absent when the API predates the human step. */
   human_status?: HumanStatus;
   human_final?: Decision | null;
+  autonomy_outcome?: AutonomyOutcome | null;
 }
 
 export interface RunEvent {
@@ -56,6 +57,10 @@ export interface ReviewAnswer {
   approvals_required?: number;
   sample_mode?: boolean;
   sample_notice?: string;
+  path?: "confirm" | "reason";
+  first_finding?: Decision;
+  autonomy?: { outcome: AutonomyOutcome; statement?: string; policy_level: 0 | 1; level_in_force: 0 | 1 };
+  human_review_required?: boolean;
   execution_time_seconds: number;
   error?: { type: string; message: string };
 }
@@ -137,6 +142,17 @@ export interface RecordView {
   critic: { rounds: number; final_verdict: string };
   human: unknown[];
   record_hash: string;
+  review_path?: "confirm" | "reason";
+  first_finding?: Decision;
+  documentary?: DocumentaryValue[];
+}
+
+export interface DocumentaryValue {
+  field: "date_of_birth";
+  value: string;
+  source: string;
+  check_reference: string;
+  label: string;
 }
 
 export interface ExamMetrics {
@@ -220,7 +236,18 @@ export interface GovernanceView {
     dimensions: Array<{ dimension: string; rating: string; basis: string }>;
     conclusion: string;
   };
-  human_oversight: { hard_limits: Record<string, string | number | boolean>; controls: string[] };
+  human_oversight: {
+    hard_limits: Record<string, string | number | boolean>;
+    controls: string[];
+    proportionate_to_risk?: {
+      principle: string;
+      level_0: string;
+      level_1: string;
+      always_to_a_person: string[];
+      current: { policy_level: 0 | 1; version: number };
+      change_control: string;
+    };
+  };
   explainability: { record: string; evidence: string; where: string[] };
   testing: {
     exam_report: string;
@@ -254,7 +281,14 @@ export interface GovernanceView {
   limits: string[];
 }
 
-export type HumanStatus = "awaiting" | "decided" | "block_pending" | "block_approved" | "block_declined";
+export type HumanStatus =
+  | "awaiting"
+  | "auto_closed"
+  | "decided"
+  | "block_pending"
+  | "block_approved"
+  | "block_declined";
+export type AutonomyOutcome = "human_review" | "auto_closed" | "qa_sample";
 export type ActionCheck = "signed_and_pinned" | "signed_unpinned" | "hash_sealed" | "invalid";
 
 export interface MeView {
@@ -273,7 +307,7 @@ export interface MeView {
 }
 
 export interface HumanActionView {
-  action: "approve" | "override" | "second_approval" | "reject";
+  action: "approve" | "override" | "second_approval" | "reject" | "reopen";
   actor: string;
   role?: string;
   at: string;
@@ -302,9 +336,76 @@ export interface HumanView {
   alert_id: string;
   record_hash: string;
   recommendation: { decision: Decision; confidence: number; rationale: string };
+  autonomy: { outcome: AutonomyOutcome; statement: string | null; level_in_force: 0 | 1 } | null;
   status: HumanStatus;
   final: Decision | null;
   actions_taken: HumanActionView[];
   records_sealed_with: "ed25519" | "hash-sealed";
   next_actions: ActionRecordView[];
+}
+
+export interface AutonomySettings {
+  level: 0 | 1;
+  autoClose: { confidenceAtLeast: number; qaSampleRate: number; dailyCap: number };
+}
+
+export interface AutonomyView {
+  policy_version: number;
+  policy_level: 0 | 1;
+  level_in_force: 0 | 1;
+  kill_switch: { active: boolean; by?: string; at?: string; reason?: string };
+  settings: AutonomySettings;
+  today: { day: string; auto_closed: number; qa_sample: number; reopened: number; cap: number };
+  locked: string[];
+}
+
+export interface AutoClosedItem {
+  alert_id: string;
+  record_hash: string;
+  decided_at: string;
+  statement: string;
+  policy_version: number;
+  confidence: number;
+  rationale: string;
+  status: HumanStatus;
+  reopened_by: string | null;
+}
+
+export interface PolicyVersionRow {
+  version: number;
+  name: string;
+  status: "draft" | "active" | "retired" | "discarded";
+  proposed_by: string;
+  approved_by: string | null;
+  created_at: string;
+  published_at: string | null;
+  reason: string | null;
+}
+
+export interface WhatIfView {
+  current_version: number;
+  proposed_version: number;
+  cases: number;
+  changed: number;
+  new_false_closes: number;
+  less_cautious: number;
+  errors: number;
+  autonomy?: {
+    level: 1;
+    cases: number;
+    auto_closed: number;
+    qa_sample: number;
+    human_review: number;
+    false_closes: number;
+    cap: number;
+    qa_rate: number;
+  };
+}
+
+export interface PolicyAuditEntry {
+  ts: string;
+  actor: string;
+  action: string;
+  version: number;
+  detail?: string;
 }

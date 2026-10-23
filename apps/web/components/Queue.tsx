@@ -102,13 +102,17 @@ export function Queue() {
                     )}
                   </td>
                   <td>
-                    {a.human_status && a.human_status !== "awaiting" ? (
+                    {a.autonomy_outcome === "auto_closed" && a.human_status === "auto_closed" ? (
+                      <span className="badge tone-wait">auto-closed</span>
+                    ) : a.autonomy_outcome === "qa_sample" && a.human_status === "awaiting" ? (
+                      <span className="badge tone-alert">QA sample: a person decides</span>
+                    ) : a.human_status && a.human_status !== "awaiting" ? (
                       <span className="badge tone-calm">
                         {a.human_status === "block_pending"
                           ? "block approval pending"
                           : a.human_final
-                            ? `decided: ${DECISION_LABEL[a.human_final]}`
-                            : "decided"}
+                            ? `human-approved: ${DECISION_LABEL[a.human_final]}`
+                            : "human-approved"}
                       </span>
                     ) : a.recommendation ? (
                       <span className="muted">waiting for a person</span>

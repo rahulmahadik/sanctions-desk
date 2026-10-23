@@ -88,6 +88,13 @@ export const decisionRoutes: FastifyPluginAsync<DecisionOptions> = async (
       alert_id: alertId,
       record_hash: record.record_hash,
       recommendation: { decision: record.decision, confidence: record.confidence, rationale: record.rationale },
+      autonomy: record.autonomy
+        ? {
+            outcome: record.autonomy.outcome,
+            statement: record.autonomy.statement ?? null,
+            level_in_force: record.autonomy.level_in_force,
+          }
+        : null,
       status: state.status,
       final: state.final ?? null,
       actions_taken: record.human,

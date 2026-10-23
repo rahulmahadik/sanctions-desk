@@ -96,9 +96,24 @@ export const governanceRoutes: FastifyPluginAsync<GovernanceOptions> = async (ap
           approvals_required_for_a_block: policy.automation.blockApprovalsRequired,
           fixed_in: "the policy schema; a draft that tries to change them is rejected",
         },
+        proportionate_to_risk: {
+          principle:
+            "Human oversight proportional to risk: the more a mistake would cost, the more people are involved. A mistaken close is the costly one, so only a close can ever be made without waiting, and only under strict conditions.",
+          level_0: "A person approves every alert (the default, and the level the headline exam runs at).",
+          level_1:
+            "A close may be closed without waiting only when code, the decision agent, the critic and the challenger all agree, the evidence standard is met, no data-quality rule fails and the confidence is at least the policy's line. A random share (at least 5 percent) goes to a person for quality assurance, there is a daily cap, and a kill switch forces level 0 at once.",
+          always_to_a_person: [
+            "an escalation",
+            "a request for more information",
+            "a recommended block (and it needs two different approvers)",
+          ],
+          current: { policy_level: policy.autonomy.level, version: policy.version },
+          change_control:
+            "Autonomy changes only through a policy draft, a preview on the exam (automatic closes, quality-assurance samples, false closes, which must be 0) and a publish by a different policy admin; every step is in the audit log.",
+        },
         controls: [
-          "Every recommendation is for a person to act on; the response says a review by a person is required.",
-          "A recommended block needs two approvals.",
+          "Every recommendation is for a person to act on unless it was closed automatically under level 1; the response says which.",
+          "A recommended block needs two different approvers, and a person can reopen any automatic close.",
           "The policy guard can only make an outcome more cautious.",
           "A close is challenged when confidence is low, the name is very close, or a data-quality rule fails.",
           "Text in the data that tries to instruct the reviewer is flagged and cannot close a case.",
