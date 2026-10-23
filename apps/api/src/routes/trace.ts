@@ -33,6 +33,29 @@ async function auditOf(config: Config, record: DecisionRecord) {
   }
 }
 
+/** What a stored receipt says about the call, with the result of checking its signature now. */
+function describeReceipt(receiptId: string, envelope: unknown, pinned: readonly string[]) {
+  const result = verifyReceipt(envelope, pinned);
+  const e = envelope as { body?: { receipt?: Record<string, unknown> }; pubkey_b64?: string };
+  const r = e.body?.receipt ?? {};
+  const policy = (r.app_policy ?? {}) as Record<string, unknown>;
+  const route = (r.winning_route ?? {}) as Record<string, unknown>;
+  return {
+    receipt_id: receiptId,
+    status: result.status,
+    ...(result.reason ? { reason: result.reason } : {}),
+    body_hash: result.bodyHash ?? null,
+    signer_public_key: e.pubkey_b64 ?? null,
+    key_pinned: result.status === "valid_pinned",
+    app: r.app ?? null,
+    requested_mode: policy.requested_mode ?? null,
+    routed_mode: policy.routed_mode ?? null,
+    mode_coerced: policy.mode_coerced ?? null,
+    served_by: route.model ?? null,
+    route_kind: route.kind ?? null,
+  };
+}
+
 const CaseIdSchema = z.string().regex(/^[A-Za-z0-9._-]{1,100}$/);
 
 /**
@@ -71,25 +94,6 @@ export const traceRoutes: FastifyPluginAsync<TraceOptions> = async (app, { confi
     if (!id.success) throw new AppError("not_found", "no such receipt");
     const file = join(resolveProjectPath(config.logging.dir), "receipts", `${id.data}.json`);
     if (!existsSync(file)) throw new AppError("not_found", `no stored receipt ${id.data}`);
-    const envelope: unknown = JSON.parse(readFileSync(file, "utf8"));
-    const result = verifyReceipt(envelope, config.nightshift.receiptPublicKeys);
-    const body = (envelope as { body?: { receipt?: Record<string, unknown> }; pubkey_b64?: string }).body;
-    const r = (body?.receipt ?? {}) as Record<string, unknown>;
-    const policy = (r.app_policy ?? {}) as Record<string, unknown>;
-    const route = (r.winning_route ?? {}) as Record<string, unknown>;
-    return {
-      receipt_id: id.data,
-      status: result.status,
-      ...(result.reason ? { reason: result.reason } : {}),
-      body_hash: result.bodyHash ?? null,
-      signer_public_key: (envelope as { pubkey_b64?: string }).pubkey_b64 ?? null,
-      key_pinned: result.status === "valid_pinned",
-      app: r.app ?? null,
-      requested_mode: policy.requested_mode ?? null,
-      routed_mode: policy.routed_mode ?? null,
-      mode_coerced: policy.mode_coerced ?? null,
-      served_by: route.model ?? null,
-      route_kind: route.kind ?? null,
-    };
+    return describeReceipt(id.data, JSON.parse(readFileSync(file, "utf8")), config.nightshift.receiptPublicKeys);
   });
 };

@@ -78,6 +78,15 @@ const sameHash = (a: string, b: string): boolean => {
   return x.length === y.length && timingSafeEqual(x, y);
 };
 
+/** The user whose token this is. Every user is compared, so the time taken does not show which one matched. */
+function userForToken(users: UsersFile | undefined, bearer: string | undefined): Actor | undefined {
+  if (bearer === undefined || !users) return undefined;
+  const digest = hashToken(bearer);
+  let found: Actor | undefined;
+  for (const u of users.users) if (sameHash(u.token_sha256, digest)) found = { id: u.id, role: u.role, demo: false };
+  return found;
+}
+
 export function createAuthenticator(options: {
   mode: AuthMode;
   sampleMode: boolean;
@@ -87,21 +96,12 @@ export function createAuthenticator(options: {
   return {
     mode,
     actorFor(headers) {
-      const bearer = /^Bearer\s+(\S+)$/i.exec(first(headers.authorization) ?? "")?.[1];
-      if (bearer !== undefined && users) {
-        const digest = hashToken(bearer);
-        // Compare against every user so the time taken does not show which one matched.
-        let found: Actor | undefined;
-        for (const u of users.users)
-          if (sameHash(u.token_sha256, digest)) found = { id: u.id, role: u.role, demo: false };
-        if (found) return found;
-      }
+      const person = userForToken(users, /^Bearer\s+(\S+)$/i.exec(first(headers.authorization) ?? "")?.[1]);
+      if (person) return person;
       // Demo users work only in sample mode, and only when auth is not fully on.
-      if (sampleMode && mode !== "on") {
-        const wanted = first(headers["x-demo-user"]);
-        const demo = DEMO_USERS.find((d) => d.id === wanted);
-        if (demo) return demo;
-      }
+      const demo =
+        sampleMode && mode !== "on" ? DEMO_USERS.find((d) => d.id === first(headers["x-demo-user"])) : undefined;
+      if (demo) return demo;
       return mode === "on" ? undefined : ANONYMOUS;
     },
   };

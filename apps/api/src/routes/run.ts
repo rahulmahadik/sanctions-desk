@@ -17,6 +17,7 @@ import {
   createTraceLogger,
   type Generator,
   makeRedactor,
+  type Policy,
   type PolicyStore,
   projectRoot,
   type RunEventBus,
@@ -76,6 +77,31 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (
       error: error.toJSON(),
     });
 
+  /** What a review may use besides the data and the models: earlier decisions, the kill switch and today's count. */
+  const agentDeps = (policy: Policy, trace: TraceLogger): AgentDeps => ({
+    config,
+    policy,
+    zetaris,
+    generator,
+    trace,
+    now: () => new Date(),
+    analystDecisions: (customerId, entryId) => readAnalystMemory(config.logging.dir, customerId, entryId),
+    killSwitch: () => killSwitchOn(config.logging.dir),
+    autoClosedToday: () => autonomyUsage(config.logging.dir, new Date()).auto_closed,
+  });
+
+  /** A close the desk made on its own gets its closure note and an audit line under the policy. */
+  const noteAutoClose = (runId: string, policy: Policy): void => {
+    const [record] = readDecisionRecords(config.logging.dir, (x) => x.run_id === runId);
+    if (!record) return;
+    const stores = {
+      logDir: resolveProjectPath(config.logging.dir),
+      outboxDir: resolveProjectPath(config.actions.outboxDir),
+      signer,
+    };
+    recordAutoClose(stores, policy, record, new Date());
+  };
+
   app.post("/run", async (req, reply) => {
     const started = performance.now();
     const parsed = RunRequestSchema.safeParse(req.body);
@@ -131,32 +157,13 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (
       detail: { sample_mode: config.sampleMode },
     });
     try {
-      const deps: AgentDeps = {
-        config,
-        policy,
-        zetaris,
-        generator,
-        trace,
-        now: () => new Date(),
-        analystDecisions: (customerId, entryId) => readAnalystMemory(config.logging.dir, customerId, entryId),
-        killSwitch: () => killSwitchOn(config.logging.dir),
-        autoClosedToday: () => autonomyUsage(config.logging.dir, new Date()).auto_closed,
-      };
-      const result = await runReview(deps, { runId, alertId, sampleMode: config.sampleMode, sampleNotice });
-      if (result.autonomy?.outcome === "auto_closed") {
-        const [record] = readDecisionRecords(config.logging.dir, (x) => x.run_id === runId);
-        if (record)
-          recordAutoClose(
-            {
-              logDir: resolveProjectPath(config.logging.dir),
-              outboxDir: resolveProjectPath(config.actions.outboxDir),
-              signer,
-            },
-            policy,
-            record,
-            new Date(),
-          );
-      }
+      const result = await runReview(agentDeps(policy, trace), {
+        runId,
+        alertId,
+        sampleMode: config.sampleMode,
+        sampleNotice,
+      });
+      if (result.autonomy?.outcome === "auto_closed") noteAutoClose(runId, policy);
       trace.log({
         agent: "system",
         action: "run_completed",
