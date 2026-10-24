@@ -1,7 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { fetchEvents, fetchEvidence, fetchExam, fetchRecord, fetchTrace, followRun, startReview } from "../lib/api";
+import {
+  fetchEvents,
+  fetchEvidence,
+  fetchExam,
+  fetchPolicy,
+  fetchRecord,
+  fetchTrace,
+  followRun,
+  startReview,
+} from "../lib/api";
 import { graphAt } from "../lib/graph";
 import type { EvidenceView, RecordView, ReviewAnswer, RoutingSplit, RunEvent, TraceView } from "../lib/types";
 import { HumanBanner } from "./Banner";
@@ -10,8 +19,20 @@ import { EvidenceCards } from "./Evidence";
 import { FourQuestions, Outcome, Replay } from "./Record";
 import { RoutingPanel } from "./Routing";
 import { RunGraph } from "./RunGraph";
+import { SignalsPanel, type SignalThresholds } from "./Signals";
 
 type Phase = "ready" | "running" | "finished";
+const BUTTON: Record<Phase, string> = { ready: "Review this alert", running: "Reviewing…", finished: "Review again" };
+const STATUS: Record<Phase, string> = { ready: "", running: "Review in progress", finished: "Review finished" };
+
+/** The active policy's screener thresholds, or nothing when the policy cannot be read. */
+async function loadThresholds(): Promise<SignalThresholds | undefined> {
+  const { policy } = await fetchPolicy().catch(() => ({ policy: {} as Record<string, unknown> }));
+  const s = policy.screener as { confidenceThreshold?: unknown; otherConfidenceThreshold?: unknown } | undefined;
+  return typeof s?.confidenceThreshold === "number" && typeof s.otherConfidenceThreshold === "number"
+    ? { normal: s.confidenceThreshold, other: s.otherConfidenceThreshold }
+    : undefined;
+}
 
 /** One case: start a review, watch it happen, then read the evidence, routing, trace and replay. */
 export function CaseView({ alertId }: { alertId: string }) {
@@ -22,6 +43,7 @@ export function CaseView({ alertId }: { alertId: string }) {
   const [trace, setTrace] = useState<TraceView>();
   const [record, setRecord] = useState<RecordView>();
   const [split, setSplit] = useState<RoutingSplit | null>();
+  const [thresholds, setThresholds] = useState<SignalThresholds>();
   const [problem, setProblem] = useState<string>();
   const stop = useRef<() => void>(() => undefined);
 
@@ -40,6 +62,8 @@ export function CaseView({ alertId }: { alertId: string }) {
     fetchExam()
       .then((exam) => setSplit(exam.routing_split ?? null))
       .catch(() => setSplit(null));
+    // The screener's thresholds say which signals block a close; without them the panel still shows every signal.
+    void loadThresholds().then(setThresholds);
     return () => stop.current();
   }, [loadDetails]);
 
@@ -75,12 +99,12 @@ export function CaseView({ alertId }: { alertId: string }) {
       <HumanBanner sampleMode={answer?.sample_mode} notice={answer?.sample_notice} />
       <p>
         <button type="button" onClick={review} disabled={phase === "running"}>
-          {phase === "running" ? "Reviewing…" : phase === "finished" ? "Review again" : "Review this alert"}
+          {BUTTON[phase]}
         </button>{" "}
         <span className="muted">Alert {alertId}</span>
       </p>
       <p role="status" aria-live="polite" className="sr-only">
-        {phase === "running" ? "Review in progress" : phase === "finished" ? "Review finished" : ""}
+        {STATUS[phase]}
       </p>
       {problem ? (
         <p className="panel tone-stop" role="alert">
@@ -91,6 +115,9 @@ export function CaseView({ alertId }: { alertId: string }) {
       <DecisionPanel alertId={alertId} refreshKey={answer?.run_id ?? record?.record_hash} />
       {phase !== "ready" ? <RunGraph view={view} /> : null}
       {trace ? <FourQuestions trace={trace} /> : null}
+      {record?.screener ? (
+        <SignalsPanel screener={record.screener} evidence={evidence} thresholds={thresholds} />
+      ) : null}
       {evidence ? <EvidenceCards view={evidence} documentary={record?.documentary} /> : null}
       {trace ? <RoutingPanel trace={trace} split={split} /> : null}
       {phase === "finished" && events.length > 0 ? <Replay events={events} record={record} /> : null}

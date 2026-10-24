@@ -167,6 +167,25 @@ export interface RecordView {
   review_path?: "confirm" | "reason";
   first_finding?: Decision;
   documentary?: DocumentaryValue[];
+  screener?: ScreenerRecordView;
+}
+
+/** One risk signal as the sealed record keeps it: where it points, never the text. */
+export interface ScreenerSignalView {
+  type: string;
+  confidence: number;
+  /** "customer.notes:12-40", or "customer.notes:unlocated" when the span does not point into the field. */
+  span_id: string;
+  span_valid: boolean;
+  /** Absent in records made before policy version 7. */
+  grounded?: boolean;
+  grounding_reason?: string;
+}
+
+export interface ScreenerRecordView {
+  status: "ok" | "nothing_to_read" | "failed" | "off";
+  fields_read: string[];
+  signals: ScreenerSignalView[];
 }
 
 export interface DocumentaryValue {

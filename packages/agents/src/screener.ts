@@ -222,7 +222,7 @@ export interface ScreenerSignal {
   spanValid: boolean;
   /**
    * False when the span's text holds no term of the signal's type, or no name from the evidence in or near it (see
-   * grounding.ts). Such a signal is kept, recorded and shown, and does not block a close.
+   * grounding.ts). Such a signal is kept, recorded and shown, and still blocks a close (policy version 8).
    */
   grounded: boolean;
   /** Why the signal is not grounded, in plain words; never the text. */

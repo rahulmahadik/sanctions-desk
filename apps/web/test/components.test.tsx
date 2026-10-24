@@ -12,6 +12,7 @@ import { Queue } from "../components/Queue";
 import { Outcome, Replay } from "../components/Record";
 import { RoutingPanel } from "../components/Routing";
 import { RunGraph } from "../components/RunGraph";
+import { parseSpan, SignalsPanel, signalStatus } from "../components/Signals";
 import { UserSwitcher } from "../components/UserSwitcher";
 import { graphAt } from "../lib/graph";
 import type { ExamAnswer, QueueAlert } from "../lib/types";
@@ -28,6 +29,7 @@ vi.mock("../lib/api", () => ({
   startReview: vi.fn(),
   followRun: vi.fn(),
   fetchReceiptCheck: vi.fn(),
+  fetchPolicy: vi.fn(),
   fetchMe: vi.fn(),
   downloadCaseFile: vi.fn(),
   fetchHuman: vi.fn(),
@@ -55,6 +57,7 @@ beforeEach(() => {
   vi.mocked(api.fetchExam).mockResolvedValue({ label: "x", cases: 70, results: [], policy_version: 1 });
   vi.mocked(api.fetchMe).mockResolvedValue(ME_VIEWER);
   vi.mocked(api.fetchHuman).mockRejectedValue(new api.ApiError("no recommendation yet", 404));
+  vi.mocked(api.fetchPolicy).mockRejectedValue(new api.ApiError("not needed here", 404));
 });
 
 describe("RunGraph", () => {
@@ -136,6 +139,43 @@ describe("RoutingPanel", () => {
     expect(screen.getByText(/do not route by difficulty and do not pin the cloud/)).toBeTruthy();
   });
 
+  it("puts the requested model, the routed model and the receipt id side by side", () => {
+    render(<RoutingPanel trace={TRACE} />);
+    const row = screen.getByTestId("receipt-id").closest("tr");
+    const cells = [...(row?.querySelectorAll("td") ?? [])].map((c) => c.textContent ?? "");
+    expect(cells[1]).toBe("meterless/deep");
+    expect(cells[2]).toContain("nvidia/nemotron-3-ultra-550b-a55b");
+    expect(cells[3]).toBe("rcpt_test_1");
+  });
+
+  it("shows both models when the signed receipt names another model than the trace", async () => {
+    const check = {
+      receipt_id: "rcpt_test_1",
+      status: "valid_unpinned" as const,
+      body_hash: "a".repeat(64),
+      signer_public_key: null,
+      key_pinned: false,
+      app: "sanctions-desk-reasoning",
+      requested_mode: "deep",
+      routed_mode: "deep",
+      mode_coerced: false,
+      route_kind: "local",
+    };
+    vi.mocked(api.fetchReceiptCheck).mockResolvedValue({ ...check, served_by: "local-runtime/other-model" });
+    render(<RoutingPanel trace={TRACE} />);
+    fireEvent.click(screen.getByRole("button", { name: "Verify receipt rcpt_test_1" }));
+    const differs = await screen.findByTestId("receipt-differs-rcpt_test_1");
+    expect(differs.textContent).toContain("local-runtime/other-model");
+    expect(differs.textContent).toContain("nvidia/nemotron-3-ultra-550b-a55b");
+
+    cleanup();
+    vi.mocked(api.fetchReceiptCheck).mockResolvedValue({ ...check, served_by: "nvidia/nemotron-3-ultra-550b-a55b" });
+    render(<RoutingPanel trace={TRACE} />);
+    fireEvent.click(screen.getByRole("button", { name: "Verify receipt rcpt_test_1" }));
+    await screen.findByTestId("receipt-rcpt_test_1");
+    expect(screen.queryByTestId("receipt-differs-rcpt_test_1")).toBeNull();
+  });
+
   it("leaves the split out when the exam has not been run", () => {
     render(<RoutingPanel trace={TRACE} split={null} />);
     expect(screen.queryByTestId("routing-split")).toBeNull();
@@ -144,6 +184,89 @@ describe("RoutingPanel", () => {
   it("says so when no model was called", () => {
     render(<RoutingPanel trace={{ ...TRACE, cost: { ...TRACE.cost, models: [] } }} />);
     expect(screen.getByText(/No model was called/)).toBeTruthy();
+  });
+});
+
+describe("SignalsPanel", () => {
+  const T = { normal: 0.5, other: 0.7 };
+  const evidence = {
+    ...EVIDENCE,
+    customer: { ...EVIDENCE.customer, notes: "Customer is the son of Ivan Petrov, per KYC call." },
+  };
+  it("shows each signal's source field and the exact text span it points at", () => {
+    render(
+      <SignalsPanel
+        screener={{
+          status: "ok",
+          fields_read: ["customer.notes"],
+          signals: [
+            {
+              type: "relationship_to_listed_party",
+              confidence: 0.9,
+              span_id: "customer.notes:16-34",
+              span_valid: true,
+              grounded: true,
+            },
+          ],
+        }}
+        evidence={evidence}
+        thresholds={T}
+      />,
+    );
+    expect(screen.getByTestId("signal").textContent).toContain("customer.notes");
+    expect(screen.getByTestId("signal-span").textContent).toBe("son of Ivan Petrov");
+    expect(screen.getByTestId("signal-status").textContent).toContain("blocks a close");
+  });
+
+  it("labels a signal that is not grounded and still shows it", () => {
+    render(
+      <SignalsPanel
+        screener={{
+          status: "ok",
+          fields_read: ["customer.notes"],
+          signals: [
+            {
+              type: "relationship_to_listed_party",
+              confidence: 0.9,
+              span_id: "customer.notes:0-8",
+              span_valid: true,
+              grounded: false,
+              grounding_reason: "no relation term in the span",
+            },
+            {
+              type: "alias_or_former_name",
+              confidence: 0.5,
+              span_id: "customer.notes:unlocated",
+              span_valid: false,
+              grounded: false,
+            },
+          ],
+        }}
+        evidence={evidence}
+        thresholds={T}
+      />,
+    );
+    const statuses = screen.getAllByTestId("signal-status").map((s) => s.textContent);
+    expect(statuses).toEqual([
+      "not grounded: shown for review, still blocks a close",
+      "not grounded: shown for review, still blocks a close",
+    ]);
+    expect(screen.getAllByTestId("signal")[1]?.textContent).toContain("no location in the text");
+  });
+
+  it("says when a signal is below its threshold, and reads span ids", () => {
+    expect(
+      signalStatus({ type: "other", confidence: 0.5, span_id: "x:1-2", span_valid: true, grounded: false }, T),
+    ).toContain("does not block");
+    expect(
+      signalStatus({ type: "other", confidence: 0.5, span_id: "x:1-2", span_valid: true, grounded: false }, undefined),
+    ).toBe("not grounded: shown for review, still blocks a close");
+    expect(parseSpan("payment.payment_reference:3-9")).toEqual({
+      field: "payment.payment_reference",
+      start: 3,
+      end: 9,
+    });
+    expect(parseSpan("customer.notes:unlocated")).toEqual({ field: "customer.notes" });
   });
 });
 

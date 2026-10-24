@@ -234,7 +234,7 @@ export const ScreenerRecordSchema = z.strictObject({
       span_valid: z.boolean(),
       /**
        * False when the span's text holds no term of the signal's type or no name from the evidence near it: the signal
-       * is kept and shown, and does not block a close. Absent in records made before policy version 7.
+       * is kept and shown, and from policy version 8 still blocks a close. Absent in records made before policy version 7.
        */
       grounded: z.boolean().optional(),
       grounding_reason: nonEmpty.optional(),
