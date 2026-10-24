@@ -51,11 +51,11 @@ export const governanceRoutes: FastifyPluginAsync<GovernanceOptions> = async (ap
           {
             name: "Nemotron 3.5 Lightning 30B",
             served: "local, through Meterless Nightshift",
-            used_by: ["safety guard", "occasionally the critic"],
+            used_by: ["safety guard", "free-text screener"],
           },
         ],
         which_model_serves:
-          "Nightshift's learned router decides; the desk asks for a pinned mode and records the model that answered",
+          "Nightshift's learned router decides inside the mode each app identity is bound to; the desk asks for a pinned mode and records the model that answered. In the headline run the receipts show the safety guard on Lightning in 70 of 70 calls and the decision, critic and challenger on Ultra in 187 of 190 (3 answered by Lightning).",
         components: [
           "Zetaris unified semantic layer (all data access)",
           "Meterless Nightshift (all model calls)",

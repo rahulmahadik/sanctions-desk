@@ -142,7 +142,7 @@ Nightshift 1.2.1 has an answer memory of its own, separate from the desk's H-MEM
 - **The answer.** Tokens in the model's answer are mapped back before the critic's fact check, the record and the reporter read it, so the case view and the record show real values.
 - **Off by default.** With the mode off the steps send exactly what they sent before: all 82 sample-mode alerts give identical answers and sealed records with and without this code.
 
-Small test of an optional mode, not part of the recorded evaluation (24 Oct 2026, one live run each, Nightshift warmed up and not restarted): on held-out v4 (12 cases) and 8 of the 70 exam cases (4 risks, 4 clears), privacy mode wrongly closed 0 of 10 risk cases, as the default did in the same session; it made 5 of 10 clears against 3 for the default, and 14 of 20 outcomes were the same (the others moved between escalate and need more information, or were clears the default escalated). Its 65 cloud prompts all passed the raw-value check, and its 104 receipts verify, none with an added memory.
+Small test of an optional mode, not part of the recorded evaluation (24 Oct 2026, held-out v4 and 8 of the 70 exam cases, one live run in each mode, Nightshift warmed up and not restarted): 0 wrong closes in both modes; 14 of 20 outcomes identical; all 65 cloud prompts passed the raw-value check; its 104 receipts verify, none with an added memory. With one run each on a small sample, the other differences are within the variation between runs and are not read as better or worse.
 
 ## What leaves the machine, per step
 
