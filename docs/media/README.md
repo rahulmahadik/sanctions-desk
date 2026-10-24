@@ -56,3 +56,14 @@ Read-only screenshots of the Zetaris console and the Nightshift app (24 Oct 2026
 | `console/zetaris-column-access.png`  | Column access on `customer_identifier`: `id_number` hidden for the evidence role                                                                                       |
 | `console/nightshift-lanes.png`       | Nightshift lanes: local Nemotron 3.5 Lightning 30B and cloud Nemotron 3 Ultra 550B (lanes named `nemotron-3-super-120b-a1` from before the Super endpoint was retired) |
 | `console/nightshift-apps.png`        | Nightshift console, apps: the reasoning identity bound to deep and the guard identity bound to local                                                                   |
+
+## Charts
+
+Drawn by `npm run charts` from the committed files only (`eval/results/`, `eval/runs/`, `eval/critic-mutation.json`); the receipts are verified with the same code as `npm run evidence:verify`. Each is an SVG and a 1920x1080 PNG in `charts/`.
+
+| File                                 | What it shows                                                                                                          |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `charts/heldout-wrong-closes`        | Risk cases wrongly closed in each held-out round: full system, deterministic rules, name match and escalate everything |
+| `charts/first-recommendation-closes` | Per run, how often the decision step first proposed closing a risk case, and how many of those the checks stopped      |
+| `charts/critic-mutation`             | The critic's fact re-check: 147 of 147 false cited facts caught, 25 of 25 unchanged decisions approved                 |
+| `charts/model-calls`                 | Which model served each step in the headline run (local Lightning or cloud Ultra), and the signed receipts verified    |

@@ -65,6 +65,7 @@
     "readme:refresh": "tsx tools/readme-facts.ts",
     "readme:trace": "tsx tools/real-trace.ts",
     "examples:sample": "tsx tools/sample-outputs.ts",
+    "charts": "tsx tools/charts.ts",
     "zetaris:cache-check": "tsx tools/zetaris-cache-check.ts",
     "lab:pinning": "tsx tools/pinning-lab.ts",
     "zetaris:queries": "tsx tools/zetaris-queries.ts",
