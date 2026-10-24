@@ -37,13 +37,13 @@ Each edge case below has an expected outcome and is checked by an exam case, a t
 
 ## Lists and memory
 
-| Edge case                                       | Expected                                                                    | Checked by                                                                                                     |
-| ----------------------------------------------- | --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| A listed entry changes after a case was cleared | The clearance is stale; the case is re-opened                               | `pcc_*`<br>`apps/api/test/review.test.ts › list-change replay`                                                 |
-| A listed party is removed from the list         | An escalation that rested on it becomes a candidate for release by a person | `apps/api/test/review.test.ts › removed one for release`<br>`packages/engines/test/rescreen.test.ts › removed` |
-| A new alert for a pair that was cleared before  | The earlier clearance is used as context if the entry is unchanged          | `pcu_*`<br>`packages/agents/test/pipeline.test.ts › fast path`                                                 |
-| Two memories disagree                           | Conflicts are detected and resolved with a ledger entry                     | `packages/engines/test/hmem.test.ts › conflict`                                                                |
-| A person overrides what memory says             | The override wins and is written to the trust ledger                        | `packages/engines/test/pointer-memory.test.ts › override`                                                      |
+| Edge case                                                    | Expected                                                                                                     | Checked by                                                                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| A listed entry changes after a case was cleared              | The clearance is stale; the case is re-opened                                                                | `pcc_*`<br>`apps/api/test/review.test.ts › list-change replay`                                                 |
+| A listed party is removed from the list                      | An escalation that rested on it becomes a candidate for release by a person                                  | `apps/api/test/review.test.ts › removed one for release`<br>`packages/engines/test/rescreen.test.ts › removed` |
+| A new alert for a pair that was cleared before               | The earlier clearance is used as context if the entry is unchanged                                           | `pcu_*`<br>`packages/agents/test/pipeline.test.ts › fast path`                                                 |
+| Two decisions on the same customer and listed party disagree | A person's later decision replaces the earlier one; the trust ledger records who overrode a decision and why | `packages/agents/test/analyst-memory.test.ts › is replaced by a later decision of a person`                    |
+| A person overrides what memory says                          | The override wins; the trust ledger records who overrode a decision and why                                  | `packages/engines/test/pointer-memory.test.ts › override`                                                      |
 
 ## Data and systems
 

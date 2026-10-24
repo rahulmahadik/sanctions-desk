@@ -169,15 +169,15 @@
     {
       "id": "memory_conflict",
       "area": "lists and memory",
-      "what": "Two memories disagree",
-      "expected": "Conflicts are detected and resolved with a ledger entry",
-      "covered_by": ["test:packages/engines/test/hmem.test.ts::conflict"]
+      "what": "Two decisions on the same customer and listed party disagree",
+      "expected": "A person's later decision replaces the earlier one; the trust ledger records who overrode a decision and why",
+      "covered_by": ["test:packages/agents/test/analyst-memory.test.ts::is replaced by a later decision of a person"]
     },
     {
       "id": "override_beats_memory",
       "area": "lists and memory",
       "what": "A person overrides what memory says",
-      "expected": "The override wins and is written to the trust ledger",
+      "expected": "The override wins; the trust ledger records who overrode a decision and why",
       "covered_by": ["test:packages/engines/test/pointer-memory.test.ts::override"]
     },
     {
