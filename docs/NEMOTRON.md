@@ -124,6 +124,8 @@ Read plainly: v1 is not a like-for-like comparison, because the first system had
 | Today's system, re-run after the fail-closed fix, not blind | t3       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 |
 <!-- v3-today:end -->
 
+Read plainly: today's system closed none of the 6 v3 risk cases in any of its three runs and made none of the 6 clears; it gave the same outcome in all three runs on 11 of 12 cases (HO3-009 was escalated once and held for more information twice). These runs are not blind: the fail-closed change was made after v3 showed its two wrong closes, which stay in the headline.
+
 ## What we tried and why it isn't used
 
 - **NVIDIA guard and jailbreak-detection models.** Requests naming `nvidia/llama-3.1-nemoguard-8b-content-safety` and `nvidia/nemoguard-jailbreak-detect` were answered by Nemotron 3 Ultra, as their receipts show, and Nightshift 1.2.1's list of models that can be added as a lane offers no NVIDIA guard, safety or jailbreak-detection model (the list was read; nothing was added or changed). So they are not served on this version, and they are not claimed.
