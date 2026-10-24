@@ -368,6 +368,8 @@ Which agent runs on which Nemotron model, and what it does:
 | `heldout4-sys4-single-20261024T025629Z` | 36 | [eval/runs/heldout4-sys4-single-20261024T025629Z/receipts.jsonl.gz](eval/runs/heldout4-sys4-single-20261024T025629Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout4-sys4-single-20261024T025629Z` |
 | `heldout4-rules-20261024T030240Z` | 0 | [eval/runs/heldout4-rules-20261024T030240Z/receipts.jsonl.gz](eval/runs/heldout4-rules-20261024T030240Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout4-rules-20261024T030240Z` |
 | `heldout4-escalate_all-20261024T030324Z` | 0 | [eval/runs/heldout4-escalate_all-20261024T030324Z/receipts.jsonl.gz](eval/runs/heldout4-escalate_all-20261024T030324Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout4-escalate_all-20261024T030324Z` |
+| `heldout3-fuzzy-20261024T033840Z` | 0 | [eval/runs/heldout3-fuzzy-20261024T033840Z/receipts.jsonl.gz](eval/runs/heldout3-fuzzy-20261024T033840Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout3-fuzzy-20261024T033840Z` |
+| `heldout4-fuzzy-20261024T033840Z` | 0 | [eval/runs/heldout4-fuzzy-20261024T033840Z/receipts.jsonl.gz](eval/runs/heldout4-fuzzy-20261024T033840Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/heldout4-fuzzy-20261024T033840Z` |
 
 `npm run evidence:verify` with no argument checks every run: each signature, that every model call has a receipt, and that the model in the trace equals the model in the receipt.
 <!-- receipts:end -->
