@@ -170,21 +170,42 @@ if (full.length > 0 && alone.length > 0) {
 }
 if (!study) throw new Error("no repeated runs found: run them first (see the header)");
 
+const range = (xs: number[]) => {
+  const lo = Math.min(...xs);
+  const hi = Math.max(...xs);
+  return lo === hi ? `${lo}` : `${lo} to ${hi}`;
+};
+const pct = (x: number) => Math.round(x * 100);
 const table = [
   `**${study.label}.** ${study.note}`,
+  "",
+  `**1. Agreement between runs.** Same outcome in all ${study.systems[0]?.runs.length ?? 3} runs: ${study.systems.map((s) => `${s.system} on ${s.all_runs_agree} of ${s.cases} cases`).join("; ")}.`,
+  "",
+  "**2. Ranges across the runs** (lowest to highest of the three):",
+  "",
+  "| System | Risk cases wrongly closed | Clears made | Acceptable outcomes | Escalated share | Errors |",
+  "| --- | ---: | ---: | ---: | ---: | ---: |",
+  ...study.systems.map((s) => {
+    const r = s.runs;
+    const of = (k: keyof RunSummary, n: keyof RunSummary) =>
+      `${range(r.map((x) => x[k] as number))} of ${r[0]?.[n] ?? 0}`;
+    return `| ${s.system} | ${of("wrong_closes", "risk_cases")} | ${of("clears_made", "clear_cases")} | ${of("acceptable", "cases")} | ${range(r.map((x) => pct(x.escalated_share)))}% | ${range(r.map((x) => x.errors))} |`;
+  }),
+  "",
+  "Each run:",
   "",
   "| System | Run | Risk cases wrongly closed | Clears made | Acceptable outcomes | Escalated share | Errors |",
   "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
   ...study.systems.flatMap((s) =>
     s.runs.map(
       (r) =>
-        `| ${s.system} | ${r.run} | ${r.wrong_closes} of ${r.risk_cases} | ${r.clears_made} of ${r.clear_cases} | ${r.acceptable} of ${r.cases} | ${Math.round(r.escalated_share * 100)}% | ${r.errors} |`,
+        `| ${s.system} | ${r.run} | ${r.wrong_closes} of ${r.risk_cases} | ${r.clears_made} of ${r.clear_cases} | ${r.acceptable} of ${r.cases} | ${pct(r.escalated_share)}% | ${r.errors} |`,
     ),
   ),
   "",
-  `Same outcome in all ${study.systems[0]?.runs.length ?? 3} runs: ${study.systems.map((s) => `${s.system} ${s.all_runs_agree} of ${s.cases} cases`).join("; ")}.`,
+  "**3. Calibration** (Brier score, lower is better; with this few cases it is indicative only, and a difference of a few hundredths is not read as one system being better calibrated):",
   "",
-  "| Calibration (Brier score, lower is better) | Cases with a confidence | Brier score |",
+  "| Runs | Cases with a confidence (n) | Brier score |",
   "| --- | ---: | ---: |",
   ...study.calibration.map(
     (c) => `| ${c.label} | ${c.cases_with_confidence} | ${c.brier === null ? "n/a" : c.brier} |`,
@@ -193,15 +214,100 @@ const table = [
   `Brier score: ${study.brier_definition}`,
 ].join("\n");
 
+// Nemotron alone, once, on held-out v1 and v3 (the rounds where the full system closed risk cases), beside the
+// recorded runs of the same frozen sets. Read from logs/alone-v1v3 when present, else from the committed summary.
+interface SetRow {
+  set: string;
+  system: string;
+  source: string;
+  summary: RunSummary;
+}
+const setsFile = resolveProjectPath("eval/nemotron-alone-sets.json");
+const recordedResult = (file: string): Result =>
+  JSON.parse(readFileSync(resolveProjectPath(`eval/results/${file}`), "utf8")) as Result;
+const SETS = [
+  {
+    set: "Held-out v1 (30 cases)",
+    exam: "heldout",
+    recorded: [
+      ["Full system, first system (no screener)", "2026-10-23T12-11-40-825Z-heldout-routed.json"],
+      [
+        "Full system after the screener was added (re-run, not blind)",
+        "2026-10-23T21-45-15-877Z-heldout-sys2b-routed.json",
+      ],
+      ["Deterministic rules", "2026-10-23T08-13-08-222Z-heldout-rules.json"],
+    ],
+  },
+  {
+    set: "Held-out v3 (12 cases)",
+    exam: "heldout3",
+    recorded: [
+      ["Full system (span grounding)", "2026-10-23T23-19-01-303Z-heldout3-sys3-routed.json"],
+      ["Deterministic rules", "2026-10-23T23-41-47-213Z-heldout3-rules.json"],
+    ],
+  },
+] as const;
+let sets: { label: string; note: string; rows: SetRow[] } | undefined;
+const aloneSets = SETS.map((s) => ({
+  s,
+  r: read("alone-v1v3", (f) => f.includes(`-${s.exam}-once-nemotron_alone`)).at(-1),
+}));
+if (aloneSets.every(({ r }) => r)) {
+  sets = {
+    label: "Small study, one run per set, not part of the recorded evaluation",
+    note: "Nemotron alone (one cloud Ultra call per case on the structured case facts, as above) once on held-out v1 and v3, the two rounds where the full system wrongly closed risk cases, 25 Oct 2026, after a warm-up and without restarting Nightshift; beside the recorded runs of the same frozen sets (one run each, 23 Oct 2026).",
+    rows: aloneSets.flatMap(({ s, r }) => [
+      {
+        set: s.set,
+        system: "Nemotron alone",
+        source: `logs/alone-v1v3/${r?.file}`,
+        summary: runSummary("once", r as Result),
+      },
+      ...s.recorded.map(([system, file]) => ({
+        set: s.set,
+        system,
+        source: `eval/results/${file}`,
+        summary: runSummary("recorded", recordedResult(file)),
+      })),
+    ]),
+  };
+} else if (existsSync(setsFile)) {
+  sets = JSON.parse(readFileSync(setsFile, "utf8"));
+}
+const setsTable = sets
+  ? [
+      `**${sets.label}.** ${sets.note}`,
+      "",
+      "| Set | System | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors | Result file |",
+      "| --- | --- | ---: | ---: | ---: | ---: | --- |",
+      ...sets.rows.map(
+        (r) =>
+          `| ${r.set} | ${r.system} | ${r.summary.wrong_closes} of ${r.summary.risk_cases} | ${r.summary.clears_made} of ${r.summary.clear_cases} | ${r.summary.acceptable} of ${r.summary.cases} | ${r.summary.errors} | \`${r.source.split("/").at(-1)}\` |`,
+      ),
+    ].join("\n")
+  : undefined;
+
 const json = `${JSON.stringify(study, null, 2)}\n`;
 let changed = !existsSync(outFile) || readFileSync(outFile, "utf8") !== json;
 if (changed && !check) writeFileSync(outFile, json);
+if (sets) {
+  const setsJson = `${JSON.stringify(sets, null, 2)}\n`;
+  if (!existsSync(setsFile) || readFileSync(setsFile, "utf8") !== setsJson) {
+    changed = true;
+    if (!check) writeFileSync(setsFile, setsJson);
+  }
+}
 const docFile = resolveProjectPath("docs/NEMOTRON.md");
 if (existsSync(docFile)) {
   const doc = readFileSync(docFile, "utf8");
   const re = /(<!-- repeat-study:start -->)[\s\S]*?(<!-- repeat-study:end -->)/;
+  const reSets = /(<!-- alone-sets:start -->)[\s\S]*?(<!-- alone-sets:end -->)/;
   if (re.test(doc)) {
-    const next = formatMarkdown(doc.replace(re, `$1\n${table}\n$2`), docFile);
+    const withSets =
+      setsTable && reSets.test(doc)
+        ? doc.replace(reSets, () => `<!-- alone-sets:start -->\n${setsTable}\n<!-- alone-sets:end -->`)
+        : doc;
+    const next = formatMarkdown(withSets.replace(re, `$1\n${table}\n$2`), docFile);
     if (next !== doc) {
       changed = true;
       if (!check) writeFileSync(docFile, next);
