@@ -1,5 +1,9 @@
 # Sanctions Desk
 
+<!-- badges:start -->
+[![CI](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml) [![TypeScript 7](https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white)](package.json) [![Node >=24](https://img.shields.io/badge/node-%3E%3D24-339933?logo=nodedotjs&logoColor=white)](package.json) [![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+<!-- badges:end -->
+
 An AI review desk for bank sanctions-screening alerts. For every alert it reads the evidence from the bank's data, compares the customer (or payment party, or owner) with the listed party under approved definitions, asks Nemotron models for a recommendation, has a second step re-read every cited fact, applies a written policy, and hands a **recommendation with its evidence** to a person. **A human always makes the final call**: the desk never blocks, never writes to a source system and never messages a customer.
 
 **Privacy: raw notes stay on the analyst's machine.** Customer notes, payment references and list remarks are read only by a local Nemotron model on the analyst's laptop; the cloud model receives structured facts only (fields from the bank's data, risk signals with the position they point at, document checks as yes or no), never the free text and never an identifier number. If a screener answer ever came from a cloud route, the case record flags it.

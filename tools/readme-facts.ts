@@ -5,6 +5,10 @@
  *   npm run readme:refresh                    # rewrite the marked values
  *   npm run readme:refresh -- --check         # fail if any marked value is out of date (used in CI)
  *   npm run readme:refresh -- --count-tests   # also run the test suite and record how many tests it has
+ *
+ * The badge line between <!-- badges:start --> and <!-- badges:end --> is written here too: the CI badge is GitHub's
+ * own (it shows the workflow's live status, also on a private repository), and the TypeScript, Node and licence badges
+ * are static, with their values taken from package.json, so --check fails when they drift.
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -45,6 +49,28 @@ const facts: Record<string, string> = {
   ...(saved.tests ? { tests: saved.tests.toLocaleString("en-US") } : {}),
 };
 
+const pkg = read("package.json") as {
+  license: string;
+  engines: { node: string };
+  devDependencies: Record<string, string>;
+  repository: { url: string };
+};
+const repo = pkg.repository.url.replace(/\.git$/, "");
+/** One static shields.io badge; dashes and underscores are doubled, other characters are URL-encoded. */
+const shield = (label: string, message: string, color: string, extra = "") =>
+  `https://img.shields.io/badge/${[label, message].map((t) => encodeURIComponent(t.replaceAll("-", "--").replaceAll("_", "__"))).join("-")}-${color}${extra}`;
+const tsMajor = (pkg.devDependencies.typescript ?? "").replace(/^[^0-9]*/, "").split(".")[0] ?? "";
+const badges = [
+  "<!-- badges:start -->",
+  [
+    `[![CI](${repo}/actions/workflows/ci.yml/badge.svg?branch=main)](${repo}/actions/workflows/ci.yml)`,
+    `[![TypeScript ${tsMajor}](${shield("TypeScript", tsMajor, "3178C6", "?logo=typescript&logoColor=white")})](package.json)`,
+    `[![Node ${pkg.engines.node}](${shield("node", pkg.engines.node, "339933", "?logo=nodedotjs&logoColor=white")})](package.json)`,
+    `[![License ${pkg.license}](${shield("license", pkg.license, "blue")})](LICENSE)`,
+  ].join(" "),
+  "<!-- badges:end -->",
+].join("\n");
+
 const files = [
   "README.md",
   ...readdirSync(resolveProjectPath("docs"))
@@ -56,12 +82,18 @@ let stale = 0;
 for (const file of files) {
   const path = resolveProjectPath(file);
   const text = readFileSync(path, "utf8");
-  const next = text.replace(pattern, (_whole, name: string, value: string) => {
+  let next = text.replace(pattern, (_whole, name: string, value: string) => {
     const wanted = facts[name];
     if (wanted === undefined) throw new Error(`${file}: unknown fact "${name}"`);
     if (wanted !== value) stale += 1;
     return `<!--fact:${name}-->${wanted}<!--/fact-->`;
   });
+  const block = /<!-- badges:start -->[\s\S]*?<!-- badges:end -->/;
+  if (block.test(next)) {
+    const current = next.match(block)?.[0];
+    if (current !== badges) stale += 1;
+    next = next.replace(block, badges);
+  }
   if (next !== text && !process.argv.includes("--check")) writeFileSync(path, next);
 }
 if (process.argv.includes("--check") && stale > 0) {
