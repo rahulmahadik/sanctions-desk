@@ -27,7 +27,7 @@ export interface GroundingContext {
 }
 
 /** Lower case, no accents. Lengths can change, so this is only applied to a slice that was cut first. */
-export const foldText = (text: string): string => text.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const foldText = (text: string): string => text.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 /** Folded, and every run of characters that are not letters or digits turned into one space, padded with spaces. */
 const words = (text: string): string =>
@@ -41,7 +41,7 @@ const isWordChar = (ch: string | undefined): boolean => ch !== undefined && /[\p
 const termCache = new Map<string, RegExp>();
 
 /** A policy term as a regular expression over folded text: whole words, any spacing, "*" for a word ending. */
-export function termPattern(term: string): RegExp {
+function termPattern(term: string): RegExp {
   const cached = termCache.get(term);
   if (cached) return cached;
   const folded = foldText(term.trim());
@@ -59,13 +59,13 @@ export function termPattern(term: string): RegExp {
 }
 
 /** True when the text holds one of the terms. */
-export function holdsTerm(text: string, terms: readonly string[]): boolean {
+function holdsTerm(text: string, terms: readonly string[]): boolean {
   const folded = foldText(text);
   return terms.some((t) => termPattern(t).test(folded));
 }
 
 /** The forms of the names a text may hold: each full name, and each word of it long enough and not generic. */
-export function nameForms(names: readonly string[], policy: Policy): string[] {
+function nameForms(names: readonly string[], policy: Policy): string[] {
   const g = policy.screener.grounding;
   const generic = new Set(g.genericNameWords.map((w) => foldText(w)));
   const forms = new Set<string>();
@@ -80,7 +80,7 @@ export function nameForms(names: readonly string[], policy: Policy): string[] {
 }
 
 /** True when the text holds one of the name forms as whole words. */
-export function holdsName(text: string, forms: readonly string[]): boolean {
+function holdsName(text: string, forms: readonly string[]): boolean {
   const padded = words(text);
   return forms.some((f) => padded.includes(` ${f} `));
 }

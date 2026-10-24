@@ -20,7 +20,7 @@ import { type HumanState, humanState } from "./human-state.js";
  * otherwise only hash-sealed, and says which.
  */
 
-export const ACTION_KINDS = [
+const ACTION_KINDS = [
   "closure_note",
   "escalation_ticket",
   "rfi_draft",
@@ -330,5 +330,3 @@ export function readActions(dir: string, alertId: string): ActionRecord[] {
   }
   return out.sort((a, b) => b.body.created_at.localeCompare(a.body.created_at));
 }
-
-export type { HumanState };

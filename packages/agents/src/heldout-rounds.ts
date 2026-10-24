@@ -160,7 +160,7 @@ export function heldoutRounds(results: readonly SavedResult[]): HeldoutRound[] {
 }
 
 /** One cell as words, the same in the README and on the screen. */
-export function roundCellText(cell: Omit<RoundCell, "text"> | null): string {
+function roundCellText(cell: Omit<RoundCell, "text"> | null): string {
   if (!cell) return "not run";
   const wrong =
     cell.wrong_closes === 0

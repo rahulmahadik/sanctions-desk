@@ -48,7 +48,7 @@ const asOwnershipRow = (r: Row): OwnershipRow => ({
   as_of: r.as_of ?? "",
 });
 
-export function statusOf(result: OwnershipResult): OwnershipStatus {
+function statusOf(result: OwnershipResult): OwnershipStatus {
   if (result.outcome === "meets_threshold") return "met";
   if (result.outcome === "needs_review") return result.depthLimitReached ? "limit" : "unknown";
   return "below";

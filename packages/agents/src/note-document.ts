@@ -22,7 +22,7 @@ export const NOT_ON_RECORD = "document cited in note not on customer record";
 const NOT_VERIFIED = "the document number in the note could not be checked against the customer record";
 
 /** The count statement. The number is a run of capital letters and digits, so it needs no escaping. */
-export function noteDocumentSql(model: UslModel, customerId: string, normalisedNumber: string): string {
+function noteDocumentSql(model: UslModel, customerId: string, normalisedNumber: string): string {
   const base = `${model.namespace}.${model.name}`;
   const q = (v: string) => `'${v.replace(/'/g, "''")}'`;
   return (
@@ -33,7 +33,7 @@ export function noteDocumentSql(model: UslModel, customerId: string, normalisedN
 }
 
 /** The statement as the trace and the record keep it: the number replaced by a marker that names its hash. */
-export function redactedNoteDocumentSql(sql: string, normalisedNumber: string, numberHash: string): string {
+function redactedNoteDocumentSql(sql: string, normalisedNumber: string, numberHash: string): string {
   return sql.replaceAll(`'${normalisedNumber}'`, `'<document number, sha256 ${numberHash.slice(0, 16)}>'`);
 }
 
@@ -146,7 +146,3 @@ export function applyNoteDocumentCheck(facts: ScreenerFacts | undefined, check: 
     }
   }
 }
-
-/** True when a note's document check says the note cannot be relied on. */
-export const noteDocumentFails = (evidence: Pick<EvidenceBundle, "noteDocument">): boolean =>
-  evidence.noteDocument !== undefined && evidence.noteDocument.status !== "on_record";

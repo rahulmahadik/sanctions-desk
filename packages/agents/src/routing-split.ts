@@ -31,7 +31,7 @@ export interface RoutingSplit {
   routers: string[];
 }
 
-export const STEP_NAMES: Record<string, string> = {
+const STEP_NAMES: Record<string, string> = {
   policy_guard: "Safety guard",
   screener: "Screener",
   decision: "Decision",

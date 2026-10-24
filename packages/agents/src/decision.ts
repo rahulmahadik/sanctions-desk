@@ -7,14 +7,14 @@ import { normalisedCheckReference } from "./evidence-standard.js";
 import type { MatchResult } from "./matching.js";
 import { askJson, clipped, type UnavailableCause, unavailableCause } from "./model-call.js";
 import { renderScreener } from "./screener.js";
-import type { AgentDeps, FactCitation } from "./types.js";
+import type { AgentDeps } from "./types.js";
 
 /** The Decision agent: reads the evidence and the comparison and recommends one of four outcomes. */
 
-/** One cited fact: the row is found by the table's own key, so the model only names the key value. */
 /** A model sometimes writes a number or a true/false where the data holds text; the text of it is what is cited. */
 const asText = (v: unknown): unknown => (typeof v === "number" || typeof v === "boolean" ? String(v) : v);
 
+/** One cited fact: the row is found by the table's own key, so the model only names the key value. */
 export const FactSchema = z.object({
   table: z.string().min(1),
   key_value: z.preprocess(asText, z.string().min(1)),
@@ -262,7 +262,6 @@ export function renderEvidence(evidence: EvidenceBundle, match: MatchResult): st
   return JSON.stringify(payload);
 }
 
-/** The approved wording of the terms, quoted to the model so it applies the same definitions as the matching code. */
 /** The key column of each table, so a cited fact can name a row by its key value alone. */
 export function renderKeys(evidence: EvidenceBundle): string {
   return JSON.stringify(
@@ -276,10 +275,11 @@ export function renderKeys(evidence: EvidenceBundle): string {
 }
 
 /** Exactly which tables and columns a fact may cite, with the key of each table (see citable.ts). */
-export function renderCitable(deps: AgentDeps, evidence: EvidenceBundle): string {
+function renderCitable(deps: AgentDeps, evidence: EvidenceBundle): string {
   return JSON.stringify(citableSources(deps.policy, evidence.model));
 }
 
+/** The approved wording of the terms, quoted to the model so it applies the same definitions as the matching code. */
 export function renderDefinitions(evidence: EvidenceBundle): string {
   return JSON.stringify(
     evidence.definitions
@@ -405,5 +405,3 @@ export async function decide(
   });
   return { output: value, calls, route };
 }
-
-export type { FactCitation };

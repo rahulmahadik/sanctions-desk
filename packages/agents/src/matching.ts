@@ -45,7 +45,7 @@ export function partyOf(evidence: EvidenceBundle): ListedParty {
  * rule a verified note does not answer). Worked out once, here, so the decision prompt, the first finding and the
  * critic all agree with the guard.
  */
-export function withCloseBlockers(
+function withCloseBlockers(
   deps: AgentDeps,
   evidence: EvidenceBundle,
   comparison: PartyComparison,

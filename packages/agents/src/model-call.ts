@@ -2,7 +2,6 @@ import {
   type AgentName,
   AppError,
   type GenerateResult,
-  type Generator,
   LANES,
   type Lane,
   type ModelUseInput,
@@ -57,7 +56,7 @@ export interface AskJsonOptions<T extends z.ZodType> {
   system: string;
   prompt: string;
   schema: T;
-  /** Added to the prompt on the second try, so the model can correct its own mistake. */
+  /** How many tries before giving up (default 3): the step's own route, the fast retry, the backup provider. */
   maxAttempts?: number;
   /** Force the fast path (no reasoning) even when the policy asks for reasoning, for easy cases. */
   fast?: boolean;
@@ -77,11 +76,7 @@ const laneOrModel = (value: string): { lane: Lane } | { model: string } =>
 
 const isLane = (value: string): value is Lane => (LANES as readonly string[]).includes(value);
 
-export function modelUseOf(
-  agent: AgentName,
-  result: GenerateResult,
-  thinking: ModelUseInput["thinking"],
-): ModelUseInput {
+function modelUseOf(agent: AgentName, result: GenerateResult, thinking: ModelUseInput["thinking"]): ModelUseInput {
   return {
     agent,
     model_requested: result.requestedModel,
@@ -120,15 +115,14 @@ interface Attempt {
 }
 
 /** With schema-constrained output the reasoning goes in the "analysis" field, which comes first. */
-export const STRUCTURED_REASONING = "Use the analysis field for brief reasoning, under 100 words, before you decide.";
-export const STRUCTURED_BRIEF = "Keep the analysis field to one short sentence.";
+const STRUCTURED_REASONING = "Use the analysis field for brief reasoning, under 100 words, before you decide.";
+const STRUCTURED_BRIEF = "Keep the analysis field to one short sentence.";
 
 /** Room for the model's reasoning field plus the answer. */
 const STRUCTURED_TOKENS = 2200;
 
 /** Reasoning is bounded: the runtime gives up on a slow model after about 45 seconds. */
-export const BRIEF_REASONING =
-  "Keep any reasoning under 100 words, then give the JSON object. Put the JSON object last.";
+const BRIEF_REASONING = "Keep any reasoning under 100 words, then give the JSON object. Put the JSON object last.";
 const ANSWER_TOKENS = 700;
 
 export function reasoningBudget(thinking: ModelUseInput["thinking"]): number {
@@ -137,10 +131,10 @@ export function reasoningBudget(thinking: ModelUseInput["thinking"]): number {
 }
 
 /** First try on the agent's own model; a retry on the fast lane after reasoning; the last try on the backup provider. */
-function routeOf(attempt: number, thinking: unknown, attempts: number): "own" | "fast" | "backup" {
+function routeOf(attempt: number, thinking: ModelUseInput["thinking"], attempts: number): "own" | "fast" | "backup" {
   if (attempt === 1) return "own";
   if (attempt >= attempts && attempts >= 3) return "backup";
-  return reasoningBudget(thinking as Parameters<typeof reasoningBudget>[0]) > 0 ? "fast" : "own";
+  return reasoningBudget(thinking) > 0 ? "fast" : "own";
 }
 
 /** How long to wait after a provider failure before the next try, times the number of the try. */
@@ -190,7 +184,7 @@ async function attemptOnce<T extends z.ZodType>(
   const config = deps.policy.models[options.agent as keyof typeof deps.policy.models];
   const budget = reasoningBudget(config.thinking);
   if (structuredFor(deps, options, config, route)) {
-    const result = await (deps.generator as Generator)({
+    const result = await deps.generator({
       system: `${options.system}\n\n${reasoning ? STRUCTURED_REASONING : STRUCTURED_BRIEF}`,
       prompt,
       ...(route === "own" ? laneOrModel(config.model) : { lane: "fast" as const }),
@@ -202,7 +196,7 @@ async function attemptOnce<T extends z.ZodType>(
     });
     return { result, outcome: problemOf(result.text, options.schema), structured: true };
   }
-  const result = await (deps.generator as Generator)({
+  const result = await deps.generator({
     system: reasoning ? `${options.system}\n\n${BRIEF_REASONING}` : options.system,
     prompt,
     // The fast retry goes to the fast lane: the deep lane may think aloud and never reach the JSON.

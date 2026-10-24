@@ -25,7 +25,10 @@ export function triage(deps: AgentDeps, alertType: AlertType, alertId: string): 
 
 export type Difficulty = "clear" | "contested";
 
-/** A clear case is one where every field agrees or every field conflicts. Anything mixed is contested. */
+/**
+ * A clear case is one where every field agrees or every field conflicts. Anything mixed is contested. The review
+ * records the difficulty on the trace; the value returned is not used to route the case.
+ */
 export function judgeDifficulty(deps: AgentDeps, match: MatchResult): Difficulty {
   const c = match.comparison;
   const difficulty: Difficulty =

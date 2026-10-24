@@ -44,7 +44,7 @@ export function blockingSignals(policy: Policy, facts: ScreenerFacts | undefined
 }
 
 /** Signals at or above the threshold that are not grounded in their span: shown with that context; they still block. */
-export function ungroundedSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
+function ungroundedSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
   return (facts?.signals ?? []).filter(
     (s) => s.grounded === false && s.confidence >= policy.screener.confidenceThreshold,
   );
@@ -55,7 +55,7 @@ const signalThreshold = (policy: Policy, s: ScreenerSignal): number =>
   s.type === "other" ? policy.screener.otherConfidenceThreshold : policy.screener.confidenceThreshold;
 
 /** Signals at or above the normal threshold that do not block (an "other" below its own threshold): shown as a flag. */
-export function flaggedSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
+function flaggedSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
   return (facts?.signals ?? []).filter(
     (s) => s.confidence >= policy.screener.confidenceThreshold && s.confidence < signalThreshold(policy, s),
   );
@@ -314,12 +314,7 @@ const evidenceStandardRule: Rule = (c) => {
   return base.raiseTo ? [base, note] : note;
 };
 
-/**
- * The screener read the free text on a local model. A risk signal at or above the policy's threshold means the case
- * cannot be closed. If the screener could not answer, the free text is unread and the case cannot be closed either.
- * A signal below the threshold is recorded and changes nothing. The pipeline always sets the result; a bundle without
- * one (a direct call in a test) is passed with a note saying so.
- */
+/** The screener signals as one line of text for a verdict's detail. */
 const signalText = (list: readonly ScreenerSignal[]): string =>
   list.map((s) => `${s.type.replaceAll("_", " ")} (confidence ${s.confidence}, ${s.spanId})`).join("; ");
 

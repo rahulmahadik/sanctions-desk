@@ -15,7 +15,7 @@ import type { AgentDeps } from "./types.js";
  * and its reason is shown to the reviewer. If it cannot answer, the close does not stand either.
  */
 
-export const MAX_POINTS = 8;
+const MAX_POINTS = 8;
 
 export const ChallengeSchema = z.object({
   credible: z.boolean(),

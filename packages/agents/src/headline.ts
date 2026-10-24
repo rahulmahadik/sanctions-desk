@@ -69,7 +69,7 @@ const ratio = (a: number, b: number): number => (b === 0 ? 0 : round(a / b));
 const percentile = (sorted: readonly number[], p: number): number =>
   sorted.length === 0 ? 0 : (sorted[Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1)] ?? 0);
 
-export const MANUAL_ESTIMATE_NOTE =
+const MANUAL_ESTIMATE_NOTE =
   "The desk's time and cost are measured on this machine and cover the recommendation only; a person still decides. The manual time is an industry estimate (a range, no vendor source verified), not a measurement.";
 
 function perAlertOf(alerts: readonly ScoredCase[], range: HeadlineAssumptions["manualMinutesRange"]): PerAlert {
@@ -128,7 +128,7 @@ export function headlineSentence(h: Headline): string {
 }
 
 /** The measured time and cost per alert. Analyst time saved is not measured, so it is not claimed here. */
-export function perAlertSentence(h: Headline): string {
+function perAlertSentence(h: Headline): string {
   const p = h.per_alert;
   if (p.alerts === 0) return "";
   return ` The desk took a median of ${p.median_seconds.toFixed(0)} seconds and ${p.mean_cost.toFixed(2)}${h.assumptions.currency ? ` ${h.assumptions.currency}` : ""} in model cost per alert (measured).`;

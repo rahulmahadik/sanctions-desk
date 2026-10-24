@@ -1,7 +1,5 @@
-import type { Config, Generator, Policy, QueryEvidenceInput, TraceLogger } from "@sanctions-desk/shared";
+import type { Config, Generator, Policy, TraceLogger } from "@sanctions-desk/shared";
 import type { ZetarisClient } from "@sanctions-desk/zetaris";
-
-export type { QueryEvidenceInput };
 
 /** Everything an agent step may use. Agents never reach for a global. */
 export interface AgentDeps {

@@ -1,5 +1,5 @@
 import { randomInt } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { AutonomyRecord, Decision, DecisionRecord, GuardVerdictInput, Policy } from "@sanctions-desk/shared";
 import { readDecisionRecords } from "./record.js";
@@ -198,5 +198,3 @@ export function autonomyUsage(logDir: string, now: Date): AutonomyUsage {
   }
   return { day, auto_closed: autoClosed, qa_sample: qa, reopened };
 }
-
-export const hasKillSwitchFile = (logDir: string): boolean => existsSync(killFile(logDir));

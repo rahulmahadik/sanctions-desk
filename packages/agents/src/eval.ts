@@ -204,11 +204,6 @@ export function summarise(cases: readonly ScoredCase[]): Metrics {
 
 // ---- baselines that use no model ----------------------------------------------------------------
 
-export interface AlertScore {
-  alert_id: string;
-  match_score: number;
-}
-
 /** What a plain screening engine does: every alert goes to a person. */
 export const escalateAll = (): Decision => "ESCALATE_L2";
 

@@ -27,8 +27,8 @@ import { judgeDifficulty, triage } from "./triage.js";
 import { type AgentDeps, clientFor } from "./types.js";
 
 /**
- * One review, start to finish: Triage, Evidence, Screener, Matching, Decision, Critic (up to the policy's round
- * limit), Policy guard, Reporter. The result is a recommendation for a person to act on.
+ * One review, start to finish: Triage, Evidence, Screener, Matching, Memory, Decision, Critic (up to the policy's
+ * round limit), Policy guard, Challenger (on a close that survives the guard), Reporter. The result is a recommendation for a person to act on.
  */
 
 export interface ReviewRequest {
@@ -107,8 +107,6 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
   });
   const memory = options?.memory === false ? undefined : await recallMemory(deps, tools, evidence, evidence.queries);
   if (memory) evidence.memory = memory;
-  // A still-valid earlier clearance on a case the definitions also call a false positive is an easy case:
-  // the fast local model is enough and no reasoning is spent.
   // The hybrid: code gives a first finding from the structured fields; the path says whether the agents confirm it
   // or have to reason over the free text.
   evidence.hybrid = firstFinding(evidence, match);
@@ -119,6 +117,8 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
     output_summary: `${evidence.hybrid.path}: ${evidence.hybrid.why}`.slice(0, 300),
     detail: { first_finding: evidence.hybrid.decision, settled: evidence.hybrid.settled, path: evidence.hybrid.path },
   });
+  // A still-valid earlier clearance on a case the definitions also call a false positive is an easy case, and so is
+  // one the structured evidence settles: the fast local model is enough and no reasoning is spent.
   const easy =
     (memory?.fresh === true && match.comparison.definitions.false_positive) || evidence.hybrid.path === "confirm";
   if (easy) {

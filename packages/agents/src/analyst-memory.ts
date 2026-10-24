@@ -9,7 +9,7 @@ import type { Row } from "./types.js";
  * pointer memory and checks the pointer against the entry as it is now.
  */
 
-export const analystMemoryFile = (logDir: string): string => join(logDir, "decisions", "memory.jsonl");
+const analystMemoryFile = (logDir: string): string => join(logDir, "decisions", "memory.jsonl");
 
 export function appendAnalystMemory(logDir: string, row: Row): void {
   const file = analystMemoryFile(logDir);

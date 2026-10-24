@@ -31,7 +31,7 @@ const DOCUMENT_NUMBER =
   /\b(?:passport|identity card|id card|national id|id|licen[cs]e|council no\.?|company no\.?|registration(?: no\.?)?|document(?: no\.?)?)(?=[\s:#.-])[^.;()]{0,25}?\b([A-Z]{0,3}\d{6,})\b/i;
 
 /** The check reference a note carries, or null. */
-export function checkReferenceOf(text: string | null | undefined): string | null {
+function checkReferenceOf(text: string | null | undefined): string | null {
   return CHECK_REFERENCE.exec(text ?? "")?.[0]?.trim() ?? null;
 }
 
@@ -79,11 +79,6 @@ export function documentNumberSpan(text: string | null | undefined): SourceSpan 
 
 /** A document number as compared with the customer's documents: upper case, letters and digits only. */
 export const normaliseDocumentNumber = (value: string): string => value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-
-/** True when the text holds a date in one of the forms the standard accepts. */
-export function hasDate(text: string): boolean {
-  return DATE.test(text);
-}
 
 const MONTHS = "jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec";
 const DATE = new RegExp(`\\b\\d{4}-\\d{2}-\\d{2}\\b|\\b\\d{1,2}\\s+(?:${MONTHS})[a-z]*\\.?\\s+\\d{4}\\b`, "i");

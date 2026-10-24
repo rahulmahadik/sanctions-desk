@@ -5,7 +5,6 @@ import {
   gatherEvidence,
   type Headline,
   headlineOf,
-  headlineSentence,
   heldoutRounds,
   humanState,
   type RoutingSplit,

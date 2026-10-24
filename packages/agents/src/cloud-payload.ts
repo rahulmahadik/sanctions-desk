@@ -10,14 +10,7 @@ import type { AgentDeps } from "./types.js";
  */
 
 /** The shortest run of characters from a free-text field that counts as a fragment of it. */
-export const FRAGMENT_CHARS = 20;
-
-/** The free text of the case that must never be in a prompt for a cloud step. */
-export function freeTextOf(evidence: EvidenceBundle): string[] {
-  return [evidence.customer.notes, evidence.payment?.payment_reference, evidence.entry.remarks].filter(
-    (t): t is string => typeof t === "string" && t.trim() !== "",
-  );
-}
+const FRAGMENT_CHARS = 20;
 
 /**
  * Values the cloud models are sent on purpose (names, aliases, ids, dates, countries). A note may repeat them; such a
@@ -97,7 +90,7 @@ export function fragmentType(text: string): FreeTextMatch["fragment_type"] {
 }
 
 /** The first free text of the case, or fragment of it, found in the prompt; undefined when there is none. */
-export function findFreeText(prompt: string, evidence: EvidenceBundle): FreeTextMatch | undefined {
+function findFreeText(prompt: string, evidence: EvidenceBundle): FreeTextMatch | undefined {
   const fields = [
     ["notes", evidence.customer.notes],
     ["payment_reference", evidence.payment?.payment_reference],
@@ -143,7 +136,7 @@ export function findFreeText(prompt: string, evidence: EvidenceBundle): FreeText
 }
 
 /** True when any free text of the case, or a fragment of it, appears in the prompt. */
-export function containsFreeText(prompt: string, evidence: EvidenceBundle): boolean {
+function containsFreeText(prompt: string, evidence: EvidenceBundle): boolean {
   return findFreeText(prompt, evidence) !== undefined;
 }
 
@@ -156,7 +149,7 @@ function blocksOf(prompt: string): Record<string, string> {
 const countOf = (value: unknown): number => (Array.isArray(value) ? value.length : value === undefined ? 0 : 1);
 
 /** Names and counts of what the prompt holds: its blocks, and the top-level fields of the evidence block. */
-export function describePrompt(step: string, prompt: string, evidence: EvidenceBundle): CloudPayload {
+function describePrompt(step: string, prompt: string, evidence: EvidenceBundle): CloudPayload {
   const blocks = blocksOf(prompt);
   const fields: Record<string, number> = {};
   for (const [name, body] of Object.entries(blocks)) {
