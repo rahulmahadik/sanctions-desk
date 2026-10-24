@@ -1,0 +1,257 @@
+{
+  "reason": "When the repository history was rewritten on 24 Oct 2026, the \"commit\" field of each results.json was re-pointed from the old commit id to the rewritten one (commit 20fcdde, \"Point every commit reference at the rewritten history\"), following the rewrite's commit map. Nothing else in these files changed. The manifests (run-meta.json) keep the hashes recorded at export; npm run evidence:hash-changes puts each old value back and checks that the file then matches its original hash. Each old -> new pair was checked against the commit map of the rewrite when this file was written.",
+  "changes": [
+    {
+      "run": "escalate_all-20261023T085617Z",
+      "file": "results.json",
+      "original_sha256": "a9e7d91b3a35d489efbea43a9aea8978094756d7f37e316591cb3a07ab22db18",
+      "current_sha256": "7d9852dd36f595e672d2e43e55c85e730477cdaafb7575c8fcc586bc3cf0abaf",
+      "field": "commit",
+      "original_value": "406098a",
+      "current_value": "205f0c6"
+    },
+    {
+      "run": "fuzzy-20261023T085617Z",
+      "file": "results.json",
+      "original_sha256": "0179ab3251f657f024a02428962b83aefc52a871b724a60e07d0d30601808f78",
+      "current_sha256": "1b85088dacae063c9c73438224996033e90e83d22f5e4fff3c95791ca98d93eb",
+      "field": "commit",
+      "original_value": "406098a",
+      "current_value": "205f0c6"
+    },
+    {
+      "run": "heldout-escalate_all-20261023T083248Z",
+      "file": "results.json",
+      "original_sha256": "a2b2ca2d9df1ae4861100df259bb00e597f9f837a6100d76a9523558cc09f40e",
+      "current_sha256": "85da9ef8ddbfc2fe6b320716152082193e42088ae82872024c27b86177ab961c",
+      "field": "commit",
+      "original_value": "df4f559",
+      "current_value": "480c701"
+    },
+    {
+      "run": "heldout-fuzzy-20261023T082432Z",
+      "file": "results.json",
+      "original_sha256": "6a86a18d0bcfeadae289986598994059a9fd3c3609589f4a3996809010d86672",
+      "current_sha256": "5ed9baa9b24de27a5d925b70c3b0849dfbf4fff68a958afa0969d038301f8b00",
+      "field": "commit",
+      "original_value": "8d33afb+local changes",
+      "current_value": "5716bb5+local changes"
+    },
+    {
+      "run": "heldout-routed-20261023T121140Z",
+      "file": "results.json",
+      "original_sha256": "dadaf327692823a212366fbc897008e803b6e339729b372c2c80c395669b353d",
+      "current_sha256": "515eeb6eaf3e032472037a3e364797f60d099842afe1a326e9543befd10d4c27",
+      "field": "commit",
+      "original_value": "f9f3212",
+      "current_value": "8fe6205"
+    },
+    {
+      "run": "heldout-rules-20261023T081308Z",
+      "file": "results.json",
+      "original_sha256": "15134c08a3a039dbb57348d1c22cb9d48126cebf1d1d2df60866acc3de43fd95",
+      "current_sha256": "eaf1a614079848a183fd62176ea44f1e708a3480e290b9d48fc32e503bc30694",
+      "field": "commit",
+      "original_value": "8d33afb+local changes",
+      "current_value": "5716bb5+local changes"
+    },
+    {
+      "run": "heldout-sys2b-routed-20261023T214515Z",
+      "file": "results.json",
+      "original_sha256": "8f3121465ef5cc31864f350bd2502eced75aaa891e18cb9b13831e7c551020f5",
+      "current_sha256": "7807175044838f2c6d4d4a89e01af62709fd54b963da42680fa4fa6f89de3a02",
+      "field": "commit",
+      "original_value": "81ddc7c",
+      "current_value": "9a229d6"
+    },
+    {
+      "run": "heldout2-escalate_all-20261023T193323Z",
+      "file": "results.json",
+      "original_sha256": "a596415da4b97470aeec78cdaa4981e87e7c56ea06dc8416307d85724fe1dfe1",
+      "current_sha256": "f45f8331e7d631a1123187d88860711705686e8a8a6331f1dee367a17975ebb2",
+      "field": "commit",
+      "original_value": "f6ed38a",
+      "current_value": "d44ee04"
+    },
+    {
+      "run": "heldout2-fuzzy-20261023T193323Z",
+      "file": "results.json",
+      "original_sha256": "ee19e27b7d30081146b2fbecf2bb70211fb388dcb6de1f95968e277d8210f3c3",
+      "current_sha256": "7580b94b1b079ba7d3651e89b94d00a241b11f98405d4f781d2abb1ea1cede6a",
+      "field": "commit",
+      "original_value": "f6ed38a",
+      "current_value": "d44ee04"
+    },
+    {
+      "run": "heldout2-rules-20261023T193324Z",
+      "file": "results.json",
+      "original_sha256": "07946f4ab798b3383b04d4c21028bc6a2018f911505dabc954f61cf2c2f52c2e",
+      "current_sha256": "6b57cff8e3c238da352cb96ed8064310ec5397d4b6752106d59b50cc3480ebd0",
+      "field": "commit",
+      "original_value": "f6ed38a",
+      "current_value": "d44ee04"
+    },
+    {
+      "run": "heldout2-sys2-routed-20261023T180732Z",
+      "file": "results.json",
+      "original_sha256": "82565b8419840d25c871cba3697738b73cd96be589ec8c0b22e9b2392a990f56",
+      "current_sha256": "591b022bdc5a153f2d9499214ee5caf1ea4cd454ba2d80fc4518b9167ade52e9",
+      "field": "commit",
+      "original_value": "3d360df",
+      "current_value": "1920b3d"
+    },
+    {
+      "run": "heldout2-sys2b-routed-20261023T193436Z",
+      "file": "results.json",
+      "original_sha256": "7f8d14d44cc213d0d063095fb3f6d6dcff72a06ff68c6301755906bbd888cf62",
+      "current_sha256": "1a4d417d6a609365d9a720844d4a225764b000f592665b46cf3f2108c6198ead",
+      "field": "commit",
+      "original_value": "2df81d7",
+      "current_value": "70e9e6a"
+    },
+    {
+      "run": "heldout2-sys2bnoscreen-routed-20261023T222222Z",
+      "file": "results.json",
+      "original_sha256": "5282c3e059dfd1fd5b318a8ea7d1dfcb4a3e510f134cd1cf1a62fb1dcdce0190",
+      "current_sha256": "9590f91fe4936826b0f1992f6a2a383119e821bfd9bc50a64c63d586fb6ed37d",
+      "field": "commit",
+      "original_value": "81ddc7c",
+      "current_value": "9a229d6"
+    },
+    {
+      "run": "heldout3-escalate_all-20261023T233941Z",
+      "file": "results.json",
+      "original_sha256": "6997d1e94baf2683669e1d690598500900be5af1a912105f830f82ddf55600f1",
+      "current_sha256": "90f633afbe55fdfa248598c7da32b9f12aba50eb78d161b3e19a4a5fc32eb418",
+      "field": "commit",
+      "original_value": "414dcc1",
+      "current_value": "50bd39d"
+    },
+    {
+      "run": "heldout3-fuzzy-20261024T033840Z",
+      "file": "results.json",
+      "original_sha256": "dac5f3ec41f2a4ea91dcdfccc910a81ab9e414a63951296ad01ab3607b0acc16",
+      "current_sha256": "935a516693c87c9eff4a602222a0edcf8522428692e0e63953809bb22c02ab02",
+      "field": "commit",
+      "original_value": "386a5f3+local changes",
+      "current_value": "e0910c2+local changes"
+    },
+    {
+      "run": "heldout3-rules-20261023T234147Z",
+      "file": "results.json",
+      "original_sha256": "cbf8d9460b3dc63232422551f92e38bf3b975eaa5c6c8c0a2281ea8c1f7ce768",
+      "current_sha256": "47c663e827b3573e728843baab1a4fd84eafe54009975461317e12549cf08111",
+      "field": "commit",
+      "original_value": "414dcc1",
+      "current_value": "50bd39d"
+    },
+    {
+      "run": "heldout3-sys3-routed-20261023T231901Z",
+      "file": "results.json",
+      "original_sha256": "ccc3362c14bb6d3e8742a5629a7abf99db9d6d267a82ea7028b0acf7d599b223",
+      "current_sha256": "10de2a206500e561e596d268c399c49f727af5773f1e9c91f83b2bb7ead7b06f",
+      "field": "commit",
+      "original_value": "414dcc1",
+      "current_value": "50bd39d"
+    },
+    {
+      "run": "heldout3-sys3-single-20261023T234224Z",
+      "file": "results.json",
+      "original_sha256": "47c718c5766ed2d6e92cf048d06f3432e103a020abb0ae148ceaf2978b1dd61c",
+      "current_sha256": "7ae907a06956117f88a0d44727d6d326c4509105c751598e49a4d2e7b2847c13",
+      "field": "commit",
+      "original_value": "414dcc1",
+      "current_value": "50bd39d"
+    },
+    {
+      "run": "heldout4-escalate_all-20261024T030324Z",
+      "file": "results.json",
+      "original_sha256": "d4fc5fd855cc4aa6b2a95c4592ce9b871c74209cc0b393ba5235bf6c021aea5c",
+      "current_sha256": "054dffe4fc0f25c22c710e7f03e76a9c94b9ca0ade541f672cf295f7fe918980",
+      "field": "commit",
+      "original_value": "c00f5d1+local changes",
+      "current_value": "f854db5+local changes"
+    },
+    {
+      "run": "heldout4-fuzzy-20261024T033840Z",
+      "file": "results.json",
+      "original_sha256": "7998fe5a8ae59790dc55a3a35723da407ab77cd2e50ef917ef5432c785285b72",
+      "current_sha256": "061c7f756f5871f5df7b52d8dee4b6628ece9221240f847798c643c03431f069",
+      "field": "commit",
+      "original_value": "386a5f3+local changes",
+      "current_value": "e0910c2+local changes"
+    },
+    {
+      "run": "heldout4-rules-20261024T030240Z",
+      "file": "results.json",
+      "original_sha256": "c8b74f145914d28521e502bae393e7c0fab7e62919ff30bdf955bdc8e3b8c1c6",
+      "current_sha256": "20dce9e2b33471ff97f15607287ff3c6f42e7d871c90655ee85ef5429654c990",
+      "field": "commit",
+      "original_value": "c00f5d1+local changes",
+      "current_value": "f854db5+local changes"
+    },
+    {
+      "run": "heldout4-sys4-routed-20261024T024523Z",
+      "file": "results.json",
+      "original_sha256": "af03e1e59f7a1bd1e2ee644af3862d7b01836a2cdf53689941d4aa577fc4f5dd",
+      "current_sha256": "99f9d3e697800690d3c3566a455b4509a9f23bd985306623c34156bc5ca2cac9",
+      "field": "commit",
+      "original_value": "c00f5d1+local changes",
+      "current_value": "f854db5+local changes"
+    },
+    {
+      "run": "heldout4-sys4-single-20261024T025629Z",
+      "file": "results.json",
+      "original_sha256": "2244907f2ad73da847fcaa10e20729115aeb6dd42c99c47be200c17b9164ccf4",
+      "current_sha256": "e086b79693982546d882de442b7d3f4af28504bbe1fcf711e66742bfc02a6fab",
+      "field": "commit",
+      "original_value": "c00f5d1+local changes",
+      "current_value": "f854db5+local changes"
+    },
+    {
+      "run": "no_memory-20261023T173107Z",
+      "file": "results.json",
+      "original_sha256": "e9ffa4111f2a8cd36324c206696e87ff330d8f91a781f6a6420845d304350601",
+      "current_sha256": "bb34bea5276a8462934f08c6873cb4d48729bcdc2055cfe0a93fe97936b3c9a2",
+      "field": "commit",
+      "original_value": "248570f",
+      "current_value": "30b6611"
+    },
+    {
+      "run": "routed-20261023T133311Z",
+      "file": "results.json",
+      "original_sha256": "16e1baa8419e765cb8e60425225dea319dd480528cff3e57c9a86ba36ac3a563",
+      "current_sha256": "4f4f61f2c1a39383ac29a895f92017966a9a7749adbc7e27d9db2391a4e8ae4d",
+      "field": "commit",
+      "original_value": "248570f",
+      "current_value": "30b6611"
+    },
+    {
+      "run": "rules-20261023T085618Z",
+      "file": "results.json",
+      "original_sha256": "68414e438ef9aaf162cda554b4e1448c2f88849ede84175a72a6d9195c9400ad",
+      "current_sha256": "8d475837a6c1cabe05069faf18442f5187997faac024bb2e8fe1318e94658e76",
+      "field": "commit",
+      "original_value": "406098a",
+      "current_value": "205f0c6"
+    },
+    {
+      "run": "single-20261023T161731Z",
+      "file": "results.json",
+      "original_sha256": "109eca8aec298f9313e569c342a48f283a1f583a1a25c4264eb287c55de92fb1",
+      "current_sha256": "6075c3af401f705972256c3abe9d6952bc7c5bc043135136f057495dd80e7151",
+      "field": "commit",
+      "original_value": "248570f",
+      "current_value": "30b6611"
+    },
+    {
+      "run": "sys2b-routed-20261023T195504Z",
+      "file": "results.json",
+      "original_sha256": "fff47d986a404afe4ed685b3a8638a8c21fe92cdc518da18235d039ba8b53e46",
+      "current_sha256": "21a1976ac5108d5ad49442d8db690a28cb219baad6b032dc49f78c248d2408fd",
+      "field": "commit",
+      "original_value": "81ddc7c",
+      "current_value": "9a229d6"
+    }
+  ]
+}

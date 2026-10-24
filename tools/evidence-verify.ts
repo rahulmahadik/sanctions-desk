@@ -1,7 +1,8 @@
 /**
  * Check an exported run from its own files: every receipt's Ed25519 signature, that every model call in the trace
- * has its receipt, that the model the trace names is the model the signed receipt says served the call, and which
- * model served how many calls of each step.
+ * has its receipt, that the model the trace names is the model the signed receipt says served the call, which
+ * model served how many calls of each step, and that every file matches the hash the run's manifest recorded at
+ * export, or differs only by the documented change in eval/runs/HASH-CHANGES.json (npm run evidence:hash-changes).
  *
  *   npm run evidence:verify -- eval/runs/<run-id>
  *   npm run evidence:verify                       every run in eval/runs
@@ -12,7 +13,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { loadConfig, resolveProjectPath } from "@sanctions-desk/shared";
-import { problemsIn, verifyExportedRun } from "./lib/evidence.js";
+import { describeFileCheck, problemsIn, verifyExportedRun } from "./lib/evidence.js";
 
 const envFile = resolveProjectPath(".env");
 if (existsSync(envFile)) process.loadEnvFile(envFile);
@@ -24,7 +25,9 @@ const runs =
   given.length > 0
     ? given.map((g) => resolveProjectPath(g))
     : existsSync(base)
-      ? readdirSync(base).map((n) => join(base, n))
+      ? readdirSync(base)
+          .filter((n) => existsSync(join(base, n, "run-meta.json")))
+          .map((n) => join(base, n))
       : [];
 if (runs.length === 0) {
   console.error("no exported runs found; run `npm run evidence:export` first");
@@ -40,6 +43,7 @@ for (const dir of runs) {
   console.log(
     `  signatures: ${v.status.valid_pinned} valid (key pinned), ${v.status.valid_unpinned} valid (key taken from the receipt), ${v.status.invalid} invalid, ${v.status.malformed} malformed`,
   );
+  console.log(`  files: ${v.files.map((f) => `${f.file} ${describeFileCheck(f.check)}`).join("; ")}`);
   if (v.missing.length > 0)
     console.log(`  calls with no receipt: ${v.missing.length} (${v.missing.slice(0, 3).join("; ")})`);
   if (v.mismatched.length > 0)

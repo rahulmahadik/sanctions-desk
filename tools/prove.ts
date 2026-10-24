@@ -192,7 +192,11 @@ async function criticMutation(): Promise<CheckOutcome> {
 
 async function evidence(): Promise<CheckOutcome> {
   const base = join(ROOT, "eval", "runs");
-  const dirs = existsSync(base) ? readdirSync(base).map((n) => join(base, n)) : [];
+  const dirs = existsSync(base)
+    ? readdirSync(base)
+        .filter((n) => existsSync(join(base, n, "run-meta.json")))
+        .map((n) => join(base, n))
+    : [];
   if (dirs.length === 0) return { ok: false, detail: "no exported runs in eval/runs" };
   // Pinned keys come only from the committed configuration, never from .env.
   const trusted = [...loadConfig({ env: { SAMPLE_MODE: "true" } }).nightshift.receiptPublicKeys];
@@ -202,6 +206,8 @@ async function evidence(): Promise<CheckOutcome> {
   let calls = 0;
   let missing = 0;
   let mismatched = 0;
+  let remapped = 0;
+  let otherFiles = 0;
   let bad = 0;
   const lines: string[] = [];
   for (const dir of dirs) {
@@ -213,6 +219,8 @@ async function evidence(): Promise<CheckOutcome> {
     calls += v.calls;
     missing += v.missing.length;
     mismatched += v.mismatched.length;
+    remapped += v.files.filter((f) => f.check === "remapped").length;
+    otherFiles += v.files.filter((f) => f.check === "differs" || f.check === "missing").length;
     bad += problemsIn(v);
     lines.push(
       `${v.runId}: ${total} receipts (${v.status.invalid} invalid, ${v.status.malformed} malformed), ${v.calls} model calls, ${v.missing.length} without a receipt, ${v.mismatched.length} model mismatches`,
@@ -221,7 +229,7 @@ async function evidence(): Promise<CheckOutcome> {
   const keyNote = pinned === valid ? "signing key pinned" : "signing key taken from each receipt, not pinned";
   return {
     ok: bad === 0 && receipts > 0,
-    detail: `${dirs.length} runs: ${valid}/${receipts} receipts verified (${keyNote}); ${calls - missing}/${calls} model calls have a receipt; ${mismatched} trace/receipt model mismatches`,
+    detail: `${dirs.length} runs: ${valid}/${receipts} receipts verified (${keyNote}); ${calls - missing}/${calls} model calls have a receipt; ${mismatched} trace/receipt model mismatches; run files: ${remapped} verified, commit field remapped (documented), ${otherFiles} other differences`,
     output: lines.join("\n"),
   };
 }

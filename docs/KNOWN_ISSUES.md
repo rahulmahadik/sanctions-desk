@@ -63,7 +63,7 @@ Problems met while building this, with what was done about each. Facts only; ver
 
 ## Exported run files
 
-- **The `results.json` hash in `run-meta.json` no longer matches in the 28 exported runs.** Each `run-meta.json` lists the SHA-256 of its files as exported. When the history was rewritten on 24 Oct 2026, the `commit` field inside every `results.json` was re-pointed to the rewritten commit and the listed hash was not updated. Nothing else in those files changed: `git show 20fcdde -- 'eval/runs/*/results.json'` shows one changed line per file, the `commit` field. The trace and receipt files are unchanged and still match their listed hashes; the recorded-runs pages check those two and every receipt signature at build time.
+- **The `results.json` files of the 28 exported runs differ from their manifest hash by one documented field.** Each `run-meta.json` keeps the SHA-256 of its files as exported. When the history was rewritten on 24 Oct 2026, the `commit` field inside every `results.json` was re-pointed to the rewritten commit (`20fcdde`), following the rewrite's commit map; nothing else changed. `eval/runs/HASH-CHANGES.json` lists each file's original hash, its hash now and the old and new value, and `npm run evidence:hash-changes` puts each old value back and confirms the original hash. `npm run evidence:verify` and `npm run prove` report these files as "verified, commit field remapped (documented)" and fail on any other difference. The trace and receipt files match their manifest hashes unchanged.
 
 ## Limits
 

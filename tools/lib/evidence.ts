@@ -3,10 +3,11 @@
  * model call in the trace has its receipt, and that the model the trace names is the model the receipt says served
  * the call. Shared by `npm run evidence:verify` and `npm run prove`.
  */
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { gunzipSync } from "node:zlib";
 import { verifyReceipt } from "@sanctions-desk/shared";
+import { checkFile, type FileCheck, readHashChanges } from "./hash-changes.js";
 
 interface Envelope {
   pubkey_b64?: string;
@@ -26,6 +27,11 @@ export interface RunVerification {
   mismatched: string[];
   /** Per step, how many calls each model served. */
   split: Map<string, Map<string, number>>;
+  /**
+   * Each file of the run against the hash its manifest (run-meta.json) recorded at export: "match", "remapped" (the
+   * documented change in eval/runs/HASH-CHANGES.json and nothing else), "differs" or "missing".
+   */
+  files: Array<{ file: string; check: FileCheck | "missing" }>;
 }
 
 const lines = (path: string): string[] => gunzipSync(readFileSync(path)).toString("utf8").split("\n").filter(Boolean);
@@ -52,7 +58,18 @@ interface TraceEvent {
 }
 
 export function verifyExportedRun(dir: string, trusted: string[]): RunVerification {
-  const meta = JSON.parse(readFileSync(join(dir, "run-meta.json"), "utf8")) as { run_id: string };
+  const meta = JSON.parse(readFileSync(join(dir, "run-meta.json"), "utf8")) as {
+    run_id: string;
+    files?: Record<string, { sha256: string }>;
+  };
+  const changes = readHashChanges(dirname(dir));
+  const run = dir.split("/").filter(Boolean).at(-1) ?? "";
+  const files = Object.entries(meta.files ?? {}).map(([file, { sha256 }]) => {
+    const path = join(dir, file);
+    if (!existsSync(path)) return { file, check: "missing" as const };
+    const change = changes?.changes.find((c) => c.run === run && c.file === file);
+    return { file, check: checkFile(readFileSync(path), sha256, change) };
+  });
   const { envelopes, keys, status } = readReceipts(dir, trusted);
   const split = new Map<string, Map<string, number>>();
   const missing: string[] = [];
@@ -83,9 +100,23 @@ export function verifyExportedRun(dir: string, trusted: string[]): RunVerificati
     missing,
     mismatched,
     split,
+    files,
   };
 }
 
 /** Problems that make a run fail the check. */
 export const problemsIn = (v: RunVerification): number =>
-  v.status.invalid + v.status.malformed + v.missing.length + v.mismatched.length;
+  v.status.invalid +
+  v.status.malformed +
+  v.missing.length +
+  v.mismatched.length +
+  v.files.filter((f) => f.check === "differs" || f.check === "missing").length;
+
+/** How a file check reads in a report. */
+export const describeFileCheck = (check: RunVerification["files"][number]["check"]): string =>
+  ({
+    match: "matches its manifest hash",
+    remapped: "verified, commit field remapped (documented)",
+    differs: "DIFFERS from its manifest hash (not documented)",
+    missing: "MISSING",
+  })[check];

@@ -172,6 +172,8 @@ describe("the build", () => {
   const fresh = () => {
     const runs = mkdtempSync(join(scratch, "runs-"));
     cpSync(resolveProjectPath(`eval/runs/${spec.runId}`), join(runs, spec.runId), { recursive: true });
+    // The documented changes to exported files travel with the runs.
+    cpSync(resolveProjectPath("eval/runs/HASH-CHANGES.json"), join(runs, "HASH-CHANGES.json"));
     return runs;
   };
   const receiptOf = () => loadRecordedCase(spec).calls.find((c) => c.receipt)?.receipt?.id as string;

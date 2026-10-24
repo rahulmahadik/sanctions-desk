@@ -31,6 +31,8 @@ jobs:
       - run: npm run test:coverage
       # The Meterless conformance suites (vendored) against our engines; the scorecards show in the log.
       - run: npm run test:engines
+      - name: Signed evidence and documented file changes of the exported runs
+        run: npm run evidence:verify && npm run evidence:hash-changes
       - run: npm run readme:refresh -- --check
       # Every relative link, image and #anchor in the tracked Markdown files resolves.
       - run: npm run check:links
