@@ -98,9 +98,9 @@ describe("the exam loader and the HO2 ids", () => {
 
   it("still rejects ids and groups it does not know", () => {
     const good = bank.heldout2[0];
-    expect(ExamCaseSchema.safeParse({ ...good, case_id: "HO4-001" }).success).toBe(false);
+    expect(ExamCaseSchema.safeParse({ ...good, case_id: "HO5-001" }).success).toBe(false);
     expect(ExamCaseSchema.safeParse({ ...good, case_id: "HO2-01" }).success).toBe(false);
-    expect(ExamCaseSchema.safeParse({ ...good, group: "beyond_rules_v4" }).success).toBe(false);
+    expect(ExamCaseSchema.safeParse({ ...good, group: "beyond_rules_v5" }).success).toBe(false);
     expect(ExamCaseSchema.safeParse(good).success).toBe(true);
   });
 });
