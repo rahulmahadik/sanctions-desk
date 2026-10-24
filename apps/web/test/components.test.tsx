@@ -702,9 +702,9 @@ describe("ExamDashboard", () => {
     const cells = [...(row?.querySelectorAll("td") ?? [])].map((c) => c.textContent);
     expect(cells.slice(1)).toEqual([
       "0 of 6 risks closed; 0 of 6 clears",
-      "not run",
+      "not part of this round",
       "3 of 6 risks closed (HO4-002); 2 of 6 clears",
-      "not run",
+      "not part of this round",
       "0 of 6 risks closed; 0 of 6 clears",
     ]);
     // The 70-case table shows the exam run only.

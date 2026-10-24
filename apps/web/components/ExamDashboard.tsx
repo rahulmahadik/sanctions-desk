@@ -66,7 +66,7 @@ function HeldoutRounds({ rounds }: { rounds: readonly HeldoutRoundView[] }) {
                 const cell = r.cells[key];
                 return (
                   <td key={key} className={cell && cell.wrong_closes > 0 ? "tone-stop" : cell ? undefined : "muted"}>
-                    {cell?.text ?? "not run"}
+                    {cell?.text ?? "not part of this round"}
                   </td>
                 );
               })}

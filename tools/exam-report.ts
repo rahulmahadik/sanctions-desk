@@ -1021,7 +1021,7 @@ const rounds = heldoutRounds(
   files.map((f) => ({ file: f, ...(JSON.parse(readFileSync(join(dir, f), "utf8")) as SavedResult) })),
 );
 const bold = (cell: RoundCell | null) =>
-  cell && cell.wrong_closes > 0 ? `**${cell.text}**` : (cell?.text ?? "not run");
+  cell && cell.wrong_closes > 0 ? `**${cell.text}**` : (cell?.text ?? "not part of this round");
 const roundRows = rounds.map(
   (r) => `| ${r.label}${r.blind ? "" : " (not blind)"} | ${ROUND_COLUMNS.map((c) => bold(r.cells[c])).join(" | ")} |`,
 );
@@ -1052,6 +1052,9 @@ const storyRows = rounds.map(
 const blindRounds = rounds.filter((r) => r.blind && r.cells.routed);
 const heldoutClears = blindRounds.reduce((n, r) => n + (r.cells.routed?.clears_made ?? 0), 0);
 const heldoutRulesClears = blindRounds.reduce((n, r) => n + (r.cells.rules?.clears_made ?? 0), 0);
+const heldoutClearCases = blindRounds.reduce((n, r) => n + (r.cells.routed?.clears ?? 0), 0);
+const heldoutRiskCases = blindRounds.reduce((n, r) => n + (r.cells.rules?.risk ?? r.cells.routed?.risk ?? 0), 0);
+const heldoutRulesWrong = blindRounds.reduce((n, r) => n + (r.cells.rules?.wrong_closes ?? 0), 0);
 const heldoutWrong = blindRounds.map(
   (r) =>
     `${r.cells.routed?.wrong_closes} in ${(r.label.split(" (")[0] ?? r.label).replace("Held-out", "held-out")}${r.id === "v2" ? " (the screener had failed, so nothing was closed)" : ""}`,
@@ -1069,7 +1072,7 @@ const examCloses = get("rules")
 if (head && full && readme.includes(START) && readme.includes(END)) {
   const block = [
     START,
-    `**Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails, the case is escalated or held for more information instead of closed. On the 70-case exam (the cases the rules were written for) the full system wrongly closed ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases, against ${get("fuzzy")?.metrics.false_closes ?? "not run"} for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: ${heldoutWrong.join("; ")}. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** ${examCloses}, and across the blind held-out rounds it made ${heldoutClears} correct clear${heldoutClears === 1 ? "" : "s"}, against ${heldoutRulesClears} for the deterministic rules (which also close risk cases there). Every figure is one run. Details: [eval/REPORT.md](eval/REPORT.md).`,
+    `**Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails, the case is escalated or held for more information instead of closed. On the 70-case exam (the cases the rules were written for) the full system wrongly closed ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases, against ${get("fuzzy")?.metrics.false_closes ?? "not run"} for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: ${heldoutWrong.join("; ")}. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** ${examCloses}, and on the blind held-out rounds it cleared ${heldoutClears === 0 ? `none of the ${heldoutClearCases} alerts that should have been cleared (0 of ${heldoutClearCases}) and sent them` : `${heldoutClears} of the ${heldoutClearCases} alerts that should have been cleared and sent the rest`} to a person instead; the deterministic rules cleared ${heldoutRulesClears} of ${heldoutClearCases} but also wrongly closed ${heldoutRulesWrong} of ${heldoutRiskCases} risk cases. This is the cost of failing closed. Every figure is one run. Details: [eval/REPORT.md](eval/REPORT.md).`,
     END,
   ].join("\n");
   writeFileSync(readmePath, readme.replace(new RegExp(`${START}[\\s\\S]*?${END}`), block));

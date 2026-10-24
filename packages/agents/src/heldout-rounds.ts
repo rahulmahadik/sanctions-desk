@@ -161,7 +161,7 @@ export function heldoutRounds(results: readonly SavedResult[]): HeldoutRound[] {
 
 /** One cell as words, the same in the README and on the screen. */
 function roundCellText(cell: Omit<RoundCell, "text"> | null): string {
-  if (!cell) return "not run";
+  if (!cell) return "not part of this round";
   const wrong =
     cell.wrong_closes === 0
       ? `0 of ${cell.risk} risks closed`
