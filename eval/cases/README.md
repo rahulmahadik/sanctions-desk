@@ -3,6 +3,14 @@
 - `exam.json`: the 70 cases used for the main exam.
 - `heldout.json`: 30 "beyond the rules" cases (18 that carry risk, 4 that need more information, 8 that should be cleared). The deciding evidence is in free text (a payment reference, a customer note, a listed party's remarks), in an alias or transliteration pattern the name rules were not written for, or in documents that disagree.
 
+## Main exam: label changes
+
+| Date | Case | Change | Reason |
+| --- | --- | --- | --- |
+| 24 Oct 2026 | EX-043 (`ob_chain_42`, "Chain of 70 and 60 percent") | Relabelled from CLOSE_FALSE_POSITIVE (ESCALATE_L2 acceptable) to ESCALATE_L2, with a close now a miss | The label applied effective ownership (70% of 60% is 42%, below 50%). OFAC's 50 percent rule is a cascade: the holding company is 60% owned by the listed party, so it is blocked, and its 70% of the customer counts in full. The ownership engine now counts the rule that way. |
+
+Recorded results are not rescored: each result file keeps the label it was scored against (the report reads `expected` from the result first). Under the new label, the first routed run (`2026-10-23T04-52-42-248Z`), the single-recommendation runs and the deterministic rules baseline closed EX-043; the headline routed run (`2026-10-23T13-33-11-122Z`) and the changed-system run escalated it. The change is in its own commit; `git log -- eval/cases/exam.json` shows it. sha256 of `eval/cases/exam.json` after the change: `08bb4637724bb6094dc747cd0fb8f1cac4e7ba997d5b1f234dfd0ece5c75113d`.
+
 ## Held-out set: freeze points
 
 The case definitions and expected labels in `heldout.json` were written and committed before any run on them. The system was not tuned on them. The set was frozen in three steps, all before any run, and each step is dated by its commit.

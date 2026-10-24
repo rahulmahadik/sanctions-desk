@@ -757,8 +757,12 @@ const ownershipBelow: Build[] = [
         ownership_pct: "60",
       });
     },
-    "CLOSE_FALSE_POSITIVE",
-    { acceptable: ["ESCALATE_L2"], edge: ["chain"], note: "70 percent of 60 percent is 42 percent." },
+    "ESCALATE_L2",
+    {
+      mustNot: NOT_CLOSE,
+      edge: ["chain"],
+      note: "The holding company is 60 percent owned by the listed party, so under the 50 percent rule it is blocked and its 70 percent counts in full; effective ownership is 42 percent. Relabelled from CLOSE_FALSE_POSITIVE on 24 Oct 2026 (see eval/cases/README.md).",
+    },
   ),
   ownershipCase(
     "ob_missing_pct",
