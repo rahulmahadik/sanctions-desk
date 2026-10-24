@@ -74,7 +74,7 @@ export async function checkNoteDocument(
   let check: NoteDocumentCheck;
   try {
     // The evidence step's own access: the one agent identity that may read customer_identifier with its numbers.
-    const result = await clientFor(deps, "evidence").query("evidence", sql);
+    const result = await clientFor(deps, "evidence").query("document", sql);
     check = outcomeOf(Number(result.objects[0]?.n ?? Number.NaN), numberHash, result.query_id);
     evidence.queries.push({
       query_id: result.query_id,

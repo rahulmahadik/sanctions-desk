@@ -213,3 +213,32 @@ describe("a client limited to one agent's tables and columns", () => {
     expect(api.sent).toHaveLength(1);
   });
 });
+
+describe("per-step identities", () => {
+  const TABLE = "lightning.metastore.sanctions.screening_usl.beneficial_owner";
+  const SQL = `SELECT \`ownership_id\` FROM ${TABLE}`;
+  const run = async (env: Record<string, string>) => {
+    const { fetchImpl, sent } = fakeZetaris(() => ({ body: rowsOf(["ownership_id"], [["O1"]]) }));
+    const records: QueryRecord[] = [];
+    const client = createZetarisClient({
+      config: testConfig({ ZETARIS_API_KEY: "admin", ZETARIS_TOKEN_EVIDENCE: "ev", ...env }),
+      fetchImpl,
+      onQuery: (r) => records.push(r),
+    });
+    client.setAllowedTables([TABLE]);
+    await client.query("ownership", SQL);
+    return { records, auth: sent.map((s) => s.headers.Authorization) };
+  };
+
+  it("reads as the evidence identity when a step has no token of its own", async () => {
+    const { records, auth } = await run({});
+    expect(records.map((r) => r.role)).toEqual(["evidence"]);
+    expect(auth).toEqual(["Bearer ev"]);
+  });
+
+  it("uses the step's own identity and token when one is set", async () => {
+    const { records, auth } = await run({ ZETARIS_TOKEN_OWNERSHIP: "own" });
+    expect(records.map((r) => [r.role, r.token_source])).toEqual([["ownership", "role"]]);
+    expect(auth).toEqual(["Bearer own"]);
+  });
+});

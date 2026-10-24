@@ -132,6 +132,12 @@ const ConfigSchema = z.strictObject({
         evidence: secret.optional(),
         reviewer: secret.optional(),
         eval: secret.optional(),
+        /** Optional per-step identities (role granted only that step's tables); without one the step reads as evidence. */
+        ownership: secret.optional(),
+        critic: secret.optional(),
+        memory: secret.optional(),
+        document: secret.optional(),
+        rescreen: secret.optional(),
       })
       .default({}),
     /**
@@ -241,6 +247,11 @@ const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "ZETARIS_TOKEN_EVIDENCE", path: ["zetaris", "tokens", "evidence"], kind: "string" },
   { env: "ZETARIS_TOKEN_REVIEWER", path: ["zetaris", "tokens", "reviewer"], kind: "string" },
   { env: "ZETARIS_TOKEN_EVAL", path: ["zetaris", "tokens", "eval"], kind: "string" },
+  { env: "ZETARIS_TOKEN_OWNERSHIP", path: ["zetaris", "tokens", "ownership"], kind: "string" },
+  { env: "ZETARIS_TOKEN_CRITIC", path: ["zetaris", "tokens", "critic"], kind: "string" },
+  { env: "ZETARIS_TOKEN_MEMORY", path: ["zetaris", "tokens", "memory"], kind: "string" },
+  { env: "ZETARIS_TOKEN_DOCUMENT", path: ["zetaris", "tokens", "document"], kind: "string" },
+  { env: "ZETARIS_TOKEN_RESCREEN", path: ["zetaris", "tokens", "rescreen"], kind: "string" },
   { env: "METERLESS_BASE_URL", path: ["nightshift", "baseUrl"], kind: "string" },
   { env: "METERLESS_APP_ID", path: ["nightshift", "appId"], kind: "string" },
   { env: "METERLESS_EVAL_APP_ID", path: ["nightshift", "evalAppId"], kind: "string" },
@@ -261,6 +272,11 @@ const SECRET_PATHS: ReadonlyArray<readonly string[]> = [
   ["zetaris", "tokens", "evidence"],
   ["zetaris", "tokens", "reviewer"],
   ["zetaris", "tokens", "eval"],
+  ["zetaris", "tokens", "ownership"],
+  ["zetaris", "tokens", "critic"],
+  ["zetaris", "tokens", "memory"],
+  ["zetaris", "tokens", "document"],
+  ["zetaris", "tokens", "rescreen"],
   ["nightshift", "runtimeToken"],
 ];
 

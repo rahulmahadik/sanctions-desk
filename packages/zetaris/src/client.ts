@@ -10,8 +10,29 @@ import { type GuardCode, guardSql, type StatementKind } from "./guard.js";
  *   - produces a query record (id, SQL, row count, latency) for the trace.
  */
 
-export const ZETARIS_ROLES = ["evidence", "reviewer", "eval"] as const;
+export const ZETARIS_ROLES = [
+  "evidence",
+  "reviewer",
+  "eval",
+  "ownership",
+  "critic",
+  "memory",
+  "document",
+  "rescreen",
+] as const;
 export type ZetarisRole = (typeof ZETARIS_ROLES)[number];
+
+/**
+ * Identities of single review steps, each with a Zetaris role granted only the tables that step reads. A step uses
+ * its own identity only when its token is configured; otherwise its reads run as `evidence`, exactly as before.
+ */
+export const STEP_ROLES = [
+  "ownership",
+  "critic",
+  "memory",
+  "document",
+  "rescreen",
+] as const satisfies readonly ZetarisRole[];
 
 export type TokenSource = "role" | "fallback";
 
@@ -172,8 +193,13 @@ export function createZetarisClient(options: ZetarisClientOptions): ZetarisClien
     return { ok: true, result: { ...final, headers: parsed.headers, rows, objects } };
   }
 
-  async function run(scope: AgentScope | undefined, role: ZetarisRole, sql: string, signal?: AbortSignal) {
+  /** A step identity without its own token reads as the evidence identity, so nothing changes until it is set up. */
+  const effective = (role: ZetarisRole): ZetarisRole =>
+    (STEP_ROLES as readonly ZetarisRole[]).includes(role) && !z.tokens[role] ? "evidence" : role;
+
+  async function run(scope: AgentScope | undefined, asked: ZetarisRole, sql: string, signal?: AbortSignal) {
     {
+      const role = effective(asked);
       const queryId = randomUUID();
       // Offline means the answer is replayed from saved real queries, which the record says plainly.
       const base = { query_id: queryId, role, sql, sql_hash: sha256Hex(sql), cache_hit: options.offline === true };
@@ -231,7 +257,7 @@ export function createZetarisClient(options: ZetarisClientOptions): ZetarisClien
       allowed = [...new Set(tables.map((t) => t.toLowerCase()))];
     },
     allowedTables: () => [...allowed],
-    tokenSource: (role) => tokenFor(role)?.source ?? "missing",
+    tokenSource: (role) => tokenFor(effective(role))?.source ?? "missing",
     query: (role, sql, signal) => run(undefined, role, sql, signal),
     scoped: (scope) => ({ ...api, query: (role, sql, signal) => run(scope, role, sql, signal), scoped: api.scoped }),
   };

@@ -50,7 +50,7 @@ export interface ListChangeReport {
 const list = (ids: readonly string[]): string => ids.map(quoteLiteral).join(", ");
 
 async function read(deps: AgentDeps, sql: string): Promise<Row[]> {
-  const result = await clientFor(deps, "evidence").query("evidence", sql);
+  const result = await clientFor(deps, "evidence").query("rescreen", sql);
   deps.trace.log({
     agent: "memory",
     action: "list_change_read",

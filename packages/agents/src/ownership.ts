@@ -72,7 +72,7 @@ export async function gatherOwnership(
   for (let level = 0; level <= deps.policy.ownership.maxChainDepth && frontier.length > 0; level += 1) {
     const list = frontier.map(quoteLiteral).join(", ");
     const sql = `SELECT ${COLUMNS.map((c) => `\`${c}\``).join(", ")} FROM ${table.qualifiedName} WHERE \`owned_party_id\` IN (${list}) ORDER BY \`ownership_id\``;
-    const result = await clientFor(deps, "ownership").query("evidence", sql);
+    const result = await clientFor(deps, "ownership").query("ownership", sql);
     deps.trace.log({
       agent: "ownership",
       action: "read_register",
@@ -144,7 +144,7 @@ export async function ownershipQuality(
   const findings: DqFinding[] = [];
   for (const rule of table.dqRules) {
     const result = await clientFor(deps, "ownership").query(
-      "evidence",
+      "ownership",
       `SHOW DQ INVALID RECORD ${rule.name} TABLE ${table.qualifiedName}`,
     );
     const failed = result.objects.some((o) => inChain.has(o.ownership_id ?? ""));

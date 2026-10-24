@@ -103,9 +103,16 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
   // The critic's reads leave out the columns it may not name, so the other columns of such a table can be checked.
   const criticTools = buildEvidenceTools(evidence.model, clientFor(deps, "critic"), {
     ...toolOptions,
+    role: "critic",
     omitColumns: deps.policy.agentAccess.critic.denyColumns,
   });
-  const memory = options?.memory === false ? undefined : await recallMemory(deps, tools, evidence, evidence.queries);
+  // Memory reads earlier decisions under the evidence step's scope, as its own identity when one is set up.
+  const memoryTools = buildEvidenceTools(evidence.model, clientFor(deps, "evidence"), {
+    ...toolOptions,
+    role: "memory",
+  });
+  const memory =
+    options?.memory === false ? undefined : await recallMemory(deps, memoryTools, evidence, evidence.queries);
   if (memory) evidence.memory = memory;
   // The hybrid: code gives a first finding from the structured fields; the path says whether the agents confirm it
   // or have to reason over the free text.
