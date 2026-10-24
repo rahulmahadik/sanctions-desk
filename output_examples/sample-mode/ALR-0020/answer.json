@@ -1,5 +1,5 @@
 {
-  "run_id": "7e491b51-e5e6-4636-86e2-34ca2bcca393",
+  "run_id": "cc20e5be-7a62-408f-99e9-76373375a7e4",
   "status": "ok",
   "decision": "ESCALATE_L2",
   "confidence": 0.85,
@@ -14,9 +14,9 @@
     "policy_guard",
     "reporter"
   ],
-  "trace_id": "7e491b51-e5e6-4636-86e2-34ca2bcca393",
-  "log_file": "logs/trace-7e491b51-e5e6-4636-86e2-34ca2bcca393.jsonl",
-  "record_hash": "040d3444519214ad07933f1a3cffcaa5a37b81124df57461a66adb96c2dd21f0",
-  "execution_time_seconds": 0.025,
+  "trace_id": "cc20e5be-7a62-408f-99e9-76373375a7e4",
+  "log_file": "logs/trace-cc20e5be-7a62-408f-99e9-76373375a7e4.jsonl",
+  "record_hash": "92ad82f1503486ca9d83fb11bbc33ee01f35ac187d0b5ed4c84b1ec0518bd0d4",
+  "execution_time_seconds": 0.026,
   "sample_mode": true
 }

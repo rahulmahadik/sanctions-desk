@@ -19,11 +19,11 @@ The live commands need Zetaris running and the admin key in `.env` (read inside 
 
 **Use case.** A bank's screening system raises an alert when a customer or a payment party looks like a listed (sanctioned) party. An analyst must decide whether it is a true match, a false positive, or needs more information, and must justify the answer. The evidence for one alert sits in **three different systems** that nobody has joined: the lists, the bank's customer records, and the payments. The desk's agents need all three in one governed place, with the approved wording of "true match" and "false positive" next to them. Zetaris provides that place.
 
-| #   | Source                                                                                             | Kind in Zetaris                                                                                                                               | What it holds                                                                                             | Why the desk needs it                                                  |
-| --- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| 1   | **Public sanctions lists** (OFAC and UN sample, 365 entries) and the approved business definitions | File-store (NDP) tables over JSON files: `list_entry`, `list_alias`, `list_dob`, `list_country`, `list_identifier`, `business_definition`     | Listed parties with aliases, dates of birth, countries, identifiers; six approved definitions in versions | The other side of every comparison, and the rules a decision must cite |
-| 2   | **Synthetic bank database** (Postgres)                                                             | JDBC data source, read-only login: `customer`, `customer_identifier`, `customer_alias`, `account`, `beneficial_owner`, `alert`, `disposition` | 340 customers, their identifiers, aliases, accounts, ownership register, 112 alerts, earlier decisions    | Who the customer is; what the alert says; what was decided before      |
-| 3   | **Synthetic payments service**                                                                     | REST table, cached: `payment`                                                                                                                 | 366 payments with counterparty, countries, status                                                         | Whether money is waiting on the alert, and who is paid                 |
+| #   | Source                                                                                             | Kind in Zetaris                                                                                                                               | What it holds                                                                                               | Why the desk needs it                                                  |
+| --- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| 1   | **Public sanctions lists** (OFAC and UN sample, 365 entries) and the approved business definitions | File-store (NDP) tables over JSON files: `list_entry`, `list_alias`, `list_dob`, `list_country`, `list_identifier`, `business_definition`     | Listed parties with aliases, dates of birth, countries, identifiers; seven approved definitions in versions | The other side of every comparison, and the rules a decision must cite |
+| 2   | **Synthetic bank database** (Postgres)                                                             | JDBC data source, read-only login: `customer`, `customer_identifier`, `customer_alias`, `account`, `beneficial_owner`, `alert`, `disposition` | 340 customers, their identifiers, aliases, accounts, ownership register, 112 alerts, earlier decisions      | Who the customer is; what the alert says; what was decided before      |
+| 3   | **Synthetic payments service**                                                                     | REST table, cached: `payment`                                                                                                                 | 366 payments with counterparty, countries, status                                                           | Whether money is waiting on the alert, and who is paid                 |
 
 All three are compiled into one model, `lightning.metastore.sanctions.screening_usl` (14 tables). The agents read only that model. Nothing else is read, and no real customer data is used.
 
@@ -41,7 +41,7 @@ The tool accepts only `SELECT`, `SHOW`, `RUN DQ`, `LIST` and `LOAD`. The answers
 ### Source 1: sanctions lists (file store)
 
 - **Onboarding.** `npm run zetaris:load-files` places the JSON files in the Zetaris file store (folder `sanctions`), then [01_lists_create.sql](../zetaris/sql/01_lists_create.sql) creates a Lightning database and one `CREATE LIGHTNING FILESTORE TABLE` per file (7 lines of SQL).
-- **Check that it works.** [01_lists_select.sql](../zetaris/sql/01_lists_select.sql) counts each table: 6 definitions, 365 entries, 1,334 aliases, 188 dates of birth, 759 countries, 492 identifiers.
+- **Check that it works.** [01_lists_select.sql](../zetaris/sql/01_lists_select.sql) counts each table: 6 definitions (7 since the ownership definition's version 2 on 24 Oct 2026), 365 entries, 1,334 aliases, 188 dates of birth, 759 countries, 492 identifiers.
 - **Exploratory queries.**
 
 | Question                                         | SQL (shortened)                                                                                            | Real result                                                                                 |
@@ -350,6 +350,13 @@ npm run zetaris:sql -- zetaris/sql/07_dq_select.sql --apply --show    # run any 
 ```
 
 Only objects with our own names are touched (`sanctions_*`, `lightning.metastore.sanctions`). The bank database password and the payments key are filled in from the environment when a script runs and are not stored in it or in its log.
+
+## The ownership definition, version 2 (24 Oct 2026)
+
+The approved definition `effective_ownership_threshold@1` described effective ownership only (shares multiplied along a chain). When the ownership step began counting OFAC's 50 percent rule as a cascade, a new approved row `effective_ownership_threshold@2` was added; version 1 was not edited or removed.
+- **Dry run.** `npm run zetaris:definitions` listed the six rows the model held and the one row it would add, and wrote nothing.
+- **Write.** `npm run zetaris:definitions -- --apply` placed the updated `data/sample/business_definition.json` in the file store (one file, a new line for the new row; no rebuild and no Access Control change).
+- **Read back through the semantic layer.** The same command, run again, read seven approved rows from `business_definition` (`effective_ownership_threshold@1` and `@2` among them) and found nothing to add. The saved sample answer for the evidence step's definitions query was re-recorded from the live layer (seven rows), and the code now implements version 2 (`packages/data/src/definitions.ts`), so every decision record cites `effective_ownership_threshold@2`.
 
 ## Behaviour worth knowing
 

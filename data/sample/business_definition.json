@@ -50,6 +50,16 @@
     "effective_from": "2026-10-01"
   },
   {
+    "definition_key": "effective_ownership_threshold@2",
+    "definition_id": "effective_ownership_threshold",
+    "version": "2",
+    "name": "Ownership by blocked parties (50 percent rule)",
+    "statement": "Listed (blocked) parties own a company when, directly or through a chain of companies, they own at or above the threshold in the active policy (50 percent by default). Ownership is counted as a cascade, as OFAC's 50 percent rule does: a company owned at or above the threshold by blocked parties, added up, is itself blocked, and its own holdings then count in full. Effective ownership (shares multiplied along a chain and added up across paths) is counted as well; either one reaching the threshold meets this definition. Exactly the threshold counts. A missing percentage is treated as unknown, never as zero.",
+    "status": "approved",
+    "owner": "Sanctions policy owner (synthetic sample)",
+    "effective_from": "2026-10-24"
+  },
+  {
     "definition_key": "false_positive@2",
     "definition_id": "false_positive",
     "version": "2",

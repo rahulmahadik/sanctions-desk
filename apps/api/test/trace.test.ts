@@ -42,7 +42,9 @@ describe("the decision trace", () => {
     expect(
       t.definitions.every(
         (d: { definition_id: string; version: string; statement_hash: string }) =>
-          d.version === (d.definition_id === "false_positive" ? "2" : "1") && /^[a-f0-9]{64}$/.test(d.statement_hash),
+          d.version ===
+            (d.definition_id === "false_positive" || d.definition_id === "effective_ownership_threshold" ? "2" : "1") &&
+          /^[a-f0-9]{64}$/.test(d.statement_hash),
       ),
     ).toBe(true);
 

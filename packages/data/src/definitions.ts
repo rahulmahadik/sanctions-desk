@@ -26,7 +26,7 @@ export const IMPLEMENTED_DEFINITIONS: Readonly<Record<string, string>> = {
   false_positive: "2",
   counterparty_match: "1",
   strong_identifier: "1",
-  effective_ownership_threshold: "1",
+  effective_ownership_threshold: "2",
 };
 
 export function loadBusinessDefinitions(path = "data/sample/business_definition.json"): BusinessDefinition[] {
