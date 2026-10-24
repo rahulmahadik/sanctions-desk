@@ -207,7 +207,9 @@ describe("the review desk routes", () => {
         .slice(1)
         .map((c) => c.replaceAll("**", "").replace(/ \|$/, ""));
       expect(cells, round.label).toEqual(
-        ["routed", "single", "rules", "fuzzy", "escalate_all"].map((k) => round.cells[k]?.text ?? "not run"),
+        ["routed", "single", "rules", "fuzzy", "escalate_all"].map(
+          (k) => round.cells[k]?.text ?? "not part of this round",
+        ),
       );
     }
   });
