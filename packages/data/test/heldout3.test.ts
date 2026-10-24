@@ -29,7 +29,7 @@ describe("the third held-out set and the files that already exist", () => {
   it("reproduces the committed data (every set's rows, as loaded into the running bank) and the case files", () => {
     // The committed data/synthetic holds the main rows and all three held-out sets' rows.
     const dir = tempDir();
-    writeBank(dir, bank, { includeHeldout3: true });
+    writeBank(dir, bank, { includeHeldout4: true });
     for (const name of SYNTHETIC_TABLE_NAMES) {
       for (const ext of ["json", "csv"]) {
         expect(read(join(dir, `${name}.${ext}`)), `${name}.${ext}`).toBe(
@@ -56,7 +56,7 @@ describe("the third held-out set and the files that already exist", () => {
       const committed = JSON.parse(read(resolveProjectPath(`data/synthetic/${name}.json`))) as Array<
         Record<string, string>
       >;
-      const main = committed.filter((r) => !Object.values(r)[0]?.match(/^[A-Z]+-[HJK]\d/));
+      const main = committed.filter((r) => !Object.values(r)[0]?.match(/^[A-Z]+-[HJKL]\d/));
       expect(JSON.parse(read(join(dir, `${name}.json`))), name).toEqual(main);
     }
   });

@@ -27,10 +27,10 @@ const bank = buildBank(loadSampleTables(), SNAPSHOTS);
 const read = (path: string) => readFileSync(path, "utf8");
 
 describe("the fourth held-out set and the files that already exist", () => {
-  it("leaves every existing output unchanged when the fourth set's flag is not given", () => {
-    // The committed data/synthetic holds the main rows and the first three sets' rows, not the fourth set's.
+  it("reproduces the committed data (every set's rows, as loaded into the running bank) and the case files", () => {
+    // The committed data/synthetic holds the main rows and all four held-out sets' rows.
     const dir = tempDir();
-    writeBank(dir, bank, { includeHeldout3: true });
+    writeBank(dir, bank, { includeHeldout4: true });
     for (const name of SYNTHETIC_TABLE_NAMES) {
       for (const ext of ["json", "csv"]) {
         expect(read(join(dir, `${name}.${ext}`)), `${name}.${ext}`).toBe(
@@ -45,7 +45,8 @@ describe("the fourth held-out set and the files that already exist", () => {
     writeHeldout(join(dir, "heldout.json"), bank);
     writeHeldout2(join(dir, "heldout2.json"), bank);
     writeHeldout3(join(dir, "heldout3.json"), bank);
-    for (const file of ["exam.json", "heldout.json", "heldout2.json", "heldout3.json"]) {
+    writeHeldout4(join(dir, "heldout4.json"), bank);
+    for (const file of ["exam.json", "heldout.json", "heldout2.json", "heldout3.json", "heldout4.json"]) {
       expect(read(join(dir, file)), file).toBe(read(resolveProjectPath(`eval/cases/${file}`)));
     }
   });

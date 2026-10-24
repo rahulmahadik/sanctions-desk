@@ -142,3 +142,15 @@ ALR-K0009,customer,customer_name,CUST-K0009,,OFAC,OFAC-30964,Frederic Choi,0.98,
 ALR-K0010,customer,customer_name,CUST-K0010,,OFAC,OFAC-58343,Xingyu Qiu,0.98,2026-10-22T09:00:00.000Z,open
 ALR-K0011,payment,payment,CUST-K0011,PAY-K00002,OFAC,OFAC-18289,ROSE GROUP LIMITED,0.96,2026-10-22T09:00:00.000Z,open
 ALR-K0012,payment,payment,CUST-K0012,PAY-K00003,OFAC,OFAC-16210,Juanita Del Carmen RIOS HERNANDEZ,0.97,2026-10-22T09:00:00.000Z,open
+ALR-L0001,customer,customer_name,CUST-L0001,,OFAC,OFAC-41069,Valeriy Igorevich Limarenko,0.87,2026-10-22T09:00:00.000Z,open
+ALR-L0002,customer,customer_name,CUST-L0002,,OFAC,OFAC-46715,Vladislav Vladimirovich Sviblov,0.9,2026-10-22T09:00:00.000Z,open
+ALR-L0003,customer,customer_name,CUST-L0003,,OFAC,OFAC-23445,Siddhartha Dhar,0.81,2026-10-22T09:00:00.000Z,open
+ALR-L0004,customer,customer_name,CUST-L0004,,OFAC,OFAC-22605,Transatlantic Partners Pte. Ltd.,0.5,2026-10-22T09:00:00.000Z,open
+ALR-L0005,payment,payment,CUST-L0005,PAY-L00001,OFAC,OFAC-26417,Ramon Alonso Carrizalez Rengifo,0.48,2026-10-22T09:00:00.000Z,open
+ALR-L0006,customer,customer_name,CUST-L0006,,OFAC,OFAC-16753,Rustam Ilmirovich TEMIRGALIEV,0.46,2026-10-22T09:00:00.000Z,open
+ALR-L0007,customer,customer_name,CUST-L0007,,OFAC,OFAC-10010,Jaber AL-JALAMAH,0.97,2026-10-22T09:00:00.000Z,open
+ALR-L0008,customer,customer_name,CUST-L0008,,OFAC,OFAC-7214,Gorka PALACIOS ALDAY,0.98,2026-10-22T09:00:00.000Z,open
+ALR-L0009,customer,customer_name,CUST-L0009,,OFAC,OFAC-30504,Jianming Cao,0.93,2026-10-22T09:00:00.000Z,open
+ALR-L0010,customer,customer_name,CUST-L0010,,OFAC,OFAC-41005,Tatyana Alekseyevna Golikova,0.92,2026-10-22T09:00:00.000Z,open
+ALR-L0011,customer,customer_name,CUST-L0011,,OFAC,OFAC-29250,John Ka-chiu Lee,0.9,2026-10-22T09:00:00.000Z,open
+ALR-L0012,customer,customer_name,CUST-L0012,,OFAC,OFAC-23143,Reza Heidari,0.98,2026-10-22T09:00:00.000Z,open
