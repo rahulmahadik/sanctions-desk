@@ -1,0 +1,119 @@
+{
+  "label": "Small study, 12 cases x 3 runs, not part of the recorded evaluation",
+  "note": "Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one cloud Ultra call per case on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), 24-25 Oct 2026, after a warm-up and without restarting Nightshift.",
+  "systems": [
+    {
+      "system": "Full system",
+      "runs": [
+        {
+          "run": "r1",
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 1,
+          "clear_cases": 6,
+          "acceptable": 7,
+          "cases": 12,
+          "escalated_share": 0.917,
+          "errors": 0
+        },
+        {
+          "run": "r2",
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 1,
+          "clear_cases": 6,
+          "acceptable": 7,
+          "cases": 12,
+          "escalated_share": 0.917,
+          "errors": 0
+        },
+        {
+          "run": "r3",
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 1,
+          "clear_cases": 6,
+          "acceptable": 5,
+          "cases": 12,
+          "escalated_share": 0.75,
+          "errors": 0
+        }
+      ],
+      "all_runs_agree": 10,
+      "cases": 12
+    },
+    {
+      "system": "Nemotron alone",
+      "runs": [
+        {
+          "run": "r1",
+          "wrong_closes": 3,
+          "risk_cases": 6,
+          "clears_made": 0,
+          "clear_cases": 6,
+          "acceptable": 0,
+          "cases": 12,
+          "escalated_share": 0,
+          "errors": 4
+        },
+        {
+          "run": "r2",
+          "wrong_closes": 6,
+          "risk_cases": 6,
+          "clears_made": 1,
+          "clear_cases": 6,
+          "acceptable": 1,
+          "cases": 12,
+          "escalated_share": 0.083,
+          "errors": 2
+        },
+        {
+          "run": "r3",
+          "wrong_closes": 4,
+          "risk_cases": 6,
+          "clears_made": 1,
+          "clear_cases": 6,
+          "acceptable": 1,
+          "cases": 12,
+          "escalated_share": 0,
+          "errors": 3
+        }
+      ],
+      "all_runs_agree": 4,
+      "cases": 12
+    }
+  ],
+  "calibration": [
+    {
+      "label": "Full system (3 runs above)",
+      "cases_with_confidence": 36,
+      "brier": 0.333
+    },
+    {
+      "label": "Nemotron alone (3 runs above)",
+      "cases_with_confidence": 27,
+      "brier": 0.696
+    },
+    {
+      "label": "Full system, privacy mode off (24 Oct, held-out v4 and 8 exam cases, one run)",
+      "cases_with_confidence": 20,
+      "brier": 0.328
+    },
+    {
+      "label": "Full system, privacy mode on (24 Oct, same 20 cases, one run)",
+      "cases_with_confidence": 20,
+      "brier": 0.201
+    },
+    {
+      "label": "Reasoning on Lightning (24 Oct, same 20 cases, one run)",
+      "cases_with_confidence": 16,
+      "brier": 0.165
+    },
+    {
+      "label": "Deterministic rules, name match, escalate everything (no real confidence)",
+      "cases_with_confidence": 0,
+      "brier": null
+    }
+  ],
+  "brier_definition": "Mean of (confidence - y) squared over cases, where y is 1 when the chosen outcome is acceptable for the case (its expected or an acceptable outcome) and 0 otherwise. 0 is perfect; always answering with confidence 0.5 scores 0.25. Lower is better."
+}
