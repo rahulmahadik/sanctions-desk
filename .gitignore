@@ -1,5 +1,8 @@
 .env
 .env.*
+# Local editor-assistant instructions and settings: never committed.
+CLAUDE.md
+.claude/
 !.env.example
 .venv/
 __pycache__/
