@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta
+      name="description"
+      content="Sanctions Desk: a review desk for sanctions-screening alerts. The desk recommends; a person decides."
+    />
+    <title>Sanctions Desk</title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --panel: #ffffff;
+        --text: #16181d;
+        --muted: #4b5563;
+        --line: #d9dde3;
+        --link: #1d4ed8;
+        --focus: #d97706;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 32px 16px 48px;
+      }
+      h1 {
+        font-size: 2rem;
+        margin: 0 0 8px;
+      }
+      h2 {
+        font-size: 1.25rem;
+        margin: 32px 0 12px;
+      }
+      p {
+        margin: 0 0 12px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      a {
+        color: var(--link);
+      }
+      a:focus-visible {
+        outline: 3px solid var(--focus);
+        outline-offset: 2px;
+        border-radius: 3px;
+      }
+      ul.links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 8px;
+      }
+      ul.links li {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px 14px;
+      }
+      ul.links a {
+        font-weight: 600;
+      }
+      figure {
+        margin: 0 0 16px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+      }
+      figure img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 4px;
+      }
+      figcaption {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .charts {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+      }
+      footer {
+        margin-top: 40px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Sanctions Desk</h1>
+      <p>
+        A review desk for sanctions-screening alerts. The desk recommends; a person decides. Nothing in it blocks an
+        account, writes to a source system or contacts a customer.
+      </p>
+      <p class="muted">
+        This site is documentation only. It is static and makes no call to the desk, its API or any other service; to
+        try the desk, run it in sample mode as the README describes.
+      </p>
+
+      <h2>Read</h2>
+      <ul class="links">
+        <li>
+          <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/README.md">README</a><span class="muted">: what the desk does, how it was tested, and the quick start</span>
+        </li>
+        <li>
+          <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/USER_GUIDE.md">User guide</a><span class="muted">: the screens in the order you meet them, with short clips</span>
+        </li>
+        <li>
+          <a href="api.html">API reference</a><span class="muted">: every route, its parameters and its responses, from the API's own OpenAPI document</span>
+        </li>
+        <li>
+          <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/API.md">API notes</a><span class="muted">: errors, sign-in, demo users and worked examples</span>
+        </li>
+        <li>
+          <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/ARCHITECTURE.md">Architecture</a><span class="muted">: the agents, the data path and the checks around the decision</span>
+        </li>
+        <li>
+          <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/media/README.md">Screenshots, clips and charts</a><span class="muted">: what each picture shows and how it was made</span>
+        </li>
+      </ul>
+
+      <h2>Architecture</h2>
+      <figure>
+        <a href="media/architecture.png">
+          <img
+            src="media/architecture.png"
+            width="1200"
+            height="760"
+            alt="Architecture diagram: the agents read only through Zetaris; the model steps go through Nightshift to local and cloud Nemotron models; a raise-only policy guard checks the recommendation; a person makes the decision."
+          />
+        </a>
+        <figcaption>
+          The agents, Zetaris as the only data path, local and cloud Nemotron through Nightshift, the raise-only policy
+          guard and the human decision.
+        </figcaption>
+      </figure>
+
+      <h2>Charts</h2>
+      <p class="muted">Drawn from the committed evaluation files; the README explains each run.</p>
+      <div class="charts">
+        <figure>
+          <a href="media/charts/heldout-wrong-closes.png">
+            <img
+              src="media/charts/heldout-wrong-closes.png"
+              width="1920"
+              height="1080"
+              alt="Bar chart: risk cases wrongly closed in each held-out round, for the full system and three simpler baselines."
+            />
+          </a>
+          <figcaption>
+            Risk cases wrongly closed in each held-out round: full system, deterministic rules, name match and escalate
+            everything.
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="media/charts/first-recommendation-closes.png">
+            <img
+              src="media/charts/first-recommendation-closes.png"
+              width="1920"
+              height="1080"
+              alt="Chart: per run, how often the decision step first proposed closing a risk case, and how many of those the checks stopped."
+            />
+          </a>
+          <figcaption>
+            Per run, how often the decision step first proposed closing a risk case, and how many of those the checks
+            stopped.
+          </figcaption>
+        </figure>
+        <figure>
+          <a href="media/charts/critic-mutation.png">
+            <img
+              src="media/charts/critic-mutation.png"
+              width="1920"
+              height="1080"
+              alt="Chart: the critic's fact re-check, false cited facts caught and unchanged decisions approved."
+            />
+          </a>
+          <figcaption>The critic's fact re-check: false cited facts caught, unchanged decisions approved.</figcaption>
+        </figure>
+        <figure>
+          <a href="media/charts/model-calls.png">
+            <img
+              src="media/charts/model-calls.png"
+              width="1920"
+              height="1080"
+              alt="Chart: which model served each step in the headline run, local or cloud, and the signed receipts verified."
+            />
+          </a>
+          <figcaption>
+            Which model served each step in the headline run (local or cloud), and the signed receipts verified.
+          </figcaption>
+        </figure>
+      </div>
+
+      <footer>
+        Source and licence:
+        <a href="https://github.com/rahulmahadik/sanctions-desk">github.com/rahulmahadik/sanctions-desk</a> (Apache-2.0).
+      </footer>
+    </main>
+  </body>
+</html>

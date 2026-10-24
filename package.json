@@ -81,6 +81,8 @@
     "heldout4:load": "tsx tools/heldout4-load.ts",
     "screenshots": "tsx tools/screenshots.ts",
     "gifs": "tsx tools/record-gifs.ts",
+    "openapi:export": "tsx tools/export-openapi.ts",
+    "site:build": "tsx tools/build-site.ts",
     "mcp": "tsx tools/mcp-server.ts",
     "study:models": "tsx tools/model-study.ts",
     "bench:api": "tsx tools/load-test.ts",

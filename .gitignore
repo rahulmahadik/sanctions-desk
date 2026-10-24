@@ -41,6 +41,10 @@ playwright-report/
 tmp/
 *.tgz
 
+# Built by npm run site:build (the API docs site): generated from the code and docs/media, never stale in git
+site/openapi.json
+site/media/
+
 # Runtime output that is not part of the project
 action-outbox/
 outbox/

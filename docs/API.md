@@ -2,6 +2,20 @@
 
 The API listens on `http://localhost:8000`. An interactive description (Swagger UI) is at **`/docs`** and the OpenAPI 3.1 document at `/docs/json`; both are on by default and can be switched off with `DOCS_ENABLED=false`. The request and response shapes in the description are generated from the same zod schemas the routes validate with, and a test fails if a route exists that the description does not list.
 
+## API docs online
+
+A read-only copy of the reference will be at **https://rahulmahadik.github.io/sanctions-desk/api.html**, with a short landing page at https://rahulmahadik.github.io/sanctions-desk/. It is static: Redoc renders the OpenAPI document, which is generated from the API's code on every build (`npm run site:build`; `npm run openapi:export` writes the document alone), and nothing on the page calls the API. The workflow `.github/workflows/pages.yml` publishes it on a push to `main` that touches the API, the site or its tools.
+
+It goes live once the repository is public and Pages is set to "GitHub Actions" (Settings > Pages > Source). The same setting with one command:
+
+```bash
+gh api -X POST repos/rahulmahadik/sanctions-desk/pages -f build_type=workflow
+```
+
+Until then both jobs of the workflow are skipped, so nothing fails while the repository is private. To look at the site locally, run `npm run site:build` and serve `site/` with any static file server.
+
+## Errors and request ids
+
 Everything below works in sample mode (`SAMPLE_MODE=true`), which needs no external service. Every error has one shape:
 
 ```json
