@@ -1,6 +1,6 @@
 # How the desk uses Zetaris
 
-Zetaris is the only way the application reads data. The review agents never open a data file or connect to the bank database or the payments service: they send one SQL statement at a time to the Zetaris REST API, and Zetaris answers from the semantic layer. This page follows Zetaris's own judging checklist (1a to 2c); every number was read from the running instance, with synthetic data only.
+Zetaris is the only way the application reads data. The review agents never open a data file or connect to the bank database or the payments service: they send one SQL statement at a time to the Zetaris REST API, and Zetaris answers from the semantic layer. This page follows Zetaris's own checklist (1a to 2c); every number was read from the running instance, with synthetic data only.
 
 ## Zetaris checklist
 
@@ -200,7 +200,7 @@ _Written as a product manager to the Zetaris product team, from what we hit whil
 
 **User story.** As a platform engineer at a bank running AI agents on customer data, I want the roles, masks, row filters and agent tokens of a semantic layer to be declared next to its definition and applied by the same deployment, so that I can review them, version them, and know that a rebuild gives the same access as before.
 
-**Acceptance criteria.**
+**Acceptance checks.**
 1. **Column masking and row filters in SQL and REST**, not only the UI. A mask can be a hide, a fixed value or a regular expression, per role, for example keep the last two characters: `********37`.
 2. **Regex masking on USL tables.** Today the only options are grant, deny or hide, and the HIDE we set on `customer_identifier.id_number` was not enforced for a `SELECT` through the role's own token on our instance.
 3. **Access that survives a rebuild.** Either stable ids for the model so the access list stays attached, or grants, masks and filters declared in the DDL of the model and re-applied by the compile. After `COMPILE USL`, `check` shows the same access as before, without a manual step.

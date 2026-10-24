@@ -16,7 +16,7 @@
       "id": "name_order",
       "area": "names",
       "what": "Family name written first",
-      "expected": "Treated as the same name; judged on the other fields",
+      "expected": "Treated as the same name; decided on the other fields",
       "covered_by": ["exam:fp_name_order", "test:packages/data/test/similarity.test.ts::reordered tokens"]
     },
     {

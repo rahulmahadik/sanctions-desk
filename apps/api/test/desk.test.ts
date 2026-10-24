@@ -182,7 +182,7 @@ describe("the review desk routes", () => {
       "Held-out v4 (12 cases, last round)",
     ]);
     const readme = readFileSync(resolveProjectPath("README.md"), "utf8");
-    const table = readme.slice(readme.indexOf("<!-- judges:start -->"), readme.indexOf("<!-- judges:end -->"));
+    const table = readme.slice(readme.indexOf("<!-- rounds:start -->"), readme.indexOf("<!-- rounds:end -->"));
     for (const round of body.heldout_rounds) {
       const row = table.split("\n").find((l) => l.startsWith(`| ${round.label}`) && !l.includes("`"));
       expect(row, round.label).toBeDefined();

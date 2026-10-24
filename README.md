@@ -1,8 +1,29 @@
 # Sanctions Desk
 
+- **Who it is for:** sanctions screening analysts and their senior reviewers at a bank.
+- **What goes wrong today:** name screening raises far more alerts than there are real matches; each one is worked by hand, field by field, and the costly mistake is closing the one that is real.
+- **What it gives them:** for every alert, the evidence gathered through one data layer, every cited fact re-checked, risk signals from notes shown with the exact text they rest on, and a recommendation with its reasons.
+- **How it stays safe:** it fails closed (missing evidence or any failed check escalates instead of closing), and a person decides every alert.
+- **Privacy and proof:** raw notes stay on the analyst's machine and the cloud model sees structured facts only; every model call has a signed receipt.
+
 <!-- badges:start -->
 [![CI](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml) [![TypeScript 7](https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white)](package.json) [![Node >=24](https://img.shields.io/badge/node-%3E%3D24-339933?logo=nodedotjs&logoColor=white)](package.json) [![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 <!-- badges:end -->
+
+![Architecture: agents, Zetaris as the only data path, local and cloud Nemotron through Nightshift, a raise-only policy guard and a person who decides](docs/media/architecture.png)
+
+<table>
+<tr>
+<td width="33%"><img src="docs/media/screenshots/09-risk-signals.png" alt="Case view: a risk signal with its source field and the exact span highlighted in the payment reference"></td>
+<td width="33%"><img src="docs/media/screenshots/13-live-agent-map.png" alt="Review steps of a live review: local Lightning and cloud Ultra chips, the routed model and the signed receipt id per model step"></td>
+<td width="33%"><img src="docs/media/screenshots/11-heldout-rounds.png" alt="Test scores: every held-out round as run, with the baselines"></td>
+</tr>
+<tr>
+<td>A risk signal with its source field and the exact text span (sample mode)</td>
+<td>The review steps of a live review: where each model step ran, the model that served it and its receipt</td>
+<td>Every held-out round as run, with the baselines, from the result files</td>
+</tr>
+</table>
 
 An AI review desk for bank sanctions-screening alerts. For every alert it reads the evidence from the bank's data, compares the customer (or payment party, or owner) with the listed party under approved definitions, asks Nemotron models for a recommendation, has a second step re-read every cited fact, applies a written policy, and hands a **recommendation with its evidence** to a person. **A human always makes the final call**: the desk never blocks, never writes to a source system and never messages a customer.
 
@@ -16,16 +37,26 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 **Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails it escalates instead of closing. On the 70-case exam (the cases the rules were written for) the full system wrongly closed 0 of 42 risk cases, against 10 for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: 2 in held-out v1; 0 in held-out v2 (the screener had failed, so nothing was closed); 2 in held-out v3; 0 in held-out v4. Each round, what it found and what was changed after it are in the table below. **No claim of clearing alerts beyond the rules:** on the exam every close it makes is one the deterministic rules also make, and across the blind held-out rounds it made 0 correct clears, against 8 for the deterministic rules (which also close risk cases there). Every figure is one run. Details: [eval/REPORT.md](eval/REPORT.md).
 <!-- headline:end -->
 
-## For judges
+## Start here
 
 |                             |                                                                                                                                                                                                                                                                                                                                 |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Video**                   | link added when the video is recorded                                                                                                                                                                                                                                                                                           |
-| **Deck**                    | link added with the submission                                                                                                                                                                                                                                                                                                  |
+| **Video**                   | link added when the video is recorded ([Demo video](#demo-video))                                                                                                                                                                                                                                                              |
+| **Slides**                  | link added when the slides are ready ([Slides](#slides))                                                                                                                                                                                                                                                                       |
 | **Two-minute sample path**  | `SAMPLE_MODE=true docker compose up --build`, open http://localhost:3001, pick a demo user, open alert **ALR-0004** and press **Review this alert**. No account, key or model is needed; the data is replayed from saved real answers and the language model is a labelled stand-in ([AI and Model Usage](#ai-and-model-usage)) |
 | **Live path**               | Zetaris, Nightshift and the synthetic bank running locally: [Run it live](#run-it-live)                                                                                                                                                                                                                                         |
 | **Traces and receipts**     | the **Decision trace** and **Model routing** panels of every case (with a _Verify receipt_ button); `eval/runs/<run-id>/` holds the exported events and Nightshift's signed receipts; check them with `npm run evidence:verify` ([Check which model served each call](#check-which-model-served-each-call))                     |
 | **Evidence for the claims** | [eval/REPORT.md](eval/REPORT.md), [docs/EVALUATION.md](docs/EVALUATION.md), [docs/SPONSORS.md](docs/SPONSORS.md), [docs/ZETARIS.md](docs/ZETARIS.md#zetaris-checklist)                                                                                                                                                          |
+
+**Where to look**
+
+| Question | Where it is answered |
+| --- | --- |
+| What happens when it fails? | [Failure handling](#failure-handling); a case the critic sent back: [output_examples/need-more-info-critic-sent-back/case.md](output_examples/need-more-info-critic-sent-back/case.md); Zetaris unreachable: `eval/results/2026-10-23T23-49-30-051Z-zdown-routed.json`; a signal that is not grounded still blocks a close: [screenshot](docs/media/screenshots/14-live-risk-signal-not-grounded.png); [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) |
+| What does it do without being asked? | [What it does on its own](#what-it-does-on-its-own) and [Can and cannot, step by step](#can-and-cannot-step-by-step) |
+| How can a person tell afterwards what it did? | The sealed decision record and the run's events, for example [output_examples/sample-mode/ALR-0073/](output_examples/sample-mode/ALR-0073); `GET /cases/:alertId/trace`; `npm run ledger -- --case <alert id>`; the case view's decision trace and replay ([screenshot](docs/media/screenshots/02-case-evidence.png)); [One real trace](#one-real-trace) |
+| Which model answered each call? | The routing panel ([screenshot](docs/media/screenshots/15-live-routing-and-receipts.png)); the trace fields `model_requested`, `model_used` and `receipt` on every model call (for example seq 25 in [output_examples/close-stopped-by-policy-guard/run-events.jsonl](output_examples/close-stopped-by-policy-guard/run-events.jsonl)); `npm run evidence:verify` ([Check which model served each call](#check-which-model-served-each-call)) |
+| How can the results be re-checked? | `npm run prove` (below); `npm run evidence:verify`; `npm run exam:report` rebuilds [eval/REPORT.md](eval/REPORT.md) and the held-out table from `eval/results/` |
 
 <!-- prove:start -->
 **One-command proof** (`npm run prove`, no credentials or services; last run 2026-10-24T04:16:51.211Z on commit bab894d):
@@ -46,7 +77,7 @@ Reproduce with `npm ci && npm run prove`, or `npm run prove -- --fresh` to clone
 
 **Headline numbers** (from the saved runs; refreshed by `npm run exam:report`):
 
-<!-- judges:start -->
+<!-- rounds:start -->
 - **Wrongly closed on the 42 risk cases of the exam:** full system **0**, plain name matching 10.
 - **Every held-out round, as run**, with the baselines on the same frozen cases (cases the rules were not written for; one run each). The same table, from the same result files, is on the review desk's test-scores screen. Wrong closes are in bold and stay in this table:
 
@@ -67,7 +98,7 @@ Reproduce with `npm ci && npm run prove`, or `npm run prove -- --fresh` to clone
 | Held-out v2, re-run after an infrastructure fix | screener answering in plain JSON (`d44ee04`) | the screener over-flagged (signals pointing at text with no relation word); the critic deadlocked on uncheckable citations | span grounding of signals, document numbers checked against the customer record, citable-source list (`8f4c660`) |
 | Held-out v3 (12 cases) | span grounding (`e56b204`) | two relationship notes were closed: the decision first escalated, citing the screener's signals; the critic rejected those citations as not citable; the decision then closed, and the guard let it stand because grounding had marked the signals not grounded. Four clears were stopped by the document-on-record rule, as that rule intends | fail closed: every signal at or above its threshold blocks a close, grounded or not (`80902ea`, policy 8) |
 | Held-out v4 (12 cases, last round) | fails closed (`80902ea`) | no risk case closed; no clear made: every clear carried a relationship signal the screener could not ground, which now blocks (the cost of failing closed) | nothing; this was the last held-out round |
-<!-- judges:end -->
+<!-- rounds:end -->
 
 Rules settle what structured data can. On the cases the rules were written for, the deterministic pipeline is exact by design; on every held-out round it also closed risk cases (the table above), which is why the desk never closes on rules alone. The full system did not always do better: it wrongly closed 2 risk cases on held-out v1 (both also closed by the rules) and 2 on v3 (which the rules did not close); on v2 and v4 it closed none, where the rules closed 3 each. It made no clears the rules miss.
 
@@ -146,6 +177,11 @@ Case **EX-064** (alert ALR-0073), first-system run of 23 Oct 2026, copied by `np
 
 Link added when recorded.
 
+
+## Slides
+
+Link added when the slides are ready.
+
 ## Track 3 fit
 
 Track 3 asks for a reasoning architecture, not a prompt. Each stage of the desk is a separate, checked step:
@@ -157,14 +193,17 @@ Track 3 asks for a reasoning architecture, not a prompt. Each stage of the desk 
 
 ## Contents
 
-- [For judges](#for-judges)
+- [Start here](#start-here)
 - [Run one case](#run-one-case)
 - [One real trace](#one-real-trace)
 - [Demo video](#demo-video)
+- [Slides](#slides)
 - [Track 3 fit](#track-3-fit)
 - [What it does](#what-it-does)
 - [Try it in two minutes](#try-it-in-two-minutes)
 - [How it works](#how-it-works)
+- [What it does on its own](#what-it-does-on-its-own)
+- [Can and cannot, step by step](#can-and-cannot-step-by-step)
 - [How sponsor technology is used](#how-sponsor-technology-is-used)
 - [The decision trace](#the-decision-trace)
 - [Review desk interface](#review-desk-interface)
@@ -251,7 +290,7 @@ flowchart LR
 
 | Step         | What it does                                                                                                                                                                                                                                                                                                                                                                     | Uses a model                                      |
 | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| Triage       | Chooses the path, judges whether the case is clear or contested                                                                                                                                                                                                                                                                                                                  | No                                                |
+| Triage       | Chooses the path, decides whether the case is clear or contested                                                                                                                                                                                                                                                                                                                   | No                                                |
 | Evidence     | Reads the semantic layer's own description, then builds one read-only tool per table and reads the alert, customer, list entry, aliases, dates, countries, identifiers, data-quality results and the approved definitions                                                                                                                                                        | No                                                |
 | Safety guard | Screens text from the data for instructions aimed at the reviewer                                                                                                                                                                                                                                                                                                                | Yes (fast, local)                                 |
 | Screener     | Reads the customer note, the payment reference and the list remarks on the local model and returns structured facts only: risk signals (a type from a closed list, where in the text, a confidence) and documentary evidence that code checks against the evidence standard. The cloud models see these facts and never the text. If it cannot answer, the case cannot be closed | Yes (local)                                       |
@@ -263,9 +302,47 @@ flowchart LR
 | Policy guard | Applies the hard rules. It can make a recommendation more cautious, never less                                                                                                                                                                                                                                                                                                   | No                                                |
 | Reporter     | Seals a hash-protected decision record and returns the answer                                                                                                                                                                                                                                                                                                                    | No                                                |
 
+The safety guard's model calls are logged under the agent name `policy_guard` (action `screen_inbound`): it is the inbound half of the policy guard, run on the data before any other model sees it; the rules half runs after the decision.
+
 The outcomes are `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs two human approvals) and `NEED_MORE_INFO`.
 
 **Approved business definitions** are data in the semantic layer, versioned and cited by id and version in every decision: `true_match`, `false_positive`, `counterparty_match`, `strong_identifier`, `effective_ownership_threshold`. If the approved wording changes and the code has not been reviewed for it, the guard stops automatic closes.
+
+## What it does on its own
+
+**On every review, without being asked:**
+
+- **Data-quality rules:** a customer record that fails a data-quality rule in Zetaris cannot support a close; the case goes to need-more-information.
+- **Safety guard:** text in the data that tries to instruct the reviewer is flagged and treated as data; a flagged case is not closed.
+- **Screener:** customer notes, payment references and list remarks are read on the local model; every risk signal at or above its threshold blocks a close, grounded in the text or not.
+- **Critic re-check:** code re-reads every cited fact from Zetaris before the critic's model sees the recommendation; a fact that does not hold is never approved, and after three rounds the case goes to a person.
+- **Challenger:** takes a second look at a proposed close when one of the policy's triggers applies (confidence below 0.85, a name similarity of 0.95 or more, a failing data-quality rule, or any screener signal), and argues against it.
+- **Document-on-record check:** a document number cited in a note is counted against the customer's identifiers inside Zetaris; a note whose document is not on record does not count as evidence.
+- **Memory:** earlier decisions are checked against the listed entry as it is now; a decision whose entry changed is marked stale and not relied on.
+- **Policy guard:** the written hard rules are applied last; they can only make the outcome more cautious.
+- **Masking and access:** each agent reads only its own tables and columns; identifier numbers are masked, and the model service never receives them.
+- **Record:** every recommendation is sealed with a hash and the signed receipts of its model calls.
+
+**Only when a person starts it:** the list-change re-check (the **Check earlier decisions against the list as it is now** button, or `POST /list-change/replay`) offers earlier decisions for review when their listed entry changed; nothing is reopened until a person does it. Approving, overriding and preparing the next action are a person's. Automatic closing (autonomy level 1) is off by default.
+
+**Never:** block an account, write to a source system, or contact a customer.
+
+## Can and cannot, step by step
+
+| Step | Can | Cannot |
+| --- | --- | --- |
+| Triage | choose the review path and grade how clear the case is | read data or recommend an outcome |
+| Evidence | read its own tables through Zetaris, one read-only statement at a time | write anything, read another agent's tables, or see an identifier number in clear |
+| Safety guard | flag text that tries to instruct the reviewer | change the data or recommend an outcome |
+| Screener | return risk signals with their exact span, and checked documentary facts | send the free text to the cloud (an answer from a cloud route is flagged in the record) or recommend an outcome |
+| Matching and ownership | compare the parties under the approved definitions and work out effective ownership | decide the outcome (code's finding is a first finding only) |
+| Memory | recall earlier decisions and mark them stale when the entry changed | close a case on its own |
+| Decision | recommend one of four outcomes with cited facts | see the free text, act on the recommendation, or skip the critic |
+| Critic | check every cited fact, approve, or send the recommendation back (up to three rounds) | change the recommendation itself, or approve a fact that does not hold |
+| Challenger | argue against a close that meets the policy's triggers, and turn it into an escalation | propose a close |
+| Policy guard | block a close and make any outcome more cautious | approve a close or make an outcome less cautious |
+| Reporter | seal the record with a hash and the receipts | change a record after it is sealed |
+| A person | approve or override with a reason; a block needs a second, different approver | (the desk never acts without one) |
 
 ## How sponsor technology is used
 

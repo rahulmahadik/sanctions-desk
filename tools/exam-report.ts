@@ -1066,11 +1066,11 @@ if (full && modelsDoc.includes(BS) && modelsDoc.includes(BE)) {
   }
 }
 
-// The "For judges" box carries the headline numbers between two markers as well.
-const JS = "<!-- judges:start -->";
-const JE = "<!-- judges:end -->";
-const readmeJudges = readFileSync(readmePath, "utf8");
-if (full && readmeJudges.includes(JS) && readmeJudges.includes(JE)) {
+// The "Start here" section carries the headline numbers between two markers as well.
+const JS = "<!-- rounds:start -->";
+const JE = "<!-- rounds:end -->";
+const readmeRounds = readFileSync(readmePath, "utf8");
+if (full && readmeRounds.includes(JS) && readmeRounds.includes(JE)) {
   const fuzzy = get("fuzzy");
   const rows = [
     `- **Wrongly closed on the ${full.metrics.risk_cases} risk cases of the exam:** full system **${full.metrics.false_closes}**${fuzzy ? `, plain name matching ${fuzzy.metrics.false_closes}` : ""}.`,
@@ -1087,7 +1087,7 @@ if (full && readmeJudges.includes(JS) && readmeJudges.includes(JE)) {
     ...storyRows,
   ];
   const block = [JS, ...rows, JE].join("\n");
-  writeFileSync(readmePath, readmeJudges.replace(new RegExp(`${JS}[\\s\\S]*?${JE}`), block));
+  writeFileSync(readmePath, readmeRounds.replace(new RegExp(`${JS}[\\s\\S]*?${JE}`), block));
 }
 console.log(
   `wrote eval/REPORT.md from ${have.length} variant(s)${notRun.length ? `; not run: ${notRun.join(", ")}` : ""}`,

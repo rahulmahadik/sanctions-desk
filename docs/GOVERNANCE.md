@@ -47,7 +47,7 @@ The more a mistake would cost, the more people are involved. A mistaken close is
 
 ## Explainability
 
-Each recommendation has a hash-sealed decision record and a trace that answers four questions: which approved definition applied, what data it rested on, who could see what, and what it cost. Every cited fact is re-read from the data by code before the critic's model sees it. A citation of a source that cannot be checked at all (a free-text column, the identifier number, a block worked out by code) is sent back once; from the second round on it is set aside as not citable, recorded in the trace and the record, and the remaining facts are judged. This ended a deadlock in which the same uncheckable citation was rejected in every round. A citation whose value does not hold is still a rejection. See `GET /cases/:alertId/trace`, `GET /cases/:alertId/record`, and the alert view and replay in the review desk.
+Each recommendation has a hash-sealed decision record and a trace that answers four questions: which approved definition applied, what data it rested on, who could see what, and what it cost. Every cited fact is re-read from the data by code before the critic's model sees it. A citation of a source that cannot be checked at all (a free-text column, the identifier number, a block worked out by code) is sent back once; from the second round on it is set aside as not citable, recorded in the trace and the record, and the remaining facts are checked. This ended a deadlock in which the same uncheckable citation was rejected in every round. A citation whose value does not hold is still a rejection. See `GET /cases/:alertId/trace`, `GET /cases/:alertId/record`, and the alert view and replay in the review desk.
 
 ## Testing
 

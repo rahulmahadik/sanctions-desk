@@ -29,12 +29,13 @@ for (const name of readdirSync(dir).filter((n) => n.startsWith(`trace-eval-${var
     .filter((e) => e.ts >= since);
   const start = events.map((e) => e.seq).lastIndexOf(0);
   const run = events.slice(Math.max(0, start));
-  const judged = run.filter((e) => e.agent === "critic" && e.action === "judge");
+  const criticVerdicts = run.filter((e) => e.agent === "critic" && e.action === "judge");
   const group = groupOf.get(caseId);
-  if (judged.length === 0 || !group) continue;
+  if (criticVerdicts.length === 0 || !group) continue;
   const row = byGroup[group] ?? { cases: 0, with_citation_error: 0 };
   row.cases += 1;
-  if (judged.some((e) => /unknown table|unknown column/.test(e.output_summary ?? ""))) row.with_citation_error += 1;
+  if (criticVerdicts.some((e) => /unknown table|unknown column/.test(e.output_summary ?? "")))
+    row.with_citation_error += 1;
   byGroup[group] = row;
 }
 

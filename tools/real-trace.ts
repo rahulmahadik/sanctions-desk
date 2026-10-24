@@ -61,11 +61,11 @@ const blocked = record.guards.filter((g) => g.verdict === "block");
 if (blocked.length === 0) throw new Error("the example's record has no blocking guard verdict");
 const first = events.find((e) => e.agent === "decision" && e.action === "recommend");
 const checked = events.find((e) => e.agent === "critic" && e.action === "verify_facts")?.output_summary ?? "";
-const judged = events.find((e) => e.agent === "critic" && e.action === "judge")?.output_summary ?? "";
+const verdict = events.find((e) => e.agent === "critic" && e.action === "judge")?.output_summary ?? "";
 const critic =
-  judged === "approved" && / 0 issues$/.test(checked)
+  verdict === "approved" && / 0 issues$/.test(checked)
     ? `the critic approved it (${checked}): the cited facts were true`
-    : `the critic answered "${judged}" (${checked})`;
+    : `the critic answered "${verdict}" (${checked})`;
 
 const block = [
   START,

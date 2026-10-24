@@ -24,7 +24,7 @@ const RULES = [
     re: /\b(as instructed|we decided|per (the )?request|the user (asked|said|wants|told)|as requested|per the brief|as per (the )?(instructions|brief)|you asked|task list)\b/i,
   },
   {
-    group: "brief, prompt or judging references",
+    group: "brief, prompt or event references",
     re: /\b(hackathon (brief|prompt)|the brief|judging criteria|prize|competitors?|submission (deadline|form)|HackOS)\b/i,
   },
   {

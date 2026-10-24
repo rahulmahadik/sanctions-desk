@@ -11,7 +11,7 @@
  * re-reads every cited fact from the data, so a changed value should never be approved.
  *
  * In sample mode the critic's model step is the rules-based stand-in, so what is measured is the critic's re-reading of
- * cited facts (code), not the model's judgement. `--write` saves eval/critic-mutation.json.
+ * cited facts (code), not the model's opinion. `--write` saves eval/critic-mutation.json.
  */
 import { writeFileSync } from "node:fs";
 import {
