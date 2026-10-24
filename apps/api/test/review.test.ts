@@ -218,6 +218,12 @@ describe("list-change replay on the sample", () => {
     expect(body.reopen.every((c: { reason_code: string }) => c.reason_code === "ENTRY_CHANGED")).toBe(true);
     expect(body.reopen[0].open_alert_ids.length).toBeGreaterThan(0);
     expect(body.reopen[0].entry_name).toBeTruthy();
+    // The earlier decision's list snapshot is shown beside the current one, so a person can see what changed.
+    for (const c of body.reopen as Array<{ earlier_snapshot_id: string | null; current_snapshot_id?: string }>) {
+      expect(c.earlier_snapshot_id).toBeTruthy();
+      expect(c.current_snapshot_id).toBeTruthy();
+      expect(c.earlier_snapshot_id).not.toBe(c.current_snapshot_id);
+    }
 
     expect(body.release).toHaveLength(1);
     expect(body.release[0]).toMatchObject({ reason_code: "ENTRY_DELISTED", earlier_decision: "ESCALATE_L2" });

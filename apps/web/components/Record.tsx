@@ -179,7 +179,7 @@ export function Replay({ events, record }: { events: RunEvent[]; record?: Record
       <h2 id="replay-title">Replay</h2>
       <p className="muted">
         {record
-          ? `Recorded ${record.decided_at}, using data and policy as of ${record.as_of} (policy version ${record.policy.version}).`
+          ? `Recorded ${record.decided_at} against list snapshot ${record.list_snapshots.map((x) => x.snapshot_id).join(", ") || "none"} (policy version ${record.policy.version}). The slider steps through the events of this run as they were recorded; it does not re-run the case on an earlier list.`
           : "Move through the recorded events of this run."}
       </p>
       <label htmlFor="replay-range">

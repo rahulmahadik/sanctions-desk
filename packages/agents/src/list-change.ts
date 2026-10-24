@@ -23,6 +23,8 @@ export interface ListChangeOptions {
 
 export interface ListChangeCase extends RescreenCandidate {
   entry_name: string | null;
+  /** The list snapshot the earlier decision was made against, when the disposition recorded one. */
+  earlier_snapshot_id: string | null;
   /** Alerts on this customer and listed party that are still open and should be reviewed again. */
   open_alert_ids: string[];
 }
@@ -124,9 +126,11 @@ export async function replayListChange(deps: AgentDeps, options: ListChangeOptio
           ),
         ]);
 
+  const earlierSnapshot = new Map(dispositions.map((d) => [d.disposition_id, d.list_snapshot_id ?? null]));
   const withContext = (c: RescreenCandidate): ListChangeCase => ({
     ...c,
     entry_name: names.get(c.entry_id) ?? null,
+    earlier_snapshot_id: earlierSnapshot.get(c.disposition_id) ?? null,
     open_alert_ids: alertRows
       .filter((a) => a.customer_id === c.customer_id && a.entry_id === c.entry_id)
       .map((a) => a.alert_id ?? ""),

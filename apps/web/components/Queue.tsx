@@ -6,6 +6,7 @@ import { fetchQueue } from "../lib/api";
 import { DECISION_LABEL, DECISION_TONE, shortHash } from "../lib/format";
 import type { QueueAlert } from "../lib/types";
 import { HumanBanner } from "./Banner";
+import { ListChangePanel } from "./ListChange";
 
 type Filter = "all" | "open" | "reviewed";
 
@@ -70,6 +71,7 @@ export function Queue() {
   return (
     <>
       <HumanBanner sampleMode={sampleMode} />
+      <ListChangePanel />
       <div className="panel">
         <label>
           Show{" "}

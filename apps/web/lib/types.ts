@@ -464,3 +464,30 @@ export interface PolicyAuditEntry {
   version: number;
   detail?: string;
 }
+
+/** An earlier decision whose listed entry changed or was removed (POST /list-change/replay). */
+export interface ListChangeCaseView {
+  disposition_id: string;
+  customer_id: string;
+  entry_id: string;
+  entry_name: string | null;
+  earlier_decision: Decision;
+  reason_code: "ENTRY_CHANGED" | "ENTRY_DELISTED";
+  earlier_hash: string;
+  current_hash?: string;
+  earlier_snapshot_id: string | null;
+  current_snapshot_id?: string;
+  open_alert_ids: string[];
+}
+
+export interface ListChangeView {
+  total: number;
+  examined: number;
+  complete: boolean;
+  reopen: ListChangeCaseView[];
+  release: ListChangeCaseView[];
+  unchanged: number;
+  impact: { customers: number; pending_payments: number; summary: string };
+  policy_version: number;
+  trace_id: string;
+}

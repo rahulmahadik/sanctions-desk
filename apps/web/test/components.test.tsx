@@ -8,6 +8,7 @@ import { EvidenceCards } from "../components/Evidence";
 import { ExamDashboard } from "../components/ExamDashboard";
 import { Governance } from "../components/Governance";
 import { HeadlineStrip } from "../components/HeadlineStrip";
+import { ListChangePanel } from "../components/ListChange";
 import { Queue } from "../components/Queue";
 import { Outcome, Replay } from "../components/Record";
 import { RoutingPanel } from "../components/Routing";
@@ -30,6 +31,7 @@ vi.mock("../lib/api", () => ({
   followRun: vi.fn(),
   fetchReceiptCheck: vi.fn(),
   fetchPolicy: vi.fn(),
+  postListChange: vi.fn(),
   fetchMe: vi.fn(),
   downloadCaseFile: vi.fn(),
   fetchHuman: vi.fn(),
@@ -184,6 +186,43 @@ describe("RoutingPanel", () => {
   it("says so when no model was called", () => {
     render(<RoutingPanel trace={{ ...TRACE, cost: { ...TRACE.cost, models: [] } }} />);
     expect(screen.getByText(/No model was called/)).toBeTruthy();
+  });
+});
+
+describe("ListChangePanel", () => {
+  it("lists earlier decisions whose entry changed, with the snapshot then and now and the open alerts, and changes nothing", async () => {
+    vi.mocked(api.postListChange).mockResolvedValue({
+      total: 13,
+      examined: 13,
+      complete: true,
+      unchanged: 7,
+      policy_version: 8,
+      trace_id: "replay-1",
+      impact: { customers: 1, pending_payments: 1, summary: "affects 1 customer and 1 pending payment" },
+      release: [],
+      reopen: [
+        {
+          disposition_id: "DSP-0007",
+          customer_id: "CUS-1",
+          entry_id: "OFAC-30969",
+          entry_name: "Yiu-chung Tam",
+          earlier_decision: "CLOSE_FALSE_POSITIVE",
+          reason_code: "ENTRY_CHANGED",
+          earlier_hash: "a",
+          current_hash: "b",
+          earlier_snapshot_id: "ofac-then",
+          current_snapshot_id: "ofac-now",
+          open_alert_ids: ["ALR-0058"],
+        },
+      ],
+    });
+    render(<ListChangePanel />);
+    fireEvent.click(screen.getByRole("button", { name: /Check earlier decisions/ }));
+    const table = await screen.findByTestId("list-change");
+    expect(table.textContent).toContain("ofac-then");
+    expect(table.textContent).toContain("ofac-now");
+    expect(within(table).getByText("ALR-0058").getAttribute("href")).toBe("/case/ALR-0058");
+    expect(screen.getByTestId("list-change-summary").textContent).toContain("Nothing has been reopened or released");
   });
 });
 
@@ -347,7 +386,7 @@ describe("Outcome", () => {
 describe("Replay", () => {
   it("replays the run as of any event: the steps and the line shown follow the slider", () => {
     render(<Replay events={EVENTS} record={RECORD} />);
-    expect(screen.getByText(/using data and policy as of 2026-10-22/)).toBeTruthy();
+    expect(screen.getByText(/against list snapshot .*does not re-run the case on an earlier list/)).toBeTruthy();
     const slider = screen.getByLabelText(/Event 12 of 12/);
     fireEvent.change(slider, { target: { value: "4" } });
     expect(screen.getByTestId("node-matching").getAttribute("data-state")).toBe("running");

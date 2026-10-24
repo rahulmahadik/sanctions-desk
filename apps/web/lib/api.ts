@@ -7,6 +7,7 @@ import type {
   ExamAnswer,
   GovernanceView,
   HumanView,
+  ListChangeView,
   MeView,
   PolicyAuditEntry,
   PolicyVersionRow,
@@ -121,6 +122,7 @@ export const postPolicyDraft = (policy: unknown, reason: string) =>
 export const postWhatIf = (version: number, limit = 30) => post<WhatIfView>("/policy/whatif", { version, limit });
 export const postPublish = (version: number) => post<{ published: number }>(`/policy/drafts/${version}/publish`, {});
 export const postDiscard = (version: number) => post<{ discarded: number }>(`/policy/drafts/${version}/discard`, {});
+export const postListChange = () => post<ListChangeView>("/list-change/replay", {});
 export const postReopen = (alertId: string, input: { reason: string; record_hash: string }) =>
   post<HumanView>(`/cases/${encodeURIComponent(alertId)}/reopen`, input);
 export const postSecondApproval = (alertId: string, input: { approve: boolean; reason: string; record_hash: string }) =>
