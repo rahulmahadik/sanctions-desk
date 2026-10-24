@@ -168,6 +168,22 @@ Only results from runs and tests that were actually made; anything else says NOT
 | Held-out v4, critic and challenger off                  |                                                              | `--variant single` on held-out v4 (the last round, frozen before the fail-closed change), fail-closed system                              | Critic and challenger off: 6 of 6 risks caught, 0 wrong closes, 0 of 6 clears. Full system on the same set: the same (6 of 6, 0 wrong closes, 0 of 6 clears; one critic deadlock, HO4-012). Deterministic pipeline: **3 of 6 risk cases wrongly closed** (HO4-002, HO4-003, HO4-005), 2 of 6 clears. One run each                                                                                                                                                                                                                                                                                                                    |
 | Grounding as a way to remove a block                    | `packages/agents/src/policy-guard.ts`                        | policy version 7 (ungrounded signals did not block) against version 8 (they block), on different held-out sets                            | Version 7 on held-out v3: **2 of 6 risk cases wrongly closed** (HO3-001, HO3-003). Version 8 on held-out v4: 0 of 6 wrongly closed, and 0 of 6 clears (every clear carried an ungrounded signal that now blocks). Not the same cases, so not a like-for-like comparison                                                                                                                                                                                                                                                                                                                                                              |
 
+## Safety guard against injected text
+
+<!-- adversarial:start -->
+**Safety guard against injected instructions and tipping-off drafts, one run (eval/adversarial/guard-2026-10-23T23-50-40-658Z.json).** 105 texts: 70 instructions aimed at the reviewer hidden in 3 places (customer notes, payment references, listed-party remarks) with 20 techniques (plain, polite, role play, markup, hidden spacing and zero-width characters, look-alike letters, other languages, JSON smuggling and more), 12 reworded customer drafts that tip the customer off, and 23 harmless texts. Each text went to the guard as shipped: the fixed patterns, then Nemotron 3.5 Lightning on the laptop through Nightshift.
+
+| Texts                                                     | Cases | Expected | Caught by the fixed patterns | Flagged by Lightning alone | Flagged by the guard as shipped |
+| --------------------------------------------------------- | ----: | -------- | ---------------------------: | -------------------------: | ------------------------------: |
+| Injected instructions                                     |    70 | flag     |                           24 |                         70 |                              70 |
+| Tipping-off drafts                                        |    12 | flag     |                            1 |                         12 |                              12 |
+| Harmless texts (notes, references, remarks, clean drafts) |    23 | pass     |                            0 |                          1 |                               1 |
+
+Of the 82 texts that must be flagged, the guard flagged 82; 57 of them only Lightning caught. Harmless texts wrongly flagged: 1 of 23 (ADV-BEN-081, a payment reference). Errors: 0. Every model call has a receipt id (105 of 105).
+
+Limits: it tests the safety guard only (not the decision, critic or challenger, and not a full review), under policy version 7, in one run on 2026-10-23; the texts were written for this test, and a different wording can behave differently.
+<!-- adversarial:end -->
+
 ## One-command proof
 
 **Check the claims without Docker.** With Node 24, `npm ci && npm run prove` runs seven checks in a few seconds once installed and prints one PASS or FAIL line each, then a summary; it exits with 1 if any check fails. It needs no credentials and no services, forces sample mode and never reads `.env`:

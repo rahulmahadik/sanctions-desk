@@ -109,6 +109,10 @@ Rules settle what structured data can. On the cases the rules were written for, 
 
 Counts in this README (<!--fact:exam_cases-->70<!--/fact--> exam cases in <!--fact:exam_groups-->12<!--/fact--> groups, <!--fact:heldout_cases-->30<!--/fact--> cases in the first held-out set (73 across the four held-out sets), <!--fact:edge_cases-->43<!--/fact--> edge cases) are written by `npm run readme:refresh` from the committed data.
 
+<!-- adversarial:start -->
+- **Safety guard against injected text (one run, 2026-10-23, policy 7):** Lightning flagged 70 of 70 injected instructions, against 24 for the fixed patterns alone, and 12 of 12 tipping-off drafts (patterns: 1); it wrongly flagged 1 of 23 harmless texts. It tests the safety guard only, not a full review. Details: [docs/EVALUATION.md](docs/EVALUATION.md#safety-guard-against-injected-text).
+<!-- adversarial:end -->
+
 **Changes after the evaluation.** After every recorded run, the ownership rule was made a cascade (OFAC's 50 percent rule), exam case EX-043 was relabelled, request-for-information drafts got fixed wording and a tipping-off check, every jurisdiction action now escalates, the SQL guard refuses `SELECT *`, and Nightshift's own answer memory was switched off. What, why, commit and effect: [docs/EVALUATION.md](docs/EVALUATION.md#changes-after-the-evaluation). The recorded results are unchanged; the report scores them against the current labels.
 
 ## How it works

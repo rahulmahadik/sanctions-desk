@@ -17,6 +17,10 @@ Sanctions Desk uses two NVIDIA Nemotron models, both through Meterless Nightshif
 
 Nightshift's learned router chooses the model inside the lane each app identity is bound to. In the headline run the receipts show the safety guard on Lightning in 70 of 70 calls and the decision, critic and challenger on Ultra in 187 of 190 (3 answered by Lightning). The desk asks for a pinned mode per step (`meterless/fast`, `meterless/deep`, `meterless/judge`) and records both the mode asked for and the model that answered. Details: [MODELS.md](MODELS.md).
 
+<!-- adversarial:start -->
+**Safety guard against injected text (one run, 2026-10-23, policy 7):** Lightning flagged 70 of 70 injected instructions, against 24 for the fixed patterns alone, and 12 of 12 tipping-off drafts (patterns: 1); it wrongly flagged 1 of 23 harmless texts. It tests the safety guard only, not a full review. Details: [EVALUATION.md](EVALUATION.md#safety-guard-against-injected-text).
+<!-- adversarial:end -->
+
 ## The privacy design
 
 - **Free text never goes into a cloud prompt from the desk.** Before each decision, critic and challenger call, code compares the prompt with the case's notes, payment references and list remarks; if any of them, or a run of 20 characters from one, is in the prompt, the call is not made and the case goes to a person ([MODELS.md](MODELS.md#what-leaves-the-machine-per-step)).

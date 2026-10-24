@@ -64,6 +64,7 @@
     "zetaris:rebuild": "tsx tools/zetaris-rebuild.ts",
     "zetaris:definitions": "tsx tools/zetaris-definitions.ts",
     "adversarial:guard": "tsx tools/adversarial-guard.ts",
+    "adversarial:summary": "tsx tools/adversarial-summary.ts",
     "readme:refresh": "tsx tools/readme-facts.ts",
     "readme:trace": "tsx tools/real-trace.ts",
     "examples:sample": "tsx tools/sample-outputs.ts",
