@@ -5,7 +5,7 @@ An AI review desk for bank sanctions-screening alerts. For every alert it reads 
 Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
 <!-- headline:start -->
-**Headline result** (full system on the 68-alert exam, one run): 26% of alerts closed with cited evidence, 74% escalated; about 344 analyst minutes saved per 100 alerts (assuming 15 minutes per alert and 2 to confirm a close); false closes on cases that carry real risk: 0 of 42. The desk took a median of 130 seconds and 0.01 USD in model cost per alert (measured), against an industry estimate of 20 to 60 minutes of analyst time per alert (an estimate; no vendor source verified). Details, assumptions and the comparison with plain name matching: [eval/REPORT.md](eval/REPORT.md).
+**Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails it escalates instead of closing. On the 70-case exam (the cases the rules were written for) the full system wrongly closed 0 of 42 risk cases, against 10 for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: 2 in held-out v1; 0 in held-out v2 (the screener had failed, so nothing was closed); 2 in held-out v3; 0 in held-out v4. Each round, what it found and what was changed after it are in the table below. **No claim of clearing alerts beyond the rules:** on the exam every close it makes is one the deterministic rules also make, and across the blind held-out rounds it made 0 correct clears, against 8 for the deterministic rules (which also close risk cases there). Every figure is one run. Details: [eval/REPORT.md](eval/REPORT.md).
 <!-- headline:end -->
 
 ## For judges
@@ -40,10 +40,18 @@ Reproduce with `npm ci && npm run prove`, or `npm run prove -- --fresh` to clone
 
 <!-- judges:start -->
 - **Wrongly closed on the 42 risk cases of the exam:** full system **0**, plain name matching 10.
-- **Held-out set (cases the rules were not written for):** 20 of 22 risks caught, 0 of 8 correct clears made (escalate-everything catches every risk and makes none).
+- **Each held-out round** (cases the rules were not written for, frozen before the system that ran them; one run each). Wrong closes are kept in this table, not in footnotes:
+
+| Round | System | Risk cases wrongly closed | Correct clears | Deterministic rules, same cases | What it found | What changed after |
+|---|---|---:|---:|---|---|---|
+| Held-out v1 (30 cases, blind) | first system (`f9f3212`) | **2 of 22** (HO-005, HO-006) | 0 of 8 | 6 wrong closes, 0 of 8 clears | risk stated only in free text (a note, a payment reference) never reached the decision | a local screener reads the free text and passes risk signals; a signal blocks a close |
+| Held-out v2 (19 cases, blind) | screener added (`da7aff4`) | 0 of 14 | 0 of 5 | 3 wrong closes, 5 of 5 clears | the local screener failed on every case (empty answers to schema-constrained requests); fail-closed held | plain JSON for the screener and local retries (`f6ed38a`); no prompt, rule or threshold change |
+| Held-out v2, re-run (not blind) | infrastructure fix (`f6ed38a`) | 0 of 14 | 0 of 5 | 3 wrong closes, 5 of 5 clears | the screener over-flagged (signals pointing at text with no relation word); the critic deadlocked on uncheckable citations | span grounding of signals, document numbers checked against the customer record, citable-source list (`b6617cd`) |
+| Held-out v3 (12 cases, blind) | grounding (`517f798`) | **2 of 6** (HO3-001, HO3-003) | 0 of 6 | 1 wrong close, 1 of 6 clears | grounding set aside two real relation signals whose cited span missed the word, so two risks were closed; four clears were stopped by the document-on-record rule, as that rule intends | fail closed: every signal at or above its threshold blocks a close, grounded or not (`ce1db95`, policy 8) |
+| Held-out v4 (12 cases, blind, last round) | fail closed (`ce1db95`) | 0 of 6 | 0 of 6 | 3 wrong closes, 2 of 6 clears | no risk case closed; no clear made: every clear carried a relationship signal the screener could not ground, which now blocks (the cost of failing closed) | nothing; this was the last held-out round |
 <!-- judges:end -->
 
-Rules settle what structured data can; agents add value where rules stop. On the cases the rules were written for, the deterministic pipeline is exact by design; on the held-out set it makes none of the correct clears, and that is where the agents are tested.
+Rules settle what structured data can. On the cases the rules were written for, the deterministic pipeline is exact by design; on every held-out round it also closed risk cases (the table above), which is why the desk never closes on rules alone. What the agents add, measured, is that they did not close those risks; they did not add clears the rules miss.
 
 Counts in this README (<!--fact:exam_cases-->70<!--/fact--> exam cases in <!--fact:exam_groups-->12<!--/fact--> groups, <!--fact:heldout_cases-->30<!--/fact--> held-out cases, <!--fact:edge_cases-->43<!--/fact--> edge cases) are written by `npm run readme:refresh` from the committed data.
 
@@ -171,7 +179,7 @@ Open http://localhost:3001 for the review desk: pick an alert, press **Review th
 | Critic mutation test   | Changes one cited fact at a time to a false value and runs only the critic against the same evidence; every change must be caught and unchanged decisions approved. Also checks the evidence standard and the grounding of screener signals (`npm run critic:mutation`) |
 | Signed evidence        | Verifies every receipt signature in `eval/runs` and that every model call in the traces has its receipt naming the same model (`npm run evidence:verify`)                                                                                                               |
 | Roles and four-eyes    | Runs the API's access tests (every role against every route that changes something) and the human-decision tests, and reports the pass counts                                                                                                                           |
-| Preregistration        | Recomputes the held-out case-file hashes pinned in the tests, checks that the final freeze commit of the second held-out set is in the history, and that the third set\'s file equals the one in its freeze commit                                                      |
+| Preregistration        | Recomputes the held-out case-file hashes pinned in the tests, checks that the final freeze commit of the second held-out set is in the history, and that the third and fourth sets\' files equal the ones in their freeze commits                                                      |
 | No secrets in the tree | Scans the tracked text files for credential-bearing URLs, private keys and tokens, and reports counts only                                                                                                                                                              |
 
 `npm run prove -- --verbose` also prints what each check printed. `npm run prove -- --fresh` clones the current commit into a temporary folder, runs `npm ci --no-audit --no-fund` there and runs the same checks inside it; it needs network access for npm and takes a few minutes. `npm run prove -- --write` writes the list to `eval/PROVE.md` and to the block at the top of this README.
@@ -268,12 +276,12 @@ App binds used in the final runs: `sanctions-desk-guard` bound to local and `san
 <!-- routing:start -->
 Measured in the full exam run of 2026-10-23, from the signed receipts (the model that served each call; Nightshift's learned router decides this, we only ask for a pinned mode):
 
-| Step         | Calls | Nemotron 3.5 Lightning 30B (local) | Nemotron 3 Ultra 550B (cloud) |
-| ------------ | ----: | ---------------------------------: | ----------------------------: |
-| Safety guard |    70 |                        100.0% (70) |                             0 |
-| Decision     |    89 |                           2.3% (2) |                    97.8% (87) |
-| Critic       |    86 |                           1.2% (1) |                    98.8% (85) |
-| Challenger   |    15 |                                  0 |                   100.0% (15) |
+| Step | Calls | Nemotron 3.5 Lightning 30B (local) | Nemotron 3 Ultra 550B (cloud) |
+|---|---:|---:|---:|
+| Safety guard | 70 | 100.0% (70) | 0 |
+| Decision | 89 | 2.3% (2) | 97.8% (87) |
+| Critic | 86 | 1.2% (1) | 98.8% (85) |
+| Challenger | 15 | 0 | 100.0% (15) |
 <!-- routing:end -->
 
 Which agent runs on which Nemotron model, and what it does:
@@ -290,9 +298,9 @@ Which agent runs on which Nemotron model, and what it does:
 **The signed receipt log of the final runs** (one Ed25519-signed Nightshift receipt per model call; the model that served each call is in `winning_route.model`):
 
 <!-- receipts:start -->
-| Run                       | Receipts | Receipt log                                                                                                | Check it                                                       |
-| ------------------------- | -------: | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| `routed-20261023T010000Z` |        1 | [eval/runs/routed-20261023T010000Z/receipts.jsonl.gz](eval/runs/routed-20261023T010000Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/routed-20261023T010000Z` |
+| Run | Receipts | Receipt log | Check it |
+| --- | ---: | --- | --- |
+| `routed-20261023T010000Z` | 1 | [eval/runs/routed-20261023T010000Z/receipts.jsonl.gz](eval/runs/routed-20261023T010000Z/receipts.jsonl.gz) | `npm run evidence:verify -- eval/runs/routed-20261023T010000Z` |
 
 `npm run evidence:verify` with no argument checks every run: each signature, that every model call has a receipt, and that the model in the trace equals the model in the receipt.
 <!-- receipts:end -->
@@ -322,6 +330,8 @@ Only results from runs and tests that were actually made; anything else says NOT
 | Challenger alone                                        | `challenger.ts`                                              | NOT MEASURED separately                                                                                                                   | It re-opened no close in the full 70-case run of the first system                                                                                                                                                                                                                                                              |
 | Policy guard                                            | `packages/agents/src/policy-guard.ts`                        | NOT MEASURED by a run (unit tests only)                                                                                                   | Every outcome after a critic deadlock is the guard's (it raises, never lowers)                                                                                                                                                                                                                                                 |
 | Held-out v3, critic and challenger off                  |                                                              | `--variant single` on held-out v3 (new set, frozen before the fix), fixed system                                                          | Critic and challenger off: 6 of 6 risks caught, 0 wrong closes, 0 of 6 clears. Full system on the same set: 4 of 6 caught, **2 wrong closes** (HO3-001, HO3-003), 0 of 6 clears. One run each; the difference comes from the screener and decision answering differently, not from the critic (see the v3 notes in the report) |
+| Held-out v4, critic and challenger off | | `--variant single` on held-out v4 (the last round, frozen before the fail-closed change), fail-closed system | Critic and challenger off: 6 of 6 risks caught, 0 wrong closes, 0 of 6 clears. Full system on the same set: the same (6 of 6, 0 wrong closes, 0 of 6 clears; one critic deadlock, HO4-012). Deterministic pipeline: **3 of 6 risk cases wrongly closed** (HO4-002, HO4-003, HO4-005), 2 of 6 clears. One run each |
+| Grounding as a way to remove a block | `packages/agents/src/policy-guard.ts` | policy version 7 (ungrounded signals did not block) against version 8 (they block), on different held-out sets | Version 7 on held-out v3: **2 of 6 risk cases wrongly closed** (HO3-001, HO3-003). Version 8 on held-out v4: 0 of 6 wrongly closed, and 0 of 6 clears (every clear carried an ungrounded signal that now blocks). Not the same cases, so not a like-for-like comparison |
 
 ## The decision trace
 
@@ -380,7 +390,7 @@ In sample mode, with no setup, three **demo users** (`analyst_demo`, `approver_d
 
 ## Evaluation
 
-**Which code the numbers came from.** First system: review code at commit `f9f3212` (all four first-system runs). Changed system: held-out v2 blind at `da7aff4`; the re-run of v2 after the infrastructure fix, the 70-case re-run, held-out v1 after the fix and the screener-off ablation at `f6ed38a`. The SQL guard fix came after all of those, in merge `002f21c`; held-out v3 and its single-mode run used the code after it (`517f798`, with the grounding and document-number fixes). Each result file records the commit it was saved at.
+**Which code the numbers came from.** First system: review code at commit `f9f3212` (all four first-system runs). Changed system: held-out v2 blind at `da7aff4`; the re-run of v2 after the infrastructure fix, the 70-case re-run, held-out v1 after the fix and the screener-off ablation at `f6ed38a`. The SQL guard fix came after all of those, in merge `002f21c`; held-out v3 and its single-mode run used the code after it (`517f798`, with the grounding and document-number fixes). Held-out v4 and its single-mode run used the fail-closed change (`ce1db95`, policy version 8), committed after v4 was frozen in `958d061`. Each result file records the commit it was saved at.
 
 The exam has <!--fact:exam_cases-->70<!--/fact--> cases built from real public list entries and synthetic customers, payments and owners, in <!--fact:exam_groups-->12<!--/fact--> groups (false positives, true matches, transliteration, missing data, hidden ownership at and above 50 percent, ownership below 50 percent, earlier clearances that still hold, earlier clearances that no longer hold, injection, tipping-off drafts, payment routes through watched jurisdictions). Each case has one right answer, acceptable alternatives, and answers that must never be given. The most important number is the **false-close rate**: how often a case that carries real risk is recommended for closing. The target is zero.
 
@@ -586,11 +596,11 @@ The governance view, mapped to the headings of the Monetary Authority of Singapo
 
 ## Not built / not verified
 
-- **The local screener over-flags.** On held-out v2 its blocking "relationship to listed party" signals pointed at text with no relationship word and no name (often the first 30 characters of a note), and no clear was made (0 of 5). A span-grounding check was added after that run and tested once, blind, on held-out v3 (a new set frozen before the fix): it made things worse on risk, **2 of 6 risk cases were wrongly closed** (a son of a listed person, a nominee) because the model's cited span missed the relationship word by a few characters and the rule set the signal aside; no clear was made (0 of 6), four of them because the note's document was not on the customer record. Reported as run; the v2 numbers are reported as they were.
+- **The local screener over-flags.** On held-out v2 its blocking "relationship to listed party" signals pointed at text with no relationship word and no name (often the first 30 characters of a note), and no clear was made (0 of 5). A span-grounding check was added after that run and tested once, blind, on held-out v3 (a new set frozen before the fix): it made things worse on risk, **2 of 6 risk cases were wrongly closed** (a son of a listed person, a nominee) because the model's cited span missed the relationship word by a few characters and the rule set the signal aside; no clear was made (0 of 6), four of them because the note's document was not on the customer record. Reported as run; the v2 numbers are reported as they were. The grounding window was not widened and v3 was not re-run; instead policy version 8 fails closed: a signal marked not grounded is still shown and still blocks a close. On held-out v4 (the last round, frozen before that change) no risk case was closed (0 of 6), and no clear was made either (0 of 6): every clear met the documentary standard with its document on the customer record, but each carried a relationship signal at 0.9 that the screener could not ground, and that now blocks. **The desk does not clear alerts beyond what the rules clear**; its measured value is the risk it does not close.
 - **Critic deadlocks.** When the decision cited a source the critic cannot check by design (a free-text column, an identifier number, a computed block), both repeated themselves for three rounds and the guard escalated. The decision step now gets the list of citable sources and such citations are set aside from the second round; on held-out v3 one deadlock still happened (HO3-012).
 - **Thermal limits.** Long runs on one laptop drive the model runtime into a serious thermal state; the runner cools down between cases and pauses when it lasts. Provider failures are counted per run and shown by thermal posture.
 - **Nemotron 3 Super 120B.** The runtime lists it, but its cloud endpoint was retired during development (it answered "Function not found"), so the cloud lanes use Nemotron 3 Ultra. From development notes; not re-measured.
-- **Single runs.** Every result is one run; repeats of the held-out sets were not made.
+- **Single runs.** Every result is one run; repeats of the held-out sets were not made. Held-out v4 was the last held-out round; nothing was changed after it.
 - **Not measured:** a run without Zetaris other than the unreachable-endpoint test, the policy guard switched off, the challenger alone, a "Nemotron alone" baseline, the Lightning-versus-Ultra study and a pinned-model run.
 - Everything in [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md), including the Zetaris column policy on identifier numbers that this local edition does not enforce, the payments cache lost on an engine restart, and the local model's empty answers to schema-constrained requests.
 

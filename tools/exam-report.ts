@@ -12,7 +12,6 @@ import {
   byPath,
   type Headline,
   headlineOf,
-  headlineSentence,
   type Metrics,
   modelLabel,
   type RoutingSplit,
@@ -580,7 +579,9 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2"))) {
     lines.push(
       "**Held-out v4: the last held-out round, frozen before the fail-closed change.** v3 showed two wrong closes where the screener's cited span missed the relationship word and the grounding check set the signal aside. The grounding window was not widened and v3 was not re-run. Instead the rule was changed: a screener signal marked not grounded is still shown and still blocks a close; grounding only adds context for the reviewer. Before that change, a fourth set of 12 cases (6 risks, including relation words just outside a short span, and 6 clears, including clears whose documents are on the customer record) was written from the definitions only, by an author with no access to results, traces, reports or the change, and frozen in commit `958d061` at 10:40:56 SGT on 24 Oct 2026. The change was committed afterwards, in `ce1db95` at 10:44:21 SGT (policy version 8). The v4 file was checked against its freeze commit before the run (sha256 `de43651d…`, the same). v4 was run once on the changed system, with the single, deterministic and escalate-all baselines, and is reported as run. The routed v4 run was started without the thermal gate (an operator slip, recorded in the log); the other three runs used it.",
       "",
-      "What changed in `ce1db95`, file by file (the same way as for sys2b). Screener thresholds are unchanged from policy version 7 (`confidenceThreshold` 0.5 for every signal type except *other*, `otherConfidenceThreshold` 0.7 for *other*); the policy file changes only its version number. Review path: `packages/agents/src/policy-guard.ts` (the signals that block a close are every signal at or above its threshold, grounded or not; the not-grounded flag now says the signals still block); `packages/agents/src/sample-rules.ts` (the same rule in sample mode); `packages/agents/src/screener.ts` (a comment and the trace wording). Prompt wording: `packages/agents/src/decision.ts`, `critic.ts` and `challenger.ts` each change one sentence, from treating ungrounded signals as non-blocking to *any risk signal at or above the threshold, grounded or not, means a close is not supported; grounded false only means the reviewer should read the field*. Configuration: `config/policy.default.json` (version 7 to 8). Tests and tools: `packages/agents/test/grounding-and-citable.test.ts` (ungrounded signals block; a property test over every signal type, confidences 0 to 1, grounded or not and valid span or not, that no signal at or above its threshold can be removed in a way that allows a close), `packages/shared/test/policy.test.ts`, `apps/web/test/components.test.tsx`, `tools/critic-mutation.ts` and its output `eval/critic-mutation.json` (147 of 147 caught). Documents: `docs/GOVERNANCE.md`, `docs/MODELS.md`, `docs/KNOWN_ISSUES.md`. No rule, definition, label, case or case-specific logic changed.",
+      "What changed in `ce1db95`, file by file (the same way as for sys2b). Screener thresholds are unchanged from policy version 7 (`confidenceThreshold` 0.5 for every signal type except *other*, `otherConfidenceThreshold` 0.7 for *other*); the policy file changes only its version number. Review path: `packages/agents/src/policy-guard.ts` (the signals that block a close are every signal at or above its threshold, grounded or not; the not-grounded flag now says the signals still block); `packages/agents/src/sample-rules.ts` (the same rule in sample mode); `packages/agents/src/screener.ts` (a comment and the trace wording). Prompt wording: `packages/agents/src/decision.ts`, `critic.ts` and `challenger.ts` each change one sentence, from treating ungrounded signals as non-blocking to *any risk signal at or above the threshold, grounded or not, means a close is not supported; grounded false only means the reviewer should read the field*. Configuration: `config/policy.default.json` (version 7 to 8). Tests and tools: `packages/agents/test/grounding-and-citable.test.ts` (ungrounded signals block; a property test over every signal type, confidences 0 to 1, grounded or not and valid span or not, that no signal at or above its threshold can be removed in a way that allows a close), `packages/shared/test/policy.test.ts`, `apps/web/test/components.test.tsx`, `tools/critic-mutation.ts` and its output `eval/critic-mutation.json` (147 of 147 caught). Documents: `docs/GOVERNANCE.md`, `docs/MODELS.md`, `docs/KNOWN_ISSUES.md`. Apart from the one rule described (ungrounded signals block), no rule, threshold, definition, label, case or case-specific logic changed.",
+      "",
+      "What v4 found, from the traces of the routed run: no risk case was closed, and no first recommendation was a close. No clear was made either. Every one of the six clears met the documentary standard with its document on the customer record, but in each the screener reported a relationship signal at 0.9 (and in five an alias signal, at 0.5 or in HO4-008 at 0.9) that it could not ground: three had no location at all, and three pointed at the start of the note (characters 0-11, 0-30, 0-100), where the grounding check did not find a relation word and a name. Under policy version 8 those signals block a close, so the decision step answered NEED_MORE_INFO (ESCALATE_L2 for HO4-012, after a critic deadlock) and the critic approved; the policy guard did not need to raise anything. This is the cost of failing closed while the screener over-flags: the desk triages safely and leaves the clears to a person.",
       "",
     );
   }
@@ -955,10 +956,100 @@ const readmePath = resolveProjectPath("README.md");
 const readme = readFileSync(readmePath, "utf8");
 const START = "<!-- headline:start -->";
 const END = "<!-- headline:end -->";
+/** Each held-out round: the run of the system it tested, the deterministic pipeline on the same cases, what the round
+ * found and what was changed after it. The findings of the finished rounds are history; the last round's is computed. */
+const ROUNDS: Array<{ label: string; system: string; run?: Result; rules?: Result; found: string; changed: string }> = [
+  {
+    label: "Held-out v1 (30 cases, blind)",
+    system: "first system (`f9f3212`)",
+    run: heldoutNewest.get("routed"),
+    rules: heldoutNewest.get("rules"),
+    found: "risk stated only in free text (a note, a payment reference) never reached the decision",
+    changed: "a local screener reads the free text and passes risk signals; a signal blocks a close",
+  },
+  {
+    label: "Held-out v2 (19 cases, blind)",
+    system: "screener added (`da7aff4`)",
+    run: laterRuns.get("sys2|heldout2|routed"),
+    rules: laterRuns.get("baseline|heldout2|rules"),
+    found: "the local screener failed on every case (empty answers to schema-constrained requests); fail-closed held",
+    changed: "plain JSON for the screener and local retries (`f6ed38a`); no prompt, rule or threshold change",
+  },
+  {
+    label: "Held-out v2, re-run (not blind)",
+    system: "infrastructure fix (`f6ed38a`)",
+    run: laterRuns.get("sys2b|heldout2|routed"),
+    rules: laterRuns.get("baseline|heldout2|rules"),
+    found:
+      "the screener over-flagged (signals pointing at text with no relation word); the critic deadlocked on uncheckable citations",
+    changed:
+      "span grounding of signals, document numbers checked against the customer record, citable-source list (`b6617cd`)",
+  },
+  {
+    label: "Held-out v3 (12 cases, blind)",
+    system: "grounding (`517f798`)",
+    run: laterRuns.get("sys3|heldout3|routed"),
+    rules: laterRuns.get("baseline|heldout3|rules"),
+    found:
+      "grounding set aside two real relation signals whose cited span missed the word, so two risks were closed; four clears were stopped by the document-on-record rule, as that rule intends",
+    changed:
+      "fail closed: every signal at or above its threshold blocks a close, grounded or not (`ce1db95`, policy 8)",
+  },
+  {
+    label: "Held-out v4 (12 cases, blind, last round)",
+    system: "fail closed (`ce1db95`)",
+    run: laterRuns.get("sys4|heldout4|routed"),
+    rules: laterRuns.get("baseline|heldout4|rules"),
+    found:
+      "no risk case closed; no clear made: every clear carried a relationship signal the screener could not ground, which now blocks (the cost of failing closed)",
+    changed: "nothing; this was the last held-out round",
+  },
+];
+const wrongCloses = (r: Result) => {
+  const d = directions(r.cases);
+  return d.risk - d.caught;
+};
+const roundRows = ROUNDS.map((x) => {
+  if (!x.run) return `| ${x.label} | ${x.system} | not run | | | | ${x.changed} |`;
+  const d = directions(x.run.cases);
+  const fc = d.risk - d.caught;
+  const rules = x.rules ? directions(x.rules.cases) : undefined;
+  const wrongIds = riskOf(x.run.cases)
+    .filter((c) => c.error === undefined && closed(c))
+    .map((c) => c.case_id);
+  const found =
+    x.found ||
+    (fc === 0
+      ? `no risk case closed; ${d.made} of ${d.clears} clears made`
+      : `${fc} risk case${fc === 1 ? "" : "s"} wrongly closed; ${d.made} of ${d.clears} clears made`);
+  return `| ${x.label} | ${x.system} | ${fc > 0 ? `**${fc} of ${d.risk}** (${wrongIds.join(", ")})` : `0 of ${d.risk}`} | ${d.made} of ${d.clears} | ${rules ? `${rules.risk - rules.caught} wrong close${rules.risk - rules.caught === 1 ? "" : "s"}, ${rules.made} of ${rules.clears} clears` : "not run"} | ${found} | ${x.changed} |`;
+});
+const heldoutClears = ROUNDS.filter((x) => x.run && !x.label.includes("re-run")).reduce(
+  (n, x) => n + directions((x.run as Result).cases).made,
+  0,
+);
+const heldoutRulesClears = ROUNDS.filter((x) => x.rules && !x.label.includes("re-run")).reduce(
+  (n, x) => n + directions((x.rules as Result).cases).made,
+  0,
+);
+const heldoutWrong = ROUNDS.filter((x) => x.run && !x.label.includes("re-run")).map(
+  (x) =>
+    `${wrongCloses(x.run as Result)} in ${(x.label.split(" (")[0] ?? x.label).replace("Held-out", "held-out")}${x.label.startsWith("Held-out v2") ? " (the screener had failed, so nothing was closed)" : ""}`,
+);
+
+const closedIds = (r: Result | undefined) => new Set(r ? r.cases.filter(closed).map((c) => c.case_id) : []);
+const rulesClosed = closedIds(get("rules"));
+const beyondRules = [...closedIds(full)].filter((id) => !rulesClosed.has(id));
+const examCloses = get("rules")
+  ? beyondRules.length === 0
+    ? "on the exam every close it makes is one the deterministic rules also make"
+    : `on the exam ${beyondRules.length} of its closes are ones the deterministic rules do not make (${beyondRules.join(", ")})`
+  : "the deterministic rules have not been run on the exam";
+
 if (head && full && readme.includes(START) && readme.includes(END)) {
   const block = [
     START,
-    `**Headline result** (full system on the ${head.alerts}-alert exam, one run): ${headlineSentence(head)} Details, assumptions and the comparison with plain name matching: [eval/REPORT.md](eval/REPORT.md).`,
+    `**Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails it escalates instead of closing. On the 70-case exam (the cases the rules were written for) the full system wrongly closed ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases, against ${get("fuzzy")?.metrics.false_closes ?? "not run"} for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: ${heldoutWrong.join("; ")}. Each round, what it found and what was changed after it are in the table below. **No claim of clearing alerts beyond the rules:** ${examCloses}, and across the blind held-out rounds it made ${heldoutClears} correct clear${heldoutClears === 1 ? "" : "s"}, against ${heldoutRulesClears} for the deterministic rules (which also close risk cases there). Every figure is one run. Details: [eval/REPORT.md](eval/REPORT.md).`,
     END,
   ].join("\n");
   writeFileSync(readmePath, readme.replace(new RegExp(`${START}[\\s\\S]*?${END}`), block));
@@ -1008,16 +1099,14 @@ const JE = "<!-- judges:end -->";
 const readmeJudges = readFileSync(readmePath, "utf8");
 if (full && readmeJudges.includes(JS) && readmeJudges.includes(JE)) {
   const fuzzy = get("fuzzy");
-  const hoFullNow = heldoutNewest.get("routed");
   const rows = [
     `- **Wrongly closed on the ${full.metrics.risk_cases} risk cases of the exam:** full system **${full.metrics.false_closes}**${fuzzy ? `, plain name matching ${fuzzy.metrics.false_closes}` : ""}.`,
+    "- **Each held-out round** (cases the rules were not written for, frozen before the system that ran them; one run each). Wrong closes are kept in this table, not in footnotes:",
+    "",
+    "| Round | System | Risk cases wrongly closed | Correct clears | Deterministic rules, same cases | What it found | What changed after |",
+    "|---|---|---:|---:|---|---|---|",
+    ...roundRows,
   ];
-  if (hoFullNow) {
-    const d = directions(hoFullNow.cases);
-    rows.push(
-      `- **Held-out set (cases the rules were not written for):** ${d.caught} of ${d.risk} risks caught, ${d.made} of ${d.clears} correct clears made (escalate-everything catches every risk and makes none).`,
-    );
-  }
   const block = [JS, ...rows, JE].join("\n");
   writeFileSync(readmePath, readmeJudges.replace(new RegExp(`${JS}[\\s\\S]*?${JE}`), block));
 }
