@@ -12,7 +12,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { extname } from "node:path";
 import { gunzipSync } from "node:zlib";
-import { matches } from "./redaction-patterns.mjs";
+import { matches, USERNAME } from "./redaction-patterns.mjs";
 import { SKIP_FILES, SKIP_PREFIXES, TEXT_EXTENSIONS } from "./voice-rules.mjs";
 
 const git = (args) => execFileSync("git", args, { encoding: "utf8", maxBuffer: 1 << 30 });
@@ -36,7 +36,7 @@ const RULES = [
     group: "local path",
     re: /(\/Users\/[A-Za-z0-9._-]+|\/home\/[A-Za-z0-9._-]+|[A-Z]:\\Users\\|\/private\/tmp|\/var\/folders)/,
   },
-  { group: "username", re: /\brahulmahadik\b|\brahultkiet\b/i },
+  { group: "username", re: new RegExp(USERNAME.source, "i") },
   {
     group: "e-mail address",
     re: /\b[\w.+-]+@(?!example\.(com|org)|sanctions-desk\.local|users\.noreply\.github\.com)[\w-]+\.[\w.-]+\b/,
