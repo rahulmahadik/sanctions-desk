@@ -111,6 +111,7 @@ Rules settle what structured data can. On the cases the rules were written for, 
 
 Counts in this README (<!--fact:exam_cases-->70<!--/fact--> exam cases in <!--fact:exam_groups-->12<!--/fact--> groups, <!--fact:heldout_cases-->30<!--/fact--> cases in the first held-out set (73 across the four held-out sets), <!--fact:edge_cases-->43<!--/fact--> edge cases) are written by `npm run readme:refresh` from the committed data.
 
+- **Small study, Nemotron alone against the full system (held-out v4, 12 cases, three runs each, not part of the recorded evaluation):** the full system wrongly closed 0 of 6 risk cases in every run; Nemotron alone, given the same structured facts with no free text and no checks, closed 3, 6 and 4 of 6. Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](docs/NEMOTRON.md#what-the-agents-add-over-nemotron-alone).
 <!-- adversarial:start -->
 - **Safety guard against injected text (one run, 2026-10-23, policy 7):** Lightning flagged 70 of 70 injected instructions, against 24 for the fixed patterns alone, and 12 of 12 tipping-off drafts (patterns: 1); it wrongly flagged 1 of 23 harmless texts. It tests the safety guard only, not a full review. Details: [docs/EVALUATION.md](docs/EVALUATION.md#safety-guard-against-injected-text).
 <!-- adversarial:end -->
