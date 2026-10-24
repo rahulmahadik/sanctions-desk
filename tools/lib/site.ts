@@ -18,6 +18,7 @@ export const SITE_IMAGES: Record<string, string> = {
   "media/charts/first-recommendation-closes.png": "docs/media/charts/first-recommendation-closes.png",
   "media/charts/critic-mutation.png": "docs/media/charts/critic-mutation.png",
   "media/charts/model-calls.png": "docs/media/charts/model-calls.png",
+  "media/charts/model-latency.png": "docs/media/charts/model-latency.png",
 };
 
 /** The API's version, as its package states it. */
