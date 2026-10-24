@@ -26,6 +26,34 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 **Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails, the case is escalated or held for more information instead of closed. On the 70-case exam (the cases the rules were written for) the full system wrongly closed 0 of 43 risk cases, against 10 for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: 2 in held-out v1; 0 in held-out v2 (the screener had failed, so nothing was closed); 2 in held-out v3; 0 in held-out v4. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** on the exam every close it makes is one the deterministic rules also make, and on the blind held-out rounds it cleared none of the 25 alerts that should have been cleared (0 of 25) and sent them to a person instead. It wrongly closed 4 of 48 risk cases (2 in v1, 2 in v3, each before a later change to the system), against 13 of 48 for the deterministic rules, which also cleared 8 of 25. This is the cost of failing closed. Every figure is one run. Details: [eval/REPORT.md](eval/REPORT.md).
 <!-- headline:end -->
 
+**What changes for the analyst** (measured on this machine, recorded 70-case run):
+- The desk prepares each alert in a median of 130 seconds (p95 306 s), at about 0.0085 USD of model cost, for the recommendation only; a person still decides ([eval/REPORT.md](eval/REPORT.md)).
+- Every alert in that run got a sealed record with its evidence, cited facts and checks (70 of 70, no errors); the analyst starts from the gathered evidence instead of an empty screen.
+- It wrongly closed 0 of 43 risk cases; plain name matching closed 10. Analyst time saved was not measured and is not claimed.
+
+**When something goes wrong:**
+- Evidence is missing or Zetaris is unreachable: the case is held for a person, never closed ([recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened)).
+- A Zetaris data-quality rule fails on the record: the policy guard blocks a close ([replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html)).
+- A model call fails: the step retries, then the local Ollama backup answers, else the case is escalated (19 backup answers, 20 escalations, 0 wrong closes in the recorded runs: [recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened)).
+- A cited fact does not match the source: the critic, after code re-reads it from Zetaris, sends the recommendation back ("cited fact does not hold" in the [replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html)).
+
+**What it does without being asked:**
+- After a list update it re-checks every earlier decision and reopens those whose listed entry changed ([user guide](docs/USER_GUIDE.md#3-the-alert-queue), [screenshot](docs/media/screenshots/10-list-change.png)).
+- A challenger looks for another explanation before any close stands ([architecture](docs/ARCHITECTURE.md#the-steps)).
+- Every draft for a customer is checked for tipping-off wording before it is saved, and every text from the data is checked for instructions aimed at the desk ([safety guard results](docs/EVALUATION.md#safety-guard-against-injected-text)).
+
+**How to see afterwards what it did:**
+- The sealed decision record: evidence, every Zetaris statement, every model call and every check, hash-sealed ([an example](output_examples/close-stopped-by-policy-guard/decision-record.json)).
+- The signed receipts: which model answered each call, checked with `npm run evidence:verify` or in the [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/).
+- The replay: every step in order, in the desk's Replay view or in the [recorded runs](https://rahulmahadik.github.io/sanctions-desk/runs/).
+
+**What's new here:**
+- A policy guard that can only raise caution, never lower it.
+- One read-only Zetaris role per data-reading step, checked by Zetaris's own refusals (23 of 23).
+- A signed receipt on every Nightshift answer, cloud and local, re-checked by one command.
+- OFAC's 50 percent rule counted as a cascade on the World Model's ownership register.
+- Failing closed, published on held-out data with every wrong close kept in the table.
+
 ## Start here
 
 |                             |                                                                                                                                                                                                                                                                                                                                 |

@@ -40,7 +40,7 @@ Three engines run in the review. A fourth, Scout Intent, is optional and off by 
 
 ## 3. Nightshift: every model call goes through it
 
-One injected `generator` function asks Nightshift (an OpenAI-compatible runtime) first, the Ollama backup only if Nightshift cannot answer, and a labelled rules stand-in in sample mode only. Nothing else in the code names a provider. The calls carry a pinned mode (`meterless/fast`, `meterless/deep`, `meterless/judge`; `meterless/auto` is rejected), a token limit of our own, and a strict JSON schema so the answer cannot be cut off in reasoning text.
+**How the app connects.** Nightshift runs on the analyst's laptop and exposes an OpenAI-compatible API. The desk calls `POST {METERLESS_BASE_URL}/chat/completions` with a bearer token (`METERLESS_RUNTIME_TOKEN`, from the environment, never logged) and the `meterless-app` header naming the app identity; the answer carries the signed receipt in its `meterless` block. One injected `generator` function asks Nightshift first, the Ollama backup only if Nightshift cannot answer, and a labelled rules stand-in in sample mode only. Nothing else in the code names a provider. The calls carry a pinned mode (`meterless/fast`, `meterless/deep`, `meterless/judge`; `meterless/auto` is rejected), a token limit of our own, and a strict JSON schema so the answer cannot be cut off in reasoning text.
 
 The desk sends its calls under **two app identities**, `sanctions-desk-guard` (the safety guard) and `sanctions-desk-reasoning` (decision, critic, challenger), chosen per step in the policy. The Nightshift cockpit can bind an app to a routing mode, and a bind overrides what the client asked for: with the guard bound to **local**, 70 of 70 guard calls in the headline run were served by Nemotron 3.5 Lightning on a local laptop. The exact cockpit steps, and the measurements, are in [MODELS.md](MODELS.md#two-app-identities-and-what-the-cockpit-does-with-them) (receipts: `eval/runs/routed-20261023T133311Z/`; earlier lab results: `eval/routing-lab*.json`, from `npm run lab:routing`).
 
@@ -48,7 +48,16 @@ Every call records the mode asked for, the model that answered, the app identity
 
 ## 4. NVIDIA Nemotron: where it contributes, and how to check which model answered
 
-Two Nemotron models do the language work: **Nemotron 3 Ultra 550B** (served in the cloud) and **Nemotron 3.5 Lightning 30B** (served on a local laptop). The decision, the critic and the challenger are Ultra answers for the most part; the safety guard is Lightning, locally. The split is a measurement from the receipts, not a setting, and it is in the exam report for each run and in [MODELS.md](MODELS.md#app-binds-used-in-the-final-runs).
+Two Nemotron models do the language work: **Nemotron 3 Ultra 550B** (served in the cloud) and **Nemotron 3.5 Lightning 30B** (served on a local laptop):
+
+| Step                                                         | Model                                          | Where  | Why                                                                         |
+| ------------------------------------------------------------ | ---------------------------------------------- | ------ | --------------------------------------------------------------------------- |
+| Safety guard (text from the data, and drafts for a customer) | Nemotron 3.5 Lightning 30B                     | laptop | reads raw text, which stays on the machine                                  |
+| Free-text screener                                           | Nemotron 3.5 Lightning 30B                     | laptop | turns notes and payment references into risk signals with their exact spans |
+| Decision, critic, challenger                                 | Nemotron 3 Ultra 550B                          | cloud  | reasons over structured facts and signals, never free text                  |
+| Backup when Nightshift cannot answer                         | Nemotron 3.5 Lightning 30B in the local Ollama | laptop | keeps a step answering; no receipt, labelled in the trace                   |
+
+The decision, the critic and the challenger are Ultra answers for the most part; the safety guard and the screener are Lightning, locally. Details and the reasons per step: [NEMOTRON.md](NEMOTRON.md). The split is a measurement from the receipts, not a setting, and it is in the exam report for each run and in [MODELS.md](MODELS.md#app-binds-used-in-the-final-runs).
 
 **Check which model served each call, in three commands** (details in [MODELS.md](MODELS.md#check-which-model-served-each-call)):
 
@@ -70,4 +79,4 @@ How the two models compare on the decision step, with the router's choice stated
 - **Oversight in proportion to risk.** A person decides every alert by default; at level 1 only a close the code, the decision agent, the critic and the challenger all agree on may be closed without waiting, with a random quality-assurance sample, a daily cap and a kill switch. Escalations, requests for information and blocks always go to a person, and a block needs two different approvers. This is enforced in code and in the policy schema, and tested.
 - **The hybrid.** Code gives a first finding from the structured fields; when it settles the case the agents confirm and explain it, and when it does not (free text, missing data) they reason over all of it. The path is recorded for every case and results are reported per path.
 - **A model ledger with signed receipts**, so the claim "this Nemotron model answered this step" can be checked by anyone.
-- **Honest evaluation.** The deterministic core is exact on the 70 rule-defined cases; the agents earn their place on the held-out set the rules were not written for, on explanations and on the checks. Both are reported, with the baselines, in [the report](../eval/REPORT.md).
+- **Honest evaluation.** The deterministic core is exact on the 70 rule-defined cases by design; the held-out rounds the rules were not written for are published as run, wrong closes included, beside the baselines, with a small study of Nemotron alone. All of it is in [the report](../eval/REPORT.md) and [NEMOTRON.md](NEMOTRON.md).
