@@ -147,4 +147,4 @@ Triage of the scanners' own findings: the three Semgrep warnings were the unpinn
 - **Concurrency beyond four requests.** The race tests send four decisions and two publishes at once in one process. A second server process sharing the log folder was not tried.
 - **Timing.** Token comparison is written to take the same time whichever user matches; the timing itself was not measured.
 - **Supply chain beyond the lock files.** Packages are scanned for known vulnerabilities, not reviewed for malicious code, and install scripts are skipped in the images (`--ignore-scripts`) but not in a developer's own install.
-- **Mutable tags for base images.** The images start from `node:26-alpine` and `postgres:16-alpine` by tag, not by digest.
+- **Base images are pinned by digest.** The Dockerfile builds from `node:26-alpine@sha256:40cd011b…` (the tag's digest on 25 Oct 2026) and the compose file runs `postgres:16-alpine@sha256:721873c3…` (the image this setup runs; the tag has moved on since). Updating either is a deliberate change of the digest. The Dockerfile's `# syntax=docker/dockerfile:1` front end is still referenced by tag.

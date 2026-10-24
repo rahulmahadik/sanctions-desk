@@ -1,9 +1,12 @@
 # syntax=docker/dockerfile:1
 
 ARG NODE_VERSION=26
+# The base image is pinned by digest (node:26-alpine as of 25 Oct 2026), so a moved tag cannot change what is built.
+# When a digest is given the tag is only a label: to change the Node version, change both.
+ARG NODE_DIGEST=sha256:40cd011b55415bc894e45b02fdd5a5dfde056921b7d23a64c74f80497af48797
 
 # ---- dependencies: production packages only, installed from the lockfile ----
-FROM node:${NODE_VERSION}-alpine AS deps
+FROM node:${NODE_VERSION}-alpine@${NODE_DIGEST} AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/api/package.json apps/api/
@@ -17,7 +20,7 @@ COPY packages/agents/package.json packages/agents/
 RUN npm ci --omit=dev --ignore-scripts
 
 # ---- runtime: everything both services need ----
-FROM node:${NODE_VERSION}-alpine AS runtime
+FROM node:${NODE_VERSION}-alpine@${NODE_DIGEST} AS runtime
 # Inside a container the API must listen on every interface to be reachable through the published port. Outside a
 # container the default stays 127.0.0.1. Services on the host are reached at http://host.docker.internal:<port>.
 ENV NODE_ENV=production HOST=0.0.0.0
@@ -57,7 +60,7 @@ HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 \
 CMD ["node", "--import", "tsx", "apps/api/src/index.ts"]
 
 # ---- the review desk interface: built once, served by a small self-contained Next.js server ----
-FROM node:${NODE_VERSION}-alpine AS web-build
+FROM node:${NODE_VERSION}-alpine@${NODE_DIGEST} AS web-build
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/api/package.json apps/api/
@@ -76,7 +79,7 @@ ARG NEXT_PUBLIC_API_URL=http://localhost:8000
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} NEXT_TELEMETRY_DISABLED=1
 RUN npm run build -w @sanctions-desk/web
 
-FROM node:${NODE_VERSION}-alpine AS web
+FROM node:${NODE_VERSION}-alpine@${NODE_DIGEST} AS web
 ENV NODE_ENV=production PORT=3001 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 COPY --from=web-build /app/apps/web/.next/standalone ./
