@@ -57,9 +57,13 @@ Problems met while building this, with what was done about each. Facts only; ver
 - **Critic deadlocks.** When the decision cited a source the critic cannot check by design (a free-text column, an identifier number, a computed block), both repeated themselves for three rounds and the guard escalated. The decision step now gets the list of citable sources and such citations are set aside from the second round; on held-out v3 one deadlock still happened (HO3-012), and on v4 one (HO4-012). The critic still tells the decision step that screener signals cannot be cited, which is how both v3 wrong closes came about; under policy 8 the guard blocks such a close, but the critic rule itself is unchanged (feature freeze).
 - **Thermal limits.** Long runs on one laptop drive the model runtime into a serious thermal state; the runner cools down between cases and pauses when it lasts. Provider failures are counted per run and shown by thermal posture for the 70 cases, v1 and v2. The routed v4 run ran without the gate (see Limits).
 - **Nemotron 3 Super 120B.** The runtime lists it, but its cloud endpoint was retired during development (it answered "Function not found"), so the cloud lanes use Nemotron 3 Ultra. From development notes; not re-measured.
-- **Single runs.** Every result is one run; repeats of the held-out sets were not made. Held-out v4 was the last held-out round; nothing was changed after it.
-- **Not measured:** a run without Zetaris other than the unreachable-endpoint test, the policy guard switched off, the challenger alone, a "Nemotron alone" baseline, the Lightning-versus-Ultra study and a pinned-model run.
+- **Single runs.** Every result in the recorded evaluation is one run. A small study, not part of it, ran held-out v4 three times with the full system and three times with Nemotron alone ([NEMOTRON.md](NEMOTRON.md#what-the-agents-add-over-nemotron-alone)). Held-out v4 was the last held-out round; nothing was changed after it.
+- **Not measured:** a run without Zetaris other than the unreachable-endpoint test, the policy guard switched off, the challenger alone, and a pinned-model run. A "Nemotron alone" baseline and the Lightning-versus-Ultra comparison were run only as small labelled studies ([NEMOTRON.md](NEMOTRON.md)).
 - Everything in [docs/KNOWN_ISSUES.md](#known-issues), including the Zetaris column policy on identifier numbers that this local edition does not enforce, the payments cache lost on an engine restart, and the local model's empty answers to schema-constrained requests.
+
+## Considered, not done
+
+- **Nemotron embedding for finding earlier decisions by meaning.** Nightshift 1.2.1 lists `nvidia/nemotron-3-embed-1b` and an embed mode, but every route refuses it ("no route on this build returns embed"; `/v1/embeddings` answers 404), so no embedding call can be made with a receipt, and it lists no rerank model. Memory recall stays on exact pointers.
 
 ## Exported run files
 
