@@ -261,7 +261,12 @@ function checkReceipt(
   };
 }
 
-function checkCalls(events: TraceEvent[], envelopes: Map<string, Envelope>, trusted: readonly string[], where: string) {
+export function checkCalls(
+  events: TraceEvent[],
+  envelopes: Map<string, Envelope>,
+  trusted: readonly string[],
+  where: string,
+) {
   return events
     .filter((x) => x.action === "model_answer")
     .map((e): CheckedCall => {
@@ -281,7 +286,7 @@ function checkCalls(events: TraceEvent[], envelopes: Map<string, Envelope>, trus
 }
 
 /** The run's files, checked against the hashes run-meta.json records for the trace and the receipts. */
-function readRunFiles(runDir: string, where: string) {
+export function readRunFiles(runDir: string, where: string) {
   const meta = readJson<LoadedCase["meta"] & { files?: Record<string, { sha256: string }> }>(
     join(runDir, "run-meta.json"),
     "run-meta.json",
@@ -436,7 +441,7 @@ export function scrub(text: string, p: Protected): string {
 // ---------------------------------------------------------------------------------------------------------------
 // Rendering
 
-const esc = (s: unknown) =>
+export const esc = (s: unknown) =>
   String(s ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")

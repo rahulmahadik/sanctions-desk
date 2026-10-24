@@ -2,8 +2,8 @@ name: API docs (Pages)
 
 # Publishes site/ to GitHub Pages: a landing page, the API reference (Redoc) over the OpenAPI document, which is
 # generated from the API's own code on every build so it never goes stale, and the "Recorded runs" replay pages built
-# from the committed run exports (the build fails if a receipt is missing or does not verify). Static only: nothing
-# calls the API.
+# from the committed run exports, and the receipt log of every model call in them (the build fails if a receipt is
+# missing or does not verify). Static only: nothing calls the API.
 # Both jobs are skipped while the repository is private; they run on the first matching push after it is public,
 # once Settings > Pages > Source is set to "GitHub Actions" (see docs/API.md).
 
@@ -18,6 +18,9 @@ on:
       - "tools/export-openapi.ts"
       - "tools/lib/site.ts"
       - "tools/lib/runs-site.ts"
+      - "tools/lib/receipt-log.ts"
+      - "tools/lib/evidence.ts"
+      - "tools/lib/hash-changes.ts"
       # The "Recorded runs" pages are replayed from these committed files.
       - "eval/runs/**"
       - "eval/cases/**"

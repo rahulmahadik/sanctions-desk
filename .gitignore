@@ -46,6 +46,7 @@ site/openapi.json
 site/media/
 # The "Recorded runs" pages, replayed from the committed run exports by the same command
 site/runs/
+site/receipts/
 
 # Runtime output that is not part of the project
 action-outbox/

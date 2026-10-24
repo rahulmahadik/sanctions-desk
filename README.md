@@ -20,7 +20,7 @@ An AI review desk for bank sanctions-screening alerts. For every alert it reads 
 
 Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
-**Review without installing:** [recorded runs, step by step with each model's receipt](https://rahulmahadik.github.io/sanctions-desk/runs/) · [the last one-command proof](eval/PROVE.md) · [API docs](https://rahulmahadik.github.io/sanctions-desk/api.html) · **[How NVIDIA Nemotron is used](docs/NEMOTRON.md)**
+**Review without installing:** [recorded runs, step by step with each model's receipt](https://rahulmahadik.github.io/sanctions-desk/runs/) · [receipt log of every model call](https://rahulmahadik.github.io/sanctions-desk/receipts/) · [the last one-command proof](eval/PROVE.md) · [API docs](https://rahulmahadik.github.io/sanctions-desk/api.html) · **[How NVIDIA Nemotron is used](docs/NEMOTRON.md)**
 
 <!-- headline:start -->
 **Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails, the case is escalated or held for more information instead of closed. On the 70-case exam (the cases the rules were written for) the full system wrongly closed 0 of 43 risk cases, against 10 for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: 2 in held-out v1; 0 in held-out v2 (the screener had failed, so nothing was closed); 2 in held-out v3; 0 in held-out v4. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** on the exam every close it makes is one the deterministic rules also make, and across the blind held-out rounds it made 0 correct clears, against 8 for the deterministic rules (which also close risk cases there). Every figure is one run. Details: [eval/REPORT.md](eval/REPORT.md).
@@ -150,7 +150,7 @@ Each step, what it may and may not do, the guardrails and the failure handling: 
 | Critic (after code re-reads every cited fact) | Nemotron 3 Ultra 550B | cloud | the recommendation and the re-checked evidence | Ultra 418, Lightning 8, Ollama backup 2 of 428 |
 | Challenger (argues against a close) | Nemotron 3 Ultra 550B | cloud | the proposed close and its evidence | Ultra 38, Ollama backup 2 of 40 |
 
-Why each model, the privacy design and the studies of model choice: [docs/NEMOTRON.md](docs/NEMOTRON.md). Nightshift's router chooses inside the lane each step is bound to, so the split is a measurement, not a guarantee.
+Every one of these calls, with the mode asked for, the model that served it and its signed receipt (each signature checked when the site is built): **[receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/)**. Why each model, the privacy design and the studies of model choice: [docs/NEMOTRON.md](docs/NEMOTRON.md). Nightshift's router chooses inside the lane each step is bound to, so the split is a measurement, not a guarantee.
 
 ## How sponsor technology is used
 
