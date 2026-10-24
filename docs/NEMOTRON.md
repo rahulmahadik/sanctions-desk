@@ -95,7 +95,27 @@ Read plainly: in each of its three runs Nemotron alone closed risk cases (3, 6 a
 **Nemotron alone on held-out v1 and v3.** The two rounds where the full system wrongly closed risk cases, run once each:
 
 <!-- alone-sets:start -->
+**Small study, one run per set, not part of the recorded evaluation.** Nemotron alone (one cloud Ultra call per case on the structured case facts, as above) once on held-out v1 and v3, the two rounds where the full system wrongly closed risk cases, 25 Oct 2026, after a warm-up and without restarting Nightshift; beside the recorded runs of the same frozen sets (one run each, 23 Oct 2026).
+
+| Set                    | System                                                       | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors | Result file                                                  |
+| ---------------------- | ------------------------------------------------------------ | ------------------------: | ----------: | ------------------: | -----: | ------------------------------------------------------------ |
+| Held-out v1 (30 cases) | Nemotron alone                                               |                   2 of 22 |      3 of 8 |            16 of 30 |      7 | `2026-10-24T17-11-05-604Z-heldout-once-nemotron_alone.json`  |
+| Held-out v1 (30 cases) | Full system, first system (no screener)                      |                   2 of 22 |      0 of 8 |            20 of 30 |      0 | `2026-10-23T12-11-40-825Z-heldout-routed.json`               |
+| Held-out v1 (30 cases) | Full system after the screener was added (re-run, not blind) |                   0 of 22 |      0 of 8 |            22 of 30 |      0 | `2026-10-23T21-45-15-877Z-heldout-sys2b-routed.json`         |
+| Held-out v1 (30 cases) | Deterministic rules                                          |                   6 of 22 |      0 of 8 |            16 of 30 |      0 | `2026-10-23T08-13-08-222Z-heldout-rules.json`                |
+| Held-out v3 (12 cases) | Nemotron alone                                               |                    4 of 6 |      2 of 6 |             2 of 12 |      3 | `2026-10-24T17-54-48-801Z-heldout3-once-nemotron_alone.json` |
+| Held-out v3 (12 cases) | Full system (span grounding)                                 |                    2 of 6 |      0 of 6 |             3 of 12 |      0 | `2026-10-23T23-19-01-303Z-heldout3-sys3-routed.json`         |
+| Held-out v3 (12 cases) | Deterministic rules                                          |                    1 of 6 |      1 of 6 |             6 of 12 |      0 | `2026-10-23T23-41-47-213Z-heldout3-rules.json`               |
 <!-- alone-sets:end -->
+
+Read plainly: v1 is not a like-for-like comparison, because the first system had no free-text screener yet; on v1, Nemotron alone and the first system each closed 2 of 22 risk cases (HO-002 and HO-006 for Nemotron alone; HO-005 and HO-006 for the first system), Nemotron alone made 3 of 8 clears where the first system made none, and it gave no usable answer on 7 cases. On v3, Nemotron alone closed 4 of 6 risk cases against 2 for the full system. The main result stays the three runs on v4 above: the full system closed none of the 6 risk cases in any run; Nemotron alone closed 3, 6 and 4.
+
+## What we tried and why it isn't used
+
+- **NVIDIA guard and jailbreak-detection models.** Requests naming `nvidia/llama-3.1-nemoguard-8b-content-safety` and `nvidia/nemoguard-jailbreak-detect` were answered by Nemotron 3 Ultra, as their receipts show, and Nightshift 1.2.1's list of models that can be added as a lane offers no NVIDIA guard, safety or jailbreak-detection model (the list was read; nothing was added or changed). So they are not served on this version, and they are not claimed.
+- **Nemotron embedding.** `nvidia/nemotron-3-embed-1b` is listed, but the embeddings endpoint returns 404 on this build and a chat call in the embed mode is refused ("no route on this build returns embed"); there is no rerank model. Memory recall stays on exact pointers.
+
+We only claim a model when a verified receipt shows it answered.
 
 ## Receipt statistics
 

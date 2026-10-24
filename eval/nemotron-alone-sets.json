@@ -1,0 +1,118 @@
+{
+  "label": "Small study, one run per set, not part of the recorded evaluation",
+  "note": "Nemotron alone (one cloud Ultra call per case on the structured case facts, as above) once on held-out v1 and v3, the two rounds where the full system wrongly closed risk cases, 25 Oct 2026, after a warm-up and without restarting Nightshift; beside the recorded runs of the same frozen sets (one run each, 23 Oct 2026).",
+  "rows": [
+    {
+      "set": "Held-out v1 (30 cases)",
+      "system": "Nemotron alone",
+      "source": "logs/alone-v1v3/2026-10-24T17-11-05-604Z-heldout-once-nemotron_alone.json",
+      "summary": {
+        "run": "once",
+        "wrong_closes": 2,
+        "risk_cases": 22,
+        "clears_made": 3,
+        "clear_cases": 8,
+        "acceptable": 16,
+        "cases": 30,
+        "escalated_share": 0.067,
+        "errors": 7
+      }
+    },
+    {
+      "set": "Held-out v1 (30 cases)",
+      "system": "Full system, first system (no screener)",
+      "source": "eval/results/2026-10-23T12-11-40-825Z-heldout-routed.json",
+      "summary": {
+        "run": "recorded",
+        "wrong_closes": 2,
+        "risk_cases": 22,
+        "clears_made": 0,
+        "clear_cases": 8,
+        "acceptable": 20,
+        "cases": 30,
+        "escalated_share": 0.6,
+        "errors": 0
+      }
+    },
+    {
+      "set": "Held-out v1 (30 cases)",
+      "system": "Full system after the screener was added (re-run, not blind)",
+      "source": "eval/results/2026-10-23T21-45-15-877Z-heldout-sys2b-routed.json",
+      "summary": {
+        "run": "recorded",
+        "wrong_closes": 0,
+        "risk_cases": 22,
+        "clears_made": 0,
+        "clear_cases": 8,
+        "acceptable": 22,
+        "cases": 30,
+        "escalated_share": 0.267,
+        "errors": 0
+      }
+    },
+    {
+      "set": "Held-out v1 (30 cases)",
+      "system": "Deterministic rules",
+      "source": "eval/results/2026-10-23T08-13-08-222Z-heldout-rules.json",
+      "summary": {
+        "run": "recorded",
+        "wrong_closes": 6,
+        "risk_cases": 22,
+        "clears_made": 0,
+        "clear_cases": 8,
+        "acceptable": 16,
+        "cases": 30,
+        "escalated_share": 0.5,
+        "errors": 0
+      }
+    },
+    {
+      "set": "Held-out v3 (12 cases)",
+      "system": "Nemotron alone",
+      "source": "logs/alone-v1v3/2026-10-24T17-54-48-801Z-heldout3-once-nemotron_alone.json",
+      "summary": {
+        "run": "once",
+        "wrong_closes": 4,
+        "risk_cases": 6,
+        "clears_made": 2,
+        "clear_cases": 6,
+        "acceptable": 2,
+        "cases": 12,
+        "escalated_share": 0,
+        "errors": 3
+      }
+    },
+    {
+      "set": "Held-out v3 (12 cases)",
+      "system": "Full system (span grounding)",
+      "source": "eval/results/2026-10-23T23-19-01-303Z-heldout3-sys3-routed.json",
+      "summary": {
+        "run": "recorded",
+        "wrong_closes": 2,
+        "risk_cases": 6,
+        "clears_made": 0,
+        "clear_cases": 6,
+        "acceptable": 3,
+        "cases": 12,
+        "escalated_share": 0.417,
+        "errors": 0
+      }
+    },
+    {
+      "set": "Held-out v3 (12 cases)",
+      "system": "Deterministic rules",
+      "source": "eval/results/2026-10-23T23-41-47-213Z-heldout3-rules.json",
+      "summary": {
+        "run": "recorded",
+        "wrong_closes": 1,
+        "risk_cases": 6,
+        "clears_made": 1,
+        "clear_cases": 6,
+        "acceptable": 6,
+        "cases": 12,
+        "escalated_share": 0.417,
+        "errors": 0
+      }
+    }
+  ]
+}
