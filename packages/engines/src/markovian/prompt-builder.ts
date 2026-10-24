@@ -4,7 +4,6 @@
 // silently ignored.
 
 import type { Attachment, ChunkConfig, Mode } from "./types.js";
-import { estimateTokens } from "./types.js";
 
 const MARKER_RULES =
   "End every non-final chunk with [STATE_CHECKPOINT] followed by a concise state block:\n" +
@@ -63,8 +62,4 @@ function continuation(args: PromptArgs): string[] {
 export function overlapSlice(previousCleaned: string, config: ChunkConfig): string {
   if (config.overlapTokens <= 0 || !previousCleaned) return "";
   return previousCleaned.slice(-config.overlapTokens * 4);
-}
-
-export function estimatePromptTokens(prompt: string): number {
-  return estimateTokens(prompt);
 }

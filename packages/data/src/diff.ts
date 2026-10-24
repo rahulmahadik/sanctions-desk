@@ -60,17 +60,6 @@ export const SnapshotDeltaSchema = z.strictObject({
 });
 export type SnapshotDelta = z.infer<typeof SnapshotDeltaSchema>;
 
-function groupBy<T>(rows: readonly T[], key: (row: T) => string): Map<string, T[]> {
-  const out = new Map<string, T[]>();
-  for (const row of rows) {
-    const k = key(row);
-    const list = out.get(k);
-    if (list) list.push(row);
-    else out.set(k, [row]);
-  }
-  return out;
-}
-
 const ref = (e: ListEntryRow): EntryRef => ({
   entry_id: e.entry_id,
   list_id: e.list_id,
@@ -189,8 +178,4 @@ export function affectedEntryIds(delta: SnapshotDelta): string[] {
   return [
     ...new Set([...delta.added.map((e) => e.entry_id), ...delta.removed.map((e) => e.entry_id), ...material]),
   ].sort();
-}
-
-export function groupEntriesBy<T>(rows: readonly T[], key: (row: T) => string): Map<string, T[]> {
-  return groupBy(rows, key);
 }

@@ -107,7 +107,7 @@ const post = <T>(path: string, body: unknown) =>
     body: JSON.stringify(body),
   });
 
-export interface DecisionInput {
+interface DecisionInput {
   action: "approve" | "override";
   outcome?: Decision;
   reason: string;

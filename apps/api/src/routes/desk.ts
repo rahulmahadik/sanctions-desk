@@ -86,7 +86,7 @@ export function examLabels(exam: { cases: readonly Labels[] }): Map<string, Labe
 }
 
 /** Calls per serving model and route over a set of records, most used first. */
-export function modelsUsed(records: readonly DecisionRecord[]): Array<{ model: string; route: string; calls: number }> {
+function modelsUsed(records: readonly DecisionRecord[]): Array<{ model: string; route: string; calls: number }> {
   const counts = new Map<string, { model: string; route: string; calls: number }>();
   for (const r of records)
     for (const m of r.models) {
@@ -256,7 +256,7 @@ interface SavedRun {
  * The newest complete run of the newest system version (a run with a system tag), with its measured time per alert:
  * what the desk takes today, as opposed to the first system's exam run that the safety headline comes from.
  */
-export function currentRun(
+function currentRun(
   results: unknown[],
   config: Config,
 ): { name: string; system: string; exam: string; started_at: string; alerts: number; median_seconds: number } | null {

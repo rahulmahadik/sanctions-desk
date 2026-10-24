@@ -3,7 +3,7 @@ import { AppError, type Config } from "@sanctions-desk/shared";
 type RateLimitConfig = Config["server"]["rateLimit"];
 
 /** Routes that start a review: they make model calls and data queries, so they get the lower limit. */
-export const REVIEW_ROUTES: ReadonlySet<string> = new Set(["POST /run", "POST /policy/whatif"]);
+const REVIEW_ROUTES: ReadonlySet<string> = new Set(["POST /run", "POST /policy/whatif"]);
 
 interface Window {
   start: number;
@@ -80,11 +80,6 @@ export class RateLimiter {
         this.running -= 1;
       },
     };
-  }
-
-  /** Reviews running now. */
-  inFlight(): number {
-    return this.running;
   }
 
   private current(map: Map<string, Window>, caller: string, now: number): Window {

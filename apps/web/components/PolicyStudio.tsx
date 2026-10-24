@@ -29,7 +29,7 @@ const MIN_QA = 0.05;
 const MIN_REASON = 10;
 
 /** The autonomy card: how much a person does, what is locked, today's closes against the cap, the kill switch. */
-export function AutonomyCard({ view, me, onChange }: { view: AutonomyView; me?: MeView; onChange: () => void }) {
+function AutonomyCard({ view, me, onChange }: { view: AutonomyView; me?: MeView; onChange: () => void }) {
   const [reason, setReason] = useState("");
   const [problem, setProblem] = useState<string>();
   const killed = view.kill_switch.active;

@@ -73,7 +73,7 @@ declare module "fastify" {
  * route that matched (for example `/policy/drafts/:version/publish`), never the text the caller sent: the router
  * decodes percent escapes, so `/policy/drafts/%32/publish` reaches the same handler as `/policy/drafts/2/publish`.
  */
-export function permissionFor(method: string, path: string): Permission | undefined {
+function permissionFor(method: string, path: string): Permission | undefined {
   if (method === "GET" || method === "HEAD") return undefined;
   if (path === "/run" || path === "/list-change/replay" || path === "/guard/outbound" || path === "/policy/whatif")
     return "run";

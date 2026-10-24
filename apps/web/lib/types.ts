@@ -212,7 +212,7 @@ export interface DocumentaryValue {
   label: string;
 }
 
-export interface ExamMetrics {
+interface ExamMetrics {
   cases: number;
   errors: number;
   exact_accuracy: number;
@@ -304,7 +304,7 @@ export interface ExamAnswer {
   } | null;
 }
 
-export interface RoundCellView {
+interface RoundCellView {
   file: string;
   risk: number;
   wrong_closes: number;
@@ -451,7 +451,7 @@ export interface HumanView {
   next_actions: ActionRecordView[];
 }
 
-export interface AutonomySettings {
+interface AutonomySettings {
   level: 0 | 1;
   autoClose: { confidenceAtLeast: number; qaSampleRate: number; dailyCap: number };
 }

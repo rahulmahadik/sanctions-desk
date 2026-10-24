@@ -8,7 +8,7 @@ import fastify from "fastify";
  * application never calls it directly.
  */
 
-export interface PaymentsAppOptions {
+interface PaymentsAppOptions {
   payments: readonly unknown[];
   /** When set, every data request must carry this key in the x-api-key header. */
   apiKey?: string;

@@ -3,8 +3,6 @@ import {
   appendHumanAction,
   canonicalJson,
   checkPointer,
-  compareDecisionRecords,
-  type DecisionRecord,
   DecisionRecordSchema,
   DispositionMemorySchema,
   hashRow,
@@ -12,7 +10,6 @@ import {
   type MemoryPointer,
   MemoryPointerSchema,
   memoryUsable,
-  ReplayRequestSchema,
   sealDecisionRecord,
   sha256Hex,
   type UnsealedDecisionRecord,
@@ -232,56 +229,5 @@ describe("decision records", () => {
     );
     expect(second.human.map((h) => h.actor)).toEqual(["analyst-1", "reviewer-2"]);
     expect(second.previous_record_hash).toBe(reviewed.record_hash);
-  });
-});
-
-describe("replay comparison", () => {
-  const sealed = (over: Partial<UnsealedDecisionRecord> = {}): DecisionRecord => sealDecisionRecord(unsealed(over));
-
-  it("reports no differences when the outcome and the facts match, ignoring timing and routes", () => {
-    const recorded = sealed();
-    const replayed = sealed({
-      decided_at: "2026-10-30T09:00:00.000Z",
-      models: [
-        {
-          ...first(unsealed().models ?? []),
-          model_routed: "nvidia/nemotron-3-super-120b-a12b",
-          route_kind: "cloud",
-          latency_ms: 9,
-        },
-      ],
-    });
-    expect(compareDecisionRecords(recorded, replayed)).toEqual([]);
-  });
-
-  it("names every field that changed", () => {
-    const recorded = sealed();
-    const replayed = sealed({
-      decision: "ESCALATE_L2",
-      policy: { version: 2, hash: POLICY_HASH },
-      list_snapshots: [{ list: "OFAC", snapshot_id: "ofac-2026-10-25" }],
-      memories: [{ memory_id: "mem-1", pointer_states: ["stale"], used: false }],
-    });
-    const fields = compareDecisionRecords(recorded, replayed).map((d) => d.field);
-    expect(fields).toEqual(expect.arrayContaining(["decision", "policy", "list_snapshots", "memories"]));
-    expect(fields).not.toContain("guards");
-  });
-
-  it("treats row hashes as a set, so row order does not matter", () => {
-    const [h1, h2] = [hashRow({ a: "1" }), hashRow({ a: "2" })] as [string, string];
-    const q = (rows: string[]) => ({ ...first(unsealed().queries ?? []), row_count: 2, row_hashes: rows });
-    expect(compareDecisionRecords(sealed({ queries: [q([h1, h2])] }), sealed({ queries: [q([h2, h1])] }))).toEqual([]);
-    expect(
-      compareDecisionRecords(sealed({ queries: [q([h1, h2])] }), sealed({ queries: [q([h1, h1])] })).map(
-        (d) => d.field,
-      ),
-    ).toEqual(["query_rows"]);
-  });
-
-  it("validates replay requests", () => {
-    expect(ReplayRequestSchema.safeParse({ record_id: "run-1" }).success).toBe(true);
-    expect(ReplayRequestSchema.safeParse({ record_id: "run-1", as_of: "2026-10-22T00:00:00Z" }).success).toBe(true);
-    expect(ReplayRequestSchema.safeParse({ record_id: "run-1", as_of: "last tuesday" }).success).toBe(false);
-    expect(ReplayRequestSchema.safeParse({ record_id: "../x" }).success).toBe(false);
   });
 });

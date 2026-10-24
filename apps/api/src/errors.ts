@@ -20,7 +20,7 @@ const STATUS_BY_TYPE: Record<ErrorType, number> = {
   internal: 500,
 };
 
-export interface MappedError {
+interface MappedError {
   statusCode: number;
   error: StructuredError;
 }

@@ -58,7 +58,7 @@ export async function normaliseRaw(source: DataSource, raw: FetchedFile): Promis
 
 function csvCell(value: unknown): string {
   if (value === null || value === undefined) return "";
-  const text = typeof value === "boolean" ? String(value) : String(value);
+  const text = String(value);
   return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 

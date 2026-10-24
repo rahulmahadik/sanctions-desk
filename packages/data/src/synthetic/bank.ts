@@ -23,7 +23,7 @@ import { companyName, personName } from "./names.js";
 import { createRng } from "./random.js";
 import { candidatesFrom } from "./scenarios.js";
 
-/** The seeded synthetic bank: customers, owners, payments and alerts, with the 60 exam cases planted in it. */
+/** The seeded synthetic bank: customers, owners, payments and alerts, with the 70 exam cases planted in it. */
 
 export interface BankOptions {
   seed: string;
@@ -153,7 +153,7 @@ function addBackgroundCustomer(b: BankBuilder, i: number): void {
 /** Planted payment oddities: disguised names, very long references, and watched jurisdictions. */
 function plantPaymentOddities(b: BankBuilder): void {
   const { rng } = b;
-  const customers = b.tables.customer.filter((c) => c.customer_id.startsWith("CUST-") && c.notes !== undefined);
+  const customers = b.tables.customer.filter((c) => c.customer_id.startsWith("CUST-"));
   const pick = () => rng.pick(customers);
   for (let i = 0; i < 4; i += 1) {
     b.payment({

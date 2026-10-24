@@ -1,7 +1,7 @@
 import type { Decision, Severity, StoppedBy } from "../lib/types";
 
 /** The one palette: block red, escalate amber, need more information blue, close green, pending grey. */
-export type Tone = "block" | "escalate" | "info" | "close" | "pending";
+type Tone = "block" | "escalate" | "info" | "close" | "pending";
 
 export const OUTCOME: Record<Decision | "pending", { tone: Tone; icon: string; text: string }> = {
   RECOMMEND_BLOCK: { tone: "block", icon: "⊘", text: "Block (two approvals)" },

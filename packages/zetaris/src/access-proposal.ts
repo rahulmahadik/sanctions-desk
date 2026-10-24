@@ -85,7 +85,7 @@ export function parseProposal(text: string): ProposedStatement[] {
   return out;
 }
 
-/** Apply a mask the way the proposal defines it: the pattern's matches are replaced one character at a time. */
+/** Apply a mask the way the proposal defines it: every match of the pattern is replaced. */
 export function applyProposedMask(value: string, pattern: string, replacement: string): string {
   return value.replace(new RegExp(pattern, "gs"), replacement);
 }

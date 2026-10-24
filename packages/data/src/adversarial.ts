@@ -10,14 +10,6 @@
  *  - split_ownership: ownership shares that add up around the threshold (the outcome follows the arithmetic).
  */
 
-export type AdversarialFamily =
-  | "injection"
-  | "benign"
-  | "tipping_off"
-  | "clean_draft"
-  | "homoglyph"
-  | "split_ownership";
-
 export interface TextCase {
   case_id: string;
   family: "injection" | "benign" | "tipping_off" | "clean_draft";

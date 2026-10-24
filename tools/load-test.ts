@@ -1,5 +1,3 @@
-export {};
-
 /**
  * A small load test of the API on this machine: many concurrent requests to a few routes, with the time each takes.
  * It is meant for sample mode against a local API, where a review needs no model service.
@@ -8,6 +6,9 @@ export {};
  *
  * It sends only to the URL you give (default: localhost), refuses a URL that is not local, and writes nothing.
  */
+// A module, so its top-level names do not clash with the other scripts.
+export {};
+
 const arg = (n: string, d: string) =>
   process.argv.includes(n) ? (process.argv[process.argv.indexOf(n) + 1] as string) : d;
 const base = arg("--url", "http://localhost:8000").replace(/\/$/, "");

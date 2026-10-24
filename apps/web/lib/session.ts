@@ -24,7 +24,7 @@ const write = (key: string, value: string | null): void => {
   window.dispatchEvent(new Event(SESSION_EVENT));
 };
 
-export const getDemoUser = (): string | null => (typeof window === "undefined" ? null : read(USER));
+const getDemoUser = (): string | null => (typeof window === "undefined" ? null : read(USER));
 export const setDemoUser = (id: string | null): void => write(USER, id);
 export const getToken = (): string | null => (typeof window === "undefined" ? null : read(TOKEN));
 export const setToken = (token: string | null): void => write(TOKEN, token);

@@ -394,13 +394,13 @@ export function createFallbackRulesGenerator(rules: (req: GenerateRequest) => st
   };
 }
 
-/** Try each generator in order. Only recoverable failures move on to the next one. */
 /** Only the provider the request names, when the chain has it; otherwise the whole chain. */
 function providersFor(chain: NamedGenerator[], wanted: Provider | undefined): NamedGenerator[] {
   const only = chain.filter((p) => p.provider === wanted);
   return only.length > 0 ? only : chain;
 }
 
+/** Try each generator in order. Only recoverable failures move on to the next one. */
 export function createGeneratorChain(
   chain: NamedGenerator[],
   hooks: { onFallback?: (from: Provider, error: StructuredError) => void } = {},

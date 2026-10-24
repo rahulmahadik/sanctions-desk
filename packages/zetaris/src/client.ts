@@ -13,19 +13,6 @@ import { type GuardCode, guardSql, type StatementKind } from "./guard.js";
 export const ZETARIS_ROLES = ["evidence", "reviewer", "eval"] as const;
 export type ZetarisRole = (typeof ZETARIS_ROLES)[number];
 
-/** Policy role names (policy.masking) and the identities that serve them. */
-export const POLICY_ROLE_TO_IDENTITY: Readonly<Record<string, ZetarisRole>> = {
-  role_evidence_agent: "evidence",
-  role_reviewer: "reviewer",
-  role_eval: "eval",
-};
-
-export function identityOfPolicyRole(role: string): ZetarisRole {
-  const identity = POLICY_ROLE_TO_IDENTITY[role];
-  if (!identity) throw new AppError("validation", `unknown access role "${role}"`);
-  return identity;
-}
-
 export type TokenSource = "role" | "fallback";
 
 export interface QueryRecord {

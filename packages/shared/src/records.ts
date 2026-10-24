@@ -11,8 +11,7 @@ import { AgentNameSchema, AlertTypeSchema, DecisionSchema, RunIdSchema, RunRespo
  * what the row contained, and re-reads the row through Zetaris when it is recalled. A changed hash
  * means the memory is stale and the case must be checked again.
  *
- * A decision record holds everything needed to answer "what did you know when you decided?" and
- * to re-run the decision as of that date. Records are sealed with a hash and never edited; a later
+ * A decision record holds everything needed to answer "what did you know when you decided?". Records are sealed with a hash and never edited; a later
  * human action creates a new record that points back at the previous hash.
  */
 
@@ -349,51 +348,6 @@ export function appendHumanAction(record: DecisionRecord, action: HumanAction, r
     human: [...record.human, HumanActionSchema.parse(action)],
     previous_record_hash: record_hash,
   });
-}
-
-// ---- replay "as of" ------------------------------------------------------------------------
-
-export const ReplayRequestSchema = z.strictObject({
-  record_id: RunIdSchema,
-  /** Re-run with the data and policy of this moment; defaults to the record's own `as_of`. */
-  as_of: isoTime.optional(),
-});
-export type ReplayRequest = z.infer<typeof ReplayRequestSchema>;
-
-export interface ReplayDifference {
-  field: string;
-  recorded: unknown;
-  replayed: unknown;
-}
-
-export interface ReplayReport {
-  record_id: string;
-  as_of: string;
-  reproduced: boolean;
-  differences: ReplayDifference[];
-  replayed_record_hash?: string;
-}
-
-/**
- * Compare a recorded decision with its replay. Timing, model routes and token counts are ignored on
- * purpose: they differ between runs. What must match is the outcome and the facts it rested on.
- */
-export function compareDecisionRecords(recorded: DecisionRecord, replayed: DecisionRecord): ReplayDifference[] {
-  const facts = (r: DecisionRecord) => ({
-    decision: r.decision,
-    confidence: r.confidence,
-    policy: r.policy,
-    usl: r.usl,
-    list_snapshots: r.list_snapshots,
-    query_rows: r.queries.map((q) => ({ table: q.table, sql_hash: q.sql_hash, row_hashes: [...q.row_hashes].sort() })),
-    memories: r.memories.map((m) => ({ memory_id: m.memory_id, used: m.used, states: m.pointer_states })),
-    guards: r.guards,
-  });
-  const a = facts(recorded);
-  const b = facts(replayed);
-  return (Object.keys(a) as Array<keyof typeof a>)
-    .filter((field) => hashValue(a[field]) !== hashValue(b[field]))
-    .map((field) => ({ field, recorded: a[field], replayed: b[field] }));
 }
 
 // ---- the answer to POST /run ---------------------------------------------------------------

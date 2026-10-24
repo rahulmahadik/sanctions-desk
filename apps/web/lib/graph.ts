@@ -15,8 +15,8 @@ export const STEPS = [
   { id: "reporter", label: "Reporter", model: false },
 ] as const;
 
-export type StepId = (typeof STEPS)[number]["id"];
-export type StepState = "idle" | "running" | "done" | "retry" | "flagged" | "error" | "skipped";
+type StepId = (typeof STEPS)[number]["id"];
+type StepState = "idle" | "running" | "done" | "retry" | "flagged" | "error" | "skipped";
 
 export interface StepView {
   id: StepId;

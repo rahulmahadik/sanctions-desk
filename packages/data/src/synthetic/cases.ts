@@ -15,7 +15,7 @@ import {
 } from "./scenarios.js";
 
 /**
- * The 60 exam cases. Each is built from a real listed party and has a known right answer. The answers are
+ * The 70 exam cases. Each is built from a real listed party and has a known right answer. The answers are
  * written here, next to the data that makes them true, and never shown to the agents.
  */
 
@@ -23,10 +23,6 @@ const ESCALATE: Decision[] = ["RECOMMEND_BLOCK"];
 const NOT_CLOSE: Decision[] = ["CLOSE_FALSE_POSITIVE"];
 
 const pad = (n: number) => String(n).padStart(2, "0");
-
-function _randomDob(b: BankBuilder, minYear = 1950, maxYear = 2000): string {
-  return `${b.rng.int(minYear, maxYear)}-${pad(b.rng.int(1, 12))}-${pad(b.rng.int(1, 28))}`;
-}
 
 /** A birth date that cannot be the listed one: a different year, by at least ten years. */
 function conflictingDob(b: BankBuilder, listed: string): string {

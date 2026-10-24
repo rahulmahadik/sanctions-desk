@@ -1,5 +1,5 @@
 /**
- * Build the seeded synthetic bank and the 60 exam cases from the committed list sample.
+ * Build the seeded synthetic bank and the 70 exam cases from the committed list sample.
  *
  *   npm run data:synthetic
  *

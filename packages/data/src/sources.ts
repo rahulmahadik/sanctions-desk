@@ -42,7 +42,6 @@ export const GleifConfigSchema = z.strictObject({
   delayMs: z.number().int().nonnegative(),
   outputDir: z.string().min(1),
 });
-export type GleifConfig = z.infer<typeof GleifConfigSchema>;
 
 const QuotaSchema = z.record(ListIdSchema, z.number().int().nonnegative());
 export const SampleConfigSchema = z.strictObject({

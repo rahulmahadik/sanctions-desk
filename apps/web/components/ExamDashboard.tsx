@@ -40,7 +40,7 @@ const ROUND_COLUMNS = [
 ] as const;
 
 /** Every held-out round as run, with the baselines on the same cases: the same table as the README. */
-export function HeldoutRounds({ rounds }: { rounds: readonly HeldoutRoundView[] }) {
+function HeldoutRounds({ rounds }: { rounds: readonly HeldoutRoundView[] }) {
   return (
     <div className="panel table-wrap">
       <table data-testid="heldout-rounds">

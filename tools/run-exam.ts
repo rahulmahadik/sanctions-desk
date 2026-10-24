@@ -1,5 +1,5 @@
 /**
- * Run the 60-case exam against the real system and save the result.
+ * Run the 70-case exam against the real system and save the result.
  *
  *   npm run exam -- --variant routed          the full system, routed across the model lanes
  *   npm run exam -- --variant single          one recommendation, no critic, no memory

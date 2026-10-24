@@ -37,7 +37,7 @@ const steps = [
   ["roles and grants", (n) => n.startsWith("create_role_") || n.startsWith("grant_")],
 ];
 let total = 0;
-console.log(`Latest applied time of each statement; the model was last compiled at ${lastCompile.ts}`);
+console.log(`Latest applied time of each statement; the model was last compiled at ${lastCompile?.ts ?? "unknown"}`);
 console.log("step".padEnd(52), "statements".padStart(10), "seconds".padStart(8));
 for (const [label, match] of steps) {
   const chosen = [...latest.values()].filter((r) => match(r.name));

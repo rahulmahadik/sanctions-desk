@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createZetarisClient, identityOfPolicyRole, type QueryRecord } from "../src/client.js";
+import { createZetarisClient, type QueryRecord } from "../src/client.js";
 import { fakeZetaris, rowsOf, testConfig } from "./helpers.js";
 
 const T = "lightning.metastore.sanctions.screening_usl.customer";
@@ -211,14 +211,5 @@ describe("a client limited to one agent's tables and columns", () => {
     await expect(none.query("evidence", `SELECT a FROM ${T}`)).rejects.toThrow(/may not read customer/);
     await client.query("evidence", `SELECT a FROM ${T}`);
     expect(api.sent).toHaveLength(1);
-  });
-});
-
-describe("identityOfPolicyRole", () => {
-  it("maps policy role names to identities and rejects unknown ones", () => {
-    expect(identityOfPolicyRole("role_evidence_agent")).toBe("evidence");
-    expect(identityOfPolicyRole("role_reviewer")).toBe("reviewer");
-    expect(identityOfPolicyRole("role_eval")).toBe("eval");
-    expect(() => identityOfPolicyRole("role_admin")).toThrow(/unknown access role/);
   });
 });
