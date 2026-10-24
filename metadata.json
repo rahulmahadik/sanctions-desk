@@ -53,7 +53,7 @@
   "data_platform": {
     "name": "Zetaris",
     "status": "working",
-    "role": "the only data path: agents send one read-only SQL statement at a time to the Zetaris REST API, under per-agent roles and data-quality rules",
+    "role": "the only data path: agents send one read-only SQL statement at a time to the Zetaris REST API, under one read-only Zetaris role with per-agent allow-lists and data-quality rules",
     "sources": [
       "semantic layer over the public list files (OFAC, UN, GLEIF)",
       "Postgres synthetic bank database via JDBC",
