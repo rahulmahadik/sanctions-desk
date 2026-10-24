@@ -147,6 +147,13 @@ const shots: Shot[] = [
     focus: "#list-change-title",
   },
   {
+    name: "12-agent-map",
+    path: `/case/${signalsAlert}`,
+    ready: "[...document.querySelectorAll('button')].some(x=>/Review this alert/.test(x.textContent||''))",
+    before: `(async()=>{const b=[...document.querySelectorAll('button')].find(x=>/Review this alert/.test(x.textContent||''));if(b){b.click();for(let i=0;i<60&&!/finished/.test(document.querySelector('[data-testid=critic-rounds]')?.textContent||'');i++)await new Promise(r=>setTimeout(r,250));}})()`,
+    focus: "#graph-title",
+  },
+  {
     name: "11-heldout-rounds",
     path: "/exam",
     ready: "document.querySelector('[data-testid=heldout-rounds]')",

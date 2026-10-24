@@ -70,6 +70,8 @@ describe("RunGraph", () => {
     expect(screen.getByTestId("node-decision").textContent).toContain("local");
     expect(screen.getByTestId("critic-rounds").textContent).toContain("2 of 3");
     expect(screen.getByTestId("critic-rounds").textContent).toContain("finished");
+    // A step with no events in a finished run did not run; it is not still waiting.
+    expect(screen.getByTestId("node-challenger").textContent).toContain("not run in this review");
   });
 
   it("shows a step that stopped a proposed close in red, with the reason on hover", () => {

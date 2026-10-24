@@ -60,7 +60,7 @@ function ModelChips({ step }: { step: StepView }) {
   );
 }
 
-function StepNode({ step, reason }: { step: StepView; reason?: string }) {
+function StepNode({ step, reason, finished }: { step: StepView; reason?: string; finished: boolean }) {
   const model = STEPS.find((s) => s.id === step.id)?.model;
   return (
     <li
@@ -73,7 +73,11 @@ function StepNode({ step, reason }: { step: StepView; reason?: string }) {
     >
       <strong>{step.label}</strong>
       <div className="state">
-        {reason ? "stopped a close" : STATE_TEXT[step.state]}
+        {reason
+          ? "stopped a close"
+          : finished && step.state === "idle"
+            ? "not run in this review"
+            : STATE_TEXT[step.state]}
         {step.retries > 0 ? ` · ${step.retries} ${step.retries === 1 ? "retry" : "retries"}` : ""}
       </div>
       {reason ? <span className="sr-only">Reason: {reason}</span> : null}
@@ -92,7 +96,7 @@ export function RunGraph({ view, stopped = {} }: { view: GraphView; stopped?: Re
       <h2 id="graph-title">Review steps</h2>
       <ol className="flow">
         {view.steps.map((step) => (
-          <StepNode key={step.id} step={step} reason={stopped[step.id]} />
+          <StepNode key={step.id} step={step} reason={stopped[step.id]} finished={view.finished} />
         ))}
       </ol>
       <p className="muted" data-testid="critic-rounds">
