@@ -123,6 +123,7 @@ export function buildDecisionRecord(input: RecordInput): DecisionRecord {
     ...(input.documentary ? { documentary: input.documentary } : {}),
     ...(evidence.screener ? { screener: screenerRecord(evidence.screener) } : {}),
     ...(evidence.cloudPayloads && evidence.cloudPayloads.length > 0 ? { cloud_payloads: evidence.cloudPayloads } : {}),
+    ...(evidence.privacy ? { privacy: evidence.privacy } : {}),
   });
 }
 

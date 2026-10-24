@@ -10,7 +10,7 @@
  *   npm run exam -- --variant escalate_all    baseline: every alert goes to a person
  *   npm run exam -- --variant no_memory       the full system with memory off (previously cleared cases only)
  *
- * Options: --groups a,b  --kinds x,y  --limit N  --exam heldout|heldout2|heldout3|heldout4 (a held-out set, run ids eval-heldout-...),
+ * Options: --groups a,b  --kinds x,y  --limit N  --out <dir> (default eval/results)  --exam heldout|heldout2|heldout3|heldout4 (a held-out set, run ids eval-heldout-...),
  *   --system sys2 (the version of the system under test, put into run ids and the result). Results go to eval/results/<time>-<variant>.json and are
  * never edited by hand; eval/REPORT.md is built from them (npm run exam:report).
  */
@@ -355,7 +355,8 @@ for (const c of cases) {
 }
 
 const metrics = summarise(outcomes);
-const dir = resolveProjectPath("eval/results");
+// --out <dir> writes the result somewhere else (for example a git-ignored folder for a run outside the evaluation).
+const dir = resolveProjectPath(flag("--out") ?? "eval/results");
 mkdirSync(dir, { recursive: true });
 const file = join(
   dir,

@@ -25,6 +25,7 @@ export * from "./ownership.js";
 export * from "./pdf.js";
 export * from "./pipeline.js";
 export * from "./policy-guard.js";
+export * from "./privacy.js";
 export * from "./queue.js";
 export * from "./record.js";
 export * from "./routing-split.js";

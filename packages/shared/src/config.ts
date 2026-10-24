@@ -84,6 +84,11 @@ const ConfigSchema = z.strictObject({
     pretty: z.boolean().default(false),
   }),
   sampleMode: z.boolean(),
+  /**
+   * Cloud privacy mode. "pseudonymise" replaces the case's names, identifiers, dates of birth, addresses and country
+   * values with tokens in every cloud prompt and maps them back locally; "off" (the default) sends them as they are.
+   */
+  privacyMode: z.enum(["off", "pseudonymise"]).default("off"),
   /** Illustrative unit costs for the cost panel. They are assumptions, not prices: set your own. */
   costs: z.strictObject({
     currency: nonEmpty,
@@ -223,6 +228,7 @@ const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "LOG_DIR", path: ["logging", "dir"], kind: "string" },
   { env: "TRACE_STDOUT_PRETTY", path: ["logging", "pretty"], kind: "boolean" },
   { env: "SAMPLE_MODE", path: ["sampleMode"], kind: "boolean" },
+  { env: "PRIVACY_MODE", path: ["privacyMode"], kind: "string" },
   { env: "ZETARIS_REST_URL", path: ["zetaris", "restUrl"], kind: "string" },
   { env: "ZETARIS_ORG_ID", path: ["zetaris", "orgId"], kind: "string" },
   { env: "ZETARIS_API_KEY", path: ["zetaris", "apiKey"], kind: "string" },
@@ -337,6 +343,7 @@ export function secretValues(cfg: Config): string[] {
 export function describeConfig(cfg: Config) {
   return {
     sampleMode: cfg.sampleMode,
+    privacyMode: cfg.privacyMode,
     server: { host: cfg.server.host, port: cfg.server.port, rateLimit: cfg.server.rateLimit },
     zetaris: {
       restUrl: cfg.zetaris.restUrl,

@@ -314,6 +314,19 @@ const DecisionRecordBody = z.strictObject({
   documentary: z.array(DocumentaryValueSchema).optional(),
   screener: ScreenerRecordSchema.optional(),
   cloud_payloads: z.array(CloudPayloadSchema).optional(),
+  /** Cloud privacy mode: the tokens the cloud steps saw instead of the case's values. Absent when the mode is off. */
+  privacy: z
+    .strictObject({
+      mode: z.literal("pseudonymise"),
+      tokens: z.array(
+        z.strictObject({
+          token: nonEmpty,
+          kind: z.enum(["party", "listed", "document", "dob", "country", "address"]),
+          value: nonEmpty,
+        }),
+      ),
+    })
+    .optional(),
   human: z.array(HumanActionSchema).default([]),
   /** Hash of the record this one supersedes (for example after a human action). */
   previous_record_hash: sha256.optional(),

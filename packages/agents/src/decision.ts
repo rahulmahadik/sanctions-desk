@@ -1,11 +1,11 @@
 import { AppError, DecisionSchema, type ModelUseInput, watchedJurisdictions } from "@sanctions-desk/shared";
 import { z } from "zod";
 import { citableSources } from "./citable.js";
-import { recordCloudPayload } from "./cloud-payload.js";
 import type { EvidenceBundle } from "./evidence.js";
 import { normalisedCheckReference } from "./evidence-standard.js";
 import type { MatchResult } from "./matching.js";
-import { askJson, clipped, type UnavailableCause, unavailableCause } from "./model-call.js";
+import { type askJson, clipped, type UnavailableCause, unavailableCause } from "./model-call.js";
+import { askCloud } from "./privacy.js";
 import { renderScreener } from "./screener.js";
 import type { AgentDeps } from "./types.js";
 
@@ -362,9 +362,9 @@ export async function decide(
   let asked: Awaited<ReturnType<typeof askJson<typeof DecisionOutputSchema>>>;
   const prompt = decisionPrompt(deps, evidence, match, feedback);
   try {
-    // Throws when free text of the case is in the prompt: the call is not made and the case goes to a person.
-    recordCloudPayload(deps, evidence, "decision", prompt);
-    asked = await askJson(deps, {
+    // Throws when free text of the case is in the prompt (or, in privacy mode, a raw value of the case): the call is
+    // not made and the case goes to a person.
+    asked = await askCloud(deps, evidence, "decision", {
       agent: "decision",
       system: DECISION_SYSTEM,
       prompt,

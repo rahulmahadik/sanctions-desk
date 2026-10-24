@@ -11,6 +11,7 @@ import {
 import type { FirstFinding } from "./hybrid.js";
 import type { MemoryEvidence } from "./memory.js";
 import type { OwnershipEvidence } from "./ownership.js";
+import type { PrivacyMap } from "./privacy.js";
 import type { SafetyResult } from "./safety.js";
 import type { ScreenerFacts } from "./screener.js";
 import { type AgentDeps, clientFor, type Row } from "./types.js";
@@ -46,6 +47,8 @@ export interface EvidenceBundle {
   noteDocument?: NoteDocumentCheck;
   /** What each model-bound step was sent (names, counts, hash). Filled in as the steps run. */
   cloudPayloads?: CloudPayload[];
+  /** The token map of cloud privacy mode, when it is on (privacy.ts). It stays on this machine and in the sealed record. */
+  privacy?: PrivacyMap;
   customerIdentifiers: Row[];
   entry: Row;
   aliases: Row[];

@@ -1,10 +1,10 @@
 import type { ModelUseInput, Policy } from "@sanctions-desk/shared";
 import { z } from "zod";
-import { recordCloudPayload } from "./cloud-payload.js";
 import { type DecisionOutput, renderDefinitions, renderEvidence } from "./decision.js";
 import type { EvidenceBundle } from "./evidence.js";
 import type { MatchResult } from "./matching.js";
-import { askJson, clipped } from "./model-call.js";
+import { clipped } from "./model-call.js";
+import { askCloud } from "./privacy.js";
 import type { AgentDeps } from "./types.js";
 
 /**
@@ -105,9 +105,9 @@ export async function challenge(
     output_summary: `challenging a close: ${reasons.join("; ")}`.slice(0, 300),
   });
   try {
-    // Throws when free text of the case is in the prompt: no call, and the close does not stand.
-    recordCloudPayload(deps, evidence, "challenger", prompt);
-    const { value, calls } = await askJson(deps, {
+    // Throws when free text of the case is in the prompt (or, in privacy mode, a raw value): no call, and the close
+    // does not stand.
+    const { value, calls } = await askCloud(deps, evidence, "challenger", {
       agent: "challenger",
       system: CHALLENGER_SYSTEM,
       prompt,

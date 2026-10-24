@@ -8,13 +8,13 @@ import {
 import type { EvidenceTool } from "@sanctions-desk/zetaris";
 import { z } from "zod";
 import { COMPUTED_BLOCKS, citableSources, isFreeTextColumn } from "./citable.js";
-import { recordCloudPayload } from "./cloud-payload.js";
 import type { DecisionOutput } from "./decision.js";
 import { policyExcerpt, renderDefinitions, renderEvidence } from "./decision.js";
 import type { EvidenceBundle } from "./evidence.js";
 import type { MatchResult } from "./matching.js";
-import { askJson, clipped } from "./model-call.js";
+import { clipped } from "./model-call.js";
 import { blockingDataQuality } from "./policy-guard.js";
+import { askCloud } from "./privacy.js";
 import type { AgentDeps, FactCitation } from "./types.js";
 
 /**
@@ -323,9 +323,8 @@ export async function review(
   let value: z.infer<typeof ModelVerdictSchema>;
   let calls: ModelUseInput[] = [];
   try {
-    // Throws, and so approves nothing, if any free text of the case is in the prompt.
-    recordCloudPayload(deps, evidence, "critic", prompt);
-    ({ value, calls } = await askJson(deps, {
+    // Throws, and so approves nothing, if any free text of the case is in the prompt (or, in privacy mode, a raw value).
+    ({ value, calls } = await askCloud(deps, evidence, "critic", {
       agent: "critic",
       system: CRITIC_SYSTEM,
       prompt,
