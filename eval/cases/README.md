@@ -76,3 +76,27 @@ Every clear is reachable under the written policy, and every clear's text is in 
 The rows are built from their own seed and id marker (`CUST-K0001`, `ALR-K0001`, ...) after the second set's rows. `npm run data:synthetic -- --include-heldout3` writes them into `data/synthetic/` after both earlier sets' rows, and `npm run heldout3:load` loads them into the bank database (dry run unless `--apply` is given). Without the flag every existing output is unchanged; a test checks the existing outputs byte for byte.
 
 **Final freeze:** recorded at the first v3 run.
+
+## Held-out v4
+
+- `heldout4.json`: 12 cases, HO4-001 to HO4-012, group `beyond_rules_v4`. Date: 24 October 2026.
+- sha256 of `eval/cases/heldout4.json`: `de43651d416be5afb432498e114852fe113c0532146cc7d926ca212efd7753ed`
+- sha256 of the rows the cases point at (customers, identifiers, accounts, payments and alerts with the marker `L`, the notes, references and fields the labels were written against): `1744fe66c69a6618ead4c482b93d142ffac568bd3568d34f5ae35726f07a2571`
+
+This set was written from the written definitions only (the approved business definitions, the evidence standard section of the policy, the registered data-quality rules and the case and data builders), without reading any result, trace or decision record, and without reading the fix it will test. No system output for v4 existed when it was frozen. It will not be changed after these hashes are recorded; `packages/agents/test/heldout4-standard.test.ts` pins both hashes and fails if the case file or the rows change. Labels apply the approved definitions and the documentary evidence standard exactly as written (`false_positive@2`, `counterparty_match@1`, `effective_ownership_threshold@1`); each case has a one-sentence reason in `note`. Customers and payments are synthetic; the listed side is real public entries from the committed list sample, none of which the main exam or an earlier held-out set used.
+
+The set has six risks and six clears:
+
+| Family | Cases | Expected | Why it is there |
+| --- | --- | --- | --- |
+| Relationship to a listed party stated in free text, where plain rules would close | HO4-001 (the account is run for the customer's uncle, the listed person), HO4-002 (a German note: the customer holds company shares as nominee for the listed person), HO4-003 (the customer's former name is exactly the listed name) | ESCALATE_L2 only; a close is a miss | The structured fields alone meet the false-positive definition (birth date present and conflicting to the day, nationality differs, no document matches), so only the text shows the risk. |
+| Relationship to a listed party stated in free text | HO4-004 (the customer has been a director, since 2019, of a listed company), HO4-005 (a French payment reference: the counterparty is controlled by the listed person through a holding company, no percentage given), HO4-006 (the listed person is the sole signatory on a company customer's account under a power of attorney) | ESCALATE_L2 only; a close is a miss | No structured field links the customer or the counterparty to the listed party. |
+| Relation word a few words away from the listed name | HO4-001 ("run for her uncle, <name>, who lives abroad"), HO4-002, HO4-004 ("director (since 2019) of <company>"), HO4-005, HO4-006 | as above | The relationship is stated plainly, but not in one short phrase. |
+| Clears with harmless words next to a name | HO4-007 ("father's name as printed on the passport"), HO4-008 ("director of studies"), HO4-009 ("nominee for an award"), HO4-010 ("our sister branch"), HO4-012 ("a company owned by the customer himself") | CLOSE_FALSE_POSITIVE; nothing else is acceptable | Words that sound like a relationship (father, director, nominee, sister, owned by) must not count as one. |
+| Clear whose note names the listed person only as checked and not matching | HO4-011 | CLOSE_FALSE_POSITIVE; nothing else is acceptable | Naming a listed person in a recorded name check is not a relationship. |
+
+Every clear is a customer alert, reachable under the written policy, and its note is in English and meets the documentary standard (a check reference, a document number and a date). No clear has a failing data-quality rule other than the missing birth date, which the note answers with a labelled birth date that conflicts with every listed date; the nationality is not a listed nationality and no document matches. The document number in each clear's note is also one of that customer's identifier rows (`customer_identifier`, same number), so the document is on the customer record. No risk text meets the documentary standard. A test checks all of this.
+
+The rows are built from their own seed and id marker (`CUST-L0001`, `ALR-L0001`, ...) after the third set's rows, for the default seed only, like the third set. `npm run data:synthetic -- --include-heldout4` writes them into `data/synthetic/` after all three earlier sets' rows, and `npm run heldout4:load` loads them into the bank database (dry run unless `--apply` is given). Without the flag every existing output is unchanged; a test checks the existing outputs byte for byte.
+
+**Final freeze:** the commit named here, the one that adds this section and `heldout4.json` (its message starts "Freeze held-out v4"). Any later change to a case gets its own commit, a new hash and its reason in this section.

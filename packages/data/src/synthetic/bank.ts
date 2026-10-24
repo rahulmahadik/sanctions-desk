@@ -10,6 +10,7 @@ import { addDelistingExtras, buildExamCases } from "./cases.js";
 import { buildClearingCases, buildHeldoutCases, heldoutCaseIds } from "./heldout.js";
 import { buildHeldout2Cases, heldout2CaseIds } from "./heldout2.js";
 import { buildHeldout3Cases, heldout3CaseIds } from "./heldout3.js";
+import { buildHeldout4Cases, heldout4CaseIds } from "./heldout4.js";
 import {
   emptySyntheticTables,
   SYNTHETIC_LABEL,
@@ -48,6 +49,8 @@ export interface SyntheticBank {
   tablesWithHeldout2: SyntheticTables;
   /** The rows of the main exam and the three held-out sets, in that order. */
   tablesWithHeldout3: SyntheticTables;
+  /** The rows of the main exam and the four held-out sets, in that order. */
+  tablesWithHeldout4: SyntheticTables;
   cases: ExamCase[];
   /** The frozen held-out set (HO-001 and up). Its rows are in `tablesWithHeldout`, with ids that carry an H. */
   heldout: ExamCase[];
@@ -55,6 +58,8 @@ export interface SyntheticBank {
   heldout2: ExamCase[];
   /** The third frozen held-out set (HO3-001 and up). Its rows are in `tablesWithHeldout3`, with ids that carry a K. */
   heldout3: ExamCase[];
+  /** The fourth frozen held-out set (HO4-001 and up). Its rows are in `tablesWithHeldout4`, with ids that carry an L. */
+  heldout4: ExamCase[];
   /** Edits that turn the committed list into the later list the exam runs against. */
   delta: DeltaOp[];
   manifest: BankManifest;
@@ -369,11 +374,28 @@ export function buildBank(
   const thirdSet = options.seed === DEFAULT_BANK_OPTIONS.seed;
   if (thirdSet) buildHeldout3Cases(hb3);
   const heldout3 = thirdSet ? heldout3CaseIds(hb3.cases) : [];
+  const tablesWithHeldout3 = structuredClone(tables);
+
+  // The fourth held-out set: built after the third, with its own seed and marker, and without reusing a listed party
+  // that the main exam or an earlier set used. Like the third set it names its listed parties outright, so it is
+  // built for the default seed only. The rows above are copied before it is added, so they do not change.
+  const hb4 = new BankBuilder(
+    createRng(`${options.seed}#heldout4`),
+    `${options.seed}#heldout4`,
+    candidates,
+    tables,
+    hashes,
+    "L",
+  );
+  for (const entryId of [...b.used, ...hb.used, ...hb2.used, ...hb3.used]) hb4.used.add(entryId);
+  if (thirdSet) buildHeldout4Cases(hb4);
+  const heldout4 = thirdSet ? heldout4CaseIds(hb4.cases) : [];
 
   const problems = [
     ...validateBank(tablesWithHeldout, list, [...b.cases, ...heldout]),
     ...validateBank(tablesWithHeldout2, list, [...b.cases, ...heldout, ...heldout2]),
-    ...validateBank(tables, list, [...b.cases, ...heldout, ...heldout2, ...heldout3]),
+    ...validateBank(tablesWithHeldout3, list, [...b.cases, ...heldout, ...heldout2, ...heldout3]),
+    ...validateBank(tables, list, [...b.cases, ...heldout, ...heldout2, ...heldout3, ...heldout4]),
   ];
   if (problems.length > 0)
     throw new Error(`the synthetic bank is inconsistent:\n- ${problems.slice(0, 10).join("\n- ")}`);
@@ -389,11 +411,13 @@ export function buildBank(
     tables: mainTables,
     tablesWithHeldout,
     tablesWithHeldout2,
-    tablesWithHeldout3: tables,
+    tablesWithHeldout3,
+    tablesWithHeldout4: tables,
     cases: b.cases,
     heldout,
     heldout2,
     heldout3,
+    heldout4,
     delta: b.delta,
     manifest: {
       label: SYNTHETIC_LABEL,
@@ -411,17 +435,24 @@ const columnsOf = (name: SyntheticTableName): string[] => Object.keys(SYNTHETIC_
 export function writeBank(
   dir: string,
   bank: SyntheticBank,
-  options: { includeHeldout?: boolean; includeHeldout2?: boolean; includeHeldout3?: boolean } = {},
+  options: {
+    includeHeldout?: boolean;
+    includeHeldout2?: boolean;
+    includeHeldout3?: boolean;
+    includeHeldout4?: boolean;
+  } = {},
 ): void {
   mkdirSync(dir, { recursive: true });
   // Each set's rows come after the earlier sets' rows, so asking for a later set includes the earlier ones.
-  const tables = options.includeHeldout3
-    ? bank.tablesWithHeldout3
-    : options.includeHeldout2
-      ? bank.tablesWithHeldout2
-      : options.includeHeldout
-        ? bank.tablesWithHeldout
-        : bank.tables;
+  const tables = options.includeHeldout4
+    ? bank.tablesWithHeldout4
+    : options.includeHeldout3
+      ? bank.tablesWithHeldout3
+      : options.includeHeldout2
+        ? bank.tablesWithHeldout2
+        : options.includeHeldout
+          ? bank.tablesWithHeldout
+          : bank.tables;
   for (const name of SYNTHETIC_TABLE_NAMES) {
     const rows = tables[name] as object[];
     writeFileSync(join(dir, `${name}.json`), `${JSON.stringify(rows)}\n`);
@@ -455,6 +486,15 @@ export function writeHeldout3(file: string, bank: SyntheticBank): void {
   writeFileSync(
     file,
     `${JSON.stringify({ label: `${SYNTHETIC_LABEL} Third held-out set, written before any system output on it was seen and frozen when its hash is recorded.`, seed: bank.manifest.seed, cases: bank.heldout3 }, null, 2)}\n`,
+  );
+}
+
+/** The fourth held-out set as an exam file (same shape as the first three). */
+export function writeHeldout4(file: string, bank: SyntheticBank): void {
+  mkdirSync(join(file, ".."), { recursive: true });
+  writeFileSync(
+    file,
+    `${JSON.stringify({ label: `${SYNTHETIC_LABEL} Fourth held-out set, written before any system output on it was seen and frozen when its hashes are recorded.`, seed: bank.manifest.seed, cases: bank.heldout4 }, null, 2)}\n`,
   );
 }
 

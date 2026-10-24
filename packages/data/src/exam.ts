@@ -3,13 +3,13 @@ import { resolveProjectPath } from "@sanctions-desk/shared";
 import { z } from "zod";
 import { EXAM_GROUPS } from "./synthetic/builder.js";
 
-/** The exam files (the 70 main cases and the three held-out sets): each case, the right answer, and what must never happen. */
+/** The exam files (the 70 main cases and the four held-out sets): each case, the right answer, and what must never happen. */
 
 const DecisionWord = z.enum(["CLOSE_FALSE_POSITIVE", "ESCALATE_L2", "RECOMMEND_BLOCK", "NEED_MORE_INFO"]);
 
 export const ExamCaseSchema = z.strictObject({
-  case_id: z.string().regex(/^(EX|HO|HO2|HO3)-\d{3}$/),
-  group: z.enum([...EXAM_GROUPS, "beyond_rules", "beyond_rules_v2", "beyond_rules_v3"]),
+  case_id: z.string().regex(/^(EX|HO|HO2|HO3|HO4)-\d{3}$/),
+  group: z.enum([...EXAM_GROUPS, "beyond_rules", "beyond_rules_v2", "beyond_rules_v3", "beyond_rules_v4"]),
   kind: z.string().min(1),
   title: z.string().min(1),
   alert_id: z.string().nullable(),
@@ -36,6 +36,7 @@ export const MAIN_EXAM_FILE = "eval/cases/exam.json";
 export const HELDOUT_EXAM_FILE = "eval/cases/heldout.json";
 export const HELDOUT2_EXAM_FILE = "eval/cases/heldout2.json";
 export const HELDOUT3_EXAM_FILE = "eval/cases/heldout3.json";
+export const HELDOUT4_EXAM_FILE = "eval/cases/heldout4.json";
 
 /** The main exam has exactly 70 cases; the held-out set is read the same way but has its own size. */
 export function loadExam(path = MAIN_EXAM_FILE): ExamFile {

@@ -1,0 +1,269 @@
+{
+  "label": "Synthetic data generated for development and demonstration. No real customer, account or payment. Fourth held-out set, written before any system output on it was seen and frozen when its hashes are recorded.",
+  "seed": "sanctions-desk-bank-1#2920bd4c",
+  "cases": [
+    {
+      "case_id": "HO4-001",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_rules_close_note_uncle",
+      "title": "A similar name with a conflicting birth date and another nationality; the note says the account is run for the customer's uncle, the listed person",
+      "alert_id": "ALR-L0001",
+      "alert_type": "customer",
+      "customer_id": "CUST-L0001",
+      "entry_id": "OFAC-41069",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "rules_would_close",
+        "relation_word_at_distance"
+      ],
+      "note": "The structured fields alone meet the false-positive definition, but the note says the account is run for the customer's uncle, named in full as the listed person, with the relation word a few words away from the name."
+    },
+    {
+      "case_id": "HO4-002",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_rules_close_note_nominee_german",
+      "title": "A shorter form of the listed name with a conflicting birth date and another nationality; a German note says the customer holds company shares as nominee for the listed person",
+      "alert_id": "ALR-L0002",
+      "alert_type": "customer",
+      "customer_id": "CUST-L0002",
+      "entry_id": "OFAC-46715",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "rules_would_close",
+        "non_english_text",
+        "relation_word_at_distance"
+      ],
+      "note": "The structured fields alone meet the false-positive definition, but the note, in German, says the customer is a nominee shareholder holding shares for the listed person, named in full with the listed birth date, and passes the profit distributions on to him."
+    },
+    {
+      "case_id": "HO4-003",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_rules_close_note_former_name",
+      "title": "A partly similar name with a conflicting birth date and another nationality; the note says the customer's former name was exactly the listed name",
+      "alert_id": "ALR-L0003",
+      "alert_type": "customer",
+      "customer_id": "CUST-L0003",
+      "entry_id": "OFAC-23445",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "rules_would_close",
+        "former_name_in_text"
+      ],
+      "note": "The structured fields alone meet the false-positive definition, but the note says the customer was formerly known by exactly the listed person's name and that the passport in that name is not on file, so the former name is a link no structured field carries."
+    },
+    {
+      "case_id": "HO4-004",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_note_director_since",
+      "title": "The customer note says the customer has been a non-executive director of the listed company since 2019",
+      "alert_id": "ALR-L0004",
+      "alert_type": "customer",
+      "customer_id": "CUST-L0004",
+      "entry_id": "OFAC-22605",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "relation_word_at_distance"
+      ],
+      "note": "The customer's name has nothing in common with the listed company, but the note says the customer has been its director since 2019 and receives board fees into this account, with the year standing between the relation word and the company's name."
+    },
+    {
+      "case_id": "HO4-005",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_ref_company_controlled_french",
+      "title": "A French payment reference says the counterparty company is controlled, through a holding company, by the listed person",
+      "alert_id": "ALR-L0005",
+      "alert_type": "payment",
+      "customer_id": "CUST-L0005",
+      "entry_id": "OFAC-26417",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_payment_reference",
+        "non_english_text",
+        "relation_word_at_distance"
+      ],
+      "note": "The counterparty's name and country are not linked to the listed person, but the reference, in French, says he controls the counterparty through a holding company, with no percentage, which the approved ownership definition treats as unknown, never as zero."
+    },
+    {
+      "case_id": "HO4-006",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_note_signatory_proxy",
+      "title": "The note on a company customer says the listed person is the sole signatory on its account, acting under a power of attorney",
+      "alert_id": "ALR-L0006",
+      "alert_type": "customer",
+      "customer_id": "CUST-L0006",
+      "entry_id": "OFAC-16753",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "relation_word_at_distance"
+      ],
+      "note": "The company's name has nothing in common with the listed person, but the note says he operates its account alone as its proxy under a power of attorney, and his name stands at the end of the sentence, after the role."
+    },
+    {
+      "case_id": "HO4-007",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_fathers_name_printed",
+      "title": "Exact name, no birth date on record; a passport note gives the father's name as printed on the passport and a different birth date",
+      "alert_id": "ALR-L0007",
+      "alert_type": "customer",
+      "customer_id": "CUST-L0007",
+      "entry_id": "OFAC-10010",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "near_miss_wording",
+        "clearing_evidence_in_text",
+        "document_on_customer_record",
+        "data_quality_failure"
+      ],
+      "note": "The father's name is a field copied from the passport, not a link to the listed person; the note carries a check reference, a passport number that is on the customer's identifier rows and a date, and its labelled birth date conflicts with the only listed date while the nationality differs and no document matches."
+    },
+    {
+      "case_id": "HO4-008",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_director_of_studies",
+      "title": "Exact name, no birth date on record; the note says the customer is a director of studies at a business school and records a national ID check",
+      "alert_id": "ALR-L0008",
+      "alert_type": "customer",
+      "customer_id": "CUST-L0008",
+      "entry_id": "OFAC-7214",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "near_miss_wording",
+        "clearing_evidence_in_text",
+        "document_on_customer_record",
+        "data_quality_failure"
+      ],
+      "note": "A director of studies is a job title at a school, not a directorship of a listed company; the note carries a check reference, a national ID number that is on the customer's identifier rows and a date, and its labelled birth date conflicts with the only listed date while the listed person has no listed nationality and no document matches."
+    },
+    {
+      "case_id": "HO4-009",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_award_nominee",
+      "title": "Exact name, no birth date on record; the note says the customer is a nominee for a teaching award and records a passport check",
+      "alert_id": "ALR-L0009",
+      "alert_type": "customer",
+      "customer_id": "CUST-L0009",
+      "entry_id": "OFAC-30504",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "near_miss_wording",
+        "clearing_evidence_in_text",
+        "document_on_customer_record",
+        "data_quality_failure"
+      ],
+      "note": "Being a nominee for an award is not a nominee holding for anyone; the note carries a check reference, a passport number that is on the customer's identifier rows and a date, and its labelled birth date conflicts with the only listed date while the nationality differs and no document matches."
+    },
+    {
+      "case_id": "HO4-010",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_sister_branch",
+      "title": "A shorter form of the listed name, no birth date on record; the note says the accounts moved from the bank's sister branch and records a passport check",
+      "alert_id": "ALR-L0010",
+      "alert_type": "customer",
+      "customer_id": "CUST-L0010",
+      "entry_id": "OFAC-41005",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "near_miss_wording",
+        "clearing_evidence_in_text",
+        "document_on_customer_record",
+        "data_quality_failure"
+      ],
+      "note": "The sister branch is the bank's own office, not a link to the listed person; the note carries a check reference, a passport number that is on the customer's identifier rows and a date, and its labelled birth date conflicts with the only listed date while the nationality differs and no document matches."
+    },
+    {
+      "case_id": "HO4-011",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_name_checked_no_match",
+      "title": "A strong name match, no birth date on record; the note names the listed person only to record that a name check found no match",
+      "alert_id": "ALR-L0011",
+      "alert_type": "customer",
+      "customer_id": "CUST-L0011",
+      "entry_id": "OFAC-29250",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "near_miss_wording",
+        "clearing_evidence_in_text",
+        "document_on_customer_record",
+        "data_quality_failure"
+      ],
+      "note": "The note names the listed person only as the subject of a name check that found no match; it carries a check reference, a passport number that is on the customer's identifier rows and a date, and its labelled birth date conflicts with the only listed date while the listed person has no listed nationality and no document matches."
+    },
+    {
+      "case_id": "HO4-012",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_own_company",
+      "title": "Exact name, no birth date on record; the note says the customer trades through a company he owns himself and records a passport check",
+      "alert_id": "ALR-L0012",
+      "alert_type": "customer",
+      "customer_id": "CUST-L0012",
+      "entry_id": "OFAC-23143",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "edge_cases": [
+        "free_text_note",
+        "near_miss_wording",
+        "clearing_evidence_in_text",
+        "document_on_customer_record",
+        "data_quality_failure"
+      ],
+      "note": "A company owned by the customer himself is not a company owned by the listed person; the note carries a check reference, a passport number that is on the customer's identifier rows and a date, and its labelled birth date conflicts with the only listed date while the listed person has no listed nationality and no document matches."
+    }
+  ]
+}
