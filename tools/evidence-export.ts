@@ -189,12 +189,14 @@ if (problems.length > 0) {
   console.error(`evidence export FAILED:\n${problems.map((p) => `  ${p}`).join("\n")}`);
   process.exit(1);
 }
-// The README links the receipt log of each exported run, with the command that checks it.
+// The README links the receipt log of each exported run, with the command that checks it; only an export to the
+// committed eval/runs does this, so an export to another folder (as the tests make) never rewrites the README.
 const readmePath = resolveProjectPath("README.md");
 const readme = readFileSync(readmePath, "utf8");
 const RS = "<!-- receipts:start -->";
 const RE = "<!-- receipts:end -->";
-if (readme.includes(RS) && readme.includes(RE) && summary.length > 0) {
+const intoCommitted = outRoot === resolveProjectPath("eval/runs");
+if (intoCommitted && readme.includes(RS) && readme.includes(RE) && summary.length > 0) {
   const block = [
     RS,
     "| Run | Receipts | Receipt log | Check it |",

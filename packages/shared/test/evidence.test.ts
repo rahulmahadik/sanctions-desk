@@ -168,4 +168,19 @@ describe("evidence export and verify", () => {
     expect(bad.status).toBe(1);
     expect(bad.stdout).toContain("1 invalid");
   });
+
+  it("leaves the README alone when it exports to another folder than eval/runs", () => {
+    // Every export in this file goes to a temporary folder, so the README must never name the sandbox's run.
+    const s = sandbox([event()], [receipt("rcpt_1", "nvidia/nemotron-3-ultra-550b-a55b")]);
+    const exported = run("tools/evidence-export.ts", [
+      "--logs-dir",
+      s.logs,
+      "--results-dir",
+      s.results,
+      "--out",
+      s.out,
+    ]);
+    expect(exported.status).toBe(0);
+    expect(readFileSync(join(ROOT, "README.md"), "utf8")).not.toContain("routed-20261023T010000Z");
+  });
 });
