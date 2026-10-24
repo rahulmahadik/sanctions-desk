@@ -1,8 +1,8 @@
 /**
  * The static API documentation site (site/): the OpenAPI document the API serves at /docs/json, written to a file
  * without starting a server or calling any service, the images the landing page shows, and the "Recorded runs"
- * pages (runs/, from the committed run exports; see runs-site.ts) and the receipt log (receipts/, every model call
- * with its checked receipt; see receipt-log.ts). The landing and API pages are committed; what is
+ * pages (runs/, from the committed run exports; see runs-site.ts) the receipt log (receipts/, every model call
+ * with its checked receipt; see receipt-log.ts) and the results page (results.html, see results-page.ts). The landing and API pages are committed; what is
  * generated here is git-ignored and rebuilt by `npm run site:build`, so it never goes stale.
  */
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -10,6 +10,7 @@ import { dirname, join, resolve } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
 import { buildOpenApi } from "../../apps/api/src/openapi.js";
 import { buildReceiptLog } from "./receipt-log.js";
+import { buildResultsPage } from "./results-page.js";
 import { buildRunPages } from "./runs-site.js";
 
 /** The committed pages of the site, copied when the site is built somewhere other than site/. */
@@ -23,6 +24,8 @@ export const SITE_IMAGES: Record<string, string> = {
   "media/charts/critic-mutation.png": "docs/media/charts/critic-mutation.png",
   "media/charts/model-calls.png": "docs/media/charts/model-calls.png",
   "media/charts/model-latency.png": "docs/media/charts/model-latency.png",
+  "media/charts/model-choice.png": "docs/media/charts/model-choice.png",
+  "media/charts/repeat-study.png": "docs/media/charts/repeat-study.png",
 };
 
 /** The API's version, as its package states it. */
@@ -67,5 +70,6 @@ export function buildSite(outDir = resolveProjectPath("site")): string[] {
   }
   for (const f of buildRunPages(join(out, "runs"))) written.push(`runs/${f}`);
   for (const f of buildReceiptLog(join(out, "receipts"))) written.push(`receipts/${f}`);
+  written.push(buildResultsPage(out));
   return written;
 }

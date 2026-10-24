@@ -19,6 +19,10 @@ on:
       - "tools/lib/site.ts"
       - "tools/lib/runs-site.ts"
       - "tools/lib/receipt-log.ts"
+      - "tools/lib/results-page.ts"
+      - "README.md"
+      - "docs/EVALUATION.md"
+      - "docs/NEMOTRON.md"
       - "tools/lib/evidence.ts"
       - "tools/lib/hash-changes.ts"
       # The "Recorded runs" pages are replayed from these committed files.

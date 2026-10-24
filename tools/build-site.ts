@@ -10,6 +10,7 @@
  */
 import { relative } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
+import { ResultsPageError } from "./lib/results-page.js";
 import { RecordedRunError } from "./lib/runs-site.js";
 import { buildSite } from "./lib/site.js";
 
@@ -21,7 +22,7 @@ try {
 } catch (err) {
   // A missing run file or a receipt that does not verify stops the build: the pages would otherwise show a claim
   // the committed files cannot back.
-  if (!(err instanceof RecordedRunError)) throw err;
+  if (!(err instanceof RecordedRunError || err instanceof ResultsPageError)) throw err;
   console.error(`site build stopped: ${err.message}`);
   process.exit(1);
 }
