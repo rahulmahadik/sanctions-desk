@@ -1,6 +1,7 @@
 import { MAX_REASON_LENGTH, MIN_REASON_LENGTH } from "@sanctions-desk/agents";
-import { PolicySchema, ReviewResponseSchema, RunRequestSchema } from "@sanctions-desk/shared";
+import { PolicySchema, ReviewResponseSchema, RunIdSchema, RunRequestSchema } from "@sanctions-desk/shared";
 import { z } from "zod";
+import { SAFE_ID_PATTERN } from "./ids.js";
 
 /**
  * The OpenAPI description of the API. The request and response shapes are generated from the same zod schemas the
@@ -40,18 +41,14 @@ const ErrorBody: Json = {
 };
 
 const obj = (properties: Json = {}, required: string[] = []): Json => ({ type: "object", properties, required });
+// The id parameters carry the same pattern and lengths the routes validate with, never a copy of them.
 const AlertIdParam = {
   name: "alertId",
   in: "path",
   required: true,
-  schema: { type: "string", pattern: "^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$" },
+  schema: { type: "string", pattern: SAFE_ID_PATTERN.source },
 };
-const RunIdParam = {
-  name: "runId",
-  in: "path",
-  required: true,
-  schema: { type: "string", pattern: "^[A-Za-z0-9._-]{1,64}$" },
-};
+const RunIdParam = { name: "runId", in: "path", required: true, schema: schemaOf(RunIdSchema) };
 const VersionParam = { name: "version", in: "path", required: true, schema: { type: "integer", minimum: 1 } };
 
 interface RouteDoc {
