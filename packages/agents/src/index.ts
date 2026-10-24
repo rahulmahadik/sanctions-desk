@@ -4,6 +4,7 @@ export * from "./autonomy.js";
 export * from "./bench.js";
 export * from "./case-file.js";
 export * from "./challenger.js";
+export * from "./close-stop.js";
 export * from "./cloud-payload.js";
 export * from "./critic.js";
 export * from "./decision.js";

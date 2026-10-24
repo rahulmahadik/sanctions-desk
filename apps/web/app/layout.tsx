@@ -7,7 +7,7 @@ import { UserSwitcher } from "../components/UserSwitcher";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Review desk",
+  title: "Sanctions Desk",
   description: "Sanctions alert review: the desk recommends, a person decides.",
 };
 
@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <div className="shell">
           <header className="top">
-            <h1>Sanctions review desk</h1>
+            <h1>Sanctions Desk</h1>
             <nav aria-label="Main">
               <Link href="/">Alert queue</Link>
               <Link href="/policy">Policy studio</Link>

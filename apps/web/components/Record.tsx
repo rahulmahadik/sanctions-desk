@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DECISION_LABEL, DECISION_TONE, label, percent, shortHash } from "../lib/format";
+import { DECISION_ICON, DECISION_LABEL, DECISION_TONE, label, percent, shortHash } from "../lib/format";
 import { graphAt } from "../lib/graph";
 import type { RecordView, ReviewAnswer, RunEvent, TraceView } from "../lib/types";
 import { RunGraph } from "./RunGraph";
@@ -112,6 +112,7 @@ export function Outcome({ answer }: { answer: ReviewAnswer }) {
     <section className="panel" aria-labelledby="outcome-title">
       <h2 id="outcome-title">Recommendation</h2>
       <p className={`verdict tone-${DECISION_TONE[answer.decision]}`} data-testid="verdict">
+        <span aria-hidden="true">{DECISION_ICON[answer.decision]} </span>
         {DECISION_LABEL[answer.decision]}
       </p>
       <PathLine answer={answer} />

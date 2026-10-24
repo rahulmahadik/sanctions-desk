@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import {
+  closeStopFromLogs,
   gatherEvidence,
   type Headline,
   headlineOf,
@@ -13,6 +14,7 @@ import {
   routingSplit,
   type SavedResult,
   type ScoredCase,
+  severityOf,
 } from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
 import {
@@ -59,6 +61,19 @@ export function readExamResults(dir: string): unknown[] {
   }
 }
 
+/** Calls per serving model and route over a set of records, most used first. */
+export function modelsUsed(records: readonly DecisionRecord[]): Array<{ model: string; route: string; calls: number }> {
+  const counts = new Map<string, { model: string; route: string; calls: number }>();
+  for (const r of records)
+    for (const m of r.models) {
+      const key = `${m.model_routed}|${m.route_kind ?? "local"}`;
+      const c = counts.get(key) ?? { model: m.model_routed, route: m.route_kind ?? "local", calls: 0 };
+      c.calls += 1;
+      counts.set(key, c);
+    }
+  return [...counts.values()].sort((a, b) => b.calls - a.calls);
+}
+
 /** What the review desk interface reads: the queue, a live stream of one run, the sealed record, the exam. */
 export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config, bus, policies, zetaris }) => {
   app.get("/alerts", async () => {
@@ -67,6 +82,7 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
     const recorded = new Map<string, DecisionRecord>();
     for (const r of readDecisionRecords(config.logging.dir))
       if (!recorded.has(r.alert_ref)) recorded.set(r.alert_ref, r);
+    const nameThreshold = policies.active().matching.nameSimilarityThreshold;
     return {
       alerts: queue.map((a) => ({
         ...a,
@@ -79,7 +95,15 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
         human_final: recorded.has(a.alert_id)
           ? (humanState(recorded.get(a.alert_id) as DecisionRecord).final ?? null)
           : null,
+        severity: severityOf(a.match_score, nameThreshold),
+        // Which check stopped a close the decision step proposed, read from the run's own trace; empty otherwise.
+        blocked_by: recorded.has(a.alert_id)
+          ? (closeStopFromLogs(config.logging.dir, recorded.get(a.alert_id) as DecisionRecord)?.by ?? [])
+          : [],
       })),
+      name_threshold: nameThreshold,
+      // The models that served the latest recommendation of each alert, counted from the sealed records.
+      models_used: modelsUsed([...recorded.values()]),
       sample_mode: config.sampleMode,
     };
   });

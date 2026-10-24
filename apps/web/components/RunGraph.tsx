@@ -1,39 +1,99 @@
-import { label, seconds } from "../lib/format";
-import { type GraphView, STEPS } from "../lib/graph";
+import { API_URL } from "../lib/api";
+import { modelName, seconds } from "../lib/format";
+import { type GraphView, STEPS, type StepView } from "../lib/graph";
+import type { CloseStopView, StoppedBy } from "../lib/types";
 
 const STATE_TEXT: Record<string, string> = {
   idle: "waiting",
-  running: "working",
+  running: "working now",
   done: "done",
   retry: "trying again",
+  flagged: "flagged",
   error: "problem",
   skipped: "skipped",
 };
 
-/** One node per review step. The light on each node comes from recorded events, never from a timer. */
-export function RunGraph({ view }: { view: GraphView }) {
+/** Which node each kind of check belongs to. A data-quality rule is applied by the policy guard. */
+const STEP_OF: Record<StoppedBy, string> = {
+  critic: "critic",
+  "policy guard": "policy_guard",
+  screener: "screener",
+  "data quality": "policy_guard",
+};
+
+/** For each step that stopped a close the decision step proposed, the reasons it gave. */
+export function stoppedSteps(stop: CloseStopView | null | undefined): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!stop?.stopped) return out;
+  for (const by of stop.by) {
+    const id = STEP_OF[by];
+    const reasons = stop.reasons.filter((r) =>
+      by === "critic" ? r.startsWith("critic") : by === "screener" ? r.startsWith("screener") : !r.startsWith("critic"),
+    );
+    out[id] = [out[id], ...reasons].filter(Boolean).join("; ") || `stopped by the ${by}`;
+  }
+  return out;
+}
+
+/** Where a model step ran and which model served it, with its signed receipt. */
+function ModelChips({ step }: { step: StepView }) {
+  if (!step.model) return null;
+  const where = step.route ?? "local";
+  return (
+    <div className="state">
+      <span className={`lane-${where}`}>
+        {where} {modelName(step.model).replace("Nemotron 3.5 ", "").replace("Nemotron 3 ", "")}
+      </span>
+      {step.latencyMs !== undefined ? ` · ${seconds(step.latencyMs)}` : ""}
+      <div title={step.requested ? `requested ${step.requested}` : undefined}>routed {step.model}</div>
+      {step.receiptId ? (
+        <a
+          href={`${API_URL}/receipts/${encodeURIComponent(step.receiptId)}/verify`}
+          target="_blank"
+          rel="noreferrer"
+          data-testid={`receipt-link-${step.id}`}
+        >
+          receipt {step.receiptId}
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
+function StepNode({ step, reason }: { step: StepView; reason?: string }) {
+  const model = STEPS.find((s) => s.id === step.id)?.model;
+  return (
+    <li
+      className="node"
+      data-state={step.state}
+      data-blocked={reason ? "true" : undefined}
+      title={reason ? `Stopped a close: ${reason}` : step.lastSummary}
+      aria-current={step.state === "running" ? "step" : undefined}
+      data-testid={`node-${step.id}`}
+    >
+      <strong>{step.label}</strong>
+      <div className="state">
+        {reason ? "stopped a close" : STATE_TEXT[step.state]}
+        {step.retries > 0 ? ` · ${step.retries} ${step.retries === 1 ? "retry" : "retries"}` : ""}
+      </div>
+      {reason ? <span className="sr-only">Reason: {reason}</span> : null}
+      {model ? <ModelChips step={step} /> : null}
+    </li>
+  );
+}
+
+/**
+ * One node per review step. The light on each node comes from recorded events, never from a timer; the step working
+ * now is outlined, and a step that stopped a proposed close is red with its reason on hover.
+ */
+export function RunGraph({ view, stopped = {} }: { view: GraphView; stopped?: Record<string, string> }) {
   return (
     <section aria-labelledby="graph-title" className="panel">
       <h2 id="graph-title">Review steps</h2>
       <ol className="flow">
-        {view.steps.map((step) => {
-          const model = STEPS.find((s) => s.id === step.id)?.model;
-          return (
-            <li key={step.id} className="node" data-state={step.state} data-testid={`node-${step.id}`}>
-              <strong>{step.label}</strong>
-              <div className="state">
-                {STATE_TEXT[step.state]}
-                {step.retries > 0 ? ` · ${step.retries} ${step.retries === 1 ? "retry" : "retries"}` : ""}
-              </div>
-              {model && step.model ? (
-                <div className="state">
-                  <span className={`lane-${step.route ?? "local"}`}>{step.route ?? "local"}</span> · {label(step.model)}
-                  {step.latencyMs !== undefined ? ` · ${seconds(step.latencyMs)}` : ""}
-                </div>
-              ) : null}
-            </li>
-          );
-        })}
+        {view.steps.map((step) => (
+          <StepNode key={step.id} step={step} reason={stopped[step.id]} />
+        ))}
       </ol>
       <p className="muted" data-testid="critic-rounds">
         Critic rounds: {view.criticRound} of {view.criticMaxRounds} allowed

@@ -17,6 +17,20 @@ export interface QueueAlert {
   human_status?: HumanStatus;
   human_final?: Decision | null;
   autonomy_outcome?: AutonomyOutcome | null;
+  /** How strong the name match is, from the match score and the policy's name threshold. */
+  severity?: Severity;
+  /** The checks that stopped a close the decision step proposed, read from the run's trace; empty otherwise. */
+  blocked_by?: StoppedBy[];
+}
+
+export type Severity = "high" | "medium" | "low";
+export type StoppedBy = "critic" | "policy guard" | "screener" | "data quality";
+
+/** Whether a close was proposed and stopped in the latest review, and by what (null when its trace is gone). */
+export interface CloseStopView {
+  stopped: boolean;
+  by: StoppedBy[];
+  reasons: string[];
 }
 
 export interface RunEvent {
@@ -33,6 +47,7 @@ export interface RunEvent {
   model_requested?: string;
   model_used?: string;
   route_kind?: "local" | "cloud" | null;
+  receipt?: { receipt_id: string };
   latency_ms?: number;
   tokens_in?: number;
   tokens_out?: number;
@@ -95,6 +110,7 @@ export interface EvidenceView {
 }
 
 export interface TraceView {
+  close_stop?: CloseStopView | null;
   case: { alert_ref: string; record_id: string; run_id: string; decided_at: string };
   record: { hash: string; verified: boolean };
   definitions: Array<{ definition_id: string; version: string }>;

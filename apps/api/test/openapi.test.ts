@@ -31,7 +31,7 @@ describe("the API description", () => {
       >;
     };
     expect(spec.openapi).toBe("3.1.0");
-    expect(spec.info.title).toBe("sanctions-desk API");
+    expect(spec.info.title).toBe("Sanctions Desk API");
     expect(Object.keys(spec.paths)).toContain("/policy/whatif");
     const runBody = spec.paths["/run"]?.post?.requestBody?.content["application/json"].schema;
     expect(Object.keys(runBody?.properties ?? {})).toEqual(expect.arrayContaining(["alert_id", "run_id"]));

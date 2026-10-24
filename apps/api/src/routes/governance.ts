@@ -35,7 +35,7 @@ export const governanceRoutes: FastifyPluginAsync<GovernanceOptions> = async (ap
     return {
       mapping_note: MAPPING_NOTE,
       inventory: {
-        name: "sanctions-desk",
+        name: "Sanctions Desk",
         purpose:
           "Recommends an outcome for bank sanctions-screening alerts, with the evidence, for a person to decide.",
         status: "prototype built for the Open Agent Hackathon 2026",

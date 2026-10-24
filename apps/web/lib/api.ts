@@ -52,7 +52,13 @@ async function getJson<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
-export const fetchQueue = () => getJson<{ alerts: QueueAlert[]; sample_mode: boolean }>("/alerts");
+export const fetchQueue = () =>
+  getJson<{
+    alerts: QueueAlert[];
+    sample_mode: boolean;
+    name_threshold?: number;
+    models_used?: Array<{ model: string; route: string; calls: number }>;
+  }>("/alerts");
 export const fetchEvidence = (alertId: string) =>
   getJson<EvidenceView>(`/cases/${encodeURIComponent(alertId)}/evidence`);
 export const fetchRecord = (alertId: string) => getJson<RecordView>(`/cases/${encodeURIComponent(alertId)}/record`);

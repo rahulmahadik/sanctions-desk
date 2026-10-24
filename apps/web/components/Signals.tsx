@@ -60,24 +60,36 @@ function SignalItem({
 }) {
   const span = parseSpan(s.span_id);
   const located = s.span_valid && span.start !== undefined && span.end !== undefined;
-  const text = located ? fieldText(evidence, span.field)?.slice(span.start, span.end) : undefined;
+  const full = fieldText(evidence, span.field);
+  const text = located ? full?.slice(span.start, span.end) : undefined;
+  const status = signalStatus(s, thresholds);
+  const tone = s.grounded === false || /blocks a close/.test(status) ? "block" : "pending";
   return (
-    <li className={s.grounded === false ? "tone-alert" : undefined} data-testid="signal">
+    <li data-testid="signal" style={{ marginBottom: 10 }}>
       <strong>{label(s.type)}</strong> {percent(s.confidence)} · source <code>{span.field}</code>
       {located ? (
         <>
           , characters {span.start}–{span.end}
-          {text !== undefined ? (
-            <>
-              : <q data-testid="signal-span">{text}</q>
-            </>
-          ) : null}
+          {text !== undefined ? <span className="sr-only">: {text}</span> : null}
         </>
       ) : (
         ", no location in the text (the span the model named does not point into the field)"
       )}
-      <br />
-      <span data-testid="signal-status">{signalStatus(s, thresholds)}</span>
+      {located && full !== undefined && text !== undefined ? (
+        <div className="field-text" data-testid="signal-field">
+          {full.slice(0, span.start)}
+          <mark className="span" data-testid="signal-span">
+            {text}
+          </mark>
+          {full.slice(span.end)}
+        </div>
+      ) : null}
+      <span className="pill" data-tone={tone} data-testid="signal-status">
+        <span className="icon" aria-hidden="true">
+          {s.grounded === false ? "!" : tone === "block" ? "⊘" : "○"}
+        </span>
+        {status}
+      </span>
       {s.grounded === false && s.grounding_reason ? <span className="muted"> ({s.grounding_reason})</span> : null}
     </li>
   );

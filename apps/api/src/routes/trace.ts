@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { buildTraceContract, readDecisionRecords } from "@sanctions-desk/agents";
+import { buildTraceContract, closeStopFromLogs, readDecisionRecords } from "@sanctions-desk/agents";
 import {
   AppError,
   type Config,
@@ -68,7 +68,11 @@ export const traceRoutes: FastifyPluginAsync<TraceOptions> = async (app, { confi
     if (!id.success) throw new AppError("not_found", "no such case");
     const [latest] = readDecisionRecords(config.logging.dir, (r) => r.alert_ref === id.data);
     if (!latest) throw new AppError("not_found", `no recommendation has been recorded for ${id.data}`);
-    const contract = buildTraceContract(latest, config.costs);
+    // Whether a close was proposed and stopped, and by what: the case view's banner reads it.
+    const contract = {
+      ...buildTraceContract(latest, config.costs),
+      close_stop: closeStopFromLogs(config.logging.dir, latest),
+    };
     return wantsAudit(req.query) ? { ...contract, audit: await auditOf(config, latest) } : contract;
   });
 

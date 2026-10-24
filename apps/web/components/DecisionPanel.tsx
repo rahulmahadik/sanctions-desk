@@ -10,7 +10,7 @@ import {
   postReopen,
   postSecondApproval,
 } from "../lib/api";
-import { DECISION_LABEL, DECISION_TONE, shortHash } from "../lib/format";
+import { DECISION_ICON, DECISION_LABEL, DECISION_TONE, shortHash } from "../lib/format";
 import { SESSION_EVENT } from "../lib/session";
 import type { ActionCheck, ActionRecordView, Decision, HumanActionView, HumanView, MeView } from "../lib/types";
 
@@ -325,7 +325,13 @@ export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refres
     <section className="panel" aria-labelledby="decision-h">
       <h2 id="decision-h">Decision</h2>
       <p>
-        The desk recommends <span className={`badge tone-${DECISION_TONE[rec]}`}>{DECISION_LABEL[rec]}</span>{" "}
+        The desk recommends{" "}
+        <span className="pill" data-tone={DECISION_TONE[rec]}>
+          <span className="icon" aria-hidden="true">
+            {DECISION_ICON[rec]}
+          </span>
+          {DECISION_LABEL[rec]}
+        </span>{" "}
         <span className="muted">(record {shortHash(view.record_hash)})</span>. {STATUS_LABEL[view.status]}.
       </p>
       {problem ? (

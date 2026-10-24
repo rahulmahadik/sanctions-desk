@@ -12,7 +12,7 @@ import { ListChangePanel } from "../components/ListChange";
 import { Queue } from "../components/Queue";
 import { Outcome, Replay } from "../components/Record";
 import { RoutingPanel } from "../components/Routing";
-import { RunGraph } from "../components/RunGraph";
+import { RunGraph, stoppedSteps } from "../components/RunGraph";
 import { parseSpan, SignalsPanel, signalStatus } from "../components/Signals";
 import { UserSwitcher } from "../components/UserSwitcher";
 import { graphAt } from "../lib/graph";
@@ -65,11 +65,26 @@ beforeEach(() => {
 describe("RunGraph", () => {
   it("draws every step, the critic round count and where the models ran", () => {
     render(<RunGraph view={graphAt(EVENTS)} />);
-    expect(screen.getAllByRole("listitem")).toHaveLength(9);
+    expect(screen.getAllByRole("listitem")).toHaveLength(11);
     expect(screen.getByTestId("node-decision").textContent).toContain("1 retry");
     expect(screen.getByTestId("node-decision").textContent).toContain("local");
     expect(screen.getByTestId("critic-rounds").textContent).toContain("2 of 3");
     expect(screen.getByTestId("critic-rounds").textContent).toContain("finished");
+  });
+
+  it("shows a step that stopped a proposed close in red, with the reason on hover", () => {
+    const stopped = stoppedSteps({
+      stopped: true,
+      by: ["policy guard"],
+      reasons: ['jurisdiction: watched jurisdiction: IR (payment reference mentions "Tehran")'],
+    });
+    render(<RunGraph view={graphAt(EVENTS)} stopped={stopped} />);
+    const guard = screen.getByTestId("node-policy_guard");
+    expect(guard.getAttribute("data-blocked")).toBe("true");
+    expect(guard.getAttribute("title")).toContain("Tehran");
+    expect(guard.textContent).toContain("stopped a close");
+    expect(screen.getByTestId("node-critic").getAttribute("data-blocked")).toBeNull();
+    expect(stoppedSteps({ stopped: false, by: [], reasons: [] })).toEqual({});
   });
 
   it("marks the working step with a state the styles can show without motion", () => {
@@ -285,7 +300,7 @@ describe("SignalsPanel", () => {
         thresholds={T}
       />,
     );
-    const statuses = screen.getAllByTestId("signal-status").map((s) => s.textContent);
+    const statuses = screen.getAllByTestId("signal-status").map((s) => s.textContent?.replace(/^!/, ""));
     expect(statuses).toEqual([
       "not grounded: shown for review, still blocks a close",
       "not grounded: shown for review, still blocks a close",
@@ -312,7 +327,7 @@ describe("SignalsPanel", () => {
 describe("Outcome", () => {
   it("shows the recommendation, what would change it and that a person decides", () => {
     render(<Outcome answer={ANSWER} />);
-    expect(screen.getByTestId("verdict").textContent).toBe("Close as false positive");
+    expect(screen.getByTestId("verdict").textContent).toBe("✓ Close as false positive");
     expect(screen.getByText(/A person decides/)).toBeTruthy();
     expect(screen.getByText("A matching identifier number")).toBeTruthy();
     expect(screen.getByText(/critic: approved after 2 rounds/)).toBeTruthy();
@@ -436,7 +451,7 @@ describe("Queue", () => {
     expect(screen.queryByText("ALR-0002")).toBeNull();
     fireEvent.change(screen.getByLabelText(/Show/), { target: { value: "all" } });
     fireEvent.change(screen.getByLabelText(/Type/), { target: { value: "payment" } });
-    expect(screen.getByText("1 of 2 alerts")).toBeTruthy();
+    expect(screen.getByText(/^1 of 2 alerts, most severe first/)).toBeTruthy();
   });
 
   it("says plainly when the queue cannot be read", async () => {

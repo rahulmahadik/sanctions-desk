@@ -7,12 +7,20 @@ export const DECISION_LABEL: Record<Decision, string> = {
   NEED_MORE_INFO: "Need more information",
 };
 
-/** A tone for a decision, used for the colour and the icon-free label shape. */
-export const DECISION_TONE: Record<Decision, "calm" | "alert" | "stop" | "wait"> = {
-  CLOSE_FALSE_POSITIVE: "calm",
-  ESCALATE_L2: "alert",
-  RECOMMEND_BLOCK: "stop",
-  NEED_MORE_INFO: "wait",
+/** The one palette for outcomes: block red, escalate amber, need more information blue, close green. */
+export const DECISION_TONE: Record<Decision, "block" | "escalate" | "info" | "close"> = {
+  CLOSE_FALSE_POSITIVE: "close",
+  ESCALATE_L2: "escalate",
+  RECOMMEND_BLOCK: "block",
+  NEED_MORE_INFO: "info",
+};
+
+/** The icon beside each outcome's words, so colour is never the only signal. */
+export const DECISION_ICON: Record<Decision, string> = {
+  CLOSE_FALSE_POSITIVE: "✓",
+  ESCALATE_L2: "▲",
+  RECOMMEND_BLOCK: "⊘",
+  NEED_MORE_INFO: "?",
 };
 
 export const MASK = "••••";

@@ -4,17 +4,19 @@ import type { RunEvent } from "./types";
 export const STEPS = [
   { id: "triage", label: "Triage", model: false },
   { id: "evidence", label: "Evidence", model: false },
+  { id: "screener", label: "Screener", model: true },
   { id: "memory", label: "Memory", model: false },
   { id: "matching", label: "Matching", model: false },
   { id: "ownership", label: "Ownership", model: false },
   { id: "decision", label: "Decision", model: true },
   { id: "critic", label: "Critic", model: true },
+  { id: "challenger", label: "Challenger", model: true },
   { id: "policy_guard", label: "Policy guard", model: true },
   { id: "reporter", label: "Reporter", model: false },
 ] as const;
 
 export type StepId = (typeof STEPS)[number]["id"];
-export type StepState = "idle" | "running" | "done" | "retry" | "error" | "skipped";
+export type StepState = "idle" | "running" | "done" | "retry" | "flagged" | "error" | "skipped";
 
 export interface StepView {
   id: StepId;
@@ -25,8 +27,10 @@ export interface StepView {
   retries: number;
   lastSummary?: string;
   model?: string;
+  requested?: string;
   route?: "local" | "cloud" | null;
   latencyMs?: number;
+  receiptId?: string;
 }
 
 export interface GraphView {
@@ -43,7 +47,9 @@ export const CRITIC_MAX_ROUNDS = 3;
 
 const stateOf = (event: RunEvent): StepState => {
   if (event.agent === "critic" && event.action === "judge" && event.status === "blocked") return "retry";
-  if (event.status === "error" || event.status === "blocked") return "error";
+  if (event.status === "error") return "error";
+  // A check that holds a case back (a screener signal, a guard raising the outcome) is doing its job: flagged.
+  if (event.status === "blocked") return "flagged";
   if (event.status === "retry") return "retry";
   if (event.status === "skipped") return "skipped";
   return "done";
@@ -56,6 +62,8 @@ function applyToStep(step: StepView, event: RunEvent): void {
   if (event.status === "retry") step.retries += 1;
   if (event.output_summary) step.lastSummary = event.output_summary;
   if (event.model_used) step.model = event.model_used;
+  if (event.model_requested) step.requested = event.model_requested;
+  if (event.receipt?.receipt_id) step.receiptId = event.receipt.receipt_id;
   if (event.route_kind !== undefined) step.route = event.route_kind;
   if (event.latency_ms !== undefined) step.latencyMs = event.latency_ms;
   // A rejected critic round sends the recommendation back to the decision step: a retry, not a failure.

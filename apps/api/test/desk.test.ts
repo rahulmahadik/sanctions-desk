@@ -45,6 +45,27 @@ describe("the review desk routes", () => {
     expect(item?.record_hash).toMatch(/^[0-9a-f]{64}$/);
   });
 
+  it("gives each alert a severity and the checks that stopped a close, and counts the models that served", async () => {
+    const { app } = await sampleApp();
+    const alertId = alertOf("fp_dob_exact_name_0");
+    await app.inject({ method: "POST", url: "/run", payload: { alert_id: alertId, run_id: "desk-polish" } });
+    const body = (await app.inject({ method: "GET", url: "/alerts" })).json() as {
+      alerts: Array<{ alert_id: string; match_score: number; severity: string; blocked_by: string[] }>;
+      name_threshold: number;
+      models_used: Array<{ model: string; route: string; calls: number }>;
+    };
+    expect(body.name_threshold).toBe(0.85);
+    for (const a of body.alerts)
+      expect(a.severity).toBe(a.match_score >= 0.95 ? "high" : a.match_score >= 0.85 ? "medium" : "low");
+    // The sample stand-in closed this one directly: nothing was stopped.
+    expect(body.alerts.find((a) => a.alert_id === alertId)?.blocked_by).toEqual([]);
+    expect(body.models_used.reduce((n, m) => n + m.calls, 0)).toBeGreaterThan(0);
+    const trace = (await app.inject({ method: "GET", url: `/cases/${alertId}/trace` })).json() as {
+      close_stop: { stopped: boolean } | null;
+    };
+    expect(trace.close_stop).toEqual({ stopped: false, by: [], reasons: [] });
+  });
+
   it("streams a run's events as server-sent events, ending with the run's last event", async () => {
     const { app } = await sampleApp();
     const alertId = alertOf("fp_dob_exact_name_0");
@@ -168,7 +189,7 @@ describe("the review desk routes", () => {
       limits: string[];
     };
     expect(body.mapping_note).toContain("not a claim of compliance");
-    expect(body.inventory).toMatchObject({ name: "sanctions-desk", policy_version: 1 });
+    expect(body.inventory).toMatchObject({ name: "Sanctions Desk", policy_version: 1 });
     expect(body.inventory.models.map((m) => m.name)).toEqual(["Nemotron 3 Ultra 550B", "Nemotron 3.5 Lightning 30B"]);
     expect(body.risk_materiality.kind).toContain("self-assessment");
     expect(body.risk_materiality.dimensions.map((d) => d.dimension)).toEqual(["impact", "complexity", "reliance"]);

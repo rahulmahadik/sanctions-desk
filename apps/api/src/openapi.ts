@@ -402,7 +402,7 @@ export function buildOpenApi(version: string, extra: RouteDoc[] = []): Json {
   return {
     openapi: "3.1.0",
     info: {
-      title: "sanctions-desk API",
+      title: "Sanctions Desk API",
       version,
       description:
         "A review desk for sanctions-screening alerts. The desk recommends; a person decides. Nothing here blocks an account, writes to a source system or contacts a customer.",

@@ -12,6 +12,18 @@
   --local: #0e7490;
   --cloud: #6d28d9;
   --focus: #1d4ed8;
+  --info: #1849a9;
+  /* One palette for outcomes and severity on every screen: text on a tint, AA contrast (5.8:1 or more). */
+  --t-block-fg: #9f1d16;
+  --t-block-bg: #fdecea;
+  --t-escalate-fg: #8a4b00;
+  --t-escalate-bg: #fdf1dc;
+  --t-info-fg: #1849a9;
+  --t-info-bg: #e6efff;
+  --t-close-fg: #0b6b3d;
+  --t-close-bg: #e3f5ea;
+  --t-pending-fg: #3f4a5a;
+  --t-pending-bg: #eef0f3;
   --radius: 10px;
   color-scheme: light dark;
 }
@@ -31,6 +43,17 @@
     --local: #4cc9e0;
     --cloud: #b79cff;
     --focus: #8ab4ff;
+    --info: #a9c7ff;
+    --t-block-fg: #ffb4ab;
+    --t-block-bg: #3d1512;
+    --t-escalate-fg: #ffcf85;
+    --t-escalate-bg: #3a2606;
+    --t-info-fg: #a9c7ff;
+    --t-info-bg: #13284a;
+    --t-close-fg: #8be0b3;
+    --t-close-bg: #0f2e1f;
+    --t-pending-fg: #c6cfdb;
+    --t-pending-bg: #262c35;
   }
 }
 
@@ -195,6 +218,18 @@ th {
 .tone-wait {
   color: var(--wait);
 }
+.tone-block {
+  color: var(--t-block-fg);
+}
+.tone-escalate {
+  color: var(--t-escalate-fg);
+}
+.tone-info {
+  color: var(--t-info-fg);
+}
+.tone-close {
+  color: var(--t-close-fg);
+}
 .lane-local {
   color: var(--local);
 }
@@ -254,12 +289,14 @@ dl.facts dd {
 
 .node[data-state="running"] {
   border-color: var(--accent);
+  border-width: 3px;
   animation: pulse 1.2s ease-in-out infinite;
 }
 .node[data-state="done"] {
   border-color: var(--calm);
 }
-.node[data-state="retry"] {
+.node[data-state="retry"],
+.node[data-state="flagged"] {
   border-color: var(--alert);
 }
 .node[data-state="error"] {
@@ -371,4 +408,108 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 6px;
+}
+
+/* Outcome, severity and "blocked by" badges: an icon and a word, never colour alone. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  padding: 1px 9px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+  line-height: 1.6;
+}
+.pill .icon {
+  font-size: 11px;
+  line-height: 1;
+}
+.pill[data-tone="block"] {
+  color: var(--t-block-fg);
+  background: var(--t-block-bg);
+}
+.pill[data-tone="escalate"] {
+  color: var(--t-escalate-fg);
+  background: var(--t-escalate-bg);
+}
+.pill[data-tone="info"] {
+  color: var(--t-info-fg);
+  background: var(--t-info-bg);
+}
+.pill[data-tone="close"] {
+  color: var(--t-close-fg);
+  background: var(--t-close-bg);
+}
+.pill[data-tone="pending"] {
+  color: var(--t-pending-fg);
+  background: var(--t-pending-bg);
+}
+.pill.chip {
+  font-weight: 500;
+  border-style: dashed;
+}
+.pill + .pill {
+  margin-left: 4px;
+}
+
+/* The case banner: the recommendation, its reason, and what stopped a close. */
+.case-banner {
+  border-left: 6px solid var(--line);
+}
+.case-banner[data-tone="block"] {
+  border-left-color: var(--t-block-fg);
+}
+.case-banner[data-tone="escalate"] {
+  border-left-color: var(--t-escalate-fg);
+}
+.case-banner[data-tone="info"] {
+  border-left-color: var(--t-info-fg);
+}
+.case-banner[data-tone="close"] {
+  border-left-color: var(--t-close-fg);
+}
+.case-banner .reason {
+  margin: 6px 0 0;
+}
+
+/* A risk signal's span, marked inside the text it came from. */
+mark.span {
+  background: var(--t-escalate-bg);
+  color: var(--t-escalate-fg);
+  border-bottom: 2px solid currentColor;
+  padding: 0 1px;
+  font-weight: 600;
+}
+.field-text {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin: 4px 0;
+}
+
+/* A step that stopped a close. */
+.node[data-blocked="true"] {
+  border-color: var(--t-block-fg);
+  background: var(--t-block-bg);
+}
+
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin: 0 0 16px;
+}
+.summary-strip .stat {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+.summary-strip .stat strong {
+  display: block;
+  font-size: 22px;
 }

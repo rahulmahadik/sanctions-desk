@@ -14,11 +14,12 @@ import {
 import { graphAt } from "../lib/graph";
 import type { EvidenceView, RecordView, ReviewAnswer, RoutingSplit, RunEvent, TraceView } from "../lib/types";
 import { HumanBanner } from "./Banner";
+import { CaseBanner } from "./CaseBanner";
 import { DecisionPanel } from "./DecisionPanel";
 import { EvidenceCards } from "./Evidence";
 import { FourQuestions, Outcome, Replay } from "./Record";
 import { RoutingPanel } from "./Routing";
-import { RunGraph } from "./RunGraph";
+import { RunGraph, stoppedSteps } from "./RunGraph";
 import { SignalsPanel, type SignalThresholds } from "./Signals";
 
 type Phase = "ready" | "running" | "finished";
@@ -97,6 +98,11 @@ export function CaseView({ alertId }: { alertId: string }) {
   return (
     <>
       <HumanBanner sampleMode={answer?.sample_mode} notice={answer?.sample_notice} />
+      <CaseBanner
+        decision={answer?.decision ?? record?.decision}
+        rationale={answer?.rationale ?? record?.rationale}
+        closeStop={trace?.close_stop}
+      />
       <p>
         <button type="button" onClick={review} disabled={phase === "running"}>
           {BUTTON[phase]}
@@ -113,7 +119,7 @@ export function CaseView({ alertId }: { alertId: string }) {
       ) : null}
       {answer ? <Outcome answer={answer} /> : null}
       <DecisionPanel alertId={alertId} refreshKey={answer?.run_id ?? record?.record_hash} />
-      {phase !== "ready" ? <RunGraph view={view} /> : null}
+      {phase !== "ready" ? <RunGraph view={view} stopped={stoppedSteps(trace?.close_stop)} /> : null}
       {trace ? <FourQuestions trace={trace} /> : null}
       {record?.screener ? (
         <SignalsPanel screener={record.screener} evidence={evidence} thresholds={thresholds} />
