@@ -397,6 +397,21 @@ The **reasoning budget** is our own token limit plus an instruction to put brief
 
 **Which model serves a mode is Nightshift's decision, not ours.** Under the cockpit binds of the final runs (guard identity bound to local, reasoning identity bound to deep), the receipts of the headline run record the mode served as `deep` (190 calls) or `local` (70 calls), and within that mode Nightshift's learned router chose the model (routing policy `learned-router` in every receipt). We do not route by difficulty and we do not pin the cloud. What we do is record, for every call, the mode asked for, the model that answered (`routed_model`), reasoning budget, latency, tokens, the signed receipt and the cost under the configured unit costs (tokens served by the local model are priced at zero). The decision, critic and challenger ask for schema-constrained JSON with the reasoning in a field of the answer; the screener and local retries ask for plain JSON, checked by the same schema. See [docs/MODELS.md](docs/MODELS.md).
 
+**In the Nightshift app** (read-only screenshots, 24 Oct 2026, Nightshift 1.2.1; local network addresses blurred):
+
+<table>
+<tr>
+<td width="62%"><img src="docs/media/console/nightshift-lanes.png" alt="Nightshift lanes: a local lane serving Nemotron 3.5 Lightning 30B and cloud lanes serving Nemotron 3 Ultra 550B, all ready"></td>
+<td width="38%"><img src="docs/media/console/nightshift-apps.png" alt="Nightshift console, apps: Sanctions Desk Reasoning on meterless/deep and Sanctions Desk Guard bound to local"></td>
+</tr>
+<tr>
+<td>The lanes: local Nemotron 3.5 Lightning 30B and cloud Nemotron 3 Ultra 550B, all ready. The cloud lanes keep the names <code>nemotron-3-super-120b-a1</code> from before the Super endpoint was retired; the cards show the model they serve, Ultra 550B.</td>
+<td>The app identities: <code>Sanctions Desk Reasoning</code> bound to deep, <code>Sanctions Desk Guard</code> bound to local.</td>
+</tr>
+</table>
+
+Nightshift 1.2.1 has no per-request list. The model behind each call is in the review steps of a live review ([screenshot](docs/media/screenshots/13-live-agent-map.png)) and the routing panel ([screenshot](docs/media/screenshots/15-live-routing-and-receipts.png)), and every receipt is checked by `npm run evidence:verify`.
+
 ### Zetaris
 
 Zetaris is the only data path. Three kinds of source meet in one Unified Semantic Layer (`lightning.metastore.sanctions.screening_usl`, 14 tables):

@@ -46,11 +46,13 @@ The desk does not re-run a case on an earlier list. What it shows, in sample mod
 
 ## Console screenshots
 
-Read-only screenshots of the Zetaris console (24 Oct 2026), in `console/`; the admin login is blurred and no setting was changed.
+Read-only screenshots of the Zetaris console and the Nightshift app (24 Oct 2026), in `console/`; the Zetaris admin login and local network addresses are blurred, and no setting was changed.
 
-| File                                 | What it shows                                                                      |
-| ------------------------------------ | ---------------------------------------------------------------------------------- |
-| `console/zetaris-semantic-layer.png` | The semantic layer `screening_usl`: 14 tables, all active, and their relationships |
-| `console/zetaris-data-quality.png`   | The 37 data-quality rules on the semantic layer                                    |
-| `console/zetaris-access-control.png` | The three agent roles assigned to the semantic layer                               |
-| `console/zetaris-column-access.png`  | Column access on `customer_identifier`: `id_number` hidden for the evidence role   |
+| File                                 | What it shows                                                                                                                                                          |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `console/zetaris-semantic-layer.png` | The semantic layer `screening_usl`: 14 tables, all active, and their relationships                                                                                     |
+| `console/zetaris-data-quality.png`   | The 37 data-quality rules on the semantic layer                                                                                                                        |
+| `console/zetaris-access-control.png` | The three agent roles assigned to the semantic layer                                                                                                                   |
+| `console/zetaris-column-access.png`  | Column access on `customer_identifier`: `id_number` hidden for the evidence role                                                                                       |
+| `console/nightshift-lanes.png`       | Nightshift lanes: local Nemotron 3.5 Lightning 30B and cloud Nemotron 3 Ultra 550B (lanes named `nemotron-3-super-120b-a1` from before the Super endpoint was retired) |
+| `console/nightshift-apps.png`        | Nightshift console, apps: the reasoning identity bound to deep and the guard identity bound to local                                                                   |
