@@ -1,5 +1,5 @@
 {
-  "run_id": "652c5734-cd47-41c2-aefd-6b60882a57bd",
+  "run_id": "e0ed576d-053a-4c98-83f6-ffb675bc9027",
   "status": "ok",
   "decision": "CLOSE_FALSE_POSITIVE",
   "confidence": 0.85,
@@ -15,9 +15,9 @@
     "policy_guard",
     "reporter"
   ],
-  "trace_id": "652c5734-cd47-41c2-aefd-6b60882a57bd",
-  "log_file": "../../../../../../..logs/trace-652c5734-cd47-41c2-aefd-6b60882a57bd.jsonl",
-  "record_hash": "db9d91d6acc3cba0935ac4f078670e0c72241f6bb27562fd9e4e51ba9fe10e9d",
+  "trace_id": "e0ed576d-053a-4c98-83f6-ffb675bc9027",
+  "log_file": "logs/trace-e0ed576d-053a-4c98-83f6-ffb675bc9027.jsonl",
+  "record_hash": "1833f6b6b84cbcfaa92198be2b4455b19ebddee87622acfeed156d10a81c0d5c",
   "execution_time_seconds": 0.028,
   "sample_mode": true
 }

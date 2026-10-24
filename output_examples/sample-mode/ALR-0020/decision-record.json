@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "record_id": "rec-46fe8d89-ae3a-4364-8d81-9e1fcc6942e2",
-  "run_id": "46fe8d89-ae3a-4364-8d81-9e1fcc6942e2",
+  "record_id": "rec-7e491b51-e5e6-4636-86e2-34ca2bcca393",
+  "run_id": "7e491b51-e5e6-4636-86e2-34ca2bcca393",
   "alert_type": "customer",
   "alert_ref": "ALR-0020",
-  "decided_at": "2026-10-24T05:28:25.149Z",
-  "as_of": "2026-10-24T05:28:25.149Z",
+  "decided_at": "2026-10-24T10:48:33.281Z",
+  "as_of": "2026-10-24T10:48:33.281Z",
   "decision": "ESCALATE_L2",
   "confidence": 0.85,
   "rationale": "Rules-based sample answer: an approved match definition is met, or a document number agrees with the listed party. Name is strong, date of birth is missing_customer, nationality is match.",
@@ -57,7 +57,7 @@
   ],
   "queries": [
     {
-      "query_id": "7e138471-b638-4bd6-b1b6-47407736631e",
+      "query_id": "b296a8c7-40e9-4c33-a2f8-58a7a8fb33c1",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.alert",
@@ -73,7 +73,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "e3d6d51d-4420-4a80-929c-9a411f116a44",
+      "query_id": "0c6a07d9-3930-4222-8f76-aa0b19673d57",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -89,7 +89,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "4a72e063-b876-4e92-9230-3ca2bfcfb563",
+      "query_id": "cacb9cd1-245d-4463-a149-2c77176c2666",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
@@ -107,7 +107,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "68a7f2e1-f954-4c81-bb74-413d877e7fc6",
+      "query_id": "91ce402e-86e2-479e-abba-b00c9324793a",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_entry",
@@ -123,7 +123,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "4362a240-e142-44ec-b46b-a8bdb104a2cd",
+      "query_id": "142209f0-f5ed-4c7c-ab49-29ab0c164a13",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_alias",
@@ -139,7 +139,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "eeb86e45-2b6e-4db1-a065-e78e3a8ae446",
+      "query_id": "023ce539-1db6-484f-983c-eb41d38d6c32",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_dob",
@@ -155,7 +155,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "bf24b3b2-213e-4e04-83f6-e34f189002aa",
+      "query_id": "64c50c01-d644-427f-bb3a-e14be33d4174",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_country",
@@ -172,7 +172,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "78f05600-ac25-405b-8b76-45fe3375e080",
+      "query_id": "fec1ca85-3d9a-44f5-9630-ffb7daaf2c59",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_identifier",
@@ -189,7 +189,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "4297c90e-0b73-4d80-92b2-153feefe8cbe",
+      "query_id": "5ede0f82-6765-4f19-8fe3-0b755785920a",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.business_definition",
@@ -210,7 +210,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "0867417c-38fb-4c27-98f3-70c735f2f56d",
+      "query_id": "02bf8175-ba2e-4836-8dad-b127138abb6b",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
@@ -224,7 +224,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "21dcc845-ebaa-43d0-8a0c-97b5fad51606",
+      "query_id": "c9523337-58ee-4e31-b393-2b2f054c2472",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -238,7 +238,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "2d7e0018-b599-4f7f-b896-ece29ef2340b",
+      "query_id": "6b7ee3fd-7020-4b8e-ab31-084b50da953c",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -252,7 +252,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "47efbd2d-4b19-4a2b-bf83-1a2812b68207",
+      "query_id": "d750f7f6-4918-48a1-9f28-77025405f272",
       "agent": "memory",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.disposition",
@@ -266,7 +266,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "a11815c1-edcb-4b6e-abff-821cf9cc0f18",
+      "query_id": "051d66ca-27cf-460b-8a4b-27f6464c8886",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -282,7 +282,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "dbe75a7a-df1b-4d54-95e4-311e368cf7ec",
+      "query_id": "5549ad7a-ce6e-4073-bbe4-c30f0775f2c9",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -298,7 +298,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "96aea00e-243c-41c2-9823-97d2b2de7f0c",
+      "query_id": "eda6585e-6de8-441e-a86a-5c47c5449324",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_entry",
@@ -314,7 +314,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "70e4e63f-9e87-407e-a5d5-08563bc32edc",
+      "query_id": "0885a3a0-82c4-4a51-a86c-d11aac844325",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_dob",
@@ -501,5 +501,5 @@
     }
   ],
   "human": [],
-  "record_hash": "7117c3414c89e402f373e2839d8ae50d00bf2a0d410914cb68f63f3d61e54856"
+  "record_hash": "040d3444519214ad07933f1a3cffcaa5a37b81124df57461a66adb96c2dd21f0"
 }

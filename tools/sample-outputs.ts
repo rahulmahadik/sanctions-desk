@@ -8,7 +8,7 @@
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
 
 const CLOSED = "http://127.0.0.1:59999";
@@ -32,12 +32,19 @@ for (const file of inputs) {
       },
     });
     const text = res.stdout ?? "";
-    const answer = JSON.parse(text.slice(text.indexOf("{"))) as { run_id: string; status: string; decision?: string };
+    const answer = JSON.parse(text.slice(text.indexOf("{"))) as {
+      run_id: string;
+      status: string;
+      decision?: string;
+      log_file?: string;
+    };
     if (answer.status !== "ok") throw new Error(`${file}: ${text.slice(0, 200)}`);
     const recordFile = readdirSync(join(logs, "records")).find((f) => f.includes(answer.run_id));
     if (!recordFile) throw new Error(`${file}: no sealed record for run ${answer.run_id}`);
     // The run wrote to a temporary folder; the saved files name it as the logs folder it stands for.
     const tidy = (s: string) => s.split(logs).join("logs");
+    // The answer names the trace relative to the checkout, which here runs through the temporary folder.
+    if (answer.log_file) answer.log_file = `logs/${basename(answer.log_file)}`;
     const alert = (
       JSON.parse(readFileSync(resolveProjectPath(join("input_examples", file)), "utf8")) as { alert_id: string }
     ).alert_id;

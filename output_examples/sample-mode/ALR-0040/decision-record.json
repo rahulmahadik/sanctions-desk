@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "record_id": "rec-9559e23b-5a77-4008-8d8d-3f569d67db03",
-  "run_id": "9559e23b-5a77-4008-8d8d-3f569d67db03",
+  "record_id": "rec-b26428a5-0b29-401c-9043-b0d5262614e5",
+  "run_id": "b26428a5-0b29-401c-9043-b0d5262614e5",
   "alert_type": "customer",
   "alert_ref": "ALR-0040",
-  "decided_at": "2026-10-24T05:28:26.009Z",
-  "as_of": "2026-10-24T05:28:26.009Z",
+  "decided_at": "2026-10-24T10:48:34.170Z",
+  "as_of": "2026-10-24T10:48:34.170Z",
   "decision": "ESCALATE_L2",
   "confidence": 0.85,
-  "rationale": "Rules-based sample answer: a listed party effectively owns the customer, or the chain is too long to judge. Name is strong, date of birth is missing_customer, nationality is unknown.",
+  "rationale": "Rules-based sample answer: listed parties own the customer at or above the threshold, or the chain is too long to judge. Name is strong, date of birth is missing_customer, nationality is unknown.",
   "what_would_change": [
     "A date of birth or document number that settles whether this is the listed party",
     "A change in the listed entry on the next list update"
@@ -57,7 +57,7 @@
   ],
   "queries": [
     {
-      "query_id": "0fae4919-bd57-4e14-8f9e-a2cdc07348be",
+      "query_id": "25914a34-20f6-4aa0-8229-2d234eab8a9d",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.alert",
@@ -73,7 +73,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "1463f533-504b-400f-a013-f6a23dff8fc0",
+      "query_id": "03304b18-d83e-4cc6-9279-0ac0ce7f63e5",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -89,7 +89,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "57d38c96-e390-44bb-ac82-1ea06cb0566d",
+      "query_id": "d4fdd4e4-109c-496b-b23f-d11f3993e026",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
@@ -107,7 +107,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "d2966d47-59af-40ff-8e69-cea5ed55dfff",
+      "query_id": "c86e0be5-7ded-4218-9fbd-21dd634fd5f1",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_entry",
@@ -123,7 +123,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "ff3a3384-d4f2-4ad3-a445-c236ee695000",
+      "query_id": "421d4bbf-ec44-4ebe-a07d-edb35f6c7d82",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_alias",
@@ -142,7 +142,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "57e3e7c5-74f4-4d71-afa8-63d2f36a219d",
+      "query_id": "594918a1-bf8d-4307-8c0c-9e7006a9bd34",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_dob",
@@ -166,7 +166,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "409151b9-12eb-481a-82fb-336f75752121",
+      "query_id": "466206e4-5ea4-4e4d-b853-6b4d2f0254d6",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_country",
@@ -183,7 +183,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "e6d9cffe-5ed5-4c39-bdd1-e51a883c4cf3",
+      "query_id": "6f84e27f-b415-4207-8701-ea2dc876953a",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_identifier",
@@ -197,7 +197,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "f2c5af2b-c57f-4aa9-b80a-393963820d40",
+      "query_id": "7bdfe337-8a1e-48c6-b2ae-9d5b942f15fa",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.business_definition",
@@ -218,7 +218,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "06ebe0c2-fa44-44b2-9000-5088f5c71198",
+      "query_id": "7ed7e5f7-baa1-47cf-ab08-d717e01bf6f3",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
@@ -232,7 +232,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "09b64ba0-9af0-429b-ab4f-da5554449852",
+      "query_id": "ea01ee11-d899-406a-bf1a-7e4e1fffb421",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -246,7 +246,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "bc0d257d-059c-4ef3-b978-c5e08e5b8962",
+      "query_id": "43704c3b-b65a-4302-8eff-9ca902272853",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -260,7 +260,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "1514533c-03b2-4a5d-ad11-0f15b9b87ef5",
+      "query_id": "6adbadfa-a7d0-4913-bfb6-07f2bde6601f",
       "agent": "ownership",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
@@ -274,7 +274,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "a355a908-6a0c-4c7e-8afa-004192e643d9",
+      "query_id": "9f6ea77a-d5ab-4d56-a308-574a9b648a06",
       "agent": "ownership",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
@@ -288,7 +288,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "31c28c92-c3c1-4dee-9aac-dbdbbee392f0",
+      "query_id": "dd54d6b1-5a36-4111-b749-9fc2d369a8a6",
       "agent": "ownership",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
@@ -302,7 +302,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "a223c5d0-c738-40d2-b1dd-0da816405de3",
+      "query_id": "b57706ff-1f27-4c51-a89f-a6161206c1fa",
       "agent": "ownership",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
@@ -316,7 +316,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "f02afd48-0cad-47f3-bf42-0bf172c25a21",
+      "query_id": "9270c8b3-17c4-4074-ba58-6561fe096d42",
       "agent": "memory",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.disposition",
@@ -330,7 +330,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "3462e02e-4164-4287-8b6c-46a426f75264",
+      "query_id": "aa50ccf3-ebf3-44cc-9182-b45d3a9b8de9",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -346,7 +346,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "735cbc7f-a98f-487d-951b-46dbf04c4c87",
+      "query_id": "23acf380-69e7-4354-ac18-055198331829",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -362,7 +362,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "a14bce69-ce0d-4b3b-b2da-e8b05f46b80b",
+      "query_id": "94b08387-6b55-456b-85b7-6149605fc2d0",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_entry",
@@ -378,7 +378,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "b684c954-638e-4e01-a412-39c50c68cd20",
+      "query_id": "76c56805-b297-4c49-b498-246b5f488b89",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
@@ -394,7 +394,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "2d522e3e-b346-409d-8c08-5178532acc60",
+      "query_id": "6f94f1ea-84ca-49d7-9017-4ccc048fa6aa",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
@@ -410,7 +410,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "410ce235-6fa6-4614-a609-a2ccf72cbb91",
+      "query_id": "1a924a8a-f83e-4749-b6f3-12c03628d72d",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
@@ -426,7 +426,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "dacb5826-cfe8-4eed-bfbf-efd0b695ecc0",
+      "query_id": "1cc919c7-ba54-41c8-8ec2-186c99f5116d",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
@@ -442,7 +442,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "1840a175-040e-46a5-8de9-cb215c0f33c7",
+      "query_id": "7e6891e3-539c-48cb-8bef-eca93fd86c01",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_dob",
@@ -553,7 +553,7 @@
     {
       "guard": "ownership",
       "verdict": "block",
-      "detail": "a listed party effectively owns the customer at or above the threshold"
+      "detail": "listed parties own the customer at or above the threshold (directly, along a chain, or through a company they own at or above it)"
     },
     {
       "guard": "jurisdiction",
@@ -591,8 +591,8 @@
   "cloud_payloads": [
     {
       "step": "decision",
-      "prompt_hash": "f6aaa00326d6c2b7d8ae3af025ba80ab84d8e2f93d0d86e77113818c3ebe251d",
-      "prompt_chars": 9147,
+      "prompt_hash": "1bed7a5d21e971166ea47e1c7560bce28d6d399497bb5e05759a0eea5e8d6e8f",
+      "prompt_chars": 9334,
       "fields": {
         "policy": 1,
         "definitions": 1,
@@ -617,8 +617,8 @@
     },
     {
       "step": "critic",
-      "prompt_hash": "3b651793903a1e0d60cc3824a629ebf033a524f26449c81d7b18d5dba8a50935",
-      "prompt_chars": 7633,
+      "prompt_hash": "d39443d4d8c38873af94681ff30d77a4965a96905ec0e42ccfac320b5748fde0",
+      "prompt_chars": 7833,
       "fields": {
         "policy": 1,
         "definitions": 1,
@@ -643,5 +643,5 @@
     }
   ],
   "human": [],
-  "record_hash": "f5ef1fb188494da5eb05dd0a26805f0d1bc6409b10e3a637abe7ed4fe7661b60"
+  "record_hash": "3feed01c22943c8b25596bc2f855941786950f84ee5525948ca3b51e62ca0670"
 }

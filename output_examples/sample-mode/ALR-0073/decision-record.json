@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "record_id": "rec-c32e56a4-a966-420d-91db-2ec0d64850c4",
-  "run_id": "c32e56a4-a966-420d-91db-2ec0d64850c4",
+  "record_id": "rec-eff04bed-6ea0-466f-90ca-2a8ba8f5d038",
+  "run_id": "eff04bed-6ea0-466f-90ca-2a8ba8f5d038",
   "alert_type": "payment",
   "alert_ref": "ALR-0073",
-  "decided_at": "2026-10-24T05:28:26.462Z",
-  "as_of": "2026-10-24T05:28:26.462Z",
+  "decided_at": "2026-10-24T10:48:34.617Z",
+  "as_of": "2026-10-24T10:48:34.617Z",
   "decision": "ESCALATE_L2",
   "confidence": 0.7,
   "rationale": "Rules-based sample answer: the screener found a risk signal in the free text, or could not read it. Name is weak, date of birth is missing_customer, nationality is conflict.",
@@ -57,7 +57,7 @@
   ],
   "queries": [
     {
-      "query_id": "9d2ddf65-776c-4b3e-b818-54b23c619ea6",
+      "query_id": "3562577b-89b9-4b8f-ae06-3686b88fe18f",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.alert",
@@ -73,7 +73,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "9ef0071c-5d90-47a5-afb6-e6c1cbdc9ce4",
+      "query_id": "1d3898f9-600d-4a31-8576-9194c241465a",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -89,7 +89,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "fdcd8e9b-cc57-467e-897d-9f7b6afcc2c5",
+      "query_id": "ef06d8bb-1df4-46f9-a4f7-8e19ea4f8cd4",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.payment",
@@ -105,7 +105,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "00667264-fcd1-4607-a189-abc2255be51b",
+      "query_id": "9ac839fa-ff6c-49e1-b4f5-bb6330755b11",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
@@ -123,7 +123,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "b7638041-c219-4b0d-b357-06635531a5b5",
+      "query_id": "f677e5bc-72ff-443e-90ad-8a83c8d71619",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_entry",
@@ -140,7 +140,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "41141c9b-eda8-47f0-b799-60ff5feb736f",
+      "query_id": "b2e7c910-71a8-4d11-b606-4b895c136b3e",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_alias",
@@ -181,7 +181,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "dab42161-248f-4c09-a4c8-ae422aaf0e21",
+      "query_id": "611c6935-7733-4ab0-9470-5bc4baa2d5c2",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_dob",
@@ -195,7 +195,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "12ab1e07-22bc-4af0-a1d1-e3fb93eaf6d0",
+      "query_id": "432d8d8c-547b-4b7e-b1be-14ab3f87b6ae",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_country",
@@ -218,7 +218,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "50f72f7e-c33f-4847-b706-11b071dbaa2f",
+      "query_id": "5746aa8c-6b8e-49d8-9357-d80f3bf92867",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_identifier",
@@ -241,7 +241,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "4894d791-48e7-422b-bdbe-ad9748ad211f",
+      "query_id": "0649f59b-ffea-4a5d-b8ce-6dd92158c900",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.business_definition",
@@ -262,7 +262,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "a29554ab-23cf-4689-8e03-cf23af3e5bf0",
+      "query_id": "5477eccf-20ac-4ef6-ba71-0b53ca7a60ce",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
@@ -276,7 +276,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "d2031a9e-40ae-4589-bbf2-6089fb84f5d1",
+      "query_id": "42f5d294-3b2b-4ec9-b87a-e0d7d787a31f",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -290,7 +290,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "4a8a7c58-6e7a-47dc-b586-617f664f1e0e",
+      "query_id": "493e8e77-bdfe-4c09-a8b6-76a8ae956c02",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -304,7 +304,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "a7ec848c-99f7-470c-ba33-9f9ae9b5f12a",
+      "query_id": "1d26029f-6f78-4444-aa38-818f93c37ffd",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.payment",
@@ -318,7 +318,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "346d0abc-e4f2-4a59-8659-0b3e636445c4",
+      "query_id": "38596248-a658-42e1-bf11-c5b36e81f347",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.payment",
@@ -332,7 +332,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "c9c95873-f9c1-4274-85c5-721c12205068",
+      "query_id": "b5330541-2094-4306-b008-1377d2e859de",
       "agent": "evidence",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.payment",
@@ -346,7 +346,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "61d1e54d-1a70-464d-b7e3-0d4dbe8c7498",
+      "query_id": "d14043f7-4d07-4617-b884-5fa489dddb85",
       "agent": "memory",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.disposition",
@@ -360,7 +360,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "a9870b95-c0e3-4a72-9d45-0cb1dca33e27",
+      "query_id": "b550e63a-af14-4195-9d78-4d4fc6910eba",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -376,7 +376,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "c8b983c2-99dc-4c89-9753-d9f516539dbe",
+      "query_id": "70860f84-dffb-46d1-8559-498710e0aed7",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.customer",
@@ -392,7 +392,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "f4a82c69-3bed-4247-b5fd-4868cd125219",
+      "query_id": "e897b9a8-e9fd-46be-a906-9a4bb0690b76",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.list_entry",
@@ -409,7 +409,7 @@
       "cache_hit": true
     },
     {
-      "query_id": "c2fadb9b-68f0-4af4-9d7c-f9353fde5eba",
+      "query_id": "0461da99-8484-44c7-8b3e-f6d837f4a6f0",
       "agent": "critic",
       "role": "role_evidence_agent",
       "table": "lightning.metastore.sanctions.screening_usl.payment",
@@ -631,5 +631,5 @@
     }
   ],
   "human": [],
-  "record_hash": "0a06bf8ec22f16a339c416eddabc01772da1326fa08c8ad22d05794a05f18534"
+  "record_hash": "fea4deb8e490b243e3a3ba1a05cc9e0bc076bc1a12b99132a2e5c87f8b68764b"
 }
