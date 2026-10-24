@@ -58,6 +58,14 @@ The queue lists every alert with its latest recommendation and where people have
 
 Press **Review this alert**. The steps light up from the real events, not a timer. Each model step shows which model answered and where it ran.
 
+![Reviewing ALR-0073 in sample mode](media/gifs/case-review.gif)
+
+_Sample mode, ALR-0073: the review runs, the replay slider lights the steps from the recorded events, the screener's signal marks "Tehran" in the payment reference, and the screener flag and watched-jurisdiction checks keep the case from closing. Sample mode proposed no close here, so the banner says no close was stopped._
+
+![The ownership step on ALR-0043 in sample mode](media/gifs/ownership-cascade.gif)
+
+_Sample mode, ALR-0043: the ownership step is flagged because a holder that listed parties own 60 percent of is itself blocked, so its holding counts in full and listed parties own 70 percent of the customer; the recommendation is Escalate._
+
 ## 5. Read the result
 
 ![A case: evidence](media/screenshots/02-case-evidence.png)
@@ -68,6 +76,10 @@ Press **Review this alert**. The steps light up from the real events, not a time
 
 ![Model routing and receipts](media/screenshots/04-routing-and-receipts.png)
 - **Model routing and cost**: for each model step, the mode asked for, the model that answered, time, tokens and cost. Press **Verify receipt** on a step to check Nightshift's signature on that call. Press **Verify all receipts** to check every call of this recommendation at once. It shows how many signatures are valid and how many name a Nemotron model as the one that served the call. See [MODELS.md](MODELS.md).
+
+![Model chips and the routing panel in sample mode](media/gifs/receipts.gif)
+
+_Sample mode, ALR-0073: each model step shows where it ran and the model that served it, and the routing panel lists the receipt per call. In sample mode the labelled rules-based stand-in makes no model call, so every receipt id and receipt check reads "none"; a live review shows real receipt ids (see [screenshot 15](media/screenshots/15-live-routing-and-receipts.png))._
 
 ## 6. Decide
 

@@ -27,6 +27,22 @@ Re-take them with the desk running in sample mode (`SAMPLE_MODE=true docker comp
 npm run screenshots -- --alert ALR-0073 --out docs/media/screenshots
 ```
 
+## Animated clips
+
+Recorded on 24 Oct 2026 from a production build of the desk in sample mode (saved real Zetaris answers and the labelled rules-based stand-in for the models), as `analyst_demo`, light theme, 1280 px wide. The buttons are really pressed; the only additions are an outline or a tint on the part being pointed at. Each page's text was checked for local paths, user names, e-mail addresses and tokens before the clip was saved.
+
+| File                         | Length, size   | What it shows                                                                                                                                                                                                                     |
+| ---------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `gifs/case-review.gif`       | 11.0 s, 1.7 MB | ALR-0073: **Review this alert**, the replay slider lighting the steps from the recorded events (the screener flags), the risk signal with "Tehran" marked, the banner, and the screener and jurisdiction checks that keep it open |
+| `gifs/ownership-cascade.gif` | 9.0 s, 0.5 MB  | ALR-0043: the replay up to the ownership step, flagged: a holder that listed parties own 60 percent of is itself blocked, so its holding counts in full (70 percent); then **What decided it**                                    |
+| `gifs/receipts.gif`          | 8.3 s, 1.1 MB  | ALR-0073: the model chips on each step and the routing panel with its receipt columns. Sample mode makes no model call, so there is no receipt to open; screenshot 15 shows a verified receipt from a live review                 |
+
+Re-record them with the desk running in sample mode on a production build (the commands are at the top of `tools/record-gifs.ts`):
+
+```bash
+npm run gifs -- --web http://localhost:3021 --out docs/media/gifs
+```
+
 ## Demo case: a link hidden in a payment reference
 
 Alert **ALR-0073** (exam case EX-064): a payment whose counterparty name equals a listed bank's, with the onward city named only in the payment reference, "Machine parts, onward delivery to Tehran".
