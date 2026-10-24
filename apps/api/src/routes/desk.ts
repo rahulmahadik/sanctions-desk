@@ -14,6 +14,7 @@ import {
   routingSplit,
   type SavedResult,
   type ScoredCase,
+  safetySentence,
   severityOf,
 } from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
@@ -196,6 +197,7 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
       results,
       policy_version: policies.active().version,
       ...headlineFromRuns(results, config),
+      current_run: currentRun(results, config),
       // Every held-out round as run, with the baselines on the same cases: the same table the README shows.
       heldout_rounds: heldoutRounds(results as SavedResult[]),
     };
@@ -225,6 +227,40 @@ interface SavedRun {
   selection?: { groups?: unknown; kinds?: unknown; limit?: unknown };
   started_at?: string;
   cases?: ScoredCase[];
+}
+
+/**
+ * The newest complete run of the newest system version (a run with a system tag), with its measured time per alert:
+ * what the desk takes today, as opposed to the first system's exam run that the safety headline comes from.
+ */
+export function currentRun(
+  results: unknown[],
+  config: Config,
+): { name: string; system: string; exam: string; started_at: string; alerts: number; median_seconds: number } | null {
+  const runs = (results as SavedRun[])
+    .filter(
+      (r) =>
+        r.variant === "routed" &&
+        r.system !== undefined &&
+        !r.tag &&
+        !r.selection?.kinds &&
+        !r.selection?.groups &&
+        !r.selection?.limit &&
+        r.cases,
+    )
+    .sort((a, b) => (a.started_at ?? "").localeCompare(b.started_at ?? ""));
+  const run = runs.at(-1);
+  if (!run?.cases || !run.started_at) return null;
+  const h = headlineOf(run.cases, { ...config.report, currency: config.costs.currency });
+  if (h.per_alert.alerts === 0) return null;
+  return {
+    name: `${run.exam ?? "exam"}-${run.system}-${run.variant}`,
+    system: run.system ?? "",
+    exam: run.exam ?? "exam",
+    started_at: run.started_at,
+    alerts: h.per_alert.alerts,
+    median_seconds: h.per_alert.median_seconds,
+  };
 }
 
 /**
@@ -259,7 +295,8 @@ export function headlineFromRuns(
   const split = run.started_at ? routingSplit(resolve(config.logging.dir), "routed", run.started_at) : null;
   return {
     headline,
-    headline_sentence: headlineSentence(headline),
+    // The time per alert is the current system's (see currentRun), not this first-system run's.
+    headline_sentence: safetySentence(headline),
     headline_run: run.started_at ?? run.file,
     routing_split: split && split.rows.length > 0 ? split : null,
   };

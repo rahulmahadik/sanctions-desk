@@ -116,10 +116,15 @@ export function headlineOf(cases: readonly ScoredCase[], assumptions: HeadlineAs
   };
 }
 
+/** What a run did with the risk cases and the alerts, without its time. */
+export function safetySentence(h: Headline): string {
+  const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
+  return `${h.false_closes} of ${h.risk_cases} risk cases wrongly closed; ${pct(h.closed_share)} of alerts recommended for closing with cited evidence and ${pct(h.escalated_share)} escalated, each for a person to decide.`;
+}
+
 /** One sentence for a header strip or a README line. */
 export function headlineSentence(h: Headline): string {
-  const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
-  return `${h.false_closes} of ${h.risk_cases} risk cases wrongly closed; ${pct(h.closed_share)} of alerts recommended for closing with cited evidence and ${pct(h.escalated_share)} escalated, each for a person to decide.${perAlertSentence(h)}`;
+  return `${safetySentence(h)}${perAlertSentence(h)}`;
 }
 
 /** The measured time and cost per alert. Analyst time saved is not measured, so it is not claimed here. */

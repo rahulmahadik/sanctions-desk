@@ -637,10 +637,26 @@ describe("HeadlineStrip", () => {
   it("shows the measured headline of the 70-case exam", async () => {
     vi.mocked(api.fetchExam).mockResolvedValue(exam);
     render(<HeadlineStrip />);
-    expect((await screen.findByTestId("headline-strip")).textContent).toContain(
-      "Latest 70-case exam (full system, one run)",
-    );
+    expect((await screen.findByTestId("headline-strip")).textContent).toContain("70-case exam (first system, one run)");
     expect(screen.getByTestId("headline-strip").textContent).toContain("0 of 42 risk cases wrongly closed");
+  });
+
+  it("names the current system's run and its time per alert", async () => {
+    vi.mocked(api.fetchExam).mockResolvedValue({
+      ...exam,
+      current_run: {
+        name: "heldout4-sys4-routed",
+        system: "sys4",
+        exam: "heldout4",
+        started_at: "2026-10-24T02:45:23.713Z",
+        alerts: 12,
+        median_seconds: 45.4,
+      },
+    });
+    render(<HeadlineStrip />);
+    expect((await screen.findByTestId("headline-strip")).textContent).toContain(
+      "Current system: a median of 45 seconds per alert (measured) in run heldout4-sys4-routed of 2026-10-24, 12 alerts.",
+    );
   });
 
   it("says so, and invents nothing, when there is no complete run or the results cannot be read", async () => {

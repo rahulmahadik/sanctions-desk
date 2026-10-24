@@ -151,6 +151,24 @@ describe("the review desk routes", () => {
     expect(run?.system).toBeUndefined();
   });
 
+  it("names the current system's newest complete run and its median time per alert", async () => {
+    const { app } = await sampleApp();
+    const body = (await app.inject({ method: "GET", url: "/exam" })).json() as {
+      headline_sentence: string | null;
+      current_run: { name: string; system: string; alerts: number; median_seconds: number } | null;
+      results: Array<{ variant: string; system?: string; started_at?: string; tag?: string }>;
+    };
+    const tagged = body.results
+      .filter((r) => r.variant === "routed" && r.system && !r.tag)
+      .map((r) => r.started_at ?? "")
+      .sort();
+    if (tagged.length === 0) return;
+    expect(body.current_run?.median_seconds).toBeGreaterThan(0);
+    expect(body.current_run?.name).toMatch(/-routed$/);
+    // The safety sentence carries no time: the time shown is the current system's.
+    expect(body.headline_sentence).not.toContain("seconds");
+  });
+
   it("gives every held-out round with its baselines, in the same words as the README table", async () => {
     const { app } = await sampleApp();
     const body = (await app.inject({ method: "GET", url: "/exam" })).json() as {

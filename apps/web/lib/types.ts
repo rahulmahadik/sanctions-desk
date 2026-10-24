@@ -293,6 +293,15 @@ export interface ExamAnswer {
   headline_run?: string | null;
   routing_split?: RoutingSplit | null;
   heldout_rounds?: HeldoutRoundView[];
+  /** The newest complete run of the newest system version, with its measured time per alert. */
+  current_run?: {
+    name: string;
+    system: string;
+    exam: string;
+    started_at: string;
+    alerts: number;
+    median_seconds: number;
+  } | null;
 }
 
 export interface RoundCellView {

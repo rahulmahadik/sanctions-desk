@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import { fetchExam } from "../lib/api";
 import type { ExamAnswer } from "../lib/types";
 
-/** A line across the top with the measure the desk is judged by, from the newest complete exam run. */
+/**
+ * A line across the top: what the first system's 70-case exam run did with the risk cases, and the time per alert of
+ * the current system's newest run, named.
+ */
 export function HeadlineStrip() {
   const [exam, setExam] = useState<ExamAnswer | null>();
 
@@ -19,8 +22,11 @@ export function HeadlineStrip() {
   return (
     <p className="strip" role="note" data-testid="headline-strip">
       {h && exam?.headline_sentence
-        ? `Latest 70-case exam (full system, one run): ${exam.headline_sentence}`
+        ? `70-case exam (first system, one run): ${exam.headline_sentence}`
         : "No complete exam run is saved yet, so there is no headline measure to show."}
+      {exam?.current_run
+        ? ` Current system: a median of ${exam.current_run.median_seconds.toFixed(0)} seconds per alert (measured) in run ${exam.current_run.name} of ${exam.current_run.started_at.slice(0, 10)}, ${exam.current_run.alerts} alerts.`
+        : ""}
     </p>
   );
 }
