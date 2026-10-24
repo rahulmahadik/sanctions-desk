@@ -15,6 +15,7 @@ import {
   postPublish,
   postWhatIf,
 } from "../lib/api";
+import { REASON_LENGTH } from "../lib/format";
 import { SESSION_EVENT } from "../lib/session";
 import type {
   AutoClosedItem,
@@ -26,7 +27,7 @@ import type {
 } from "../lib/types";
 
 const MIN_QA = 0.05;
-const MIN_REASON = 10;
+const MIN_REASON = REASON_LENGTH.min;
 
 /** The autonomy card: how much a person does, what is locked, today's closes against the cap, the kill switch. */
 function AutonomyCard({ view, me, onChange }: { view: AutonomyView; me?: MeView; onChange: () => void }) {
@@ -87,7 +88,12 @@ function AutonomyCard({ view, me, onChange }: { view: AutonomyView; me?: MeView;
       <p>
         <label>
           Reason{" "}
-          <input value={reason} onChange={(e) => setReason(e.target.value)} style={{ minWidth: 280 }} maxLength={600} />
+          <input
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            style={{ minWidth: 280 }}
+            maxLength={REASON_LENGTH.max}
+          />
         </label>{" "}
         {killed ? (
           <button type="button" disabled={!canRestore || !ok} onClick={() => void toggle(false)}>

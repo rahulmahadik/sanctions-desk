@@ -1,3 +1,4 @@
+import { MAX_REASON_LENGTH, MIN_REASON_LENGTH } from "@sanctions-desk/agents";
 import { PolicySchema, ReviewResponseSchema, RunRequestSchema } from "@sanctions-desk/shared";
 import { z } from "zod";
 
@@ -67,6 +68,8 @@ interface RouteDoc {
 }
 
 const PERSON = { type: "string", minLength: 1, maxLength: 100 };
+/** The reason a person gives with a decision: the human decision step's one rule, as the routes enforce it. */
+const REASON = { type: "string", minLength: MIN_REASON_LENGTH, maxLength: MAX_REASON_LENGTH };
 
 export const ROUTES: RouteDoc[] = [
   {
@@ -185,7 +188,7 @@ export const ROUTES: RouteDoc[] = [
           enum: ["CLOSE_FALSE_POSITIVE", "ESCALATE_L2", "RECOMMEND_BLOCK", "NEED_MORE_INFO"],
           description: "Required for an override",
         },
-        reason: { type: "string", minLength: 10, maxLength: 600 },
+        reason: REASON,
         record_hash: { type: "string", description: "The hash of the recommendation you were looking at" },
       },
       ["action", "reason", "record_hash"],
@@ -200,7 +203,7 @@ export const ROUTES: RouteDoc[] = [
     body: obj(
       {
         approve: { type: "boolean" },
-        reason: { type: "string", minLength: 10, maxLength: 600 },
+        reason: REASON,
         record_hash: { type: "string" },
       },
       ["approve", "reason", "record_hash"],
@@ -212,10 +215,7 @@ export const ROUTES: RouteDoc[] = [
     tag: "People",
     summary: "Reopen a close the desk made automatically; the case then waits for a person's decision",
     params: [AlertIdParam],
-    body: obj({ reason: { type: "string", minLength: 10, maxLength: 600 }, record_hash: { type: "string" } }, [
-      "reason",
-      "record_hash",
-    ]),
+    body: obj({ reason: REASON, record_hash: { type: "string" } }, ["reason", "record_hash"]),
   },
   {
     method: "get",
@@ -228,10 +228,7 @@ export const ROUTES: RouteDoc[] = [
     path: "/autonomy/kill-switch",
     tag: "People",
     summary: "Force autonomy level 0 at once (an approver or policy admin); only a policy admin can switch it back on",
-    body: obj({ active: { type: "boolean" }, reason: { type: "string", minLength: 10, maxLength: 600 } }, [
-      "active",
-      "reason",
-    ]),
+    body: obj({ active: { type: "boolean" }, reason: REASON }, ["active", "reason"]),
   },
   {
     method: "get",

@@ -10,7 +10,7 @@ import {
   postReopen,
   postSecondApproval,
 } from "../lib/api";
-import { DECISION_ICON, DECISION_LABEL, DECISION_TONE, shortHash } from "../lib/format";
+import { DECISION_ICON, DECISION_LABEL, DECISION_TONE, REASON_LENGTH, shortHash } from "../lib/format";
 import { SESSION_EVENT } from "../lib/session";
 import type { ActionCheck, ActionRecordView, Decision, HumanActionView, HumanView, MeView } from "../lib/types";
 
@@ -21,7 +21,7 @@ const CAUTION: Record<Decision, number> = {
   ESCALATE_L2: 2,
   RECOMMEND_BLOCK: 3,
 };
-const MIN_REASON = 10;
+const MIN_REASON = REASON_LENGTH.min;
 
 const KIND_LABEL: Record<ActionRecordView["body"]["kind"], string> = {
   closure_note: "Closure note",
@@ -109,7 +109,7 @@ const ReasonBox = ({
       <textarea
         rows={rows}
         value={p.reason}
-        maxLength={600}
+        maxLength={REASON_LENGTH.max}
         onChange={(e) => p.setReason(e.target.value)}
         style={{ width: "100%" }}
       />

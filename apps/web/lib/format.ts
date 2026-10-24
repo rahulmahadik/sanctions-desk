@@ -23,6 +23,13 @@ export const DECISION_ICON: Record<Decision, string> = {
   NEED_MORE_INFO: "?",
 };
 
+/**
+ * The reason a person gives with a decision, in characters. The rule lives in the human decision step
+ * (packages/agents/src/human-decision.ts: MIN_REASON_LENGTH and MAX_REASON_LENGTH), which the interface cannot
+ * import; a test keeps the two equal. Every screen reads this constant, none writes the numbers out again.
+ */
+export const REASON_LENGTH = { min: 10, max: 600 } as const;
+
 export const MASK = "••••";
 
 /** What to show for a field. A masked column is always drawn as dots, whatever the API sent. */

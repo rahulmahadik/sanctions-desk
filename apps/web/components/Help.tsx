@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { REASON_LENGTH } from "../lib/format";
 
 /** The same steps, in the same order and words, as docs/USER_GUIDE.md, in fewer words. */
 export const HELP_SECTIONS: { id: string; title: string }[] = [
@@ -91,7 +92,7 @@ export function Help() {
           <li>
             Choose <strong>Approve the recommendation</strong>, or <strong>Override with</strong> another outcome.
           </li>
-          <li>Write a reason of at least 10 characters.</li>
+          <li>Write a reason of at least {REASON_LENGTH.min} characters.</li>
           <li>
             Press <strong>Approve</strong> or <strong>Override</strong>.
           </li>

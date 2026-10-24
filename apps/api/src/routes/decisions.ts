@@ -9,6 +9,8 @@ import {
   type DeskStores,
   gatherEvidence,
   humanState,
+  MAX_REASON_LENGTH,
+  MIN_REASON_LENGTH,
   markdownToPdf,
   readActions,
   readAlertQueue,
@@ -50,15 +52,17 @@ interface DecisionOptions {
 
 const CaseIdSchema = SafeIdSchema;
 const RecordHash = z.string().regex(/^[0-9a-f]{64}$/);
+/** The reason a person gives: the human decision step's one rule, checked here at the edge and again inside it. */
+export const ReasonSchema = z.string().trim().min(MIN_REASON_LENGTH).max(MAX_REASON_LENGTH);
 const DecisionBody = z.strictObject({
   action: z.enum(["approve", "override"]),
   outcome: DecisionSchema.optional(),
-  reason: z.string().max(2000),
+  reason: ReasonSchema,
   record_hash: RecordHash,
 });
-const ReopenBody = z.strictObject({ reason: z.string().max(2000), record_hash: RecordHash });
-const KillBody = z.strictObject({ active: z.boolean(), reason: z.string().trim().min(10).max(600) });
-const SecondBody = z.strictObject({ approve: z.boolean(), reason: z.string().max(2000), record_hash: RecordHash });
+const ReopenBody = z.strictObject({ reason: ReasonSchema, record_hash: RecordHash });
+const KillBody = z.strictObject({ active: z.boolean(), reason: ReasonSchema });
+const SecondBody = z.strictObject({ approve: z.boolean(), reason: ReasonSchema, record_hash: RecordHash });
 
 const parse = <T extends z.ZodType>(schema: T, body: unknown): z.infer<T> => {
   const parsed = schema.safeParse(body);

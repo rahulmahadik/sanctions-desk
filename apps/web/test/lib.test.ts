@@ -1,5 +1,7 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { DECISION_LABEL, MASK, money, percent, seconds, shortHash, show } from "../lib/format";
+import { DECISION_LABEL, MASK, money, percent, REASON_LENGTH, seconds, shortHash, show } from "../lib/format";
 import { graphAt } from "../lib/graph";
 import { EVENTS, ev } from "./fixtures";
 
@@ -72,6 +74,23 @@ describe("format", () => {
     expect(shortHash("a".repeat(64))).toBe("aaaaaaaa…aaaa");
     expect(shortHash(null)).toBe("—");
     expect(DECISION_LABEL.RECOMMEND_BLOCK).toContain("two approvals");
+  });
+});
+
+describe("the reason-length rule", () => {
+  it("is the human decision step's rule, kept in one web constant", () => {
+    const source = readFileSync(join(__dirname, "../../../packages/agents/src/human-decision.ts"), "utf8");
+    const min = Number(/export const MIN_REASON_LENGTH = (\d+);/.exec(source)?.[1]);
+    const max = Number(/export const MAX_REASON_LENGTH = (\d+);/.exec(source)?.[1]);
+    expect(REASON_LENGTH).toEqual({ min, max });
+  });
+
+  it("is not written out again in any screen", () => {
+    const dir = join(__dirname, "../components");
+    for (const file of readdirSync(dir)) {
+      const text = readFileSync(join(dir, file), "utf8");
+      expect(text, file).not.toMatch(/maxLength=\{600\}|MIN_REASON = 10\b|at least 10 characters/);
+    }
   });
 });
 
