@@ -28,7 +28,7 @@
     },
     {
       "step": "ownership",
-      "role": "works out the 50 percent rule as a cascade, and effective ownership, from the register rows",
+      "role": "writes the ownership register into the World Model and evaluates the 50 percent rule (a cascade) on it",
       "model": "code"
     },
     { "step": "memory", "role": "recalls earlier decisions about the same pair (H-MEM engine)", "model": "code" },
@@ -70,7 +70,7 @@
       "engines": ["H-MEM", "World Model", "Markovian"],
       "uses": {
         "H-MEM": "agent and analyst memory",
-        "World Model": "an ownership store, tested but not used in the live review",
+        "World Model": "the ownership register the 50 percent rule is evaluated on",
         "Markovian": "re-screening after a list change"
       },
       "tests": "npm run test:engines"

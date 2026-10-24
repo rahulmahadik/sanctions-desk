@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   gatherEvidence,
@@ -6,6 +8,7 @@ import {
   matchEvidence,
   renderDefinitions,
   renderEvidence,
+  runReview,
   sampleRules,
   triage,
   truncateField,
@@ -107,5 +110,22 @@ describe("long text in a prompt", () => {
     // The payment reference is free text: the screener reads it locally and the model sees only its facts.
     expect(payload.payment).not.toHaveProperty("payment_reference");
     expect(payload.list_entry).not.toHaveProperty("remarks");
+  });
+});
+
+describe("the ownership step", () => {
+  it("writes the register into the World Model and evaluates the 50 percent rule on what it reads back", async () => {
+    const deps = sampleDeps();
+    const facts = caseFacts("ob_chain_42");
+    const result = await runReview(deps, { runId: "ownership-world", alertId: facts.alertId, sampleMode: true });
+    expect(result.decision).toBe("ESCALATE_L2");
+    const events = readdirSync(deps.logDir)
+      .filter((f) => f.startsWith("trace-") && f.endsWith(".jsonl"))
+      .flatMap((f) => readFileSync(join(deps.logDir, f), "utf8").trim().split("\n"))
+      .map((l) => JSON.parse(l) as { agent: string; action: string; detail?: Record<string, unknown> });
+    const evaluate = events.find((e) => e.agent === "ownership" && e.action === "evaluate");
+    expect(evaluate?.detail).toMatchObject({ cascade: "blocked", world_model: { rows: 2 } });
+    const world = evaluate?.detail?.world_model as { audit_events: number } | undefined;
+    expect(world?.audit_events).toBeGreaterThan(2);
   });
 });
