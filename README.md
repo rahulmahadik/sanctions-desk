@@ -218,6 +218,7 @@ Track 3 asks for a reasoning architecture, not a prompt. Each stage of the desk 
 - [API](#api)
 - [Policy](#policy)
 - [Development](#development)
+- [FAQ](#faq)
 - [Not built / not verified](#not-built--not-verified)
 - [Limits](#limits)
 - [Future work](#future-work)
@@ -345,6 +346,25 @@ The outcomes are `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs
 | A person | approve or override with a reason; a block needs a second, different approver | (the desk never acts without one) |
 
 ## How sponsor technology is used
+
+<!-- sponsors:start -->
+**Zetaris: the only data path.** Three sources stay where they are and meet in one Unified Semantic Layer of 14 tables: list files in the Zetaris file store, a Postgres bank database over JDBC with a read-only login, and a payments service read as a REST table. Each agent reads only its own tables and columns, one read-only statement at a time, under a read-only Zetaris role; identifier numbers are masked. A customer record that fails a data-quality rule cannot support a close. Before a note counts as evidence, the document number it cites is counted against the customer's identifiers inside Zetaris, so the number never reaches a model. *Check it:* `zetaris/sql/` (sources and semantic layer), `npm run check:roles` and `npm run check:isolation` (live), `packages/zetaris/test/guard.test.ts` (access and masking), `packages/agents/test/policy-guard.test.ts` (data quality), `packages/agents/src/note-document.ts` (document on record), [docs/ZETARIS.md](docs/ZETARIS.md).
+
+**Meterless engines: three, each in a working feature.** H-MEM keeps earlier decisions as pointers (table, key, content hash) that go stale when the listed entry changes; the memory step recalls them for each review. The World Model holds each company's ownership with provenance; the 50 percent rule runs on it for ownership alerts. Markovian re-screens every earlier decision after a list change in bounded batches with a carried cursor; the list-change check uses it. *Check it:* `npm run test:engines` (H-MEM 13/13, World Model 8/8, Markovian 8/8 on the official conformance suites), `packages/engines/src/`, `output_examples/close-previously-cleared/` (memory), `POST /list-change/replay` and `apps/api/test/review.test.ts` (list change).
+
+**Meterless Nightshift: every model call.** The desk talks to Nightshift's OpenAI-compatible API through one injected generator, under two app identities: `sanctions-desk-guard`, bound to the local lane, and `sanctions-desk-reasoning`, bound to the deep lane (binds set in the Nightshift cockpit). Ollama is a backup only. Every call returns an Ed25519-signed receipt naming the model that served it; the trace keeps the requested model, the routed model and the receipt id side by side. *Check it:* `config/default.json` (`nightshift`), `packages/shared/src/generator.ts`, `npm run evidence:verify` (1,492 receipts across 28 exported runs, all valid), the **Verify receipt** button in the case view.
+
+**NVIDIA Nemotron: local where the text is, cloud where the reasoning is.** Nemotron 3.5 Lightning 30B runs on the analyst's laptop for the safety guard and the free-text screener, so raw notes and payment references never leave the machine. Nemotron 3 Ultra 550B in the cloud handles the decision, the critic and the challenger, and receives structured facts only. Nightshift's router chooses within each lane and every receipt records the model: in the headline run the safety guard was answered by Lightning in 70 of 70 calls and the decision by Ultra in 87 of 89. *Check it:* `npm run evidence:verify -- eval/runs/routed-20261023T133311Z`, [docs/MODELS.md](docs/MODELS.md).
+
+**Cursor: not used.** Built with Claude Code ([AI and Model Usage](#ai-and-model-usage)).
+
+**What was unique**
+1. The critic does not trust the decision: code re-reads every cited fact from Zetaris before the critic's model sees it, and a fact that does not hold is never approved.
+2. Raw text stays on the laptop: the local model turns it into risk signals with exact spans, and a signal at or above its threshold blocks a close whether or not its span is grounded.
+3. Every held-out round is published as run, wrong closes included, and every model call has a signed receipt that one command re-checks.
+<!-- sponsors:end -->
+
+The details follow.
 
 ### Meterless build: the engines
 
@@ -745,6 +765,20 @@ The governance view, mapped to the headings of the Monetary Authority of Singapo
 - **Least privilege.** Each agent can read only its own tables and columns; identifier numbers are hidden by the application (see below); the model service never receives them. Zetaris's HIDE policy for `customer_identifier.id_number` is configured for the evidence role, but this local edition does not enforce it. The application enforces it instead: the SQL guard stops every agent except the evidence step from naming the column, the evidence step's masking returns only the last two characters, and a customer identifier is compared with a listed one by a join inside Zetaris so the number is never read into the application. Tests prove each part (`packages/zetaris/test/guard.test.ts`, `client.test.ts`, `tools.test.ts`).
 - **Fairness in name matching across languages.** What was measured: six transliteration cases across Cyrillic, Arabic and Han scripts, look-alike letters, accents, name order and spelling variants, and every one of those that carried real risk was escalated, none closed. What was not measured: other scripts and naming conventions, and how often common names in any one culture are escalated without cause. Name matching tends to raise more alerts for people whose names are common or transliterated in many ways, and the cost of that falls on those customers as extra review. Before any real use, measure the escalation rate by name origin and set the thresholds with that in mind.
 - **Where the models run.** Most decision and critic calls are answered by a cloud model through Nightshift. That is acceptable for synthetic data; with real customer data it needs an explicit decision about what may leave the machine.
+
+## FAQ
+
+**How does Zetaris keep the data in place and mask fields?** The data stays in its sources (the file store, the bank database, the payments service); Zetaris federates them into one semantic layer, and the agents send one read-only `SELECT` at a time to it, so nothing is copied into the desk except query answers. Identifier numbers are protected in three ways: the SQL guard stops every agent except the evidence step from naming the column, the evidence step's masking returns only the last two characters, and a customer's identifier is compared with a listed one by a join inside Zetaris, so the number is never read into the application. Zetaris's own column policy for that column is configured, but this local edition does not enforce it, which is why the application does. See [docs/ZETARIS.md](docs/ZETARIS.md) and `packages/zetaris/test/guard.test.ts`.
+
+**How does memory change a decision?** The memory step recalls earlier decisions about the same customer and listed party, kept by H-MEM as pointers to the rows they rested on. A fresh pointer (the listed entry has not changed) can be cited by the decision, and a still-valid clearance on a case the definitions call a false positive takes the short path. A stale pointer (the entry changed since) is shown as stale and not relied on. Memory alone never closes a case, and a person's override beats it. Measured on the earlier-cleared cases: 11 of 11 acceptable with memory, 10 of 11 without. Example: [output_examples/close-previously-cleared/](output_examples/close-previously-cleared); a stale one: alert ALR-0058 in sample mode.
+
+**How does the 50 percent ownership rule work?** The World Model holds who owns whom, with sources and dates. Shares multiply along a chain and add up across listed owners; at or above 50 percent (exactly 50 counts) a listed party effectively owns the company and the alert is escalated; below it the ownership alone does not stop a close; a missing percentage is unknown and the desk asks for more information; loops end, and a chain longer than the depth limit goes to a person. See the `effective_ownership_threshold` definition, [docs/EDGE_CASES.md](docs/EDGE_CASES.md) and `npm run test:engines` (World Model 8/8).
+
+**What happens when data is missing or a service is down?** Missing data is never filled in: a record that fails a data-quality rule (for example no date of birth) cannot support a close and the case asks for more information. If the screener cannot read the free text, the case cannot be closed. If no model answers after the retry and the fallback, the case is escalated, never closed. If Zetaris cannot be reached, the review stops with an error and makes no recommendation (measured with a closed port: 4 of 4 cases stopped, no close). Every failure moves the case towards a person. See [Failure handling](#failure-handling).
+
+**Why does every decision need a person, and a block two?** The desk recommends; it never blocks an account, writes to a source system or contacts a customer, and those limits are fixed in the policy schema, so no policy change can lift them. A person approves or overrides each recommendation with a reason, recorded against the sealed record. A block stops a customer's money and is the most serious outcome, so it needs a second, different approver. See `packages/agents/src/human-decision.ts` and the roles check in `npm run prove`.
+
+**What are the known limits?** The local screener over-flags, so correct clears go to a person; every result is one run; the data is synthetic. The full list is under [Limits](#limits), [Not built / not verified](#not-built--not-verified) and [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md).
 
 ## Not built / not verified
 
