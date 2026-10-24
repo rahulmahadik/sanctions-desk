@@ -2,21 +2,21 @@
 
 Everything here was made from the running desk in sample mode (saved real Zetaris answers and the labelled rules-based stand-in for the models), light theme. Each page's text was checked for local paths, user names, e-mail addresses and tokens before it was saved.
 
-| File | What it shows |
-| --- | --- |
-| `architecture.svg`, `architecture.png` | The agents, Zetaris as the only data path, local and cloud Nemotron through Nightshift, the raise-only policy guard and the human decision |
-| `screenshots/01-alert-queue.png` | Home: the summary strip (open alerts, recommendations waiting for a person, closes stopped by a check, models used), the list-change panel, the alert list sorted by severity |
-| `screenshots/02-case-evidence.png` | A case (ALR-0073): the recommendation banner, the decision panel, the decision trace, the risk signals and the evidence |
-| `screenshots/03-decision-panel.png` | The decision panel: approve or override with a reason |
-| `screenshots/04-routing-and-receipts.png` | Requested model, routed model and receipt id per call (in sample mode the stand-in makes no model call, so no receipt) |
-| `screenshots/05-policy-studio.png` | Policy studio and the autonomy card |
-| `screenshots/06-governance.png` | Governance view |
-| `screenshots/07-exam-results.png` | Test scores: every held-out round with its baselines, then the 70-case exam |
-| `screenshots/08-help.png` | Help |
-| `screenshots/09-risk-signals.png` | A risk signal with its source field and the exact span highlighted in the payment reference ("Tehran") |
-| `screenshots/10-list-change.png` | Earlier decisions whose listed entry changed, with the list snapshot then and now |
-| `screenshots/11-heldout-rounds.png` | The held-out table on its own |
-| `screenshots/12-agent-map.png` | The review steps after a review: the screener flagged the case |
+| File                                      | What it shows                                                                                                                                                                 |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `architecture.svg`, `architecture.png`    | The agents, Zetaris as the only data path, local and cloud Nemotron through Nightshift, the raise-only policy guard and the human decision                                    |
+| `screenshots/01-alert-queue.png`          | Home: the summary strip (open alerts, recommendations waiting for a person, closes stopped by a check, models used), the list-change panel, the alert list sorted by severity |
+| `screenshots/02-case-evidence.png`        | A case (ALR-0073): the recommendation banner, the decision panel, the decision trace, the risk signals and the evidence                                                       |
+| `screenshots/03-decision-panel.png`       | The decision panel: approve or override with a reason                                                                                                                         |
+| `screenshots/04-routing-and-receipts.png` | Requested model, routed model and receipt id per call (in sample mode the stand-in makes no model call, so no receipt)                                                        |
+| `screenshots/05-policy-studio.png`        | Policy studio and the autonomy card                                                                                                                                           |
+| `screenshots/06-governance.png`           | Governance view                                                                                                                                                               |
+| `screenshots/07-exam-results.png`         | Test scores: every held-out round with its baselines, then the 70-case exam                                                                                                   |
+| `screenshots/08-help.png`                 | Help                                                                                                                                                                          |
+| `screenshots/09-risk-signals.png`         | A risk signal with its source field and the exact span highlighted in the payment reference ("Tehran")                                                                        |
+| `screenshots/10-list-change.png`          | Earlier decisions whose listed entry changed, with the list snapshot then and now                                                                                             |
+| `screenshots/11-heldout-rounds.png`       | The held-out table on its own                                                                                                                                                 |
+| `screenshots/12-agent-map.png`            | The review steps after a review: the screener flagged the case                                                                                                                |
 
 Re-take them with the desk running in sample mode (`SAMPLE_MODE=true docker compose up --build`, then review ALR-0004, ALR-0073 and ALR-0058 once):
 
@@ -37,7 +37,6 @@ In sample mode the local screener step flags `sanctioned_jurisdiction_link` at `
 ## Demo clip: a decision re-opened after a list change
 
 The desk does not re-run a case on an earlier list. What it shows, in sample mode:
-
 1. Home page: press **Check earlier decisions against the list as it is now**. Five earlier closes are listed for review because their listed entry changed, with the list snapshot then and now; DSP-0007 (Yiu-chung Tam) points at **ALR-0058**.
 2. Open **ALR-0058** and press **Review this alert**. The answer is Escalate; the memory step reports the earlier clearance as stale.
 3. Scroll to **Replay** and drag the slider back to the memory step: "1 earlier decision(s): CLOSE_FALSE_POSITIVE (stale)".
