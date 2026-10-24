@@ -25,7 +25,7 @@ The live commands need Zetaris running and the admin key in `.env` (read inside 
 | 2   | **Synthetic bank database** (Postgres)                                                             | JDBC data source, read-only login: `customer`, `customer_identifier`, `customer_alias`, `account`, `beneficial_owner`, `alert`, `disposition` | 340 customers, their identifiers, aliases, accounts, ownership register, 112 alerts, earlier decisions      | Who the customer is; what the alert says; what was decided before      |
 | 3   | **Synthetic payments service**                                                                     | REST table, cached: `payment`                                                                                                                 | 366 payments with counterparty, countries, status                                                           | Whether money is waiting on the alert, and who is paid                 |
 
-All three are compiled into one model, `lightning.metastore.sanctions.screening_usl` (14 tables). The agents read only that model. Nothing else is read, and no real customer data is used.
+All three are compiled into one model, `lightning.metastore.sanctions.screening_usl` (14 tables). The agents read only that model. Nothing else is read, and no real customer data is used. The instance also holds a file copy of the bank (`sanctions_bank_files`, 8 tables), registered only as a fallback for when the database or the payments service cannot be reached, and Zetaris's own sample databases (`NY_TAXI`, `TPCDS_DB`); that is why the Zetaris home page shows 6 sources and 62 tables ([at a glance](#zetaris-at-a-glance)).
 
 ## 1b. Each source: onboarding, check and exploratory queries
 
@@ -79,7 +79,7 @@ The REST service returns every value as a string, so each query casts explicitly
 ## 1c. The Unified Semantic Layer
 
 - **Full DDL.** [zetaris/usl/screening_usl.ddl](../zetaris/usl/screening_usl.ddl): 14 `CREATE TABLE` statements with keys and foreign keys (144 lines). Table and column descriptions, which the agents read with `LOAD USL`, are in [descriptions.sql](../zetaris/usl/descriptions.sql) (131 statements). Both are generated from one specification, [usl-spec.ts](../packages/zetaris/src/usl-spec.ts), and a test checks the specification against the data files table by table and column by column.
-- **Data-quality rules.** [zetaris/usl/dq_rules.sql](../zetaris/usl/dq_rules.sql): eight custom rules; 37 rules are registered in all, the rest generated from the foreign keys.
+- **Data-quality rules.** [zetaris/usl/dq_rules.sql](../zetaris/usl/dq_rules.sql): eight custom rules; 37 rules are registered in all, the other 29 are the key constraints Zetaris adds itself (14 primary-key and 15 foreign-key).
 - **Queries that prove it is active** ([zetaris/queries/usl/](../zetaris/queries/usl/)), each one statement across sources:
 
 | Joins                                                        | SQL (shortened)                                                                       | Real result                                                                                    |
@@ -230,6 +230,8 @@ Zetaris is the only data path. Three kinds of source meet in one Unified Semanti
 - **list files** in the Zetaris file store (OFAC and UN sample, business definitions),
 - a **Postgres bank database** over JDBC with a read-only login (customers, ownership, alerts, earlier decisions),
 - a **payments service** read as a REST table. The first system's runs read it live (the Zetaris cache of that table had been lost); the changed system's runs read it from the Zetaris cache, verified by stopping the service.
+
+The Zetaris home page of this instance shows 6 sources and 62 tables: the desk's four (`sanctions_lists`, 6 tables from the file store; `sanctions_bankdb`, 8 tables over JDBC; `sanctions_payments`, 1 REST table; and `sanctions_bank_files`, an 8-table file copy of the bank kept only as a fallback for when the database or the payments service cannot be reached) plus Zetaris's own sample databases `NY_TAXI` (15 tables) and `TPCDS_DB` (24), which the desk does not use. The semantic layer takes 14 of these tables: the 6 list tables, 7 bank tables (the bank database's own `payment` table is not used) and the payments service's table as `payment`.
 
 The agents read the model's own description at run time and build their read-only tools from it; each agent is limited by our SQL guard to its own tables and columns; failing data-quality records cannot support a close (one documented exception for a missing date of birth, in [docs/ZETARIS.md](#how-the-desk-uses-zetaris)); every query id is matched to Zetaris's own statement history. Zetaris checklist, item by item (sources and queries 1a to 1c, comparison with hand-coding 2a, benefit 2b, requirement and mock 2c): [docs/ZETARIS.md](#zetaris-checklist). Runnable proofs: `npm run zetaris:queries`, `npm run zetaris:usl`, `npm run compare:hand-coded`, `npm run usl:policy -- --demo`. Access control and the problems met: [Access control](#access-control) and [docs/KNOWN_ISSUES.md](KNOWN_ISSUES.md). Query plans: [docs/QUERY_PLANS.md](QUERY_PLANS.md).
 
