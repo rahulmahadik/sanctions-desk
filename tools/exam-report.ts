@@ -1025,6 +1025,26 @@ const bold = (cell: RoundCell | null) =>
 const roundRows = rounds.map(
   (r) => `| ${r.label}${r.blind ? "" : " (not blind)"} | ${ROUND_COLUMNS.map((c) => bold(r.cells[c])).join(" | ")} |`,
 );
+/** The 95% Wilson score interval for x of n, in whole percent. */
+const wilson95 = (x: number, n: number): string => {
+  const z = 1.96;
+  const p = x / n;
+  const d = 1 + (z * z) / n;
+  const centre = (p + (z * z) / (2 * n)) / d;
+  const half = (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d;
+  const pct = (v: number) => Math.round(Math.max(0, Math.min(1, v)) * 100);
+  return `${pct(centre - half)}% to ${pct(centre + half)}%`;
+};
+const intervalCell = (name: string, cell: RoundCell | null) =>
+  cell && cell.risk > 0
+    ? `${name} ${cell.wrong_closes} of ${cell.risk} (${wilson95(cell.wrong_closes, cell.risk)})`
+    : "";
+const intervalLine = `95% intervals (Wilson score) for the share of risk cases wrongly closed, full system and deterministic rules: ${rounds
+  .map(
+    (r) =>
+      `${r.label.split(/ \(|,/)[0]}${r.blind ? " (blind)" : " (re-run, not blind)"}: ${[intervalCell("full system", r.cells.routed), intervalCell("rules", r.cells.rules)].filter(Boolean).join(", ")}`,
+  )
+  .join("; ")}. The sets are small, so the intervals are wide.`;
 const storyRows = rounds.map(
   (r) =>
     `| ${r.label} | ${r.system} (\`${r.commit}\`) | ${ROUND_STORY[r.id]?.found ?? ""} | ${ROUND_STORY[r.id]?.changed ?? ""} |`,
@@ -1090,6 +1110,8 @@ if (full && readmeRounds.includes(JS) && readmeRounds.includes(JE)) {
     `| Round | ${ROUND_COLUMNS.map((c) => ROUND_COLUMN_LABEL[c]).join(" | ")} |`,
     `|---|${ROUND_COLUMNS.map(() => "---").join("|")}|`,
     ...roundRows,
+    "",
+    intervalLine,
   ];
   const block = [JS, ...rows, JE].join("\n");
   writeFileSync(readmePath, readmeRounds.replace(new RegExp(`${JS}[\\s\\S]*?${JE}`), block));
