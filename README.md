@@ -12,22 +12,15 @@
 
 ![Architecture: agents, Zetaris as the only data path, local and cloud Nemotron through Nightshift, a raise-only policy guard and a person who decides](docs/media/architecture.png)
 
-<table>
-<tr>
-<td width="33%"><img src="docs/media/screenshots/09-risk-signals.png" alt="Case view: a risk signal with its source field and the exact span highlighted in the payment reference"></td>
-<td width="33%"><img src="docs/media/screenshots/13-live-agent-map.png" alt="Review steps of a live review: local Lightning and cloud Ultra chips, the routed model and the signed receipt id per model step"></td>
-<td width="33%"><img src="docs/media/screenshots/11-heldout-rounds.png" alt="Test scores: every held-out round as run, with the baselines"></td>
-</tr>
-<tr>
-<td>A risk signal with its source field and the exact text span (sample mode)</td>
-<td>The review steps of a live review: where each model step ran, the model that served it and its receipt</td>
-<td>Every held-out round as run, with the baselines, from the result files</td>
-</tr>
-</table>
+![A review of alert ALR-0073 in sample mode: the steps light up, the Tehran signal in the payment reference, and the checks that keep the case open](docs/media/gifs/case-review.gif)
+
+*A review in sample mode (saved real data, a labelled rules stand-in for the models). More: [screenshots and clips](docs/media/README.md), live views with Nemotron receipts in [docs/NEMOTRON.md](docs/NEMOTRON.md).*
 
 An AI review desk for bank sanctions-screening alerts. For every alert it reads the evidence from the bank's data, compares the customer (or payment party, or owner) with the listed party under approved definitions, asks Nemotron models for a recommendation, has a second step re-read every cited fact, applies a written policy, and hands a **recommendation with its evidence** to a person. **A human always makes the final call**: the desk never blocks, never writes to a source system and never messages a customer.
 
 Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
+
+**Review without installing:** [recorded runs, step by step with each model's receipt](https://rahulmahadik.github.io/sanctions-desk/runs/) · [the last one-command proof](eval/PROVE.md) · [API docs](https://rahulmahadik.github.io/sanctions-desk/api.html) · **[How NVIDIA Nemotron is used](docs/NEMOTRON.md)**
 
 <!-- headline:start -->
 **Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails, the case is escalated or held for more information instead of closed. On the 70-case exam (the cases the rules were written for) the full system wrongly closed 0 of 43 risk cases, against 10 for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: 2 in held-out v1; 0 in held-out v2 (the screener had failed, so nothing was closed); 2 in held-out v3; 0 in held-out v4. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** on the exam every close it makes is one the deterministic rules also make, and across the blind held-out rounds it made 0 correct clears, against 8 for the deterministic rules (which also close risk cases there). Every figure is one run. Details: [eval/REPORT.md](eval/REPORT.md).
@@ -108,7 +101,7 @@ Reproduce with `npm ci && npm run prove`, or `npm run prove -- --fresh` to clone
 | Held-out v4 (12 cases, last round) | 0 of 6 risks closed; 0 of 6 clears | 0 of 6 risks closed; 0 of 6 clears | **3 of 6 risks closed (HO4-002, HO4-003, HO4-005); 2 of 6 clears** | **5 of 6 risks closed (HO4-001, HO4-003, HO4-004, HO4-005, HO4-006); 0 of 6 clears** | 0 of 6 risks closed; 0 of 6 clears |
 <!-- rounds:end -->
 
-What each round found and what was changed after it: [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds).
+Held-out v2, v3 and v4 were each written by a separate AI agent session that saw no results, traces, code or fixes; labels fixed before the run (the session read the written definitions and the case and data builders, no review code); held-out v1 was written in this project before any run on it. What each round found and what was changed after it: [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds).
 
 ![Held-out rounds: risk cases wrongly closed by the full system and by the baselines, per round](docs/media/charts/heldout-wrong-closes.png)
 
@@ -142,6 +135,18 @@ flowchart LR
 The outcomes are `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs two human approvals) and `NEED_MORE_INFO`.
 
 Each step, what it may and may not do, the guardrails and the failure handling: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Memory, reasoning and tools: [docs/MEMORY.md](docs/MEMORY.md).
+
+### Which Nemotron model does each step
+
+| Step | Model | Where it runs | What it receives | Who answered, from the signed receipts of the 28 recorded runs |
+| --- | --- | --- | --- | --- |
+| Safety guard (inbound text and outbound drafts) | Nemotron 3.5 Lightning 30B | the analyst's laptop | the raw free text, which stays on the machine | Lightning 386 of 386 |
+| Free-text screener | Nemotron 3.5 Lightning 30B | the analyst's laptop | customer notes, payment references and list remarks; it returns risk signals with the exact text span | Lightning 122 of 122 |
+| Decision | Nemotron 3 Ultra 550B | cloud | structured fields and risk signals, never free text | Ultra 504, Lightning 16, Ollama backup 15 (no receipt) of 535 |
+| Critic (after code re-reads every cited fact) | Nemotron 3 Ultra 550B | cloud | the recommendation and the re-checked evidence | Ultra 418, Lightning 8, Ollama backup 2 of 428 |
+| Challenger (argues against a close) | Nemotron 3 Ultra 550B | cloud | the proposed close and its evidence | Ultra 38, Ollama backup 2 of 40 |
+
+Why each model, the privacy design and the studies of model choice: [docs/NEMOTRON.md](docs/NEMOTRON.md). Nightshift's router chooses inside the lane each step is bound to, so the split is a measurement, not a guarantee.
 
 ## How sponsor technology is used
 
@@ -192,6 +197,7 @@ More: [Guardrails](docs/ARCHITECTURE.md#guardrails), [Failure handling](docs/ARC
 | [docs/CONFIGURATION.md](docs/CONFIGURATION.md) | Every setting and environment variable |
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Commands, repository layout, running the interface |
 | [docs/USER_GUIDE.md](docs/USER_GUIDE.md) | The review desk, screen by screen, and the decision flow |
+| [API docs](https://rahulmahadik.github.io/sanctions-desk/api.html) | The API reference (Redoc, from the API's own OpenAPI document; `npm run site:build`) |
 | [docs/API.md](docs/API.md) | Routes, examples, the decision trace, one review from the command line |
 | [docs/MCP.md](docs/MCP.md) | The review desk as an MCP server |
 | [docs/EVALUATION.md](docs/EVALUATION.md) | The exam, the variants, the held-out rounds, one real trace, ablations, the one-command proof |
@@ -199,6 +205,7 @@ More: [Guardrails](docs/ARCHITECTURE.md#guardrails), [Failure handling](docs/ARC
 | [eval/PROVE.md](eval/PROVE.md) | The last `npm run prove` output |
 | [docs/BENCHMARKS.md](docs/BENCHMARKS.md) | API load test and how long a run takes |
 | [docs/EDGE_CASES.md](docs/EDGE_CASES.md) | Every edge case with its expected outcome and check |
+| [docs/NEMOTRON.md](docs/NEMOTRON.md) | How NVIDIA Nemotron is used: model per step and why, privacy design, the model-choice study, receipt statistics |
 | [docs/MODELS.md](docs/MODELS.md) | Nightshift, the Nemotron models, routing, receipts and how to check which model served each call |
 | [docs/ZETARIS.md](docs/ZETARIS.md) | The Zetaris checklist, sources, semantic layer, roles and access control |
 | [docs/QUERY_PLANS.md](docs/QUERY_PLANS.md) | Zetaris query plans for the key queries |
