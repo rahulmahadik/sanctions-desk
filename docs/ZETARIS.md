@@ -303,7 +303,7 @@ A second layer in front of Zetaris, in our code, runs before every request: exac
 
 ## Audit trail and query plans
 
-- Every query carries its own id. Zetaris keeps a history of statements; `GET /cases/:alertId/trace?audit=true` matches each query of a recommendation with that history (same id, same statement, success). In a live run all of a case's queries matched.
+- Every query carries its own id. Zetaris keeps a history of statements; `GET /cases/:alertId/trace?audit=true` matches each query of a recommendation with that history (same id, same statement, success). The document-on-record count is kept with the document number replaced by a marker, so for that one statement the check is that Zetaris ran the kept statement with a single quoted value in place of the marker (status `matched_redacted`); the number itself is not kept and so not compared. In a live run all of a case's queries matched.
 - `docs/QUERY_PLANS.md` holds the `EXPLAIN` plans of the key queries (`npm run explain`).
 - Our own append-only trace (`logs/trace-<run>.jsonl`) records the same ids, statements' hashes, row counts and latencies independently.
 

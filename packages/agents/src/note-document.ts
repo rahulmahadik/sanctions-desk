@@ -83,6 +83,7 @@ export async function checkNoteDocument(
       table: `${evidence.model.namespace}.${evidence.model.name}.customer_identifier`,
       sql: redacted,
       sql_hash: sha256Hex(redacted),
+      redacted: true,
       row_count: result.rows.length,
       row_hashes: [],
       masked_columns: [],

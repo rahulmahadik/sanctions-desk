@@ -254,6 +254,9 @@ describe("the note's document number on the customer record", () => {
     const note = evidence.screener.documentary.find((d) => d.field === "customer.notes");
     expect(note?.meetsStandard).toBe(true);
     expect(note?.documentCheck?.status).toBe("on_record");
+    // The kept statement is marked as redacted, so the audit against Zetaris's history compares it correctly.
+    const kept = evidence.queries.find((q) => q.sql.includes("<document number, sha256"));
+    expect(kept?.redacted).toBe(true);
   });
 
   it("fails closed when the count cannot be made: not verified, with a reason, so not documentary", async () => {

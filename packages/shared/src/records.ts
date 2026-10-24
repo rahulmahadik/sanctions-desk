@@ -112,6 +112,11 @@ export const QueryEvidenceSchema = z
     latency_ms: z.number().nonnegative().optional(),
     /** True when the answer came from the saved sample cache instead of a live query. */
     cache_hit: z.boolean().optional(),
+    /**
+     * True when `sql` is the statement with a value replaced by a marker (a document number, as
+     * `'<document number, sha256 …>'`); `sql_hash` is the hash of that kept form, not of what Zetaris ran.
+     */
+    redacted: z.literal(true).optional(),
   })
   .refine((q) => sha256Hex(q.sql) === q.sql_hash, { message: "sql_hash does not match sql", path: ["sql_hash"] });
 

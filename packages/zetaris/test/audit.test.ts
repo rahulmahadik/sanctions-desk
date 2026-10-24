@@ -54,6 +54,33 @@ describe("matchAudit", () => {
   });
 });
 
+describe("matchAudit on a statement kept with its document number replaced", () => {
+  const ran = "SELECT COUNT(*) AS n FROM t WHERE customer_id = 'CUST-1' AND id_number = 'ZP1234567'";
+  const kept =
+    "SELECT COUNT(*) AS n FROM t WHERE customer_id = 'CUST-1' AND id_number = '<document number, sha256 0123456789abcdef>'";
+  const lookup = { query_id: "doc", sql: kept, sql_hash: sha256Hex(kept), redacted: true };
+
+  it("matches it when everything but the number is the same, and says the number was not compared", () => {
+    const r = matchAudit([lookup], new Map([["doc", entry("doc", ran)]]));
+    expect(r).toMatchObject({ checked: 1, matched: 1, problems: 0 });
+    expect(r.findings[0]?.status).toBe("matched_redacted");
+  });
+
+  it("still reports a statement that differs anywhere else", () => {
+    const other = ran.replace("CUST-1", "CUST-2");
+    expect(matchAudit([lookup], new Map([["doc", entry("doc", other)]])).findings[0]?.status).toBe("statement_differs");
+    const injected = ran.replace("'ZP1234567'", "'ZP1' OR '1'='1'");
+    expect(matchAudit([lookup], new Map([["doc", entry("doc", injected)]])).findings[0]?.status).toBe(
+      "statement_differs",
+    );
+  });
+
+  it("does not treat a statement as redacted unless the record says so", () => {
+    const plain = { query_id: "doc", sql: kept, sql_hash: sha256Hex(kept) };
+    expect(matchAudit([plain], new Map([["doc", entry("doc", ran)]])).findings[0]?.status).toBe("statement_differs");
+  });
+});
+
 describe("auditToken", () => {
   it("prefers the role's own token, then the labelled fallback, else none", () => {
     expect(auditToken(testConfig({ ZETARIS_TOKEN_REVIEWER: "r", ZETARIS_API_KEY: "a" }))).toBe("r");

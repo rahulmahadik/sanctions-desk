@@ -19,9 +19,17 @@ export type AuditEntry = z.infer<typeof EntrySchema>;
 export interface AuditLookup {
   query_id: string;
   sql_hash: string;
+  /** The statement as kept. Needed only for a redacted one. */
+  sql?: string;
+  /** The kept statement has a value replaced by a marker, so its hash cannot equal the hash of what Zetaris ran. */
+  redacted?: boolean;
 }
 
-export type AuditStatus = "matched" | "statement_differs" | "failed_at_source" | "not_in_history";
+/**
+ * `matched_redacted`: the statement Zetaris ran is the kept one with each marker filled by a single quoted value,
+ * character for character elsewhere; the value itself (a document number) is not kept, so it is not compared.
+ */
+export type AuditStatus = "matched" | "matched_redacted" | "statement_differs" | "failed_at_source" | "not_in_history";
 
 export interface AuditFinding {
   query_id: string;
@@ -68,17 +76,28 @@ export async function fetchQueryHistory(
   return new Map(entries.data.map((e) => [e.id, e]));
 }
 
+const MARKER = /'<document number, sha256 [0-9a-f]+>'/g;
+const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Does the statement Zetaris ran equal the kept one, with each marker standing for one quoted value? */
+function sameButRedacted(kept: string, ran: string): boolean {
+  const parts = kept.split(MARKER).map(escapeRegExp);
+  if (parts.length < 2) return false;
+  return new RegExp(`^${parts.join("'[^']*'")}$`).test(ran);
+}
+
 /** Match our queries against the platform's history. */
 export function matchAudit(lookups: readonly AuditLookup[], history: ReadonlyMap<string, AuditEntry>): AuditSummary {
   const findings: AuditFinding[] = lookups.map((q) => {
     const entry = history.get(q.query_id);
     if (!entry) return { query_id: q.query_id, status: "not_in_history" };
     const base = { query_id: q.query_id, zetaris_status: entry.status, zetaris_time: entry.time };
-    if (sha256Hex(entry.sql) !== q.sql_hash) return { ...base, status: "statement_differs" };
+    const redactedMatch = q.redacted === true && q.sql !== undefined && sameButRedacted(q.sql, entry.sql);
+    if (!redactedMatch && sha256Hex(entry.sql) !== q.sql_hash) return { ...base, status: "statement_differs" };
     if (entry.status.toLowerCase() !== "success") return { ...base, status: "failed_at_source" };
-    return { ...base, status: "matched" };
+    return { ...base, status: redactedMatch ? "matched_redacted" : "matched" };
   });
-  const matched = findings.filter((f) => f.status === "matched").length;
+  const matched = findings.filter((f) => f.status === "matched" || f.status === "matched_redacted").length;
   return { available: true, checked: findings.length, matched, problems: findings.length - matched, findings };
 }
 
