@@ -188,6 +188,7 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
   return {
     ...base,
     got: res.decision ?? "ERROR",
+    ...(record ? { confidence: record.confidence } : {}),
     latency_s: round((performance.now() - started) / 1000),
     tokens_in: trace4?.cost.totals.tokens_in,
     tokens_out: trace4?.cost.totals.tokens_out,

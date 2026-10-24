@@ -14,6 +14,8 @@ export interface ScoredCase {
   acceptable: readonly string[];
   must_not: readonly string[];
   got: string;
+  /** The confidence the review gave its outcome (0 to 1), when one was recorded; used for calibration only. */
+  confidence?: number;
   latency_s?: number;
   tokens_in?: number;
   tokens_out?: number;

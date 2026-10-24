@@ -61,6 +61,10 @@ Problems met while building this, with what was done about each. Facts only; ver
 - **Not measured:** a run without Zetaris other than the unreachable-endpoint test, the policy guard switched off, the challenger alone, a "Nemotron alone" baseline, the Lightning-versus-Ultra study and a pinned-model run.
 - Everything in [docs/KNOWN_ISSUES.md](#known-issues), including the Zetaris column policy on identifier numbers that this local edition does not enforce, the payments cache lost on an engine restart, and the local model's empty answers to schema-constrained requests.
 
+## Exported run files
+
+- **The `results.json` hash in `run-meta.json` no longer matches in the 28 exported runs.** Each `run-meta.json` lists the SHA-256 of its files as exported. When the history was rewritten on 24 Oct 2026, the `commit` field inside every `results.json` was re-pointed to the rewritten commit and the listed hash was not updated. Nothing else in those files changed: `git show 20fcdde -- 'eval/runs/*/results.json'` shows one changed line per file, the `commit` field. The trace and receipt files are unchanged and still match their listed hashes; the recorded-runs pages check those two and every receipt signature at build time.
+
 ## Limits
 
 - **Limitation:** By default the cloud decision model receives structured personal fields from the case (name, date of birth, nationality); the desk never puts free text in a cloud prompt. The optional privacy mode sends tokens instead, and has been tested only on a small live sample.

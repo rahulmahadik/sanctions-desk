@@ -1,10 +1,13 @@
 /**
- * The "Nemotron alone" baseline: one Nemotron call per case, given the same evidence the full system reads and the
- * approved definitions, and nothing else. No safety guard, no first finding or comparison computed by code, no ownership
- * engine, no memory, no critic, no challenger, no policy guard. Whatever the model answers is the outcome.
+ * The "Nemotron alone" baseline: one Nemotron call per case, given the structured case facts the decision step reads
+ * (the same rows, never the free text: no customer note, payment reference or list remark) and the approved definitions,
+ * and nothing else. No safety guard, no screener, no first finding or comparison computed by code, no ownership engine,
+ * no memory, no critic, no challenger, no policy guard. Whatever the model answers is the outcome. The prompt goes
+ * through the same free-text check as the decision step before it is sent.
  *
- *   npm run exam:alone                      # the 70 cases
- *   npm run exam:alone -- --exam heldout    # the held-out set
+ *   npm run exam:alone                                  # the 70 cases
+ *   npm run exam:alone -- --exam heldout4               # a held-out set (heldout, heldout2, heldout3 or heldout4)
+ *   npm run exam:alone -- --exam heldout4 --run r1 --out logs/repeat   # a labelled repeat, written outside eval/results
  *   npm run exam:alone -- --limit 5 --dry-run
  *
  * The call is sent under the decision step's app identity (the one the cockpit binds for reasoning), so the same model
@@ -20,12 +23,21 @@ import {
   DecisionOutputSchema,
   gatherEvidence,
   gatherOwnership,
+  recordCloudPayload,
   renderDefinitions,
   renderKeys,
   type ScoredCase,
   summarise,
 } from "@sanctions-desk/agents";
-import { type ExamCaseRecord, HELDOUT_EXAM_FILE, loadExam, MAIN_EXAM_FILE } from "@sanctions-desk/data";
+import {
+  type ExamCaseRecord,
+  HELDOUT_EXAM_FILE,
+  HELDOUT2_EXAM_FILE,
+  HELDOUT3_EXAM_FILE,
+  HELDOUT4_EXAM_FILE,
+  loadExam,
+  MAIN_EXAM_FILE,
+} from "@sanctions-desk/data";
 import {
   buildGenerator,
   createTraceLogger,
@@ -47,7 +59,19 @@ const args = process.argv.slice(2);
 const flag = (n: string) => (args.includes(n) ? args[args.indexOf(n) + 1] : undefined);
 const examName = flag("--exam") ?? "exam";
 const limit = flag("--limit") ? Number(flag("--limit")) : undefined;
-const exam = loadExam(examName === "heldout" ? HELDOUT_EXAM_FILE : MAIN_EXAM_FILE);
+const EXAM_FILES: Record<string, string> = {
+  exam: MAIN_EXAM_FILE,
+  heldout: HELDOUT_EXAM_FILE,
+  heldout2: HELDOUT2_EXAM_FILE,
+  heldout3: HELDOUT3_EXAM_FILE,
+  heldout4: HELDOUT4_EXAM_FILE,
+};
+if (!EXAM_FILES[examName]) throw new Error("--exam must be exam, heldout, heldout2, heldout3 or heldout4");
+// --run labels a repeat (lower-case letters and digits); it goes into the run ids, the file name and the result.
+const runLabel = flag("--run");
+if (runLabel !== undefined && !/^[a-z0-9]+$/.test(runLabel))
+  throw new Error("--run must be lower-case letters and digits");
+const exam = loadExam(EXAM_FILES[examName] as string);
 const cases: ExamCaseRecord[] = exam.cases.slice(0, limit);
 if (args.includes("--dry-run")) {
   console.log(`${cases.length} cases (${examName}); nothing called`);
@@ -58,7 +82,7 @@ const config = forEvaluation(loadConfig());
 const policy = loadPolicyFile(config.policy.file);
 const zetaris = createZetarisClient({ config });
 const generator = buildGenerator(config);
-const prefix = examName === "heldout" ? "eval-heldout" : "eval";
+const prefix = `${examName === "exam" ? "eval" : `eval-${examName}`}${runLabel ? `-${runLabel}` : ""}`;
 const round = (n: number) => Math.round(n * 100) / 100;
 const sum = (xs: Array<number | undefined>) => xs.reduce<number>((t, x) => t + (x ?? 0), 0);
 
@@ -97,6 +121,7 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
   const started = performance.now();
   let calls: ModelUseInput[];
   let got: string;
+  let confidence: number | undefined;
   if (c.alert_id === null) {
     const asked = await askJson(deps, {
       agent: "decision",
@@ -132,7 +157,6 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
         "nationality",
         "residence_country",
         "risk_rating",
-        "notes",
       ]),
       payment: evidence.payment
         ? pick(evidence.payment, [
@@ -144,7 +168,6 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
             "counterparty_country",
             "beneficiary_bank_country",
             "intermediary_bank_country",
-            "payment_reference",
             "value_date",
           ])
         : undefined,
@@ -158,7 +181,6 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
         "primary_name",
         "listed_on",
         "sanctions_list",
-        "remarks",
       ]),
       list_alias: evidence.aliases.slice(0, 25).map((r) => pick(r, ["alias_name", "alias_type"])),
       list_dob: evidence.dobs.map((r) => pick(r, ["dob_value", "dob_precision"])),
@@ -169,25 +191,30 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
         pick(r, ["ownership_id", "owned_party_id", "owner_party_id", "owner_name", "ownership_pct"]),
       ),
     };
+    const prompt = [
+      "TASK: decision",
+      `<definitions>${renderDefinitions(evidence)}</definitions>`,
+      `<keys>${renderKeys(evidence)}</keys>`,
+      `<evidence>${JSON.stringify(payload)}</evidence>`,
+      "Give your recommendation as the JSON object described.",
+    ].join("\n");
+    // The same free-text check as the decision step: the call is not made if a note, reference or remark is in it.
+    recordCloudPayload(deps, evidence, "decision", prompt);
     const asked = await askJson(deps, {
       agent: "decision",
       system: SYSTEM,
-      prompt: [
-        "TASK: decision",
-        `<definitions>${renderDefinitions(evidence)}</definitions>`,
-        `<keys>${renderKeys(evidence)}</keys>`,
-        `<evidence>${JSON.stringify(payload)}</evidence>`,
-        "Give your recommendation as the JSON object described.",
-      ].join("\n"),
+      prompt,
       schema: DecisionOutputSchema,
       jsonSchema: DECISION_JSON_SCHEMA,
     });
     calls = asked.calls;
     got = asked.value.decision;
+    confidence = asked.value.confidence;
   }
   return {
     ...base,
     got,
+    ...(confidence !== undefined ? { confidence } : {}),
     latency_s: round((performance.now() - started) / 1000),
     tokens_in: sum(calls.map((m) => m.tokens_in)),
     tokens_out: sum(calls.map((m) => m.tokens_out)),
@@ -238,15 +265,16 @@ for (const c of cases) {
   }
 }
 const metrics = summarise(outcomes);
-const dir = resolveProjectPath("eval/results");
+// --out <dir> writes the result somewhere else (for example a git-ignored folder for a labelled study).
+const dir = resolveProjectPath(flag("--out") ?? "eval/results");
 mkdirSync(dir, { recursive: true });
 const file = join(
   dir,
-  `${startedAt.replace(/[:.]/g, "-")}-${examName === "heldout" ? "heldout-" : ""}nemotron_alone.json`,
+  `${startedAt.replace(/[:.]/g, "-")}-${examName === "exam" ? "" : `${examName}-`}${runLabel ? `${runLabel}-` : ""}nemotron_alone.json`,
 );
 writeFileSync(
   file,
-  `${JSON.stringify({ variant: "nemotron_alone", ...(examName === "heldout" ? { exam: "heldout" } : {}), features: { cockpit_binds: binds(), what: "one Nemotron call per case; no guard, rules, engines, memory, critic, challenger or policy guard" }, selection: { limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: { decision: policy.models.decision.model }, cases: outcomes, metrics }, null, 2)}\n`,
+  `${JSON.stringify({ variant: "nemotron_alone", ...(examName === "exam" ? {} : { exam: examName }), ...(runLabel ? { run: runLabel } : {}), features: { cockpit_binds: binds(), what: "one Nemotron call per case on the structured case facts (no free text); no guard, screener, rules, engines, memory, critic, challenger or policy guard" }, selection: { limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: { decision: policy.models.decision.model }, cases: outcomes, metrics }, null, 2)}\n`,
 );
 console.log(
   JSON.stringify({

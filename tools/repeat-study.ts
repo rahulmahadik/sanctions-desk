@@ -1,0 +1,217 @@
+/**
+ * Small study, 12 cases x 3 runs, not part of the recorded evaluation: held-out v4 run three times by the full system
+ * (privacy mode off) and three times by the "Nemotron alone" baseline (one cloud Ultra call per case on the structured
+ * case facts). Per system: wrong closes, clears, acceptable outcomes, escalated share, and how often the three runs
+ * agree on a case. Calibration: the Brier score of the confidence given to the chosen outcome, one-vs-rest (1 when the
+ * chosen outcome is acceptable for the case, else 0), for these runs and the other labelled runs of 24 Oct 2026 that
+ * recorded a confidence; baselines without a real confidence are marked n/a.
+ *
+ *   npm run study:repeat              # writes eval/repeat-study.json and the block in docs/NEMOTRON.md
+ *   npm run study:repeat -- --check
+ *
+ * It reads result files in logs/repeat, logs/privacy-test and logs/model-choice and, for runs whose result files carry
+ * no confidence, the sealed records in logs/records (all kept on this machine). Without them (a fresh clone) the
+ * committed eval/repeat-study.json is used as it is.
+ */
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { resolveProjectPath } from "@sanctions-desk/shared";
+import { formatMarkdown } from "./lib/format-markdown.js";
+
+interface Case {
+  case_id: string;
+  expected: string;
+  acceptable: string[];
+  must_not: string[];
+  got: string;
+  confidence?: number;
+}
+interface Result {
+  variant: string;
+  exam?: string;
+  system?: string;
+  run?: string;
+  cases: Case[];
+}
+interface RunSummary {
+  run: string;
+  wrong_closes: number;
+  risk_cases: number;
+  clears_made: number;
+  clear_cases: number;
+  acceptable: number;
+  cases: number;
+  escalated_share: number;
+  errors: number;
+}
+interface SystemSummary {
+  system: string;
+  runs: RunSummary[];
+  /** Cases on which all runs gave the same outcome. */
+  all_runs_agree: number;
+  cases: number;
+}
+interface Calibration {
+  label: string;
+  cases_with_confidence: number;
+  brier: number | null;
+}
+
+const check = process.argv.includes("--check");
+const outFile = resolveProjectPath("eval/repeat-study.json");
+const logs = resolveProjectPath("logs");
+const read = (dir: string, match: (f: string) => boolean): Array<Result & { file: string }> => {
+  const d = join(logs, dir);
+  if (!existsSync(d)) return [];
+  return readdirSync(d)
+    .filter((f) => f.endsWith(".json") && match(f))
+    .sort()
+    .map((f) => ({ file: f, ...(JSON.parse(readFileSync(join(d, f), "utf8")) as Result) }))
+    .filter((r) => Array.isArray(r.cases));
+};
+const ok = (c: Case) => c.got === c.expected || c.acceptable.includes(c.got);
+const round3 = (n: number) => Math.round(n * 1000) / 1000;
+
+function runSummary(run: string, r: Result): RunSummary {
+  const risk = r.cases.filter((c) => c.must_not.includes("CLOSE_FALSE_POSITIVE"));
+  const clear = r.cases.filter((c) => c.expected === "CLOSE_FALSE_POSITIVE");
+  return {
+    run,
+    wrong_closes: risk.filter((c) => c.got === "CLOSE_FALSE_POSITIVE").length,
+    risk_cases: risk.length,
+    clears_made: clear.filter((c) => c.got === "CLOSE_FALSE_POSITIVE").length,
+    clear_cases: clear.length,
+    acceptable: r.cases.filter(ok).length,
+    cases: r.cases.length,
+    escalated_share: round3(r.cases.filter((c) => c.got === "ESCALATE_L2").length / Math.max(r.cases.length, 1)),
+    errors: r.cases.filter((c) => c.got === "ERROR").length,
+  };
+}
+
+function systemSummary(system: string, runs: Array<[string, Result]>): SystemSummary {
+  const ids = [...new Set(runs.flatMap(([, r]) => r.cases.map((c) => c.case_id)))];
+  const agree = ids.filter((id) => {
+    const outs = runs.map(([, r]) => r.cases.find((c) => c.case_id === id)?.got);
+    return outs.every((o) => o !== undefined && o === outs[0]);
+  }).length;
+  return { system, runs: runs.map(([name, r]) => runSummary(name, r)), all_runs_agree: agree, cases: ids.length };
+}
+
+/** The confidence of each case: from the result file, or from the case's sealed record in logs/records. */
+function withConfidence(r: Result, runPrefix: string): Case[] {
+  return r.cases.map((c) => {
+    if (c.confidence !== undefined) return c;
+    const file = join(logs, "records", `rec-${runPrefix}-${r.variant}-${c.case_id}.json`);
+    if (!existsSync(file)) return c;
+    const rec = JSON.parse(readFileSync(file, "utf8")) as { confidence?: number };
+    return rec.confidence === undefined ? c : { ...c, confidence: rec.confidence };
+  });
+}
+
+function brier(label: string, cases: Case[]): Calibration {
+  const scored = cases.filter((c) => typeof c.confidence === "number" && c.got !== "ERROR");
+  if (scored.length === 0) return { label, cases_with_confidence: 0, brier: null };
+  const b = scored.reduce((t, c) => t + ((c.confidence as number) - (ok(c) ? 1 : 0)) ** 2, 0) / scored.length;
+  return { label, cases_with_confidence: scored.length, brier: round3(b) };
+}
+
+const full = read("repeat", (f) => /-heldout4-repr\d-routed\.json$/.test(f));
+const alone = read("repeat", (f) => /-heldout4-r\d-nemotron_alone\.json$/.test(f));
+let study:
+  | {
+      label: string;
+      note: string;
+      systems: SystemSummary[];
+      calibration: Calibration[];
+      brier_definition: string;
+    }
+  | undefined;
+if (full.length > 0 && alone.length > 0) {
+  const runName = (r: Result & { file: string }) => r.system?.replace(/^rep/, "") ?? r.run ?? r.file;
+  const fullRuns = full.map(
+    (r) => [runName(r), { ...r, cases: withConfidence(r, `eval-heldout4-${r.system}`) }] as [string, Result],
+  );
+  const aloneRuns = alone.map((r) => [r.run ?? r.file, r] as [string, Result]);
+  const labelled: Calibration[] = [];
+  for (const [dir, system, label] of [
+    ["privacy-test", "privoff", "Full system, privacy mode off (24 Oct, held-out v4 and 8 exam cases, one run)"],
+    ["privacy-test", "privon", "Full system, privacy mode on (24 Oct, same 20 cases, one run)"],
+    ["model-choice", "choice", "Reasoning on Lightning (24 Oct, same 20 cases, one run)"],
+  ] as const) {
+    const results = read(dir, (f) => f.includes(`-${system}-`));
+    const cases = results.flatMap((r) => withConfidence(r, `${r.exam ? `eval-${r.exam}` : "eval"}-${r.system}`));
+    if (cases.length > 0) labelled.push(brier(label, cases));
+  }
+  study = {
+    label: "Small study, 12 cases x 3 runs, not part of the recorded evaluation",
+    note: "Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one cloud Ultra call per case on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), 24-25 Oct 2026, after a warm-up and without restarting Nightshift.",
+    systems: [systemSummary("Full system", fullRuns), systemSummary("Nemotron alone", aloneRuns)],
+    calibration: [
+      brier(
+        "Full system (3 runs above)",
+        fullRuns.flatMap(([, r]) => r.cases),
+      ),
+      brier(
+        "Nemotron alone (3 runs above)",
+        aloneRuns.flatMap(([, r]) => r.cases),
+      ),
+      ...labelled,
+      {
+        label: "Deterministic rules, name match, escalate everything (no real confidence)",
+        cases_with_confidence: 0,
+        brier: null,
+      },
+    ],
+    brier_definition:
+      "Mean of (confidence - y) squared over cases, where y is 1 when the chosen outcome is acceptable for the case (its expected or an acceptable outcome) and 0 otherwise. 0 is perfect; always answering with confidence 0.5 scores 0.25. Lower is better.",
+  };
+} else if (existsSync(outFile)) {
+  study = JSON.parse(readFileSync(outFile, "utf8"));
+}
+if (!study) throw new Error("no repeated runs found: run them first (see the header)");
+
+const table = [
+  `**${study.label}.** ${study.note}`,
+  "",
+  "| System | Run | Risk cases wrongly closed | Clears made | Acceptable outcomes | Escalated share | Errors |",
+  "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
+  ...study.systems.flatMap((s) =>
+    s.runs.map(
+      (r) =>
+        `| ${s.system} | ${r.run} | ${r.wrong_closes} of ${r.risk_cases} | ${r.clears_made} of ${r.clear_cases} | ${r.acceptable} of ${r.cases} | ${Math.round(r.escalated_share * 100)}% | ${r.errors} |`,
+    ),
+  ),
+  "",
+  `Same outcome in all ${study.systems[0]?.runs.length ?? 3} runs: ${study.systems.map((s) => `${s.system} ${s.all_runs_agree} of ${s.cases} cases`).join("; ")}.`,
+  "",
+  "| Calibration (Brier score, lower is better) | Cases with a confidence | Brier score |",
+  "| --- | ---: | ---: |",
+  ...study.calibration.map(
+    (c) => `| ${c.label} | ${c.cases_with_confidence} | ${c.brier === null ? "n/a" : c.brier} |`,
+  ),
+  "",
+  `Brier score: ${study.brier_definition}`,
+].join("\n");
+
+const json = `${JSON.stringify(study, null, 2)}\n`;
+let changed = !existsSync(outFile) || readFileSync(outFile, "utf8") !== json;
+if (changed && !check) writeFileSync(outFile, json);
+const docFile = resolveProjectPath("docs/NEMOTRON.md");
+if (existsSync(docFile)) {
+  const doc = readFileSync(docFile, "utf8");
+  const re = /(<!-- repeat-study:start -->)[\s\S]*?(<!-- repeat-study:end -->)/;
+  if (re.test(doc)) {
+    const next = formatMarkdown(doc.replace(re, `$1\n${table}\n$2`), docFile);
+    if (next !== doc) {
+      changed = true;
+      if (!check) writeFileSync(docFile, next);
+    }
+  }
+}
+if (check && changed) {
+  console.error("the repeat study summary is out of date: run npm run study:repeat");
+  process.exit(1);
+}
+console.log(
+  `${check ? "checked" : "wrote"} the repeat study (${study.systems.map((s) => `${s.system}: ${s.runs.length} runs`).join(", ")})`,
+);

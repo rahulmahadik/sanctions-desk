@@ -69,6 +69,7 @@
     "charts": "tsx tools/charts.ts",
     "receipt:stats": "tsx tools/receipt-stats.ts",
     "study:model-choice": "tsx tools/model-choice-study.ts",
+    "study:repeat": "tsx tools/repeat-study.ts",
     "zetaris:cache-check": "tsx tools/zetaris-cache-check.ts",
     "lab:pinning": "tsx tools/pinning-lab.ts",
     "zetaris:queries": "tsx tools/zetaris-queries.ts",

@@ -372,3 +372,67 @@ const firstRecs = FIRST_RUNS.map(([run, label]) => {
     ),
   );
 }
+
+// ---- 6. Full system and Nemotron alone, three runs each on held-out v4 (a labelled small study) -------------------
+
+if (existsSync(resolveProjectPath("eval/repeat-study.json"))) {
+  const study = JSON.parse(readFileSync(resolveProjectPath("eval/repeat-study.json"), "utf8")) as {
+    systems: Array<{
+      system: string;
+      all_runs_agree: number;
+      cases: number;
+      runs: Array<{ run: string; wrong_closes: number; risk_cases: number; acceptable: number; cases: number }>;
+    }>;
+    calibration: Array<{ label: string; brier: number | null }>;
+  };
+  const METRICS: Array<[string, (r: { wrong_closes: number; acceptable: number }) => number, string]> = [
+    ["Risk cases wrongly closed", (r) => r.wrong_closes, C.name],
+    ["Acceptable outcomes", (r) => r.acceptable, C.full],
+  ];
+  const cases = study.systems[0]?.cases ?? 12;
+  const top = 330;
+  const bottom = 820;
+  const left = 170;
+  const groupW = (W - left - 160) / study.systems.length;
+  const runs = Math.max(...study.systems.map((s) => s.runs.length));
+  const barW = (groupW - 120) / (runs * METRICS.length);
+  const y = (v: number) => bottom - (v / cases) * (bottom - top);
+  let body = legend(
+    left,
+    250,
+    METRICS.map(([label, , color]) => [label, color] as [string, string]),
+  );
+  for (let v = 0; v <= cases; v += 3) {
+    body += `<line x1="${left}" x2="${W - 160}" y1="${y(v)}" y2="${y(v)}" stroke="${C.grid}" stroke-width="2"/>${text(left - 24, y(v) + 11, String(v), 30, { anchor: "end", fill: C.muted })}`;
+  }
+  study.systems.forEach((s, gi) => {
+    const gx = left + gi * groupW + 60;
+    s.runs.forEach((r, ri) => {
+      METRICS.forEach(([, get, color], mi) => {
+        const v = get(r);
+        const x = gx + (ri * METRICS.length + mi) * barW;
+        body += `<rect x="${x + 4}" y="${y(v)}" width="${barW - 8}" height="${Math.max(bottom - y(v), 3)}" fill="${color}" rx="3"/>`;
+        body += text(x + barW / 2, y(v) - 12, String(v), 28, { anchor: "middle", weight: 700 });
+      });
+      body += text(gx + (ri * METRICS.length + 1) * barW, bottom + 40, r.run, 26, { anchor: "middle", fill: C.muted });
+    });
+    const brier = study.calibration.find((c) => c.label.startsWith(s.system))?.brier;
+    body += text(gx + (groupW - 120) / 2, bottom + 90, s.system, 36, { anchor: "middle", weight: 600 });
+    body += text(
+      gx + (groupW - 120) / 2,
+      bottom + 130,
+      `same outcome in all runs: ${s.all_runs_agree} of ${s.cases} · Brier ${brier ?? "n/a"}`,
+      28,
+      { anchor: "middle", fill: C.muted },
+    );
+  });
+  save(
+    "repeat-study",
+    page(
+      "Held-out v4, three runs each: full system and Nemotron alone",
+      `Small study, ${cases} cases x 3 runs, not part of the recorded evaluation. ${study.systems[0]?.runs[0]?.risk_cases ?? 6} risk cases per run.`,
+      body,
+      "eval/repeat-study.json (npm run study:repeat)",
+    ),
+  );
+}
