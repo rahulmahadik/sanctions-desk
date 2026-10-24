@@ -1,5 +1,5 @@
 /**
- * Draw the four evidence charts from the committed files only, as SVG (1920x1080, light background, large text), and a
+ * Draw the evidence charts from the committed files only, as SVG (1920x1080, light background, large text), and a
  * PNG of each through headless Chrome. Nothing is typed in: every number is read from eval/results, eval/runs and
  * eval/critic-mutation.json, and the receipts are verified with the same code as `npm run evidence:verify`.
  *
@@ -319,6 +319,56 @@ const firstRecs = FIRST_RUNS.map(([run, label]) => {
       "Headline run of the 70-case exam, 23 Oct 2026, from the signed receipts.",
       body,
       "eval/runs/routed-20261023T133311Z/receipts.jsonl.gz, all eval/runs/*/receipts.jsonl.gz",
+    ),
+  );
+}
+
+// ---- 5. Latency of each model call, per step and model (recorded runs) -------------------------------------------
+
+{
+  const stats = JSON.parse(readFileSync(resolveProjectPath("eval/receipt-stats.json"), "utf8")) as {
+    groups: Array<{
+      id: string;
+      rows: Array<{ step: string; model: string; calls: number; latency_s: { median: number; p95: number } }>;
+    }>;
+  };
+  const rows = (stats.groups.find((g) => g.id === "recorded")?.rows ?? []).filter((r) => !/Ollama/.test(r.model));
+  const maxV = Math.ceil(Math.max(...rows.map((r) => r.latency_s.p95)) / 10) * 10;
+  const left = 560;
+  const right = W - 640;
+  const x = (v: number) => left + (v / maxV) * (right - left);
+  const rowH = Math.min(84, 560 / Math.max(rows.length, 1));
+  let body = legend(left, 245, [
+    ["Nemotron 3.5 Lightning 30B (local)", C.local],
+    ["Nemotron 3 Ultra 550B (cloud)", C.cloud],
+  ]);
+  for (let v = 0; v <= maxV; v += 10) {
+    body += `<line x1="${x(v)}" x2="${x(v)}" y1="290" y2="${300 + rows.length * rowH}" stroke="${C.grid}" stroke-width="2"/>${text(x(v), 330 + rows.length * rowH, `${v} s`, 26, { anchor: "middle", fill: C.muted })}`;
+  }
+  rows.forEach((r, i) => {
+    const yy = 300 + i * rowH;
+    const color = /Ultra/.test(r.model) ? C.cloud : C.local;
+    body += text(left - 24, yy + rowH / 2 + 10, `${r.step} · ${/Ultra/.test(r.model) ? "Ultra" : "Lightning"}`, 32, {
+      anchor: "end",
+      weight: 600,
+    });
+    body += `<rect x="${left}" y="${yy + 12}" width="${Math.max(x(r.latency_s.median) - left, 3)}" height="${rowH - 30}" fill="${color}" rx="3"/>`;
+    body += `<line x1="${x(r.latency_s.p95)}" x2="${x(r.latency_s.p95)}" y1="${yy + 6}" y2="${yy + rowH - 12}" stroke="${C.ink}" stroke-width="4"/>`;
+    body += text(
+      Math.max(x(r.latency_s.p95), x(r.latency_s.median)) + 18,
+      yy + rowH / 2 + 8,
+      `${r.latency_s.median} s median, ${r.latency_s.p95} s p95 · ${r.calls} calls`,
+      26,
+      { fill: C.muted },
+    );
+  });
+  save(
+    "model-latency",
+    page(
+      "Time per model call, by step and model",
+      "Recorded runs: bars are the median, the black line is the 95th percentile. Every call here has a verified receipt.",
+      body,
+      "eval/receipt-stats.json (npm run receipt:stats, from eval/runs/*/trace.jsonl.gz and receipts.jsonl.gz)",
     ),
   );
 }

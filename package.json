@@ -67,6 +67,8 @@
     "readme:trace": "tsx tools/real-trace.ts",
     "examples:sample": "tsx tools/sample-outputs.ts",
     "charts": "tsx tools/charts.ts",
+    "receipt:stats": "tsx tools/receipt-stats.ts",
+    "study:model-choice": "tsx tools/model-choice-study.ts",
     "zetaris:cache-check": "tsx tools/zetaris-cache-check.ts",
     "lab:pinning": "tsx tools/pinning-lab.ts",
     "zetaris:queries": "tsx tools/zetaris-queries.ts",
