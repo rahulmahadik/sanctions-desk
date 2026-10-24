@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { fetchReceiptCheck } from "../lib/api";
 import { label, modelName, money, seconds, shortHash } from "../lib/format";
+import { agentLabel } from "../lib/graph";
 import type { ReceiptCheck, RoutingSplit, TraceView } from "../lib/types";
+
+/** The step a ledger row belongs to. Every row is a model call, so one under the policy guard's name is the safety guard's. */
+const stepName = (agent: string): string => agentLabel(agent, "model_answer");
 
 const RECEIPT_TEXT: Record<ReceiptCheck["status"], string> = {
   valid_pinned: "signature valid, and the signing key is the one pinned in the configuration",
@@ -196,7 +200,7 @@ export function RoutingPanel({ trace, split }: { trace: TraceView; split?: Routi
             {cost.models.map((m, i) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: a step can appear more than once
               <tr key={i}>
-                <td>{label(m.agent)}</td>
+                <td>{stepName(m.agent)}</td>
                 <td>{m.model_requested}</td>
                 <td>
                   {modelName(m.model_routed)} <span className="muted">({m.model_routed})</span>

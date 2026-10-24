@@ -1,8 +1,18 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { DECISION_LABEL, MASK, money, percent, REASON_LENGTH, seconds, shortHash, show } from "../lib/format";
-import { graphAt } from "../lib/graph";
+import {
+  DECISION_LABEL,
+  MASK,
+  money,
+  percent,
+  REASON_LENGTH,
+  roleLabel,
+  seconds,
+  shortHash,
+  show,
+} from "../lib/format";
+import { agentLabel, graphAt, stepOf } from "../lib/graph";
 import { EVENTS, ev } from "./fixtures";
 
 describe("graphAt", () => {
@@ -54,6 +64,35 @@ describe("graphAt", () => {
     const view = graphAt([ev("evidence", "x", { status: "error" }), ev("ownership", "x", { status: "skipped" })]);
     expect(view.steps.find((s) => s.id === "evidence")?.state).toBe("error");
     expect(view.steps.find((s) => s.id === "ownership")?.state).toBe("skipped");
+  });
+
+  it("shows the safety guard's events on their own step, and keeps the rule step as the policy guard", () => {
+    const model = "local-runtime/nemotron-3.5-lightning-30b-a3b";
+    const view = graphAt([
+      ev("policy_guard", "model_answer", { model_used: model, route_kind: "local" }),
+      ev("policy_guard", "screen_inbound", { output_summary: "no instruction-like text" }),
+      ev("policy_guard", "apply_policy", { output_summary: "ESCALATE_L2 stands" }),
+      ev("system", "run_completed"),
+    ]);
+    const step = (id: string) => view.steps.find((s) => s.id === id);
+    expect(step("safety_guard")).toMatchObject({ events: 2, model, lastSummary: "no instruction-like text" });
+    expect(step("policy_guard")).toMatchObject({ events: 1, lastSummary: "ESCALATE_L2 stands" });
+    expect(step("policy_guard")?.model).toBeUndefined();
+    expect(stepOf("policy_guard", "screen_outbound")).toBe("safety_guard");
+    expect(agentLabel("policy_guard", "screen_inbound")).toBe("safety guard");
+    expect(agentLabel("policy_guard", "apply_policy")).toBe("policy guard");
+    expect(agentLabel("critic", "judge")).toBe("critic");
+  });
+});
+
+describe("role names", () => {
+  it("are the ones people read, with the ids left to the API and the record", () => {
+    expect(roleLabel("analyst")).toBe("Analyst (L1)");
+    expect(roleLabel("approver")).toBe("Approver (L2 senior reviewer)");
+    expect(roleLabel("policy_admin")).toBe("Policy admin");
+    expect(roleLabel("viewer")).toBe("Viewer");
+    expect(roleLabel("some_other")).toBe("some other");
+    expect(roleLabel(undefined)).toBe("");
   });
 });
 

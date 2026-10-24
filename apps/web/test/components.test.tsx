@@ -16,10 +16,23 @@ import { RunGraph, stoppedSteps } from "../components/RunGraph";
 import { parseSpan, SignalsPanel, signalStatus } from "../components/Signals";
 import { UserSwitcher } from "../components/UserSwitcher";
 import { graphAt } from "../lib/graph";
-import type { ExamAnswer, QueueAlert } from "../lib/types";
-import { ANSWER, EVENTS, EVIDENCE, HUMAN, ME_ANALYST, ME_APPROVER, ME_VIEWER, RECORD, SPLIT, TRACE } from "./fixtures";
+import type { ExamAnswer, QueueAlert, TraceView } from "../lib/types";
+import {
+  ANSWER,
+  EVENTS,
+  EVIDENCE,
+  ev,
+  HUMAN,
+  ME_ANALYST,
+  ME_APPROVER,
+  ME_VIEWER,
+  RECORD,
+  SPLIT,
+  TRACE,
+} from "./fixtures";
 
 vi.mock("../lib/api", () => ({
+  API_URL: "http://api.test",
   fetchQueue: vi.fn(),
   fetchExam: vi.fn(),
   fetchGovernance: vi.fn(),
@@ -62,10 +75,23 @@ beforeEach(() => {
   vi.mocked(api.fetchPolicy).mockRejectedValue(new api.ApiError("not needed here", 404));
 });
 
+/** The safety guard's model call and verdict, then the rule step, as the trace logs them: all under policy_guard. */
+const GUARD_EVENTS = [
+  ev("system", "run_started"),
+  ev("policy_guard", "model_answer", {
+    model_used: "local-runtime/nemotron-3.5-lightning-30b-a3b",
+    route_kind: "local",
+    receipt: { receipt_id: "rcpt_guard_1" },
+  }),
+  ev("policy_guard", "screen_inbound", { output_summary: "no instruction-like text" }),
+  ev("policy_guard", "apply_policy", { output_summary: "ESCALATE_L2 stands" }),
+  ev("system", "run_completed"),
+];
+
 describe("RunGraph", () => {
   it("draws every step, the critic round count and where the models ran", () => {
     render(<RunGraph view={graphAt(EVENTS)} />);
-    expect(screen.getAllByRole("listitem")).toHaveLength(11);
+    expect(screen.getAllByRole("listitem")).toHaveLength(12);
     expect(screen.getByTestId("node-decision").textContent).toContain("1 retry");
     expect(screen.getByTestId("node-decision").textContent).toContain("local");
     expect(screen.getByTestId("critic-rounds").textContent).toContain("2 of 3");
@@ -92,6 +118,18 @@ describe("RunGraph", () => {
   it("marks the working step with a state the styles can show without motion", () => {
     render(<RunGraph view={graphAt(EVENTS, 4)} />);
     expect(screen.getByTestId("node-matching").getAttribute("data-state")).toBe("running");
+  });
+
+  it("puts the safety guard's model call on the Safety guard node and leaves the Policy guard as the rule step", () => {
+    render(<RunGraph view={graphAt(GUARD_EVENTS)} />);
+    const safety = screen.getByTestId("node-safety_guard");
+    expect(safety.textContent).toContain("Safety guard");
+    expect(safety.textContent).toContain("local Lightning 30B");
+    expect(screen.getByTestId("receipt-link-safety_guard").textContent).toContain("rcpt_guard_1");
+    const policy = screen.getByTestId("node-policy_guard");
+    expect(policy.textContent).toContain("Policy guard");
+    expect(policy.textContent).toContain("done");
+    expect(policy.textContent).not.toContain("routed");
   });
 });
 
@@ -203,6 +241,15 @@ describe("RoutingPanel", () => {
   it("says so when no model was called", () => {
     render(<RoutingPanel trace={{ ...TRACE, cost: { ...TRACE.cost, models: [] } }} />);
     expect(screen.getByText(/No model was called/)).toBeTruthy();
+  });
+
+  it("names a model call logged under the policy guard as the safety guard's", () => {
+    const first = TRACE.cost.models[0] as TraceView["cost"]["models"][number];
+    const guard = { ...first, agent: "policy_guard", model_requested: "meterless/fast", receipt_id: "rcpt_guard_1" };
+    render(<RoutingPanel trace={{ ...TRACE, cost: { ...TRACE.cost, models: [guard, first] } }} />);
+    const steps = screen.getAllByRole("row").map((r) => r.querySelector("td")?.textContent);
+    expect(steps).toContain("safety guard");
+    expect(steps).not.toContain("policy guard");
   });
 });
 
@@ -410,6 +457,18 @@ describe("Replay", () => {
     expect(screen.getByTestId("replay-current").textContent).toContain("matching");
     fireEvent.change(slider, { target: { value: "0" } });
     expect(screen.getByTestId("replay-current").textContent).toBe("Before the run started");
+  });
+
+  it("names the safety guard's events as such in the event list and the line shown, and the rule step as the policy guard", () => {
+    render(<Replay events={GUARD_EVENTS} />);
+    const list = screen.getByLabelText("Recorded events").textContent ?? "";
+    expect(list).toContain("safety_guard/model_answer");
+    expect(list).toContain("safety_guard/screen_inbound");
+    expect(list).toContain("policy_guard/apply_policy");
+    fireEvent.change(screen.getByLabelText(/Event 5 of 5/), { target: { value: "3" } });
+    expect(screen.getByTestId("replay-current").textContent).toContain("safety guard · screen inbound");
+    fireEvent.change(screen.getByLabelText(/Event 3 of 5/), { target: { value: "4" } });
+    expect(screen.getByTestId("replay-current").textContent).toContain("policy guard · apply policy");
   });
 });
 
@@ -771,9 +830,9 @@ describe("UserSwitcher", () => {
         .map((o) => o.textContent),
     ).toEqual([
       "Visitor (read only)",
-      "analyst_demo — analyst",
-      "approver_demo — approver (sanctions officer)",
-      "admin_demo — policy admin",
+      "analyst_demo — Analyst (L1)",
+      "approver_demo — Approver (L2 senior reviewer)",
+      "admin_demo — Policy admin",
     ]);
     expect(screen.getByText("Demo user")).toBeTruthy();
   });
@@ -826,6 +885,19 @@ describe("DecisionPanel", () => {
     expect(await screen.findByText(/Decided by a person/)).toBeTruthy();
     expect(screen.getByText("Closure note")).toBeTruthy();
     expect(screen.getByText(/hash-sealed/)).toBeTruthy();
+    // The person who decided is shown with the role name people read, not the role id.
+    expect(screen.getByText("Analyst (L1)")).toBeTruthy();
+    expect(screen.queryByText(/\(analyst\)/)).toBeNull();
+  });
+
+  it("names the role that cannot decide as people read it", async () => {
+    vi.mocked(api.fetchMe).mockResolvedValue({
+      ...ME_VIEWER,
+      user: { id: "admin_demo", role: "policy_admin", demo: true },
+    });
+    vi.mocked(api.fetchHuman).mockResolvedValue(HUMAN.awaiting);
+    render(<DecisionPanel alertId="ALR-0001" />);
+    expect(await screen.findByText("The Policy admin role cannot record decisions.")).toBeTruthy();
   });
 
   it("stops an analyst from overriding towards a less cautious outcome", async () => {

@@ -2,15 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { fetchMe } from "../lib/api";
+import { roleLabel } from "../lib/format";
 import { getToken, SESSION_EVENT, setDemoUser, setToken } from "../lib/session";
 import type { MeView } from "../lib/types";
-
-const ROLE_LABEL: Record<string, string> = {
-  analyst: "analyst",
-  approver: "approver (sanctions officer)",
-  policy_admin: "policy admin",
-  viewer: "viewer (read only)",
-};
 
 /**
  * Who you are. In sample mode this is a labelled demo-user switcher, so a visitor can try the whole decision flow
@@ -73,7 +67,7 @@ export function UserSwitcher() {
             <option value="">Visitor (read only)</option>
             {me.demo_users.map((u) => (
               <option key={u.id} value={u.id}>
-                {u.id} — {ROLE_LABEL[u.role] ?? u.role}
+                {u.id} — {roleLabel(u.role)}
               </option>
             ))}
           </select>
@@ -83,7 +77,7 @@ export function UserSwitcher() {
   }
   return (
     <div className="user-switcher">
-      Signed in as <strong>{me.user.id}</strong> <span className="muted">({ROLE_LABEL[me.user.role]})</span>{" "}
+      Signed in as <strong>{me.user.id}</strong> <span className="muted">({roleLabel(me.user.role)})</span>{" "}
       <button type="button" className="secondary" onClick={() => setToken(null)}>
         Sign out
       </button>

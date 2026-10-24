@@ -10,7 +10,7 @@ import {
   postReopen,
   postSecondApproval,
 } from "../lib/api";
-import { DECISION_ICON, DECISION_LABEL, DECISION_TONE, REASON_LENGTH, shortHash } from "../lib/format";
+import { DECISION_ICON, DECISION_LABEL, DECISION_TONE, REASON_LENGTH, roleLabel, shortHash } from "../lib/format";
 import { SESSION_EVENT } from "../lib/session";
 import type { ActionCheck, ActionRecordView, Decision, HumanActionView, HumanView, MeView } from "../lib/types";
 
@@ -64,7 +64,7 @@ export function decideBlocker(
   reasonOk: boolean,
 ): string | undefined {
   if (!me || me.user.role === "viewer") return "Choose a demo user (or sign in) to record a decision.";
-  if (!me.permissions.decide) return `A ${me.user.role.replace("_", " ")} cannot record decisions.`;
+  if (!me.permissions.decide) return `The ${roleLabel(me.user.role)} role cannot record decisions.`;
   if (action === "override" && CAUTION[outcome] < CAUTION[rec] && !me.permissions.override_towards_less_caution)
     return "Only an approver can override towards a less cautious outcome.";
   if (action === "override" && outcome === rec) return "An override must choose a different outcome.";
@@ -123,8 +123,8 @@ function ActionsTaken({ view }: { view: HumanView }) {
     <ol className="events" aria-label="What people did">
       {view.actions_taken.map((a) => (
         <li key={`${a.actor}-${a.at}`}>
-          <strong>{a.actor}</strong> ({a.role?.replace("_", " ")}) {ACTION_TEXT[a.action]}{" "}
-          {a.outcome ? DECISION_LABEL[a.outcome] : ""}: <em>{a.reason}</em>{" "}
+          <strong>{a.actor}</strong> {a.role ? <span className="badge tone-wait">{roleLabel(a.role)}</span> : null}{" "}
+          {ACTION_TEXT[a.action]} {a.outcome ? DECISION_LABEL[a.outcome] : ""}: <em>{a.reason}</em>{" "}
           <span className="muted">{new Date(a.at).toLocaleString()}</span>
         </li>
       ))}

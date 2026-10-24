@@ -1,9 +1,11 @@
+import { label } from "./format";
 import type { RunEvent } from "./types";
 
 /** The steps of a review, in the order a case moves through them. */
 export const STEPS = [
   { id: "triage", label: "Triage", model: false },
   { id: "evidence", label: "Evidence", model: false },
+  { id: "safety_guard", label: "Safety guard", model: true },
   { id: "screener", label: "Screener", model: true },
   { id: "memory", label: "Memory", model: false },
   { id: "matching", label: "Matching", model: false },
@@ -11,9 +13,26 @@ export const STEPS = [
   { id: "decision", label: "Decision", model: true },
   { id: "critic", label: "Critic", model: true },
   { id: "challenger", label: "Challenger", model: true },
-  { id: "policy_guard", label: "Policy guard", model: true },
+  { id: "policy_guard", label: "Policy guard", model: false },
   { id: "reporter", label: "Reporter", model: false },
 ] as const;
+
+/**
+ * The safety guard is the model that screens the free text read from the data and any draft meant for a customer.
+ * The trace logs it under the policy guard's agent name with its own actions. The policy guard proper is the rule
+ * step and never calls a model, so a model call logged under that name is the safety guard's too.
+ */
+const SAFETY_GUARD_ACTIONS: ReadonlySet<string> = new Set(["screen_inbound", "screen_outbound", "model_answer"]);
+
+export const isSafetyGuard = (agent: string, action: string): boolean =>
+  agent === "policy_guard" && SAFETY_GUARD_ACTIONS.has(action);
+
+/** The step an event belongs to: the agent that logged it, except for the safety guard's events. */
+export const stepOf = (agent: string, action: string): string =>
+  isSafetyGuard(agent, action) ? "safety_guard" : agent;
+
+/** The step's name in running text: "safety guard" for the model that screens text, "policy guard" for the rule step. */
+export const agentLabel = (agent: string, action: string): string => label(stepOf(agent, action));
 
 type StepId = (typeof STEPS)[number]["id"];
 type StepState = "idle" | "running" | "done" | "retry" | "flagged" | "error" | "skipped";
@@ -84,7 +103,7 @@ export function graphAt(events: readonly RunEvent[], upTo: number = events.lengt
   const failed = end !== undefined && end.action !== "run_completed";
 
   for (const event of seen) {
-    const step = byId.get(event.agent);
+    const step = byId.get(stepOf(event.agent, event.action));
     if (step) applyToStep(step, event);
   }
   const criticRound = seen.filter((e) => e.agent === "critic" && e.action === "judge").length;

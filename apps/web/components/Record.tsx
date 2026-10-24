@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { DECISION_ICON, DECISION_LABEL, DECISION_TONE, label, percent, shortHash } from "../lib/format";
-import { graphAt } from "../lib/graph";
+import { agentLabel, graphAt, stepOf } from "../lib/graph";
 import type { RecordView, ReviewAnswer, RunEvent, TraceView } from "../lib/types";
 import { RunGraph } from "./RunGraph";
 
@@ -198,13 +198,14 @@ export function Replay({ events, record }: { events: RunEvent[]; record?: Record
       <RunGraph view={graphAt(events, upTo)} />
       <p aria-live="polite" data-testid="replay-current">
         {current
-          ? `${label(current.agent)} · ${label(current.action)} · ${current.output_summary ?? current.status}`
+          ? `${agentLabel(current.agent, current.action)} · ${label(current.action)} · ${current.output_summary ?? current.status}`
           : "Before the run started"}
       </p>
       <ol className="events" aria-label="Recorded events">
         {events.map((e, i) => (
           <li key={e.seq} aria-current={i === upTo - 1 ? "true" : undefined}>
-            {String(e.seq).padStart(2, "0")} {e.agent}/{e.action} [{e.status}] {e.output_summary ?? ""}
+            {String(e.seq).padStart(2, "0")} {stepOf(e.agent, e.action)}/{e.action} [{e.status}]{" "}
+            {e.output_summary ?? ""}
           </li>
         ))}
       </ol>

@@ -57,3 +57,13 @@ export function modelName(model: string): string {
 }
 
 export const label = (text: string): string => text.replaceAll("_", " ");
+
+/** Role names as people read them. The ids stay as the API and the sealed record use them. */
+export const ROLE_LABEL: Record<string, string> = {
+  analyst: "Analyst (L1)",
+  approver: "Approver (L2 senior reviewer)",
+  policy_admin: "Policy admin",
+  viewer: "Viewer",
+};
+
+export const roleLabel = (role: string | undefined): string => (role ? (ROLE_LABEL[role] ?? label(role)) : "");
