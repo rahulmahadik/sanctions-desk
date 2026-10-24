@@ -25,7 +25,7 @@ const out = resolveProjectPath(arg("--out", "docs/media/screenshots") as string)
 const demoUser = arg("--user", "analyst_demo") as string;
 const chrome = arg("--chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome") as string;
 const port = Number(arg("--port", "9333"));
-const width = 1280;
+const width = Number(arg("--width", "1280"));
 
 if (!existsSync(chrome)) throw new Error(`Chrome was not found at ${chrome}; pass --chrome <path>`);
 mkdirSync(out, { recursive: true });
@@ -96,6 +96,9 @@ const waitFor = async (expression: string, ms = 20_000) => {
 };
 
 await send("Page.enable");
+// --dark shows the pages in the dark colour scheme, to check contrast there; the published shots are light.
+if (process.argv.includes("--dark"))
+  await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
 await send("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: false });
 await send("Page.navigate", { url: web });
 await waitFor("document.readyState === 'complete'");

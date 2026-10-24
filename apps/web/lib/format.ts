@@ -45,6 +45,7 @@ export function shortHash(hash: string | null | undefined): string {
 export function modelName(model: string): string {
   if (/ultra/i.test(model)) return "Nemotron 3 Ultra 550B";
   if (/lightning/i.test(model)) return "Nemotron 3.5 Lightning 30B";
+  if (model === "fallback-rules") return "Rules stand-in (sample mode)";
   return model;
 }
 

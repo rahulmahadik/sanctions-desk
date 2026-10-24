@@ -161,14 +161,11 @@ export function Queue() {
             <tbody>
               {shown.map((a) => (
                 <tr key={a.alert_id}>
-                  <td>
+                  <td className="nowrap">
                     <Link href={`/case/${encodeURIComponent(a.alert_id)}`}>{a.alert_id}</Link>
                   </td>
                   <td>{a.severity ? <SeverityBadge severity={a.severity} threshold={threshold} /> : "—"}</td>
-                  <td>
-                    {a.alert_type}
-                    <div className="muted">{a.alert_source.replaceAll("_", " ")}</div>
-                  </td>
+                  <td title={`raised by ${a.alert_source.replaceAll("_", " ")}`}>{a.alert_type}</td>
                   <td>{a.matched_name}</td>
                   <td>{a.match_score.toFixed(2)}</td>
                   <td>
@@ -183,7 +180,7 @@ export function Queue() {
                   <td>
                     <PersonBadge alert={a} />
                   </td>
-                  <td className="muted">{shortHash(a.record_hash)}</td>
+                  <td className="muted nowrap">{shortHash(a.record_hash)}</td>
                 </tr>
               ))}
             </tbody>
