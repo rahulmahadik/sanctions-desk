@@ -50,6 +50,8 @@ export interface ActionBody {
   tipping_off_check?: TippingOffCheck;
   /** For a draft meant for a customer: always true, a person must approve the wording before it is used. */
   needs_approval?: true;
+  /** Only with `actions.scoutIntent` on: the intent Scout read from this record and its signed execution contract. */
+  intent_check?: { intent: string; confidence: number; contract: unknown };
   created_at: string;
 }
 
@@ -303,9 +305,33 @@ export function verifyAction(record: ActionRecord, pinnedPublicKey?: string): Ac
 
 const safeName = (s: string) => s.replace(/[^A-Za-z0-9._-]/g, "_");
 
-export function writeActions(dir: string, bodies: readonly ActionBody[], signer?: Signer): ActionRecord[] {
+/** An optional check run on each record before it is sealed (see action-intent.ts); a refused record is not written. */
+export interface ActionGate {
+  check(
+    body: ActionBody,
+  ):
+    | { status: "allowed"; intent: string; confidence: number; contract: unknown }
+    | { status: "refused"; intent: string; reason: string };
+  onRefused(body: ActionBody, intent: string, reason: string): void;
+}
+
+export function writeActions(
+  dir: string,
+  bodies: readonly ActionBody[],
+  signer?: Signer,
+  gate?: ActionGate,
+): ActionRecord[] {
   const out: ActionRecord[] = [];
-  for (const body of bodies) {
+  for (const planned of bodies) {
+    let body = planned;
+    if (gate) {
+      const c = gate.check(planned);
+      if (c.status === "refused") {
+        gate.onRefused(planned, c.intent, c.reason);
+        continue;
+      }
+      body = { ...planned, intent_check: { intent: c.intent, confidence: c.confidence, contract: c.contract } };
+    }
     const folder = join(dir, safeName(body.alert_id));
     mkdirSync(folder, { recursive: true });
     const id = `${body.kind}-${body.record_hash.slice(0, 12)}`;

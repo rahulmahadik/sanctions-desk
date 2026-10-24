@@ -52,3 +52,6 @@ site/receipts/
 action-outbox/
 outbox/
 .runtime/
+
+# Written by the Scout Intent eval harness on every run (npm run test:engines)
+packages/engines/conformance/scout-intent/reports/

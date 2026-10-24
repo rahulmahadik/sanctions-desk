@@ -1,6 +1,6 @@
 /**
- * Run the official conformance runners of the three Meterless engines against this repository's
- * implementations (H-MEM, World Model, Markovian).
+ * Run the official conformance runners of the Meterless engines against this repository's implementations
+ * (H-MEM, World Model, Markovian), and the official Scout Intent eval harness against its implementation.
  *
  *   npm run test:engines
  *
@@ -55,6 +55,27 @@ for (const suite of suites) {
   const summary = /(\d+)\/(\d+) checks passed/.exec(output);
   const status = result.status === 0 ? "PASS" : "FAIL";
   console.log(`${status} ${suite.name}: ${summary ? `${summary[1]}/${summary[2]} checks passed` : "no scorecard"}`);
+  if (result.status !== 0) {
+    failed += 1;
+    console.log(output);
+  }
+}
+// Scout Intent ships an eval harness instead of a check list: it scores the 32-example regression set against its
+// thresholds and exits non-zero when a metric falls below its floor. It writes its report under its own folder.
+{
+  const runner = enginesDir
+    ? join(enginesDir, "engines", "scout-intent", "evals", "runner", "index.ts")
+    : join(root, "packages", "engines", "conformance", "scout-intent", "runner", "index.ts");
+  const result = spawnSync("npx", ["tsx", runner, "all"], {
+    cwd: root,
+    env: { ...process.env, SCOUT_IMPL: join(root, "packages/engines/src/scout-intent/index.ts") },
+    encoding: "utf8",
+    timeout: TIMEOUT_MS,
+  });
+  const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
+  const loaded = /Loaded (\d+) examples/.exec(output)?.[1] ?? "?";
+  const status = result.status === 0 ? "PASS" : "FAIL";
+  console.log(`${status} Scout Intent: eval gate ${result.status === 0 ? "passed" : "failed"} on ${loaded} examples`);
   if (result.status !== 0) {
     failed += 1;
     console.log(output);

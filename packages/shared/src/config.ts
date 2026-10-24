@@ -74,8 +74,13 @@ const ConfigSchema = z.strictObject({
         .string()
         .regex(/^[A-Za-z0-9+/]{43}=$/, "expected a base64 Ed25519 public key")
         .optional(),
+      /**
+       * Optional, off by default: Scout Intent checks each next-action record before it is sealed and refuses one whose
+       * text does not match its kind or the person's decision (packages/agents/src/action-intent.ts).
+       */
+      scoutIntent: z.boolean().default(false),
     })
-    .default({ outboxDir: "outbox" }),
+    .default({ outboxDir: "outbox", scoutIntent: false }),
   logging: z.strictObject({
     level: z.enum(LOG_LEVELS),
     dir: nonEmpty,
@@ -223,6 +228,7 @@ const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "DESK_OUTBOX_DIR", path: ["actions", "outboxDir"], kind: "string" },
   { env: "DESK_SIGNING_KEY_FILE", path: ["actions", "signingKeyFile"], kind: "string" },
   { env: "DESK_SIGNING_PUBLIC_KEY", path: ["actions", "publicKey"], kind: "string" },
+  { env: "DESK_SCOUT_INTENT", path: ["actions", "scoutIntent"], kind: "boolean" },
   { env: "PORT", path: ["server", "port"], kind: "number" },
   { env: "LOG_LEVEL", path: ["logging", "level"], kind: "string" },
   { env: "LOG_DIR", path: ["logging", "dir"], kind: "string" },

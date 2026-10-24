@@ -6,6 +6,7 @@ import {
   autonomyUsage,
   buildTraceContract,
   type CaseRef,
+  createIntentGate,
   type DeskStores,
   gatherEvidence,
   humanState,
@@ -83,7 +84,13 @@ export const decisionRoutes: FastifyPluginAsync<DecisionOptions> = async (
   { config, policies, zetaris, signer, mode },
 ) => {
   const logDir = resolveProjectPath(config.logging.dir);
-  const stores: DeskStores = { logDir, outboxDir: resolveProjectPath(config.actions.outboxDir), signer };
+  const stores: DeskStores = {
+    logDir,
+    outboxDir: resolveProjectPath(config.actions.outboxDir),
+    signer,
+    // Optional, off by default: Scout Intent checks each next-action record before it is sealed.
+    ...(config.actions.scoutIntent ? { intentGate: createIntentGate() } : {}),
+  };
 
   const latest = (alertId: string): DecisionRecord => {
     const record = readDecisionRecords(logDir, (r) => r.alert_ref === alertId)[0];

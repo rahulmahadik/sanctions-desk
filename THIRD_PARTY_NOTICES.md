@@ -21,6 +21,9 @@ reference implementations (Apache-2.0) and follow the public Meterless engine sp
 - The official conformance suites are copied without change into `packages/engines/conformance/` (see `NOTICE`,
   `packages/engines/conformance/SOURCE.md` and the licence text beside them) and run against these engines by
   `npm run test:engines`, by `npm test` and in CI.
+- Scout Intent (`packages/engines/src/scout-intent`): written for this project from the public Meterless Scout Intent
+  specification (Apache-2.0), which publishes no reference code; its official eval harness is copied without change into
+  `packages/engines/conformance/scout-intent/`.
 - The domain adapters in `packages/engines/src/domain` are original to this project.
 
 ## Public data sources

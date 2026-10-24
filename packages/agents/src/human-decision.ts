@@ -10,7 +10,15 @@ import {
   type HumanAction,
   type Policy,
 } from "@sanctions-desk/shared";
-import { type ActionRecord, planActions, type Signer, writeActions } from "./actions.js";
+import type { IntentGate } from "./action-intent.js";
+import {
+  type ActionBody,
+  type ActionGate,
+  type ActionRecord,
+  planActions,
+  type Signer,
+  writeActions,
+} from "./actions.js";
 import { appendAnalystMemory } from "./analyst-memory.js";
 import { humanState } from "./human-state.js";
 import { CAUTION } from "./policy-guard.js";
@@ -140,6 +148,28 @@ export interface DeskStores {
   logDir: string;
   outboxDir: string;
   signer?: Signer;
+  /** Only with `actions.scoutIntent` on: Scout Intent checks each next-action record before it is sealed. */
+  intentGate?: IntentGate;
+}
+
+/** The intent gate as the action writer takes it: a refused record is audited under the policy and not written. */
+function gateOf(stores: DeskStores): ActionGate | undefined {
+  const check = stores.intentGate;
+  if (!check) return undefined;
+  return {
+    check,
+    onRefused: (body: ActionBody, intent: string, reason: string) =>
+      audit(stores.logDir, {
+        user: "scout-intent",
+        role: "system",
+        action: "next_action_refused",
+        alert_id: body.alert_id,
+        record_hash: body.record_hash,
+        result: `${body.kind} not written`,
+        intent,
+        reason,
+      }),
+  };
 }
 
 /** Where the customer and listed entry behind an alert come from, so the decision can be remembered. */
@@ -158,7 +188,7 @@ export function recordAutoClose(stores: DeskStores, policy: Policy, record: Deci
     record_hash: record.record_hash,
     result: record.autonomy?.statement,
   });
-  return writeActions(stores.outboxDir, planActions(record, policy, now), stores.signer);
+  return writeActions(stores.outboxDir, planActions(record, policy, now), stores.signer, gateOf(stores));
 }
 
 export interface Committed {
@@ -179,7 +209,7 @@ export function audit(logDir: string, entry: Record<string, unknown>): void {
 export function commit(stores: DeskStores, policy: Policy, next: DecisionRecord, ref: CaseRef, now: Date): Committed {
   writeDecisionRecord(stores.logDir, next);
   const state = humanState(next);
-  const actions = writeActions(stores.outboxDir, planActions(next, policy, now), stores.signer);
+  const actions = writeActions(stores.outboxDir, planActions(next, policy, now), stores.signer, gateOf(stores));
   if (state.final !== undefined) {
     const last = next.human.at(-1) as HumanAction;
     appendAnalystMemory(stores.logDir, {

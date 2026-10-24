@@ -6,7 +6,7 @@ This product is licensed under the Apache License, Version 2.0 (see LICENSE).
 It includes software developed by Meterless (https://github.com/Meterless/Meterless), licensed under the
 Apache License, Version 2.0:
 
-  * The engine conformance suites in packages/engines/conformance/, copied without change from the Meterless
+  * The engine conformance suites and the Scout Intent eval harness in packages/engines/conformance/, copied without change from the Meterless
     engines repository (commit 1742dec56a66e58eef9dda2d2b865823758ca8cd), with the licence text kept in
     packages/engines/conformance/LICENSE.
   * The engines in packages/engines/src/ (H-MEM, World Model, Markovian), which are derived from the Meterless

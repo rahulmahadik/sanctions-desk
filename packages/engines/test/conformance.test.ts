@@ -31,4 +31,21 @@ describe("the Meterless conformance suites against our engines", () => {
     },
     150_000,
   );
+
+  it("Scout Intent passes the official eval gate on its 32-example regression set", () => {
+    const result = spawnSync(
+      "npx",
+      ["tsx", join(root, "packages", "engines", "conformance", "scout-intent", "runner", "index.ts"), "all"],
+      {
+        cwd: root,
+        env: { ...process.env, SCOUT_IMPL: join(root, "packages", "engines", "src", "scout-intent", "index.ts") },
+        encoding: "utf8",
+        timeout: 120_000,
+      },
+    );
+    const output = `${result.stdout}${result.stderr}`;
+    expect(output).toContain("Loaded 32 examples");
+    expect(output).not.toContain("Eval gate failed");
+    expect(result.status).toBe(0);
+  }, 150_000);
 });

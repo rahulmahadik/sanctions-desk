@@ -8,7 +8,8 @@
     ".": "./src/index.ts",
     "./hmem": "./src/hmem/index.ts",
     "./world-model": "./src/world-model/index.ts",
-    "./markovian": "./src/markovian/index.ts"
+    "./markovian": "./src/markovian/index.ts",
+    "./scout-intent": "./src/scout-intent/index.ts"
   },
   "dependencies": {
     "@sanctions-desk/data": "^0.1.0",

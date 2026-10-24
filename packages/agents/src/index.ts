@@ -1,3 +1,4 @@
+export * from "./action-intent.js";
 export * from "./actions.js";
 export * from "./analyst-memory.js";
 export * from "./autonomy.js";

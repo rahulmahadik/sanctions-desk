@@ -8,6 +8,7 @@ change so that this repository can check its own engines without any other check
 | H-MEM | `hmem/runner.ts`, `hmem/vectors/vectors.json` | 13 |
 | World Model | `world-model/runner.ts` | 8 |
 | Markovian | `markovian/runner.ts` | 8 |
+| Scout Intent | `scout-intent/runner/index.ts`, `config/`, `fixtures/`, `regression-set/v1/` (from `engines/scout-intent/evals/`) | eval gate on 32 examples |
 
 - Source: the Meterless engines repository, `engines/<engine>/conformance/` (Apache License 2.0; the licence text is in
   `LICENSE` beside this file).
