@@ -1,0 +1,47 @@
+{
+  "label": "Small study of model choice, not part of the recorded evaluation",
+  "note": "Held-out v4 (12 cases) and 8 of the 70 exam cases (4 risks, 4 clears), one live run per arm on 24 Oct 2026, Nightshift warmed up and not restarted. The default arm is the privacy-mode-off run of the same day.",
+  "arms": [
+    {
+      "label": "Decision, critic and challenger on Nemotron 3 Ultra (cloud), the default",
+      "short": "Ultra arm (default)",
+      "median_case_s": 113,
+      "errors": 0,
+      "cases": 20,
+      "risk_cases": 10,
+      "wrong_closes": 0,
+      "clear_cases": 10,
+      "clears_made": 3,
+      "outcomes_identical_to_default": 20,
+      "reasoning_calls": 75,
+      "reasoning_receipts_verified": 75,
+      "reasoning_median_latency_s": 27.4,
+      "fact_limit_rejections": 6,
+      "backup_answers": 6,
+      "served_by": {
+        "Nemotron 3 Ultra 550B (cloud)": 62,
+        "Nemotron 3.5 Lightning 30B (local)": 13
+      }
+    },
+    {
+      "label": "Decision, critic and challenger on Nemotron 3.5 Lightning (local)",
+      "short": "Lightning arm",
+      "median_case_s": 387,
+      "errors": 4,
+      "cases": 20,
+      "risk_cases": 10,
+      "wrong_closes": 0,
+      "clear_cases": 10,
+      "clears_made": 1,
+      "outcomes_identical_to_default": 10,
+      "reasoning_calls": 81,
+      "reasoning_receipts_verified": 81,
+      "reasoning_median_latency_s": 8.3,
+      "fact_limit_rejections": 0,
+      "backup_answers": 32,
+      "served_by": {
+        "Nemotron 3.5 Lightning 30B (local)": 81
+      }
+    }
+  ]
+}

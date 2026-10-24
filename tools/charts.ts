@@ -436,3 +436,54 @@ if (existsSync(resolveProjectPath("eval/repeat-study.json"))) {
     ),
   );
 }
+
+// ---- 7. Model choice for the reasoning steps (a labelled small study) ---------------------------------------------
+
+if (existsSync(resolveProjectPath("eval/model-choice.json"))) {
+  const study = JSON.parse(readFileSync(resolveProjectPath("eval/model-choice.json"), "utf8")) as {
+    arms: Array<{
+      short: string;
+      cases: number;
+      risk_cases: number;
+      wrong_closes: number;
+      clears_made: number;
+      clear_cases: number;
+      outcomes_identical_to_default: number;
+      errors: number;
+      median_case_s: number;
+    }>;
+  };
+  const ROWS: Array<[string, (a: (typeof study.arms)[number]) => string]> = [
+    ["Risk cases wrongly closed", (a) => `${a.wrong_closes} of ${a.risk_cases}`],
+    ["Clears made", (a) => `${a.clears_made} of ${a.clear_cases}`],
+    ["Same outcome as the default", (a) => `${a.outcomes_identical_to_default} of ${a.cases}`],
+    ["Cases with no usable decision", (a) => String(a.errors)],
+    ["Median time per case", (a) => `${a.median_case_s} s`],
+  ];
+  const colX = [760, 1340];
+  let body = "";
+  study.arms.forEach((a, i) => {
+    body += text(colX[i] as number, 300, a.short, 40, {
+      anchor: "middle",
+      weight: 700,
+      fill: i === 0 ? C.cloud : C.local,
+    });
+  });
+  ROWS.forEach(([label, get], r) => {
+    const yy = 400 + r * 110;
+    body += `<line x1="90" x2="${W - 90}" y1="${yy - 62}" y2="${yy - 62}" stroke="${C.grid}" stroke-width="2"/>`;
+    body += text(90, yy, label, 36, { weight: 600 });
+    study.arms.forEach((a, i) => {
+      body += text(colX[i] as number, yy, get(a), 40, { anchor: "middle", weight: 700 });
+    });
+  });
+  save(
+    "model-choice",
+    page(
+      "Reasoning steps: Ultra in the cloud or Lightning locally",
+      "Decision, critic and challenger. Small study, not part of the recorded evaluation: 20 cases, one run per arm.",
+      body,
+      "eval/model-choice.json (npm run study:model-choice)",
+    ),
+  );
+}

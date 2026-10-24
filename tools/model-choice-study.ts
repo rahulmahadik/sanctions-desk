@@ -17,6 +17,7 @@ import { formatMarkdown } from "./lib/format-markdown.js";
 
 interface Case {
   case_id: string;
+  latency_s?: number;
   expected: string;
   must_not: string[];
   got: string;
@@ -29,6 +30,11 @@ interface Result {
 }
 interface Arm {
   label: string;
+  short: string;
+  /** Median wall time per case, retries and fallbacks included, in seconds. */
+  median_case_s: number;
+  /** Cases with no usable decision (ERROR). */
+  errors: number;
   cases: number;
   risk_cases: number;
   wrong_closes: number;
@@ -67,7 +73,7 @@ const stats = JSON.parse(readFileSync(resolveProjectPath("eval/receipt-stats.jso
   groups: StatsGroup[];
 };
 
-function arm(label: string, results: Result[], statsId: string, baseline: Map<string, string>): Arm {
+function arm(label: string, short: string, results: Result[], statsId: string, baseline: Map<string, string>): Arm {
   const cases = results.flatMap((r) => r.cases);
   const risk = cases.filter((c) => c.must_not.includes("CLOSE_FALSE_POSITIVE"));
   const clear = cases.filter((c) => c.expected === "CLOSE_FALSE_POSITIVE");
@@ -75,8 +81,19 @@ function arm(label: string, results: Result[], statsId: string, baseline: Map<st
   const rows = (g?.rows ?? []).filter((r) => REASONING.includes(r.step) && !/Ollama/.test(r.model));
   const served: Record<string, number> = {};
   for (const r of rows) served[r.model] = (served[r.model] ?? 0) + r.calls;
+  const times = cases.flatMap((c) => (typeof c.latency_s === "number" ? [c.latency_s] : [])).sort((a, b) => a - b);
+  const mid = Math.floor(times.length / 2);
+  const medianCase =
+    times.length === 0
+      ? 0
+      : times.length % 2
+        ? (times[mid] as number)
+        : ((times[mid - 1] as number) + (times[mid] as number)) / 2;
   return {
     label,
+    short,
+    median_case_s: Math.round(medianCase),
+    errors: cases.filter((c) => c.got === "ERROR").length,
     cases: cases.length,
     risk_cases: risk.length,
     wrong_closes: risk.filter((c) => c.got === "CLOSE_FALSE_POSITIVE").length,
@@ -99,8 +116,20 @@ if (ultra.length > 0 && lightning.length > 0) {
     label: "Small study of model choice, not part of the recorded evaluation",
     note: "Held-out v4 (12 cases) and 8 of the 70 exam cases (4 risks, 4 clears), one live run per arm on 24 Oct 2026, Nightshift warmed up and not restarted. The default arm is the privacy-mode-off run of the same day.",
     arms: [
-      arm("Decision, critic and challenger on Nemotron 3 Ultra (cloud), the default", ultra, "privacy-off", baseline),
-      arm("Decision, critic and challenger on Nemotron 3.5 Lightning (local)", lightning, "model-choice", baseline),
+      arm(
+        "Decision, critic and challenger on Nemotron 3 Ultra (cloud), the default",
+        "Ultra arm (default)",
+        ultra,
+        "privacy-off",
+        baseline,
+      ),
+      arm(
+        "Decision, critic and challenger on Nemotron 3.5 Lightning (local)",
+        "Lightning arm",
+        lightning,
+        "model-choice",
+        baseline,
+      ),
     ],
   };
 } else if (existsSync(outFile)) {
@@ -111,17 +140,17 @@ if (!study) throw new Error("no study results: run the two arms first (see the h
 const table = [
   `**${study.label}.** ${study.note}`,
   "",
-  "| Arm | Risk cases wrongly closed | Clears made | Outcomes identical to the default | Reasoning calls (receipts verified) | Median s per reasoning call | Answers set aside for more than 8 facts | Backup answers |",
-  "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+  "| Arm | Risk cases wrongly closed | Clears made | Outcomes identical to the default | Errors | Reasoning calls (receipts verified) | Median s per reasoning call | Median s per case | Answers set aside for more than 8 facts | Backup answers (no receipt) |",
+  "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
   ...study.arms.map(
     (a) =>
-      `| ${a.label} | ${a.wrong_closes} of ${a.risk_cases} | ${a.clears_made} of ${a.clear_cases} | ${a.outcomes_identical_to_default} of ${a.cases} | ${a.reasoning_calls} (${a.reasoning_receipts_verified}) | ${a.reasoning_median_latency_s} | ${a.fact_limit_rejections} | ${a.backup_answers} |`,
+      `| ${a.label} | ${a.wrong_closes} of ${a.risk_cases} | ${a.clears_made} of ${a.clear_cases} | ${a.outcomes_identical_to_default} of ${a.cases} | ${a.errors} | ${a.reasoning_calls} (${a.reasoning_receipts_verified}) | ${a.reasoning_median_latency_s} | ${a.median_case_s} | ${a.fact_limit_rejections} | ${a.backup_answers} |`,
   ),
   "",
   `Which model served the reasoning calls (receipts): ${study.arms
     .map(
       (a) =>
-        `${a.label.split(" on ")[1]?.replace(/, the default$/, "")}: ${Object.entries(a.served_by)
+        `${a.short}: ${Object.entries(a.served_by)
           .map(([m, n]) => `${m} ${n}`)
           .join(", ")}`,
     )

@@ -442,79 +442,103 @@
     {
       "id": "model-choice",
       "label": "Small study of model choice: decision, critic and challenger on Lightning (not part of the recorded evaluation)",
-      "runs": 10,
+      "runs": 20,
       "rows": [
         {
           "step": "Safety guard",
           "model": "Nemotron 3.5 Lightning 30B (local)",
-          "calls": 10,
-          "receipts_verified": 10,
+          "calls": 20,
+          "receipts_verified": 20,
           "latency_s": {
             "median": 0.3,
-            "p95": 49.1
+            "p95": 29.1
           },
-          "tokens_in_median": 355,
+          "tokens_in_median": 351,
           "tokens_out_median": 19
         },
         {
           "step": "Screener",
           "model": "Nemotron 3.5 Lightning 30B (local)",
-          "calls": 10,
-          "receipts_verified": 10,
+          "calls": 15,
+          "receipts_verified": 15,
           "latency_s": {
-            "median": 2.1,
-            "p95": 5.7
+            "median": 2.4,
+            "p95": 6.7
           },
-          "tokens_in_median": 828,
-          "tokens_out_median": 184
+          "tokens_in_median": 830,
+          "tokens_out_median": 188
         },
         {
           "step": "Decision",
           "model": "Nemotron 3.5 Lightning 30B (local)",
-          "calls": 24,
-          "receipts_verified": 24,
+          "calls": 46,
+          "receipts_verified": 46,
           "latency_s": {
-            "median": 7.5,
-            "p95": 42.7
+            "median": 8.9,
+            "p95": 58.1
           },
-          "tokens_in_median": 3829,
-          "tokens_out_median": 449
+          "tokens_in_median": 3803,
+          "tokens_out_median": 443
         },
         {
           "step": "Decision",
           "model": "Ollama backup (Lightning, no receipt)",
-          "calls": 4,
+          "calls": 18,
           "receipts_verified": 0,
           "latency_s": {
-            "median": 6.7,
-            "p95": 9.6
+            "median": 11,
+            "p95": 44.5
           },
-          "tokens_in_median": 3856,
-          "tokens_out_median": 496
+          "tokens_in_median": 3841,
+          "tokens_out_median": 518
         },
         {
           "step": "Critic",
           "model": "Nemotron 3.5 Lightning 30B (local)",
-          "calls": 19,
-          "receipts_verified": 19,
+          "calls": 33,
+          "receipts_verified": 33,
           "latency_s": {
-            "median": 4.2,
-            "p95": 85.7
+            "median": 4.8,
+            "p95": 46.9
           },
-          "tokens_in_median": 2140,
-          "tokens_out_median": 253
+          "tokens_in_median": 2173,
+          "tokens_out_median": 275
         },
         {
           "step": "Critic",
           "model": "Ollama backup (Lightning, no receipt)",
-          "calls": 3,
+          "calls": 12,
           "receipts_verified": 0,
           "latency_s": {
-            "median": 23.6,
-            "p95": 31.3
+            "median": 23.8,
+            "p95": 37.2
           },
-          "tokens_in_median": 2050,
-          "tokens_out_median": 1909
+          "tokens_in_median": 2053,
+          "tokens_out_median": 1395
+        },
+        {
+          "step": "Challenger",
+          "model": "Nemotron 3.5 Lightning 30B (local)",
+          "calls": 2,
+          "receipts_verified": 2,
+          "latency_s": {
+            "median": 58,
+            "p95": 82
+          },
+          "tokens_in_median": 3081,
+          "tokens_out_median": 400
+        },
+        {
+          "step": "Challenger",
+          "model": "Ollama backup (Lightning, no receipt)",
+          "calls": 2,
+          "receipts_verified": 0,
+          "latency_s": {
+            "median": 36.2,
+            "p95": 51.4
+          },
+          "tokens_in_median": 1927,
+          "tokens_out_median": 1500
         }
       ],
       "fallbacks": {
@@ -527,18 +551,22 @@
           "fact_limit_rejections": 0
         },
         "Decision": {
-          "backup_answers": 4,
+          "backup_answers": 18,
           "fact_limit_rejections": 0
         },
         "Critic": {
-          "backup_answers": 3,
+          "backup_answers": 12,
+          "fact_limit_rejections": 0
+        },
+        "Challenger": {
+          "backup_answers": 2,
           "fact_limit_rejections": 0
         }
       },
       "reasoning_latency_s": {
-        "median": 6.5,
-        "p95": 42.7,
-        "calls": 43
+        "median": 8.3,
+        "p95": 58.1,
+        "calls": 81
       }
     }
   ]
