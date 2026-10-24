@@ -64,7 +64,8 @@ Problems met while building this, with what was done about each. Facts only; ver
 ## Considered, not done
 
 - **Exact model pinning not done:** the Nightshift release with exact model selection was not available before submission, so the desk stays on Nightshift 1.2.1, where the router chooses the model within a lane; the receipts record the model that answered every call.
-- **Nemotron embedding for finding earlier decisions by meaning.** Nightshift 1.2.1 lists `nvidia/nemotron-3-embed-1b` and an embed mode, but every route refuses it ("no route on this build returns embed"; `/v1/embeddings` answers 404), so no embedding call can be made with a receipt, and it lists no rerank model. Memory recall stays on exact pointers.
+- **Nemotron embedding for finding earlier decisions by meaning.** Nightshift 1.2.1 lists `nvidia/nemotron-3-embed-1b` and a `meterless/embed` mode, but no route returns an embedding: `/v1/embeddings` answers 404, and a chat call in the embed mode answers 400 `class_carrier_unsupported` ("no route on this build returns embed"). No embedding call can be made with a receipt, so memory recall stays on exact pointers. No rerank model is listed (`/v1/rerank` answers 404).
+- **An NVIDIA guard or jailbreak-detection model as a second opinion in the safety guard.** Nightshift 1.2.1 does not serve one: a call naming `nvidia/llama-3.1-nemoguard-8b-content-safety` or `nvidia/nemoguard-jailbreak-detect` is answered, but its receipt names Nemotron 3 Ultra, the general model. Ollama on this machine has no such model, and adding a lane is a Nightshift provider setting this project does not change. The safety guard stays on Nemotron 3.5 Lightning plus the fixed patterns.
 
 ## Exported run files
 

@@ -152,6 +152,7 @@ Each step, what it may and may not do, the guardrails and the failure handling: 
 | Decision | Nemotron 3 Ultra 550B | cloud | structured fields and risk signals, never free text | Ultra 504, Lightning 16, Ollama backup 15 (no receipt) of 535 |
 | Critic (after code re-reads every cited fact) | Nemotron 3 Ultra 550B | cloud | the recommendation and the re-checked evidence | Ultra 418, Lightning 8, Ollama backup 2 of 428 |
 | Challenger (argues against a close) | Nemotron 3 Ultra 550B | cloud | the proposed close and its evidence | Ultra 38, Ollama backup 2 of 40 |
+| Backup, only when Nightshift cannot answer | Nemotron 3.5 Lightning 30B in the local Ollama (`nemotron-3.5-lightning:30b`) | the analyst's laptop | the same request the step sent | 19 answers in the recorded runs (15 decision, 2 critic, 2 challenger); no receipt, because the call does not go through Nightshift; labelled `ollama` in the trace; none of those cases ended in a wrong close |
 
 Every one of these calls, with the mode asked for, the model that served it and its signed receipt (each signature checked when the site is built): **[receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/)**. Why each model, the privacy design and the studies of model choice: [docs/NEMOTRON.md](docs/NEMOTRON.md). Nightshift's router chooses inside the lane each step is bound to, so the split is a measurement, not a guarantee.
 
