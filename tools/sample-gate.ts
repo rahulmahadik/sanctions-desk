@@ -1,17 +1,20 @@
 /**
  * Review every alert in the sample data, in process, with a fixed clock and the labelled rules stand-in, and write
  * each alert's answer and a digest of its sealed record. The digest leaves out what differs on every run by design:
- * the random Zetaris query ids and the hashes that cover them. Run it before and after a change that must not alter the default
+ * the random Zetaris query ids, the hashes that cover them, and measured timings (`latency_ms`). Run it before and after a change that must not alter the default
  * review: the two files are identical, or the change altered an answer or a record.
  *
  *   npm run gate:sample -- --out before.json
  *   npm run gate:sample -- --out after.json && cmp before.json after.json
  *   npm run gate:sample -- --with-env --out env.json   the same, with the local configuration (e.g. step tokens)
+ *   npm run gate:sample -- --compare before.json --keep <dir>
+ *       report every alert whose digest differs from before.json (exit 1), and keep each sealed record in <dir>,
+ *       one file per alert and digest, so two different records of the same alert can be compared field by field
  *
  * Nothing live is touched: Zetaris answers come from the committed sample cache and no model is called.
  */
 import { createHash } from "node:crypto";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { readAlertQueue, runReview, sampleRules } from "@sanctions-desk/agents";
@@ -24,8 +27,13 @@ import {
 } from "@sanctions-desk/shared";
 import { createZetarisClient, loadQueryCache, replayFetch } from "@sanctions-desk/zetaris";
 
-const i = process.argv.indexOf("--out");
-const out = i >= 0 ? resolve(process.argv[i + 1] as string) : undefined;
+const arg = (name: string) => {
+  const at = process.argv.indexOf(name);
+  return at >= 0 ? resolve(process.argv[at + 1] as string) : undefined;
+};
+const out = arg("--out");
+const keep = arg("--keep");
+const compare = arg("--compare");
 const logDir = mkdtempSync(join(tmpdir(), "sample-gate-"));
 // --with-env: read the local configuration too (for example per-step Zetaris tokens), still in sample mode.
 const withEnv = process.argv.includes("--with-env");
@@ -41,7 +49,16 @@ const policy = loadPolicyFile(config.policy.file);
 const now = () => new Date("2026-10-25T00:00:00.000Z");
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const VARIES = new Set(["query_id", "zetaris_query_id", "record_hash", "previous_record_hash", "body_hash"]);
+// Per-run by design: random query ids, the hashes that cover them, and measured timings (a replayed query takes 0 or
+// 1 ms depending on load).
+const VARIES = new Set([
+  "query_id",
+  "zetaris_query_id",
+  "record_hash",
+  "previous_record_hash",
+  "body_hash",
+  "latency_ms",
+]);
 /** The record with the per-run random parts removed, as sorted-key JSON. */
 const stable = (v: unknown): string => {
   if (Array.isArray(v)) return `[${v.map(stable).join(",")}]`;
@@ -58,7 +75,14 @@ const digestOf = (runDir: string, recordHash: string): string => {
   for (const f of readdirSync(dir)) {
     const rec = JSON.parse(readFileSync(join(dir, f), "utf8")) as { record_hash?: string };
     if (rec.record_hash !== recordHash) continue;
-    return createHash("sha256").update(stable(rec)).digest("hex");
+    const digest = createHash("sha256").update(stable(rec)).digest("hex");
+    if (keep) {
+      mkdirSync(keep, { recursive: true });
+      const alert = (rec as { alert_ref?: string }).alert_ref ?? "alert";
+      const file = join(keep, `${alert}-${digest.slice(0, 12)}.json`);
+      if (!existsSync(file)) writeFileSync(file, `${JSON.stringify(rec, null, 2)}\n`);
+    }
+    return digest;
   }
   throw new Error(`no sealed record with hash ${recordHash}`);
 };
@@ -106,3 +130,16 @@ const counts = rows.reduce<Record<string, number>>((m, r) => {
   return m;
 }, {});
 console.log(`${rows.length} sample alerts reviewed: ${JSON.stringify(counts)}${out ? `; written to ${out}` : ""}`);
+if (compare) {
+  const before = JSON.parse(readFileSync(compare, "utf8")) as typeof rows;
+  const differs = rows.filter((r) => {
+    const b = before.find((x) => x.alert_id === r.alert_id);
+    return !b || b.decision !== r.decision || b.confidence !== r.confidence || b.record_digest !== r.record_digest;
+  });
+  for (const d of differs)
+    console.error(
+      `DIFFERS ${d.alert_id}: ${d.decision} ${d.confidence} digest ${d.record_digest.slice(0, 12)}${keep ? ` (record kept in ${keep})` : ""}`,
+    );
+  if (differs.length > 0) process.exit(1);
+  console.log(`identical to ${compare}`);
+}
