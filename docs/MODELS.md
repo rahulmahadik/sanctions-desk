@@ -99,6 +99,16 @@ To pin the runtime's key: `npm run receipt:pubkey` prints the public key (and no
 
 Pinning the key printed by the runtime trusts it on first use. Compare it with a key you obtained another way if that matters to you.
 
+### Why the cloud lane names say super-120b
+
+- The cloud lanes were first set up for Nemotron 3 Super 120B.
+- During development its hosted endpoint was retired (calls returned "Function not found"), so both cloud lanes were switched to Nemotron 3 Ultra 550B, keeping their lane ids `nemotron-3-super-120b-a1` and `nemotron-3-super-120b-a1-2`.
+- Every receipt records the model that actually answered (`nvidia/nemotron-3-ultra-550b-a55b`), so the evidence is unaffected by the lane name.
+- Renaming the lanes to match the model was tested. After the rename, and again after each restart of Nightshift, its router started over: on a cloud decision call it was exploring (routing confidence about 0.2 instead of 0.934) and raced 6 attempts instead of 2, and more decision answers exceeded the desk's limit of 8 facts and fell back to the local model (4 of 6 in three live cases, against 3 of 773 on 23 Oct).
+- Restoring the original lane ids did not bring the learned routing back, because the reset comes with the restart, not only with the name. With the ids restored, ALR-0073 again gave ESCALATE_L2 at 0.9, the same as before the test, with the cloud steps answered by Ultra 550B and the local steps by Lightning.
+- All recorded evaluation runs were made before the test and are unchanged.
+- When Nightshift supports exact model selection, the desk can request Ultra 550B by name, and the lanes can then be renamed without depending on routing.
+
 ### Nightshift's cross-check on each call
 
 Every receipt carries a `cross_check` block: Nightshift's own check on the call (for example whether the response holds personal data or credentials, matches the declared schema, or backs factual claims with citation markers), with a status, a risk level and a recommended action. It is part of the signed receipt body, so it is stored with every receipt in `logs/receipts/` and in the exported `eval/runs/*/receipts.jsonl.gz`. The desk does not display it and does not act on it; its own checks (the critic's fact re-check and the policy guard) are separate.

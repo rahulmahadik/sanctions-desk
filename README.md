@@ -405,7 +405,7 @@ The **reasoning budget** is our own token limit plus an instruction to put brief
 <td width="38%"><img src="docs/media/console/nightshift-apps.png" alt="Nightshift console, apps: Sanctions Desk Reasoning on meterless/deep and Sanctions Desk Guard bound to local"></td>
 </tr>
 <tr>
-<td>The lanes: local Nemotron 3.5 Lightning 30B and cloud Nemotron 3 Ultra 550B, all ready. The cloud lanes keep the names <code>nemotron-3-super-120b-a1</code> from before the Super endpoint was retired; the cards show the model they serve, Ultra 550B.</td>
+<td>The lanes: local Nemotron 3.5 Lightning 30B and cloud Nemotron 3 Ultra 550B, all ready. The cloud lane ids still say <code>super-120b</code>; they serve Ultra 550B (<a href="docs/MODELS.md#why-the-cloud-lane-names-say-super-120b">why</a>).</td>
 <td>The app identities: <code>Sanctions Desk Reasoning</code> bound to deep, <code>Sanctions Desk Guard</code> bound to local.</td>
 </tr>
 </table>
