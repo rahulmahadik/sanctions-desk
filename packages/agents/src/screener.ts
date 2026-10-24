@@ -4,6 +4,7 @@ import {
   type NoteDocumentCheck,
   type Policy,
   type ScreenerSignalType,
+  watchedJurisdictions,
 } from "@sanctions-desk/shared";
 import { z } from "zod";
 import type { EvidenceBundle } from "./evidence.js";
@@ -197,7 +198,7 @@ function contextOf(evidence: EvidenceBundle) {
 
 /** Place names the policy watches, so the screener can tell a link to one. */
 function watchedPlaces(policy: Policy): string[] {
-  return policy.jurisdictions.filter((j) => j.action === "escalate").flatMap((j) => [j.country, ...j.keywords]);
+  return watchedJurisdictions(policy).flatMap((j) => [j.country, ...j.keywords]);
 }
 
 /** The prompt for the local model. It holds the raw text, so it is sent to the local screener identity only. */

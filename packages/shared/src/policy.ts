@@ -413,3 +413,11 @@ export function loadPolicyFile(path: string): Policy {
   }
   return parsePolicy(json);
 }
+
+/**
+ * The jurisdictions every check watches. Each action in the policy (review, escalate, recommend_block) raises a case at
+ * least to escalation; no action switches a check off, so choosing a stricter-sounding one can never remove a country.
+ */
+export function watchedJurisdictions(policy: Pick<Policy, "jurisdictions">): Policy["jurisdictions"] {
+  return policy.jurisdictions.filter((j) => (JURISDICTION_ACTIONS as readonly string[]).includes(j.action));
+}

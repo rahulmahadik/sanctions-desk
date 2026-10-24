@@ -1,4 +1,4 @@
-import { loadPolicyFile } from "@sanctions-desk/shared";
+import { loadPolicyFile, watchedJurisdictions } from "@sanctions-desk/shared";
 import { describe, expect, it } from "vitest";
 import type { DecisionOutput, EvidenceBundle, MatchResult } from "../src/index.js";
 import { applyPolicyGuard, findInjection } from "../src/index.js";
@@ -218,6 +218,41 @@ describe("payment routes that touch a watched jurisdiction", () => {
     );
     expect(out.decision).toBe("ESCALATE_L2");
     expect(out.verdicts.find((v) => v.guard === "jurisdiction")?.verdict).toBe("block");
+  });
+});
+
+describe("every jurisdiction action escalates", () => {
+  it.each(["review", "escalate", "recommend_block"] as const)(
+    "never closes a payment to a country whose action is %s",
+    (action) => {
+      const p = { ...policy, jurisdictions: [{ country: "KP", action, keywords: ["pyongyang"] }] };
+      for (const payment of [
+        { counterparty_country: "KP" },
+        { counterparty_country: "NL", payment_reference: "via Pyongyang" },
+      ]) {
+        const out = applyPolicyGuard({
+          policy: p,
+          decision: decision("CLOSE_FALSE_POSITIVE"),
+          match: match({ assessment: "weak" }),
+          evidence: evidence({ payment: payment as never }),
+          criticUnresolved: false,
+        });
+        expect(out.decision).toBe("ESCALATE_L2");
+        expect(out.verdicts.find((v) => v.guard === "jurisdiction")?.verdict).toBe("block");
+      }
+    },
+  );
+
+  it("watches every country in the policy, whatever its action", () => {
+    const p = {
+      ...policy,
+      jurisdictions: [
+        { country: "KP", action: "review" as const, keywords: [] },
+        { country: "IR", action: "recommend_block" as const, keywords: ["tehran"] },
+        { country: "CU", action: "escalate" as const, keywords: [] },
+      ],
+    };
+    expect(watchedJurisdictions(p).map((j) => j.country)).toEqual(["KP", "IR", "CU"]);
   });
 });
 

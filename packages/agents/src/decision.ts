@@ -1,4 +1,4 @@
-import { AppError, DecisionSchema, type ModelUseInput } from "@sanctions-desk/shared";
+import { AppError, DecisionSchema, type ModelUseInput, watchedJurisdictions } from "@sanctions-desk/shared";
 import { z } from "zod";
 import { citableSources } from "./citable.js";
 import { recordCloudPayload } from "./cloud-payload.js";
@@ -298,7 +298,7 @@ export function policyExcerpt(deps: AgentDeps): string {
     abstain_on_invalid_data: p.critic.abstainOnInvalidData,
     documentary_evidence: `see the approved definition ${p.evidenceStandard.definition}`,
     screener_confidence_threshold: p.screener.confidenceThreshold,
-    jurisdictions_needing_escalation: p.jurisdictions.filter((j) => j.action === "escalate").map((j) => j.country),
+    jurisdictions_needing_escalation: watchedJurisdictions(p).map((j) => j.country),
   });
 }
 

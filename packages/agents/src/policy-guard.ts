@@ -1,4 +1,4 @@
-import type { Decision, GuardVerdictInput, Policy } from "@sanctions-desk/shared";
+import { type Decision, type GuardVerdictInput, type Policy, watchedJurisdictions } from "@sanctions-desk/shared";
 import type { DecisionOutput } from "./decision.js";
 import type { EvidenceBundle } from "./evidence.js";
 import { assessNote } from "./evidence-standard.js";
@@ -105,7 +105,7 @@ const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/
  * reference. The listed party's countries say nothing about where the customer is exposed.
  */
 function jurisdictionHits(policy: Policy, evidence: EvidenceBundle): string[] {
-  const watched = policy.jurisdictions.filter((j) => j.action === "escalate");
+  const watched = watchedJurisdictions(policy);
   const codes = new Set(watched.map((j) => j.country));
   const payment = evidence.payment;
   const where: Array<[string, string | null | undefined]> = [

@@ -1,4 +1,4 @@
-import type { Policy, ScreenerSignalType } from "@sanctions-desk/shared";
+import { type Policy, type ScreenerSignalType, watchedJurisdictions } from "@sanctions-desk/shared";
 
 /**
  * Span grounding. A risk signal from the screener points at a field and a character range; it counts only when that
@@ -87,7 +87,7 @@ export function holdsName(text: string, forms: readonly string[]): boolean {
 
 /** Watched places of the policy: the place names in every language given, and the country codes in capitals. */
 function placeHit(policy: Policy, text: string): boolean {
-  const watched = policy.jurisdictions.filter((j) => j.action === "escalate");
+  const watched = watchedJurisdictions(policy);
   if (
     holdsTerm(
       text,
