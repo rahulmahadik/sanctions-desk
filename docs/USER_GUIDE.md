@@ -1,6 +1,6 @@
 # User guide
 
-The review desk helps a sanctions analyst work screening alerts. For each alert it reads the evidence from the bank's data, recommends one of four outcomes and shows its evidence. **A person makes every decision** unless the policy has switched on automatic closing for the certain cases (see [Autonomy and the kill switch](#autonomy-and-the-kill-switch)). The desk never blocks an account, writes to a source system or contacts a customer.
+The review desk helps a sanctions analyst work screening alerts. For each alert it reads the evidence from the bank's data, recommends one of four outcomes and shows its evidence. **A person makes every decision** unless the policy has switched on automatic closing for the certain cases (see [Autonomy and the kill switch](#8-autonomy-and-the-kill-switch)). The desk never blocks an account, writes to a source system or contacts a customer.
 
 The sections follow the order you meet things. The **Help** page in the desk says the same in fewer words.
 
@@ -31,7 +31,7 @@ A live deployment has no demo users. Each person has a token, and the desk asks 
 
 ## 3. The alert queue
 
-![The alert queue](screenshots/01-alert-queue.png)
+![The alert queue](media/screenshots/01-alert-queue.png)
 
 The queue lists every alert with its latest recommendation and where people have taken it: _waiting for a person_, _human-approved_, _block approval pending_, _auto-closed_ or _QA sample_. Filter by type, or by reviewed or not yet reviewed. Click an alert to open it.
 
@@ -41,18 +41,18 @@ Press **Review this alert**. The steps light up from the real events, not a time
 
 ## 5. Read the result
 
-![A case: evidence](screenshots/02-case-evidence.png)
+![A case: evidence](media/screenshots/02-case-evidence.png)
 - **Recommendation**: the outcome, the confidence, **What decided it** and **What would change this**. The _path_ line says whether code settled the case or the agents reasoned over everything.
 - **Evidence**: the customer, the listed party, the payment, the data-quality results and the approved definitions that were applied. Identifier numbers are masked.
 - **Decision trace**: which approved definition applied, what data the recommendation rests on, who could see what, what it cost, and whether the record's hash checks.
 - **Replay**: drag the slider to see the run as of any recorded event.
 
-![Model routing and receipts](screenshots/04-routing-and-receipts.png)
+![Model routing and receipts](media/screenshots/04-routing-and-receipts.png)
 - **Model routing and cost**: for each model step, the mode asked for, the model that answered, time, tokens and cost. Press **Verify receipt** on a step to check Nightshift's signature on that call. Press **Verify all receipts** to check every call of this recommendation at once. It shows how many signatures are valid and how many name a Nemotron model as the one that served the call. See [MODELS.md](MODELS.md).
 
 ## 6. Decide
 
-![The decision panel](screenshots/03-decision-panel.png)
+![The decision panel](media/screenshots/03-decision-panel.png)
 
 In **Decision**:
 1. Choose **Approve the recommendation**, or **Override with** another outcome.
@@ -75,7 +75,7 @@ Press **Download case file (PDF)** or **(Markdown)** for one document with the r
 
 ## 8. Autonomy and the kill switch
 
-![Policy studio](screenshots/05-policy-studio.png)
+![Policy studio](media/screenshots/05-policy-studio.png)
 
 The **Autonomy** card on the Policy studio shows how much a person does.
 - **Level 0** is the default: a person approves every alert.
@@ -94,11 +94,11 @@ Every step is in the audit log under **Versions and changes**.
 
 ## 10. Exam results and governance
 
-![Governance](screenshots/06-governance.png)
+![Governance](media/screenshots/06-governance.png)
 
 **Governance** maps the desk to the headings of the Monetary Authority of Singapore's proposed AI risk-management guidelines. It is a mapping, not a claim of compliance.
 
-![Exam results](screenshots/07-exam-results.png)
+![Exam results](media/screenshots/07-exam-results.png)
 
 **Exam results** compares the variants on the exam, with false closes and results by case group. The method and the limits are in [EVALUATION.md](EVALUATION.md).
 

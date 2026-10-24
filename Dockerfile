@@ -30,6 +30,9 @@ COPY apps ./apps
 COPY packages ./packages
 # Sample mode replays these saved answers; the policy and business definitions are in config and the sample.
 COPY data/sample/query-cache.json data/sample/business_definition.json ./data/sample/
+# The test-scores screen reads the exam cases and the saved results.
+COPY eval/cases ./eval/cases
+COPY eval/results ./eval/results
 
 # The trace folder must be writable by the unprivileged user.
 RUN mkdir -p /app/logs && chown -R node:node /app/logs

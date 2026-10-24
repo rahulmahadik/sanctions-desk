@@ -3,7 +3,7 @@
  * talks to the browser over the DevTools protocol). Each page's text is checked first for local paths, user names,
  * e-mail addresses and tokens; a page that shows one is not saved.
  *
- *   npm run screenshots -- --web http://localhost:3001 --alert ALR-0004 --out docs/screenshots
+ *   npm run screenshots -- --web http://localhost:3001 --alert ALR-0004 --out docs/media/screenshots
  *
  * The API must be running and, for the case screens, the alert must already have a recommendation (run a review
  * first). Pick the demo user with --user analyst_demo (sample mode only).
@@ -19,7 +19,9 @@ import { matches } from "../scripts/redaction-patterns.mjs";
 const arg = (n: string, d?: string) => (process.argv.includes(n) ? process.argv[process.argv.indexOf(n) + 1] : d);
 const web = (arg("--web", "http://localhost:3001") as string).replace(/\/$/, "");
 const alert = arg("--alert", "ALR-0004") as string;
-const out = resolveProjectPath(arg("--out", "docs/screenshots") as string);
+/** A case whose free text gives a risk signal, for the signals panel. */
+const signalsAlert = arg("--signals-alert", "ALR-0073") as string;
+const out = resolveProjectPath(arg("--out", "docs/media/screenshots") as string);
 const demoUser = arg("--user", "analyst_demo") as string;
 const chrome = arg("--chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome") as string;
 const port = Number(arg("--port", "9333"));
@@ -105,6 +107,8 @@ interface Shot {
   path: string;
   ready: string;
   before?: string;
+  /** A selector inside the panel to show: the shot is clipped to its section instead of the whole page. */
+  focus?: string;
 }
 const shots: Shot[] = [
   { name: "01-alert-queue", path: "/", ready: "document.querySelectorAll('tbody tr').length > 3" },
@@ -113,17 +117,38 @@ const shots: Shot[] = [
     name: "03-decision-panel",
     path: `/case/${alert}`,
     ready: "document.querySelector('#decision-h')",
-    before: "document.querySelector('#decision-h').scrollIntoView()",
+    focus: "#decision-h",
   },
   {
     name: "04-routing-and-receipts",
     path: `/case/${alert}`,
     ready: "document.querySelector('#routing-title')",
-    before: `(async()=>{const b=[...document.querySelectorAll('button')].find(x=>/Verify receipt/.test(x.getAttribute('aria-label')||''));if(b){b.click();await new Promise(r=>setTimeout(r,1500));}document.querySelector('#routing-title').scrollIntoView();})()`,
+    before: `(async()=>{const b=[...document.querySelectorAll('button')].find(x=>/Verify receipt/.test(x.getAttribute('aria-label')||''));if(b){b.click();await new Promise(r=>setTimeout(r,1500));}})()`,
+    focus: "#routing-title",
   },
   { name: "05-policy-studio", path: "/policy", ready: "document.querySelector('[data-testid=autonomy-card]')" },
   { name: "06-governance", path: "/governance", ready: "document.querySelector('#g-oversight')" },
   { name: "07-exam-results", path: "/exam", ready: "document.querySelector('table')" },
+  { name: "08-help", path: "/help", ready: "document.querySelector('#help-start')" },
+  {
+    name: "09-risk-signals",
+    path: `/case/${signalsAlert}`,
+    ready: "document.querySelector('#signals-title')",
+    focus: "#signals-title",
+  },
+  {
+    name: "10-list-change",
+    path: "/",
+    ready: "document.querySelector('#list-change-title')",
+    before: `(async()=>{const b=[...document.querySelectorAll('button')].find(x=>/Check earlier decisions/.test(x.textContent||''));if(b){b.click();for(let i=0;i<40&&!document.querySelector('[data-testid=list-change]');i++)await new Promise(r=>setTimeout(r,250));}})()`,
+    focus: "#list-change-title",
+  },
+  {
+    name: "11-heldout-rounds",
+    path: "/exam",
+    ready: "document.querySelector('[data-testid=heldout-rounds]')",
+    focus: "[data-testid=heldout-rounds]",
+  },
 ];
 
 const problems: string[] = [];
@@ -148,7 +173,15 @@ for (const shot of shots) {
   const size = (await send("Page.getLayoutMetrics")) as { cssContentSize?: { width: number; height: number } };
   const height = Math.min(Math.ceil(size.cssContentSize?.height ?? 900), 4000);
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false });
-  const png = (await send("Page.captureScreenshot", { format: "png" })) as { data: string };
+  const clip = shot.focus
+    ? await evaluate<string>(
+        `(()=>{const e=document.querySelector(${JSON.stringify(shot.focus)});const p=e&&(e.closest('section')||e.closest('.panel')||e);if(!p)return '';const r=p.getBoundingClientRect();return JSON.stringify({x:Math.max(0,r.x-8),y:Math.max(0,r.y+window.scrollY-8),width:Math.min(${width},r.width+16),height:r.height+16,scale:1});})()`,
+      )
+    : "";
+  const png = (await send("Page.captureScreenshot", {
+    format: "png",
+    ...(clip ? { clip: JSON.parse(clip), captureBeyondViewport: true } : {}),
+  })) as { data: string };
   writeFileSync(join(out, `${shot.name}.png`), Buffer.from(png.data, "base64"));
   await send("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: false });
   console.log(`saved ${shot.name}.png (${height}px high)`);
