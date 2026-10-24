@@ -1,0 +1,79 @@
+{
+  "label": "Small study, not part of the recorded evaluation",
+  "note": "Held-out v3 (12 cases, 6 risks, 6 clears) three ways. The recorded result of the system at the time stays the headline; today's system (policy 8, fail-closed) was re-run three times after the fail-closed fix, which held-out v3 led to, so those runs are not blind. 25 Oct 2026, after a warm-up and without restarting Nightshift.",
+  "columns": [
+    {
+      "system": "Nemotron alone (one run)",
+      "source": "logs/alone-v1v3/2026-10-24T17-54-48-801Z-heldout3-once-nemotron_alone.json",
+      "runs": [
+        {
+          "run": "once",
+          "wrong_closes": 4,
+          "risk_cases": 6,
+          "clears_made": 2,
+          "clear_cases": 6,
+          "acceptable": 2,
+          "cases": 12,
+          "escalated_share": 0,
+          "errors": 3
+        }
+      ]
+    },
+    {
+      "system": "The system recorded at the time (one run, the headline)",
+      "source": "eval/results/2026-10-23T23-19-01-303Z-heldout3-sys3-routed.json",
+      "runs": [
+        {
+          "run": "recorded",
+          "wrong_closes": 2,
+          "risk_cases": 6,
+          "clears_made": 0,
+          "clear_cases": 6,
+          "acceptable": 3,
+          "cases": 12,
+          "escalated_share": 0.417,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "system": "Today's system, re-run after the fail-closed fix, not blind",
+      "source": "logs/v3today",
+      "runs": [
+        {
+          "run": "t1",
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 0,
+          "clear_cases": 6,
+          "acceptable": 6,
+          "cases": 12,
+          "escalated_share": 0.667,
+          "errors": 0
+        },
+        {
+          "run": "t2",
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 0,
+          "clear_cases": 6,
+          "acceptable": 6,
+          "cases": 12,
+          "escalated_share": 0.583,
+          "errors": 0
+        },
+        {
+          "run": "t3",
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 0,
+          "clear_cases": 6,
+          "acceptable": 6,
+          "cases": 12,
+          "escalated_share": 0.583,
+          "errors": 0
+        }
+      ]
+    }
+  ]
+}

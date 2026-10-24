@@ -100,6 +100,20 @@ Who wrote the sets: held-out v2, v3 and v4 were each written by a separate AI ag
 | Held-out v4 (12 cases, last round)              | fails closed (`80902ea`)                            | no risk case closed; no clear made: every clear carried a relationship signal the screener could not ground, which now blocks (the cost of failing closed)                                                                                                                                                                                     | nothing; this was the last held-out round                                                                        |
 <!-- round-story:end -->
 
+**Held-out v3 re-run with today's system (small study, not part of the recorded evaluation).** The table above keeps the recorded v3 result; this one adds Nemotron alone and three runs of today's fail-closed system on the same frozen cases:
+
+<!-- v3-today:start -->
+**Small study, not part of the recorded evaluation.** Held-out v3 (12 cases, 6 risks, 6 clears) three ways. The recorded result of the system at the time stays the headline; today's system (policy 8, fail-closed) was re-run three times after the fail-closed fix, which held-out v3 led to, so those runs are not blind. 25 Oct 2026, after a warm-up and without restarting Nightshift.
+
+| Held-out v3                                                 | Run      | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors |
+| ----------------------------------------------------------- | -------- | ------------------------: | ----------: | ------------------: | -----: |
+| Nemotron alone (one run)                                    | once     |                    4 of 6 |      2 of 6 |             2 of 12 |      3 |
+| The system recorded at the time (one run, the headline)     | recorded |                    2 of 6 |      0 of 6 |             3 of 12 |      0 |
+| Today's system, re-run after the fail-closed fix, not blind | t1       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 |
+| Today's system, re-run after the fail-closed fix, not blind | t2       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 |
+| Today's system, re-run after the fail-closed fix, not blind | t3       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 |
+<!-- v3-today:end -->
+
 ## Which code the numbers came from
 
 First system: review code at commit `8fe6205` (all four first-system runs). Changed system: held-out v2 blind at `8f6976c`; the re-run of v2 after the infrastructure fix, the 70-case re-run, held-out v1 after the fix and the screener-off ablation at `d44ee04`. The SQL guard fix came after all of those, in merge `d49b726`; held-out v3 and its single-mode run used the code after it (`e56b204`, with the grounding and document-number fixes). Held-out v4 and its single-mode run used the fail-closed change (`80902ea`, policy version 8), committed after v4 was frozen in `fc64537`. Each result file records the commit it was saved at.

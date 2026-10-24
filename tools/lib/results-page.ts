@@ -45,6 +45,7 @@ export const RESULTS_SECTIONS: readonly ResultsSection[] = [
     blocks: [
       { doc: "docs/NEMOTRON.md", marker: "repeat-study" },
       { doc: "docs/NEMOTRON.md", marker: "alone-sets" },
+      { doc: "docs/NEMOTRON.md", marker: "v3-today" },
     ],
   },
   {

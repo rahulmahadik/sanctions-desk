@@ -314,6 +314,74 @@ if (existsSync(docFile)) {
     }
   }
 }
+// Held-out v3 three ways: Nemotron alone (once), the system recorded at the time (once, the headline), and today's
+// system (policy 8, fail-closed) re-run three times after the fix, not blind. Read from logs/v3today when present.
+interface V3Today {
+  label: string;
+  note: string;
+  columns: Array<{ system: string; source: string; runs: RunSummary[] }>;
+}
+const v3File = resolveProjectPath("eval/v3-today.json");
+const todayRuns = read("v3today", (f) => /-heldout3-todayt\d-routed\.json$/.test(f));
+let v3: V3Today | undefined;
+const aloneV3 = sets?.rows.find((r) => r.set.startsWith("Held-out v3") && r.system === "Nemotron alone");
+const recordedV3 = sets?.rows.find((r) => r.set.startsWith("Held-out v3") && r.system.startsWith("Full system"));
+if (todayRuns.length > 0 && aloneV3 && recordedV3) {
+  v3 = {
+    label: "Small study, not part of the recorded evaluation",
+    note: "Held-out v3 (12 cases, 6 risks, 6 clears) three ways. The recorded result of the system at the time stays the headline; today's system (policy 8, fail-closed) was re-run three times after the fail-closed fix, which held-out v3 led to, so those runs are not blind. 25 Oct 2026, after a warm-up and without restarting Nightshift.",
+    columns: [
+      { system: "Nemotron alone (one run)", source: aloneV3.source, runs: [aloneV3.summary] },
+      {
+        system: "The system recorded at the time (one run, the headline)",
+        source: recordedV3.source,
+        runs: [recordedV3.summary],
+      },
+      {
+        system: "Today's system, re-run after the fail-closed fix, not blind",
+        source: "logs/v3today",
+        runs: todayRuns.map((r) => runSummary(r.system?.replace(/^today/, "") ?? r.file, r)),
+      },
+    ],
+  };
+} else if (existsSync(v3File)) {
+  v3 = JSON.parse(readFileSync(v3File, "utf8"));
+}
+const v3Table = v3
+  ? [
+      `**${v3.label}.** ${v3.note}`,
+      "",
+      "| Held-out v3 | Run | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors |",
+      "| --- | --- | ---: | ---: | ---: | ---: |",
+      ...v3.columns.flatMap((c) =>
+        c.runs.map(
+          (r) =>
+            `| ${c.system} | ${r.run} | ${r.wrong_closes} of ${r.risk_cases} | ${r.clears_made} of ${r.clear_cases} | ${r.acceptable} of ${r.cases} | ${r.errors} |`,
+        ),
+      ),
+    ].join("\n")
+  : undefined;
+if (v3) {
+  const v3Json = `${JSON.stringify(v3, null, 2)}\n`;
+  if (!existsSync(v3File) || readFileSync(v3File, "utf8") !== v3Json) {
+    changed = true;
+    if (!check) writeFileSync(v3File, v3Json);
+  }
+  for (const path of ["docs/NEMOTRON.md", "docs/EVALUATION.md"]) {
+    const target = resolveProjectPath(path);
+    const doc = readFileSync(target, "utf8");
+    const reV3 = /<!-- v3-today:start -->[\s\S]*?<!-- v3-today:end -->/;
+    if (!reV3.test(doc) || !v3Table) continue;
+    const next = formatMarkdown(
+      doc.replace(reV3, () => `<!-- v3-today:start -->\n${v3Table}\n<!-- v3-today:end -->`),
+      target,
+    );
+    if (next !== doc) {
+      changed = true;
+      if (!check) writeFileSync(target, next);
+    }
+  }
+}
 if (check && changed) {
   console.error("the repeat study summary is out of date: run npm run study:repeat");
   process.exit(1);

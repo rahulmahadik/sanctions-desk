@@ -110,6 +110,20 @@ Read plainly: in each of its three runs Nemotron alone closed risk cases (3, 6 a
 
 Read plainly: v1 is not a like-for-like comparison, because the first system had no free-text screener yet; on v1, Nemotron alone and the first system each closed 2 of 22 risk cases (HO-002 and HO-006 for Nemotron alone; HO-005 and HO-006 for the first system), Nemotron alone made 3 of 8 clears where the first system made none, and it gave no usable answer on 7 cases. On v3, Nemotron alone closed 4 of 6 risk cases against 2 for the full system. The main result stays the three runs on v4 above: the full system closed none of the 6 risk cases in any run; Nemotron alone closed 3, 6 and 4.
 
+**Held-out v3 three ways.** Nemotron alone, the system recorded at the time, and today's system re-run three times:
+
+<!-- v3-today:start -->
+**Small study, not part of the recorded evaluation.** Held-out v3 (12 cases, 6 risks, 6 clears) three ways. The recorded result of the system at the time stays the headline; today's system (policy 8, fail-closed) was re-run three times after the fail-closed fix, which held-out v3 led to, so those runs are not blind. 25 Oct 2026, after a warm-up and without restarting Nightshift.
+
+| Held-out v3                                                 | Run      | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors |
+| ----------------------------------------------------------- | -------- | ------------------------: | ----------: | ------------------: | -----: |
+| Nemotron alone (one run)                                    | once     |                    4 of 6 |      2 of 6 |             2 of 12 |      3 |
+| The system recorded at the time (one run, the headline)     | recorded |                    2 of 6 |      0 of 6 |             3 of 12 |      0 |
+| Today's system, re-run after the fail-closed fix, not blind | t1       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 |
+| Today's system, re-run after the fail-closed fix, not blind | t2       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 |
+| Today's system, re-run after the fail-closed fix, not blind | t3       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 |
+<!-- v3-today:end -->
+
 ## What we tried and why it isn't used
 
 - **NVIDIA guard and jailbreak-detection models.** Requests naming `nvidia/llama-3.1-nemoguard-8b-content-safety` and `nvidia/nemoguard-jailbreak-detect` were answered by Nemotron 3 Ultra, as their receipts show, and Nightshift 1.2.1's list of models that can be added as a lane offers no NVIDIA guard, safety or jailbreak-detection model (the list was read; nothing was added or changed). So they are not served on this version, and they are not claimed.
