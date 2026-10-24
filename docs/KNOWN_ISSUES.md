@@ -63,6 +63,7 @@ Problems met while building this, with what was done about each. Facts only; ver
 
 ## Considered, not done
 
+- **Exact model pinning not done:** the Nightshift release with exact model selection was not available before submission, so the desk stays on Nightshift 1.2.1, where the router chooses the model within a lane; the receipts record the model that answered every call.
 - **Nemotron embedding for finding earlier decisions by meaning.** Nightshift 1.2.1 lists `nvidia/nemotron-3-embed-1b` and an embed mode, but every route refuses it ("no route on this build returns embed"; `/v1/embeddings` answers 404), so no embedding call can be made with a receipt, and it lists no rerank model. Memory recall stays on exact pointers.
 
 ## Exported run files
