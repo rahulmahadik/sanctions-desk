@@ -103,7 +103,7 @@ Reproduce with `npm ci && npm run prove`, or `npm run prove -- --fresh` to clone
 95% intervals (Wilson score) for the share of risk cases wrongly closed, full system and deterministic rules: Held-out v1 (blind): full system 2 of 22 (3% to 28%), rules 6 of 22 (13% to 48%); Held-out v2 (blind): full system 0 of 14 (0% to 22%), rules 3 of 14 (8% to 48%); Held-out v2 (re-run, not blind): full system 0 of 14 (0% to 22%), rules 3 of 14 (8% to 48%); Held-out v3 (blind): full system 2 of 6 (10% to 70%), rules 1 of 6 (3% to 56%); Held-out v4 (blind): full system 0 of 6 (0% to 39%), rules 3 of 6 (19% to 81%). The sets are small, so the intervals are wide.
 <!-- rounds:end -->
 
-Held-out v2, v3 and v4 were each written by a separate AI agent session that saw no results, traces, code or fixes; labels fixed before the run (the session read the written definitions and the case and data builders, no review code); held-out v1 was written in this project before any run on it. What each round found and what was changed after it: [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds).
+Held-out v2, v3 and v4 were each written by a separate AI agent session that saw no results, traces or fixes, and no review code except the evidence-standard rule its labels apply; labels fixed before the run; each session's instructions came from the build session and named the case families to test. Held-out v1 was written in this project, by the build session, before any run on it. What each round found and what was changed after it: [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds).
 
 ![Held-out rounds: risk cases wrongly closed by the full system and by the baselines, per round](docs/media/charts/heldout-wrong-closes.png)
 
