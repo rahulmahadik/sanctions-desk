@@ -43,3 +43,14 @@ The desk does not re-run a case on an earlier list. What it shows, in sample mod
 1. Home page: press **Check earlier decisions against the list as it is now**. Five earlier closes are listed for review because their listed entry changed, with the list snapshot then and now; DSP-0007 (Yiu-chung Tam) points at **ALR-0058**.
 2. Open **ALR-0058** and press **Review this alert**. The answer is Escalate; the memory step reports the earlier clearance as stale.
 3. Scroll to **Replay** and drag the slider back to the memory step: "1 earlier decision(s): CLOSE_FALSE_POSITIVE (stale)".
+
+## Console screenshots
+
+Read-only screenshots of the Zetaris console (24 Oct 2026), in `console/`; the admin login is blurred and no setting was changed.
+
+| File                                 | What it shows                                                                      |
+| ------------------------------------ | ---------------------------------------------------------------------------------- |
+| `console/zetaris-semantic-layer.png` | The semantic layer `screening_usl`: 14 tables, all active, and their relationships |
+| `console/zetaris-data-quality.png`   | The 37 data-quality rules on the semantic layer                                    |
+| `console/zetaris-access-control.png` | The three agent roles assigned to the semantic layer                               |
+| `console/zetaris-column-access.png`  | Column access on `customer_identifier`: `id_number` hidden for the evidence role   |

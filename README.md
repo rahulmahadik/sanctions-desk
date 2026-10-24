@@ -408,6 +408,27 @@ The agents read the model's own description at run time and build their read-onl
 
 Before a customer note counts as documentary evidence, the system checks in Zetaris that the document number it cites is on the customer's record: a count query under the evidence agent's read-only identity, the same way as the identifier match. No model sees the number; only a yes or no comes back, and a number that is not on file sends the case to "need more information" with that reason shown.
 
+**In the Zetaris console** (read-only screenshots, 24 Oct 2026; the admin login is blurred):
+
+<table>
+<tr>
+<td width="50%"><img src="docs/media/console/zetaris-semantic-layer.png" alt="Zetaris semantic layer screening_usl: 14 tables, all active, with their relationships"></td>
+<td width="50%"><img src="docs/media/console/zetaris-data-quality.png" alt="Zetaris data-quality rules for screening_usl: 37 rules, for example a date of birth present for individuals"></td>
+</tr>
+<tr>
+<td>The semantic layer <code>screening_usl</code>: 14 tables, all active</td>
+<td>37 data-quality rules on it; a failing rule cannot support a close</td>
+</tr>
+<tr>
+<td><img src="docs/media/console/zetaris-access-control.png" alt="Zetaris access control: the roles ROLE_EVIDENCE_AGENT, ROLE_REVIEWER and ROLE_EVAL assigned to the semantic layer"></td>
+<td><img src="docs/media/console/zetaris-column-access.png" alt="Zetaris column access on customer_identifier: the mask_id_number policy for ROLE_EVIDENCE_AGENT hides id_number"></td>
+</tr>
+<tr>
+<td>The three agent roles assigned to the semantic layer</td>
+<td>Column access on <code>customer_identifier</code>: <code>id_number</code> hidden for the evidence role (configured; this local edition does not enforce it, so the application masks it as well)</td>
+</tr>
+</table>
+
 ### NVIDIA Nemotron
 
 The language work is done by Nemotron models through Nightshift: **Nemotron 3 Ultra 550B** (served in the cloud) and **Nemotron 3.5 Lightning 30B** (served on a local laptop). Which of them answers a call is decided by Nightshift's router, so the split below is a measurement, not a setting:
