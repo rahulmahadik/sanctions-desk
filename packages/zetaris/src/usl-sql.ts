@@ -1,6 +1,7 @@
 import {
   USL_AGENT_USERS,
   USL_ROLES,
+  USL_STEP_ROLES,
   USL_TABLE_ORDER,
   USL_TABLES,
   type UslColumnSpec,
@@ -252,6 +253,30 @@ function accessScript(): string {
   );
 }
 
+function stepRolesScript(): string {
+  const blocks: string[] = [];
+  for (const r of USL_STEP_ROLES) {
+    blocks.push(block(`create_${r.role}`, `CREATE ROLE '${r.role}' DESCRIBE BY '${r.description}'`));
+    for (const t of r.tables)
+      blocks.push(block(`grant_${r.role}_${t}`, `GRANT SELECT ON USL TABLE ${Q}.${t} TO ROLE '${r.role}'`));
+  }
+  return join(
+    `-- Optional: one role per review step that reads Zetaris, granted only that step's tables. The users are created
+-- and assigned by \`npm run zetaris:agents -- --steps --apply\`; the existing three identities are not touched.`,
+    blocks,
+  );
+}
+
+function stepRolesRollback(): string {
+  return join(
+    "-- Rollback of 10_step_roles_create.sql: the step users first, then their roles. The three original identities stay.",
+    [
+      ...USL_STEP_ROLES.map((r) => block(`drop_${r.name}`, `DROP USER '${r.email}'`)),
+      ...USL_STEP_ROLES.map((r) => block(`drop_${r.role}`, `DROP ROLE '${r.role}'`)),
+    ],
+  );
+}
+
 function agentsScript(): string {
   return join(
     "-- Puts each runtime user in its role. The users are created by `npm run zetaris:agents`.",
@@ -319,6 +344,12 @@ export function renderScripts(opts: RenderOptions): Record<string, string> {
     ]),
     "08_access_create.sql": accessScript(),
     "09_agents_create.sql": agentsScript(),
+    "10_step_roles_create.sql": stepRolesScript(),
+    "10_step_roles_rollback.sql": stepRolesRollback(),
+    "10_step_roles_select.sql": selectScript(
+      "The step roles and what they may read.",
+      USL_STEP_ROLES.map((r) => block(`grants_${r.role}`, `SHOW GRANT ROLE '${r.role}' ON ALL`)),
+    ),
     "08_access_select.sql": selectScript("Roles and what they may read.", [
       block("roles", "SHOW ROLES"),
       ...USL_ROLES.map((r) => block(`grants_${r.name}`, `SHOW GRANT ROLE '${r.name}' ON ALL`)),

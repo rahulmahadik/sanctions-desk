@@ -388,6 +388,65 @@ export const USL_AGENT_USERS = [
   { name: "agent_eval", email: "agent_eval@sanctions-desk.local", role: "role_eval", tokenEnv: "ZETARIS_TOKEN_EVAL" },
 ] as const;
 
+/**
+ * One identity per review step that reads Zetaris, each role granted SELECT only on the tables that step reads
+ * (Zetaris's least privilege, with the application's own allow-lists as a second layer). Optional: a step without its
+ * token reads as the evidence identity. The critic's role has no identifier table at all, so it cannot read an
+ * identifier number even if the application's own column rule were bypassed.
+ */
+export const USL_STEP_ROLES = [
+  {
+    role: "role_ownership_agent",
+    description: "Ownership step: the ownership register only",
+    name: "agent_ownership",
+    email: "agent_ownership@sanctions-desk.local",
+    tokenEnv: "ZETARIS_TOKEN_OWNERSHIP",
+    tables: ["beneficial_owner"],
+  },
+  {
+    role: "role_critic_agent",
+    description: "Critic fact re-read: no identifier tables",
+    name: "agent_critic",
+    email: "agent_critic@sanctions-desk.local",
+    tokenEnv: "ZETARIS_TOKEN_CRITIC",
+    tables: [
+      "business_definition",
+      "list_entry",
+      "list_alias",
+      "list_dob",
+      "list_country",
+      "customer",
+      "beneficial_owner",
+      "payment",
+      "alert",
+    ],
+  },
+  {
+    role: "role_memory_agent",
+    description: "Memory step: earlier decisions (pointers) only",
+    name: "agent_memory",
+    email: "agent_memory@sanctions-desk.local",
+    tokenEnv: "ZETARIS_TOKEN_MEMORY",
+    tables: ["disposition"],
+  },
+  {
+    role: "role_document_agent",
+    description: "Document on record check: customer identifiers only",
+    name: "agent_document",
+    email: "agent_document@sanctions-desk.local",
+    tokenEnv: "ZETARIS_TOKEN_DOCUMENT",
+    tables: ["customer_identifier"],
+  },
+  {
+    role: "role_rescreen_agent",
+    description: "List-change re-check: earlier decisions, list entries, open alerts, pending payments",
+    name: "agent_rescreen",
+    email: "agent_rescreen@sanctions-desk.local",
+    tokenEnv: "ZETARIS_TOKEN_RESCREEN",
+    tables: ["disposition", "list_entry", "alert", "payment"],
+  },
+] as const;
+
 export const USL_ROLES = [
   { name: "role_evidence_agent", description: "Evidence and reasoning agents, identifiers are masked" },
   { name: "role_reviewer", description: "Human reviewers, full values" },

@@ -3,6 +3,9 @@
  *
  *   npm run zetaris:agents                    list what would be done
  *   npm run zetaris:agents -- --apply         create the users, assign their roles, issue the tokens
+ *   npm run zetaris:agents -- --steps [--apply]   the optional per-step users only (USL_STEP_ROLES); the three
+ *                                                 identities above are not touched. Their roles come from
+ *                                                 zetaris/sql/10_step_roles_create.sql, applied first.
  *
  * For each user: any earlier copy is dropped (its password is unknown, so it could not sign in), the user is
  * created at the GENERAL level with a random password that exists only in memory, assigned to its role, signed
@@ -14,9 +17,13 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadConfig, projectRoot } from "@sanctions-desk/shared";
-import { USL_AGENT_USERS } from "@sanctions-desk/zetaris";
+import { USL_AGENT_USERS, USL_STEP_ROLES } from "@sanctions-desk/zetaris";
 
 const apply = process.argv.includes("--apply");
+const steps = process.argv.includes("--steps");
+const users: ReadonlyArray<{ name: string; email: string; role: string; tokenEnv: string }> = steps
+  ? USL_STEP_ROLES.map((r) => ({ name: r.name, email: r.email, role: r.role, tokenEnv: r.tokenEnv }))
+  : USL_AGENT_USERS;
 const envPath = join(projectRoot(), ".env");
 if (existsSync(envPath)) process.loadEnvFile(envPath);
 const { zetaris } = loadConfig();
@@ -80,7 +87,7 @@ function keyOf(answer: unknown): string | undefined {
 const existing = (await (await call("GET", "/users", admin)).json()) as Array<{ email: string }>;
 const known = new Set(existing.map((u) => u.email.toLowerCase()));
 
-for (const u of USL_AGENT_USERS) {
+for (const u of users) {
   const exists = known.has(u.email.toLowerCase());
   console.log(`${u.email}: ${exists ? "replace" : "create"}, role ${u.role}, token ${u.tokenEnv}`);
   if (!apply) continue;
