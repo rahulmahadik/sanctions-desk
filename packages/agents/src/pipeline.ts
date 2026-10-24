@@ -122,11 +122,16 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
   const easy =
     (memory?.fresh === true && match.comparison.definitions.false_positive) || evidence.hybrid.path === "confirm";
   if (easy) {
+    // The words name whichever of the two reasons for the fast path held; the path itself is the same.
+    const why =
+      memory?.fresh === true && match.comparison.definitions.false_positive
+        ? "earlier clearance still valid"
+        : "the structured evidence settles it";
     deps.trace.log({
       agent: "triage",
       action: "route",
       status: "ok",
-      output_summary: "earlier clearance still valid: fast path, no reasoning",
+      output_summary: `${why}: fast path, no reasoning`,
     });
   }
   return {

@@ -68,6 +68,22 @@ describe("the demo payment in input_examples/run-ALR-0073.json", () => {
   });
 });
 
+describe("the fast-path line in the trace", () => {
+  it("names the reason that held: an earlier clearance, or the structured evidence alone", async () => {
+    const { app, logDir } = await sampleApp();
+    const route = async (alertId: string) => {
+      await run(app, alertId);
+      return readFileSync(join(logDir, `trace-run-${alertId}.jsonl`), "utf8")
+        .split("\n")
+        .filter(Boolean)
+        .map((l) => JSON.parse(l) as { action: string; output_summary?: string })
+        .find((e) => e.action === "route")?.output_summary;
+    };
+    expect(await route("ALR-0046")).toBe("earlier clearance still valid: fast path, no reasoning");
+    expect(await route("ALR-0001")).toBe("the structured evidence settles it: fast path, no reasoning");
+  });
+});
+
 describe("POST /run on the sample", () => {
   it("closes a clear false positive and records every step", async () => {
     const { app, logDir } = await sampleApp();
