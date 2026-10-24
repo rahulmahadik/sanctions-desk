@@ -12,6 +12,7 @@ import {
 import { describe, expect, it } from "vitest";
 import {
   attempt,
+  checkTippingOff,
   humanState,
   loadSigner,
   planActions,
@@ -228,11 +229,51 @@ describe("the next action is prepared only after a decision", () => {
     expect(plan.every((a) => a.sent === false)).toBe(true);
   });
 
-  it("writes a neutral request for information and drops items that would reveal screening", () => {
-    const text = rfiText(policy, ["A recent proof of address", "Explain the sanctions screening match on your name"]);
-    expect(text).toContain("proof of address");
-    expect(text).not.toMatch(/sanction|screening/i);
-    expect(rfiText(policy, ["You are under investigation"])).toContain("proof of identity");
+  it("writes a request for information from fixed neutral wording that passes the tipping-off check", () => {
+    for (const type of ["customer", "payment"] as const) {
+      const { text, check } = rfiText(policy, type);
+      expect(check).toEqual({ passed: true, hits: [] });
+      expect(text).not.toMatch(/sanction|screening|list|match|block|escalat|alert/i);
+    }
+    expect(rfiText(policy, "customer").text).toContain("proof of identity");
+    expect(rfiText(policy, "payment").text).toContain("purpose of the payment");
+  });
+
+  it("never puts the model's what-would-change text into the draft", () => {
+    const record = recordFor("NEED_MORE_INFO");
+    const leaky = {
+      ...record,
+      what_would_change: [
+        "If the listed party had a date of birth matching the customer's to the day and a matching nationality, true_match could be met, leading to RECOMMEND_BLOCK",
+      ],
+    };
+    const draft = planActions(approve(leaky), policy, NOW).find((a) => a.kind === "rfi_draft");
+    expect(draft?.content).not.toContain("listed party");
+    expect(draft?.content).not.toContain("RECOMMEND_BLOCK");
+    expect(draft).toMatchObject({ needs_approval: true, tipping_off_check: { passed: true } });
+    expect(draft?.status).toContain("a person must approve");
+  });
+
+  it("catches wording the policy's own patterns missed", () => {
+    const missed = [
+      "If the listed party had a date of birth matching the customer's to the day, leading to RECOMMEND_BLOCK",
+      "Your account was flagged and escalated for review",
+      "We may hold your payment while we complete compliance checks",
+      "A different nationality for the customer that is not a nationality of the listed party",
+    ];
+    for (const text of missed) {
+      expect(policy.guards.tippingOffPatterns.some((p) => new RegExp(p, "iu").test(text))).toBe(false);
+      expect(checkTippingOff(policy, text).passed).toBe(false);
+    }
+    expect(checkTippingOff(policy, "Please send a recent proof of address.").passed).toBe(true);
+  });
+
+  it("withholds a draft whose wording fails the check, and says why", () => {
+    const strict = { ...policy, guards: { ...policy.guards, tippingOffPatterns: ["proof of identity"] } };
+    const draft = planActions(approve(recordFor("NEED_MORE_INFO")), strict, NOW).find((a) => a.kind === "rfi_draft");
+    expect(draft?.status).toBe("draft withheld: the wording failed the tipping-off check");
+    expect(draft?.content).not.toContain("Thank you for banking");
+    expect(draft?.tipping_off_check).toEqual({ passed: false, hits: ["proof of identity"] });
   });
 });
 

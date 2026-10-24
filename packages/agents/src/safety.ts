@@ -1,5 +1,6 @@
 import type { ModelUseInput, Policy } from "@sanctions-desk/shared";
 import { z } from "zod";
+import { TIPPING_OFF_FLOOR } from "./actions.js";
 import { askJson, clipped } from "./model-call.js";
 import { findInjection } from "./policy-guard.js";
 import type { AgentDeps } from "./types.js";
@@ -98,7 +99,7 @@ export async function screenInbound(deps: AgentDeps, texts: readonly string[]): 
 
 /** Screen a draft meant for a customer. The answer is "allowed" only if neither the patterns nor the model object. */
 export async function screenOutbound(deps: AgentDeps, draft: string): Promise<SafetyResult> {
-  const hits = patternHits(deps.policy.guards.tippingOffPatterns, [draft]);
+  const hits = patternHits([...deps.policy.guards.tippingOffPatterns, ...TIPPING_OFF_FLOOR], [draft]);
   const { verdict, calls } = await ask(deps, outboundPolicy(deps.policy), "safety_outbound", JSON.stringify(draft));
   // If the model cannot answer, a draft is not approved: nothing goes out on the strength of silence.
   const violation = hits.length > 0 || verdict === undefined || verdict.violation;

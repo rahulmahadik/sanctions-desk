@@ -46,6 +46,10 @@ export interface ActionBody {
   policy: { version: number; hash: string };
   /** Always false: the desk prepares records and drafts, it never sends or executes them. */
   sent: false;
+  /** For a draft meant for a customer: the tipping-off check it passed (or failed) before it was saved. */
+  tipping_off_check?: TippingOffCheck;
+  /** For a draft meant for a customer: always true, a person must approve the wording before it is used. */
+  needs_approval?: true;
   created_at: string;
 }
 
@@ -100,20 +104,67 @@ const people = (record: DecisionRecord): ActionBody["decided_by"] =>
     ...(h.reason ? { reason: h.reason } : {}),
   }));
 
-const tippingOff = (policy: Policy, text: string): boolean =>
-  policy.guards.tippingOffPatterns.some((p) => new RegExp(p, "iu").test(text));
+/**
+ * Wording that would tell a customer they were screened, matched, escalated or considered for a block. Every draft
+ * meant for a customer is checked against these on top of the policy's own tipping-off patterns; a policy cannot
+ * remove them.
+ */
+export const TIPPING_OFF_FLOOR = [
+  "\\blist(s|ed|ing)?\\b",
+  "\\bmatch(es|ed|ing)?\\b",
+  "\\balerts?\\b",
+  "escalat",
+  "\\bblock(s|ed|ing)?\\b",
+  "\\bhold(s|ing)?\\b",
+  "complian(ce|t)",
+  "due diligence",
+  "\\bflag(s|ged)?\\b",
+  "\\bsuspect",
+  "false.positive",
+  "true.match",
+  "RECOMMEND_BLOCK|CLOSE_FALSE_POSITIVE|ESCALATE_L2|NEED_MORE_INFO",
+];
 
-/** A neutral request for the missing information. If the listed items would reveal anything, only the general text stays. */
-export function rfiText(policy: Policy, items: readonly string[]): string {
-  const general =
-    "Thank you for banking with us. To complete a routine update of our records, please send the documents or details listed below.";
-  const list = items.filter((i) => i.trim() !== "" && !tippingOff(policy, i)).slice(0, 5);
-  return list.length > 0
-    ? `${general}\n- ${list.join("\n- ")}`
-    : `${general}\n- A recent proof of identity and address`;
+export interface TippingOffCheck {
+  passed: boolean;
+  /** The patterns that matched. */
+  hits: string[];
 }
 
-type Base = Omit<ActionBody, "kind" | "status" | "title" | "content">;
+/** Check wording meant for a customer against the policy's tipping-off patterns and the fixed floor above. */
+export function checkTippingOff(policy: Policy, text: string): TippingOffCheck {
+  const hits = [...policy.guards.tippingOffPatterns, ...TIPPING_OFF_FLOOR].filter((p) =>
+    new RegExp(p, "iu").test(text),
+  );
+  return { passed: hits.length === 0, hits };
+}
+
+/**
+ * What a request for information asks for. Fixed wording chosen by the kind of alert: never text a model wrote, which
+ * can describe the match ("if the listed party had a date of birth matching ...").
+ */
+const RFI_ITEMS: Record<"customer" | "payment", string[]> = {
+  customer: [
+    "A recent proof of identity, such as a passport or national identity card",
+    "A recent proof of address, such as a utility bill or bank statement from the last three months",
+    "An official document that shows your date of birth",
+  ],
+  payment: [
+    "The purpose of the payment",
+    "The full name and address of the other party to the payment",
+    "A supporting document for the payment, such as an invoice or contract",
+  ],
+};
+
+/** A neutral request for information, and the tipping-off check it was put through. */
+export function rfiText(policy: Policy, alertType: "customer" | "payment"): { text: string; check: TippingOffCheck } {
+  const general =
+    "Thank you for banking with us. To complete a routine update of our records, please send the documents or details set out below.";
+  const text = `${general}\n- ${RFI_ITEMS[alertType].join("\n- ")}`;
+  return { text, check: checkTippingOff(policy, text) };
+}
+
+type Base = Omit<ActionBody, "kind" | "status" | "title" | "content" | "tipping_off_check" | "needs_approval">;
 
 const reasonOf = (a?: HumanAction): string => (a?.reason ? ` Reason given: ${a.reason}` : "");
 
@@ -136,11 +187,18 @@ function settledAction(record: DecisionRecord, policy: Policy, state: HumanState
     };
   }
   if (state.final === "NEED_MORE_INFO") {
+    const { text, check } = rfiText(policy, record.alert_type);
     return {
       kind: "rfi_draft",
-      status: "draft, not sent",
+      status: check.passed
+        ? "draft, not sent; a person must approve the wording before it is used"
+        : "draft withheld: the wording failed the tipping-off check",
       title: `Request for information (draft): ${record.alert_ref}`,
-      content: rfiText(policy, record.what_would_change),
+      content: check.passed
+        ? text
+        : `The draft was withheld because its wording failed the tipping-off check (${check.hits.join(", ")}). Write the request by hand and have it approved.`,
+      tipping_off_check: check,
+      needs_approval: true,
     };
   }
   const declined = state.status === "block_declined";

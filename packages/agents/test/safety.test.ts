@@ -63,6 +63,15 @@ describe("screenOutbound", () => {
     expect(r.patternHits.length).toBeGreaterThan(0);
   });
 
+  it.each([
+    "Your name was matched to a listed party, so your account was escalated.",
+    "We may hold your payment while compliance completes its checks.",
+  ])("refuses %s by the fixed tipping-off floor even if the model approves", async (draft) => {
+    const { generator } = scriptedGenerator([clean]);
+    const r = await screenOutbound(sampleDeps({ generator }), draft);
+    expect(r).toMatchObject({ violation: true, category: "tipping_off" });
+  });
+
   it("refuses a hint the patterns do not know when the model objects", async () => {
     const { generator } = scriptedGenerator([flagged("tipping_off", "implies the customer is being checked")]);
     const r = await screenOutbound(sampleDeps({ generator }), "We had to look closer at who you are.");
