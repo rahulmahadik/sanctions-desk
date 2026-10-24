@@ -15,7 +15,7 @@ curl -s localhost:8000/run -H 'content-type: application/json' -d @input_example
 | `run-ALR-0040.json` | ALR-0040 | A company owned by a listed party through a circular ownership chain                                                                  | Escalate to level 2 (`ESCALATE_L2`)                                                      |
 | `run-ALR-0073.json` | ALR-0073 | A payment whose counterparty name equals a listed bank's, with an onward-delivery city named only in the payment reference ("Tehran") | Escalate to level 2 (`ESCALATE_L2`): the local screener flags the city at its exact span |
 
-In sample mode (saved Zetaris answers and the labelled rules-based stand-in for the models) the five files give the outcome in the last column. A live run asks the Nemotron models and can differ; every outcome is a recommendation for a person to act on, never an action.
+In sample mode (saved Zetaris answers and the labelled rules-based stand-in for the models) the five files give the outcome in the last column. The answer, sealed record and events of each one, saved from a real sample-mode run, are in [`output_examples/sample-mode/`](../output_examples/sample-mode) (`npm run examples:sample`). A live run asks the Nemotron models and can differ; every outcome is a recommendation for a person to act on, never an action.
 
 Optional fields a request may carry, as `POST /run` accepts them:
 

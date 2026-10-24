@@ -1,0 +1,647 @@
+{
+  "schema_version": 1,
+  "record_id": "rec-9559e23b-5a77-4008-8d8d-3f569d67db03",
+  "run_id": "9559e23b-5a77-4008-8d8d-3f569d67db03",
+  "alert_type": "customer",
+  "alert_ref": "ALR-0040",
+  "decided_at": "2026-10-24T05:28:26.009Z",
+  "as_of": "2026-10-24T05:28:26.009Z",
+  "decision": "ESCALATE_L2",
+  "confidence": 0.85,
+  "rationale": "Rules-based sample answer: a listed party effectively owns the customer, or the chain is too long to judge. Name is strong, date of birth is missing_customer, nationality is unknown.",
+  "what_would_change": [
+    "A date of birth or document number that settles whether this is the listed party",
+    "A change in the listed entry on the next list update"
+  ],
+  "policy": {
+    "version": 8,
+    "hash": "c4f6bf16568a4ee6f2b3f4d49e6b14efdf907d0c804962ebca807f682ac4ca12"
+  },
+  "definitions": [
+    {
+      "definition_id": "counterparty_match",
+      "version": "1",
+      "statement_hash": "bfc72b12ae41a3e9ac845a388caef854dd7a35b66403ceba7c01a04dc8a9e8db"
+    },
+    {
+      "definition_id": "effective_ownership_threshold",
+      "version": "1",
+      "statement_hash": "c24d1ecad9c3d3571dc25e9d8ce2bca28a62198f9128ab7d0ec2596a29f2ab93"
+    },
+    {
+      "definition_id": "false_positive",
+      "version": "2",
+      "statement_hash": "f03b06383f868893dca264769cc24e1feafd8a49c62fc3d1ef92bd47df03ea93"
+    },
+    {
+      "definition_id": "strong_identifier",
+      "version": "1",
+      "statement_hash": "6d4787bdfaab46af6cbc0736007fd74af232933ff5cac8fc54d1c92da6d839fe"
+    },
+    {
+      "definition_id": "true_match",
+      "version": "1",
+      "statement_hash": "3dd8579b5200466f47951b9773b9eda5934a6acd2366a1718309ae135642eebb"
+    }
+  ],
+  "usl": {
+    "namespace": "lightning.metastore.sanctions",
+    "model_version": "4efa3ddddfbe"
+  },
+  "list_snapshots": [
+    {
+      "list": "UN",
+      "snapshot_id": "un-consolidated-2026-10-21-76201a92",
+      "content_hash": "08c1a709ae09af19200b4391bdcf1a2109bae58d25f34a00cc44a9d8c59975f5"
+    }
+  ],
+  "queries": [
+    {
+      "query_id": "0fae4919-bd57-4e14-8f9e-a2cdc07348be",
+      "agent": "evidence",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.alert",
+      "sql": "SELECT `alert_id`, `alert_type`, `alert_source`, `customer_id`, `payment_id`, `list_id`, `entry_id`, `matched_name`, `match_score`, `raised_at`, `status` FROM lightning.metastore.sanctions.screening_usl.alert WHERE `alert_id` = 'ALR-0040' ORDER BY `alert_id` LIMIT 200",
+      "sql_hash": "e32bb6f6c80f48812bd32a15282788779d40e5754384a84e3f5f79e3cd493e92",
+      "row_count": 1,
+      "row_hashes": [
+        "b55ccafdd2e5a2cb14f998b94cb0091121cf8a1510a1712194ac1f4db63a2838"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "1463f533-504b-400f-a013-f6a23dff8fc0",
+      "agent": "evidence",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.customer",
+      "sql": "SELECT `customer_id`, `customer_type`, `full_name`, `date_of_birth`, `nationality`, `residence_country`, `onboarding_date`, `risk_rating`, `desk`, `notes`, `data_origin` FROM lightning.metastore.sanctions.screening_usl.customer WHERE `customer_id` = 'CUST-0040' ORDER BY `customer_id` LIMIT 200",
+      "sql_hash": "b6ad4dcca06af985f1f3b64fd5324953148a4703ba0f6b5dab66c15937ee3b6a",
+      "row_count": 1,
+      "row_hashes": [
+        "f55390bf3f53b1921d35989b1c8f87826cdaa852cab6ece64b4697164ce8bf40"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "57d38c96-e390-44bb-ac82-1ea06cb0566d",
+      "agent": "evidence",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
+      "sql": "SELECT `identifier_id`, `customer_id`, `id_type`, `id_number`, `issuing_country` FROM lightning.metastore.sanctions.screening_usl.customer_identifier WHERE `customer_id` = 'CUST-0040' ORDER BY `identifier_id` LIMIT 200",
+      "sql_hash": "05088397793615768b9675271c186d90275248310e73a785e689a930c6e7206b",
+      "row_count": 1,
+      "row_hashes": [
+        "06bf2ee9174faf0e029d97f297b876d5aba62930cc0e654c3b5cc158fb7fc9d6"
+      ],
+      "masked_columns": [
+        "id_number"
+      ],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "d2966d47-59af-40ff-8e69-cea5ed55dfff",
+      "agent": "evidence",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.list_entry",
+      "sql": "SELECT `entry_id`, `list_id`, `source_uid`, `party_kind`, `primary_name`, `primary_name_script`, `name_normalised`, `listed_on`, `sanctions_list`, `remarks`, `snapshot_id`, `content_hash` FROM lightning.metastore.sanctions.screening_usl.list_entry WHERE `entry_id` = 'UN-QDi.055' ORDER BY `entry_id` LIMIT 200",
+      "sql_hash": "966a269c338a52e856b386eb65b511a59b63d254592c4ccd039216c808018475",
+      "row_count": 1,
+      "row_hashes": [
+        "f427e713a6fe5789c863765480903afdffec43873dc377e697f7c1c98910b3da"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "ff3a3384-d4f2-4ad3-a445-c236ee695000",
+      "agent": "evidence",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.list_alias",
+      "sql": "SELECT `alias_id`, `entry_id`, `alias_name`, `alias_type`, `script`, `name_normalised`, `is_primary`, `is_strong` FROM lightning.metastore.sanctions.screening_usl.list_alias WHERE `entry_id` = 'UN-QDi.055' ORDER BY `alias_id` LIMIT 200",
+      "sql_hash": "ea12c1cea0768b94553f6c28b59169f8bd3d9c60e2d985ff90abc7de136bd95c",
+      "row_count": 4,
+      "row_hashes": [
+        "92fec21cbbf17eceb927189392bf25429459004018d41093676a68c2065bd139",
+        "78b2dc74ebd6be648b31a6a5b47d8dc9e8ffb4099a0b56981769a4e6ab2acc51",
+        "b091182f22d269ebe8db715793042d4fec7090567b536c23eba0fd89410c061d",
+        "6a5dd179108f1eb7e7465125b6a942f14c8916a783ef0bd3ccf1f6d95f7fb910"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "57e3e7c5-74f4-4d71-afa8-63d2f36a219d",
+      "agent": "evidence",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.list_dob",
+      "sql": "SELECT `dob_id`, `entry_id`, `dob_value`, `dob_precision`, `range_from`, `range_to`, `is_approximate` FROM lightning.metastore.sanctions.screening_usl.list_dob WHERE `entry_id` = 'UN-QDi.055' ORDER BY `dob_id` LIMIT 200",
+      "sql_hash": "cf0d1d231373a152611bbdd23d931d810e66d5573fcc37c1e4849d2b4695bc17",
+      "row_count": 9,
+      "row_hashes": [
+        "fee827fcccd41a336fb067caf541ea55c0324790cd466b47e7f2fd4e739b168d",
+        "ca6799188cb8fb5fc5e5c61f17a09085b0ebf783ef7d3a66c459acbec5f42126",
+        "0ac9c660074415217c0813301b14cf86d8bd8cb2538ba445939e0ac2f3f23129",
+        "5d4cbe37ae81b123aa6da934df2cbb6b59664df805101c92bb6964c083c6f32f",
+        "efbbccf8cd09adee5ef77d0686f97d2559fb4552a1b80cadbd1d27fd2aa12d7e",
+        "01986c5ded524a8725644999c5d90e90b99d10421986ffab59427af68e78a06e",
+        "37814958411a43848db96d237353831e81c7183ee8c46c77605912ae7acfba43",
+        "4f555ffb84123a7722bbe1a515e37c6ad544b43dc880d586165946d607bbe9fa",
+        "21eebe57f934b4d827707606791c48c652e2f16cb9fddd5fc9018dd9d661a618"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "409151b9-12eb-481a-82fb-336f75752121",
+      "agent": "evidence",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.list_country",
+      "sql": "SELECT `country_link_id`, `entry_id`, `country_iso2`, `country_name`, `role`, `place` FROM lightning.metastore.sanctions.screening_usl.list_country WHERE `entry_id` = 'UN-QDi.055' ORDER BY `country_link_id` LIMIT 200",
+      "sql_hash": "6210ae89366a105f4ca51b254362520fb6279d3b81f5a32f9c980d84ac7406fa",
+      "row_count": 2,
+      "row_hashes": [
+        "c5777905353712ae504500d801e03e062616d3e96337a646d8eee1962b1b9b7e",
+        "b89c30ae97880d66c24f77329a13d418214a73f3424daea028178e22d60e8aec"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "e6d9cffe-5ed5-4c39-bdd1-e51a883c4cf3",
+      "agent": "evidence",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.list_identifier",
+      "sql": "SELECT `identifier_id`, `entry_id`, `id_type`, `id_number`, `issuing_country`, `note` FROM lightning.metastore.sanctions.screening_usl.list_identifier WHERE `entry_id` = 'UN-QDi.055' ORDER BY `identifier_id` LIMIT 200",
+      "sql_hash": "1f05bcc3c2d4b501693f45ac7cb6f3b74866de47047f87ac1a8310d58c77767f",
+      "row_count": 0,
+      "row_hashes": [],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "f2c5af2b-c57f-4aa9-b80a-393963820d40",
+      "agent": "evidence",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.business_definition",
+      "sql": "SELECT `definition_key`, `definition_id`, `version`, `name`, `statement`, `status`, `owner`, `effective_from` FROM lightning.metastore.sanctions.screening_usl.business_definition WHERE `status` = 'approved' ORDER BY `definition_key` LIMIT 200",
+      "sql_hash": "ef48444a6a3c79b3f0444ad0c0939bd1b855287641f227d501bb8d6c898980b1",
+      "row_count": 6,
+      "row_hashes": [
+        "2b2a1606c63ef5131112fcf5008f4847a89c2c2aebfd91453152f7eb0b03c993",
+        "e97b850aa26ab067779de1c69654cf33919f08bb37f799deac2c9d9138837c55",
+        "c4acb8733fd6ff0954a074d84f1bb9de9adc7d6128b66092c3ea4941b3f5bb8f",
+        "4354abdaf5d8c0415f77887aea9c7337039c0e5253e98c1ace0cf523954bf6cc",
+        "eeb73ec0c0e80bfad332e2473407f91079262d75d3fb7aa18286dadfcad47fd2",
+        "c08628d9f4919fea05181590e372a51703440e3d7dcfdfa07ef933d5e8a1ffe5"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "06ebe0c2-fa44-44b2-9000-5088f5c71198",
+      "agent": "evidence",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
+      "sql": "SELECT ci.id_type AS id_type, COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.customer_identifier ci JOIN lightning.metastore.sanctions.screening_usl.list_identifier li ON regexp_replace(upper(ci.id_number), '[^A-Z0-9]', '') = regexp_replace(upper(li.id_number), '[^A-Z0-9]', '') WHERE ci.customer_id = 'CUST-0040' AND li.entry_id = 'UN-QDi.055' GROUP BY ci.id_type",
+      "sql_hash": "59183bfe7a44599977b1c9450268d6a66c8dc9afbcdba2cfebbed5ebc511bcd3",
+      "row_count": 0,
+      "row_hashes": [],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "09b64ba0-9af0-429b-ab4f-da5554449852",
+      "agent": "evidence",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.customer",
+      "sql": "SHOW DQ INVALID RECORD dob_present_for_individuals TABLE lightning.metastore.sanctions.screening_usl.customer",
+      "sql_hash": "cf2158a81993bc70162591b146d4bc97515be9c3433328365216349b0fcc69cb",
+      "row_count": 3,
+      "row_hashes": [],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "bc0d257d-059c-4ef3-b978-c5e08e5b8962",
+      "agent": "evidence",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.customer",
+      "sql": "SHOW DQ INVALID RECORD nationality_is_iso2 TABLE lightning.metastore.sanctions.screening_usl.customer",
+      "sql_hash": "ef1fc4c1293df5e241b55d27d8573a089299f9530347030efaa3790879c983f9",
+      "row_count": 1,
+      "row_hashes": [],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "1514533c-03b2-4a5d-ad11-0f15b9b87ef5",
+      "agent": "ownership",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+      "sql": "SELECT `ownership_id`, `owned_party_id`, `owned_party_kind`, `owner_party_id`, `owner_party_kind`, `owner_name`, `ownership_pct`, `as_of` FROM lightning.metastore.sanctions.screening_usl.beneficial_owner WHERE `owned_party_id` IN ('CUST-0040') ORDER BY `ownership_id`",
+      "sql_hash": "404fe82dafb8f02999bb2cc860f634834c5b806df4f5eeb93b0406d414aa987f",
+      "row_count": 1,
+      "row_hashes": [],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "a355a908-6a0c-4c7e-8afa-004192e643d9",
+      "agent": "ownership",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+      "sql": "SELECT `ownership_id`, `owned_party_id`, `owned_party_kind`, `owner_party_id`, `owner_party_kind`, `owner_name`, `ownership_pct`, `as_of` FROM lightning.metastore.sanctions.screening_usl.beneficial_owner WHERE `owned_party_id` IN ('EXT-0007') ORDER BY `ownership_id`",
+      "sql_hash": "c1b78b69b352764bc32115fe78d65ee442ab268f50fa2b0db6e5566304575b49",
+      "row_count": 2,
+      "row_hashes": [],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "31c28c92-c3c1-4dee-9aac-dbdbbee392f0",
+      "agent": "ownership",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+      "sql": "SHOW DQ INVALID RECORD ownership_pct_in_range TABLE lightning.metastore.sanctions.screening_usl.beneficial_owner",
+      "sql_hash": "73c6999410e1155c43b1a79bea453a16a6bece35405e653d019867f74a2e3412",
+      "row_count": 0,
+      "row_hashes": [],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "a223c5d0-c738-40d2-b1dd-0da816405de3",
+      "agent": "ownership",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+      "sql": "SHOW DQ INVALID RECORD ownership_pct_present TABLE lightning.metastore.sanctions.screening_usl.beneficial_owner",
+      "sql_hash": "0742d9fab87d6a3e3dc1ca5e22a95b92e1d65b84b0bc3e6c85bda3149c8d778c",
+      "row_count": 1,
+      "row_hashes": [],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "f02afd48-0cad-47f3-bf42-0bf172c25a21",
+      "agent": "memory",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.disposition",
+      "sql": "SELECT `disposition_id`, `alert_id`, `customer_id`, `entry_id`, `decision`, `reason_codes`, `decided_at`, `decided_by`, `entry_content_hash`, `list_snapshot_id` FROM lightning.metastore.sanctions.screening_usl.disposition WHERE `customer_id` = 'CUST-0040' ORDER BY `disposition_id` LIMIT 200",
+      "sql_hash": "79d48eac53fd2c2d103ee2133c179f881c2602e9ee694e140e6f5480ab6036d1",
+      "row_count": 0,
+      "row_hashes": [],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "3462e02e-4164-4287-8b6c-46a426f75264",
+      "agent": "critic",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.customer",
+      "sql": "SELECT `customer_id`, `customer_type`, `full_name`, `date_of_birth`, `nationality`, `residence_country`, `onboarding_date`, `risk_rating`, `desk`, `notes`, `data_origin` FROM lightning.metastore.sanctions.screening_usl.customer WHERE `customer_id` = 'CUST-0040' ORDER BY `customer_id` LIMIT 200",
+      "sql_hash": "b6ad4dcca06af985f1f3b64fd5324953148a4703ba0f6b5dab66c15937ee3b6a",
+      "row_count": 1,
+      "row_hashes": [
+        "f55390bf3f53b1921d35989b1c8f87826cdaa852cab6ece64b4697164ce8bf40"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "735cbc7f-a98f-487d-951b-46dbf04c4c87",
+      "agent": "critic",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.customer",
+      "sql": "SELECT `customer_id`, `customer_type`, `full_name`, `date_of_birth`, `nationality`, `residence_country`, `onboarding_date`, `risk_rating`, `desk`, `notes`, `data_origin` FROM lightning.metastore.sanctions.screening_usl.customer WHERE `customer_id` = 'CUST-0040' ORDER BY `customer_id` LIMIT 200",
+      "sql_hash": "b6ad4dcca06af985f1f3b64fd5324953148a4703ba0f6b5dab66c15937ee3b6a",
+      "row_count": 1,
+      "row_hashes": [
+        "f55390bf3f53b1921d35989b1c8f87826cdaa852cab6ece64b4697164ce8bf40"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "a14bce69-ce0d-4b3b-b2da-e8b05f46b80b",
+      "agent": "critic",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.list_entry",
+      "sql": "SELECT `entry_id`, `list_id`, `source_uid`, `party_kind`, `primary_name`, `primary_name_script`, `name_normalised`, `listed_on`, `sanctions_list`, `remarks`, `snapshot_id`, `content_hash` FROM lightning.metastore.sanctions.screening_usl.list_entry WHERE `entry_id` = 'UN-QDi.055' ORDER BY `entry_id` LIMIT 200",
+      "sql_hash": "966a269c338a52e856b386eb65b511a59b63d254592c4ccd039216c808018475",
+      "row_count": 1,
+      "row_hashes": [
+        "f427e713a6fe5789c863765480903afdffec43873dc377e697f7c1c98910b3da"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "b684c954-638e-4e01-a412-39c50c68cd20",
+      "agent": "critic",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+      "sql": "SELECT `ownership_id`, `owned_party_id`, `owned_party_kind`, `owner_party_id`, `owner_party_kind`, `owner_name`, `ownership_pct`, `as_of` FROM lightning.metastore.sanctions.screening_usl.beneficial_owner WHERE `ownership_id` = 'OWN-00013' ORDER BY `ownership_id` LIMIT 200",
+      "sql_hash": "84850cce4fd2179df8eb0eee4b160a7449772f0b5fa62859232ebf1b2193ffa9",
+      "row_count": 1,
+      "row_hashes": [
+        "445d73c342c2874f5c31b6844399fe6079d81120d6e6c9efcbb47758530c98f3"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "2d522e3e-b346-409d-8c08-5178532acc60",
+      "agent": "critic",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+      "sql": "SELECT `ownership_id`, `owned_party_id`, `owned_party_kind`, `owner_party_id`, `owner_party_kind`, `owner_name`, `ownership_pct`, `as_of` FROM lightning.metastore.sanctions.screening_usl.beneficial_owner WHERE `ownership_id` = 'OWN-00013' ORDER BY `ownership_id` LIMIT 200",
+      "sql_hash": "84850cce4fd2179df8eb0eee4b160a7449772f0b5fa62859232ebf1b2193ffa9",
+      "row_count": 1,
+      "row_hashes": [
+        "445d73c342c2874f5c31b6844399fe6079d81120d6e6c9efcbb47758530c98f3"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "410ce235-6fa6-4614-a609-a2ccf72cbb91",
+      "agent": "critic",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+      "sql": "SELECT `ownership_id`, `owned_party_id`, `owned_party_kind`, `owner_party_id`, `owner_party_kind`, `owner_name`, `ownership_pct`, `as_of` FROM lightning.metastore.sanctions.screening_usl.beneficial_owner WHERE `ownership_id` = 'OWN-00014' ORDER BY `ownership_id` LIMIT 200",
+      "sql_hash": "096a36c251ed007c2f35402e178bbf7f857acce6bf96729b015f59de03656950",
+      "row_count": 1,
+      "row_hashes": [
+        "8ec6e87e51f71c244ad633cfa958a59a620a467880c248c4233cfed155861116"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "dacb5826-cfe8-4eed-bfbf-efd0b695ecc0",
+      "agent": "critic",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+      "sql": "SELECT `ownership_id`, `owned_party_id`, `owned_party_kind`, `owner_party_id`, `owner_party_kind`, `owner_name`, `ownership_pct`, `as_of` FROM lightning.metastore.sanctions.screening_usl.beneficial_owner WHERE `ownership_id` = 'OWN-00014' ORDER BY `ownership_id` LIMIT 200",
+      "sql_hash": "096a36c251ed007c2f35402e178bbf7f857acce6bf96729b015f59de03656950",
+      "row_count": 1,
+      "row_hashes": [
+        "8ec6e87e51f71c244ad633cfa958a59a620a467880c248c4233cfed155861116"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    },
+    {
+      "query_id": "1840a175-040e-46a5-8de9-cb215c0f33c7",
+      "agent": "critic",
+      "role": "role_evidence_agent",
+      "table": "lightning.metastore.sanctions.screening_usl.list_dob",
+      "sql": "SELECT `dob_id`, `entry_id`, `dob_value`, `dob_precision`, `range_from`, `range_to`, `is_approximate` FROM lightning.metastore.sanctions.screening_usl.list_dob WHERE `dob_id` = 'UN-QDi.055-d-1a7168db' ORDER BY `dob_id` LIMIT 200",
+      "sql_hash": "2b56d1687b3d5a2b3b85b2fef6e3bad7df6fc5b314074ff1d747589c1d643aaa",
+      "row_count": 1,
+      "row_hashes": [
+        "fee827fcccd41a336fb067caf541ea55c0324790cd466b47e7f2fd4e739b168d"
+      ],
+      "masked_columns": [],
+      "token_source": "role",
+      "latency_ms": 0,
+      "cache_hit": true
+    }
+  ],
+  "memories": [],
+  "models": [
+    {
+      "agent": "policy_guard",
+      "model_requested": "fallback-rules",
+      "model_routed": "fallback-rules",
+      "provider": "fallback-rules",
+      "route_kind": "local",
+      "thinking": "off",
+      "latency_ms": 0
+    },
+    {
+      "agent": "screener",
+      "model_requested": "fallback-rules",
+      "model_routed": "fallback-rules",
+      "provider": "fallback-rules",
+      "route_kind": "local",
+      "thinking": "off",
+      "latency_ms": 0
+    },
+    {
+      "agent": "decision",
+      "model_requested": "fallback-rules",
+      "model_routed": "fallback-rules",
+      "provider": "fallback-rules",
+      "route_kind": "local",
+      "thinking": "off",
+      "latency_ms": 0
+    },
+    {
+      "agent": "critic",
+      "model_requested": "fallback-rules",
+      "model_routed": "fallback-rules",
+      "provider": "fallback-rules",
+      "route_kind": "local",
+      "thinking": {
+        "budgetTokens": 400
+      },
+      "latency_ms": 0
+    }
+  ],
+  "guards": [
+    {
+      "guard": "definition_version",
+      "verdict": "pass",
+      "detail": "counterparty_match@1, effective_ownership_threshold@1, false_positive@2, strong_identifier@1, true_match@1"
+    },
+    {
+      "guard": "data_quality",
+      "verdict": "pass",
+      "detail": "no failing data-quality rule on the customer record"
+    },
+    {
+      "guard": "strong_match",
+      "verdict": "pass",
+      "detail": "comparison rates the match as strong"
+    },
+    {
+      "guard": "identifier_match",
+      "verdict": "pass",
+      "detail": "no identifier match"
+    },
+    {
+      "guard": "missing_data",
+      "verdict": "pass",
+      "detail": "date of birth: missing_customer"
+    },
+    {
+      "guard": "possible_match",
+      "verdict": "pass",
+      "detail": "no unresolved possible match"
+    },
+    {
+      "guard": "confidence_floor",
+      "verdict": "pass",
+      "detail": "confidence 0.85"
+    },
+    {
+      "guard": "evidence_standard",
+      "verdict": "pass",
+      "detail": "not closing"
+    },
+    {
+      "guard": "screener",
+      "verdict": "pass",
+      "detail": "no risk signal in the free text"
+    },
+    {
+      "guard": "true_match_met",
+      "verdict": "pass",
+      "detail": "true match definition not met"
+    },
+    {
+      "guard": "ownership",
+      "verdict": "block",
+      "detail": "a listed party effectively owns the customer at or above the threshold"
+    },
+    {
+      "guard": "jurisdiction",
+      "verdict": "pass",
+      "detail": "no watched jurisdiction"
+    },
+    {
+      "guard": "injection",
+      "verdict": "pass",
+      "detail": "no instruction-like text in the data"
+    },
+    {
+      "guard": "human_in_the_loop",
+      "verdict": "pass",
+      "detail": "recommendation only; a person decides and nothing is sent or blocked automatically"
+    }
+  ],
+  "critic": {
+    "rounds": 1,
+    "final_verdict": "approved"
+  },
+  "first_finding": "ESCALATE_L2",
+  "review_path": "confirm",
+  "screener": {
+    "status": "ok",
+    "served_by_cloud": false,
+    "fields_read": [
+      "list_entry.remarks"
+    ],
+    "signals": [],
+    "documentary": [],
+    "injection": false,
+    "model": "fallback-rules"
+  },
+  "cloud_payloads": [
+    {
+      "step": "decision",
+      "prompt_hash": "f6aaa00326d6c2b7d8ae3af025ba80ab84d8e2f93d0d86e77113818c3ebe251d",
+      "prompt_chars": 9147,
+      "fields": {
+        "policy": 1,
+        "definitions": 1,
+        "citable": 1,
+        "evidence.alert": 1,
+        "evidence.customer": 1,
+        "evidence.ownership": 1,
+        "evidence.first_finding": 1,
+        "evidence.screener_facts": 1,
+        "evidence.earlier_decisions": 0,
+        "evidence.customer_identifier": 1,
+        "evidence.list_entry": 1,
+        "evidence.list_alias": 4,
+        "evidence.list_dob": 9,
+        "evidence.list_country": 2,
+        "evidence.list_identifier_types": 0,
+        "evidence.identifier_overlap_types": 0,
+        "evidence.data_quality": 4,
+        "evidence.comparison": 1
+      },
+      "raw_free_text_present": false
+    },
+    {
+      "step": "critic",
+      "prompt_hash": "3b651793903a1e0d60cc3824a629ebf033a524f26449c81d7b18d5dba8a50935",
+      "prompt_chars": 7633,
+      "fields": {
+        "policy": 1,
+        "definitions": 1,
+        "evidence.alert": 1,
+        "evidence.customer": 1,
+        "evidence.ownership": 1,
+        "evidence.first_finding": 1,
+        "evidence.screener_facts": 1,
+        "evidence.earlier_decisions": 0,
+        "evidence.customer_identifier": 1,
+        "evidence.list_entry": 1,
+        "evidence.list_alias": 4,
+        "evidence.list_dob": 9,
+        "evidence.list_country": 2,
+        "evidence.list_identifier_types": 0,
+        "evidence.identifier_overlap_types": 0,
+        "evidence.data_quality": 4,
+        "evidence.comparison": 1,
+        "recommendation": 1
+      },
+      "raw_free_text_present": false
+    }
+  ],
+  "human": [],
+  "record_hash": "f5ef1fb188494da5eb05dd0a26805f0d1bc6409b10e3a637abe7ed4fe7661b60"
+}

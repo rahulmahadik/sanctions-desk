@@ -1,0 +1,22 @@
+{
+  "run_id": "9559e23b-5a77-4008-8d8d-3f569d67db03",
+  "status": "ok",
+  "decision": "ESCALATE_L2",
+  "confidence": 0.85,
+  "agents": [
+    "triage",
+    "evidence",
+    "screener",
+    "matching",
+    "memory",
+    "decision",
+    "critic",
+    "policy_guard",
+    "reporter"
+  ],
+  "trace_id": "9559e23b-5a77-4008-8d8d-3f569d67db03",
+  "log_file": "../../../../../../..logs/trace-9559e23b-5a77-4008-8d8d-3f569d67db03.jsonl",
+  "record_hash": "f5ef1fb188494da5eb05dd0a26805f0d1bc6409b10e3a637abe7ed4fe7661b60",
+  "execution_time_seconds": 0.031,
+  "sample_mode": true
+}

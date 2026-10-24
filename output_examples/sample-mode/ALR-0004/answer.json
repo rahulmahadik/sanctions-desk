@@ -1,0 +1,23 @@
+{
+  "run_id": "652c5734-cd47-41c2-aefd-6b60882a57bd",
+  "status": "ok",
+  "decision": "CLOSE_FALSE_POSITIVE",
+  "confidence": 0.85,
+  "agents": [
+    "triage",
+    "evidence",
+    "screener",
+    "matching",
+    "memory",
+    "decision",
+    "critic",
+    "challenger",
+    "policy_guard",
+    "reporter"
+  ],
+  "trace_id": "652c5734-cd47-41c2-aefd-6b60882a57bd",
+  "log_file": "../../../../../../..logs/trace-652c5734-cd47-41c2-aefd-6b60882a57bd.jsonl",
+  "record_hash": "db9d91d6acc3cba0935ac4f078670e0c72241f6bb27562fd9e4e51ba9fe10e9d",
+  "execution_time_seconds": 0.028,
+  "sample_mode": true
+}
