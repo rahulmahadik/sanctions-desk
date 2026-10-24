@@ -99,6 +99,20 @@ To pin the runtime's key: `npm run receipt:pubkey` prints the public key (and no
 
 Pinning the key printed by the runtime trusts it on first use. Compare it with a key you obtained another way if that matters to you.
 
+### Nightshift's cross-check on each call
+
+Every receipt carries a `cross_check` block: Nightshift's own check on the call (for example whether the response holds personal data or credentials, matches the declared schema, or backs factual claims with citation markers), with a status, a risk level and a recommended action. It is part of the signed receipt body, so it is stored with every receipt in `logs/receipts/` and in the exported `eval/runs/*/receipts.jsonl.gz`. The desk does not display it and does not act on it; its own checks (the critic's fact re-check and the policy guard) are separate.
+
+Across the 1,492 receipts of the 28 exported runs, every receipt has the field (none predates it):
+
+| Status  | Receipts | Where                                                                                                                                                                                                                                           |
+| ------- | -------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| skipped |      979 | all 523 calls of the guard identity and 456 of the reasoning identity, marked `tier_a_chat`                                                                                                                                                     |
+| warning |      465 | reasoning identity only; in every one the single warning is `citation_consistency` ("Factual claim requested but response lacks citation markers"), risk medium, not blocking, recommended action `show_warning`, Nightshift's verifier not run |
+| passed  |       48 | reasoning identity                                                                                                                                                                                                                              |
+
+The desk's answers cite their facts in a structured `citations` field rather than as markers in the text, which is a likely reason for the citation warning; that is not verified. Count them again with the receipt files in `eval/runs/`.
+
 ## What leaves the machine, per step
 
 Customer notes, payment references and list remarks can carry risk that no structured field shows (a customer who trades under a listed party's name, or who was introduced by a listed relative). They are also free text that anyone can write, so they are never sent to a cloud model. A **screener** reads them on the local model (the `guard` identity, bound to the local model in the cockpit) and returns structured facts only. Code checks every value of the answer against the text and against the evidence standard before anything uses it.
