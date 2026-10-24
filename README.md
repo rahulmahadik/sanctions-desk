@@ -240,10 +240,6 @@ The Ollama backup (`nemotron-3.5-lightning:30b`) answers only if Nightshift cann
 
 **Sample mode.** With `SAMPLE_MODE=true` the desk runs without Zetaris or Nightshift. It replays saved answers recorded from real Zetaris runs, runs the real agent logic on them, and uses a rules-based stand-in in place of the language models. The interface says so in a banner on every page, and every record made this way carries a sample notice. Sample mode never presents the stand-in's output as a Nemotron answer.
 
-## Pre-existing work
-
-None. The first commit is 22 Oct 2026 (12:54 UTC), and everything in this repository was built during the build window (22–27 Oct 2026). Third-party code is listed below.
-
 ## Third-party code and licence
 
 Apache-2.0. See `LICENSE` and `THIRD_PARTY_NOTICES.md` (Meterless engine specifications and reference implementations, GLEIF data).
