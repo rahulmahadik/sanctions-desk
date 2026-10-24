@@ -93,7 +93,7 @@
       "id": "exactly_50",
       "area": "ownership",
       "what": "A listed person owns exactly 50 percent",
-      "expected": "Counts as control; escalate",
+      "expected": "Counts (at every level of a chain too); escalate",
       "covered_by": ["exam:ho_direct_50", "test:packages/engines/test/ownership.test.ts::exactly"]
     },
     {
@@ -118,8 +118,13 @@
       "id": "chain",
       "area": "ownership",
       "what": "Ownership through holding companies",
-      "expected": "Percentages multiply along a chain",
-      "covered_by": ["exam:ho_two_level", "exam:ob_chain_42", "test:packages/engines/test/ownership.test.ts::chain"]
+      "expected": "A company owned 50 percent or more by blocked parties is itself blocked and its holdings count in full (the cascade); effective ownership, multiplied along the chain, is counted too",
+      "covered_by": [
+        "exam:ho_two_level",
+        "exam:ob_chain_42",
+        "test:packages/engines/test/ownership.test.ts::chain",
+        "test:packages/engines/test/ownership.test.ts::cascade"
+      ]
     },
     {
       "id": "depth_limit",

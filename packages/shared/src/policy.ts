@@ -95,8 +95,8 @@ const regexSource = nonEmpty.refine((s) => {
  * When a screener risk signal counts. A signal is grounded only when its span points into the field, the span's own
  * text holds a term of its type, and a name from the evidence (the listed name or an alias, the customer, the
  * counterparty) is in the span or within `nameWindowChars` of it. A signal that is not grounded is kept, recorded and
- * shown, and does not block a close. Types with no terms (for example "other" and "instruction_to_reviewer") are not
- * checked. Added in policy version 7.
+ * shown, and since policy version 8 still blocks a close: grounding is context for the reviewer. Types with no terms (for
+ * example "other" and "instruction_to_reviewer") are not checked. Added in policy version 7.
  */
 export const GroundingSchema = z
   .strictObject({
@@ -158,7 +158,7 @@ const PolicyShape = z.strictObject({
     }),
 
   ownership: z.strictObject({
-    /** OFAC's 50 percent rule: ownership of this much or more counts. */
+    /** OFAC's 50 percent rule: ownership of this much or more by blocked parties counts, at every level of a chain (a cascade). */
     thresholdPercent: z.number().gt(0).max(100),
     aggregate: z.boolean(),
     maxChainDepth: z.number().int().min(1).max(10),

@@ -30,6 +30,21 @@
         "must_not": []
       },
       "reason": "The listed birth year is only approximate and the name is an exact match to a listed individual, so closing rests on a year gap plus a different nationality with no document either way. Closing is right under the approved definition; escalating is a fair, cautious call. The acceptable alternative was added after the first full run escalated EX-008, not to raise a score."
+    },
+    {
+      "case_id": "EX-043",
+      "kind": "ob_chain_42",
+      "original": {
+        "expected": "CLOSE_FALSE_POSITIVE",
+        "acceptable": ["ESCALATE_L2"],
+        "must_not": []
+      },
+      "revised": {
+        "expected": "ESCALATE_L2",
+        "acceptable": [],
+        "must_not": ["CLOSE_FALSE_POSITIVE"]
+      },
+      "reason": "The original label applied effective ownership (70% of 60% is 42%, below 50%). OFAC's 50 percent rule is a cascade: the holding company is 60% owned by the listed party, so it is blocked and its 70% of the customer counts in full. Changed on 24 Oct 2026 together with the ownership engine, after every recorded run; the reason is also in eval/cases/README.md."
     }
   ]
 }

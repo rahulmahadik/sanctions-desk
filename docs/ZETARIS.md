@@ -100,7 +100,7 @@ The REST service returns every value as a string, so each query casts explicitly
 | `payment_bank_countries_valid` | payment          |  366 |   366 |       0 |
 | `match_score_in_range`         | alert            |  112 |   112 |       0 |
 
-`SHOW DQ ALL INVALID TABLE ...customer` returns the 15 failing records (the same ones the bank query above lists). The Evidence step reads the failing records of the customer and the payment in the case. A failing record can never support a close: the policy guard turns it into "need more information". A missing ownership percentage is "unknown", not zero. (With only the main 70-case data loaded, three customers fail the date-of-birth rule; the others are the held-out cases.)
+`SHOW DQ ALL INVALID TABLE ...customer` returns the 15 failing records (the same ones the bank query above lists). The Evidence step reads the failing records of the customer and the payment in the case. A failing record cannot support a close, with one exception: an individual's missing date of birth, when a note that meets the documentary standard, with its document on the customer's record, supplies the date (the failing rule stays on the record as a flag): the policy guard turns it into "need more information". A missing ownership percentage is "unknown", not zero. (With only the main 70-case data loaded, three customers fail the date-of-birth rule; the others are the held-out cases.)
 
 **One command reproduces it:** `npm run zetaris:usl` checks that the committed DDL still matches the specification, shows that the model lists its tables, counts the registered rules, and runs all eight rules. The joins run with `npm run zetaris:queries -- usl`.
 
@@ -259,7 +259,7 @@ It runs under the **evidence** identity (`agent_evidence`, role `role_evidence_a
 
 Masking `customer_identifier.id_number` for `role_evidence_agent` is a setting in the Zetaris interface (access-control screens); there is no SQL or REST call for it.
 
-Until a role has its own token, the adapter uses `ZETARIS_API_KEY` as a **labelled fallback**: every query record says `token_source: fallback`, and the decision trace shows it. The identifier numbers are masked by the adapter as well as by Zetaris (defence in depth), and a customer identifier is compared with a listed one by a join **inside Zetaris**, so the number is never read into the application.
+Until a role has its own token, the adapter uses `ZETARIS_API_KEY` as a **labelled fallback**: every query record says `token_source: fallback`, and the decision trace shows it. The identifier numbers are masked by the adapter; the Zetaris column policy that would hide them is configured but not enforced on this local edition, so today there is one layer. A customer identifier is compared with a listed one by a join **inside Zetaris**; where the evidence step reads the identifier rows, the clear value reaches only the adapter, which masks it before any agent, model, trace or record sees it, and the decision model receives the masked form (the last two characters).
 
 ## Access control
 

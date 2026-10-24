@@ -66,7 +66,8 @@ const exam = loadExam();
 const labels = new Map(exam.cases.map((c) => [c.case_id, c]));
 
 const changesPath = resolveProjectPath("eval/label-changes.json");
-const labelChanges: Array<{ case_id: string; original: LabelSet; revised: LabelSet }> = existsSync(changesPath)
+type LabelChange = { case_id: string; original: LabelSet; revised: LabelSet };
+const labelChanges: LabelChange[] = existsSync(changesPath)
   ? (JSON.parse(readFileSync(changesPath, "utf8")) as { changes: never[] }).changes
   : [];
 const originalLabels = new Map(labelChanges.map((c) => [c.case_id, c.original]));
@@ -208,6 +209,27 @@ function callStats(variant: string, since: string) {
 }
 
 /** The measured split as a markdown table: for each step, the share of its calls each model served, from receipts. */
+/** One label change in words: an added acceptable answer, or a new expected answer. */
+function describeLabelChange(c: LabelChange): string {
+  if (c.original.expected === c.revised.expected) {
+    const added = c.revised.acceptable.filter((a) => !c.original.acceptable.includes(a));
+    return `${c.case_id} gained ${added.join(" and ")} as an acceptable answer`;
+  }
+  const miss = c.revised.must_not.includes("CLOSE_FALSE_POSITIVE") ? " (a close is now a miss)" : "";
+  return `${c.case_id} was relabelled from ${c.original.expected} to ${c.revised.expected}${miss}`;
+}
+
+/** What the receipts say about the mode served: the runtime's own \`auto\` before the cockpit binds, the bound mode after. */
+function servedModeSentence(split: { receipts: number; routed_auto: number }): string {
+  if (split.routed_auto === split.receipts) {
+    return `In all ${split.receipts} receipts read, the mode served was the runtime's own \`auto\`.`;
+  }
+  if (split.routed_auto === 0) {
+    return `In all ${split.receipts} receipts read, the mode served was the one the app identity is bound to in the cockpit, not the runtime's own \`auto\`.`;
+  }
+  return `In ${split.receipts - split.routed_auto} of the ${split.receipts} receipts read, the mode served was the one the app identity is bound to in the cockpit; in ${split.routed_auto} it was the runtime's own \`auto\`.`;
+}
+
 function splitTable(split: RoutingSplit): string[] {
   const models = [...new Set(split.rows.flatMap((r) => r.models.map((m) => m.model)))].sort();
   const head = models.map(
@@ -654,7 +676,7 @@ if (have.length === 0) {
   lines.push(
     "",
     labelChanges.length > 0
-      ? `**Labels.** Two cases (${labelChanges.map((c) => c.case_id).join(", ")}) gained ESCALATE_L2 as an acceptable answer after the first full run; the "original labels" column scores every variant with the labels as they were, the "revised labels" column with the current ones. Nothing else differs, and the false-close figures do not move. Reason and detail: \`eval/label-changes.json\` and the limits section below.`
+      ? `**Labels.** ${labelChanges.length} labels changed after the first full run: ${labelChanges.map(describeLabelChange).join("; ")}. The "original labels" column scores every variant with the labels as they were, the "revised labels" column and every other figure with the current ones. ${labelChanges.some((c) => c.revised.must_not.length > c.original.must_not.length) ? "A change that makes a close a miss also moves the false-close figures, which use the revised labels." : "Nothing else differs, and the false-close figures do not move."} Reason and detail: \`eval/label-changes.json\` and the limits section below.`
       : "",
     "",
     notRun.length > 0 ? `**Not run:** ${notRun.map((v) => LABEL[v] ?? v).join("; ")}.` : "",
@@ -838,7 +860,7 @@ if (have.length === 0) {
       lines.push(
         "### Where the model calls were answered",
         "",
-        `We ask Nightshift for a pinned mode (\`meterless/fast\`, \`meterless/deep\`, \`meterless/judge\`) and record, for every call, the model that answered (\`routed_model\`). Which model serves a mode is decided by Nightshift's learned router: in all ${split.routed_auto} of the ${split.receipts} receipts read, the mode served was the runtime's own \`auto\` under the routing policy \`${split.routers.join(", ")}\`. For the \`fast\` and \`deep\` modes the receipt marks the request as replaced (\`mode_coerced\` true, ${split.mode_coerced} receipts); the \`judge\` mode already resolves to \`auto\`. We do not route by difficulty and we do not pin the cloud. The table is a measurement of this run, read from the signed receipts' winning route.`,
+        `We ask Nightshift for a pinned mode (\`meterless/fast\`, \`meterless/deep\`, \`meterless/judge\`) and record, for every call, the model that answered (\`routed_model\`). Which model serves a mode is decided by Nightshift's learned router (routing policy \`${split.routers.join(", ")}\`). ${servedModeSentence(split)} Where the mode served differs from the one asked for, the receipt marks the request as replaced (\`mode_coerced\` true, ${split.mode_coerced} receipts). We do not route by difficulty and we do not pin the cloud. The table is a measurement of this run, read from the signed receipts' winning route.`,
         "",
         ...splitTable(split),
         "",
@@ -928,6 +950,8 @@ if (have.length === 0) {
       "",
       `On the ${cleared.length} earlier-cleared cases: mean ${mean(cleared).toFixed(1)} s with memory, ${mean(withoutMemory.cases).toFixed(1)} s without. Acceptable answers: ${cleared.filter((c) => c.got === c.expected || c.acceptable.includes(c.got)).length} with memory, ${withoutMemory.cases.filter((c) => c.got === c.expected || c.acceptable.includes(c.got)).length} without.`,
       "",
+      "Only the desk's memory step was off in the run without memory. Nightshift's own answer memory was still on in both runs (the receipts carry its added memories), so this compares the desk's memory on and off, not memory on and off. Nightshift's memory was switched off on 24 Oct 2026, after every recorded run; see `docs/MODELS.md`.",
+      "",
     );
   }
 }
@@ -948,6 +972,7 @@ lines.push(
   "",
   '- **Definition clarified before the held-out run; held-out labels unchanged.** Policy version 2 adds a documentary evidence standard: a customer note or payment reference counts as documentary evidence only when it carries a check reference, a document number and a date (and, for a payment, a named counterparty); anything less is a claim and leads to NEED_MORE_INFO. Runs made before the change used policy version 1, and every sealed record names the version it used. The held-out set was frozen three times before any run (commits in `eval/cases/README.md`): the second step added clearing cases; the third relabelled HO-023 to HO-026 to NEED_MORE_INFO because "labels written before the evidence standard was made explicit; under policy v2 these notes are claims", and added HO-027 to HO-030 with documentary text, so all eight clear cases are reachable. HO-001 to HO-022 are byte-identical across the freezes. See `docs/EVALUATION.md`.',
   "- The customers, payments and owners are synthetic; the listed parties are real public entries. The exam shows how the system behaves on planted situations, not how it would perform on a bank's real alert volume.",
+  "- **A label changed after the evaluation.** EX-043 (a chain of 70 percent of a 60 percent holder) was relabelled from a close to ESCALATE_L2 on 24 Oct 2026, when the ownership engine began counting the 50 percent rule as a cascade; every figure in this report scores the recorded runs against the new label, and the original-labels column against the old one. Reason: `eval/cases/README.md`.",
   "- **A label changed after the first full run.** The two year-only false-positive cases (EX-008, EX-009) now accept ESCALATE_L2 as well as a close. The listed birth year is approximate and the name is an exact match to a listed individual, so closing rests on a year gap plus a different nationality with no document either way: closing is right under the approved definition, and escalating is a fair, cautious call. The change was made after seeing the first run escalate EX-008, for that reason and not to raise a score; every variant in this report is scored against the current labels, and the system was not changed for it. Effect: two more acceptable answers wherever a variant escalates them; false-close figures do not move.",
   "- Cases were written together with the rules they test (the approved definitions), so a high score shows consistency with those definitions rather than proof that the definitions are right. Five cases were added later to test where plain name matching fails; the system was not tuned to them.",
   "- Time depends on this machine, on whether the cloud model answers within the runtime's time limit, on what else is running, and on the runtime's answer cache.",

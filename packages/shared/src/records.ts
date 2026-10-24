@@ -431,7 +431,7 @@ export const ReviewResponseSchema = RunResponseSchema.extend({
     .optional(),
   record_id: nonEmpty.optional(),
   record_hash: sha256.optional(),
-  /** Always true: the desk recommends, a person decides. RECOMMEND_BLOCK needs two approvals. */
+  /** True unless the autonomy setting closed the case automatically (a person can reopen it). RECOMMEND_BLOCK needs two approvals. */
   human_review_required: z.boolean().optional(),
   /** What the autonomy setting did with the recommendation; absent at level 0. */
   autonomy: AutonomyRecordSchema.optional(),
