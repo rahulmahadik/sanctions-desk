@@ -58,7 +58,8 @@ describe("compose: the data services are reachable by Zetaris alone", () => {
   it("has health checks, a pinned database image, and read-only mounts for seed data", () => {
     const bankdb = compose.services.bankdb as Service;
     expect(bankdb.healthcheck).toBeDefined();
-    expect(bankdb.image).toMatch(/^postgres:\d+-alpine$/);
+    // Pinned by version tag and digest, so a moved tag cannot change the database image.
+    expect(bankdb.image).toMatch(/^postgres:\d+-alpine@sha256:[0-9a-f]{64}$/);
     expect(
       (bankdb.volumes ?? []).filter((v) => v.includes("/seed") || v.includes("initdb")).every((v) => v.endsWith(":ro")),
     ).toBe(true);
