@@ -7,7 +7,7 @@
  *   npm run evidence:hash-changes -- --write # build HASH-CHANGES.json from the git history (done once; needs git)
  *
  * --write reads each file as it was before the commit that re-pointed the references (20fcdde), takes the old and new
- * "commit" values, and checks the pair against the commit map of the rewrite when that private file is present.
+ * "commit" values, and checks each pair against the commit map of the rewrite when one is given with --map <file>.
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -48,10 +48,11 @@ if (process.argv.includes("--write")) {
     walk(JSON.parse(text));
     return found.length === 1 ? found[0] : undefined;
   };
-  // The private commit map of the rewrite (old full id, new full id per line), when present on this machine.
-  const mapFile = resolveProjectPath("internal/commit-map-old-to-new.txt");
+  // The commit map of the rewrite (old full id, new full id per line), when given with --map <file>.
+  const mapArg = process.argv.indexOf("--map");
+  const mapFile = mapArg > 0 ? process.argv[mapArg + 1] : undefined;
   const map = new Map<string, string>();
-  if (existsSync(mapFile))
+  if (mapFile && existsSync(mapFile))
     for (const l of readFileSync(mapFile, "utf8").split("\n")) {
       const [o, n] = l.trim().split(/\s+/);
       if (o && n && /^[0-9a-f]{40}$/.test(o)) map.set(o.slice(0, 7), n.slice(0, 7));
