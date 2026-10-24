@@ -1,6 +1,6 @@
 # Third-party notices
 
-sanctions-desk is licensed under Apache-2.0 (see `LICENSE`).
+Sanctions Desk is licensed under Apache-2.0 (see `LICENSE`).
 
 ## Meterless engines
 

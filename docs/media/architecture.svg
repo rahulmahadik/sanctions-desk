@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
-  <title>sanctions-desk architecture</title>
+  <title>Sanctions Desk architecture</title>
   <desc>An alert flows through triage, evidence (read only through the Zetaris semantic layer), a local Nemotron safety guard and free-text screener, matching and memory, a cloud Nemotron decision, critic and challenger through Meterless Nightshift, a raise-only policy guard and a sealed record, to a person who approves or overrides.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -21,7 +21,7 @@
     </style>
   </defs>
   <rect width="1200" height="760" fill="#ffffff"/>
-  <text x="40" y="44" font-size="22" font-weight="700" fill="#101828">sanctions-desk: one alert, from data to a person's decision</text>
+  <text x="40" y="44" font-size="22" font-weight="700" fill="#101828">Sanctions Desk: one alert, from data to a person's decision</text>
   <text x="40" y="68" class="s">Every step is logged with its agent, action, model asked for, model that served it, and signed receipt. The desk recommends; a person decides.</text>
 
   <!-- Data layer -->

@@ -1,5 +1,6 @@
 {
-  "name": "sanctions-desk",
+  "name": "Sanctions Desk",
+  "repository": "sanctions-desk",
   "summary": "An AI review desk for bank sanctions-screening alerts. For every alert it reads the evidence through Zetaris, compares the parties under approved definitions, asks NVIDIA Nemotron models through Meterless Nightshift for a recommendation, re-reads every cited fact, applies a written policy and hands a recommendation with its evidence to a person. It recommends; a person decides.",
   "track": "Track 03 Reasoning Architecture",
   "licence": "Apache-2.0",
