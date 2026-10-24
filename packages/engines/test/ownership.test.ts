@@ -66,8 +66,11 @@ describe("adding up and multiplying", () => {
     expect(result.outcome).toBe("meets_threshold");
     expect(result.owners[0]?.paths.map((p) => p.percent)).toEqual([25, 25]);
     expect(result.owners[0]?.effectivePercent).toBe(50);
-    // Without aggregation only the single largest path counts.
-    expect(evaluate(rows, { aggregate: false }).outcome).toBe("below_threshold");
+    // Without aggregation only the single largest path counts for effective ownership (25%), but each company is
+    // 50% owned by the listed party, so each is blocked and the customer, held by them in full, is blocked too.
+    const single = evaluate(rows, { aggregate: false });
+    expect(single.owners[0]?.status).toBe("below");
+    expect(single.outcome).toBe("meets_threshold");
   });
 
   it("adds two register rows for one owner of the same company: 25% + 25%", () => {
@@ -95,10 +98,18 @@ describe("adding up and multiplying", () => {
     expect(result.owners[0]?.effectivePercent).toBe(56.7);
   });
 
-  it("clears a chain whose product is below the threshold: 70% x 60% is 42%", () => {
+  it("blocks a chain whose product is below the threshold when the company in between is blocked: 70% of a 60% holder", () => {
     const result = evaluate([row("CUST-1", "EXT-1", "70"), row("EXT-1", "OFAC-1", "60", "listed")]);
-    expect(result.outcome).toBe("below_threshold");
+    // Effective ownership is 42%, but EXT-1 is 60% owned by a listed party, so it is blocked and owns 70% of CUST-1.
     expect(result.owners[0]?.effectivePercent).toBe(42);
+    expect(result.owners[0]?.status).toBe("below");
+    expect(result.outcome).toBe("meets_threshold");
+    expect(result.cascade).toBe("blocked");
+    expect(result.blockedEntities).toEqual([
+      { id: "CUST-1", blockedPercent: 70 },
+      { id: "EXT-1", blockedPercent: 60 },
+    ]);
+    expect(result.reasons.join(" ")).toContain("EXT-1 is itself blocked");
   });
 
   it("does not stop at the first listed owner of several", () => {
@@ -107,6 +118,93 @@ describe("adding up and multiplying", () => {
       ["OFAC-2", "meets"],
       ["OFAC-1", "below"],
     ]);
+  });
+});
+
+describe("OFAC's 50 percent rule, counted as a cascade", () => {
+  it("blocks 50% of a 50% holder (OFAC's own example), though the product is 25%", () => {
+    const result = evaluate([row("CUST-1", "EXT-A", "50"), row("EXT-A", "OFAC-X", "50", "listed")]);
+    expect(result.owners[0]?.effectivePercent).toBe(25);
+    expect(result).toMatchObject({ outcome: "meets_threshold", cascade: "blocked", blockedPercent: 50 });
+  });
+
+  it("adds a direct share to the share of a blocked holder (OFAC's own example: 10% direct + 40% through A)", () => {
+    const result = evaluate([
+      row("CUST-1", "OFAC-X", "10", "listed"),
+      row("CUST-1", "EXT-A", "40"),
+      row("EXT-A", "OFAC-X", "50", "listed"),
+    ]);
+    // Effective ownership: 10% + 20% = 30%. Under the rule A is blocked and its 40% counts in full: 50%.
+    expect(result.owners[0]?.effectivePercent).toBe(30);
+    expect(result).toMatchObject({ outcome: "meets_threshold", cascade: "blocked", blockedPercent: 50 });
+  });
+
+  it("adds up holdings of different blocked parties at each level", () => {
+    const result = evaluate([
+      row("CUST-1", "EXT-A", "60"),
+      row("EXT-A", "OFAC-1", "30", "listed"),
+      row("EXT-A", "UN-2", "20", "listed"),
+    ]);
+    expect(result.blockedEntities).toEqual([
+      { id: "CUST-1", blockedPercent: 60 },
+      { id: "EXT-A", blockedPercent: 50 },
+    ]);
+    expect(result.outcome).toBe("meets_threshold");
+    // Without aggregation no single blocked party holds 50% of EXT-A, so nothing is blocked.
+    expect(
+      evaluate(
+        [
+          ...[row("CUST-1", "EXT-A", "60")],
+          row("EXT-A", "OFAC-1", "30", "listed"),
+          row("EXT-A", "UN-2", "20", "listed"),
+        ],
+        { aggregate: false },
+      ).outcome,
+    ).toBe("below_threshold");
+  });
+
+  it("counts exactly 50% at every level and not 49.9%", () => {
+    const exact = evaluate([row("CUST-1", "EXT-A", "50"), row("EXT-A", "OFAC-1", "50", "listed")]);
+    expect(exact.cascade).toBe("blocked");
+    const upper = evaluate([row("CUST-1", "EXT-A", "50"), row("EXT-A", "OFAC-1", "49.9", "listed")]);
+    expect(upper).toMatchObject({ cascade: "clear", outcome: "below_threshold", blockedEntities: [] });
+    const lower = evaluate([row("CUST-1", "EXT-A", "49.9"), row("EXT-A", "OFAC-1", "100", "listed")]);
+    expect(lower).toMatchObject({ cascade: "clear", outcome: "below_threshold", blockedPercent: 49.9 });
+    expect(lower.blockedEntities).toEqual([{ id: "EXT-A", blockedPercent: 100 }]);
+  });
+
+  it("follows a three-level cascade", () => {
+    const result = evaluate([
+      row("CUST-1", "EXT-1", "50"),
+      row("EXT-1", "EXT-2", "50"),
+      row("EXT-2", "OFAC-1", "50", "listed"),
+    ]);
+    expect(result.owners[0]?.effectivePercent).toBe(12.5);
+    expect(result.blockedEntities.map((b) => b.id)).toEqual(["CUST-1", "EXT-1", "EXT-2"]);
+    expect(result.outcome).toBe("meets_threshold");
+  });
+
+  it("is unknown when a company in between has a blocked owner with no percentage", () => {
+    const result = evaluate([row("CUST-1", "EXT-1", "70"), row("EXT-1", "OFAC-1", null, "listed")]);
+    expect(result).toMatchObject({ cascade: "unknown", outcome: "needs_review" });
+  });
+
+  it("is clear when even the most a company in between could hold is below the threshold", () => {
+    const result = evaluate([row("CUST-1", "EXT-1", "40"), row("EXT-1", "OFAC-1", null, "listed")]);
+    expect(result.cascade).toBe("clear");
+    // Effective ownership still has an unknown path, so the case still goes to review.
+    expect(result.outcome).toBe("needs_review");
+  });
+
+  it("never turns a result that effective ownership meets into a clear one", () => {
+    // EXT-1 is 49% listed (not blocked), but 98% x 49% + 2% direct is 50.02% effectively.
+    const result = evaluate([
+      row("CUST-1", "EXT-1", "98"),
+      row("CUST-1", "OFAC-1", "2", "listed"),
+      row("EXT-1", "OFAC-1", "49", "listed"),
+    ]);
+    expect(result.cascade).toBe("clear");
+    expect(result.outcome).toBe("meets_threshold");
   });
 });
 

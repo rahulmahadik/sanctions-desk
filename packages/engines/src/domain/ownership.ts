@@ -2,11 +2,18 @@ import type { ListRelationshipRow } from "@sanctions-desk/data";
 import { type Relationship, WorldModel } from "../world-model/index.js";
 
 /**
- * Effective ownership: does a listed party control a company, directly or through a chain of owners?
+ * Ownership by listed parties: is a company owned, directly or through a chain of owners, by blocked parties?
  *
- * Rules (the 50% rule):
- *  - along a chain, percentages multiply (70% of 80% is 56%);
- *  - across separate paths to the same listed party, they add up (25% + 25% is 50%) when aggregation is on;
+ * Two measures are computed, and the threshold is met when either one reaches it:
+ *  - OFAC's 50 percent rule (a cascade): a company owned 50 percent or more, in the aggregate, by one or more
+ *    blocked parties is itself blocked, and its own holdings then count in full. So if a listed party owns 60% of
+ *    a holding company that owns 70% of the customer, the holding company is blocked and the customer, 70% owned
+ *    by it, is blocked too. Shares held by several blocked parties are added up when aggregation is on.
+ *  - effective (look-through) ownership: along a chain, percentages multiply (70% of 80% is 56%), and separate
+ *    paths to the same listed party add up (25% + 25% is 50%) when aggregation is on. It is kept because it shows
+ *    each listed party's economic interest, and because counting it as well can only make the result stricter.
+ *
+ * Shared rules:
  *  - the threshold counts exactly: 50 reaches a 50 threshold, 49.9 does not;
  *  - a percentage that is not on the register is unknown, never zero: a path with an unknown link can
  *    neither prove nor rule out control, so the result is "needs review";
@@ -76,6 +83,16 @@ export interface ListedOwner {
 
 export type OwnershipOutcome = "meets_threshold" | "needs_review" | "below_threshold" | "no_listed_owner";
 
+/** Under OFAC's rule: blocked, not blocked, or not decidable from the register (a missing percentage, a loop, the depth limit). */
+export type BlockStatus = "blocked" | "clear" | "unknown";
+
+export interface BlockedEntity {
+  /** A company in the chain (or the subject itself) that is blocked because blocked parties own enough of it. */
+  id: string;
+  /** The share of it held by blocked parties, in percent (known percentages only). */
+  blockedPercent: number;
+}
+
 export interface OwnershipResult {
   subject: string;
   thresholdPercent: number;
@@ -83,6 +100,12 @@ export interface OwnershipResult {
   owners: ListedOwner[];
   /** What all the listed owners hold together, in percent (only the paths with known percentages). */
   combinedPercent: number;
+  /** OFAC's rule for the subject: is it owned at or above the threshold by blocked parties, counted as a cascade? */
+  cascade: BlockStatus;
+  /** The share of the subject held directly by blocked parties (listed, or blocked under the cascade), in percent. */
+  blockedPercent: number;
+  /** Every company that the cascade found blocked, the subject included, nearest to the subject first. */
+  blockedEntities: BlockedEntity[];
   /** Each loop as the chain of parties that closes on itself, for example [A, B, A]. */
   loops: string[][];
   depthLimitReached: boolean;
@@ -216,11 +239,48 @@ function judgeOwner(
   };
 }
 
+interface Cascade {
+  graph: Map<string, Edge[]>;
+  listed: Set<string>;
+  options: OwnershipOptions;
+  blocked: Map<string, number>;
+}
+
+/**
+ * OFAC's rule for one company: add up what its blocked owners hold (an owner is blocked when it is listed or, in
+ * turn, owned enough by blocked parties). An owner that cannot be decided, or a blocked owner with no percentage,
+ * makes the answer unknown unless the known blocked share already reaches the threshold or cannot reach it.
+ * `trail` runs from the subject to `node`; its length is the number of links followed to get here plus one.
+ */
+function blockStatus(ctx: Cascade, node: string, trail: string[]): { status: BlockStatus; percent: number } {
+  const { thresholdPercent, aggregate, maxChainDepth } = ctx.options;
+  let known = 0;
+  let upper = 0;
+  for (const edge of ctx.graph.get(node) ?? []) {
+    let owner: BlockStatus;
+    if (trail.includes(edge.owner)) owner = "unknown";
+    else if (ctx.listed.has(edge.owner)) owner = "blocked";
+    else if (trail.length >= maxChainDepth) owner = (ctx.graph.get(edge.owner) ?? []).length > 0 ? "unknown" : "clear";
+    else owner = blockStatus(ctx, edge.owner, [...trail, edge.owner]).status;
+    if (owner === "clear") continue;
+    const share = edge.percent ?? 100;
+    if (owner === "blocked" && edge.percent !== null)
+      known = aggregate ? known + edge.percent : Math.max(known, edge.percent);
+    upper = aggregate ? upper + share : Math.max(upper, share);
+  }
+  if (known >= thresholdPercent - EPSILON) {
+    if (!ctx.blocked.has(node)) ctx.blocked.set(node, round6(known));
+    return { status: "blocked", percent: round6(known) };
+  }
+  return { status: upper >= thresholdPercent - EPSILON ? "unknown" : "clear", percent: round6(known) };
+}
+
 function summarise(
   owners: ListedOwner[],
   loops: string[][],
   depthLimitReached: boolean,
   combined: { percent: number; meets: boolean },
+  cascade: { status: BlockStatus; percent: number; blocked: BlockedEntity[]; subject: string },
 ): {
   outcome: OwnershipOutcome;
   reasons: string[];
@@ -236,8 +296,25 @@ function summarise(
   if (loops.length > 0) reasons.push(`circular ownership: ${loops.map((l) => l.join(" > ")).join("; ")}`);
   if (depthLimitReached) reasons.push("the ownership chain is longer than the policy allows");
 
-  if (combined.meets || owners.some((o) => o.status === "meets")) return { outcome: "meets_threshold", reasons };
-  if (owners.some((o) => o.status === "unknown") || loops.length > 0 || depthLimitReached) {
+  for (const b of cascade.blocked) {
+    if (b.id === cascade.subject) {
+      reasons.push(`blocked parties own ${b.blockedPercent}% of ${b.id} (the 50 percent rule, counted as a cascade)`);
+    } else {
+      reasons.push(
+        `${b.id} is itself blocked: blocked parties own ${b.blockedPercent}% of it, so its holdings count in full`,
+      );
+    }
+  }
+  if (cascade.status === "unknown") reasons.push("the 50 percent rule cannot be decided from the register");
+
+  const meets = combined.meets || owners.some((o) => o.status === "meets") || cascade.status === "blocked";
+  if (meets) return { outcome: "meets_threshold", reasons };
+  if (
+    owners.some((o) => o.status === "unknown") ||
+    loops.length > 0 ||
+    depthLimitReached ||
+    cascade.status === "unknown"
+  ) {
     return { outcome: "needs_review", reasons };
   }
   return { outcome: owners.length > 0 ? "below_threshold" : "no_listed_owner", reasons };
@@ -264,19 +341,32 @@ export function evaluateOwnership(
   const owners = [...ctx.paths.entries()]
     .map(([id, paths]) => judgeOwner(id, paths, names, options))
     .sort((a, b) => b.effectivePercent - a.effectivePercent || a.ownerId.localeCompare(b.ownerId));
-  // Listed owners count together: control by several blocked parties adds up, as the 50 percent rule says.
+  // Listed owners count together: ownership by several blocked parties adds up, as the 50 percent rule says.
   const combinedPercent = round6(owners.reduce((sum, o) => sum + o.effectivePercent, 0));
   const combined = {
     percent: combinedPercent,
     meets: options.aggregate && owners.length > 1 && combinedPercent >= options.thresholdPercent - EPSILON,
   };
-  const { outcome, reasons } = summarise(owners, ctx.loops, ctx.depthLimitReached, combined);
+  const cascadeCtx: Cascade = { graph, listed, options, blocked: new Map() };
+  const subjectBlock = blockStatus(cascadeCtx, subject, [subject]);
+  // Nearest to the subject first: the subject, then the companies in the order the cascade decided them, reversed.
+  const blockedEntities = [...cascadeCtx.blocked.entries()]
+    .reverse()
+    .map(([id, blockedPercent]) => ({ id, blockedPercent }));
+  const { outcome, reasons } = summarise(owners, ctx.loops, ctx.depthLimitReached, combined, {
+    ...subjectBlock,
+    blocked: blockedEntities,
+    subject,
+  });
   return {
     subject,
     thresholdPercent: options.thresholdPercent,
     outcome,
     owners,
     combinedPercent,
+    cascade: subjectBlock.status,
+    blockedPercent: subjectBlock.percent,
+    blockedEntities,
     loops: ctx.loops,
     depthLimitReached: ctx.depthLimitReached,
     reasons,

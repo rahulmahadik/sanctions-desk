@@ -408,13 +408,22 @@ const ownershipRule: Rule = ({ decision, match, policy }) => {
   const status = match.comparison.definitions.ownership;
   if (status === undefined) return passes("ownership", "not an ownership alert");
   if (status === "met")
-    return fails("ownership", "ESCALATE_L2", "a listed party effectively owns the customer at or above the threshold");
+    return fails(
+      "ownership",
+      "ESCALATE_L2",
+      "listed parties own the customer at or above the threshold (directly, along a chain, or through a company they own at or above it)",
+    );
   if (status === "limit") {
     const to: Decision = policy.ownership.onLimitReached === "escalate" ? "ESCALATE_L2" : "NEED_MORE_INFO";
     return fails("ownership", to, "the ownership chain is longer than the policy allows");
   }
-  if (status === "unknown") return fails("ownership", "NEED_MORE_INFO", "an ownership percentage is missing");
-  return passes("ownership", `effective ownership is below the threshold (${decision.decision})`);
+  if (status === "unknown")
+    return fails(
+      "ownership",
+      "NEED_MORE_INFO",
+      "the register cannot decide the ownership (a percentage is missing or the chain loops)",
+    );
+  return passes("ownership", `ownership by listed parties is below the threshold (${decision.decision})`);
 };
 
 const jurisdictionRule: Rule = ({ closing, policy, evidence }) => {

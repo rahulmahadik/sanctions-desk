@@ -13,10 +13,11 @@ import type { MatchResult } from "./matching.js";
 import { type AgentDeps, clientFor, type Row } from "./types.js";
 
 /**
- * The Ownership step: who owns the customer, how much each listed owner effectively holds, and whether that
- * reaches the policy threshold. The register is read level by level through Zetaris; the arithmetic (chains
- * multiply, paths add, exactly the threshold counts, a missing percentage is unknown, loops end) is the
- * ownership engine's.
+ * The Ownership step: who owns the customer, how much each listed owner effectively holds, whether blocked parties
+ * own it at or above the policy threshold under the 50 percent rule (counted as a cascade), and so whether the
+ * threshold is reached. The register is read level by level through Zetaris; the arithmetic (the cascade, chains
+ * multiply, paths add, exactly the threshold counts, a missing percentage is unknown, loops end) is the ownership
+ * engine's.
  */
 
 export interface OwnershipEvidence {
@@ -117,6 +118,8 @@ export async function gatherOwnership(
     output_summary: `${result.outcome}: ${result.reasons.join("; ") || "no listed owner reaches the threshold"}`,
     detail: {
       owners: result.owners.map((o) => ({ owner: o.ownerId, percent: o.effectivePercent, status: o.status })),
+      cascade: result.cascade,
+      blocked: result.blockedEntities,
       loops: result.loops.length,
       depth_limit: result.depthLimitReached,
     },

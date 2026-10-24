@@ -217,7 +217,9 @@ function ownershipIssues(decision: DecisionOutput["decision"], status: string | 
     return ["the approved ownership definition is met (or the chain is too long to judge), so a person must review it"];
   }
   if (status === "unknown" && decision === "CLOSE_FALSE_POSITIVE") {
-    return ["an ownership percentage is missing, so the case cannot be closed"];
+    return [
+      "the register cannot decide the ownership (a percentage is missing or the chain loops), so the case cannot be closed",
+    ];
   }
   return [];
 }

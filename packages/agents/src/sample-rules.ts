@@ -80,7 +80,7 @@ function structuralChoice(e: Evidence): Choice {
     return {
       decision: "ESCALATE_L2",
       confidence: 0.85,
-      why: "a listed party effectively owns the customer, or the chain is too long to judge",
+      why: "listed parties own the customer at or above the threshold, or the chain is too long to judge",
       settled: true,
     };
   }
@@ -88,7 +88,7 @@ function structuralChoice(e: Evidence): Choice {
     return {
       decision: "NEED_MORE_INFO",
       confidence: 0.7,
-      why: "an ownership percentage is missing, so control cannot be ruled in or out",
+      why: "the register cannot decide the ownership (a percentage is missing or the chain loops)",
       settled: true,
     };
   }
@@ -96,7 +96,7 @@ function structuralChoice(e: Evidence): Choice {
     return {
       decision: "CLOSE_FALSE_POSITIVE",
       confidence: 0.8,
-      why: "effective ownership is below the threshold",
+      why: "ownership by listed parties is below the threshold",
       settled: true,
     };
   }
