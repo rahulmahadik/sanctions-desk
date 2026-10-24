@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Please report security problems privately through GitHub's private vulnerability reporting: open the repository's **Security** tab and choose **Report a vulnerability**. Do not open a public issue for a security problem.
+Please do not put the details of a security problem in a public issue. Open an issue that says only that you have a security report, without details, and a private way to share them will be arranged.
 
 Include what you found, how to reproduce it, and what an attacker could do with it. Reports are acknowledged as soon as possible. Fixes are made on `main`; there are no other supported versions.
 
@@ -21,6 +21,10 @@ Out of scope:
 - the data: customers, accounts and payments are synthetic, and the sanctions lists are public
 
 The desk is built to run locally. It recommends and a person decides: it never blocks an account, writes to a source system or contacts a customer.
+
+## Checks that run on every push
+
+The CI workflow runs `npm audit` (high severity and above), the typecheck, lint and all tests (including the access-control, SQL-guard and pentest tests), the official engine conformance suites, and the signed-evidence check of the exported runs. Other scans (Semgrep, Trivy, Gitleaks, a ZAP baseline) were run by hand and are described with their results in [docs/SECURITY.md](docs/SECURITY.md).
 
 ## Controls and test evidence
 
