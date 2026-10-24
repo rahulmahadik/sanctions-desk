@@ -1,9 +1,10 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { loadExam } from "@sanctions-desk/data";
 import type { Config, PolicyStore } from "@sanctions-desk/shared";
 import { projectRoot } from "@sanctions-desk/shared";
 import type { FastifyPluginAsync } from "fastify";
-import { headlineFromRuns, readExamResults } from "./desk.js";
+import { examLabels, headlineFromRuns, readExamResults } from "./desk.js";
 
 interface GovernanceOptions {
   config: Config;
@@ -26,7 +27,7 @@ function readJson<T>(file: string): T | undefined {
 export const governanceRoutes: FastifyPluginAsync<GovernanceOptions> = async (app, { config, policies }) => {
   app.get("/governance", async () => {
     const policy = policies.active();
-    const results = readExamResults(join(projectRoot(), "eval", "results"));
+    const results = readExamResults(join(projectRoot(), "eval", "results"), examLabels(loadExam()));
     const head = headlineFromRuns(results, config);
     const labelChanges =
       readJson<{ changes: Array<{ case_id: string; reason: string }> }>("eval/label-changes.json")?.changes ?? [];

@@ -120,6 +120,22 @@ describe("the review desk routes", () => {
     expect(Array.isArray(body.results)).toBe(true);
   });
 
+  it("scores saved exam runs against the current labels, as the report does", async () => {
+    const { app } = await sampleApp();
+    const body = (await app.inject({ method: "GET", url: "/exam" })).json() as {
+      results: Array<{ exam?: string; variant: string; cases?: Array<{ case_id: string; expected: string }> }>;
+    };
+    const current = new Map(loadExam().cases.map((c) => [c.case_id, c.expected]));
+    for (const r of body.results.filter((x) => x.exam === undefined && Array.isArray(x.cases))) {
+      for (const c of r.cases ?? []) expect(c.expected).toBe(current.get(c.case_id));
+    }
+    // EX-043 was relabelled after every recorded run; the rules run that closed it now counts one false close.
+    const rules = body.results.find((r) => r.exam === undefined && r.variant === "rules") as
+      | { metrics: { false_closes: number; risk_cases: number } }
+      | undefined;
+    if (rules) expect(rules.metrics).toMatchObject({ false_closes: 1, risk_cases: 43 });
+  });
+
   it("gives the headline measure from the newest complete run of the full system, or none", async () => {
     const { app } = await sampleApp();
     const body = (await app.inject({ method: "GET", url: "/exam" })).json() as {

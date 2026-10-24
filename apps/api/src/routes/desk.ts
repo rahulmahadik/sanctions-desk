@@ -16,6 +16,7 @@ import {
   type ScoredCase,
   safetySentence,
   severityOf,
+  summarise,
 } from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
 import {
@@ -43,8 +44,25 @@ interface DeskOptions {
 const CaseIdSchema = SafeIdSchema;
 const KEEP_ALIVE_MS = 15_000;
 
-/** Results saved by the exam runner, newest first. A file that cannot be read is skipped. */
-export function readExamResults(dir: string): unknown[] {
+type Labels = Pick<ScoredCase, "case_id" | "expected" | "acceptable" | "must_not">;
+
+/**
+ * Score a saved run of the main exam against the labels in the committed exam, as the report does, so a label that
+ * changed after the run (listed in eval/label-changes.json) applies to every variant. Held-out runs and files without
+ * cases are returned as saved.
+ */
+export function rescoreAgainstExam(result: unknown, labels: ReadonlyMap<string, Labels>): unknown {
+  const r = result as { exam?: unknown; cases?: ScoredCase[]; metrics?: object };
+  if (r.exam !== undefined || !Array.isArray(r.cases)) return result;
+  const cases = r.cases.map((c) => {
+    const l = labels.get(c.case_id);
+    return l ? { ...c, expected: l.expected, acceptable: l.acceptable, must_not: l.must_not } : c;
+  });
+  return { ...r, cases, metrics: { ...r.metrics, ...summarise(cases) } };
+}
+
+/** Results saved by the exam runner, newest first, scored against `labels` when given. A file that cannot be read is skipped. */
+export function readExamResults(dir: string, labels?: ReadonlyMap<string, Labels>): unknown[] {
   try {
     return readdirSync(dir)
       .filter((n) => n.endsWith(".json"))
@@ -52,7 +70,8 @@ export function readExamResults(dir: string): unknown[] {
       .reverse()
       .flatMap((name) => {
         try {
-          return [{ file: name, ...(JSON.parse(readFileSync(join(dir, name), "utf8")) as object) }];
+          const saved = { file: name, ...(JSON.parse(readFileSync(join(dir, name), "utf8")) as object) };
+          return [labels ? rescoreAgainstExam(saved, labels) : saved];
         } catch {
           return [];
         }
@@ -60,6 +79,11 @@ export function readExamResults(dir: string): unknown[] {
   } catch {
     return [];
   }
+}
+
+/** The current label of every case of the main exam, by case id. */
+export function examLabels(exam: { cases: readonly Labels[] }): Map<string, Labels> {
+  return new Map(exam.cases.map((c) => [c.case_id, c]));
 }
 
 /** Calls per serving model and route over a set of records, most used first. */
@@ -190,7 +214,7 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
 
   app.get("/exam", async () => {
     const exam = loadExam();
-    const results = readExamResults(join(projectRoot(), "eval", "results"));
+    const results = readExamResults(join(projectRoot(), "eval", "results"), examLabels(exam));
     return {
       label: exam.label,
       cases: exam.cases.length,

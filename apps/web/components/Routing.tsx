@@ -159,8 +159,10 @@ export function SplitTable({ split }: { split: RoutingSplit }) {
       </div>
       <p className="muted">
         We ask for a pinned mode and record the model that answered. Which model serves a mode is Nightshift's learned
-        router's choice: in {split.routed_auto} of {split.receipts} receipts the mode served was the runtime's own auto
-        ({split.mode_coerced} marked as replaced). We do not route by difficulty and do not pin the cloud.
+        router's choice, inside the mode each app identity is bound to in the cockpit: in{" "}
+        {split.receipts - split.routed_auto} of {split.receipts} receipts the mode served was the bound one, in{" "}
+        {split.routed_auto} the runtime's own auto ({split.mode_coerced} marked as replaced). We do not route by
+        difficulty and do not pin the cloud.
       </p>
     </>
   );
