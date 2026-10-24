@@ -237,6 +237,20 @@ describe("the versions panel", () => {
   });
 });
 
+describe("phone width", () => {
+  it("lets the reason boxes shrink with the screen instead of forcing a fixed width", async () => {
+    studio(ME_APPROVER);
+    render(<PolicyStudio />);
+    await screen.findByTestId("autonomy-card");
+    const boxes = screen.getAllByLabelText(/^Reason/) as HTMLInputElement[];
+    expect(boxes).toHaveLength(2);
+    for (const box of boxes) {
+      expect(box.className).toBe("reason-input");
+      expect(box.style.minWidth).toBe("");
+    }
+  });
+});
+
 describe("the badges and the reopen button", () => {
   const alert = (over: Partial<QueueAlert>): QueueAlert => ({
     alert_id: "ALR-0001",

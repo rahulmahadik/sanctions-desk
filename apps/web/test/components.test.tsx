@@ -883,6 +883,14 @@ describe("styles", () => {
   it("has a dark theme", () => {
     expect(css).toContain("prefers-color-scheme: dark");
   });
+  it("keeps controls and long words inside the page at phone width, and scrolls wide tables in their own box", () => {
+    expect(css).toMatch(/input,\s*select,\s*textarea\s*\{[^}]*max-width: 100%/);
+    expect(css).toMatch(/\.reason-input\s*\{[^}]*width: 100%;[^}]*max-width: 320px/);
+    expect(css).toMatch(/\.user-switcher\s*\{[^}]*max-width: 100%/);
+    expect(css).toMatch(/\.node\s*\{[^}]*overflow-wrap: anywhere/);
+    expect(css).toMatch(/code,\s*\.events\s*\{[^}]*overflow-wrap: anywhere/);
+    expect(css).toMatch(/\.table-wrap\s*\{[^}]*overflow-x: auto/);
+  });
 });
 
 describe("UserSwitcher", () => {

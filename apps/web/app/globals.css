@@ -280,6 +280,7 @@ dl.facts dd {
   border-radius: var(--radius);
   padding: 8px 10px;
   background: var(--panel);
+  overflow-wrap: anywhere;
 }
 
 .node .state {
@@ -373,6 +374,7 @@ dl.facts dd {
 
 .user-switcher {
   font-size: 13px;
+  max-width: 100%;
 }
 
 ul.plain {
@@ -516,4 +518,27 @@ mark.span {
 
 .nowrap {
   white-space: nowrap;
+}
+
+/* Phone width: nothing is wider than the page. Wide tables scroll inside .table-wrap; long ids and model names wrap. */
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+.reason-input {
+  width: 100%;
+  max-width: 320px;
+}
+
+code,
+.events {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+  dl.facts {
+    grid-template-columns: 1fr;
+  }
 }

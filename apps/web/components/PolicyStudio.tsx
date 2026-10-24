@@ -89,9 +89,9 @@ function AutonomyCard({ view, me, onChange }: { view: AutonomyView; me?: MeView;
         <label>
           Reason{" "}
           <input
+            className="reason-input"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            style={{ minWidth: 280 }}
             maxLength={REASON_LENGTH.max}
           />
         </label>{" "}
@@ -194,7 +194,7 @@ function ChangeAutonomy({ view, me, onDone }: { view: AutonomyView; me?: MeView;
       <p>
         <label>
           Reason{" "}
-          <input value={reason} onChange={(e) => setReason(e.target.value)} style={{ minWidth: 320 }} maxLength={500} />
+          <input className="reason-input" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} />
         </label>
       </p>
       <button type="button" disabled={blocked !== undefined} onClick={() => void propose()}>
