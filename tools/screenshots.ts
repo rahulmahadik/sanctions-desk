@@ -9,7 +9,7 @@
  * first). Pick the demo user with --user analyst_demo (sample mode only).
  */
 import { type ChildProcess, spawn } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
@@ -102,8 +102,15 @@ if (process.argv.includes("--dark"))
 await send("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: false });
 await send("Page.navigate", { url: web });
 await waitFor("document.readyState === 'complete'");
-// Choose the demo user for the whole session (sample mode); a live deployment ignores it.
-await evaluate(`localStorage.setItem('desk.demoUser', ${JSON.stringify(demoUser)})`);
+// Choose the demo user for the whole session (sample mode); a live deployment ignores it. With --token-file, sign in
+// with the token kept in that file instead (live), so the token is never typed on a command line or printed.
+const tokenFile = arg("--token-file");
+if (tokenFile) {
+  const token = readFileSync(tokenFile, "utf8").trim();
+  await evaluate(`localStorage.setItem('desk.token', ${JSON.stringify(token)})`);
+} else {
+  await evaluate(`localStorage.setItem('desk.demoUser', ${JSON.stringify(demoUser)})`);
+}
 
 interface Shot {
   name: string;
@@ -150,7 +157,7 @@ const shots: Shot[] = [
     name: "12-agent-map",
     path: `/case/${signalsAlert}`,
     ready: "[...document.querySelectorAll('button')].some(x=>/Review this alert/.test(x.textContent||''))",
-    before: `(async()=>{const b=[...document.querySelectorAll('button')].find(x=>/Review this alert/.test(x.textContent||''));if(b){b.click();for(let i=0;i<60&&!/finished/.test(document.querySelector('[data-testid=critic-rounds]')?.textContent||'');i++)await new Promise(r=>setTimeout(r,250));}})()`,
+    before: `(async()=>{const b=[...document.querySelectorAll('button')].find(x=>/Review this alert/.test(x.textContent||''));if(b){b.click();for(let i=0;i<720&&!/finished/.test(document.querySelector('[data-testid=critic-rounds]')?.textContent||'');i++)await new Promise(r=>setTimeout(r,250));}})()`,
     focus: "#graph-title",
   },
   {
@@ -162,7 +169,9 @@ const shots: Shot[] = [
 ];
 
 const problems: string[] = [];
-for (const shot of shots) {
+// --only 09-risk-signals,04-routing-and-receipts takes just those shots.
+const only = arg("--only")?.split(",");
+for (const shot of shots.filter((s) => !only || only.includes(s.name))) {
   await send("Page.navigate", { url: `${web}${shot.path}` });
   await sleep(500);
   try {
