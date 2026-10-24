@@ -13,8 +13,9 @@ const RECEIPT_TEXT: Record<ReceiptCheck["status"], string> = {
   malformed: "this is not a well-formed receipt",
 };
 
-/** Checks one signed receipt through the API and says, in words, what it proves. */
-function VerifyReceipt({ receiptId }: { receiptId: string }) {
+/** Checks one signed receipt through the API and says, in words, what it proves. When the model the receipt names is not
+ * the one the trace recorded, both are shown. */
+function VerifyReceipt({ receiptId, traceModel }: { receiptId: string; traceModel?: string }) {
   const [check, setCheck] = useState<ReceiptCheck>();
   const [problem, setProblem] = useState<string>();
   const [busy, setBusy] = useState(false);
@@ -60,6 +61,12 @@ function VerifyReceipt({ receiptId }: { receiptId: string }) {
               {check.mode_coerced ? " (the cockpit's bind replaced the request)" : ""}. Body{" "}
               {shortHash(check.body_hash)}.
             </>
+          ) : null}
+          {check.served_by && traceModel && check.served_by !== traceModel ? (
+            <strong className="tone-stop" data-testid={`receipt-differs-${receiptId}`}>
+              {" "}
+              The receipt names {check.served_by}; the trace recorded {traceModel}.
+            </strong>
           ) : null}
         </div>
       ) : null}
@@ -171,14 +178,15 @@ export function RoutingPanel({ trace, split }: { trace: TraceView; split?: Routi
           <thead>
             <tr>
               <th>Step</th>
-              <th>Mode asked for</th>
-              <th>Answered by</th>
-              <th>Served</th>
+              <th>Requested</th>
+              <th>Routed (served the call)</th>
+              <th>Receipt id</th>
+              <th>Where</th>
               <th>Reasoning budget (ours)</th>
               <th>Time</th>
               <th>Tokens in / out</th>
               <th>App</th>
-              <th>Receipt</th>
+              <th>Receipt check</th>
               <th>Cost</th>
             </tr>
           </thead>
@@ -190,6 +198,9 @@ export function RoutingPanel({ trace, split }: { trace: TraceView; split?: Routi
                 <td>{m.model_requested}</td>
                 <td>
                   {modelName(m.model_routed)} <span className="muted">({m.model_routed})</span>
+                </td>
+                <td>
+                  <code data-testid="receipt-id">{m.receipt_id ?? "none"}</code>
                 </td>
                 <td>
                   <span className={`badge lane-${m.route_kind ?? "local"}`}>{m.route_kind ?? "local"}</span>
@@ -205,7 +216,7 @@ export function RoutingPanel({ trace, split }: { trace: TraceView; split?: Routi
                   {m.receipt_id ? (
                     <>
                       {" "}
-                      <VerifyReceipt receiptId={m.receipt_id} />
+                      <VerifyReceipt receiptId={m.receipt_id} traceModel={m.model_routed} />
                     </>
                   ) : null}
                 </td>
@@ -214,7 +225,7 @@ export function RoutingPanel({ trace, split }: { trace: TraceView; split?: Routi
             ))}
             {cost.models.length === 0 ? (
               <tr>
-                <td colSpan={10} className="muted">
+                <td colSpan={11} className="muted">
                   No model was called for this recommendation.
                 </td>
               </tr>
@@ -222,6 +233,11 @@ export function RoutingPanel({ trace, split }: { trace: TraceView; split?: Routi
           </tbody>
         </table>
       </div>
+      <p className="muted">
+        For every call: the mode we asked for, the model that served it (as Nightshift reported it) and the id of its
+        signed receipt, side by side. They are never merged: when the routed model is not the one asked for, both are
+        shown, and a receipt that names another model than the trace is marked.
+      </p>
       {cost.models.some((m) => m.receipt_id) ? (
         <VerifyAll receiptIds={cost.models.flatMap((m) => (m.receipt_id ? [m.receipt_id] : []))} />
       ) : null}

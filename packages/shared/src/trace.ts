@@ -63,11 +63,14 @@ export function traceLine(event: TraceEvent): Record<string, unknown> {
 
 const clip = (text: string, max: number): string => (text.length > max ? `${text.slice(0, max - 3)}...` : text);
 
-/** One short readable line for a person watching a run: time, agent, action, status, summary, receipt id. */
+/** One short readable line for a person watching a run: time, agent, action, status, summary, and for a model call the
+ * model asked for, the model that served it and the receipt id, side by side even when they differ. */
 export function prettyTraceLine(event: TraceEvent): string {
   const time = event.ts.slice(11, 19);
   const summary = clip((event.output_summary ?? event.input_summary ?? "").replaceAll("\n", " "), 100);
   const parts = [time, event.agent.padEnd(12), event.action.padEnd(24), event.status.padEnd(7), summary];
+  if (event.model_requested) parts.push(`requested=${event.model_requested}`);
+  if (event.model_used) parts.push(`routed=${event.model_used}`);
   if (event.receipt) parts.push(`receipt=${event.receipt.receipt_id}`);
   return parts.join(" ").trimEnd();
 }

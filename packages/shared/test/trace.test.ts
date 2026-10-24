@@ -112,6 +112,22 @@ describe("createTraceLogger", () => {
     }
   });
 
+  it("prints the requested model, the routed model and the receipt id of a model call side by side", () => {
+    const line = prettyTraceLine({
+      ts: "2026-10-23T01:02:03.000Z",
+      run_id: "run-pretty",
+      seq: 1,
+      agent: "decision",
+      action: "model_answer",
+      status: "ok",
+      output_summary: "valid answer on attempt 1",
+      model_requested: "meterless/deep",
+      model_used: "nvidia/nemotron-3-ultra-550b-a55b",
+      receipt: { receipt_id: "rcpt_1" },
+    } as never);
+    expect(line).toMatch(/ requested=meterless\/deep routed=nvidia\/nemotron-3-ultra-550b-a55b receipt=rcpt_1$/);
+  });
+
   it("refuses run ids that could escape the log directory", () => {
     for (const bad of ["../escape", "a/b", "a b", ""]) {
       expect(() => createTraceLogger({ runId: bad, dir: tempDir(), stdout: false })).toThrow(AppError);
