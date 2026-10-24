@@ -161,10 +161,14 @@ Each step, what it may and may not do, the guardrails and the failure handling: 
 2. Raw text stays out of the desk's cloud prompts: the local model turns it into risk signals with exact spans, and a signal at or above its threshold blocks a close whether or not its span is grounded.
 3. Every held-out round is published as run, wrong closes included, and every Nightshift answer has a signed receipt that one command re-checks.
 
-**Limitation:** The cloud decision model receives structured personal fields from the case (name, date of birth, nationality); the desk never puts free text in a cloud prompt. **Future work:** For deployments that require it, pseudonymise names and identifiers before any cloud call, or keep the decision step local.
+**Limitation:** By default the cloud decision model receives structured personal fields from the case (name, date of birth, nationality); the desk never puts free text in a cloud prompt. The optional privacy mode sends tokens instead, and has been tested only on a small live sample. **Future work:** For deployments that require it, make privacy mode the default once a full evaluation run confirms it, or keep the decision step local.
 <!-- sponsors:end -->
 
 Details: [docs/SPONSORS.md](docs/SPONSORS.md), [docs/ZETARIS.md](docs/ZETARIS.md), [docs/MODELS.md](docs/MODELS.md) and [docs/MEMORY.md](docs/MEMORY.md).
+
+## Privacy mode
+
+Optional and off by default: set `PRIVACY_MODE=pseudonymise`. Before every cloud call the case's names, aliases, identifiers, dates of birth, addresses and country values are replaced by stable per-case tokens (`PARTY_A`, `LISTED_1`, `DOC_1`, `DOB_1`, `COUNTRY_1`); the cloud model sees the tokens, the comparison worked out on this machine (name score, date of birth and nationality agreement, definitions met) and whether each country token is a watched jurisdiction. The token map stays on this machine and in the sealed record, the answer is mapped back locally, and a prompt that still holds a raw name, identifier or date of birth is not sent. Small test of an optional mode, not part of the recorded evaluation (24 Oct 2026, one live run each, Nightshift warmed up and not restarted): on held-out v4 (12 cases) and 8 of the 70 exam cases (4 risks, 4 clears), privacy mode wrongly closed 0 of 10 risk cases, as the default did in the same session; it made 5 of 10 clears against 3 for the default, and 14 of 20 outcomes were the same (the others moved between escalate and need more information, or were clears the default escalated). Its 65 cloud prompts all passed the raw-value check, and its 104 receipts verify, none with an added memory. Details: [docs/MODELS.md](docs/MODELS.md#privacy-mode).
 
 ## Safety and limits
 
@@ -173,8 +177,8 @@ Details: [docs/SPONSORS.md](docs/SPONSORS.md), [docs/ZETARIS.md](docs/ZETARIS.md
 - **The local screener over-flags relationships**, so on the held-out sets the correct clears go to a person: the fail-closed rule (policy version 8) makes every signal at or above its threshold block a close, grounded or not. On held-out v4 that cost all six clears; no risk case was closed.
 - Each variant in the report is one run. Model answers vary between runs and the runtime may answer a repeated prompt from its cache.
 - The customers, accounts, owners and payments are **synthetic**; only the listed parties are real public entries.
-- **Limitation:** The cloud decision model receives structured personal fields from the case (name, date of birth, nationality); the desk never puts free text in a cloud prompt.
-- **Future work:** For deployments that require it, pseudonymise names and identifiers before any cloud call, or keep the decision step local.
+- **Limitation:** By default the cloud decision model receives structured personal fields from the case (name, date of birth, nationality); the desk never puts free text in a cloud prompt. The optional privacy mode sends tokens instead, and has been tested only on a small live sample.
+- **Future work:** For deployments that require it, make privacy mode the default once a full evaluation run confirms it, or keep the decision step local.
 
 More: [Guardrails](docs/ARCHITECTURE.md#guardrails), [Failure handling](docs/ARCHITECTURE.md#failure-handling), [Edge cases](docs/EDGE_CASES.md), [Responsible AI](docs/GOVERNANCE.md#responsible-ai), and [Limits](docs/KNOWN_ISSUES.md#limits), [Not built / not verified](docs/KNOWN_ISSUES.md#not-built--not-verified) and [Future work](docs/KNOWN_ISSUES.md#future-work) in [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md).
 
