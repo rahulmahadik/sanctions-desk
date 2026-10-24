@@ -198,6 +198,8 @@ The exam has 70 cases built from real public list entries and synthetic customer
 | single (sys4) | heldout4 | 2026-10-24T02:56:29.757Z | c00f5d1+local changes | eval: auto, guard: local, reasoning: deep | Zetaris cache | on | local (guard identity) | yes | on |
 | rules | heldout4 | 2026-10-24T03:02:40.929Z | c00f5d1+local changes | eval: auto, guard: local, reasoning: deep | live, REST service | on | local (guard identity) | yes | on |
 | escalate_all | heldout4 | 2026-10-24T03:03:24.343Z | c00f5d1+local changes | eval: auto, guard: local, reasoning: deep | live, REST service | on | local (guard identity) | yes | on |
+| fuzzy | heldout3 | 2026-10-24T03:38:40.135Z | 386a5f3+local changes | eval: auto, guard: local, reasoning: deep | live, REST service | on | local (guard identity) | yes | on |
+| fuzzy | heldout4 | 2026-10-24T03:38:40.424Z | 386a5f3+local changes | eval: auto, guard: local, reasoning: deep | live, REST service | on | local (guard identity) | yes | on |
 
 **Payments: a difference between the runs, not only a note.** The first system's runs read the payments table live from the REST service: the Zetaris cache of that table had been lost (an engine restart drops it), which was found on 24 Oct 2026 when a query failed with the payments service stopped. The table was cached again at about 02:05 SGT on 24 Oct, before the changed system's runs, and checked the same way: with the service stopped, Zetaris answered all 373 rows, and the seven payments of held-out v2 matched the source in all 14 columns. The run note written into those result files gives the time as 02:35; the check was at about 02:05. The data is the same either way; the difference can affect time and resilience, not the rows read.
 

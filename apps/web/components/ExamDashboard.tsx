@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { fetchExam } from "../lib/api";
 import { money, percent } from "../lib/format";
-import type { ExamAnswer, ExamResult } from "../lib/types";
+import type { ExamAnswer, ExamResult, HeldoutRoundView } from "../lib/types";
 
 const VARIANT_NOTE: Record<string, string> = {
   routed: "Full system: local and cloud Nemotron through Nightshift, critic and memory",
@@ -15,11 +15,67 @@ const VARIANT_NOTE: Record<string, string> = {
   escalate_all: "Baseline: escalate everything",
 };
 
+/** A complete run of the first system on the 70-case exam: held-out sets and later versions have their own table. */
+const examRun = (r: ExamResult): boolean =>
+  r.exam === undefined &&
+  r.system === undefined &&
+  !r.tag &&
+  !r.selection?.kinds &&
+  !r.selection?.groups &&
+  !r.selection?.limit;
+
 function latest(results: ExamResult[]): ExamResult[] {
   // Results come newest first, so the first one seen for a variant is its latest.
   const byVariant = new Map<string, ExamResult>();
-  for (const r of results) if (!byVariant.has(r.variant)) byVariant.set(r.variant, r);
+  for (const r of results.filter(examRun)) if (!byVariant.has(r.variant)) byVariant.set(r.variant, r);
   return [...byVariant.values()];
+}
+
+const ROUND_COLUMNS = [
+  ["routed", "Full system"],
+  ["single", "Single (no critic, no challenger)"],
+  ["rules", "Deterministic rules"],
+  ["fuzzy", "Name match"],
+  ["escalate_all", "Escalate everything"],
+] as const;
+
+/** Every held-out round as run, with the baselines on the same cases: the same table as the README. */
+export function HeldoutRounds({ rounds }: { rounds: readonly HeldoutRoundView[] }) {
+  return (
+    <div className="panel table-wrap">
+      <table data-testid="heldout-rounds">
+        <caption>Held-out rounds, as run (cases the rules were not written for; one run each)</caption>
+        <thead>
+          <tr>
+            <th>Round</th>
+            {ROUND_COLUMNS.map(([key, name]) => (
+              <th key={key}>{name}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rounds.map((r) => (
+            <tr key={r.id}>
+              <td>
+                <strong>{r.label}</strong>
+                <div className="muted">
+                  {r.system} ({r.commit}){r.blind ? "; blind" : "; not blind"}
+                </div>
+              </td>
+              {ROUND_COLUMNS.map(([key]) => {
+                const cell = r.cells[key];
+                return (
+                  <td key={key} className={cell && cell.wrong_closes > 0 ? "tone-stop" : cell ? undefined : "muted"}>
+                    {cell?.text ?? "not run"}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 /** Results of the exam, straight from the files the exam runner saved. Nothing is typed in by hand. */
@@ -59,9 +115,10 @@ export function ExamDashboard() {
         {exam.cases} cases. Each variant is from one run; model answers vary between runs and the runtime may answer
         repeated prompts from its cache, which affects time and cost.
       </p>
+      {exam.heldout_rounds && exam.heldout_rounds.length > 0 ? <HeldoutRounds rounds={exam.heldout_rounds} /> : null}
       <div className="panel table-wrap">
         <table>
-          <caption>Variants compared</caption>
+          <caption>Variants compared on the 70-case exam (first system)</caption>
           <thead>
             <tr>
               <th>Variant</th>

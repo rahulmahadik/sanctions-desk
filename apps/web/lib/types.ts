@@ -214,6 +214,12 @@ export interface ExamMetrics {
 export interface ExamResult {
   file: string;
   variant: string;
+  /** Absent for the 70-case exam; "heldout", "heldout2"… for a held-out set. */
+  exam?: string;
+  /** Absent for the first system; a later system version's tag otherwise. */
+  system?: string;
+  tag?: string;
+  selection?: { kinds?: unknown; groups?: unknown; limit?: unknown };
   started_at: string;
   metrics: ExamMetrics;
 }
@@ -270,6 +276,27 @@ export interface ExamAnswer {
   headline_sentence?: string | null;
   headline_run?: string | null;
   routing_split?: RoutingSplit | null;
+  heldout_rounds?: HeldoutRoundView[];
+}
+
+export interface RoundCellView {
+  file: string;
+  risk: number;
+  wrong_closes: number;
+  wrong_close_ids: string[];
+  clears: number;
+  clears_made: number;
+  text: string;
+}
+
+/** One held-out round as run, with the baselines on the same cases (GET /exam). */
+export interface HeldoutRoundView {
+  id: string;
+  label: string;
+  system: string;
+  commit: string;
+  blind: boolean;
+  cells: Record<"routed" | "single" | "rules" | "fuzzy" | "escalate_all", RoundCellView | null>;
 }
 
 export interface GovernanceView {

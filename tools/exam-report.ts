@@ -12,10 +12,15 @@ import {
   byPath,
   type Headline,
   headlineOf,
+  heldoutRounds,
   type Metrics,
   modelLabel,
+  ROUND_COLUMN_LABEL,
+  ROUND_COLUMNS,
+  type RoundCell,
   type RoutingSplit,
   routingSplit,
+  type SavedResult,
   type ScoredCase,
   summarise,
 } from "@sanctions-desk/agents";
@@ -956,85 +961,53 @@ const readmePath = resolveProjectPath("README.md");
 const readme = readFileSync(readmePath, "utf8");
 const START = "<!-- headline:start -->";
 const END = "<!-- headline:end -->";
-/** Each held-out round: the run of the system it tested, the deterministic pipeline on the same cases, what the round
- * found and what was changed after it. The findings of the finished rounds are history; the last round's is computed. */
-const ROUNDS: Array<{ label: string; system: string; run?: Result; rules?: Result; found: string; changed: string }> = [
-  {
-    label: "Held-out v1 (30 cases, blind)",
-    system: "first system (`f9f3212`)",
-    run: heldoutNewest.get("routed"),
-    rules: heldoutNewest.get("rules"),
+/** What each held-out round found and what was changed after it: history, written once per round. The numbers come
+ * from heldoutRounds, the same function the review desk's test-scores screen uses. */
+const ROUND_STORY: Record<string, { found: string; changed: string }> = {
+  v1: {
     found: "risk stated only in free text (a note, a payment reference) never reached the decision",
     changed: "a local screener reads the free text and passes risk signals; a signal blocks a close",
   },
-  {
-    label: "Held-out v2 (19 cases, blind)",
-    system: "screener added (`da7aff4`)",
-    run: laterRuns.get("sys2|heldout2|routed"),
-    rules: laterRuns.get("baseline|heldout2|rules"),
+  v2: {
     found: "the local screener failed on every case (empty answers to schema-constrained requests); fail-closed held",
     changed: "plain JSON for the screener and local retries (`f6ed38a`); no prompt, rule or threshold change",
   },
-  {
-    label: "Held-out v2, re-run (not blind)",
-    system: "infrastructure fix (`f6ed38a`)",
-    run: laterRuns.get("sys2b|heldout2|routed"),
-    rules: laterRuns.get("baseline|heldout2|rules"),
+  "v2-rerun": {
     found:
       "the screener over-flagged (signals pointing at text with no relation word); the critic deadlocked on uncheckable citations",
     changed:
       "span grounding of signals, document numbers checked against the customer record, citable-source list (`b6617cd`)",
   },
-  {
-    label: "Held-out v3 (12 cases, blind)",
-    system: "grounding (`517f798`)",
-    run: laterRuns.get("sys3|heldout3|routed"),
-    rules: laterRuns.get("baseline|heldout3|rules"),
+  v3: {
     found:
       "grounding set aside two real relation signals whose cited span missed the word, so two risks were closed; four clears were stopped by the document-on-record rule, as that rule intends",
     changed:
       "fail closed: every signal at or above its threshold blocks a close, grounded or not (`ce1db95`, policy 8)",
   },
-  {
-    label: "Held-out v4 (12 cases, blind, last round)",
-    system: "fail closed (`ce1db95`)",
-    run: laterRuns.get("sys4|heldout4|routed"),
-    rules: laterRuns.get("baseline|heldout4|rules"),
+  v4: {
     found:
       "no risk case closed; no clear made: every clear carried a relationship signal the screener could not ground, which now blocks (the cost of failing closed)",
     changed: "nothing; this was the last held-out round",
   },
-];
-const wrongCloses = (r: Result) => {
-  const d = directions(r.cases);
-  return d.risk - d.caught;
 };
-const roundRows = ROUNDS.map((x) => {
-  if (!x.run) return `| ${x.label} | ${x.system} | not run | | | | ${x.changed} |`;
-  const d = directions(x.run.cases);
-  const fc = d.risk - d.caught;
-  const rules = x.rules ? directions(x.rules.cases) : undefined;
-  const wrongIds = riskOf(x.run.cases)
-    .filter((c) => c.error === undefined && closed(c))
-    .map((c) => c.case_id);
-  const found =
-    x.found ||
-    (fc === 0
-      ? `no risk case closed; ${d.made} of ${d.clears} clears made`
-      : `${fc} risk case${fc === 1 ? "" : "s"} wrongly closed; ${d.made} of ${d.clears} clears made`);
-  return `| ${x.label} | ${x.system} | ${fc > 0 ? `**${fc} of ${d.risk}** (${wrongIds.join(", ")})` : `0 of ${d.risk}`} | ${d.made} of ${d.clears} | ${rules ? `${rules.risk - rules.caught} wrong close${rules.risk - rules.caught === 1 ? "" : "s"}, ${rules.made} of ${rules.clears} clears` : "not run"} | ${found} | ${x.changed} |`;
-});
-const heldoutClears = ROUNDS.filter((x) => x.run && !x.label.includes("re-run")).reduce(
-  (n, x) => n + directions((x.run as Result).cases).made,
-  0,
+const rounds = heldoutRounds(
+  files.map((f) => ({ file: f, ...(JSON.parse(readFileSync(join(dir, f), "utf8")) as SavedResult) })),
 );
-const heldoutRulesClears = ROUNDS.filter((x) => x.rules && !x.label.includes("re-run")).reduce(
-  (n, x) => n + directions((x.rules as Result).cases).made,
-  0,
+const bold = (cell: RoundCell | null) =>
+  cell && cell.wrong_closes > 0 ? `**${cell.text}**` : (cell?.text ?? "not run");
+const roundRows = rounds.map(
+  (r) => `| ${r.label}${r.blind ? "" : " (not blind)"} | ${ROUND_COLUMNS.map((c) => bold(r.cells[c])).join(" | ")} |`,
 );
-const heldoutWrong = ROUNDS.filter((x) => x.run && !x.label.includes("re-run")).map(
-  (x) =>
-    `${wrongCloses(x.run as Result)} in ${(x.label.split(" (")[0] ?? x.label).replace("Held-out", "held-out")}${x.label.startsWith("Held-out v2") ? " (the screener had failed, so nothing was closed)" : ""}`,
+const storyRows = rounds.map(
+  (r) =>
+    `| ${r.label} | ${r.system} (\`${r.commit}\`) | ${ROUND_STORY[r.id]?.found ?? ""} | ${ROUND_STORY[r.id]?.changed ?? ""} |`,
+);
+const blindRounds = rounds.filter((r) => r.blind && r.cells.routed);
+const heldoutClears = blindRounds.reduce((n, r) => n + (r.cells.routed?.clears_made ?? 0), 0);
+const heldoutRulesClears = blindRounds.reduce((n, r) => n + (r.cells.rules?.clears_made ?? 0), 0);
+const heldoutWrong = blindRounds.map(
+  (r) =>
+    `${r.cells.routed?.wrong_closes} in ${(r.label.split(" (")[0] ?? r.label).replace("Held-out", "held-out")}${r.id === "v2" ? " (the screener had failed, so nothing was closed)" : ""}`,
 );
 
 const closedIds = (r: Result | undefined) => new Set(r ? r.cases.filter(closed).map((c) => c.case_id) : []);
@@ -1101,11 +1074,17 @@ if (full && readmeJudges.includes(JS) && readmeJudges.includes(JE)) {
   const fuzzy = get("fuzzy");
   const rows = [
     `- **Wrongly closed on the ${full.metrics.risk_cases} risk cases of the exam:** full system **${full.metrics.false_closes}**${fuzzy ? `, plain name matching ${fuzzy.metrics.false_closes}` : ""}.`,
-    "- **Each held-out round** (cases the rules were not written for, frozen before the system that ran them; one run each). Wrong closes are kept in this table, not in footnotes:",
+    "- **Every held-out round, as run**, with the baselines on the same frozen cases (cases the rules were not written for; one run each). The same table, from the same result files, is on the review desk's test-scores screen. Wrong closes are in bold and stay in this table:",
     "",
-    "| Round | System | Risk cases wrongly closed | Correct clears | Deterministic rules, same cases | What it found | What changed after |",
-    "|---|---|---:|---:|---|---|---|",
+    `| Round | ${ROUND_COLUMNS.map((c) => ROUND_COLUMN_LABEL[c]).join(" | ")} |`,
+    `|---|${ROUND_COLUMNS.map(() => "---").join("|")}|`,
     ...roundRows,
+    "",
+    "- **What each round found and what changed after it:**",
+    "",
+    "| Round | System tested | What it found | What changed after |",
+    "|---|---|---|---|",
+    ...storyRows,
   ];
   const block = [JS, ...rows, JE].join("\n");
   writeFileSync(readmePath, readmeJudges.replace(new RegExp(`${JS}[\\s\\S]*?${JE}`), block));

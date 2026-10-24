@@ -530,6 +530,56 @@ describe("ExamDashboard", () => {
     expect(screen.getByText(/one run/)).toBeTruthy();
   });
 
+  it("keeps held-out and later-version runs out of the 70-case table, and shows every held-out round with its baselines", async () => {
+    const first = exam.results[0] as ExamAnswer["results"][number];
+    const cell = (wrong: number, text: string) => ({
+      file: "f",
+      risk: 6,
+      wrong_closes: wrong,
+      wrong_close_ids: [],
+      clears: 6,
+      clears_made: 0,
+      text,
+    });
+    vi.mocked(api.fetchExam).mockResolvedValue({
+      ...exam,
+      results: [
+        { ...first, file: "b.json", exam: "heldout4", metrics: { ...first.metrics, risk_cases: 6, false_closes: 3 } },
+        first,
+      ],
+      heldout_rounds: [
+        {
+          id: "v4",
+          label: "Held-out v4 (12 cases, last round)",
+          system: "fails closed",
+          commit: "ce1db95",
+          blind: true,
+          cells: {
+            routed: cell(0, "0 of 6 risks closed; 0 of 6 clears"),
+            single: null,
+            rules: cell(3, "3 of 6 risks closed (HO4-002); 2 of 6 clears"),
+            fuzzy: null,
+            escalate_all: cell(0, "0 of 6 risks closed; 0 of 6 clears"),
+          },
+        },
+      ],
+    });
+    render(<ExamDashboard />);
+    const rounds = await screen.findByTestId("heldout-rounds");
+    const row = within(rounds).getByText("Held-out v4 (12 cases, last round)").closest("tr");
+    const cells = [...(row?.querySelectorAll("td") ?? [])].map((c) => c.textContent);
+    expect(cells.slice(1)).toEqual([
+      "0 of 6 risks closed; 0 of 6 clears",
+      "not run",
+      "3 of 6 risks closed (HO4-002); 2 of 6 clears",
+      "not run",
+      "0 of 6 risks closed; 0 of 6 clears",
+    ]);
+    // The 70-case table shows the exam run only.
+    expect(screen.getByText("0 of 37 risk cases")).toBeTruthy();
+    expect(screen.queryByText("3 of 6 risk cases")).toBeNull();
+  });
+
   it("explains what to run when nothing is saved, and reports a read problem", async () => {
     vi.mocked(api.fetchExam).mockResolvedValue({ ...exam, results: [] });
     render(<ExamDashboard />);

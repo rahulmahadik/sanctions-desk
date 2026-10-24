@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { sampleRules } from "@sanctions-desk/agents";
 import { examCase, loadExam } from "@sanctions-desk/data";
 import { createFallbackRulesGenerator, loadConfig, resolveProjectPath } from "@sanctions-desk/shared";
@@ -111,6 +112,47 @@ describe("the review desk routes", () => {
     else {
       expect(body.headline.assumptions.minutesPerAlert).toBe(15);
       expect(body.headline_sentence).toContain("assuming 15 minutes per alert");
+    }
+  });
+
+  it("takes the headline from a 70-case run of the first system, never from a held-out set or a later version", async () => {
+    const { app } = await sampleApp();
+    const body = (await app.inject({ method: "GET", url: "/exam" })).json() as {
+      headline: { alerts: number } | null;
+      headline_run: string | null;
+      results: Array<{ started_at?: string; exam?: string; system?: string; variant: string }>;
+    };
+    if (body.headline === null) return;
+    const run = body.results.find((r) => r.started_at === body.headline_run);
+    expect(run).toMatchObject({ variant: "routed" });
+    expect(run?.exam).toBeUndefined();
+    expect(run?.system).toBeUndefined();
+  });
+
+  it("gives every held-out round with its baselines, in the same words as the README table", async () => {
+    const { app } = await sampleApp();
+    const body = (await app.inject({ method: "GET", url: "/exam" })).json() as {
+      heldout_rounds: Array<{ label: string; cells: Record<string, { text: string } | null> }>;
+    };
+    expect(body.heldout_rounds.map((r) => r.label)).toEqual([
+      "Held-out v1 (30 cases)",
+      "Held-out v2 (19 cases)",
+      "Held-out v2, re-run after an infrastructure fix",
+      "Held-out v3 (12 cases)",
+      "Held-out v4 (12 cases, last round)",
+    ]);
+    const readme = readFileSync(resolveProjectPath("README.md"), "utf8");
+    const table = readme.slice(readme.indexOf("<!-- judges:start -->"), readme.indexOf("<!-- judges:end -->"));
+    for (const round of body.heldout_rounds) {
+      const row = table.split("\n").find((l) => l.startsWith(`| ${round.label}`) && !l.includes("`"));
+      expect(row, round.label).toBeDefined();
+      const cells = (row ?? "")
+        .split(" | ")
+        .slice(1)
+        .map((c) => c.replaceAll("**", "").replace(/ \|$/, ""));
+      expect(cells, round.label).toEqual(
+        ["routed", "single", "rules", "fuzzy", "escalate_all"].map((k) => round.cells[k]?.text ?? "not run"),
+      );
     }
   });
 

@@ -12,6 +12,7 @@ export * from "./evidence.js";
 export * from "./evidence-standard.js";
 export * from "./grounding.js";
 export * from "./headline.js";
+export * from "./heldout-rounds.js";
 export * from "./human-decision.js";
 export * from "./human-state.js";
 export * from "./list-change.js";

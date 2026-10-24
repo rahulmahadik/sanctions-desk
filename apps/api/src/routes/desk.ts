@@ -5,11 +5,13 @@ import {
   type Headline,
   headlineOf,
   headlineSentence,
+  heldoutRounds,
   humanState,
   type RoutingSplit,
   readAlertQueue,
   readDecisionRecords,
   routingSplit,
+  type SavedResult,
   type ScoredCase,
 } from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
@@ -170,6 +172,8 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
       results,
       policy_version: policies.active().version,
       ...headlineFromRuns(results, config),
+      // Every held-out round as run, with the baselines on the same cases: the same table the README shows.
+      heldout_rounds: heldoutRounds(results as SavedResult[]),
     };
   });
 };
@@ -191,6 +195,8 @@ export function silentTrace(runId: string): TraceLogger {
 interface SavedRun {
   file: string;
   variant: string;
+  exam?: string;
+  system?: string;
   tag?: string;
   selection?: { groups?: unknown; kinds?: unknown; limit?: unknown };
   started_at?: string;
@@ -198,8 +204,9 @@ interface SavedRun {
 }
 
 /**
- * The headline measure from the newest complete run of the full system. A run limited to some cases (a tag, kinds,
- * groups or a limit) is not complete. The minutes-saved figure uses the assumptions in the configuration.
+ * The headline measure from the newest complete run of the full system on the 70-case exam. A run limited to some
+ * cases (a tag, kinds, groups or a limit), a held-out set or a later system version is not that run. The
+ * minutes-saved figure uses the assumptions in the configuration.
  */
 export function headlineFromRuns(
   results: unknown[],
@@ -212,7 +219,15 @@ export function headlineFromRuns(
 } {
   const run = (results as SavedRun[]).find(
     (r) =>
-      r.variant === "routed" && !r.tag && !r.selection?.kinds && !r.selection?.groups && !r.selection?.limit && r.cases,
+      // The 70-case exam on the first system: a held-out set or a later system version has its own table.
+      r.variant === "routed" &&
+      r.exam === undefined &&
+      r.system === undefined &&
+      !r.tag &&
+      !r.selection?.kinds &&
+      !r.selection?.groups &&
+      !r.selection?.limit &&
+      r.cases,
   );
   if (!run?.cases) return { headline: null, headline_sentence: null, headline_run: null, routing_split: null };
   const headline = headlineOf(run.cases, { ...config.report, currency: config.costs.currency });

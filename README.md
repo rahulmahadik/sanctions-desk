@@ -40,15 +40,25 @@ Reproduce with `npm ci && npm run prove`, or `npm run prove -- --fresh` to clone
 
 <!-- judges:start -->
 - **Wrongly closed on the 42 risk cases of the exam:** full system **0**, plain name matching 10.
-- **Each held-out round** (cases the rules were not written for, frozen before the system that ran them; one run each). Wrong closes are kept in this table, not in footnotes:
+- **Every held-out round, as run**, with the baselines on the same frozen cases (cases the rules were not written for; one run each). The same table, from the same result files, is on the review desk's test-scores screen. Wrong closes are in bold and stay in this table:
 
-| Round | System | Risk cases wrongly closed | Correct clears | Deterministic rules, same cases | What it found | What changed after |
-|---|---|---:|---:|---|---|---|
-| Held-out v1 (30 cases, blind) | first system (`f9f3212`) | **2 of 22** (HO-005, HO-006) | 0 of 8 | 6 wrong closes, 0 of 8 clears | risk stated only in free text (a note, a payment reference) never reached the decision | a local screener reads the free text and passes risk signals; a signal blocks a close |
-| Held-out v2 (19 cases, blind) | screener added (`da7aff4`) | 0 of 14 | 0 of 5 | 3 wrong closes, 5 of 5 clears | the local screener failed on every case (empty answers to schema-constrained requests); fail-closed held | plain JSON for the screener and local retries (`f6ed38a`); no prompt, rule or threshold change |
-| Held-out v2, re-run (not blind) | infrastructure fix (`f6ed38a`) | 0 of 14 | 0 of 5 | 3 wrong closes, 5 of 5 clears | the screener over-flagged (signals pointing at text with no relation word); the critic deadlocked on uncheckable citations | span grounding of signals, document numbers checked against the customer record, citable-source list (`b6617cd`) |
-| Held-out v3 (12 cases, blind) | grounding (`517f798`) | **2 of 6** (HO3-001, HO3-003) | 0 of 6 | 1 wrong close, 1 of 6 clears | grounding set aside two real relation signals whose cited span missed the word, so two risks were closed; four clears were stopped by the document-on-record rule, as that rule intends | fail closed: every signal at or above its threshold blocks a close, grounded or not (`ce1db95`, policy 8) |
-| Held-out v4 (12 cases, blind, last round) | fail closed (`ce1db95`) | 0 of 6 | 0 of 6 | 3 wrong closes, 2 of 6 clears | no risk case closed; no clear made: every clear carried a relationship signal the screener could not ground, which now blocks (the cost of failing closed) | nothing; this was the last held-out round |
+| Round | Full system | Single (no critic, no challenger) | Deterministic rules | Name match | Escalate everything |
+|---|---|---|---|---|---|
+| Held-out v1 (30 cases) | **2 of 22 risks closed (HO-005, HO-006); 0 of 8 clears** | not run | **6 of 22 risks closed (HO-001, HO-003, HO-004, HO-005, HO-006, HO-011); 0 of 8 clears** | **8 of 22 risks closed (HO-005, HO-006, HO-007, HO-008, HO-009, HO-010, HO-011, HO-017); 0 of 8 clears** | 0 of 22 risks closed; 0 of 8 clears |
+| Held-out v2 (19 cases) | 0 of 14 risks closed; 0 of 5 clears | not run | **3 of 14 risks closed (HO2-001, HO2-002, HO2-003); 5 of 5 clears** | **8 of 14 risks closed (HO2-001, HO2-002, HO2-003, HO2-004, HO2-005, HO2-006, HO2-007, HO2-017); 0 of 5 clears** | 0 of 14 risks closed; 0 of 5 clears |
+| Held-out v2, re-run after an infrastructure fix (not blind) | 0 of 14 risks closed; 0 of 5 clears | not run | **3 of 14 risks closed (HO2-001, HO2-002, HO2-003); 5 of 5 clears** | **8 of 14 risks closed (HO2-001, HO2-002, HO2-003, HO2-004, HO2-005, HO2-006, HO2-007, HO2-017); 0 of 5 clears** | 0 of 14 risks closed; 0 of 5 clears |
+| Held-out v3 (12 cases) | **2 of 6 risks closed (HO3-001, HO3-003); 0 of 6 clears** | 0 of 6 risks closed; 0 of 6 clears | **1 of 6 risks closed (HO3-005); 1 of 6 clears** | **5 of 6 risks closed (HO3-001, HO3-002, HO3-004, HO3-005, HO3-006); 0 of 6 clears** | 0 of 6 risks closed; 0 of 6 clears |
+| Held-out v4 (12 cases, last round) | 0 of 6 risks closed; 0 of 6 clears | 0 of 6 risks closed; 0 of 6 clears | **3 of 6 risks closed (HO4-002, HO4-003, HO4-005); 2 of 6 clears** | **5 of 6 risks closed (HO4-001, HO4-003, HO4-004, HO4-005, HO4-006); 0 of 6 clears** | 0 of 6 risks closed; 0 of 6 clears |
+
+- **What each round found and what changed after it:**
+
+| Round | System tested | What it found | What changed after |
+|---|---|---|---|
+| Held-out v1 (30 cases) | first system (`f9f3212`) | risk stated only in free text (a note, a payment reference) never reached the decision | a local screener reads the free text and passes risk signals; a signal blocks a close |
+| Held-out v2 (19 cases) | screener added; it failed on every case (`da7aff4`) | the local screener failed on every case (empty answers to schema-constrained requests); fail-closed held | plain JSON for the screener and local retries (`f6ed38a`); no prompt, rule or threshold change |
+| Held-out v2, re-run after an infrastructure fix | screener answering in plain JSON (`f6ed38a`) | the screener over-flagged (signals pointing at text with no relation word); the critic deadlocked on uncheckable citations | span grounding of signals, document numbers checked against the customer record, citable-source list (`b6617cd`) |
+| Held-out v3 (12 cases) | span grounding (`517f798`) | grounding set aside two real relation signals whose cited span missed the word, so two risks were closed; four clears were stopped by the document-on-record rule, as that rule intends | fail closed: every signal at or above its threshold blocks a close, grounded or not (`ce1db95`, policy 8) |
+| Held-out v4 (12 cases, last round) | fails closed (`ce1db95`) | no risk case closed; no clear made: every clear carried a relationship signal the screener could not ground, which now blocks (the cost of failing closed) | nothing; this was the last held-out round |
 <!-- judges:end -->
 
 Rules settle what structured data can. On the cases the rules were written for, the deterministic pipeline is exact by design; on every held-out round it also closed risk cases (the table above), which is why the desk never closes on rules alone. What the agents add, measured, is that they did not close those risks; they did not add clears the rules miss.
