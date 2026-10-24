@@ -1,7 +1,7 @@
 {
   "name": "Sanctions Desk",
   "repository": "sanctions-desk",
-  "summary": "An AI review desk for bank sanctions-screening alerts. For every alert it reads the evidence through Zetaris, compares the parties under approved definitions, asks NVIDIA Nemotron models through Meterless Nightshift for a recommendation, re-reads every cited fact, applies a written policy and hands a recommendation with its evidence to a person. It recommends; a person decides.",
+  "summary": "An AI review desk for bank sanctions-screening alerts. For every alert it reads the evidence through Zetaris, compares the parties under approved definitions, asks NVIDIA Nemotron models through Meterless Nightshift for a recommendation, re-reads every cited fact, applies a written policy and hands a recommendation with its evidence to a person. It recommends; automatic closing is off by default and was off in every recorded run, so a person makes the final call.",
   "track": "Track 03 Reasoning Architecture",
   "licence": "Apache-2.0",
   "agents": [
@@ -53,7 +53,7 @@
   "data_platform": {
     "name": "Zetaris",
     "status": "working",
-    "role": "the only data path: agents send one read-only SQL statement at a time to the Zetaris REST API, under one read-only Zetaris role with per-agent allow-lists and data-quality rules",
+    "role": "the only data path: agents send one read-only SQL statement at a time to the Zetaris REST API, under one read-only Zetaris role per data-reading step (when its token is configured), with per-agent allow-lists and data-quality rules",
     "sources": [
       "semantic layer over the public list files (OFAC, UN, GLEIF)",
       "Postgres synthetic bank database via JDBC",

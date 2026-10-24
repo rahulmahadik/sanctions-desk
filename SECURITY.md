@@ -20,7 +20,7 @@ Out of scope:
 - findings that need the operator's own credentials or `.env` file
 - the data: customers, accounts and payments are synthetic, and the sanctions lists are public
 
-The desk is built to run locally. It recommends and a person decides: it never blocks an account, writes to a source system or contacts a customer.
+The desk is built to run locally. It recommends and a person makes the final call (automatic closing is off by default): it never blocks an account, writes to a source system or contacts a customer.
 
 ## Checks that run on every push
 

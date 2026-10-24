@@ -229,7 +229,7 @@ async function evidence(): Promise<CheckOutcome> {
   const keyNote = pinned === valid ? "signing key pinned" : "signing key taken from each receipt, not pinned";
   return {
     ok: bad === 0 && receipts > 0,
-    detail: `${dirs.length} runs: ${valid}/${receipts} receipts verified (${keyNote}); ${calls - missing}/${calls} model calls have a receipt; ${mismatched} trace/receipt model mismatches; run files: ${remapped} verified, commit field remapped (documented), ${otherFiles} other differences`,
+    detail: `${dirs.length} runs: ${valid}/${receipts} receipts verified (${keyNote}); ${calls - missing}/${calls} receipts named in the traces are present (answers from the Ollama backup and failed calls carry none); ${mismatched} trace/receipt model mismatches; run files: ${remapped} verified, commit field remapped (documented), ${otherFiles} other differences`,
     output: lines.join("\n"),
   };
 }

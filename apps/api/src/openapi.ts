@@ -399,7 +399,7 @@ export function buildOpenApi(version: string, extra: RouteDoc[] = []): Json {
       title: "Sanctions Desk API",
       version,
       description:
-        "A review desk for sanctions-screening alerts. The desk recommends; a person decides. Nothing here blocks an account, writes to a source system or contacts a customer.",
+        "A review desk for sanctions-screening alerts. The desk recommends; a person makes the final call (automatic closing is off by default). Nothing here blocks an account, writes to a source system or contacts a customer.",
       license: { name: "Apache-2.0" },
     },
     servers: [{ url: "http://localhost:8000" }],

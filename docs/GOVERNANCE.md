@@ -18,11 +18,11 @@
 
 ## Risk materiality (self-assessment)
 
-| Dimension  | Rating         | Basis                                                                                                                                      |
-| ---------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Impact     | High           | A wrongly closed true match is a potential sanctions breach; a wrongly escalated alert costs analyst time                                  |
-| Complexity | Medium to high | Several steps, two model sizes, a router the desk does not control, retrieval from a semantic layer, learned memory                        |
-| Reliance   | Medium         | A person decides every case, but a clear recommendation with cited evidence can be accepted without independent analysis (automation bias) |
+| Dimension  | Rating         | Basis                                                                                                                                                                                   |
+| ---------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Impact     | High           | A wrongly closed true match is a potential sanctions breach; a wrongly escalated alert costs analyst time                                                                               |
+| Complexity | Medium to high | Several steps, two model sizes, a router the desk does not control, retrieval from a semantic layer, learned memory                                                                     |
+| Reliance   | Medium         | A person decides every case while automatic closing is off (the default), but a clear recommendation with cited evidence can be accepted without independent analysis (automation bias) |
 
 Conclusion: treated as material. The controls below apply to every recommendation.
 
@@ -101,7 +101,7 @@ A change is a draft, then a publish by a different person (four-eyes). A publish
 
 ## Responsible AI
 
-- **A person decides.** The desk recommends. It never blocks an account, never writes to a source system and never contacts a customer; those limits are fixed in the policy schema and cannot be lifted by a policy change. A recommended block needs two approvals.
+- **A person decides.** The desk recommends. Automatic closing is off by default and was off in every recorded run; a person makes the final call. It never blocks an account, never writes to a source system and never contacts a customer; those limits are fixed in the policy schema and cannot be lifted by a policy change. A recommended block needs two approvals.
 - **Evidence you can check.** Every cited fact is re-read from the data by code before the critic's model sees it; a claim that does not match is never approved. Each recommendation has a sealed decision record and a trace that answers four questions: which approved definition applied, what data it rested on, who could see what, and what it cost.
 - **Synthetic data only.** Customers, accounts, owners and payments are generated; only the listed parties are real public entries.
 - **Memory without personal data.** Earlier decisions are remembered as an outcome, reason codes and a pointer to the row (table, key, content hash). The pointer is re-checked each time and goes stale when the listed entry changes; a memory can inform a decision but cannot close an alert on its own.

@@ -21,7 +21,6 @@ import { sampleDeps } from "./helpers.js";
 
 const SECRET = "test-secret";
 const NOW = new Date("2026-10-25T00:00:00.000Z");
-const analyst: Actor = { id: "ana", role: "analyst", demo: false };
 const officer: Actor = { id: "off", role: "approver", demo: false };
 const officer2: Actor = { id: "off2", role: "approver", demo: false };
 const REASON = "Checked the evidence and agree with the outcome.";

@@ -3,8 +3,8 @@
 - **Who it is for:** sanctions screening analysts and their senior reviewers at a bank.
 - **What goes wrong today:** name screening raises far more alerts than there are real matches; each one is worked by hand, field by field, and the costly mistake is closing the one that is real.
 - **What it gives them:** for every alert, the evidence gathered through one data layer, every cited fact re-checked, risk signals from notes shown with the exact text they rest on, and a recommendation with its reasons.
-- **How it stays safe:** it fails closed (when evidence is missing or a check fails, the case is escalated or held for more information, never closed), and a person decides every alert.
-- **Privacy and proof:** raw notes are read by a model on the analyst's machine and kept out of every cloud prompt, which holds the structured fields and risk signals; every answer from Nightshift has a signed receipt.
+- **How it stays safe:** it fails closed (when evidence is missing or a check fails, the case is escalated or held for more information, never closed), and a person makes the final call (automatic closing is off by default and was off in every recorded run).
+- **Privacy and proof:** raw notes are read by a model on the analyst's machine and kept out of every cloud prompt the desk builds, which holds the structured fields and risk signals (Nightshift's own answer memory was on during the recorded runs, so this cannot be checked for them; it has been off since 24 Oct 2026); every answer from Nightshift has a signed receipt.
 
 <!-- badges:start -->
 [![CI](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml) [![TypeScript 7](https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white)](package.json) [![Node >=24](https://img.shields.io/badge/node-%3E%3D24-339933?logo=nodedotjs&logoColor=white)](package.json) [![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
@@ -16,7 +16,7 @@
 
 *A review in sample mode (saved real data, a labelled rules stand-in for the models). More: [screenshots and clips](docs/media/README.md), live views with Nemotron receipts in [docs/NEMOTRON.md](docs/NEMOTRON.md).*
 
-An AI review desk for bank sanctions-screening alerts. For every alert it reads the evidence from the bank's data, compares the customer (or payment party, or owner) with the listed party under approved definitions, asks Nemotron models for a recommendation, has a second step re-read every cited fact, applies a written policy, and hands a **recommendation with its evidence** to a person. **A human always makes the final call**: the desk never blocks, never writes to a source system and never messages a customer.
+An AI review desk for bank sanctions-screening alerts. For every alert it reads the evidence from the bank's data, compares the customer (or payment party, or owner) with the listed party under approved definitions, asks Nemotron models for a recommendation, has a second step re-read every cited fact, applies a written policy, and hands a **recommendation with its evidence** to a person. **Automatic closing is off by default and was off in every recorded run; a person makes the final call**: the desk never blocks, never writes to a source system and never messages a customer.
 
 Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
@@ -33,13 +33,13 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
 **When something goes wrong:**
 - Evidence is missing or Zetaris is unreachable: the case is held for a person, never closed ([recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened)).
-- A Zetaris data-quality rule fails on the record: the policy guard blocks a close ([replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html)).
+- A Zetaris data-quality rule fails on the record: the failed rule forces a hold, so the case cannot be closed ([replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html): no birth date on record, so "need more information").
 - A model call fails: the step retries, then the local Ollama backup answers, else the case is escalated (19 backup answers, 20 escalations, 0 wrong closes in the recorded runs: [recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened)).
-- A cited fact does not match the source: the critic, after code re-reads it from Zetaris, sends the recommendation back ("cited fact does not hold" in the [replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html)).
+- A cited fact does not match the source, or cannot be checked: code re-reads every cited fact from Zetaris before the critic's model sees it, and a fact that does not hold sends the recommendation back (the [critic's fact re-check](docs/EVALUATION.md#what-changes-when-it-is-off): 147 of 147 false facts caught in a sample-mode test; in the [replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html) a citation of a table that does not exist is sent back).
 
 **What it does without being asked:**
-- After a list update it re-checks every earlier decision and reopens those whose listed entry changed ([user guide](docs/USER_GUIDE.md#3-the-alert-queue), [screenshot](docs/media/screenshots/10-list-change.png)).
-- A challenger looks for another explanation before any close stands ([architecture](docs/ARCHITECTURE.md#the-steps)).
+- On every review, the memory step checks whether an earlier decision on the same customer and listed entry still holds, and marks it stale if the entry changed since. After a list update, one request (the home-page button or `POST /list-change/replay`) re-checks every earlier decision and lists those whose listed entry changed or was removed, for a person to review; it reopens nothing itself ([user guide](docs/USER_GUIDE.md#3-the-alert-queue), [screenshot](docs/media/screenshots/10-list-change.png)).
+- A challenger argues against a proposed close when its confidence is below 0.85, the name similarity is at least 0.95, or a data-quality rule fails (policy `challenger`); a close it cannot rule out becomes an escalation ([architecture](docs/ARCHITECTURE.md#the-steps)).
 - Every draft for a customer is checked for tipping-off wording before it is saved, and every text from the data is checked for instructions aimed at the desk ([safety guard results](docs/EVALUATION.md#safety-guard-against-injected-text)).
 
 **How to see afterwards what it did:**
@@ -214,7 +214,7 @@ Optional and off by default: set `PRIVACY_MODE=pseudonymise`. Before every cloud
 
 ## Safety and limits
 
-- **A person decides.** The desk recommends. It never blocks an account, never writes to a source system and never contacts a customer; those limits are fixed in the policy schema and cannot be lifted by a policy change. A recommended block needs two approvals.
+- **A person decides.** The desk recommends. Automatic closing is off by default and was off in every recorded run; a person makes the final call (policy `autonomy.level` 0; level 1, which lets the desk close a case all checks agree on without waiting, can be published only by a policy admin, and an approver can switch it off at once with the kill switch). It never blocks an account, never writes to a source system and never contacts a customer; those limits are fixed in the policy schema and cannot be lifted by a policy change. A recommended block needs two approvals.
 - **The policy guard only raises caution.** It can make a recommendation more cautious, never less.
 - **The local screener over-flags relationships**, so on the held-out sets the correct clears go to a person: the fail-closed rule (policy version 8) makes every signal at or above its threshold block a close, grounded or not. On held-out v4 that cost all six clears; no risk case was closed.
 - Each variant in the report is one run. Model answers vary between runs and the runtime may answer a repeated prompt from its cache.

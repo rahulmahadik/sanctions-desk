@@ -130,6 +130,7 @@ Read plainly: today's system closed none of the 6 v3 risk cases in any of its th
 
 - **NVIDIA guard and jailbreak-detection models.** Requests naming `nvidia/llama-3.1-nemoguard-8b-content-safety` and `nvidia/nemoguard-jailbreak-detect` were answered by Nemotron 3 Ultra, as their receipts show, and Nightshift 1.2.1's list of models that can be added as a lane offers no NVIDIA guard, safety or jailbreak-detection model (the list was read; nothing was added or changed). So they are not served on this version, and they are not claimed.
 - **Nemotron embedding.** `nvidia/nemotron-3-embed-1b` is listed, but the embeddings endpoint returns 404 on this build and a chat call in the embed mode is refused ("no route on this build returns embed"); there is no rerank model. Memory recall stays on exact pointers.
+- **Nemotron 3.5 Super VL for reading document images** (`nvidia/nemotron-3.5-super-vl-120b-a12b`): both image requests through our Nightshift setup returned HTTP 502 (no vision-capable model configured to accept image attachments). Enabling it would need a change to the Nightshift provider setup, which we kept fixed for the recorded runs, so no answer and no receipt; not used.
 
 We only claim a model when a verified receipt shows it answered.
 
