@@ -46,6 +46,7 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 - The sealed decision record: evidence, every Zetaris statement, every model call and every check, hash-sealed ([an example](output_examples/close-stopped-by-policy-guard/decision-record.json)).
 - The signed receipts: which model answered each call, checked with `npm run evidence:verify` or in the [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/).
 - The replay: every step in order, in the desk's Replay view or in the [recorded runs](https://rahulmahadik.github.io/sanctions-desk/runs/).
+- On screen, from a live review: [the model and receipt check of every step](docs/media/screenshots/16-live-model-per-step.png) and [the person's decision](docs/media/screenshots/17-live-decision-panel.png).
 
 **What's new here:**
 - A policy guard that can only raise caution, never lower it.
