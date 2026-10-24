@@ -29,7 +29,7 @@ const refusedFor = (role: string, granted: readonly string[]): string[] => {
   return role === "role_critic_agent" ? [probe, "customer_identifier", "list_identifier"] : [probe];
 };
 /** The platform's wording when a signed-in user lacks a permission (as in the Zetaris client). */
-const DENIED = /does not have access|not permitted|permission denied/i;
+const DENIED = /does not have access|does not have privileges|not permitted|permission denied/i;
 const mask = (s: string) => s.replace(/[A-Za-z0-9_-]{32,}/g, "[masked]");
 
 async function run(token: string, sql: string): Promise<{ status: number; message: string }> {

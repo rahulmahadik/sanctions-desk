@@ -1,0 +1,212 @@
+{
+  "checked_at": "2026-10-24T18:26:42.341Z",
+  "checks": [
+    {
+      "role": "role_ownership_agent",
+      "table": "beneficial_owner",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.beneficial_owner",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_ownership_agent",
+      "table": "account",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.account",
+      "expect": "refused",
+      "status": 400,
+      "message": "User 'AGENT_OWNERSHIP@SANCTIONS-DESK.LOCAL' does not have privileges to execute 'SELECT' on USL table: `lightning`.`metastore`.`sanctions`.`screening_usl`.`account`",
+      "pass": true
+    },
+    {
+      "role": "role_critic_agent",
+      "table": "business_definition",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.business_definition",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_critic_agent",
+      "table": "list_entry",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.list_entry",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_critic_agent",
+      "table": "list_alias",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.list_alias",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_critic_agent",
+      "table": "list_dob",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.list_dob",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_critic_agent",
+      "table": "list_country",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.list_country",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_critic_agent",
+      "table": "customer",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.customer",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_critic_agent",
+      "table": "beneficial_owner",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.beneficial_owner",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_critic_agent",
+      "table": "payment",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.payment",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_critic_agent",
+      "table": "alert",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.alert",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_critic_agent",
+      "table": "account",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.account",
+      "expect": "refused",
+      "status": 400,
+      "message": "User 'AGENT_CRITIC@SANCTIONS-DESK.LOCAL' does not have privileges to execute 'SELECT' on USL table: `lightning`.`metastore`.`sanctions`.`screening_usl`.`account`",
+      "pass": true
+    },
+    {
+      "role": "role_critic_agent",
+      "table": "customer_identifier",
+      "sql": "SELECT `id_number` FROM lightning.metastore.sanctions.screening_usl.customer_identifier",
+      "expect": "refused",
+      "status": 400,
+      "message": "User 'AGENT_CRITIC@SANCTIONS-DESK.LOCAL' does not have privileges to execute 'SELECT' on USL table: `lightning`.`metastore`.`sanctions`.`screening_usl`.`customer_identifier`",
+      "pass": true
+    },
+    {
+      "role": "role_critic_agent",
+      "table": "list_identifier",
+      "sql": "SELECT `id_number` FROM lightning.metastore.sanctions.screening_usl.list_identifier",
+      "expect": "refused",
+      "status": 400,
+      "message": "User 'AGENT_CRITIC@SANCTIONS-DESK.LOCAL' does not have privileges to execute 'SELECT' on USL table: `lightning`.`metastore`.`sanctions`.`screening_usl`.`list_identifier`",
+      "pass": true
+    },
+    {
+      "role": "role_memory_agent",
+      "table": "disposition",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.disposition",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_memory_agent",
+      "table": "account",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.account",
+      "expect": "refused",
+      "status": 400,
+      "message": "User 'AGENT_MEMORY@SANCTIONS-DESK.LOCAL' does not have privileges to execute 'SELECT' on USL table: `lightning`.`metastore`.`sanctions`.`screening_usl`.`account`",
+      "pass": true
+    },
+    {
+      "role": "role_document_agent",
+      "table": "customer_identifier",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.customer_identifier",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_document_agent",
+      "table": "account",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.account",
+      "expect": "refused",
+      "status": 400,
+      "message": "User 'AGENT_DOCUMENT@SANCTIONS-DESK.LOCAL' does not have privileges to execute 'SELECT' on USL table: `lightning`.`metastore`.`sanctions`.`screening_usl`.`account`",
+      "pass": true
+    },
+    {
+      "role": "role_rescreen_agent",
+      "table": "disposition",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.disposition",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_rescreen_agent",
+      "table": "list_entry",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.list_entry",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_rescreen_agent",
+      "table": "alert",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.alert",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_rescreen_agent",
+      "table": "payment",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.payment",
+      "expect": "read",
+      "status": 200,
+      "message": "",
+      "pass": true
+    },
+    {
+      "role": "role_rescreen_agent",
+      "table": "account",
+      "sql": "SELECT COUNT(*) AS n FROM lightning.metastore.sanctions.screening_usl.account",
+      "expect": "refused",
+      "status": 400,
+      "message": "User 'AGENT_RESCREEN@SANCTIONS-DESK.LOCAL' does not have privileges to execute 'SELECT' on USL table: `lightning`.`metastore`.`sanctions`.`screening_usl`.`account`",
+      "pass": true
+    }
+  ]
+}

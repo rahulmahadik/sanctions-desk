@@ -397,7 +397,7 @@ export const USL_AGENT_USERS = [
 export const USL_STEP_ROLES = [
   {
     role: "role_ownership_agent",
-    description: "Ownership step: the ownership register only",
+    description: "Ownership step, the ownership register only",
     name: "agent_ownership",
     email: "agent_ownership@sanctions-desk.local",
     tokenEnv: "ZETARIS_TOKEN_OWNERSHIP",
@@ -405,7 +405,7 @@ export const USL_STEP_ROLES = [
   },
   {
     role: "role_critic_agent",
-    description: "Critic fact re-read: no identifier tables",
+    description: "Critic fact re-read, no identifier tables",
     name: "agent_critic",
     email: "agent_critic@sanctions-desk.local",
     tokenEnv: "ZETARIS_TOKEN_CRITIC",
@@ -423,7 +423,7 @@ export const USL_STEP_ROLES = [
   },
   {
     role: "role_memory_agent",
-    description: "Memory step: earlier decisions (pointers) only",
+    description: "Memory step, earlier decisions as pointers only",
     name: "agent_memory",
     email: "agent_memory@sanctions-desk.local",
     tokenEnv: "ZETARIS_TOKEN_MEMORY",
@@ -431,7 +431,7 @@ export const USL_STEP_ROLES = [
   },
   {
     role: "role_document_agent",
-    description: "Document on record check: customer identifiers only",
+    description: "Document on record check, customer identifiers only",
     name: "agent_document",
     email: "agent_document@sanctions-desk.local",
     tokenEnv: "ZETARIS_TOKEN_DOCUMENT",
@@ -439,7 +439,7 @@ export const USL_STEP_ROLES = [
   },
   {
     role: "role_rescreen_agent",
-    description: "List-change re-check: earlier decisions, list entries, open alerts, pending payments",
+    description: "List-change re-check, earlier decisions, list entries, open alerts, pending payments",
     name: "agent_rescreen",
     email: "agent_rescreen@sanctions-desk.local",
     tokenEnv: "ZETARIS_TOKEN_RESCREEN",

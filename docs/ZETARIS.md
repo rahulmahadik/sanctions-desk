@@ -247,11 +247,11 @@ Before a customer note counts as documentary evidence, the system checks in Zeta
 <td>37 data-quality rules on it; a failing rule cannot support a close</td>
 </tr>
 <tr>
-<td><img src="media/console/zetaris-access-control.png" alt="Zetaris access control: the roles ROLE_EVIDENCE_AGENT, ROLE_REVIEWER and ROLE_EVAL assigned to the semantic layer"></td>
+<td><img src="media/console/zetaris-access-control.png" alt="Zetaris access control on the semantic layer: eight roles assigned, the evidence, reviewer and evaluation roles and the five per-step roles (ownership, critic, memory, document, list-change re-check)"></td>
 <td><img src="media/console/zetaris-column-access.png" alt="Zetaris column access on customer_identifier: the mask_id_number policy for ROLE_EVIDENCE_AGENT hides id_number"></td>
 </tr>
 <tr>
-<td>The three agent roles assigned to the semantic layer</td>
+<td>The roles assigned to the semantic layer: evidence, reviewer and evaluation, and the five per-step roles (25 Oct 2026)</td>
 <td>Column access on <code>customer_identifier</code>: <code>id_number</code> hidden for the evidence role (configured; this local edition does not enforce it, so the application masks it as well)</td>
 </tr>
 </table>
@@ -262,19 +262,29 @@ What follows is reference for the parts of the setup the checklist items above r
 
 ## Roles, identities and tokens
 
-The application uses three **non-admin** identities, never the admin account, each with its own API token and its own table-level grants:
+The application never uses the admin account at run time. Each identity is a **non-admin** user with its own API token and its own table-level grants. Each review step that reads data has its own role, granted only the tables that step reads; the application's per-agent allow-lists stay as a second layer:
 
-| Role                  | Identity used by        | Sees                                         |
-| --------------------- | ----------------------- | -------------------------------------------- |
-| `role_evidence_agent` | the review agents       | every model table; identifier numbers masked |
-| `role_reviewer`       | people reviewing a case | every model table in full                    |
-| `role_eval`           | evaluation runs         | read-only                                    |
+| Role                   | Identity used by                      | Tables granted                                                                                                                                                           |
+| ---------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `role_evidence_agent`  | the evidence step and the alert queue | every model table; identifier numbers masked by the application                                                                                                          |
+| `role_ownership_agent` | the ownership step                    | `beneficial_owner`                                                                                                                                                       |
+| `role_critic_agent`    | the critic's fact re-read             | 9 tables, and **no identifier table**: `business_definition`, `list_entry`, `list_alias`, `list_dob`, `list_country`, `customer`, `beneficial_owner`, `payment`, `alert` |
+| `role_memory_agent`    | the memory step's pointer lookup      | `disposition` (the stale check compares the pointer with the `list_entry` hash the evidence step already read)                                                           |
+| `role_document_agent`  | the document-on-record count          | `customer_identifier`                                                                                                                                                    |
+| `role_rescreen_agent`  | the list-change re-check              | `disposition`, `list_entry`, `alert`, `payment`                                                                                                                          |
+| `role_reviewer`        | people reviewing a case               | every model table in full                                                                                                                                                |
+| `role_eval`            | evaluation runs                       | read-only                                                                                                                                                                |
+
+The screener, matching, decision, challenger, policy guard and reporter read no data of their own. The per-step identities are optional: a step without its token (`ZETARIS_TOKEN_OWNERSHIP`, `_CRITIC`, `_MEMORY`, `_DOCUMENT`, `_RESCREEN`) reads as the evidence identity, and sample mode (no credential at all) always records the evidence identity, so sample answers and sealed records are the same either way. The roles and grants are in `zetaris/sql/10_step_roles_create.sql` (rollback: `10_step_roles_rollback.sql`).
+
+**Checked against Zetaris itself** (`npm run check:step-roles -- --write`, 25 Oct 2026, straight to the REST API past the application's own allow-lists; result in `zetaris/step-roles-check.json`): each step identity reads every table it was granted, and is refused a table it was not (`User 'AGENT_OWNERSHIP@…' does not have privileges to execute 'SELECT' on USL table: …account`); the critic identity is refused `id_number` on both `customer_identifier` and `list_identifier`. 23 of 23 checks passed. In three live reviews (ALR-0073, ALR-0043, ALR-L0007) every Zetaris statement in the sealed records was found in the statement history of the identity that should have run it: 64 of 64, with ownership, critic, memory and the document check each under their own identity.
 
 `npm run zetaris:rebuild` creates the roles and the grants and puts the three users in their roles. The users and their tokens are made by one command, which needs only the admin key:
 
 ```bash
 npm run zetaris:agents                 # lists what it would do
 npm run zetaris:agents -- --apply      # creates agent_evidence, agent_reviewer and agent_eval, assigns the roles, issues a token each
+npm run zetaris:agents -- --steps --apply   # the five step users only; the three above are not touched
 ```
 
 For each user it creates the account at the GENERAL level through `POST /users` (there is no SQL to create a user) with a random password that exists only in memory, assigns the role, signs in once through the web interface's own sign-in call, asks for an API key (`POST /auth/api-key`, valid 90 days) and writes it to `.env` as `ZETARIS_TOKEN_EVIDENCE`, `ZETARIS_TOKEN_REVIEWER` or `ZETARIS_TOKEN_EVAL`. Passwords and keys are never printed or logged. A password cannot be changed over REST (`PATCH /users/{email}` accepts the call and leaves the account unable to sign in), so a user whose password is unknown is dropped and created again.
@@ -300,6 +310,8 @@ The three runtime users read the model with their own tokens. Getting there need
 2. **Data Product → Unified Semantic Layer → the namespace (`sanctions`) → Access Control:** assign the three roles.
 3. **The model (`screening_usl`) → Access Control:** assign the three roles and tick `SELECT` on all 14 tables.
 4. **`customer_identifier` → Column Access:** a policy that sets `id_number` to HIDE for `ROLE_EVIDENCE_AGENT` only. This edition offers GRANT, DENY and HIDE for columns of a model table, and no pattern mask such as `******56`.
+
+**The five step roles (25 Oct 2026)** were set up the same way: `CREATE ROLE` and one `GRANT SELECT ON USL TABLE` per table in SQL; then, in the console, the **View** permission on Unified Semantic Layer and the namespace and model Access Control assignments. The console saves these with REST calls (`POST /urm/resources/roles/{id}`, `POST /access-control/assign/role/usl-namespace`, `POST /access-control/assign/role/usl`), and each was read back with the matching `GET` before the users were created. The SQL grants alone did not put the roles on the namespace or model access lists.
 
 **A rebuild resets steps 2 and 3.** The access list belongs to the model's internal id, and rebuilding creates a new model with an empty list; the role-level permission in step 1 stays. Earlier failures came from access set on a model that was then rebuilt. The roles' SQL grants (`08_access_create.sql`) are re-applied by the rebuild, but the Access Control list is not.
 

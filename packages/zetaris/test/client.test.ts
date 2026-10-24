@@ -236,6 +236,20 @@ describe("per-step identities", () => {
     expect(auth).toEqual(["Bearer ev"]);
   });
 
+  it("keeps the evidence identity in offline replay, whatever tokens are set", async () => {
+    const { fetchImpl } = fakeZetaris(() => ({ body: rowsOf(["ownership_id"], [["O1"]]) }));
+    const records: QueryRecord[] = [];
+    const client = createZetarisClient({
+      config: testConfig({ ZETARIS_TOKEN_OWNERSHIP: "own" }),
+      fetchImpl,
+      offline: true,
+      onQuery: (r) => records.push(r),
+    });
+    client.setAllowedTables([TABLE]);
+    await client.query("ownership", SQL);
+    expect(records.map((r) => r.role)).toEqual(["evidence"]);
+  });
+
   it("uses the step's own identity and token when one is set", async () => {
     const { records, auth } = await run({ ZETARIS_TOKEN_OWNERSHIP: "own" });
     expect(records.map((r) => [r.role, r.token_source])).toEqual([["ownership", "role"]]);

@@ -6,11 +6,12 @@
  *
  *   npm run gate:sample -- --out before.json
  *   npm run gate:sample -- --out after.json && cmp before.json after.json
+ *   npm run gate:sample -- --with-env --out env.json   the same, with the local configuration (e.g. step tokens)
  *
  * Nothing live is touched: Zetaris answers come from the committed sample cache and no model is called.
  */
 import { createHash } from "node:crypto";
-import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { readAlertQueue, runReview, sampleRules } from "@sanctions-desk/agents";
@@ -26,7 +27,10 @@ import { createZetarisClient, loadQueryCache, replayFetch } from "@sanctions-des
 const i = process.argv.indexOf("--out");
 const out = i >= 0 ? resolve(process.argv[i + 1] as string) : undefined;
 const logDir = mkdtempSync(join(tmpdir(), "sample-gate-"));
-const base = loadConfig({ env: { SAMPLE_MODE: "true" } });
+// --with-env: read the local configuration too (for example per-step Zetaris tokens), still in sample mode.
+const withEnv = process.argv.includes("--with-env");
+if (withEnv && existsSync(resolveProjectPath(".env"))) process.loadEnvFile(resolveProjectPath(".env"));
+const base = loadConfig({ env: withEnv ? { ...process.env, SAMPLE_MODE: "true" } : { SAMPLE_MODE: "true" } });
 const config = { ...base, logging: { ...base.logging, dir: logDir, stdout: false } };
 const zetaris = createZetarisClient({
   config,

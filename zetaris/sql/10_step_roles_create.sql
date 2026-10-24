@@ -2,13 +2,13 @@
 -- and assigned by `npm run zetaris:agents -- --steps --apply`; the existing three identities are not touched.
 
 -- @@ create_role_ownership_agent
-CREATE ROLE 'role_ownership_agent' DESCRIBE BY 'Ownership step: the ownership register only'
+CREATE ROLE 'role_ownership_agent' DESCRIBE BY 'Ownership step, the ownership register only'
 
 -- @@ grant_role_ownership_agent_beneficial_owner
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.beneficial_owner TO ROLE 'role_ownership_agent'
 
 -- @@ create_role_critic_agent
-CREATE ROLE 'role_critic_agent' DESCRIBE BY 'Critic fact re-read: no identifier tables'
+CREATE ROLE 'role_critic_agent' DESCRIBE BY 'Critic fact re-read, no identifier tables'
 
 -- @@ grant_role_critic_agent_business_definition
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.business_definition TO ROLE 'role_critic_agent'
@@ -38,19 +38,19 @@ GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.payment TO
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.alert TO ROLE 'role_critic_agent'
 
 -- @@ create_role_memory_agent
-CREATE ROLE 'role_memory_agent' DESCRIBE BY 'Memory step: earlier decisions (pointers) only'
+CREATE ROLE 'role_memory_agent' DESCRIBE BY 'Memory step, earlier decisions as pointers only'
 
 -- @@ grant_role_memory_agent_disposition
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.disposition TO ROLE 'role_memory_agent'
 
 -- @@ create_role_document_agent
-CREATE ROLE 'role_document_agent' DESCRIBE BY 'Document on record check: customer identifiers only'
+CREATE ROLE 'role_document_agent' DESCRIBE BY 'Document on record check, customer identifiers only'
 
 -- @@ grant_role_document_agent_customer_identifier
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.customer_identifier TO ROLE 'role_document_agent'
 
 -- @@ create_role_rescreen_agent
-CREATE ROLE 'role_rescreen_agent' DESCRIBE BY 'List-change re-check: earlier decisions, list entries, open alerts, pending payments'
+CREATE ROLE 'role_rescreen_agent' DESCRIBE BY 'List-change re-check, earlier decisions, list entries, open alerts, pending payments'
 
 -- @@ grant_role_rescreen_agent_disposition
 GRANT SELECT ON USL TABLE lightning.metastore.sanctions.screening_usl.disposition TO ROLE 'role_rescreen_agent'

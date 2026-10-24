@@ -11,7 +11,7 @@ How the desk is built: who it is for, each step and what it may do, the guardrai
 ## Track 3 fit
 
 Track 3 asks for a reasoning architecture, not a prompt. Each stage of the desk is a separate, checked step:
-- **Data:** every fact comes through one Unified Semantic Layer in Zetaris, under one read-only Zetaris role for the agents (two more for reviewers and evaluation), with per-agent table and column allow-lists enforced by the desk's own SQL guard, and data-quality rules.
+- **Data:** every fact comes through one Unified Semantic Layer in Zetaris, under one non-admin Zetaris role per review step that reads data (evidence, ownership, critic, memory, the document-on-record check and the list-change re-check), each granted only that step's tables (the critic gets no identifier table at all), with the desk's own SQL guard enforcing per-agent table and column allow-lists as a second layer (two more roles for reviewers and evaluation), and data-quality rules.
 - **Knowledge:** approved, versioned definitions are data; the ownership step reads the register through Zetaris, writes it into the World Model engine and evaluates the 50 percent rule in code on what it gives back.
 - **Memory:** H-MEM keeps earlier decisions, and the decisions people make on the desk, as pointers that go stale when the listed entry changes; a decision can cite one and the critic checks it.
 - **Reasoning:** code gives a first finding, Nemotron models decide, a critic re-reads every cited fact from the data, a challenger argues against a close, and a policy guard can only make the result more cautious.

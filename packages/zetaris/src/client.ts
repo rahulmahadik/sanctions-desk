@@ -193,9 +193,12 @@ export function createZetarisClient(options: ZetarisClientOptions): ZetarisClien
     return { ok: true, result: { ...final, headers: parsed.headers, rows, objects } };
   }
 
-  /** A step identity without its own token reads as the evidence identity, so nothing changes until it is set up. */
+  /**
+   * A step identity without its own token reads as the evidence identity, so nothing changes until it is set up.
+   * Offline replay uses no credential at all, so it keeps the evidence identity whatever tokens are configured.
+   */
   const effective = (role: ZetarisRole): ZetarisRole =>
-    (STEP_ROLES as readonly ZetarisRole[]).includes(role) && !z.tokens[role] ? "evidence" : role;
+    (STEP_ROLES as readonly ZetarisRole[]).includes(role) && (options.offline || !z.tokens[role]) ? "evidence" : role;
 
   async function run(scope: AgentScope | undefined, asked: ZetarisRole, sql: string, signal?: AbortSignal) {
     {
