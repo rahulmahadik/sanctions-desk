@@ -26,6 +26,9 @@ const demoUser = arg("--user", "analyst_demo") as string;
 const chrome = arg("--chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome") as string;
 const port = Number(arg("--port", "9333"));
 const width = Number(arg("--width", "1280"));
+// --scale 1.1 renders as a browser at 110% zoom: pass --width 1745 --height 982 for 1920 x 1080 images and up.
+const scale = Number(arg("--scale", "1"));
+const minHeight = Number(arg("--height", "900"));
 
 if (!existsSync(chrome)) throw new Error(`Chrome was not found at ${chrome}; pass --chrome <path>`);
 mkdirSync(out, { recursive: true });
@@ -97,9 +100,11 @@ const waitFor = async (expression: string, ms = 20_000) => {
 
 await send("Page.enable");
 // --dark shows the pages in the dark colour scheme, to check contrast there; the published shots are light.
-if (process.argv.includes("--dark"))
-  await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
-await send("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: false });
+// Light is set explicitly, so the shots do not follow the colour scheme of the machine they are taken on.
+await send("Emulation.setEmulatedMedia", {
+  features: [{ name: "prefers-color-scheme", value: process.argv.includes("--dark") ? "dark" : "light" }],
+});
+await send("Emulation.setDeviceMetricsOverride", { width, height: minHeight, deviceScaleFactor: scale, mobile: false });
 await send("Page.navigate", { url: web });
 await waitFor("document.readyState === 'complete'");
 // Choose the demo user for the whole session (sample mode); a live deployment ignores it. With --token-file, sign in
@@ -190,8 +195,8 @@ for (const shot of shots.filter((s) => !only || only.includes(s.name))) {
     continue;
   }
   const size = (await send("Page.getLayoutMetrics")) as { cssContentSize?: { width: number; height: number } };
-  const height = Math.min(Math.ceil(size.cssContentSize?.height ?? 900), 4000);
-  await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false });
+  const height = Math.max(minHeight, Math.min(Math.ceil(size.cssContentSize?.height ?? minHeight), 4000));
+  await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: scale, mobile: false });
   const clip = shot.focus
     ? await evaluate<string>(
         `(()=>{const e=document.querySelector(${JSON.stringify(shot.focus)});const p=e&&(e.closest('section')||e.closest('.panel')||e);if(!p)return '';const r=p.getBoundingClientRect();return JSON.stringify({x:Math.max(0,r.x-8),y:Math.max(0,r.y+window.scrollY-8),width:Math.min(${width},r.width+16),height:r.height+16,scale:1});})()`,
@@ -202,7 +207,12 @@ for (const shot of shots.filter((s) => !only || only.includes(s.name))) {
     ...(clip ? { clip: JSON.parse(clip), captureBeyondViewport: true } : {}),
   })) as { data: string };
   writeFileSync(join(out, `${shot.name}.png`), Buffer.from(png.data, "base64"));
-  await send("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: false });
+  await send("Emulation.setDeviceMetricsOverride", {
+    width,
+    height: minHeight,
+    deviceScaleFactor: scale,
+    mobile: false,
+  });
   console.log(`saved ${shot.name}.png (${height}px high)`);
 }
 
