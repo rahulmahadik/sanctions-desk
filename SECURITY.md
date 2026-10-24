@@ -9,7 +9,6 @@ Include what you found, how to reproduce it, and what an attacker could do with 
 ## Scope
 
 In scope:
-
 - the API (`apps/api`), the review desk (`apps/web`) and the review logic (`packages/*`)
 - the access controls: sign-in, roles, the four-eyes rule on blocks and policy changes, rate limits
 - the data path: the SQL guard, per-agent table and column limits, identifier masking
@@ -17,7 +16,6 @@ In scope:
 - the GitHub Actions workflows and the Docker images built from this repository
 
 Out of scope:
-
 - Zetaris, Meterless Nightshift and the models themselves (report those to their owners)
 - findings that need the operator's own credentials or `.env` file
 - the data: customers, accounts and payments are synthetic, and the sanctions lists are public
