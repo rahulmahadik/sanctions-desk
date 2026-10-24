@@ -10,7 +10,7 @@
  *   npm run exam -- --variant escalate_all    baseline: every alert goes to a person
  *   npm run exam -- --variant no_memory       the full system with memory off (previously cleared cases only)
  *
- * Options: --groups a,b  --kinds x,y  --limit N  --exam heldout|heldout2|heldout3 (a held-out set, run ids eval-heldout-...),
+ * Options: --groups a,b  --kinds x,y  --limit N  --exam heldout|heldout2|heldout3|heldout4 (a held-out set, run ids eval-heldout-...),
  *   --system sys2 (the version of the system under test, put into run ids and the result). Results go to eval/results/<time>-<variant>.json and are
  * never edited by hand; eval/REPORT.md is built from them (npm run exam:report).
  */
@@ -37,6 +37,7 @@ import {
   HELDOUT_EXAM_FILE,
   HELDOUT2_EXAM_FILE,
   HELDOUT3_EXAM_FILE,
+  HELDOUT4_EXAM_FILE,
   loadExam,
   MAIN_EXAM_FILE,
 } from "@sanctions-desk/data";
@@ -65,10 +66,10 @@ const variant = flag("--variant") ?? "routed";
 const groups = flag("--groups")?.split(",");
 const kinds = flag("--kinds")?.split(",");
 const tag = flag("--tag");
-// --exam heldout, heldout2 or heldout3 runs a held-out "beyond the rules" set instead of the main 70 cases.
+// --exam heldout, heldout2, heldout3 or heldout4 runs a held-out "beyond the rules" set instead of the main 70 cases.
 const examName = flag("--exam") ?? "exam";
-if (!["exam", "heldout", "heldout2", "heldout3"].includes(examName))
-  throw new Error("--exam must be exam, heldout, heldout2 or heldout3");
+if (!["exam", "heldout", "heldout2", "heldout3", "heldout4"].includes(examName))
+  throw new Error("--exam must be exam, heldout, heldout2, heldout3 or heldout4");
 // --system names the version of the system under test (for example sys2); it goes into the run ids and the result, so
 // runs of different versions never share a trace file.
 const system = flag("--system");
@@ -116,6 +117,7 @@ const EXAM_FILES: Record<string, string> = {
   heldout: HELDOUT_EXAM_FILE,
   heldout2: HELDOUT2_EXAM_FILE,
   heldout3: HELDOUT3_EXAM_FILE,
+  heldout4: HELDOUT4_EXAM_FILE,
 };
 let cases: ExamCaseRecord[] = loadExam(EXAM_FILES[examName] as string).cases;
 if (variant === "no_memory") cases = cases.filter((c) => c.group.startsWith("previously_cleared"));

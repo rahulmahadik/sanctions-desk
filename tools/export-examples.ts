@@ -22,6 +22,7 @@ import {
   HELDOUT_EXAM_FILE,
   HELDOUT2_EXAM_FILE,
   HELDOUT3_EXAM_FILE,
+  HELDOUT4_EXAM_FILE,
   loadExam,
   MAIN_EXAM_FILE,
 } from "@sanctions-desk/data";
@@ -42,7 +43,7 @@ const args = process.argv.slice(2);
 const values = (flag: string): string[] =>
   args.flatMap((a, i) => (a === flag && args[i + 1] ? [args[i + 1] as string] : []));
 const variant = values("--variant")[0] ?? "routed";
-// --exam heldout|heldout2|heldout3 reads the cases and runs of a held-out set; --system names the system version the
+// --exam heldout|heldout2|heldout3|heldout4 reads the cases and runs of a held-out set; --system names the system version the
 // runs were made with (their run ids carry it).
 const examName = values("--exam")[0] ?? "exam";
 const system = values("--system")[0];
@@ -51,8 +52,9 @@ const EXAM_FILES: Record<string, string> = {
   heldout: HELDOUT_EXAM_FILE,
   heldout2: HELDOUT2_EXAM_FILE,
   heldout3: HELDOUT3_EXAM_FILE,
+  heldout4: HELDOUT4_EXAM_FILE,
 };
-if (!EXAM_FILES[examName]) throw new Error("--exam must be exam, heldout, heldout2 or heldout3");
+if (!EXAM_FILES[examName]) throw new Error("--exam must be exam, heldout, heldout2, heldout3 or heldout4");
 const config = loadConfig();
 const outRoot = resolveProjectPath("output_examples");
 
