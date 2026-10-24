@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-23T20:43:08.294Z",
+  "at": "2026-10-24T02:36:20.257Z",
   "summary": {
     "mode": "sample mode: saved Zetaris answers, rules-based stand-in for the models",
     "decisions": 25,
@@ -7,8 +7,7 @@
     "mutations_caught": 147,
     "untestable_citations": 25,
     "untestable_reasons": {
-      "Zetaris rejected the query ": 22,
-      "query blocked: the critic step may not name the column id_number": 3
+      "Zetaris rejected the query ": 25
     },
     "unchanged_decisions": 25,
     "unchanged_decisions_approved": 25,
@@ -22,7 +21,8 @@
     },
     "errors": 0,
     "evidence_standard_cases": "5 of 5 pass",
-    "evidence_standard_not_checked": "a note's document number is not yet compared with the documents on the customer record"
+    "grounding_and_document_cases": "3 of 3 pass",
+    "grounding_and_document_failures": []
   },
   "rows": [
     {
@@ -1422,7 +1422,7 @@
       "original_fact_alarm": true,
       "original_approved": false,
       "testable": false,
-      "why_untestable": "query blocked: the critic step may not name the column id_number"
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
     },
     {
       "alert_id": "ALR-0021",
@@ -1565,7 +1565,7 @@
       "original_fact_alarm": true,
       "original_approved": false,
       "testable": false,
-      "why_untestable": "query blocked: the critic step may not name the column id_number"
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
     },
     {
       "alert_id": "ALR-0023",
@@ -1637,7 +1637,7 @@
       "original_fact_alarm": true,
       "original_approved": false,
       "testable": false,
-      "why_untestable": "query blocked: the critic step may not name the column id_number"
+      "why_untestable": "Zetaris rejected the query (HTTP 404): this query is not in the sample cache"
     },
     {
       "alert_id": "ALR-0024",
@@ -1928,6 +1928,23 @@
       "documentary": false,
       "expected": false,
       "pass": true
+    }
+  ],
+  "grounding_and_document": [
+    {
+      "case": "a relationship span with no relation term and no name is marked not grounded and still blocks a close",
+      "pass": true
+    },
+    {
+      "case": "a relationship span with a relation term and a listed name still blocks",
+      "pass": true
+    },
+    {
+      "case": "note document number not on the customer record",
+      "pass": true,
+      "count_status": "not_on_record",
+      "meets_standard": false,
+      "outcome": "NEED_MORE_INFO"
     }
   ]
 }

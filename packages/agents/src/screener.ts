@@ -510,7 +510,8 @@ export function renderScreener(facts: ScreenerFacts | undefined): Record<string,
       ? { note: "the free text could not be read, so it has not been assessed; do not close the case" }
       : {}),
     fields_read: facts.fieldsRead,
-    // A signal that is not grounded in the text it points at is shown, and does not count against a close.
+    // Every signal at or above the threshold counts against a close; grounded only tells the reviewer whether code found
+    // the relationship term and a name at the cited span.
     risk_signals: facts.signals.map((s) => ({
       type: s.type,
       confidence: s.confidence,
@@ -599,7 +600,7 @@ export async function screenFreeText(deps: AgentDeps, evidence: EvidenceBundle):
       target_agent: "matching",
       confidence: facts.signals.reduce((m, s) => Math.max(m, s.confidence), 0),
       output_summary:
-        `${facts.signals.length} risk signal(s), ${blocking.length} grounded at or above ${deps.policy.screener.confidenceThreshold}, ${ungrounded} not grounded` +
+        `${facts.signals.length} risk signal(s), ${blocking.length} at or above ${deps.policy.screener.confidenceThreshold} (blocking a close), ${ungrounded} of them not grounded` +
         (facts.signals.length > 0 ? `: ${facts.signals.slice(0, 4).map(spanSummary).join("; ")}` : "") +
         `; documentary: ${facts.documentary.map((d) => `${d.field} ${d.meetsStandard ? "meets the standard" : `claim (lacks ${d.missing.join(", ")})`}`).join("; ") || "none"}` +
         `; injection ${facts.injection.flagged ? "flagged" : "not found"}`,

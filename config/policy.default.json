@@ -1,5 +1,5 @@
 {
-  "version": 7,
+  "version": 8,
   "name": "Default screening policy",
   "description": "Baseline behaviour of the sanctions review desk. The jurisdiction list is a configurable example, not a complete or current list. Changes go through a reviewed, four-eyes publish.",
   "lists": {

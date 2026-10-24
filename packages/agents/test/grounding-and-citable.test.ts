@@ -57,12 +57,12 @@ describe("span grounding", () => {
       standard: policy.evidenceStandard,
     });
 
-  it("marks a relationship span with no relation term and no name as not grounded, keeps it, and it does not block", () => {
+  it("marks a relationship span with no relation term and no name as not grounded, keeps it, and it still blocks", () => {
     const facts = check(NOTE_TEXT, 0, 30);
     expect(facts.signals).toHaveLength(1);
     expect(facts.signals[0]?.grounded).toBe(false);
     expect(facts.signals[0]?.groundingReason).toMatch(/no relationship to listed party term/);
-    expect(blockingSignals(policy, asFacts(facts))).toHaveLength(0);
+    expect(blockingSignals(policy, asFacts(facts))).toHaveLength(1);
   });
 
   it("grounds a span that holds the relation term with a listed name close by, and that signal blocks", () => {
@@ -116,7 +116,7 @@ describe("span grounding", () => {
     expect(r).toEqual({ grounded: false, reason: "the span does not point into a field that was read" });
   });
 
-  it("records a signal that is not grounded and shows it in the guard verdicts, without blocking the close", async () => {
+  it("records a signal that is not grounded, shows it in the guard verdicts, and still blocks the close", async () => {
     const fp = caseFacts("fp_dob_exact_name_0");
     const deps = sampleDeps();
     const evidence = await gatherEvidence(deps, fp.alertId);
@@ -135,8 +135,11 @@ describe("span grounding", () => {
     const guard = applyPolicyGuard({ policy, decision: close, match, evidence, criticUnresolved: false });
     const grounding = guard.verdicts.find((v) => v.guard === "screener_grounding");
     expect(grounding?.verdict).toBe("flag");
-    expect(grounding?.detail).toMatch(/not grounded in the text they point at; recorded, not blocking/);
-    expect(guard.verdicts.find((v) => v.guard === "screener")?.verdict).toBe("pass");
+    expect(grounding?.detail).toMatch(
+      /not grounded in the text they point at \(shown for the reviewer; they still block a close\)/,
+    );
+    expect(guard.decision).not.toBe("CLOSE_FALSE_POSITIVE");
+    expect(guard.verdicts.find((v) => v.guard === "screener")?.verdict).toBe("block");
 
     // The same span made grounded blocks the close, as before.
     const at = text.indexOf("brother");
@@ -345,5 +348,41 @@ describe("citations that cannot be cited", () => {
     expect(citable.customer_identifier.columns).not.toContain("id_number");
     expect(citable.comparison).toBeUndefined();
     expect(citable.customer_alias).toBeUndefined();
+  });
+});
+
+describe("grounding can only add context, never remove a block", () => {
+  // Every combination of type, confidence, span validity and grounding: a signal at or above its threshold blocks a
+  // close whatever the grounding says, and grounding never turns a non-blocking signal into a blocking one either.
+  const types = policy.screener.signalTypes;
+  const confidences = [0, 0.3, 0.49, 0.5, 0.69, 0.7, 0.9, 1];
+  it("blocks exactly by type and confidence, for every grounding outcome", () => {
+    for (const type of types) {
+      for (const confidence of confidences) {
+        const blocksBy =
+          confidence >=
+          (type === "other" ? policy.screener.otherConfidenceThreshold : policy.screener.confidenceThreshold);
+        const outcomes = [true, false].flatMap((grounded) =>
+          [true, false].map((spanValid) => {
+            const signal = {
+              type,
+              confidence,
+              field: "customer.notes",
+              spanId: "customer.notes:0-10",
+              spanValid,
+              grounded,
+            } as const;
+            const facts = {
+              status: "ok",
+              calls: [],
+              servedByCloud: false,
+              signals: [signal],
+            } as unknown as ScreenerFacts;
+            return blockingSignals(policy, facts).length > 0;
+          }),
+        );
+        expect(outcomes, `${type} ${confidence}`).toEqual([blocksBy, blocksBy, blocksBy, blocksBy]);
+      }
+    }
   });
 });

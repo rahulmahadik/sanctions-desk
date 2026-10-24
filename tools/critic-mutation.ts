@@ -312,10 +312,10 @@ try {
 }
 const fixCases = [
   {
-    case: "a relationship span with no relation term and no name does not block",
+    case: "a relationship span with no relation term and no name is marked not grounded and still blocks a close",
     pass:
       ungrounded.signals[0]?.grounded === false &&
-      blockingSignals(policy, { ...ungrounded, status: "ok", calls: [], servedByCloud: false }).length === 0,
+      blockingSignals(policy, { ...ungrounded, status: "ok", calls: [], servedByCloud: false }).length === 1,
   },
   {
     case: "a relationship span with a relation term and a listed name still blocks",

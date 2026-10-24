@@ -21,7 +21,7 @@ const errorsFor = (input: unknown): string[] => {
 describe("policy schema", () => {
   it("accepts the committed default policy", () => {
     const policy = loadPolicyFile("config/policy.default.json");
-    expect(policy.version).toBe(7);
+    expect(policy.version).toBe(8);
     expect(policy.evidenceStandard.requireCheckReference).toBe(true);
     // Version 7: span grounding of screener signals, with the term lists as policy data.
     expect(policy.screener.grounding.enabled).toBe(true);

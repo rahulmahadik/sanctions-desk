@@ -35,14 +35,15 @@ export interface GuardInput {
 }
 
 /**
- * The screener's risk signals that block a close: grounded in the text they point at, and at or above the policy's
- * confidence threshold. A signal that is not grounded never blocks; it is shown as a flag (see `ungroundedSignals`).
+ * The screener's risk signals that block a close: every signal at or above the policy's confidence threshold, grounded
+ * or not. Grounding only adds context for the person (whether code found the relationship term and a name at the
+ * cited span); it never removes a block, so no check of the model's offsets can turn a risk signal into a close.
  */
 export function blockingSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
-  return (facts?.signals ?? []).filter((s) => s.grounded !== false && s.confidence >= signalThreshold(policy, s));
+  return (facts?.signals ?? []).filter((s) => s.confidence >= signalThreshold(policy, s));
 }
 
-/** Signals at or above the threshold that are not grounded in their span: recorded and shown, not blocking. */
+/** Signals at or above the threshold that are not grounded in their span: shown with that context; they still block. */
 export function ungroundedSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
   return (facts?.signals ?? []).filter(
     (s) => s.grounded === false && s.confidence >= policy.screener.confidenceThreshold,
@@ -56,10 +57,7 @@ const signalThreshold = (policy: Policy, s: ScreenerSignal): number =>
 /** Signals at or above the normal threshold that do not block (an "other" below its own threshold): shown as a flag. */
 export function flaggedSignals(policy: Policy, facts: ScreenerFacts | undefined): ScreenerSignal[] {
   return (facts?.signals ?? []).filter(
-    (s) =>
-      s.grounded !== false &&
-      s.confidence >= policy.screener.confidenceThreshold &&
-      s.confidence < signalThreshold(policy, s),
+    (s) => s.confidence >= policy.screener.confidenceThreshold && s.confidence < signalThreshold(policy, s),
   );
 }
 
@@ -341,10 +339,10 @@ function screenerState(facts: ScreenerFacts | undefined): Finding | string | und
   return undefined;
 }
 
-/** The flag for signals that are not grounded in their span: shown with their reasons, never blocking. */
+/** Context for signals that are not grounded in their span: shown with their reasons; the signals still block a close. */
 const groundingFlag = (ungrounded: readonly ScreenerSignal[]): Finding => ({
   guard: "screener_grounding",
-  detail: `${ungrounded.length} signal(s) not grounded in the text they point at; recorded, not blocking: ${ungrounded
+  detail: `${ungrounded.length} signal(s) not grounded in the text they point at (shown for the reviewer; they still block a close): ${ungrounded
     .map(
       (s) =>
         `${s.type.replaceAll("_", " ")} (confidence ${s.confidence}, ${s.spanId}): ${s.groundingReason ?? "not grounded"}`,
@@ -354,9 +352,8 @@ const groundingFlag = (ungrounded: readonly ScreenerSignal[]): Finding => ({
 });
 
 /** What the screener rule says when nothing blocks or is flagged. */
-function quietScreener(policy: Policy, facts: ScreenerFacts | undefined, ungrounded: number): string {
-  const low = (facts?.signals.length ?? 0) - ungrounded;
-  if (ungrounded > 0 && low === 0) return "no grounded risk signal in the free text";
+function quietScreener(policy: Policy, facts: ScreenerFacts | undefined): string {
+  const low = facts?.signals.length ?? 0;
   if (low > 0)
     return `${low} signal(s) below the confidence threshold ${policy.screener.confidenceThreshold}; recorded, not blocking`;
   return facts?.status === "nothing_to_read" ? "no free text to read" : "no risk signal in the free text";
@@ -394,7 +391,7 @@ const screenerRule: Rule = ({ closing, policy, evidence }) => {
       flag: true,
     });
   } else {
-    out.push(passes("screener", quietScreener(policy, facts, ungrounded.length)));
+    out.push(passes("screener", quietScreener(policy, facts)));
   }
   return out;
 };

@@ -172,12 +172,10 @@ function factsOf(e: Evidence): Fact[] {
   return facts;
 }
 
-/** The screener's grounded risk signals at or above the policy's threshold, as the decision prompt states them. */
+/** The screener's risk signals at or above the policy's threshold, grounded or not, as the decision prompt states them. */
 function screenerBlocks(e: Evidence, prompt: string): string[] {
   const threshold = Number(/"screener_confidence_threshold":\s*([0-9.]+)/.exec(prompt)?.[1] ?? 0.5);
-  return (e.screener_facts?.risk_signals ?? [])
-    .filter((s) => s.grounded !== false && s.confidence >= threshold)
-    .map((s) => s.type);
+  return (e.screener_facts?.risk_signals ?? []).filter((s) => s.confidence >= threshold).map((s) => s.type);
 }
 
 function decisionAnswer(e: Evidence, prompt = ""): string {

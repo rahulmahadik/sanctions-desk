@@ -165,7 +165,8 @@ describe("Outcome", () => {
             {
               guard: "screener_grounding",
               verdict: "flag",
-              detail: "1 signal(s) not grounded in the text they point at; recorded, not blocking",
+              detail:
+                "1 signal(s) not grounded in the text they point at; shown for the reviewer; they still block a close",
             },
           ],
           critic: {
@@ -176,7 +177,9 @@ describe("Outcome", () => {
         }}
       />,
     );
-    expect(screen.getByText(/not grounded in the text they point at; recorded, not blocking/)).toBeTruthy();
+    expect(
+      screen.getByText(/not grounded in the text they point at; shown for the reviewer; they still block a close/),
+    ).toBeTruthy();
     expect(screen.getByTestId("not-citable").textContent).toContain("customer.notes as not citable (round 2)");
   });
 
