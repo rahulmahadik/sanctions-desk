@@ -609,6 +609,12 @@ npm run bench -- --variant routed,single --runs 2        # several variants, one
 
 `--seed N` repeats the random batches exactly, `--name` labels the output, and `--dry-run` prints what would run. Each run is a separate `npm run exam`, so one failing run does not stop the rest. The summary (`eval/results/bench-*.md` and `.json`) gives the mean and range of accuracy, false-close rate and median time over the runs, the model calls by the model that served them, and the model cost: cloud tokens are priced under the unit costs in `config/default.json`, and tokens served by the local model are counted and cost nothing. `npm run json:rate` reports how often a model answer could not be used as JSON, from the traces of the runs.
 
+### How long a run takes
+
+**Sample mode, no model calls** (saved Zetaris answers and the rules stand-in; the desk's own code only), Apple M5 Max, Node 26, 50 alerts, three repeats each, 0 errors: one at a time, a median of 4 to 5 ms and a p95 of 7 to 10 ms per alert; five at a time, a median of 20 to 23 ms and a p95 of about 36 ms, about 12,500 to 13,500 alerts a minute. The API's limits were raised for this test (`RATE_LIMIT_REVIEWS`, `RATE_LIMIT_WRITES`, `RATE_LIMIT_REVIEWS_IN_FLIGHT=5`); by default it runs at most 4 reviews at once and refuses more. Script: `tools/load-sample.mjs`.
+
+**Live, with the models:** the current system's newest run (held-out v4, 12 alerts) took a median of 45 seconds per alert; most of it is the cloud model.
+
 ## Edge cases handled
 
 <!--fact:edge_cases-->43<!--/fact--> edge cases (names, ownership, lists and memory, data and systems, security) each have an expected outcome and a check: [docs/EDGE_CASES.md](docs/EDGE_CASES.md). Highlights: exactly 50 percent counts; 49.9 does not; 25 plus 25 from two listed owners does; circular ownership ends; a missing percentage is unknown, not zero; look-alike Cyrillic letters in a Latin name are seen through; a customer note that says "ignore previous instructions" is data; a draft that tells a customer they are being screened is refused.
