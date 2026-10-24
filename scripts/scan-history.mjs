@@ -86,7 +86,7 @@ for (const line of patch) {
 }
 
 /**
- * Findings in four early commits that are known and kept: rewriting them would change every later commit id, which the
+ * Findings in a few commits that are known and kept: rewriting them would change every later commit id, which the
  * evaluation files and the preregistration check cite. Matched by full commit id, so nothing else is let through.
  */
 const KNOWN = new Map([
@@ -97,6 +97,10 @@ const KNOWN = new Map([
   [
     "e888227450394c07aab3bf86dc8a1f686c74d4dd",
     "its file note names the receipt-statistics script as the writer; the note is reworded in a later commit",
+  ],
+  [
+    "5e09e2085bf03f9e95204b6ccd229c3d8651ff60",
+    "the hash-change tool read a local commit map by a fixed file name; the path became a command-line argument in a later commit",
   ],
   [
     "fe12b6929c31a27c02df1f46f2b92b0de04db574",
