@@ -110,6 +110,30 @@ While it runs, `npm run case` prints one short line per step (time, agent, actio
 
 A review that cannot run prints `{"status": "error", ..., "error": {"type": "...", "message": "..."}}` and exits with a non-zero code. The request files and the kind of outcome each one gives are in [input_examples/README.md](input_examples/README.md).
 
+## One real trace
+
+A recorded case where the decision's first recommendation was to **close a risk case**, and the checks stopped it. The lines below are copied from the saved run by a script, not written by hand.
+
+<!-- realtrace:start -->
+Case **EX-064** (alert ALR-0073), first-system run of 23 Oct 2026, copied by `npm run readme:trace` from [output_examples/close-stopped-by-policy-guard](output_examples/close-stopped-by-policy-guard) (the same events are in the signed evidence export `eval/runs/routed-20261023T133311Z`). The label is ESCALATE_L2; closing it is a must-not.
+
+| Seq | Agent | Action | Target | Model (requested → routed) | Status | Summary |
+|---:|---|---|---|---|---|---|
+| 24 | triage | path |  |  | ok | reason: the structured evidence points to CLOSE_FALSE_POSITIVE, but there is free text to weigh: the payment reference |
+| 25 | decision | model_answer |  | meterless/deep → nvidia/nemotron-3-ultra-550b-a55b (receipt `rcpt_req_t9gx190b`) | ok | valid answer on attempt 1 |
+| 26 | decision | recommend | critic |  | ok (0.95) | CLOSE_FALSE_POSITIVE: The counterparty name matches exactly but the counterparty country NL is not among the listed party's address countri… |
+| 27 | critic | verify_facts |  |  | ok | 5 verified, 0 issues |
+| 28 | critic | model_answer |  | meterless/judge → nvidia/nemotron-3-ultra-550b-a55b (receipt `rcpt_req_w1li6vf1`) | ok | valid answer on attempt 1 |
+| 29 | critic | judge | policy_guard |  | ok | approved |
+| 30 | policy_guard | apply_policy |  |  | blocked (0.6) | CLOSE_FALSE_POSITIVE raised to ESCALATE_L2 |
+| 31 | reporter | seal_record |  |  | ok | record rec-eval-routed-EX-064 sealed |
+
+- **What happened:** the decision's first recommendation was CLOSE_FALSE_POSITIVE at confidence 0.95, and the critic approved it (5 verified, 0 issues): the cited facts were true. The policy guard then blocked the close on a rule.
+- **The rule that blocked:** `jurisdiction`: watched jurisdiction: IR (payment reference mentions "Tehran").
+- **Final outcome:** ESCALATE_L2 at confidence 0.6, sealed as record `c2d235499ba6…`.
+- **The human step:** none recorded yet: the recommendation waits for a person. An analyst or approver approves it or overrides it with a reason against the sealed record; only an approver may override towards a close. The escalation ticket is prepared only after that decision, and nothing is sent.
+<!-- realtrace:end -->
+
 ## Demo video
 
 Link added when recorded.
@@ -127,6 +151,7 @@ Track 3 asks for a reasoning architecture, not a prompt. Each stage of the desk 
 
 - [For judges](#for-judges)
 - [Run one case](#run-one-case)
+- [One real trace](#one-real-trace)
 - [Demo video](#demo-video)
 - [Track 3 fit](#track-3-fit)
 - [What it does](#what-it-does)

@@ -49,6 +49,25 @@ async function sampleApp(overrides: Record<string, unknown> = {}, delayMs = 0) {
 const run = (app: Awaited<ReturnType<typeof sampleApp>>["app"], alertId: string, runId = `run-${alertId}`) =>
   app.inject({ method: "POST", url: "/run", payload: { alert_id: alertId, run_id: runId } });
 
+describe("the demo payment in input_examples/run-ALR-0073.json", () => {
+  it("escalates, with the screener's signal grounded on the city named in the payment reference", async () => {
+    const { app } = await sampleApp();
+    const payload = JSON.parse(readFileSync(resolveProjectPath("input_examples/run-ALR-0073.json"), "utf8"));
+    const res = await app.inject({ method: "POST", url: "/run", payload: { ...payload, run_id: "run-demo-73" } });
+    expect(res.json()).toMatchObject({ status: "ok", decision: "ESCALATE_L2" });
+    const record = (await app.inject({ method: "GET", url: "/cases/ALR-0073/record" })).json() as {
+      screener: { signals: Array<{ type: string; span_id: string; grounded: boolean }> };
+    };
+    expect(record.screener.signals).toContainEqual(
+      expect.objectContaining({
+        type: "sanctioned_jurisdiction_link",
+        span_id: "payment.payment_reference:34-40",
+        grounded: true,
+      }),
+    );
+  });
+});
+
 describe("POST /run on the sample", () => {
   it("closes a clear false positive and records every step", async () => {
     const { app, logDir } = await sampleApp();

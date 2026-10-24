@@ -59,6 +59,7 @@
     "zetaris:definitions": "tsx tools/zetaris-definitions.ts",
     "adversarial:guard": "tsx tools/adversarial-guard.ts",
     "readme:refresh": "tsx tools/readme-facts.ts",
+    "readme:trace": "tsx tools/real-trace.ts",
     "zetaris:cache-check": "tsx tools/zetaris-cache-check.ts",
     "lab:pinning": "tsx tools/pinning-lab.ts",
     "zetaris:queries": "tsx tools/zetaris-queries.ts",
