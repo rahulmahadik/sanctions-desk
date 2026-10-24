@@ -58,9 +58,12 @@ if (!EXAM_FILES[examName]) throw new Error("--exam must be exam, heldout, heldou
 const config = loadConfig();
 const outRoot = resolveProjectPath("output_examples");
 
+/** Where this repository sits on this machine: removed from every path in an example, so none names a local folder. */
+const repoRoot = dirname(resolveProjectPath("package.json"));
+
 function write(path: string, text: string): void {
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, text);
+  writeFileSync(path, text.split(`${repoRoot}/`).join(""));
 }
 
 const exam = loadExam(EXAM_FILES[examName] as string);
