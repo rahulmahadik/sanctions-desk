@@ -6,7 +6,7 @@
   "finished_at": "2026-10-24T03:38:40.439Z",
   "policy_version": 8,
   "features": {
-    "commit": "386a5f3+local changes",
+    "commit": "e0910c2+local changes",
     "structured_output": true,
     "challenger": {
       "enabled": true,

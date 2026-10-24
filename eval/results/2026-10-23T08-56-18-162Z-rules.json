@@ -1,7 +1,7 @@
 {
   "variant": "rules",
   "features": {
-    "commit": "406098a",
+    "commit": "205f0c6",
     "structured_output": true,
     "challenger": {
       "enabled": true,

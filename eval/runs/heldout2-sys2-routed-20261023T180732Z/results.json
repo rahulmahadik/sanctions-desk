@@ -3,7 +3,7 @@
   "exam": "heldout2",
   "system": "sys2",
   "features": {
-    "commit": "3d360df",
+    "commit": "1920b3d",
     "structured_output": true,
     "challenger": {
       "enabled": true,

@@ -2,9 +2,9 @@
 
 Problems found by the security checks that sit in files this pass did not change (the agents, shared and data packages, the configuration and policy files, the exam tool). Each entry says what is wrong, where, the proposed fix and the test that proves it.
 
-Items 4 and 5 are done (24 Oct 2026, see each item). Items 1, 2 and 3 are done (24 Oct 2026, commit `b2dae21`): the guard now splits a statement into tokens and reads every table position, and refuses what it cannot read. See the SQL guard section of [SECURITY.md](SECURITY.md).
+Items 4 and 5 are done (24 Oct 2026, see each item). Items 1, 2 and 3 are done (24 Oct 2026, commit `eed80ac`): the guard now splits a statement into tokens and reads every table position, and refuses what it cannot read. See the SQL guard section of [SECURITY.md](SECURITY.md).
 
-## 1. The SQL guard misses a comma join after a table alias (medium) — done 24 Oct 2026, `b2dae21`
+## 1. The SQL guard misses a comma join after a table alias (medium) — done 24 Oct 2026, `eed80ac`
 
 **Done.** The guard reads the whole FROM list: each table, an optional alias (with or without `AS`, with an optional column list), and then only a comma, a join keyword, `ON`, `USING (`, a clause keyword, `)` or the end. A comma inside a FROM list, at any bracket depth, starts another table. Anything else in a table position is refused with `unrecognised_table`. The block "comma join after an alias" in `apps/api/test/pentest-sql-guard.test.ts` is now `it.each` and passes; the same statements and a `scopeViolation` case are in `packages/zetaris/test/guard.test.ts`.
 
@@ -18,7 +18,7 @@ Items 4 and 5 are done (24 Oct 2026, see each item). Items 1, 2 and 3 are done (
 
 **Test that proves it.** `apps/api/test/pentest-sql-guard.test.ts`, the block "comma join after an alias". It passes today because it is written with `it.fails.each`; after the fix it fails, and `it.fails.each` should become `it.each`. Add the same three statements to `packages/zetaris/test/guard.test.ts` and one for `scopeViolation`.
 
-## 2. The guard and the literal quoting disagree with the SQL engine about a backslash (low, not proven) — done 24 Oct 2026, `b2dae21`
+## 2. The guard and the literal quoting disagree with the SQL engine about a backslash (low, not proven) — done 24 Oct 2026, `eed80ac`
 
 **Done.** The guard refuses any statement that contains a backslash (code `backslash`), so it never has to guess where the engine ends a string. `quoteLiteral` refuses a value with a backslash or `${`, and the identifier overlap query in `packages/agents/src/evidence.ts` now uses `quoteLiteral` instead of its own copy. `blankLiterals` keeps a backslash and the next character inside the literal. Whether the live engine honours the backslash escape is still unconfirmed; with the refusal it no longer matters to the guard.
 
@@ -32,7 +32,7 @@ Items 4 and 5 are done (24 Oct 2026, see each item). Items 1, 2 and 3 are done (
 
 **Test that proves it.** `quoteLiteral("a\\")` throws (or yields a literal the engine reads as complete); `guardSql` refuses `WHERE a = 'x\' OR 1 IN (SELECT 1 FROM other.users) OR b = \'y'` (already refused today, because the guard sees the table; keep it as a regression test).
 
-## 3. The SQL guard accepts non-ASCII characters outside string values (low, hardening) — done 24 Oct 2026, `b2dae21`
+## 3. The SQL guard accepts non-ASCII characters outside string values (low, hardening) — done 24 Oct 2026, `eed80ac`
 
 **Done.** Outside single-quoted values only printable ASCII, tab, carriage return and line feed are accepted (code `non_ascii`), including inside backquoted and double-quoted names. Only ASCII spacing is trimmed from the ends, so a byte order mark or a no-break space is refused rather than removed. The "disguises" block now expects a refusal for every case except the doubled quote, which stays one harmless value.
 
@@ -44,9 +44,9 @@ Items 4 and 5 are done (24 Oct 2026, see each item). Items 1, 2 and 3 are done (
 
 **Test.** The "disguises" block in `apps/api/test/pentest-sql-guard.test.ts`: tighten each case from "refused or harmless" to "refused".
 
-## 4. The server listens on every network interface by default (low) — done 24 Oct 2026, `84432f2`, test `55b33b9`
+## 4. The server listens on every network interface by default (low) — done 24 Oct 2026, `f739654`, test `6aef947`
 
-**Done.** `server.host` is `127.0.0.1` in `config/default.json` and `HOST=127.0.0.1` in `.env.example` (commit `84432f2`); the image and the compose file set `HOST=0.0.0.0` inside the container. `packages/shared/test/config.test.ts` checks the default and `apps/api/test/compose.test.ts` checks that compose still sets `HOST` for the `api` service (commit `55b33b9`).
+**Done.** `server.host` is `127.0.0.1` in `config/default.json` and `HOST=127.0.0.1` in `.env.example` (commit `f739654`); the image and the compose file set `HOST=0.0.0.0` inside the container. `packages/shared/test/config.test.ts` checks the default and `apps/api/test/compose.test.ts` checks that compose still sets `HOST` for the `api` service (commit `6aef947`).
 
 **What.** `server.host` is `0.0.0.0` in `config/default.json` and `.env.example`. Outside a container, `npm run dev` or `npm start` is then reachable from the local network, and in sample mode anyone who reaches it can pick the approver or policy-admin demo user with a header. The compose file now publishes ports on `127.0.0.1` only; the default for a bare process is still open.
 
@@ -56,7 +56,7 @@ Items 4 and 5 are done (24 Oct 2026, see each item). Items 1, 2 and 3 are done (
 
 **Test.** `loadConfig({ env: {} }).server.host === "127.0.0.1"`, and the compose test still finds `HOST` set for the `api` service.
 
-## 5. No limit on how often a person can start reviews or call the API (medium for a shared deployment) — done 24 Oct 2026, `55b33b9`
+## 5. No limit on how often a person can start reviews or call the API (medium for a shared deployment) — done 24 Oct 2026, `6aef947`
 
 **Done.** `server.rateLimit` in the configuration (`RATE_LIMIT_*` in the environment): a fixed window per caller, 60 requests a minute to any route that is not a read and 10 a minute to `POST /run` and `POST /policy/whatif`, and at most 4 reviews running at once, refused rather than queued above that. The caller is the signed-in user when sign-in is on, otherwise the remote address (a demo user is only a header, so it does not count as a separate caller). Above a limit the answer is 429 with `Retry-After` and the usual error body with type `rate_limited`. Reads and `/health` are not limited. The limits are kept in memory per process. `apps/api/test/rate-limit.test.ts` covers the limit plus one, another caller, the window reset with an injected clock, per-user counting, the in-flight cap and its slot being freed when a review ends or fails.
 

@@ -325,8 +325,8 @@ function heldoutV2(f: Findings): void {
 /** The third and fourth held-out sets: each file matches its pinned hash, and the file in its freeze commit (made before
  * the fix that followed it) is the same file. */
 const LATER_FREEZES = [
-  { n: 3, commit: "8d7458b" },
-  { n: 4, commit: "958d061" },
+  { n: 3, commit: "02d0a2e" },
+  { n: 4, commit: "fc64537" },
 ];
 function laterHeldout(f: Findings, n: number, commit: string): void {
   const file = `heldout${n}.json`;

@@ -3,7 +3,7 @@
   "exam": "heldout2",
   "system": "sys2b",
   "features": {
-    "commit": "2df81d7",
+    "commit": "70e9e6a",
     "structured_output": true,
     "challenger": {
       "enabled": true,

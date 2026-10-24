@@ -62,14 +62,14 @@ const ROUNDS: ReadonlyArray<{
   commit: string;
   blind: boolean;
 }> = [
-  { id: "v1", label: "Held-out v1 (30 cases)", exam: "heldout", name: "first system", commit: "f9f3212", blind: true },
+  { id: "v1", label: "Held-out v1 (30 cases)", exam: "heldout", name: "first system", commit: "8fe6205", blind: true },
   {
     id: "v2",
     label: "Held-out v2 (19 cases)",
     exam: "heldout2",
     system: "sys2",
     name: "screener added; it failed on every case",
-    commit: "da7aff4",
+    commit: "8f6976c",
     blind: true,
   },
   {
@@ -78,7 +78,7 @@ const ROUNDS: ReadonlyArray<{
     exam: "heldout2",
     system: "sys2b",
     name: "screener answering in plain JSON",
-    commit: "f6ed38a",
+    commit: "d44ee04",
     blind: false,
   },
   {
@@ -87,7 +87,7 @@ const ROUNDS: ReadonlyArray<{
     exam: "heldout3",
     system: "sys3",
     name: "span grounding",
-    commit: "517f798",
+    commit: "e56b204",
     blind: true,
   },
   {
@@ -96,7 +96,7 @@ const ROUNDS: ReadonlyArray<{
     exam: "heldout4",
     system: "sys4",
     name: "fails closed",
-    commit: "ce1db95",
+    commit: "80902ea",
     blind: true,
   },
 ];

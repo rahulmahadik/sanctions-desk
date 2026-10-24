@@ -9,13 +9,13 @@ The case definitions and expected labels in `heldout.json` were written and comm
 
 | Freeze | Commit | Cases | What changed and why |
 | --- | --- | --- | --- |
-| 1 | `61415b6863f755e6e5036792d7a838e259b70305` | HO-001 to HO-018 | 18 cases where free text, an unusual alias pattern or disagreeing documents point to a real risk. Every label is cautious. |
-| 2 | `e66e9d3b8a09d28cbdb630d78f8ce412e19f796d` | HO-019 to HO-026 | 8 cases added where specific free text clears a match that looks strong (label: close; escalating is a miss). Added because a set of only cautious labels cannot tell a careful system from one that escalates everything. |
-| 3 | `0886c4571da03fa2404f6c57d682dbc99bfd3afa` | HO-023 to HO-026 relabelled; HO-027 to HO-030 added | Policy version 2 made the documentary evidence standard explicit (a check reference, a document number and a date; a named counterparty for payments). HO-023 to HO-026 were relabelled to NEED_MORE_INFO (ESCALATE_L2 acceptable, a close is a miss) because the labels were written before the evidence standard was made explicit; under policy v2 these notes are claims. Four new clear cases, HO-027 to HO-030, carry notes or payment references that meet the standard and are labelled as closes. |
+| 1 | `3d02960e76d253e44fc089e3c465b6a2e34a7006` | HO-001 to HO-018 | 18 cases where free text, an unusual alias pattern or disagreeing documents point to a real risk. Every label is cautious. |
+| 2 | `7aca3a0131190d9358c2444d7de2602a795b3ec0` | HO-019 to HO-026 | 8 cases added where specific free text clears a match that looks strong (label: close; escalating is a miss). Added because a set of only cautious labels cannot tell a careful system from one that escalates everything. |
+| 3 | `d65f5cc99f8ea270bd1c1b4ddc6baf4836da2238` | HO-023 to HO-026 relabelled; HO-027 to HO-030 added | Policy version 2 made the documentary evidence standard explicit (a check reference, a document number and a date; a named counterparty for payments). HO-023 to HO-026 were relabelled to NEED_MORE_INFO (ESCALATE_L2 acceptable, a close is a miss) because the labels were written before the evidence standard was made explicit; under policy v2 these notes are claims. Four new clear cases, HO-027 to HO-030, carry notes or payment references that meet the standard and are labelled as closes. |
 
 HO-001 to HO-022 are byte-identical across all three freezes; a test checks them against recorded hashes. The rows of HO-023 to HO-026 are unchanged; only their labels and notes changed. After freeze 3 the set has 30 cases: 18 that carry risk, 4 that need more information because the text is only a claim, and 8 that should be closed because the text is documentary. All 8 closes are reachable under the standard.
 
-To check that nothing changed after the third freeze: `git diff 0886c4571da03fa2404f6c57d682dbc99bfd3afa -- eval/cases/heldout.json` (empty means unchanged).
+To check that nothing changed after the third freeze: `git diff d65f5cc99f8ea270bd1c1b4ddc6baf4836da2238 -- eval/cases/heldout.json` (empty means unchanged).
 
 Results are reported in both directions: **risks caught** (recall on the 18 risk cases) and **clears correctly made** (the share of the 8 clear cases that are closed; the rest is the over-escalation rate), with the escalate-all baseline on the same set, which catches every risk and makes no clear.
 
@@ -49,7 +49,7 @@ Changes made before the final freeze. **No system output for v2 existed when any
 | all | Date corrected to 23 October 2026; the statement about independence reworded | independent review (date and wording) | The set was committed on 23 October 2026, after the v1 results were known; it was written by a separate author from the v1 case files and the written definitions, which is what the wording now says. |
 | all | A second pinned hash over the rows the cases point at (notes, references and fields) | author's own check | The case file does not hold the note text, so an edit to a note would not change the case-file hash. |
 
-**Final freeze:** commit `da7aff4`, the commit the first v2 run (changed system, 24 Oct 2026 02:07 SGT) started from; the run result records the same commit. Nothing in `heldout2.json` or the rows it points at changed after it.
+**Final freeze:** commit `8f6976c`, the commit the first v2 run (changed system, 24 Oct 2026 02:07 SGT) started from; the run result records the same commit. Nothing in `heldout2.json` or the rows it points at changed after it.
 
 The rows are built from their own seed and id marker (`CUST-J0001`, `ALR-J0001`, ...) after the first set's rows. `npm run data:synthetic -- --include-heldout2` writes them into `data/synthetic/` after the first set's rows, and `npm run heldout2:load` loads them into the bank database (dry run unless `--apply` is given). Without the flag every existing output is unchanged; a test checks the main and first-set outputs byte for byte against the committed files.
 
@@ -99,4 +99,4 @@ Every clear is a customer alert, reachable under the written policy, and its not
 
 The rows are built from their own seed and id marker (`CUST-L0001`, `ALR-L0001`, ...) after the third set's rows, for the default seed only, like the third set. `npm run data:synthetic -- --include-heldout4` writes them into `data/synthetic/` after all three earlier sets' rows, and `npm run heldout4:load` loads them into the bank database (dry run unless `--apply` is given). Without the flag every existing output is unchanged; a test checks the existing outputs byte for byte.
 
-**Final freeze:** commit `958d0612b46f4558c4d89b5c87273858a46b8733` (24 Oct 2026 10:40:56 SGT), the one that adds this section and `heldout4.json` (its message starts "Freeze held-out v4"). Any later change to a case gets its own commit, a new hash and its reason in this section. To check that nothing changed after it: `git diff 958d0612b46f4558c4d89b5c87273858a46b8733 -- eval/cases/heldout4.json packages/data/src/synthetic/heldout4.ts` (empty means unchanged).
+**Final freeze:** commit `fc6453713a62ee9f7b029d7525715690ae8a0cd9` (24 Oct 2026 10:40:56 SGT), the one that adds this section and `heldout4.json` (its message starts "Freeze held-out v4"). Any later change to a case gets its own commit, a new hash and its reason in this section. To check that nothing changed after it: `git diff fc6453713a62ee9f7b029d7525715690ae8a0cd9 -- eval/cases/heldout4.json packages/data/src/synthetic/heldout4.ts` (empty means unchanged).

@@ -2,7 +2,7 @@
   "variant": "escalate_all",
   "exam": "heldout",
   "features": {
-    "commit": "df4f559",
+    "commit": "480c701",
     "structured_output": true,
     "challenger": {
       "enabled": true,

@@ -1,7 +1,7 @@
 {
   "variant": "no_memory",
   "features": {
-    "commit": "248570f",
+    "commit": "30b6611",
     "structured_output": true,
     "challenger": {
       "enabled": true,

@@ -6,7 +6,7 @@
   "finished_at": "2026-10-23T19:22:55.957Z",
   "policy_version": 6,
   "features": {
-    "commit": "3d360df",
+    "commit": "1920b3d",
     "structured_output": true,
     "challenger": {
       "enabled": true,

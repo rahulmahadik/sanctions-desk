@@ -2,7 +2,7 @@
   "variant": "fuzzy",
   "exam": "heldout3",
   "features": {
-    "commit": "386a5f3+local changes",
+    "commit": "e0910c2+local changes",
     "structured_output": true,
     "challenger": {
       "enabled": true,

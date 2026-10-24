@@ -22,7 +22,7 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 | **Evidence for the claims** | [eval/REPORT.md](eval/REPORT.md), [docs/EVALUATION.md](docs/EVALUATION.md), [docs/SPONSORS.md](docs/SPONSORS.md), [docs/ZETARIS.md](docs/ZETARIS.md#zetaris-checklist)                                                                                                                                                          |
 
 <!-- prove:start -->
-**One-command proof** (`npm run prove`, no credentials or services; last run 2026-10-24T04:06:52.955Z on commit fdc7cb3):
+**One-command proof** (`npm run prove`, no credentials or services; last run 2026-10-24T04:06:52.955Z on commit a56d439):
 
 ```text
 PASS  Sample-mode review: POST /run ALR-0004 -> CLOSE_FALSE_POSITIVE, sealed record f2be09688519… verifies, sample notice shown, human review required (0.1 s)
@@ -30,7 +30,7 @@ PASS  Engine conformance: H-MEM 13/13, World Model 8/8, Markovian 8/8 (0.9 s)
 PASS  Critic mutation test: 147/147 false cited facts caught over 25 decisions; 25/25 unchanged decisions approved (no false alarm); evidence standard: 5 of 5 pass; grounding and document-on-record: 3 of 3 pass (0.5 s)
 PASS  Signed evidence: 28 runs: 1492/1492 receipts verified (signing key taken from each receipt, not pinned); 1492/1492 model calls have a receipt; 0 trace/receipt model mismatches (0.2 s)
 PASS  Roles and four-eyes: 82/82 tests passed (pentest-access 56/56, people 26/26), 0 failed (1.0 s)
-PASS  Preregistration: heldout.json cases 1-18 match; heldout.json cases 1-22 match; heldout2.json file hash matches; held-out v2 freeze commit da7aff4 is in the history; heldout3.json file hash matches; held-out v3 frozen in commit 8d7458b, the same file; heldout4.json file hash matches; held-out v4 frozen in commit 958d061, the same file (0.0 s)
+PASS  Preregistration: heldout.json cases 1-18 match; heldout.json cases 1-22 match; heldout2.json file hash matches; held-out v2 freeze commit 8f6976c is in the history; heldout3.json file hash matches; held-out v3 frozen in commit 02d0a2e, the same file; heldout4.json file hash matches; held-out v4 frozen in commit fc64537, the same file (0.0 s)
 PASS  No secrets in the tree: 551 tracked text files scanned: 0 credential-bearing URLs, private keys or tokens; no .env file tracked (0.1 s)
 PASS: 7 of 7 checks passed
 ```
@@ -56,11 +56,11 @@ Reproduce with `npm ci && npm run prove`, or `npm run prove -- --fresh` to clone
 
 | Round | System tested | What it found | What changed after |
 |---|---|---|---|
-| Held-out v1 (30 cases) | first system (`f9f3212`) | risk stated only in free text (a note, a payment reference) never reached the decision | a local screener reads the free text and passes risk signals; a signal blocks a close |
-| Held-out v2 (19 cases) | screener added; it failed on every case (`da7aff4`) | the local screener failed on every case (empty answers to schema-constrained requests); fail-closed held | plain JSON for the screener and local retries (`f6ed38a`); no prompt, rule or threshold change |
-| Held-out v2, re-run after an infrastructure fix | screener answering in plain JSON (`f6ed38a`) | the screener over-flagged (signals pointing at text with no relation word); the critic deadlocked on uncheckable citations | span grounding of signals, document numbers checked against the customer record, citable-source list (`b6617cd`) |
-| Held-out v3 (12 cases) | span grounding (`517f798`) | two relationship notes were closed: the decision first escalated, citing the screener's signals; the critic rejected those citations as not citable; the decision then closed, and the guard let it stand because grounding had marked the signals not grounded. Four clears were stopped by the document-on-record rule, as that rule intends | fail closed: every signal at or above its threshold blocks a close, grounded or not (`ce1db95`, policy 8) |
-| Held-out v4 (12 cases, last round) | fails closed (`ce1db95`) | no risk case closed; no clear made: every clear carried a relationship signal the screener could not ground, which now blocks (the cost of failing closed) | nothing; this was the last held-out round |
+| Held-out v1 (30 cases) | first system (`8fe6205`) | risk stated only in free text (a note, a payment reference) never reached the decision | a local screener reads the free text and passes risk signals; a signal blocks a close |
+| Held-out v2 (19 cases) | screener added; it failed on every case (`8f6976c`) | the local screener failed on every case (empty answers to schema-constrained requests); fail-closed held | plain JSON for the screener and local retries (`d44ee04`); no prompt, rule or threshold change |
+| Held-out v2, re-run after an infrastructure fix | screener answering in plain JSON (`d44ee04`) | the screener over-flagged (signals pointing at text with no relation word); the critic deadlocked on uncheckable citations | span grounding of signals, document numbers checked against the customer record, citable-source list (`8f4c660`) |
+| Held-out v3 (12 cases) | span grounding (`e56b204`) | two relationship notes were closed: the decision first escalated, citing the screener's signals; the critic rejected those citations as not citable; the decision then closed, and the guard let it stand because grounding had marked the signals not grounded. Four clears were stopped by the document-on-record rule, as that rule intends | fail closed: every signal at or above its threshold blocks a close, grounded or not (`80902ea`, policy 8) |
+| Held-out v4 (12 cases, last round) | fails closed (`80902ea`) | no risk case closed; no clear made: every clear carried a relationship signal the screener could not ground, which now blocks (the cost of failing closed) | nothing; this was the last held-out round |
 <!-- judges:end -->
 
 Rules settle what structured data can. On the cases the rules were written for, the deterministic pipeline is exact by design; on every held-out round it also closed risk cases (the table above), which is why the desk never closes on rules alone. The full system did not always do better: it wrongly closed 2 risk cases on held-out v1 (both also closed by the rules) and 2 on v3 (which the rules did not close); on v2 and v4 it closed none, where the rules closed 3 each. It made no clears the rules miss.
@@ -459,7 +459,7 @@ In sample mode, with no setup, three **demo users** (`analyst_demo`, `approver_d
 
 ## Evaluation
 
-**Which code the numbers came from.** First system: review code at commit `f9f3212` (all four first-system runs). Changed system: held-out v2 blind at `da7aff4`; the re-run of v2 after the infrastructure fix, the 70-case re-run, held-out v1 after the fix and the screener-off ablation at `f6ed38a`. The SQL guard fix came after all of those, in merge `002f21c`; held-out v3 and its single-mode run used the code after it (`517f798`, with the grounding and document-number fixes). Held-out v4 and its single-mode run used the fail-closed change (`ce1db95`, policy version 8), committed after v4 was frozen in `958d061`. Each result file records the commit it was saved at.
+**Which code the numbers came from.** First system: review code at commit `8fe6205` (all four first-system runs). Changed system: held-out v2 blind at `8f6976c`; the re-run of v2 after the infrastructure fix, the 70-case re-run, held-out v1 after the fix and the screener-off ablation at `d44ee04`. The SQL guard fix came after all of those, in merge `d49b726`; held-out v3 and its single-mode run used the code after it (`e56b204`, with the grounding and document-number fixes). Held-out v4 and its single-mode run used the fail-closed change (`80902ea`, policy version 8), committed after v4 was frozen in `fc64537`. Each result file records the commit it was saved at.
 
 The exam has <!--fact:exam_cases-->70<!--/fact--> cases built from real public list entries and synthetic customers, payments and owners, in <!--fact:exam_groups-->12<!--/fact--> groups (false positives, true matches, transliteration, missing data, hidden ownership at and above 50 percent, ownership below 50 percent, earlier clearances that still hold, earlier clearances that no longer hold, injection, tipping-off drafts, payment routes through watched jurisdictions, and a rules gap). Each case has one right answer, acceptable alternatives, and answers that must never be given. The most important number is the **false-close rate**: how often a case that carries real risk is recommended for closing. The target is zero.
 

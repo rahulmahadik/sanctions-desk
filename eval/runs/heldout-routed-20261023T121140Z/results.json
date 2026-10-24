@@ -2,7 +2,7 @@
   "variant": "routed",
   "exam": "heldout",
   "features": {
-    "commit": "f9f3212",
+    "commit": "8fe6205",
     "structured_output": true,
     "challenger": {
       "enabled": true,

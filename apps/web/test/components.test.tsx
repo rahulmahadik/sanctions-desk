@@ -569,7 +569,7 @@ describe("ExamDashboard", () => {
           id: "v4",
           label: "Held-out v4 (12 cases, last round)",
           system: "fails closed",
-          commit: "ce1db95",
+          commit: "80902ea",
           blind: true,
           cells: {
             routed: cell(0, "0 of 6 risks closed; 0 of 6 clears"),

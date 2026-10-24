@@ -1,7 +1,7 @@
 {
   "variant": "single",
   "features": {
-    "commit": "fb5dda0",
+    "commit": "74859ff",
     "structured_output": true,
     "challenger": {
       "enabled": true,

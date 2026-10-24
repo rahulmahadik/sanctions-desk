@@ -2,7 +2,7 @@
   "variant": "rules",
   "exam": "heldout2",
   "features": {
-    "commit": "f6ed38a",
+    "commit": "d44ee04",
     "structured_output": true,
     "challenger": {
       "enabled": true,

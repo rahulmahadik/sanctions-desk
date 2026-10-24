@@ -6,7 +6,7 @@
   "finished_at": "2026-10-23T19:34:35.274Z",
   "policy_version": 6,
   "features": {
-    "commit": "f6ed38a",
+    "commit": "d44ee04",
     "structured_output": true,
     "challenger": {
       "enabled": true,

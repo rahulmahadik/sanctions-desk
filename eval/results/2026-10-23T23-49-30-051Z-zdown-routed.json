@@ -2,7 +2,7 @@
   "variant": "routed",
   "system": "zdown",
   "features": {
-    "commit": "c711f54",
+    "commit": "f5f77b0",
     "structured_output": true,
     "challenger": {
       "enabled": true,

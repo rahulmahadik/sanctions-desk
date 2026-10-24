@@ -2,7 +2,7 @@
   "variant": "routed",
   "tag": "smoke",
   "features": {
-    "commit": "a64c704",
+    "commit": "0135a30",
     "structured_output": true,
     "challenger": {
       "enabled": true,

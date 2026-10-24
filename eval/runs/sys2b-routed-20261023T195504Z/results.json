@@ -2,7 +2,7 @@
   "variant": "routed",
   "system": "sys2b",
   "features": {
-    "commit": "81ddc7c",
+    "commit": "9a229d6",
     "structured_output": true,
     "challenger": {
       "enabled": true,
