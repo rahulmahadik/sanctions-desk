@@ -19,7 +19,7 @@ export function HeadlineStrip() {
   return (
     <p className="strip" role="note" data-testid="headline-strip">
       {h && exam?.headline_sentence
-        ? `Latest exam (full system): ${exam.headline_sentence}`
+        ? `Latest 70-case exam (full system, one run): ${exam.headline_sentence}`
         : "No complete exam run is saved yet, so there is no headline measure to show."}
     </p>
   );

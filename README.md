@@ -2,6 +2,8 @@
 
 An AI review desk for bank sanctions-screening alerts. For every alert it reads the evidence from the bank's data, compares the customer (or payment party, or owner) with the listed party under approved definitions, asks Nemotron models for a recommendation, has a second step re-read every cited fact, applies a written policy, and hands a **recommendation with its evidence** to a person. **A human always makes the final call**: the desk never blocks, never writes to a source system and never messages a customer.
 
+**Who uses it.** A sanctions screening analyst at a bank, who works each alert raised by name screening, and a senior reviewer, who approves blocks and less cautious overrides. **What they get per alert:** the evidence gathered from the bank's data in one place, every cited fact re-checked against that data, risk signals from the free text with the exact field and span they rest on, a recommendation with its reasons, and a signed case record of what was used and who decided. **What it saves them:** the gathering and cross-checking an analyst now does by hand (looking up the customer, the payment, the list entry and earlier decisions, and comparing them field by field), and a written reason for every alert. Analyst time saved has not been measured, so no figure is claimed; the desk's own time per alert is measured (see the evaluation).
+
 Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
 <!-- headline:start -->
@@ -329,6 +331,10 @@ Which agent runs on which Nemotron model, and what it does:
 | Critic                   | mostly Nemotron 3 Ultra 550B | cloud                                         | Checks the recommendation against the evidence after code has re-read every cited fact; can send it back                                                                    |
 | Challenger               | mostly Nemotron 3 Ultra 550B | cloud                                         | Argues against a close that could slip through                                                                                                                              |
 | Retry after a failed try | Nemotron 3.5 Lightning 30B   | local (guard identity)                        | Answers in place of a step whose cloud call failed; such cases are counted in the report                                                                                    |
+
+**We log the requested model, the routed model and the signed receipt for every model call**, side by side in the trace, the stdout lines and the case view's routing panel; when the model that served a call is not the one asked for, both are shown. Check any run yourself with the receipt verifier, `npm run evidence:verify` ([tools/evidence-verify.ts](tools/evidence-verify.ts); see [Check which model served each call](#check-which-model-served-each-call)).
+
+**Pinned-model check: not run.** It needs Nightshift 1.2.3 or later to pin an exact model id per call; the runtime installed here is 1.2.1, so every model id above is the one Nightshift's router chose, as the receipts record. See [docs/MODELS.md](docs/MODELS.md).
 
 **The signed receipt log of the final runs** (one Ed25519-signed Nightshift receipt per model call; the model that served each call is in `winning_route.model`):
 

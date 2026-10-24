@@ -613,16 +613,17 @@ describe("HeadlineStrip", () => {
       minutes_saved_per_100_alerts: 382,
       assumptions: { minutesPerAlert: 15, minutesToConfirmClose: 2 },
     },
-    headline_sentence: "29% of alerts closed with cited evidence, 71% escalated; assuming 15 minutes per alert.",
+    headline_sentence:
+      "0 of 42 risk cases wrongly closed; 29% of alerts recommended for closing with cited evidence and 71% escalated, each for a person to decide.",
   };
 
-  it("shows the headline measure with its assumptions", async () => {
+  it("shows the measured headline of the 70-case exam", async () => {
     vi.mocked(api.fetchExam).mockResolvedValue(exam);
     render(<HeadlineStrip />);
     expect((await screen.findByTestId("headline-strip")).textContent).toContain(
-      "29% of alerts closed with cited evidence",
+      "Latest 70-case exam (full system, one run)",
     );
-    expect(screen.getByTestId("headline-strip").textContent).toContain("assuming 15 minutes per alert");
+    expect(screen.getByTestId("headline-strip").textContent).toContain("0 of 42 risk cases wrongly closed");
   });
 
   it("says so, and invents nothing, when there is no complete run or the results cannot be read", async () => {

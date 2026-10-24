@@ -69,6 +69,8 @@ Without these two binds the desk still works: the identities are then bound to `
 
 **Rate limits.** The cloud model sometimes answers 429 (too many requests). The generator waits (3 s, then 6 s, then 12 s; `nightshift.rateLimit`), holds back the calls that follow for the rest of the wait, and sends the same request again before the agent's own fallback (the fast mode, then Ollama) is used.
 
+**Pinned-model check (exact model ids): not run.** The plan was a five-case smoke test asking for exact model ids (Lightning for the guard and the screener, Ultra for the decision, the critic and the challenger) and checking that each receipt's routed model equals the requested one. That needs Nightshift 1.2.3 or later; the runtime on the laptop used is 1.2.1 (`defaults read /Applications/Nightshift.app/Contents/Info CFBundleShortVersionString`, 24 Oct 2026), and the runtime was not updated during the evaluation. Every model named in this repository is therefore the one Nightshift's router chose under the binds above, as each signed receipt records; none was pinned.
+
 ## The model ledger
 
 Every recommendation carries a ledger of the model calls behind it: step, the mode asked for and the model that answered (cloud or local), reasoning budget, tokens in and out, latency and the signed receipt.

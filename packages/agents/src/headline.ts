@@ -119,16 +119,12 @@ export function headlineOf(cases: readonly ScoredCase[], assumptions: HeadlineAs
 /** One sentence for a header strip or a README line. */
 export function headlineSentence(h: Headline): string {
   const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
-  return `${pct(h.closed_share)} of alerts closed with cited evidence, ${pct(h.escalated_share)} escalated; about ${h.minutes_saved_per_100_alerts.toFixed(0)} analyst minutes saved per 100 alerts (assuming ${h.assumptions.minutesPerAlert} minutes per alert and ${h.assumptions.minutesToConfirmClose} to confirm a close); false closes on cases that carry real risk: ${h.false_closes} of ${h.risk_cases}.${perAlertSentence(h)}`;
+  return `${h.false_closes} of ${h.risk_cases} risk cases wrongly closed; ${pct(h.closed_share)} of alerts recommended for closing with cited evidence and ${pct(h.escalated_share)} escalated, each for a person to decide.${perAlertSentence(h)}`;
 }
 
-/** The measured time and cost per alert beside the manual estimate, in one sentence that labels the estimate. */
+/** The measured time and cost per alert. Analyst time saved is not measured, so it is not claimed here. */
 export function perAlertSentence(h: Headline): string {
   const p = h.per_alert;
   if (p.alerts === 0) return "";
-  const own = `The desk took a median of ${p.median_seconds.toFixed(0)} seconds and ${p.mean_cost.toFixed(2)}${h.assumptions.currency ? ` ${h.assumptions.currency}` : ""} in model cost per alert (measured)`;
-  if (!p.manual_seconds) return ` ${own}.`;
-  const low = h.assumptions.manualMinutesRange?.low;
-  const high = h.assumptions.manualMinutesRange?.high;
-  return ` ${own}, against an industry estimate of ${low} to ${high} minutes of analyst time per alert (an estimate; no vendor source verified).`;
+  return ` The desk took a median of ${p.median_seconds.toFixed(0)} seconds and ${p.mean_cost.toFixed(2)}${h.assumptions.currency ? ` ${h.assumptions.currency}` : ""} in model cost per alert (measured).`;
 }

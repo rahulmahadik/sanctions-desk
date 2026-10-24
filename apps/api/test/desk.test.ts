@@ -111,7 +111,8 @@ describe("the review desk routes", () => {
     if (body.headline === null) expect(body.headline_sentence).toBeNull();
     else {
       expect(body.headline.assumptions.minutesPerAlert).toBe(15);
-      expect(body.headline_sentence).toContain("assuming 15 minutes per alert");
+      expect(body.headline_sentence).toContain("risk cases wrongly closed");
+      expect(body.headline_sentence).not.toContain("minutes saved");
     }
   });
 

@@ -55,11 +55,12 @@ describe("headlineOf", () => {
     expect(h.decision_unavailable).toBe(1);
   });
 
-  it("states its assumptions in the sentence", () => {
+  it("states only what was measured: wrong closes and the share closed and escalated, never minutes saved", () => {
     const text = headlineSentence(h);
-    expect(text).toContain("43% of alerts closed with cited evidence");
-    expect(text).toContain("assuming 15 minutes per alert and 2 to confirm a close");
-    expect(text).toContain("1 of 5");
+    expect(text).toContain("1 of 5 risk cases wrongly closed");
+    expect(text).toContain("43% of alerts recommended for closing with cited evidence");
+    expect(text).not.toContain("minutes saved");
+    expect(text).not.toContain("assuming");
   });
 
   it("does not credit savings when confirming costs as much as the alert", () => {
@@ -97,15 +98,14 @@ describe("time and cost per alert", () => {
     expect(h.per_alert).toMatchObject({ alerts: 3, median_seconds: 30, mean_seconds: 30, mean_cost: 0.03 });
   });
 
-  it("sets the measured time beside an industry estimate and labels the estimate as one", () => {
+  it("keeps the industry estimate labelled in the measure, and out of the sentence", () => {
     const h = headlineOf([row(30, 0.03)] as never, assumptions);
     expect(h.per_alert.manual_seconds).toEqual({ low: 1200, high: 3600 });
     expect(h.per_alert.times_faster).toEqual({ low: 40, high: 120 });
     expect(h.per_alert.note).toContain("industry estimate");
     expect(h.per_alert.note).toContain("no vendor source verified");
-    expect(headlineSentence(h)).toContain(
-      "against an industry estimate of 20 to 60 minutes of analyst time per alert (an estimate; no vendor source verified)",
-    );
+    // The sentence shown on screen keeps to the measured time; the estimate stays in the report, labelled.
+    expect(headlineSentence(h)).not.toContain("industry estimate");
     expect(headlineSentence(h)).toContain("a median of 30 seconds and 0.03 in model cost per alert (measured)");
   });
 
