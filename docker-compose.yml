@@ -3,8 +3,9 @@ name: sanctions-desk
 # The review API runs on its own. The `data` profile adds the synthetic bank database and the payments
 # service; they join the Zetaris network only, publish no ports, and are read by Zetaris alone.
 #
-#   docker compose up --build                  the API and the review desk interface (sample mode needs no credentials)
-#   PORT=8010 WEB_PORT=3011 docker compose up --build   the same on other ports, if 8000 or 3001 is taken
+#   SAMPLE_MODE=true docker compose up --build   the API and the review desk interface on saved data, no credentials
+#   SAMPLE_MODE=true PORT=8010 WEB_PORT=3011 docker compose up --build   the same on other ports, if 8000 or 3001 is taken
+#   docker compose up --build                  live mode: needs Zetaris, Nightshift and the settings in .env
 #   docker compose --profile data up --build   the API plus bankdb and payments-api
 #
 # The data profile reads BANKDB_ADMIN_PASSWORD, BANKDB_READER_PASSWORD and PAYMENTS_API_KEY from the

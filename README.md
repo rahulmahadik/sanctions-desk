@@ -113,7 +113,7 @@ npm install
 SAMPLE_MODE=true npm run -s case -- input_examples/run-ALR-0004.json
 ```
 
-The same review over HTTP, with the API running (`npm run dev`, or `docker compose up --build`):
+The same review over HTTP, with the API running in sample mode (`SAMPLE_MODE=true npm run dev`, or `SAMPLE_MODE=true docker compose up --build`):
 
 ```bash
 curl -s localhost:8000/run -H 'content-type: application/json' -d @input_examples/run-ALR-0004.json

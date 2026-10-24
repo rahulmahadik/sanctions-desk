@@ -139,7 +139,10 @@ export async function buildApp(deps: AppDeps) {
   });
 
   const mode = deps.authMode ?? resolveAuthMode(config.server.auth, config.sampleMode);
-  if (mode === "on" && !deps.users) throw new Error("auth is on but no users file is configured (DESK_USERS_FILE)");
+  if (mode === "on" && !deps.users)
+    throw new Error(
+      "auth is on but no users file is configured (DESK_USERS_FILE); set SAMPLE_MODE=true to run on saved data without services, or configure DESK_USERS_FILE",
+    );
   const authenticator: Authenticator = createAuthenticator({ mode, sampleMode: config.sampleMode, users: deps.users });
   app.decorateRequest("actor");
 
