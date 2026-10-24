@@ -119,7 +119,7 @@ for (const f of files) {
   // Runs of a later system version, kept apart so they never replace the first system's numbers.
   if (r.system !== undefined && whole)
     laterRuns.set(`${r.system}|${r.exam ?? "exam"}|${r.variant}`, { ...r, metrics: summarise(r.cases), file: f });
-  if ((r.exam === "heldout2" || r.exam === "heldout3") && r.system === undefined && whole)
+  if (["heldout2", "heldout3", "heldout4"].includes(r.exam ?? "") && r.system === undefined && whole)
     laterRuns.set(`baseline|${r.exam}|${r.variant}`, { ...r, metrics: summarise(r.cases), file: f });
 }
 
@@ -500,6 +500,16 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2"))) {
     fcRow("Held-out v3, deterministic pipeline", laterRuns.get("baseline|heldout3|rules")),
     fcRow("Held-out v3, every alert goes to a person", laterRuns.get("baseline|heldout3|escalate_all")),
     fcRow(
+      "Held-out v4, fail-closed system (new held-out set, frozen before the change)",
+      laterRuns.get("sys4|heldout4|routed"),
+    ),
+    fcRow(
+      "Held-out v4, fail-closed system with critic and challenger off (single)",
+      laterRuns.get("sys4|heldout4|single"),
+    ),
+    fcRow("Held-out v4, deterministic pipeline", laterRuns.get("baseline|heldout4|rules")),
+    fcRow("Held-out v4, every alert goes to a person", laterRuns.get("baseline|heldout4|escalate_all")),
+    fcRow(
       "Held-out v2, changed system with the screener switched off (ablation)",
       laterRuns.get("sys2bnoscreen|heldout2|routed"),
     ),
@@ -561,6 +571,16 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2"))) {
   if (laterRuns.has("sys3|heldout3|routed")) {
     lines.push(
       "**Held-out v3: a new held-out set, frozen before the fix.** After held-out v2 showed the screener over-flagging and the critic deadlocking, a third set of 12 cases (6 risks, including relationship notes where plain rules would close, and 6 clears, including notes that mention a listed name in a harmless way) was written from the definitions only, by an author who saw no result, trace or screener code, and frozen in commit `8d7458b` at 04:04:03 SGT on 24 Oct 2026. The fixes (span grounding of screener signals, the document-number check against the customer record, exact source spans for the check reference and date, and setting aside citations the critic cannot check) were committed afterwards, in `b6617cd` at 05:20:14 SGT. The v3 file was checked against its freeze commit before the run (same sha256). v3 was run once on the fixed system; its run note gives the payments cache check time as about 07:50, but the check was at about 07:16 SGT.",
+      "",
+      "Note on the v3 clears: under the document-on-record rule (a document number in a note must match the customer's identifier on record before it can support a clear), HO3-007 to HO3-010 would be NEED_MORE_INFO by design, because their notes cite a document that is not on the customer record. The rule is kept and the v3 labels are not changed; the v3 numbers above are scored against the labels as frozen.",
+      "",
+    );
+  }
+  if (laterRuns.has("sys4|heldout4|routed")) {
+    lines.push(
+      "**Held-out v4: the last held-out round, frozen before the fail-closed change.** v3 showed two wrong closes where the screener's cited span missed the relationship word and the grounding check set the signal aside. The grounding window was not widened and v3 was not re-run. Instead the rule was changed: a screener signal marked not grounded is still shown and still blocks a close; grounding only adds context for the reviewer. Before that change, a fourth set of 12 cases (6 risks, including relation words just outside a short span, and 6 clears, including clears whose documents are on the customer record) was written from the definitions only, by an author with no access to results, traces, reports or the change, and frozen in commit `958d061` at 10:40:56 SGT on 24 Oct 2026. The change was committed afterwards, in `ce1db95` at 10:44:21 SGT (policy version 8). The v4 file was checked against its freeze commit before the run (sha256 `de43651d…`, the same). v4 was run once on the changed system, with the single, deterministic and escalate-all baselines, and is reported as run. The routed v4 run was started without the thermal gate (an operator slip, recorded in the log); the other three runs used it.",
+      "",
+      "What changed in `ce1db95`, file by file (the same way as for sys2b). Screener thresholds are unchanged from policy version 7 (`confidenceThreshold` 0.5 for every signal type except *other*, `otherConfidenceThreshold` 0.7 for *other*); the policy file changes only its version number. Review path: `packages/agents/src/policy-guard.ts` (the signals that block a close are every signal at or above its threshold, grounded or not; the not-grounded flag now says the signals still block); `packages/agents/src/sample-rules.ts` (the same rule in sample mode); `packages/agents/src/screener.ts` (a comment and the trace wording). Prompt wording: `packages/agents/src/decision.ts`, `critic.ts` and `challenger.ts` each change one sentence, from treating ungrounded signals as non-blocking to *any risk signal at or above the threshold, grounded or not, means a close is not supported; grounded false only means the reviewer should read the field*. Configuration: `config/policy.default.json` (version 7 to 8). Tests and tools: `packages/agents/test/grounding-and-citable.test.ts` (ungrounded signals block; a property test over every signal type, confidences 0 to 1, grounded or not and valid span or not, that no signal at or above its threshold can be removed in a way that allows a close), `packages/shared/test/policy.test.ts`, `apps/web/test/components.test.tsx`, `tools/critic-mutation.ts` and its output `eval/critic-mutation.json` (147 of 147 caught). Documents: `docs/GOVERNANCE.md`, `docs/MODELS.md`, `docs/KNOWN_ISSUES.md`. No rule, definition, label, case or case-specific logic changed.",
       "",
     );
   }
