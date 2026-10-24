@@ -288,6 +288,30 @@ describe("ListChangePanel", () => {
     expect(within(table).getByText("ALR-0058").getAttribute("href")).toBe("/case/ALR-0058");
     expect(screen.getByTestId("list-change-summary").textContent).toContain("Nothing has been reopened or released");
   });
+
+  it("says so when every listed entry is as it was, and when there is nothing to check yet", async () => {
+    const unchanged = {
+      total: 13,
+      examined: 13,
+      complete: true,
+      unchanged: 13,
+      policy_version: 8,
+      trace_id: "replay-2",
+      impact: { customers: 0, pending_payments: 0, summary: "affects 0 customers and 0 pending payments" },
+      release: [],
+      reopen: [],
+    };
+    vi.mocked(api.postListChange).mockResolvedValue(unchanged);
+    render(<ListChangePanel />);
+    fireEvent.click(screen.getByRole("button", { name: /Check earlier decisions/ }));
+    expect((await screen.findByTestId("list-change-empty")).textContent).toContain("every listed entry is as it was");
+    expect(screen.queryByTestId("list-change")).toBeNull();
+    cleanup();
+    vi.mocked(api.postListChange).mockResolvedValue({ ...unchanged, total: 0, examined: 0, unchanged: 0 });
+    render(<ListChangePanel />);
+    fireEvent.click(screen.getByRole("button", { name: /Check earlier decisions/ }));
+    expect((await screen.findByTestId("list-change-empty")).textContent).toContain("no earlier decisions to check yet");
+  });
 });
 
 describe("SignalsPanel", () => {
@@ -520,6 +544,19 @@ describe("Queue", () => {
     render(<Queue />);
     expect((await screen.findByRole("alert")).textContent).toContain("connection refused");
   });
+
+  it("says when the queue is empty, and when no alert matches the filter", async () => {
+    vi.mocked(api.fetchQueue).mockResolvedValue({ alerts: [], sample_mode: true });
+    render(<Queue />);
+    expect((await screen.findByText(/The queue is empty/)).textContent).toContain("no alerts to review");
+    cleanup();
+    vi.mocked(api.fetchQueue).mockResolvedValue({ alerts: ALERTS, sample_mode: true });
+    render(<Queue />);
+    await screen.findByText("ALR-0001");
+    fireEvent.change(screen.getByLabelText(/Show/), { target: { value: "reviewed" } });
+    fireEvent.change(screen.getByLabelText(/Type/), { target: { value: "customer" } });
+    expect(screen.getByText("No alerts match this filter.")).toBeTruthy();
+  });
 });
 
 describe("CaseView", () => {
@@ -566,6 +603,25 @@ describe("CaseView", () => {
     render(<CaseView alertId="ALR-0001" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review this alert" }));
     expect((await screen.findByRole("alert")).textContent).toContain("already being reviewed");
+  });
+
+  it("says it is reading the facts until they arrive, reports a failed trace read, and stays quiet about a missing record", async () => {
+    let giveEvidence: (v: typeof EVIDENCE) => void = () => undefined;
+    vi.mocked(api.fetchEvidence).mockReturnValue(
+      new Promise((resolve) => {
+        giveEvidence = resolve;
+      }),
+    );
+    vi.mocked(api.fetchTrace).mockRejectedValue(new Error("the API answered HTTP 500"));
+    vi.mocked(api.fetchRecord).mockRejectedValue(new api.ApiError("no recommendation yet", 404));
+    render(<CaseView alertId="ALR-0001" />);
+    expect(screen.getByText("Reading the case facts…")).toBeTruthy();
+    giveEvidence(EVIDENCE);
+    expect(await screen.findByText("Evidence")).toBeTruthy();
+    expect(screen.queryByText("Reading the case facts…")).toBeNull();
+    const alert = screen.getByRole("alert");
+    expect(alert.textContent).toContain("HTTP 500");
+    expect(alert.textContent).not.toContain("no recommendation yet");
   });
 });
 
@@ -807,6 +863,15 @@ describe("Governance", () => {
     vi.mocked(api.fetchGovernance).mockRejectedValue(new Error("down"));
     render(<Governance />);
     expect((await screen.findByRole("alert")).textContent).toContain("down");
+  });
+
+  it("says when no policy version is recorded", async () => {
+    vi.mocked(api.fetchGovernance).mockResolvedValue({
+      ...view,
+      change_control: { ...view.change_control, policy_versions: [] },
+    } as never);
+    render(<Governance />);
+    expect(await screen.findByText("No policy versions are recorded.")).toBeTruthy();
   });
 });
 

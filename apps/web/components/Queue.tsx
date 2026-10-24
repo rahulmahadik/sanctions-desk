@@ -183,6 +183,15 @@ export function Queue() {
                   <td className="muted nowrap">{shortHash(a.record_hash)}</td>
                 </tr>
               ))}
+              {shown.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="muted" role="status">
+                    {alerts.length === 0
+                      ? "The queue is empty: there are no alerts to review."
+                      : "No alerts match this filter."}
+                  </td>
+                </tr>
+              ) : null}
             </tbody>
           </table>
         </div>

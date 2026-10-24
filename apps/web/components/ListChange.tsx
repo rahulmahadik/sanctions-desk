@@ -98,7 +98,13 @@ export function ListChangePanel() {
                 </tbody>
               </table>
             </div>
-          ) : null}
+          ) : (
+            <p className="muted" data-testid="list-change-empty">
+              {report.examined === 0
+                ? "There are no earlier decisions to check yet."
+                : "No earlier decision needs a second look: every listed entry is as it was."}
+            </p>
+          )}
         </>
       ) : null}
     </section>

@@ -202,6 +202,13 @@ export function Governance() {
                   <td>{v.approved_by ?? "—"}</td>
                 </tr>
               ))}
+              {change.policy_versions.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="muted">
+                    No policy versions are recorded.
+                  </td>
+                </tr>
+              ) : null}
             </tbody>
           </table>
         </div>

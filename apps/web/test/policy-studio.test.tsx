@@ -227,6 +227,16 @@ describe("changing autonomy", () => {
   });
 });
 
+describe("the versions panel", () => {
+  it("says when there are no versions and no audit entries yet", async () => {
+    studio(ME_APPROVER);
+    render(<PolicyStudio />);
+    await screen.findByTestId("autonomy-card");
+    expect(screen.getByText("No policy versions yet.")).toBeTruthy();
+    expect(screen.getByText("No audit entries yet.")).toBeTruthy();
+  });
+});
+
 describe("the badges and the reopen button", () => {
   const alert = (over: Partial<QueueAlert>): QueueAlert => ({
     alert_id: "ALR-0001",

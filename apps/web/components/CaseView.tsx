@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ApiError,
   fetchEvents,
   fetchEvidence,
   fetchExam,
@@ -46,6 +47,7 @@ export function CaseView({ alertId }: { alertId: string }) {
   const [split, setSplit] = useState<RoutingSplit | null>();
   const [thresholds, setThresholds] = useState<SignalThresholds>();
   const [problem, setProblem] = useState<string>();
+  const [facts, setFacts] = useState<"reading" | "read">("reading");
   const stop = useRef<() => void>(() => undefined);
 
   const loadDetails = useCallback(async () => {
@@ -53,7 +55,14 @@ export function CaseView({ alertId }: { alertId: string }) {
     if (e.status === "fulfilled") setEvidence(e.value);
     if (t.status === "fulfilled") setTrace(t.value);
     if (r.status === "fulfilled") setRecord(r.value);
-    if (e.status === "rejected") setProblem(e.reason instanceof Error ? e.reason.message : String(e.reason));
+    // Before a review there is no trace and no record yet (404); every other failure is said plainly.
+    const expected = (x: PromiseSettledResult<unknown>) =>
+      x.status === "rejected" && x.reason instanceof ApiError && x.reason.status === 404;
+    const problems = [e, ...[t, r].filter((x) => !expected(x))].flatMap((x) =>
+      x.status === "rejected" ? [x.reason instanceof Error ? x.reason.message : String(x.reason)] : [],
+    );
+    if (problems.length > 0) setProblem([...new Set(problems)].join("; "));
+    setFacts("read");
   }, [alertId]);
 
   // The facts can be read before any review: they come from the evidence role, masked.
@@ -112,6 +121,7 @@ export function CaseView({ alertId }: { alertId: string }) {
       <p role="status" aria-live="polite" className="sr-only">
         {STATUS[phase]}
       </p>
+      {facts === "reading" && !problem ? <p className="muted">Reading the case facts…</p> : null}
       {problem ? (
         <p className="panel tone-stop" role="alert">
           {problem}

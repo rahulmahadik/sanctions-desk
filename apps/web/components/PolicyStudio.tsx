@@ -456,19 +456,30 @@ export function PolicyStudio() {
                   <td>{v.reason ?? ""}</td>
                 </tr>
               ))}
+              {versions.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="muted">
+                    No policy versions yet.
+                  </td>
+                </tr>
+              ) : null}
             </tbody>
           </table>
         </div>
         <h3>Audit log</h3>
-        <ol className="events" aria-label="Policy audit log">
-          {audit.map((a, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: audit entries have no id
-            <li key={i}>
-              {a.ts} {a.actor} {a.action.replaceAll("_", " ")} version {a.version}
-              {a.detail ? `: ${a.detail}` : ""}
-            </li>
-          ))}
-        </ol>
+        {audit.length === 0 ? (
+          <p className="muted">No audit entries yet.</p>
+        ) : (
+          <ol className="events" aria-label="Policy audit log">
+            {audit.map((a, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: audit entries have no id
+              <li key={i}>
+                {a.ts} {a.actor} {a.action.replaceAll("_", " ")} version {a.version}
+                {a.detail ? `: ${a.detail}` : ""}
+              </li>
+            ))}
+          </ol>
+        )}
       </section>
     </>
   );
