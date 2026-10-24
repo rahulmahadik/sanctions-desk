@@ -1,0 +1,231 @@
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { gunzipSync, gzipSync } from "node:zlib";
+import { resolveProjectPath } from "@sanctions-desk/shared";
+import { afterAll, describe, expect, it } from "vitest";
+import {
+  BANNER,
+  buildRunPages,
+  loadRecordedCase,
+  RECORDED_CASES,
+  REPO_URL,
+  RecordedRunError,
+  scrub,
+  WINDOW_WORDS,
+  wordWindows,
+} from "../../../tools/lib/runs-site.js";
+
+const REPO_BLOB = `${REPO_URL}/blob/main/`;
+const out = mkdtempSync(join(tmpdir(), "desk-runs-"));
+const scratch = mkdtempSync(join(tmpdir(), "desk-runs-tamper-"));
+afterAll(() => {
+  rmSync(out, { recursive: true, force: true });
+  rmSync(scratch, { recursive: true, force: true });
+});
+
+const written = buildRunPages(out);
+const html = (f: string) => readFileSync(join(out, f), "utf8");
+const tracked = new Set(
+  execFileSync("git", ["ls-files", "-z"], { cwd: resolveProjectPath("."), encoding: "utf8" }).split("\0"),
+);
+const decode = (s: string) =>
+  s
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
+const normalise = (s: string) =>
+  decode(s)
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+
+type Row = Record<string, unknown>;
+const rows = (file: string): Row[] => JSON.parse(readFileSync(resolveProjectPath(file), "utf8")) as Row[];
+const text = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0;
+
+describe("the recorded-run pages", () => {
+  it("are generated for every chosen case, with an index and a stylesheet", () => {
+    expect(RECORDED_CASES.length).toBeGreaterThanOrEqual(4);
+    expect(RECORDED_CASES.length).toBeLessThanOrEqual(6);
+    for (const c of RECORDED_CASES) {
+      expect(written).toContain(`${c.slug}.html`);
+      expect(html("index.html")).toContain(`href="${c.slug}.html"`);
+    }
+    expect(existsSync(join(out, "runs.css"))).toBe(true);
+  });
+
+  it("show the banner, the steps in order, every model call with its receipt id and its check", () => {
+    for (const spec of RECORDED_CASES) {
+      const page = html(`${spec.slug}.html`);
+      const c = loadRecordedCase(spec);
+      expect(page).toContain(BANNER);
+      expect(page).toContain(`${REPO_BLOB}README.md#quick-start`);
+      expect(page).toContain(c.label.expected);
+      expect(page).toContain(c.result.got);
+      // Steps in order: each step's agent and action appear, by sequence.
+      let at = page.indexOf('id="steps"');
+      for (const e of c.events) {
+        const next = page.indexOf(`<td>${e.seq}</td><td>${e.agent}</td><td>${e.action}</td>`, at);
+        expect(next, `${spec.slug} step ${e.seq}`).toBeGreaterThan(at);
+        at = next;
+      }
+      const receipts = c.calls.filter((x) => x.receipt);
+      expect(receipts.length).toBeGreaterThan(0);
+      for (const x of receipts) expect(page).toContain(x.receipt?.id);
+      expect(page).toMatch(/signature valid, key (from the receipt|pinned)/);
+      expect(page).toMatch(/Lightning/);
+    }
+  });
+
+  it("show the Zetaris statements as the sealed record keeps them, and why a close was stopped", () => {
+    const page = decode(html("alr-0073.html"));
+    expect(page).toContain("SELECT `alert_id`");
+    expect(page).toContain("Why the close was stopped");
+    expect(page).toContain("jurisdiction: block");
+    expect(decode(html("alr-0043.html"))).toContain("critic_unresolved: block");
+    expect(html("alr-0004.html")).toContain("Why the close stood");
+  });
+
+  it("never contain the case's free text or identifier numbers", () => {
+    const customers = rows("data/synthetic/customer.json");
+    const payments = rows("data/synthetic/payment.json");
+    const alerts = rows("data/synthetic/alert.json");
+    const custIds = rows("data/synthetic/customer_identifier.json");
+    const entries = rows("data/sample/list_entry.json");
+    const listIds = rows("data/sample/list_identifier.json");
+    let checked = 0;
+    for (const spec of RECORDED_CASES) {
+      const { label } = loadRecordedCase(spec);
+      const alert = alerts.find((a) => a.alert_id === label.alert_id);
+      const free = [
+        ...customers.filter((r) => r.customer_id === label.customer_id).map((r) => r.notes),
+        ...payments
+          .filter((r) => r.customer_id === label.customer_id || r.payment_id === alert?.payment_id)
+          .map((r) => r.payment_reference),
+        ...entries.filter((r) => r.entry_id === label.entry_id).map((r) => r.remarks),
+      ].filter(text);
+      const ids = [
+        ...custIds.filter((r) => r.customer_id === label.customer_id).map((r) => r.id_number),
+        ...listIds.filter((r) => r.entry_id === label.entry_id).map((r) => r.id_number),
+      ].filter(text);
+      for (const page of [html(`${spec.slug}.html`), html("index.html")]) {
+        const flat = normalise(page);
+        for (const v of free) {
+          expect(flat, `${spec.slug}: free text`).not.toContain(v.replace(/\s+/g, " ").toLowerCase());
+          for (const w of wordWindows(v))
+            expect(flat, `${spec.slug}: ${WINDOW_WORDS} words of free text`).not.toContain(w.toLowerCase());
+          checked += 1;
+        }
+        for (const id of ids.filter((x) => x.length >= 5)) {
+          expect(flat, `${spec.slug}: identifier number`).not.toContain(id.toLowerCase());
+          checked += 1;
+        }
+      }
+    }
+    // The chosen cases do carry free text (a payment reference, list remarks, a customer note) and identifiers.
+    expect(checked).toBeGreaterThan(10);
+  });
+
+  it("have only links that resolve, call nothing and load nothing from outside", () => {
+    for (const f of written.filter((x) => x.endsWith(".html"))) {
+      const page = html(f);
+      expect(page).not.toMatch(/<script|<iframe|localhost|127\.0\.0\.1|fonts\.googleapis/);
+      for (const m of page.matchAll(/\b(?:href|src)="([^"]+)"/g)) {
+        const link = m[1] as string;
+        if (link.startsWith(REPO_BLOB)) {
+          expect(tracked.has(link.slice(REPO_BLOB.length).split("#")[0] as string), `${f}: ${link}`).toBe(true);
+        } else if (link === REPO_URL) {
+        } else if (link === "../index.html") {
+          expect(existsSync(resolveProjectPath("site/index.html"))).toBe(true);
+        } else {
+          expect(/^[a-z]+:/i.test(link), `${f}: ${link}`).toBe(false);
+          expect(existsSync(join(out, link.split("#")[0] as string)), `${f}: ${link}`).toBe(true);
+        }
+      }
+    }
+  });
+});
+
+describe("scrub", () => {
+  const p = {
+    freeText: ["Machine parts, onward delivery to Tehran by road"],
+    idNumbers: ["C98720542"],
+    names: ["Tehran Trading"],
+  };
+  it("withholds whole values, quoted parts and runs of words, and masks identifier numbers", () => {
+    expect(scrub("ref: Machine parts, onward delivery to Tehran by road", p)).not.toMatch(/Machine parts/);
+    expect(scrub('the reference mentions "Tehran"', p)).toBe('the reference mentions "[free text withheld]"');
+    expect(scrub("it said onward delivery to Tehran soon", p)).not.toMatch(/onward delivery to Tehran/);
+    expect(scrub("passport C98720542 checked", p)).toBe("passport [id number masked] checked");
+    expect(scrub("nothing to hide here", p)).toBe("nothing to hide here");
+  });
+});
+
+describe("the build", () => {
+  const spec = RECORDED_CASES[0];
+  if (!spec) throw new Error("no recorded case");
+  const fresh = () => {
+    const runs = mkdtempSync(join(scratch, "runs-"));
+    cpSync(resolveProjectPath(`eval/runs/${spec.runId}`), join(runs, spec.runId), { recursive: true });
+    return runs;
+  };
+  const receiptOf = () => loadRecordedCase(spec).calls.find((c) => c.receipt)?.receipt?.id as string;
+  /** Rewrite receipts.jsonl.gz and its hash in run-meta.json, so only the receipt check can catch the change. */
+  const rewriteReceipts = (runs: string, change: (lines: string[]) => string[]) => {
+    const dir = join(runs, spec.runId);
+    const file = join(dir, "receipts.jsonl.gz");
+    const lines = gunzipSync(readFileSync(file)).toString("utf8").split("\n").filter(Boolean);
+    writeFileSync(file, gzipSync(`${change(lines).join("\n")}\n`));
+    const meta = JSON.parse(readFileSync(join(dir, "run-meta.json"), "utf8"));
+    meta.files["receipts.jsonl.gz"].sha256 = createHash("sha256").update(readFileSync(file)).digest("hex");
+    writeFileSync(join(dir, "run-meta.json"), JSON.stringify(meta));
+  };
+  const build = (runsDir: string) => () =>
+    buildRunPages(mkdtempSync(join(scratch, "out-")), { runsDir, cases: [spec] });
+
+  it("builds from an untouched copy", () => {
+    expect(build(fresh())()).toContain(`${spec.slug}.html`);
+  });
+
+  it("fails when a run file is missing", () => {
+    const runs = fresh();
+    unlinkSync(join(runs, spec.runId, "trace.jsonl.gz"));
+    expect(build(runs)).toThrow(RecordedRunError);
+  });
+
+  it("fails when a receipt the trace names is missing", () => {
+    const runs = fresh();
+    const id = receiptOf();
+    rewriteReceipts(runs, (lines) => lines.filter((l) => !l.includes(`"receipt_id":"${id}"`)));
+    expect(build(runs)).toThrow(/is not in receipts\.jsonl\.gz/);
+  });
+
+  it("fails when a receipt was changed after it was signed", () => {
+    const runs = fresh();
+    const id = receiptOf();
+    rewriteReceipts(runs, (lines) =>
+      lines.map((l) => {
+        if (!l.includes(`"receipt_id":"${id}"`)) return l;
+        const env = JSON.parse(l);
+        env.body.receipt.app = "changed-after-signing";
+        return JSON.stringify(env);
+      }),
+    );
+    expect(build(runs)).toThrow(/does not verify \(invalid/);
+  });
+
+  it("fails when a run file no longer matches the hash its export recorded", () => {
+    const runs = fresh();
+    const file = join(runs, spec.runId, "trace.jsonl.gz");
+    writeFileSync(
+      file,
+      gzipSync(gunzipSync(readFileSync(file)).toString("utf8").replace("model_answer", "model_answr")),
+    );
+    expect(build(runs)).toThrow(/does not match the sha256/);
+  });
+});
