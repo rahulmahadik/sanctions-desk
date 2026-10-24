@@ -5,7 +5,7 @@ import {
   type OwnershipStatus,
   type PartyComparison,
 } from "@sanctions-desk/data";
-import { evaluateOwnership, type OwnershipResult, type OwnershipRow } from "@sanctions-desk/engines";
+import { type OwnershipResult, type OwnershipRow, OwnershipWorld } from "@sanctions-desk/engines";
 import type { QueryEvidenceInput } from "@sanctions-desk/shared";
 import { quoteLiteral, type UslModel } from "@sanctions-desk/zetaris";
 import type { DqFinding, EvidenceBundle } from "./evidence.js";
@@ -15,9 +15,10 @@ import { type AgentDeps, clientFor, type Row } from "./types.js";
 /**
  * The Ownership step: who owns the customer, how much each listed owner effectively holds, whether blocked parties
  * own it at or above the policy threshold under the 50 percent rule (counted as a cascade), and so whether the
- * threshold is reached. The register is read level by level through Zetaris; the arithmetic (the cascade, chains
- * multiply, paths add, exactly the threshold counts, a missing percentage is unknown, loops end) is the ownership
- * engine's.
+ * threshold is reached. The register is read level by level through Zetaris and written into the World Model, with
+ * provenance and a validity date per row; the rule is evaluated on what the World Model gives back. The arithmetic
+ * (the cascade, chains multiply, paths add, exactly the threshold counts, a missing percentage is unknown, loops
+ * end) is the ownership engine's.
  */
 
 export interface OwnershipEvidence {
@@ -105,7 +106,9 @@ export async function gatherOwnership(
     for (const id of frontier) seen.add(id);
   }
 
-  const result = evaluateOwnership(rows.map(asOwnershipRow), [], customerId, {
+  const world = new OwnershipWorld(`ownership:${customerId}`);
+  await world.load(rows.map(asOwnershipRow));
+  const result = world.evaluate(customerId, {
     thresholdPercent: deps.policy.ownership.thresholdPercent,
     aggregate: deps.policy.ownership.aggregate,
     maxChainDepth: deps.policy.ownership.maxChainDepth,
@@ -122,6 +125,7 @@ export async function gatherOwnership(
       blocked: result.blockedEntities,
       loops: result.loops.length,
       depth_limit: result.depthLimitReached,
+      world_model: { rows: world.rows().length, audit_events: world.auditLength() },
     },
   });
   return { result, rows, status };

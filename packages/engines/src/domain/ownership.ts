@@ -22,8 +22,8 @@ import { type Relationship, WorldModel } from "../world-model/index.js";
  *
  * Why a plain computation and not the World Model's own traversal: the arithmetic needs every separate
  * path with its own product, but the engine's traversal visits each entity once. The World Model is used
- * here as the store of record instead (OwnershipWorld): every edge is written with provenance and a
- * validity date, so the ownership picture can be read as of a past date.
+ * as the store of record instead (OwnershipWorld): every edge is written with provenance and a validity
+ * date, so the ownership picture can be read as of a past date, and the review evaluates what it reads back.
  */
 
 /** One register row. These are the columns of the beneficial_owner table; every value is a string, as Zetaris returns it. */
@@ -374,6 +374,9 @@ export function evaluateOwnership(
 }
 
 const OWNED_BY = "owned-by";
+/** The validity date used when a register row has no readable date; such a row counts at every date. */
+const UNDATED = "1970-01-01T00:00:00.000Z";
+const dayStart = (asOf: string): string => (/^\d{4}-\d{2}-\d{2}$/.test(asOf) ? `${asOf}T00:00:00.000Z` : UNDATED);
 const partyId = (id: string): string => `party:bank:${id}`;
 const plainId = (id: string): string => id.replace(/^party:bank:/, "");
 
@@ -391,7 +394,7 @@ export class OwnershipWorld {
 
   async load(rows: readonly OwnershipRow[], links: readonly ControlLink[] = []): Promise<void> {
     for (const row of rows) {
-      const source = { kind: "pipeline", by: "ownership", at: `${row.as_of}T00:00:00.000Z` };
+      const source = { kind: "pipeline", by: "ownership", at: dayStart(row.as_of) };
       await this.world.upsertEntity({ type: "party", externalKey: { system: "bank", id: row.owned_party_id }, source });
       await this.world.upsertEntity({
         type: "party",
@@ -411,6 +414,8 @@ export class OwnershipWorld {
           pct: row.ownership_pct,
           kind: row.owner_party_kind,
           name: row.owner_name,
+          // The register's own date, kept as it was read, so the rows read back are the rows written.
+          as_of: row.as_of,
         },
         validFrom: source.at,
         source,
@@ -446,7 +451,7 @@ export class OwnershipWorld {
           owner_party_kind: attrs.kind as OwnershipRow["owner_party_kind"],
           owner_name: String(attrs.name ?? ""),
           ownership_pct: (attrs.pct as string | null) ?? null,
-          as_of: (r.validFrom ?? "").slice(0, 10),
+          as_of: typeof attrs.as_of === "string" ? attrs.as_of : (r.validFrom ?? "").slice(0, 10),
         };
       });
   }

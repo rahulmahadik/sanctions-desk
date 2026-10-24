@@ -353,6 +353,19 @@ describe("OwnershipWorld", () => {
     expect(world.evaluate("CUST-1", OPTIONS)).toEqual(evaluateOwnership(rows, links, "CUST-1", OPTIONS));
   });
 
+  it("reads back exactly the rows written, including undated rows, and evaluates them the same way", async () => {
+    const odd = [
+      row("CUST-1", "EXT-1", "70", "external", ""),
+      row("EXT-1", "OFAC-1", "60", "listed", "2026-02-01"),
+      row("EXT-1", "OFAC-1", "65", "listed", ""),
+      row("CUST-1", "OFAC-2", null, "listed", "not a date"),
+    ];
+    const world = new OwnershipWorld("odd");
+    await world.load(odd);
+    expect(world.rows()).toEqual(odd);
+    expect(world.evaluate("CUST-1", OPTIONS)).toEqual(evaluateOwnership(odd, [], "CUST-1", OPTIONS));
+  });
+
   it("answers as of a past day", async () => {
     const world = new OwnershipWorld();
     await world.load(rows);
