@@ -56,6 +56,15 @@ export const RECORDED_CASES: readonly RecordedCase[] = [
       "An ownership chain: the decision step proposed a close three times, the critic sent it back each time, and the guard escalated it because the critic's objection was still open.",
   },
   {
+    slug: "alr-0030",
+    runId: "sys2b-routed-20261023T195504Z",
+    caseId: "EX-030",
+    caseFile: "eval/cases/exam.json",
+    shows:
+      "A data-quality rule blocks a close: the customer has no date of birth on record, so the Zetaris rule dob_present_for_individuals fails, the policy guard blocks any close, and the case goes to a person as need more information.",
+    example: "need-more-info-critic-sent-back",
+  },
+  {
     slug: "alr-0058",
     runId: "sys2b-routed-20261023T195504Z",
     caseId: "EX-051",
