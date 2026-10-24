@@ -41,6 +41,7 @@ export type GuardCode =
   | "unrecognised_table"
   | "no_table"
   | "unsupported_statement"
+  | "select_star"
   | "agent_scope";
 
 const DEFAULT_MAX_LENGTH = 4000;
@@ -188,6 +189,15 @@ function reject(code: GuardCode, reason: string): GuardVerdict {
 }
 
 const isPunct = (t: Token | undefined, value: string): boolean => t?.kind === "punct" && t.value === value;
+
+/**
+ * A `*` is a wildcard (every column) right after SELECT, DISTINCT or ALL, after a comma in the select list, or after
+ * `alias.`. After an opening bracket (`COUNT(*)`) or a value (`a * b`) it is not.
+ */
+const isWildcard = (before: Token | undefined): boolean =>
+  (before?.kind === "word" && ["select", "distinct", "all"].includes(before.value)) ||
+  isPunct(before, ",") ||
+  isPunct(before, ".");
 const isWord = (t: Token | undefined, value?: string): boolean =>
   t?.kind === "word" && (value === undefined || t.value === value);
 
@@ -468,6 +478,12 @@ function guardSelect(text: string, tokens: readonly Token[], options: GuardOptio
   const allowed = new Set(options.allowedTables.map((t) => t.toLowerCase()));
   const outside = tables.find((table) => !allowed.has(table));
   if (outside) return reject("table_not_allowed", `table "${outside}" is not in the allowed list`);
+  if (tokens.some((t, k) => isPunct(t, "*") && isWildcard(tokens[k - 1]))) {
+    return reject(
+      "select_star",
+      "SELECT * is not allowed: name the columns, so a denied column is never read by accident",
+    );
+  }
   return { ok: true, kind: "select", sql: text, tables: [...new Set(tables)] };
 }
 
