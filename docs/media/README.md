@@ -35,7 +35,7 @@ Alert **ALR-0073** (exam case EX-064): a payment whose counterparty name equals 
 SAMPLE_MODE=true npm run -s case -- input_examples/run-ALR-0073.json
 ```
 
-In sample mode the local screener step flags `sanctioned_jurisdiction_link` at `payment.payment_reference:34-40` ("Tehran", grounded), the decision is ESCALATE_L2, the critic approves and the policy guard keeps it; the analyst approves with the evidence shown. In the recorded live run of the first system, the decision first recommended a close at 0.95, the critic approved it, and the policy guard blocked it on the watched jurisdiction: see the README's [One real trace](../../README.md#one-real-trace).
+In sample mode the local screener step flags `sanctioned_jurisdiction_link` at `payment.payment_reference:34-40` ("Tehran", grounded), the decision is ESCALATE_L2, the critic approves and the policy guard keeps it; the analyst approves with the evidence shown. In the recorded live run of the first system, the decision first recommended a close at 0.95, the critic approved it, and the policy guard blocked it on the watched jurisdiction: see [One real trace](../EVALUATION.md#one-real-trace) in docs/EVALUATION.md.
 
 ## Demo clip: a decision re-opened after a list change
 

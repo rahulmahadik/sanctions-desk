@@ -15,3 +15,9 @@ What this shows: the application around the models is not the bottleneck. A full
 **Bounds that keep a run short.** Every model call has a timeout; the critic gets at most three rounds; one review runs per alert at a time (a second request for the same alert is answered, not queued); a 429 from the model service is waited out three times (3, 6 and 12 seconds) before the step's own fallback takes over; a case that exceeds ten minutes in the exam runner is abandoned and recorded as an error.
 
 **Exam timing** (live, model-backed) is measured per run and reported in `eval/REPORT.md`: median and p95 seconds per case, by path (confirm or reason), with the model cost under the configured unit costs.
+
+## How long a run takes
+
+**Sample mode, no model calls** (saved Zetaris answers and the rules stand-in; the desk's own code only), a recent Apple silicon laptop, Node 26, 50 alerts, three repeats each, 0 errors: one at a time, a median of 4 to 5 ms and a p95 of 7 to 10 ms per alert; five at a time, a median of 20 to 23 ms and a p95 of about 36 ms, about 12,500 to 13,500 alerts a minute. The API's limits were raised for this test (`RATE_LIMIT_REVIEWS`, `RATE_LIMIT_WRITES`, `RATE_LIMIT_REVIEWS_IN_FLIGHT=5`); by default it runs at most 4 reviews at once and refuses more. Script: `tools/load-sample.mjs`.
+
+**Live, with the models:** the current system's newest run (held-out v4, 12 alerts) took a median of 45 seconds per alert; most of it is the cloud model.

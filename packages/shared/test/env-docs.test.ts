@@ -36,16 +36,16 @@ function envNamesInCode(): string[] {
 describe("environment variables are documented", () => {
   const names = envNamesInCode();
   const example = readFileSync(join(root, ".env.example"), "utf8");
-  const readme = readFileSync(join(root, "README.md"), "utf8");
+  const readme = readFileSync(join(root, "docs/CONFIGURATION.md"), "utf8");
 
   it("finds the variables the code reads", () => {
     expect(names).toContain("ZETARIS_API_KEY");
     expect(names.length).toBeGreaterThan(15);
   });
 
-  it.each(names)("%s is in .env.example and in the README", (name) => {
+  it.each(names)("%s is in .env.example and in docs/CONFIGURATION.md", (name) => {
     expect(example).toMatch(new RegExp(`^${name}=`, "m"));
-    // The README groups related names, e.g. `ZETARIS_TOKEN_EVIDENCE`, `_REVIEWER`, `_EVAL`.
+    // The configuration table groups related names, e.g. `ZETARIS_TOKEN_EVIDENCE`, `_REVIEWER`, `_EVAL`.
     const last = name.slice(name.lastIndexOf("_"));
     expect(readme.includes(name) || readme.includes(`\`${last}\``)).toBe(true);
   });

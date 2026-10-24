@@ -44,9 +44,9 @@ Every call records the mode asked for, the model that answered, the app identity
 
 ## 4. NVIDIA Nemotron: where it contributes, and how to check which model answered
 
-Two Nemotron models do the language work: **Nemotron 3 Ultra 550B** (served in the cloud) and **Nemotron 3.5 Lightning 30B** (served on a local laptop). The decision, the critic and the challenger are Ultra answers for the most part; the safety guard is Lightning, locally. The split is a measurement from the receipts, not a setting, and it is in the exam report and the README for each run.
+Two Nemotron models do the language work: **Nemotron 3 Ultra 550B** (served in the cloud) and **Nemotron 3.5 Lightning 30B** (served on a local laptop). The decision, the critic and the challenger are Ultra answers for the most part; the safety guard is Lightning, locally. The split is a measurement from the receipts, not a setting, and it is in the exam report for each run and in [MODELS.md](MODELS.md#app-binds-used-in-the-final-runs).
 
-**Check which model served each call, in three commands** (details in [the README](../README.md#check-which-model-served-each-call)):
+**Check which model served each call, in three commands** (details in [MODELS.md](MODELS.md#check-which-model-served-each-call)):
 
 ```bash
 npm ci

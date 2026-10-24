@@ -224,6 +224,38 @@ ALTER TABLE customer ROW FILTER FOR ROLE role_desk_emea WHERE desk = 'EMEA';
 - **The mock:** `npm run usl:policy` ([access-proposal.ts](../packages/zetaris/src/access-proposal.ts), with tests) reads that file and prints, for each statement, how it is done on the platform today: by SQL (it prints the real `CREATE ROLE` and 14 `GRANT` statements), by REST, or only in the interface (the mask and the row filter, which it never attempts). `--apply` would run the SQL steps only, and we have not used it, because creating roles and grants needs approval and a rebuild would wipe the access screens. Of the 10 proposed statements, 6 can be done in SQL today and 4 cannot.
 - **A result:** `npm run usl:policy -- --demo` ([RESULT.txt](../zetaris/proposals/RESULT.txt)) applies the proposal's mask and filter to real synthetic rows read through Zetaris: identifier numbers come out as `*******37` (9 characters), and a filter `desk = 'EMEA'` leaves 2 of the first 5 customers (114 of 340 customers are EMEA). That is what the platform would do natively; the mock does it in our code only to show the shape.
 
+## Zetaris at a glance
+
+Zetaris is the only data path. Three kinds of source meet in one Unified Semantic Layer (`lightning.metastore.sanctions.screening_usl`, 14 tables):
+- **list files** in the Zetaris file store (OFAC and UN sample, business definitions),
+- a **Postgres bank database** over JDBC with a read-only login (customers, ownership, alerts, earlier decisions),
+- a **payments service** read as a REST table. The first system's runs read it live (the Zetaris cache of that table had been lost); the changed system's runs read it from the Zetaris cache, verified by stopping the service.
+
+The agents read the model's own description at run time and build their read-only tools from it; each agent is limited by our SQL guard to its own tables and columns; failing data-quality records cannot support a close (one documented exception for a missing date of birth, in [docs/ZETARIS.md](#how-the-desk-uses-zetaris)); every query id is matched to Zetaris's own statement history. Zetaris checklist, item by item (sources and queries 1a to 1c, comparison with hand-coding 2a, benefit 2b, requirement and mock 2c): [docs/ZETARIS.md](#zetaris-checklist). Runnable proofs: `npm run zetaris:queries`, `npm run zetaris:usl`, `npm run compare:hand-coded`, `npm run usl:policy -- --demo`. Access control and the problems met: [Access control](#access-control) and [docs/KNOWN_ISSUES.md](KNOWN_ISSUES.md). Query plans: [docs/QUERY_PLANS.md](QUERY_PLANS.md).
+
+Before a customer note counts as documentary evidence, the system checks in Zetaris that the document number it cites is on the customer's record: a count query under the evidence agent's read-only identity, the same way as the identifier match. No model sees the number; only a yes or no comes back, and a number that is not on file sends the case to "need more information" with that reason shown.
+
+**In the Zetaris console** (read-only screenshots, 24 Oct 2026; the admin login is blurred):
+
+<table>
+<tr>
+<td width="50%"><img src="media/console/zetaris-semantic-layer.png" alt="Zetaris semantic layer screening_usl: 14 tables, all active, with their relationships"></td>
+<td width="50%"><img src="media/console/zetaris-data-quality.png" alt="Zetaris data-quality rules for screening_usl: 37 rules, for example a date of birth present for individuals"></td>
+</tr>
+<tr>
+<td>The semantic layer <code>screening_usl</code>: 14 tables, all active</td>
+<td>37 data-quality rules on it; a failing rule cannot support a close</td>
+</tr>
+<tr>
+<td><img src="media/console/zetaris-access-control.png" alt="Zetaris access control: the roles ROLE_EVIDENCE_AGENT, ROLE_REVIEWER and ROLE_EVAL assigned to the semantic layer"></td>
+<td><img src="media/console/zetaris-column-access.png" alt="Zetaris column access on customer_identifier: the mask_id_number policy for ROLE_EVIDENCE_AGENT hides id_number"></td>
+</tr>
+<tr>
+<td>The three agent roles assigned to the semantic layer</td>
+<td>Column access on <code>customer_identifier</code>: <code>id_number</code> hidden for the evidence role (configured; this local edition does not enforce it, so the application masks it as well)</td>
+</tr>
+</table>
+
 ## Supporting detail
 
 What follows is reference for the parts of the setup the checklist items above refer to.

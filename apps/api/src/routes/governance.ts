@@ -163,7 +163,7 @@ export const governanceRoutes: FastifyPluginAsync<GovernanceOptions> = async (ap
       limits: [
         "Synthetic data only; not tested on a bank's real alerts.",
         "Most decision and critic calls are answered by a cloud model; real customer data would need a decision on what may leave the machine.",
-        "Fairness across name origins and languages is only partly measured (see the README).",
+        "Fairness across name origins and languages is only partly measured (see Responsible AI in docs/GOVERNANCE.md).",
         "The exam's labels and the rules share the same definitions.",
         "Ratings on this page are a self-assessment.",
       ],

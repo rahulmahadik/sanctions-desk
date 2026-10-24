@@ -17,6 +17,7 @@ import { gunzipSync, gzipSync } from "node:zlib";
 import { loadConfig, projectRoot, resolveProjectPath } from "@sanctions-desk/shared";
 // @ts-expect-error plain JavaScript module shared with the repository scan
 import { matches, REDACTIONS } from "../scripts/redaction-patterns.mjs";
+import { formatMarkdown } from "./lib/format-markdown.js";
 
 const root = projectRoot();
 const envFile = join(root, ".env");
@@ -189,27 +190,27 @@ if (problems.length > 0) {
   console.error(`evidence export FAILED:\n${problems.map((p) => `  ${p}`).join("\n")}`);
   process.exit(1);
 }
-// The README links the receipt log of each exported run, with the command that checks it; only an export to the
-// committed eval/runs does this, so an export to another folder (as the tests make) never rewrites the README.
-const readmePath = resolveProjectPath("README.md");
-const readme = readFileSync(readmePath, "utf8");
+// docs/MODELS.md links the receipt log of each exported run, with the command that checks it; only an export to the
+// committed eval/runs does this, so an export to another folder (as the tests make) never rewrites the doc.
+const docPath = resolveProjectPath("docs/MODELS.md");
+const doc = readFileSync(docPath, "utf8");
 const RS = "<!-- receipts:start -->";
 const RE = "<!-- receipts:end -->";
 const intoCommitted = outRoot === resolveProjectPath("eval/runs");
-if (intoCommitted && readme.includes(RS) && readme.includes(RE) && summary.length > 0) {
+if (intoCommitted && doc.includes(RS) && doc.includes(RE) && summary.length > 0) {
   const block = [
     RS,
     "| Run | Receipts | Receipt log | Check it |",
     "| --- | ---: | --- | --- |",
     ...summary.map(
       (s) =>
-        `| \`${s.id}\` | ${s.receipts} | [eval/runs/${s.id}/receipts.jsonl.gz](eval/runs/${s.id}/receipts.jsonl.gz) | \`npm run evidence:verify -- eval/runs/${s.id}\` |`,
+        `| \`${s.id}\` | ${s.receipts} | [eval/runs/${s.id}/receipts.jsonl.gz](../eval/runs/${s.id}/receipts.jsonl.gz) | \`npm run evidence:verify -- eval/runs/${s.id}\` |`,
     ),
     "",
     "`npm run evidence:verify` with no argument checks every run: each signature, that every model call has a receipt, and that the model in the trace equals the model in the receipt.",
     RE,
   ].join("\n");
-  writeFileSync(readmePath, readme.replace(new RegExp(`${RS}[\\s\\S]*?${RE}`), block));
+  writeFileSync(docPath, formatMarkdown(doc.replace(new RegExp(`${RS}[\\s\\S]*?${RE}`), block), docPath));
 }
 const total = summary.reduce((t, s) => t + s.bytes, 0);
 for (const s of summary)

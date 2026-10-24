@@ -34,7 +34,7 @@ export function Help() {
       <Section id="help-start">
         <p>
           Sample mode needs Docker and nothing else: <code>SAMPLE_MODE=true docker compose up --build</code>, then open
-          http://localhost:3001. To run it live, see Run it live in the README. The full guide is{" "}
+          http://localhost:3001. To run it live, see Run it live in docs/SETUP.md. The full guide is{" "}
           <code>docs/USER_GUIDE.md</code>.
         </p>
       </Section>

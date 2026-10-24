@@ -32,6 +32,8 @@ jobs:
       # The Meterless conformance suites (vendored) against our engines; the scorecards show in the log.
       - run: npm run test:engines
       - run: npm run readme:refresh -- --check
+      # Every relative link, image and #anchor in the tracked Markdown files resolves.
+      - run: npm run check:links
 
   docker:
     name: Docker image builds

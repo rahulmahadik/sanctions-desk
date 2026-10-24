@@ -4,6 +4,25 @@ The review desk helps a sanctions analyst work screening alerts. For each alert 
 
 The sections follow the order you meet things. The **Help** page in the desk says the same in fewer words.
 
+## Review desk interface
+
+A small Next.js application (`apps/web`) on http://localhost:3001. It works in sample mode and live, and reads everything from the API.
+
+| Screen                          | What it shows                                                                                                                                                                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Alert queue                     | Every alert read through the semantic layer, with the latest recommendation and record hash; filter by type and by reviewed or not                                                                                             |
+| Case: live run                  | The review steps lighting up from the real run events (a server-sent stream, not a timer), the critic's round count against the three allowed, retries on each step, and which model answered each model step and where it ran |
+| Case: evidence                  | The customer, the listed party, the payment route and the data-quality results. Identifier numbers are drawn as `••••`; the API names the masked columns                                                                       |
+| Case: model routing and cost    | Per step: the mode asked for and the model that answered (cloud or local), reasoning budget, time, tokens, signed-receipt status and cost under the configured unit costs, with the measured split of the latest full exam     |
+| Case: decision trace and replay | The four questions answered from the sealed record, and a slider that replays the run as of any recorded event                                                                                                                 |
+| Case: decision and next action  | Approve or override with a reason; the second approval of a block; the prepared next action with its seal; the case file as PDF or Markdown; reopen an automatic close. Which buttons appear depends on the signed-in role     |
+| Policy studio                   | The active policy, drafts, a replay of a draft on the exam, publishing by a different person, the autonomy card and its kill switch, and the audit log                                                                         |
+| Exam results                    | Every held-out round as run with its baselines (the same table as the README), then the 70-case variants with false closes and results by case group                                                                           |
+
+The interface recommends and records. A person with the right role can **approve or override** a recommendation with a reason, and the next action (a closure note, an escalation ticket, a request for information or a hold instruction) is prepared only after that decision; a block needs a second, different approver. Nothing in it blocks an account, writes to a source system or contacts a customer. Roles, demo users and the decision step are described under [People, roles and the decision step](GOVERNANCE.md#people-roles-and-the-decision-step). It respects the visitor's reduced-motion setting (the working step is marked with a double border instead of a pulse) and follows the light or dark theme of the system.
+
+Commands to run and build the interface: [DEVELOPMENT.md](DEVELOPMENT.md#the-review-desk-interface).
+
 ## 1. Start it
 
 Sample mode needs Docker and nothing else. It uses saved real answers and a labelled stand-in model, and no keys.
@@ -12,9 +31,9 @@ Sample mode needs Docker and nothing else. It uses saved real answers and a labe
 SAMPLE_MODE=true docker compose up --build        # the desk on http://localhost:3001, the API on http://localhost:8000
 ```
 
-To check the main claims without Docker or the desk, run `npm ci && npm run prove`. It prints one PASS or FAIL line for each of six checks (a sample review with a sealed record, the engine conformance suites, the signed receipts of the saved runs, the role and four-eyes tests, the preregistered held-out files and a scan for secrets) and a summary, and needs no keys. See [Try it in two minutes](../README.md#try-it-in-two-minutes) in the README.
+To check the main claims without Docker or the desk, run `npm ci && npm run prove`. It prints one PASS or FAIL line for each of six checks (a sample review with a sealed record, the engine conformance suites, the signed receipts of the saved runs, the role and four-eyes tests, the preregistered held-out files and a scan for secrets) and a summary, and needs no keys. See [Quick start](../README.md#quick-start) in the README.
 
-To run it live against Zetaris and Nightshift, follow [Run it live](../README.md#run-it-live) in the README.
+To run it live against Zetaris and Nightshift, follow [Run it live](SETUP.md#run-it-live) in SETUP.md.
 
 ## 2. Choose a demo user
 
@@ -27,7 +46,7 @@ In the top bar, under **Demo user**, choose who you are. Demo users exist only i
 | `approver_demo` | approver (sanctions officer) | everything an analyst can; give the second approval of a block; override towards a less cautious outcome; propose policy changes; stop autonomy |
 | `admin_demo`    | policy admin                 | publish a policy change written by someone else; switch autonomy back on                                                                        |
 
-A live deployment has no demo users. Each person has a token, and the desk asks for it when you open it. See [People, roles and the decision step](../README.md#people-roles-and-the-decision-step) in the README.
+A live deployment has no demo users. Each person has a token, and the desk asks for it when you open it. See [People, roles and the decision step](GOVERNANCE.md#people-roles-and-the-decision-step) in GOVERNANCE.md.
 
 ## 3. The alert queue
 
@@ -113,4 +132,4 @@ Every step is in the audit log under **Versions and changes**.
 | Block approval pending                                  | A block has one approval. A different approver must confirm it.                         |
 | A receipt shows "Not verified"                          | The signature does not match, or the receipt is malformed. Do not rely on that call.    |
 
-More: the failure-handling table in the [README](../README.md#failure-handling) and [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+More: the failure-handling table in [ARCHITECTURE.md](ARCHITECTURE.md#failure-handling) and [KNOWN_ISSUES.md](KNOWN_ISSUES.md).

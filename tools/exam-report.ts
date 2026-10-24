@@ -1,5 +1,6 @@
 /**
- * Build eval/REPORT.md, and the headline block in README.md, from the saved exam results (the newest complete run
+ * Build eval/REPORT.md, the headline and key-results blocks in README.md, the held-out round story in
+ * docs/EVALUATION.md and the binds table in docs/MODELS.md from the saved exam results (the newest complete run
  * of each variant). Nothing here is typed in by hand: every number comes from a results file written by
  * `npm run exam`, apart from the minutes-saved figure, which rests on the assumptions in `config/default.json`
  * (`report`) and says so.
@@ -26,6 +27,7 @@ import {
 } from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
 import { loadConfig, resolveProjectPath } from "@sanctions-desk/shared";
+import { formatMarkdown } from "./lib/format-markdown.js";
 
 interface Features {
   commit?: string;
@@ -1047,27 +1049,10 @@ const examCloses = get("rules")
 if (head && full && readme.includes(START) && readme.includes(END)) {
   const block = [
     START,
-    `**Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails it escalates instead of closing. On the 70-case exam (the cases the rules were written for) the full system wrongly closed ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases, against ${get("fuzzy")?.metrics.false_closes ?? "not run"} for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: ${heldoutWrong.join("; ")}. Each round, what it found and what was changed after it are in the table below. **No claim of clearing alerts beyond the rules:** ${examCloses}, and across the blind held-out rounds it made ${heldoutClears} correct clear${heldoutClears === 1 ? "" : "s"}, against ${heldoutRulesClears} for the deterministic rules (which also close risk cases there). Every figure is one run. Details: [eval/REPORT.md](eval/REPORT.md).`,
+    `**Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails it escalates instead of closing. On the 70-case exam (the cases the rules were written for) the full system wrongly closed ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases, against ${get("fuzzy")?.metrics.false_closes ?? "not run"} for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: ${heldoutWrong.join("; ")}. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** ${examCloses}, and across the blind held-out rounds it made ${heldoutClears} correct clear${heldoutClears === 1 ? "" : "s"}, against ${heldoutRulesClears} for the deterministic rules (which also close risk cases there). Every figure is one run. Details: [eval/REPORT.md](eval/REPORT.md).`,
     END,
   ].join("\n");
   writeFileSync(readmePath, readme.replace(new RegExp(`${START}[\\s\\S]*?${END}`), block));
-}
-// The README carries the measured split between two markers as well.
-const readmeNow = readFileSync(readmePath, "utf8");
-const RS = "<!-- routing:start -->";
-const RE = "<!-- routing:end -->";
-if (full && readmeNow.includes(RS) && readmeNow.includes(RE)) {
-  const split = routingSplit(resolveProjectPath(config.logging.dir), full.variant, full.started_at);
-  if (split.rows.length > 0) {
-    const block = [
-      RS,
-      `Measured in the full exam run of ${full.started_at.slice(0, 10)}, from the signed receipts (the model that served each call; Nightshift's learned router decides this, we only ask for a pinned mode):`,
-      "",
-      ...splitTable(split),
-      RE,
-    ].join("\n");
-    writeFileSync(readmePath, readmeNow.replace(new RegExp(`${RS}[\\s\\S]*?${RE}`), block));
-  }
 }
 // docs/MODELS.md carries the same split under the binds used in the final runs.
 const modelsPath = resolveProjectPath("docs/MODELS.md");
@@ -1087,11 +1072,12 @@ if (full && modelsDoc.includes(BS) && modelsDoc.includes(BE)) {
       ...splitTable(split),
       BE,
     ].join("\n");
-    writeFileSync(modelsPath, modelsDoc.replace(new RegExp(`${BS}[\\s\\S]*?${BE}`), block));
+    writeFileSync(modelsPath, formatMarkdown(modelsDoc.replace(new RegExp(`${BS}[\\s\\S]*?${BE}`), block), modelsPath));
   }
 }
 
-// The "Start here" section carries the headline numbers between two markers as well.
+// The README's key results carry the headline numbers and every held-out round between two markers; what each round
+// found and what was changed after it is in docs/EVALUATION.md, between its own pair of markers.
 const JS = "<!-- rounds:start -->";
 const JE = "<!-- rounds:end -->";
 const readmeRounds = readFileSync(readmePath, "utf8");
@@ -1104,15 +1090,27 @@ if (full && readmeRounds.includes(JS) && readmeRounds.includes(JE)) {
     `| Round | ${ROUND_COLUMNS.map((c) => ROUND_COLUMN_LABEL[c]).join(" | ")} |`,
     `|---|${ROUND_COLUMNS.map(() => "---").join("|")}|`,
     ...roundRows,
-    "",
+  ];
+  const block = [JS, ...rows, JE].join("\n");
+  writeFileSync(readmePath, readmeRounds.replace(new RegExp(`${JS}[\\s\\S]*?${JE}`), block));
+}
+const evaluationPath = resolveProjectPath("docs/EVALUATION.md");
+const evaluationDoc = readFileSync(evaluationPath, "utf8");
+const SS = "<!-- round-story:start -->";
+const SE = "<!-- round-story:end -->";
+if (full && evaluationDoc.includes(SS) && evaluationDoc.includes(SE)) {
+  const rows = [
     "- **What each round found and what changed after it:**",
     "",
     "| Round | System tested | What it found | What changed after |",
     "|---|---|---|---|",
     ...storyRows,
   ];
-  const block = [JS, ...rows, JE].join("\n");
-  writeFileSync(readmePath, readmeRounds.replace(new RegExp(`${JS}[\\s\\S]*?${JE}`), block));
+  const block = [SS, ...rows, SE].join("\n");
+  writeFileSync(
+    evaluationPath,
+    formatMarkdown(evaluationDoc.replace(new RegExp(`${SS}[\\s\\S]*?${SE}`), block), evaluationPath),
+  );
 }
 console.log(
   `wrote eval/REPORT.md from ${have.length} variant(s)${notRun.length ? `; not run: ${notRun.join(", ")}` : ""}`,

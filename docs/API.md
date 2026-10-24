@@ -67,6 +67,51 @@ TRACE_STDOUT_PRETTY=false npm run -s case -- input_examples/run-ALR-0004.json | 
 
 The file holds the same body as `POST /run`. The command runs the `/run` route inside the process (no server, no sign-in step), prints one JSON object with `run_id`, `status`, `decision`, `confidence`, `agents`, `trace_id`, `log_file`, `record_hash`, `execution_time_seconds` and `sample_mode`, and exits with a non-zero code and `{"error": {"type", "message"}}` when the review could not run. See [input_examples/README.md](../input_examples/README.md).
 
+### Run one case
+
+One review from the command line, without the interface or a server. The request file holds the same body as `POST /run`; with `SAMPLE_MODE=true` no service or key is needed.
+
+```bash
+npm install
+SAMPLE_MODE=true npm run -s case -- input_examples/run-ALR-0004.json
+```
+
+The same review over HTTP, with the API running in sample mode (`SAMPLE_MODE=true npm run dev`, or `SAMPLE_MODE=true docker compose up --build`):
+
+```bash
+curl -s localhost:8000/run -H 'content-type: application/json' -d @input_examples/run-ALR-0004.json
+```
+
+While it runs, `npm run case` prints one short line per step (time, agent, action, status, summary, receipt id; turn off with `TRACE_STDOUT_PRETTY=false`), then one JSON object. Shape of the answer (values from a sample-mode run; `POST /run` returns these fields and more):
+
+```json
+{
+  "run_id": "ae3c6311-1d7f-4718-9a8d-52bae7447275",
+  "status": "ok",
+  "decision": "CLOSE_FALSE_POSITIVE",
+  "confidence": 0.85,
+  "agents": [
+    "triage",
+    "evidence",
+    "screener",
+    "matching",
+    "memory",
+    "decision",
+    "critic",
+    "challenger",
+    "policy_guard",
+    "reporter"
+  ],
+  "trace_id": "ae3c6311-1d7f-4718-9a8d-52bae7447275",
+  "log_file": "logs/trace-ae3c6311-1d7f-4718-9a8d-52bae7447275.jsonl",
+  "record_hash": "f7c9ecf5702f91183f60c8a58ff01f95ae41c3f211f785773e69e567be67d9ff",
+  "execution_time_seconds": 0.026,
+  "sample_mode": true
+}
+```
+
+A review that cannot run prints `{"status": "error", ..., "error": {"type": "...", "message": "..."}}` and exits with a non-zero code. The request files and the kind of outcome each one gives are in [input_examples/README.md](../input_examples/README.md).
+
 ### Trace lines
 
 Each line of `logs/trace-<run_id>.jsonl` is one event. Besides the event's own fields it always carries `run_id`, `timestamp` (same value as `ts`), `agent_name` (same as `agent`), `action`, `status`, `input_summary`, `output_summary`, `target_agent`, `confidence`, `retry_count` and `model` (the model that answered, when the event is a model call), each `null` when it does not apply. Model calls also carry `provider`, `model_requested`, `model_used`, `route_kind`, `latency_ms`, tokens and the signed Nightshift `receipt`; data reads carry `zetaris_query_id`. With `TRACE_STDOUT_PRETTY=true` the process prints one short line per event (time in UTC, agent, action, status, summary, receipt id) instead of the JSON line.
@@ -129,3 +174,36 @@ A draft is published by a different person than the proposer (four-eyes); a publ
 ## Cross-origin use
 
 The review desk interface calls the API from the browser. Only the origins listed in `WEB_ORIGINS` receive cross-origin headers; any other origin is ignored.
+
+## The decision trace
+
+`GET /cases/:alertId/trace` (or `/runs/:runId/trace`) answers four questions from the sealed record, and says if the record no longer verifies:
+
+| Question                               | Answer in the trace                                                                                                                                                                           |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Which approved definition was applied? | `definitions`: id, version and a hash of the wording                                                                                                                                          |
+| What data is it based on?              | `data`: model version, list snapshots, every query (id, statement hash, rows, latency, cache hit), row hashes                                                                                 |
+| Who was allowed to see what?           | `access`: the role of each query, whether it ran under its own token or the labelled fallback, the masked columns, the policy version and hash                                                |
+| What did it cost to produce?           | `cost`: per call the mode asked for, the model that answered, reasoning budget, tokens, latency, receipt status; Zetaris query time and rows; totals and cost under the configured unit costs |
+
+## Routes at a glance
+
+Interactive description at `http://localhost:8000/docs` (Swagger UI), and worked examples in [docs/API.md](#api).
+
+Errors have one shape: `{ "status": "error", "request_id": "...", "error": { "type", "message", "recoverable" } }`.
+
+| Method and path                                                                                    | Purpose                                                                                                                                                                                                                |
+| -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /health`, `GET /health/dependencies`                                                          | Liveness; readiness of Nightshift and Ollama.                                                                                                                                                                          |
+| `POST /run`                                                                                        | Review one alert by `alert_id` (customer name, ownership or payment alert). Returns the recommendation, rationale, citations, `what_would_change`, agents, model ledger, guard verdicts, critic result, `record_hash`. |
+| `GET /cases/:alertId/trace`, `GET /runs/:runId/trace`                                              | The decision trace; add `?audit=true` to match queries with Zetaris's history.                                                                                                                                         |
+| `GET /runs/:runId/events`                                                                          | The recorded events of a run.                                                                                                                                                                                          |
+| `POST /list-change/replay`                                                                         | Earlier decisions against the list as it is now: cases to re-open, parties to release, portfolio impact.                                                                                                               |
+| `POST /guard/outbound`                                                                             | Check a draft meant for a customer; refuses anything that reveals screening or an investigation.                                                                                                                       |
+| `GET /policy`, `/policy/versions`, `/policy/versions/:v`, `/policy/audit`                          | The versioned policy.                                                                                                                                                                                                  |
+| `POST /policy/drafts`, `/policy/reload`, `/policy/rollback`                                        | Propose a policy change: a full policy, the policy file read again, or an earlier version. Validated against the policy schema, which fixes the hard limits.                                                           |
+| `POST /policy/drafts/:version/publish`, `/discard`                                                 | A second person publishes a draft (four-eyes); the next run uses it without a restart, and a run in progress keeps the version it started with.                                                                        |
+| `POST /policy/whatif`                                                                              | Review exam cases under the active policy and under a draft, and list what changes, including any case the draft would newly close that the exam says must never be closed. Saves nothing.                             |
+| `GET /alerts`, `GET /runs/:id/stream`, `GET /cases/:id/record`, `/cases/:id/evidence`, `GET /exam` | What the review desk interface reads: the queue, a live event stream, the sealed record, the masked facts, the exam results.                                                                                           |
+
+A review writes `logs/trace-<run>.jsonl` (one JSON event per step), the sealed `logs/records/<record>.json` and the signed receipts under `logs/receipts/`.

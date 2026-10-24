@@ -1,13 +1,14 @@
 /**
- * Write the README's "One real trace" block from a committed output example: real trace lines, the guard verdict that
- * blocked, the final outcome and the human step, copied from the files and never typed in.
+ * Write the "One real trace" block of docs/EVALUATION.md from a committed output example: real trace lines, the guard
+ * verdict that blocked, the final outcome and the human step, copied from the files and never typed in.
  *
  *   npm run readme:trace            # rewrite the block between <!-- realtrace:start --> and <!-- realtrace:end -->
- *   npm run readme:trace -- --check # exit 1 if the README block differs from what the files give
+ *   npm run readme:trace -- --check # exit 1 if the block differs from what the files give
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
+import { formatMarkdown } from "./lib/format-markdown.js";
 
 const EXAMPLE = "output_examples/close-stopped-by-policy-guard";
 /** The decision's first recommendation, the critic's checks and the guard's block, then the seal. */
@@ -69,7 +70,7 @@ const critic =
 
 const block = [
   START,
-  `Case **EX-064** (alert ${record.alert_ref}), first-system run of 23 Oct 2026, copied by \`npm run readme:trace\` from [${EXAMPLE}](${EXAMPLE}) (the same events are in the signed evidence export \`eval/runs/routed-20261023T133311Z\`). The label is ESCALATE_L2; closing it is a must-not.`,
+  `Case **EX-064** (alert ${record.alert_ref}), first-system run of 23 Oct 2026, copied by \`npm run readme:trace\` from [${EXAMPLE}](../${EXAMPLE}) (the same events are in the signed evidence export \`eval/runs/routed-20261023T133311Z\`). The label is ESCALATE_L2; closing it is a must-not.`,
   "",
   "| Seq | Agent | Action | Target | Model (requested → routed) | Status | Summary |",
   "|---:|---|---|---|---|---|---|",
@@ -82,17 +83,17 @@ const block = [
   END,
 ].join("\n");
 
-const readmePath = resolveProjectPath("README.md");
-const readme = readFileSync(readmePath, "utf8");
-if (!readme.includes(START) || !readme.includes(END)) throw new Error("README.md has no realtrace markers");
-const next = readme.replace(new RegExp(`${START}[\\s\\S]*?${END}`), block);
+const docPath = resolveProjectPath("docs/EVALUATION.md");
+const doc = readFileSync(docPath, "utf8");
+if (!doc.includes(START) || !doc.includes(END)) throw new Error("docs/EVALUATION.md has no realtrace markers");
+const next = formatMarkdown(doc.replace(new RegExp(`${START}[\\s\\S]*?${END}`), block), docPath);
 if (process.argv.includes("--check")) {
-  if (next !== readme) {
-    console.error("README.md's real trace block differs from the committed example; run npm run readme:trace");
+  if (next !== doc) {
+    console.error("docs/EVALUATION.md's real trace block differs from the committed example; run npm run readme:trace");
     process.exit(1);
   }
-  console.log("README real trace block matches the committed example");
+  console.log("docs/EVALUATION.md real trace block matches the committed example");
 } else {
-  writeFileSync(readmePath, next);
+  writeFileSync(docPath, next);
   console.log(`wrote the real trace block from ${EXAMPLE}`);
 }
