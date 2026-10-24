@@ -50,6 +50,9 @@ export interface StepView {
   route?: "local" | "cloud" | null;
   latencyMs?: number;
   receiptId?: string;
+  /** The desk's check of the receipt when the call was made (for example valid_pinned). */
+  receiptCheck?: string;
+  provider?: string;
 }
 
 export interface GraphView {
@@ -82,7 +85,12 @@ function applyToStep(step: StepView, event: RunEvent): void {
   if (event.output_summary) step.lastSummary = event.output_summary;
   if (event.model_used) step.model = event.model_used;
   if (event.model_requested) step.requested = event.model_requested;
-  if (event.receipt?.receipt_id) step.receiptId = event.receipt.receipt_id;
+  if (event.model_used) {
+    // Each model answer stands on its own: a later answer without a receipt must not keep an earlier receipt.
+    step.provider = event.provider;
+    step.receiptId = event.receipt?.receipt_id;
+    step.receiptCheck = event.receipt?.verification;
+  }
   if (event.route_kind !== undefined) step.route = event.route_kind;
   if (event.latency_ms !== undefined) step.latencyMs = event.latency_ms;
   // A rejected critic round sends the recommendation back to the decision step: a retry, not a failure.

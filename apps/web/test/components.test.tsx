@@ -133,6 +133,42 @@ describe("RunGraph", () => {
   });
 });
 
+describe("RunGraph, model per step", () => {
+  const MODEL_EVENTS = [
+    ev("system", "run_started"),
+    ev("policy_guard", "model_answer", {
+      provider: "nightshift",
+      model_used: "local-runtime/nemotron-3.5-lightning-30b-a3b",
+      route_kind: "local",
+      receipt: { receipt_id: "rcpt_guard_2", verification: "valid_pinned" },
+    }),
+    ev("decision", "model_answer", {
+      provider: "nightshift",
+      model_used: "nvidia/nemotron-3-ultra-550b-a55b",
+      route_kind: "cloud",
+      receipt: { receipt_id: "rcpt_dec_1", verification: "valid_unpinned" },
+    }),
+    ev("critic", "model_answer", {
+      provider: "ollama",
+      model_used: "nemotron-3.5-lightning:30b",
+      route_kind: "local",
+    }),
+    ev("system", "run_completed"),
+  ];
+
+  it("shows, for every model step, the model that answered and the receipt check", () => {
+    render(<RunGraph view={graphAt(MODEL_EVENTS)} />);
+    expect(screen.getByTestId("model-chip-safety_guard").textContent).toContain("local Lightning 30B");
+    expect(screen.getByTestId("receipt-check-safety_guard").textContent).toBe("signature valid, key pinned");
+    expect(screen.getByTestId("model-chip-decision").textContent).toContain("cloud Ultra 550B");
+    expect(screen.getByTestId("receipt-link-decision").textContent).toContain("rcpt_dec_1");
+    expect(screen.getByTestId("receipt-check-decision").textContent).toBe("signature valid, key from the receipt");
+    expect(screen.getByTestId("model-chip-critic").textContent).toContain("backup local Lightning 30B");
+    expect(screen.queryByTestId("receipt-link-critic")).toBeNull();
+    expect(screen.getByTestId("receipt-check-critic").textContent).toContain("Ollama backup");
+  });
+});
+
 describe("EvidenceCards", () => {
   it("shows identifier numbers as dots and says why", () => {
     render(<EvidenceCards view={EVIDENCE} />);

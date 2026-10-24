@@ -107,6 +107,8 @@ export interface TraceEvent {
   retry_count?: number | null;
   model_requested?: string;
   model_used?: string;
+  /** Who answered: nightshift, ollama (the local backup, no receipt) or fallback-rules (a baseline's stand-in). */
+  provider?: string;
   route_kind?: string;
   latency_ms?: number;
   tokens_in?: number;
@@ -190,6 +192,7 @@ export interface CheckedCall {
   agent: string;
   requested?: string;
   traceModel?: string;
+  provider?: string;
   latencyMs?: number;
   tokensIn?: number;
   tokensOut?: number;
@@ -276,6 +279,7 @@ export function checkCalls(
         agent: e.agent,
         requested: e.model_requested,
         traceModel: e.model_used,
+        provider: e.provider,
         latencyMs: e.latency_ms,
         tokensIn: e.tokens_in,
         tokensOut: e.tokens_out,
@@ -468,11 +472,14 @@ const modelText = (call: CheckedCall) => {
   const r = call.receipt?.route;
   const id = r?.model ?? call.traceModel;
   if (!id) return "none (no model answered)";
+  if (call.provider === "ollama") return `${id} (local, Lightning, the Ollama backup on this machine)`;
   const kind = r?.kind ?? (id.includes("lightning") ? "local" : "cloud");
   const suffix = call.receipt ? "" : "; named by the trace only";
   return `${r?.label ?? id} (${kind === "local" ? "local, Lightning" : "cloud, Ultra"}${suffix})`;
 };
 const checkedText = (call: CheckedCall) => {
+  if (!call.receipt && call.provider === "ollama")
+    return "no receipt: the Ollama backup answered, not through Nightshift";
   if (!call.receipt) return "no receipt recorded for this call";
   return call.receipt.checked === "valid_pinned"
     ? "signature valid, key pinned"

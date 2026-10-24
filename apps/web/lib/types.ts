@@ -47,7 +47,10 @@ export interface RunEvent {
   model_requested?: string;
   model_used?: string;
   route_kind?: "local" | "cloud" | null;
-  receipt?: { receipt_id: string };
+  /** Who answered: "nightshift", "ollama" (the local backup, no receipt) or "fallback-rules" (the sample stand-in). */
+  provider?: string;
+  /** `verification` is the desk's check of the signed receipt when the call was made. */
+  receipt?: { receipt_id: string; verification?: string };
   latency_ms?: number;
   tokens_in?: number;
   tokens_out?: number;

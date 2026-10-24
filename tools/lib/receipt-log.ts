@@ -66,7 +66,7 @@ export function loadRunLog(runDir: string, opts: ReceiptLogOptions = {}): RunLog
     const answers = sorted.filter((e) => e.action === "model_answer");
     const checked = checkCalls(sorted, envelopes, opts.trustedKeys ?? [], `${runId} ${caseId}`);
     checked.forEach((c, i) => {
-      const provider = (answers[i] as TraceEvent & { provider?: string }).provider;
+      const provider = (answers[i] as TraceEvent).provider;
       // The rules stand-in of a baseline variant answers in the same event shape, but it is not a model call.
       if (provider !== "fallback-rules") calls.push({ ...c, caseId, provider });
     });

@@ -39,25 +39,47 @@ export function stoppedSteps(stop: CloseStopView | null | undefined): Record<str
 function ModelChips({ step }: { step: StepView }) {
   if (!step.model) return null;
   const where = step.route ?? "local";
+  const backup = step.provider === "ollama";
   return (
     <div className="state">
-      <span className={`lane-${where}`}>
+      <span className={`lane-${where}`} data-testid={`model-chip-${step.id}`}>
+        {backup ? "backup " : ""}
         {where} {modelName(step.model).replace("Nemotron 3.5 ", "").replace("Nemotron 3 ", "")}
       </span>
       {step.latencyMs !== undefined ? ` · ${seconds(step.latencyMs)}` : ""}
       <div title={step.requested ? `requested ${step.requested}` : undefined}>routed {step.model}</div>
       {step.receiptId ? (
-        <a
-          href={`${API_URL}/receipts/${encodeURIComponent(step.receiptId)}/verify`}
-          target="_blank"
-          rel="noreferrer"
-          data-testid={`receipt-link-${step.id}`}
-        >
-          receipt {step.receiptId}
-        </a>
-      ) : null}
+        <>
+          <a
+            href={`${API_URL}/receipts/${encodeURIComponent(step.receiptId)}/verify`}
+            target="_blank"
+            rel="noreferrer"
+            data-testid={`receipt-link-${step.id}`}
+          >
+            receipt {step.receiptId}
+          </a>
+          <div data-testid={`receipt-check-${step.id}`}>{receiptWords(step.receiptCheck)}</div>
+        </>
+      ) : (
+        <div data-testid={`receipt-check-${step.id}`}>{noReceiptWords(step.provider)}</div>
+      )}
     </div>
   );
+}
+
+/** The desk's receipt check in words. */
+function receiptWords(check?: string): string {
+  if (check === "valid_pinned") return "signature valid, key pinned";
+  if (check === "valid_unpinned") return "signature valid, key from the receipt";
+  if (check === "invalid" || check === "malformed") return `receipt ${check}`;
+  return "receipt not checked yet";
+}
+
+/** Why a model answer has no receipt. */
+function noReceiptWords(provider?: string): string {
+  if (provider === "ollama") return "Ollama backup on this machine: no receipt (not through Nightshift)";
+  if (provider === "fallback-rules") return "sample mode: rules stand-in, not a model";
+  return "no receipt";
 }
 
 function StepNode({ step, reason, finished }: { step: StepView; reason?: string; finished: boolean }) {
