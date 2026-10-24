@@ -63,6 +63,7 @@ Problems met while building this, with what was done about each. Facts only; ver
 
 ## Limits
 
+- **Limitation:** The cloud decision model receives structured personal fields from the case (name, date of birth, nationality); the desk never puts free text in a cloud prompt.
 - The customers, accounts, owners and payments are **synthetic**; only the listed parties are real public entries. The exam measures behaviour on planted situations, not performance on a bank's real alert volume.
 - The approved definitions are written in this repository for the exam, and the exam's labels follow the same definitions. A high score shows consistency with them, not that they are the right ones for a given bank.
 - Each variant in the report is one run. Model answers vary between runs and the runtime may answer a repeated prompt from its cache.
@@ -77,6 +78,7 @@ Problems met while building this, with what was done about each. Facts only; ver
 
 ## Future work
 
+- **Future work:** For deployments that require it, pseudonymise names and identifiers before any cloud call, or keep the decision step local.
 - **A stronger local screener model**, so fewer relationship signals are raised on text that holds no relationship, and correct clears are not held back by the fail-closed rule.
 - **Keep all raw text on the machine.** Today only the local screener reads notes and payment references and the cloud steps get structured signals; a screener answer served by a cloud route is flagged. The next step is to make a local-only route a hard requirement for the screener.
 - A pinned-model run (exact model per step) once Nightshift 1.2.3 is installed, and repeated held-out runs to show the spread between runs.

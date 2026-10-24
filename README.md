@@ -160,6 +160,8 @@ Each step, what it may and may not do, the guardrails and the failure handling: 
 1. The critic does not trust the decision: code re-reads every cited fact from Zetaris before the critic's model sees it, and a fact that does not hold is never approved.
 2. Raw text stays out of the desk's cloud prompts: the local model turns it into risk signals with exact spans, and a signal at or above its threshold blocks a close whether or not its span is grounded.
 3. Every held-out round is published as run, wrong closes included, and every Nightshift answer has a signed receipt that one command re-checks.
+
+**Limitation:** The cloud decision model receives structured personal fields from the case (name, date of birth, nationality); the desk never puts free text in a cloud prompt. **Future work:** For deployments that require it, pseudonymise names and identifiers before any cloud call, or keep the decision step local.
 <!-- sponsors:end -->
 
 Details: [docs/SPONSORS.md](docs/SPONSORS.md), [docs/ZETARIS.md](docs/ZETARIS.md), [docs/MODELS.md](docs/MODELS.md) and [docs/MEMORY.md](docs/MEMORY.md).
@@ -171,6 +173,8 @@ Details: [docs/SPONSORS.md](docs/SPONSORS.md), [docs/ZETARIS.md](docs/ZETARIS.md
 - **The local screener over-flags relationships**, so on the held-out sets the correct clears go to a person: the fail-closed rule (policy version 8) makes every signal at or above its threshold block a close, grounded or not. On held-out v4 that cost all six clears; no risk case was closed.
 - Each variant in the report is one run. Model answers vary between runs and the runtime may answer a repeated prompt from its cache.
 - The customers, accounts, owners and payments are **synthetic**; only the listed parties are real public entries.
+- **Limitation:** The cloud decision model receives structured personal fields from the case (name, date of birth, nationality); the desk never puts free text in a cloud prompt.
+- **Future work:** For deployments that require it, pseudonymise names and identifiers before any cloud call, or keep the decision step local.
 
 More: [Guardrails](docs/ARCHITECTURE.md#guardrails), [Failure handling](docs/ARCHITECTURE.md#failure-handling), [Edge cases](docs/EDGE_CASES.md), [Responsible AI](docs/GOVERNANCE.md#responsible-ai), and [Limits](docs/KNOWN_ISSUES.md#limits), [Not built / not verified](docs/KNOWN_ISSUES.md#not-built--not-verified) and [Future work](docs/KNOWN_ISSUES.md#future-work) in [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md).
 
