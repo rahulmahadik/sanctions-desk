@@ -317,7 +317,7 @@ const firstRecs = FIRST_RUNS.map(([run, label]) => {
     "model-calls",
     page(
       "Which model served each call",
-      "Headline run of the 70-case exam, 23 Oct 2026, from the signed receipts.",
+      "Headline run of the 70-case exam (first system), from the signed receipts.",
       body,
       "eval/runs/routed-20261023T133311Z/receipts.jsonl.gz, all eval/runs/*/receipts.jsonl.gz",
     ),

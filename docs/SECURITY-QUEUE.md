@@ -2,9 +2,9 @@
 
 Problems the security checks found outside the API code (in the agents, shared and data packages, the configuration and policy files, the exam tool). Each entry says what was wrong, where, the proposed fix, the test that proves it, and what was done.
 
-All six items are done. Items 1, 2 and 3 are fixed in commit `eed80ac`: the guard splits a statement into tokens, reads every table position, and refuses what it cannot read. Items 4 and 5 name their commits. See the SQL guard section of [SECURITY.md](SECURITY.md).
+All six items are done. Items 1, 2 and 3 are fixed in commit [`eed80ac`](https://github.com/rahulmahadik/sanctions-desk/commit/eed80ac): the guard splits a statement into tokens, reads every table position, and refuses what it cannot read. Items 4 and 5 name their commits. See the SQL guard section of [SECURITY.md](SECURITY.md).
 
-## 1. The SQL guard misses a comma join after a table alias (medium) — done, `eed80ac`
+## 1. The SQL guard misses a comma join after a table alias (medium) — done, [`eed80ac`](https://github.com/rahulmahadik/sanctions-desk/commit/eed80ac)
 
 **Done.** The guard reads the whole FROM list: each table, an optional alias (with or without `AS`, with an optional column list), and then only a comma, a join keyword, `ON`, `USING (`, a clause keyword, `)` or the end. A comma inside a FROM list, at any bracket depth, starts another table. Anything else in a table position is refused with `unrecognised_table`. The block "comma join after an alias" in `apps/api/test/pentest-sql-guard.test.ts` is `it.each` and passes; the same statements and a `scopeViolation` case are in `packages/zetaris/test/guard.test.ts`.
 
@@ -18,7 +18,7 @@ All six items are done. Items 1, 2 and 3 are fixed in commit `eed80ac`: the guar
 
 **Test that proves it.** `apps/api/test/pentest-sql-guard.test.ts`, the block "comma join after an alias". Written first with `it.fails.each`, so that it passes while the problem exists and fails once it is fixed; with the fix it becomes `it.each`. Add the same three statements to `packages/zetaris/test/guard.test.ts` and one for `scopeViolation`.
 
-## 2. The guard and the literal quoting disagree with the SQL engine about a backslash (low, not proven) — done, `eed80ac`
+## 2. The guard and the literal quoting disagree with the SQL engine about a backslash (low, not proven) — done, [`eed80ac`](https://github.com/rahulmahadik/sanctions-desk/commit/eed80ac)
 
 **Done.** The guard refuses any statement that contains a backslash (code `backslash`), so it never has to guess where the engine ends a string. `quoteLiteral` refuses a value with a backslash or `${`, and the identifier overlap query in `packages/agents/src/evidence.ts` uses `quoteLiteral` instead of its own copy. `blankLiterals` keeps a backslash and the next character inside the literal. Whether the live engine honours the backslash escape is still unconfirmed; with the refusal it does not matter to the guard.
 
@@ -32,7 +32,7 @@ All six items are done. Items 1, 2 and 3 are fixed in commit `eed80ac`: the guar
 
 **Test that proves it.** `quoteLiteral("a\\")` throws (or yields a literal the engine reads as complete); `guardSql` refuses `WHERE a = 'x\' OR 1 IN (SELECT 1 FROM other.users) OR b = \'y'` (already refused before the fix, because the guard sees the table; kept as a regression test).
 
-## 3. The SQL guard accepts non-ASCII characters outside string values (low, hardening) — done, `eed80ac`
+## 3. The SQL guard accepts non-ASCII characters outside string values (low, hardening) — done, [`eed80ac`](https://github.com/rahulmahadik/sanctions-desk/commit/eed80ac)
 
 **Done.** Outside single-quoted values only printable ASCII, tab, carriage return and line feed are accepted (code `non_ascii`), including inside backquoted and double-quoted names. Only ASCII spacing is trimmed from the ends, so a byte order mark or a no-break space is refused rather than removed. The "disguises" block expects a refusal for every case except the doubled quote, which stays one harmless value.
 
@@ -44,9 +44,9 @@ All six items are done. Items 1, 2 and 3 are fixed in commit `eed80ac`: the guar
 
 **Test.** The "disguises" block in `apps/api/test/pentest-sql-guard.test.ts`: tighten each case from "refused or harmless" to "refused".
 
-## 4. The server listens on every network interface by default (low) — done, `f739654`, test `6aef947`
+## 4. The server listens on every network interface by default (low) — done, [`f739654`](https://github.com/rahulmahadik/sanctions-desk/commit/f739654), test [`6aef947`](https://github.com/rahulmahadik/sanctions-desk/commit/6aef947)
 
-**Done.** `server.host` is `127.0.0.1` in `config/default.json` and `HOST=127.0.0.1` in `.env.example` (commit `f739654`); the image and the compose file set `HOST=0.0.0.0` inside the container. `packages/shared/test/config.test.ts` checks the default and `apps/api/test/compose.test.ts` checks that compose still sets `HOST` for the `api` service (commit `6aef947`).
+**Done.** `server.host` is `127.0.0.1` in `config/default.json` and `HOST=127.0.0.1` in `.env.example` (commit [`f739654`](https://github.com/rahulmahadik/sanctions-desk/commit/f739654)); the image and the compose file set `HOST=0.0.0.0` inside the container. `packages/shared/test/config.test.ts` checks the default and `apps/api/test/compose.test.ts` checks that compose still sets `HOST` for the `api` service (commit [`6aef947`](https://github.com/rahulmahadik/sanctions-desk/commit/6aef947)).
 
 **What.** `server.host` was `0.0.0.0` in `config/default.json` and `.env.example`. Outside a container, `npm run dev` or `npm start` was then reachable from the local network, and in sample mode anyone who reached it could pick the approver or policy-admin demo user with a header. The compose file published ports on `127.0.0.1` only; the default for a bare process was open.
 
@@ -56,7 +56,7 @@ All six items are done. Items 1, 2 and 3 are fixed in commit `eed80ac`: the guar
 
 **Test.** `loadConfig({ env: {} }).server.host === "127.0.0.1"`, and the compose test still finds `HOST` set for the `api` service.
 
-## 5. No limit on how often a person can start reviews or call the API (medium for a shared deployment) — done, `6aef947`
+## 5. No limit on how often a person can start reviews or call the API (medium for a shared deployment) — done, [`6aef947`](https://github.com/rahulmahadik/sanctions-desk/commit/6aef947)
 
 **Done.** `server.rateLimit` in the configuration (`RATE_LIMIT_*` in the environment): a fixed window per caller, 60 requests a minute to any route that is not a read and 10 a minute to `POST /run` and `POST /policy/whatif`, and at most 4 reviews running at once, refused rather than queued above that. The caller is the signed-in user when sign-in is on, otherwise the remote address (a demo user is only a header, so it does not count as a separate caller). Above a limit the answer is 429 with `Retry-After` and the usual error body with type `rate_limited`. Reads and `/health` are not limited. The limits are kept in memory per process. `apps/api/test/rate-limit.test.ts` covers the limit plus one, another caller, the window reset with an injected clock, per-user counting, the in-flight cap and its slot being freed when a review ends or fails.
 

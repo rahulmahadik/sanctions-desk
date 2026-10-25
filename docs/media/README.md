@@ -2,25 +2,25 @@
 
 Screenshots 01 to 12 were made from the running desk in sample mode (saved real Zetaris answers and the labelled rules-based stand-in for the models); 13 to 17 from live reviews (Zetaris, Nightshift and the Nemotron models running). Light theme. Each page's text was checked for local paths, user names, e-mail addresses and tokens before it was saved.
 
-| File                                               | What it shows                                                                                                                                                                          |
-| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `screenshots/01-alert-queue.png`                   | Home: the summary strip (open alerts, recommendations waiting for a person, closes stopped by a check, models used), the list-change panel, the alert list sorted by severity          |
-| `screenshots/02-case-evidence.png`                 | A case (ALR-0073): the recommendation banner, the decision panel, the decision trace, the risk signals and the evidence                                                                |
-| `screenshots/03-decision-panel.png`                | The decision panel: approve or override with a reason; nothing is pre-selected, and the button reads Decide until a choice is made                                                     |
-| `screenshots/04-routing-and-receipts.png`          | Requested model, routed model and receipt id per call (in sample mode the stand-in makes no model call, so no receipt)                                                                 |
-| `screenshots/05-policy-studio.png`                 | Policy studio and the autonomy card                                                                                                                                                    |
-| `screenshots/06-governance.png`                    | Governance view                                                                                                                                                                        |
-| `screenshots/07-exam-results.png`                  | Test scores: every held-out round with its baselines, then the 70-case exam                                                                                                            |
-| `screenshots/08-help.png`                          | Help                                                                                                                                                                                   |
-| `screenshots/09-risk-signals.png`                  | A risk signal with its source field and the exact span highlighted in the payment reference ("Tehran")                                                                                 |
-| `screenshots/10-list-change.png`                   | Earlier decisions whose listed entry changed, with the list snapshot then and now                                                                                                      |
-| `screenshots/11-heldout-rounds.png`                | The held-out table on its own                                                                                                                                                          |
-| `screenshots/12-agent-map.png`                     | The review steps after a review: the screener flagged the case                                                                                                                         |
-| `screenshots/13-live-agent-map.png`                | A live review of ALR-0073 (24 Oct): local Lightning and cloud Ultra steps, the routed model and the receipt id of each                                                                 |
-| `screenshots/14-live-risk-signal-not-grounded.png` | The same live review: the screener's span missed the word, so the signal is marked not grounded, and it still blocks a close                                                           |
-| `screenshots/15-live-routing-and-receipts.png`     | The same live review's routing panel: requested model, routed model, receipt id and a verified receipt                                                                                 |
-| `screenshots/16-live-model-per-step.png`           | A live review of ALR-0073 (25 Oct): every model step with the model that answered (local Lightning or cloud Ultra), its receipt id and the receipt check (signature valid, key pinned) |
-| `screenshots/17-live-decision-panel.png`           | The decision panel on the sealed record of the live ALR-0073 review, shown by the current build on 25 Oct: approve or override with a reason; nothing is sent or executed              |
+| File                                               | What it shows                                                                                                                                                                       |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `screenshots/01-alert-queue.png`                   | Home: the summary strip (open alerts, recommendations waiting for a person, closes stopped by a check, models used), the list-change panel, the alert list sorted by severity       |
+| `screenshots/02-case-evidence.png`                 | A case (ALR-0073): the recommendation banner, the decision panel, the decision trace, the risk signals and the evidence                                                             |
+| `screenshots/03-decision-panel.png`                | The decision panel: approve or override with a reason; nothing is pre-selected, and the button reads Decide until a choice is made                                                  |
+| `screenshots/04-routing-and-receipts.png`          | Requested model, routed model and receipt id per call (in sample mode the stand-in makes no model call, so no receipt)                                                              |
+| `screenshots/05-policy-studio.png`                 | Policy studio and the autonomy card                                                                                                                                                 |
+| `screenshots/06-governance.png`                    | Governance view                                                                                                                                                                     |
+| `screenshots/07-exam-results.png`                  | Test scores: every held-out round with its baselines, then the 70-case exam                                                                                                         |
+| `screenshots/08-help.png`                          | Help                                                                                                                                                                                |
+| `screenshots/09-risk-signals.png`                  | A risk signal with its source field and the exact span highlighted in the payment reference ("Tehran")                                                                              |
+| `screenshots/10-list-change.png`                   | Earlier decisions whose listed entry changed, with the list snapshot then and now                                                                                                   |
+| `screenshots/11-heldout-rounds.png`                | The held-out table on its own                                                                                                                                                       |
+| `screenshots/12-agent-map.png`                     | The review steps after a review: the screener flagged the case                                                                                                                      |
+| `screenshots/13-live-agent-map.png`                | A live review of ALR-0073: local Lightning and cloud Ultra steps, the routed model and the receipt id of each                                                                       |
+| `screenshots/14-live-risk-signal-not-grounded.png` | The same live review: the screener's span missed the word, so the signal is marked not grounded, and it still blocks a close                                                        |
+| `screenshots/15-live-routing-and-receipts.png`     | The same live review's routing panel: requested model, routed model, receipt id and a verified receipt                                                                              |
+| `screenshots/16-live-model-per-step.png`           | A later live review of ALR-0073: every model step with the model that answered (local Lightning or cloud Ultra), its receipt id and the receipt check (signature valid, key pinned) |
+| `screenshots/17-live-decision-panel.png`           | The decision panel on the sealed record of the live ALR-0073 review, shown by the current build: approve or override with a reason; nothing is sent or executed                     |
 
 Re-take them with the desk running in sample mode (`SAMPLE_MODE=true docker compose up --build`, then review ALR-0004, ALR-0073 and ALR-0058 once):
 
@@ -30,7 +30,7 @@ npm run screenshots -- --alert ALR-0073 --out docs/media/screenshots
 
 ## Animated clips
 
-Recorded on 24 Oct 2026 from a production build of the desk in sample mode (saved real Zetaris answers and the labelled rules-based stand-in for the models), as `analyst_demo`, light theme, 1280 px wide. The buttons are really pressed; the only additions are an outline or a tint on the part being pointed at. Each page's text was checked for local paths, user names, e-mail addresses and tokens before the clip was saved.
+Recorded from a production build of the desk in sample mode (saved real Zetaris answers and the labelled rules-based stand-in for the models), as `analyst_demo`, light theme, 1280 px wide. The buttons are really pressed; the only additions are an outline or a tint on the part being pointed at. Each page's text was checked for local paths, user names, e-mail addresses and tokens before the clip was saved.
 
 | File                         | Length, size   | What it shows                                                                                                                                                                                                                     |
 | ---------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -63,13 +63,13 @@ The desk does not re-run a case on an earlier list. What it shows, in sample mod
 
 ## Console screenshots
 
-Read-only screenshots of the Zetaris console and the Nightshift app (24 Oct 2026), in `console/`; the Zetaris admin login and local network addresses are blurred, and no setting was changed.
+Read-only screenshots of the Zetaris console and the Nightshift app, in `console/`; the Zetaris admin login and local network addresses are blurred, and no setting was changed.
 
 | File                                 | What it shows                                                                                                                                                          |
 | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `console/zetaris-semantic-layer.png` | The semantic layer `screening_usl`: 14 tables, all active, and their relationships                                                                                     |
 | `console/zetaris-data-quality.png`   | The 37 data-quality rules on the semantic layer                                                                                                                        |
-| `console/zetaris-access-control.png` | The roles assigned to the semantic layer: evidence, reviewer, evaluation and the five per-step roles (25 Oct 2026)                                                     |
+| `console/zetaris-access-control.png` | The roles assigned to the semantic layer: evidence, reviewer, evaluation and the five per-step roles                                                                   |
 | `console/zetaris-column-access.png`  | Column access on `customer_identifier`: `id_number` hidden for the evidence role                                                                                       |
 | `console/nightshift-lanes.png`       | Nightshift lanes: local Nemotron 3.5 Lightning 30B and cloud Nemotron 3 Ultra 550B (lanes named `nemotron-3-super-120b-a1` from before the Super endpoint was retired) |
 | `console/nightshift-apps.png`        | Nightshift console, apps: the reasoning identity bound to deep and the guard identity bound to local                                                                   |

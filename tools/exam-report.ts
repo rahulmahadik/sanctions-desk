@@ -643,7 +643,7 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2"))) {
     lines.push(
       "**Held-out v4: the last held-out round, frozen before the fail-closed change.** v3 showed two wrong closes: the screener flagged both relationships, grounding marked the signals not grounded, the critic told the decision step that screener signals cannot be cited, the decision dropped them and closed, and under policy 7 the guard let a close on ungrounded signals stand. The grounding window was not widened and v3 was not re-run. Instead the rule was changed: a screener signal marked not grounded is still shown and still blocks a close; grounding only adds context for the reviewer. Before that change, a fourth set of 12 cases (6 risks, including relation words just outside a short span, and 6 clears, including clears whose documents are on the customer record) was written by a separate AI agent session that saw no results, traces or fixes, and no review code except the evidence-standard rule its labels apply; labels fixed before the run (it worked from the definitions only); its instructions came from the build session, which named the case families to test, and frozen in commit `fc64537` at 10:40:56 SGT on 24 Oct 2026. The change was committed afterwards, in `80902ea` at 10:44:21 SGT (policy version 8). The v4 file was checked against its freeze commit before the run (sha256 `de43651d…`, the same). v4 was run once on the changed system, with the single, deterministic and escalate-all baselines, and is reported as run. The routed v4 run was started without the thermal gate (an operator slip, recorded in the log); the other three runs used it.",
       "",
-      "What changed in `80902ea`, file by file (the same way as for sys2b). Screener thresholds are unchanged from policy version 7 (`confidenceThreshold` 0.5 for every signal type except *other*, `otherConfidenceThreshold` 0.7 for *other*); the policy file changes only its version number. Review path: `packages/agents/src/policy-guard.ts` (the signals that block a close are every signal at or above its threshold, grounded or not; the not-grounded flag now says the signals still block); `packages/agents/src/sample-rules.ts` (the same rule in sample mode); `packages/agents/src/screener.ts` (a comment and the trace wording). Prompt wording: `packages/agents/src/decision.ts`, `critic.ts` and `challenger.ts` each change one sentence, from treating ungrounded signals as non-blocking to *any risk signal at or above the threshold, grounded or not, means a close is not supported; grounded false only means the reviewer should read the field*. Configuration: `config/policy.default.json` (version 7 to 8). Tests and tools: `packages/agents/test/grounding-and-citable.test.ts` (ungrounded signals block; a property test over every signal type, confidences 0 to 1, grounded or not and valid span or not, that no signal at or above its threshold can be removed in a way that allows a close), `packages/shared/test/policy.test.ts`, `apps/web/test/components.test.tsx`, `tools/critic-mutation.ts` and its output `eval/critic-mutation.json` (147 of 147 checked cases caught; 25 could not be checked in sample mode). Documents: `docs/GOVERNANCE.md`, `docs/MODELS.md`, `docs/KNOWN_ISSUES.md`. Apart from the one rule described (ungrounded signals block), no rule, threshold, definition, label, case or case-specific logic changed.",
+      "What changed for the fail-closed system (sys4), file by file (the same way as for sys2b). Screener thresholds are unchanged from policy version 7 (`confidenceThreshold` 0.5 for every signal type except *other*, `otherConfidenceThreshold` 0.7 for *other*); the policy file changes only its version number. Review path: `packages/agents/src/policy-guard.ts` (the signals that block a close are every signal at or above its threshold, grounded or not; the not-grounded flag now says the signals still block); `packages/agents/src/sample-rules.ts` (the same rule in sample mode); `packages/agents/src/screener.ts` (a comment and the trace wording). Prompt wording: `packages/agents/src/decision.ts`, `critic.ts` and `challenger.ts` each change one sentence, from treating ungrounded signals as non-blocking to *any risk signal at or above the threshold, grounded or not, means a close is not supported; grounded false only means the reviewer should read the field*. Configuration: `config/policy.default.json` (version 7 to 8). Tests and tools: `packages/agents/test/grounding-and-citable.test.ts` (ungrounded signals block; a property test over every signal type, confidences 0 to 1, grounded or not and valid span or not, that no signal at or above its threshold can be removed in a way that allows a close), `packages/shared/test/policy.test.ts`, `apps/web/test/components.test.tsx`, `tools/critic-mutation.ts` and its output `eval/critic-mutation.json` (147 of 147 checked cases caught; 25 could not be checked in sample mode). Documents: `docs/GOVERNANCE.md`, `docs/MODELS.md`, `docs/KNOWN_ISSUES.md`. Apart from the one rule described (ungrounded signals block), no rule, threshold, definition, label, case or case-specific logic changed.",
       "",
       "What v4 found, from the traces of the routed run: no risk case was closed, and no first recommendation was a close. No clear was made either. Every one of the six clears met the documentary standard with its document on the customer record, but in each the screener reported a relationship signal at 0.9 (and in five an alias signal, at 0.5 or in HO4-008 at 0.9) that it could not ground: three had no location at all, and three pointed at the start of the note (characters 0-11, 0-30, 0-100), where the grounding check did not find a relation word and a name. Under policy version 8 those signals block a close, so the decision step answered NEED_MORE_INFO (ESCALATE_L2 for HO4-012, after a critic deadlock) and the critic approved; the policy guard did not need to raise anything. This is the cost of failing closed while the screener over-flags: the desk triages safely and leaves the clears to a person.",
       "",
@@ -736,7 +736,7 @@ if (have.length === 0) {
   lines.push(
     "### What each run had",
     "",
-    "Code version: for the recorded runs, the commit checked out when the run ended (they read it then); runs since 25 Oct 2026 read it when they start and also note a different commit at the end.",
+    "Code version: for the recorded runs, the commit checked out when the run ended (they read it then); runs made with the current runner read it when they start and also note a different commit at the end.",
     "",
   );
   lines.push(
@@ -767,7 +767,7 @@ if (have.length === 0) {
   }
   lines.push(
     "",
-    "**Payments: a difference between the runs, not only a note.** The first system's runs read the payments table live from the REST service: the Zetaris cache of that table had been lost (an engine restart drops it), which was found on 24 Oct 2026 when a query failed with the payments service stopped. The table was cached again at about 02:05 SGT on 24 Oct, before the changed system's runs, and checked the same way: with the service stopped, Zetaris answered all 373 rows, and the seven payments of held-out v2 matched the source in all 14 columns. The run note written into those result files gives the time as 02:35; the check was at about 02:05. The data is the same either way; the difference can affect time and resilience, not the rows read.",
+    "**Payments: a difference between the runs, not only a note.** The first system's runs read the payments table live from the REST service: the Zetaris cache of that table had been lost (an engine restart drops it), which was found when a query failed with the payments service stopped. The table was cached again before the changed system's runs, and checked the same way: with the service stopped, Zetaris answered all 373 rows, and the seven payments of held-out v2 matched the source in all 14 columns. The run note written into those result files gives a time for this about half an hour after the check. The data is the same either way; the difference can affect time and resilience, not the rows read.",
   );
   lines.push("");
   for (const v of ["routed", "single", "no_memory", "local"].filter((x) => newest.has(x))) {
@@ -997,7 +997,7 @@ if (have.length === 0) {
       "",
       `On the ${cleared.length} earlier-cleared cases: mean ${mean(cleared).toFixed(1)} s with memory, ${mean(withoutMemory.cases).toFixed(1)} s without. Acceptable answers: ${cleared.filter((c) => c.got === c.expected || c.acceptable.includes(c.got)).length} with memory, ${withoutMemory.cases.filter((c) => c.got === c.expected || c.acceptable.includes(c.got)).length} without.`,
       "",
-      "Only the desk's memory step was off in the run without memory. Nightshift's own answer memory was still on in both runs (the receipts carry its added memories), so this compares the desk's memory on and off, not memory on and off. Nightshift's memory was switched off on 24 Oct 2026, after every recorded run; see `docs/MODELS.md`.",
+      "Only the desk's memory step was off in the run without memory. Nightshift's own answer memory was still on in both runs (the receipts carry its added memories), so this compares the desk's memory on and off, not memory on and off. Nightshift's memory was switched off after every recorded run; see `docs/MODELS.md`.",
       "",
     );
   }
@@ -1019,7 +1019,7 @@ lines.push(
   "",
   '- **Definition clarified before the held-out run; held-out labels unchanged.** Policy version 2 adds a documentary evidence standard: a customer note or payment reference counts as documentary evidence only when it carries a check reference, a document number and a date (and, for a payment, a named counterparty); anything less is a claim and leads to NEED_MORE_INFO. Runs made before the change used policy version 1, and every sealed record names the version it used. The held-out set was frozen three times before any run (commits in `eval/cases/README.md`): the second step added clearing cases; the third relabelled HO-023 to HO-026 to NEED_MORE_INFO because "labels written before the evidence standard was made explicit; under policy v2 these notes are claims", and added HO-027 to HO-030 with documentary text, so all eight clear cases are reachable. HO-001 to HO-022 are byte-identical across the freezes. See `docs/EVALUATION.md`.',
   "- The customers, payments and owners are synthetic; the listed parties are real public entries. The exam shows how the system behaves on planted situations, not how it would perform on a bank's real alert volume.",
-  "- **A label changed after the evaluation.** EX-043 (a chain of 70 percent of a 60 percent holder) was relabelled from a close to ESCALATE_L2 on 24 Oct 2026, when the ownership engine began counting the 50 percent rule as a cascade; every figure in this report scores the recorded runs against the new label, and the original-labels column against the old one. Reason: `eval/cases/README.md`.",
+  "- **A label changed after the evaluation.** EX-043 (a chain of 70 percent of a 60 percent holder) was relabelled from a close to ESCALATE_L2 when the ownership engine began counting the 50 percent rule as a cascade; every figure in this report scores the recorded runs against the new label, and the original-labels column against the old one. Reason: `eval/cases/README.md`.",
   "- **A label changed after the first full run.** The two year-only false-positive cases (EX-008, EX-009) now accept ESCALATE_L2 as well as a close. The listed birth year is approximate and the name is an exact match to a listed individual, so closing rests on a year gap plus a different nationality with no document either way: closing is right under the approved definition, and escalating is a fair, cautious call. The change was made after seeing the first run escalate EX-008, for that reason and not to raise a score; every variant in this report is scored against the current labels, and the system was not changed for it. Effect: two more acceptable answers wherever a variant escalates them; false-close figures do not move.",
   "- Cases were written together with the rules they test (the approved definitions), so a high score shows consistency with those definitions rather than proof that the definitions are right. Five cases were added later to test where plain name matching fails; the system was not tuned to them.",
   "- Time depends on this machine, on whether the cloud model answers within the runtime's time limit, on what else is running, and on the runtime's answer cache.",
@@ -1042,23 +1042,21 @@ const ROUND_STORY: Record<string, { found: string; changed: string }> = {
   },
   v2: {
     found: "the local screener failed on every case (empty answers to schema-constrained requests); fail-closed held",
-    changed: "plain JSON for the screener and local retries (`d44ee04`); no prompt, rule or threshold change",
+    changed: "plain JSON for the screener and local retries; no prompt, rule or threshold change",
   },
   "v2-rerun": {
     found:
       "the screener over-flagged (signals pointing at text with no relation word); the critic deadlocked on uncheckable citations",
-    changed:
-      "span grounding of signals, document numbers checked against the customer record, citable-source list (`8f4c660`)",
+    changed: "span grounding of signals, document numbers checked against the customer record, citable-source list",
   },
   v3: {
     found:
       "two relationship notes were closed: the decision first escalated, citing the screener's signals; the critic rejected those citations as not citable; the decision then closed, and the guard let it stand because grounding had marked the signals not grounded. Four clears were stopped by the document-on-record rule, as that rule intends",
-    changed:
-      "fail closed: every signal at or above its threshold blocks a close, grounded or not (`80902ea`, policy 8)",
+    changed: "fail closed: every signal at or above its threshold blocks a close, grounded or not (policy 8)",
   },
   v4: {
     found:
-      "no risk case closed; no clear made: every clear carried a relationship signal the screener could not ground, which now blocks (the cost of failing closed)",
+      "no risk case closed; no clear made: every clear carried a relationship signal the screener could not ground, which blocks a close under the fail-closed rule (the cost of failing closed)",
     changed: "nothing; this was the last held-out round",
   },
 };
@@ -1087,7 +1085,7 @@ const intervalLine = `95% intervals (Wilson score) for the share of risk cases w
   .join("; ")}. The sets are small, so the intervals are wide.`;
 const storyRows = rounds.map(
   (r) =>
-    `| ${r.label} | ${r.system} (\`${r.commit}\`) | ${ROUND_STORY[r.id]?.found ?? ""} | ${ROUND_STORY[r.id]?.changed ?? ""} |`,
+    `| ${r.label} | ${r.system}${r.cells.routed ? ` ([result](../eval/results/${r.cells.routed.file}))` : ""} | ${ROUND_STORY[r.id]?.found ?? ""} | ${ROUND_STORY[r.id]?.changed ?? ""} |`,
 );
 const blindRounds = rounds.filter((r) => r.blind && r.cells.routed);
 const heldoutClears = blindRounds.reduce((n, r) => n + (r.cells.routed?.clears_made ?? 0), 0);
@@ -1141,7 +1139,7 @@ const examCloses = get("rules")
 if (head && full && readme.includes(START) && readme.includes(END)) {
   const block = [
     START,
-    `**Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails, the case is escalated or held for more information instead of closed. On the 70-case exam (the cases the rules were written for) the full system wrongly closed ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases, against ${get("fuzzy")?.metrics.false_closes ?? "not run"} for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: ${heldoutWrong.join("; ")}. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** ${examCloses}, and on the blind held-out rounds it cleared ${heldoutClears === 0 ? `none of the ${heldoutClearCases} alerts that should have been cleared (0 of ${heldoutClearCases}) and sent them` : `${heldoutClears} of the ${heldoutClearCases} alerts that should have been cleared and sent the rest`} to a person instead. It wrongly closed ${heldoutFullWrong} of ${heldoutRiskCases} risk cases${heldoutFullSplit ? ` (${heldoutFullSplit}, each before a later change to the system)` : ""}, against ${heldoutRulesWrong} of ${heldoutRiskCases} for the deterministic rules, which also cleared ${heldoutRulesClears} of ${heldoutClearCases}.${v2Caveat} This is the cost of failing closed. Every figure is one run. ${howSure} Details: [eval/REPORT.md](eval/REPORT.md).`,
+    `**Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails, the case is escalated or held for more information instead of closed. On the 70-case exam (the cases the rules were written for) the full system wrongly closed ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases, against ${get("fuzzy")?.metrics.false_closes ?? "not run"} for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: ${heldoutWrong.join("; ")}. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** ${examCloses}, and on the blind held-out rounds it cleared ${heldoutClears === 0 ? `none of the ${heldoutClearCases} alerts that should have been cleared (0 of ${heldoutClearCases}) and sent them` : `${heldoutClears} of the ${heldoutClearCases} alerts that should have been cleared and sent the rest`} to a person instead. It wrongly closed ${heldoutFullWrong} of ${heldoutRiskCases} risk cases${heldoutFullSplit ? ` (${heldoutFullSplit}, each by an earlier version of the system)` : ""}, against ${heldoutRulesWrong} of ${heldoutRiskCases} for the deterministic rules, which also cleared ${heldoutRulesClears} of ${heldoutClearCases}.${v2Caveat} This is the cost of failing closed. Every figure is one run. ${howSure} Details: [eval/REPORT.md](eval/REPORT.md).`,
     END,
   ].join("\n");
   writeFileSync(readmePath, readme.replace(new RegExp(`${START}[\\s\\S]*?${END}`), block));
@@ -1159,7 +1157,7 @@ if (full && modelsDoc.includes(BS) && modelsDoc.includes(BE)) {
       .join(", ");
     const block = [
       BS,
-      `Headline run of ${full.started_at.slice(0, 10)} (binds: ${binds || "not recorded"}); the model that served each call, from the signed receipts:`,
+      `Headline run, the full system on the 70-case exam ([result](../eval/results/${full.file}); binds: ${binds || "not recorded"}); the model that served each call, from the signed receipts:`,
       "",
       ...splitTable(split),
       BE,

@@ -105,7 +105,9 @@
     "users:rotate": "tsx tools/users-add.ts --action rotate",
     "users:revoke": "tsx tools/users-add.ts --action revoke",
     "check:auth-live": "tsx tools/check-auth-live.ts",
-    "diagrams": "tsx tools/render-diagrams.ts"
+    "diagrams": "tsx tools/render-diagrams.ts",
+    "receipts:check": "tsx tools/receipts-check.ts",
+    "receipts:tamper-test": "tsx tools/receipts-tamper-test.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.2",

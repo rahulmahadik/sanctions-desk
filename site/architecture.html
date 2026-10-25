@@ -109,7 +109,7 @@
       <p>Six diagrams, each drawn from the code it shows (the sources are in the repository, rendered with Mermaid). Every label names a step, role or model as the code does.</p>
       <section id="1-architecture">
         <h2>How a review runs</h2>
-        <p>The desk's agents read the bank's data only through Zetaris. The raw free text (notes, payment references, list remarks) is read by Nemotron 3.5 Lightning on the analyst's machine; the decision, critic and challenger send only structured facts to Nemotron 3 Ultra in the cloud (since the screener was added on 23 Oct 2026; for the four runs before it, see <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/PRIVACY.md#earlier-runs">earlier runs</a>). A raise-only policy guard checks the result, and a person decides.</p>
+        <p>The desk's agents read the bank's data only through Zetaris. The raw free text (notes, payment references, list remarks) is read by Nemotron 3.5 Lightning on the analyst's machine; the decision, critic and challenger send only structured facts to Nemotron 3 Ultra in the cloud (in every run with the screener; for the four early runs made before it existed, see <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/PRIVACY.md#earlier-runs">earlier runs</a>). A raise-only policy guard checks the result, and a person decides.</p>
         <figure>
           <a href="media/diagrams/1-architecture.svg"><img src="media/diagrams/1-architecture.svg" alt="Architecture: the review desk, the desk agents reading through Zetaris, the safety guard and screener on local Lightning, the decision and critic on cloud Ultra, the policy guard, the person and the sealed record; flags, missing answers and cloud-served answers for raw text hold the case." /></a>
           <figcaption>Source: <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/diagrams/1-architecture.mmd">docs/diagrams/1-architecture.mmd</a></figcaption>
@@ -117,7 +117,7 @@
       </section>
       <section id="2-review-sequence">
         <h2>One live review, step by step</h2>
-        <p>The live review of alert ALR-0073 on 24 Oct 2026: every Zetaris read and the role it ran under, every model call with the model that answered and its signed receipt, the critic's check, and the sealed record waiting for a person.</p>
+        <p>The live review of alert ALR-0073: every Zetaris read and the role it ran under, every model call with the model that answered and its signed receipt, the critic's check, and the sealed record waiting for a person.</p>
         <figure>
           <a href="media/diagrams/2-review-sequence.svg"><img src="media/diagrams/2-review-sequence.svg" alt="Sequence of the live review of ALR-0073: reads from Zetaris, two local Lightning calls, a cloud Ultra decision, the critic re-reading six facts and approving, the policy guard keeping the escalation, and the record waiting for a person." /></a>
           <figcaption>Source: <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/diagrams/2-review-sequence.mmd">docs/diagrams/2-review-sequence.mmd</a></figcaption>

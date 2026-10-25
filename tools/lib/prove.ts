@@ -112,10 +112,10 @@ export function proveMarkdown(info: RunInfo, results: CheckResult[]): string {
   ].join("\n");
 }
 
-/** The README block: the list, when and where it ran, and how to run it again. */
-export function readmeBlock(info: RunInfo, results: CheckResult[]): string {
+/** The README block: the list and how to run it again. The run's time and commit are kept in eval/PROVE.md. */
+export function readmeBlock(_info: RunInfo, results: CheckResult[]): string {
   return [
-    `**One-command proof** (\`npm run prove\`, no credentials or services; last run ${info.time} on commit ${commitText(info)}):`,
+    "**One-command proof** (`npm run prove`, no credentials or services; the machine, time and commit of the last run are in [eval/PROVE.md](eval/PROVE.md)):",
     "",
     "```text",
     ...results.map(formatLine),

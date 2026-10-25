@@ -6,6 +6,7 @@
  *
  *   npm run study:repeat              # writes eval/repeat-study.json and the block in docs/NEMOTRON.md
  *   npm run study:repeat -- --check
+ *   npm run study:repeat -- --docs    # rewrites only the doc blocks, from the committed eval/*.json files
  *
  * It reads result files in logs/repeat, logs/privacy-test and logs/model-choice and, for runs whose result files carry
  * no confidence, the sealed records in logs/records (all kept on this machine). Without them (a fresh clone) the
@@ -62,11 +63,13 @@ interface Calibration {
 }
 
 const check = process.argv.includes("--check");
+// --docs: rebuild the doc blocks from the committed summaries only; the logs are not read and no eval file is written.
+const docsOnly = process.argv.includes("--docs");
 const outFile = resolveProjectPath("eval/repeat-study.json");
 const logs = resolveProjectPath("logs");
 const read = (dir: string, match: (f: string) => boolean): Array<Result & { file: string }> => {
   const d = join(logs, dir);
-  if (!existsSync(d)) return [];
+  if (docsOnly || !existsSync(d)) return [];
   return readdirSync(d)
     .filter((f) => f.endsWith(".json") && match(f))
     .sort()
@@ -198,8 +201,12 @@ const range = (xs: number[]) => {
   return lo === hi ? `${lo}` : `${lo} to ${hi}`;
 };
 const pct = (x: number) => Math.round(x * 100);
+// The notes in the committed summaries record when each study was run; the docs describe what was run instead.
+/** A study label without the day it was run ("(24 Oct, same 20 cases" -> "(same 20 cases"). */
+const docLabel = (label: string) => label.replace(/\(\d{1,2} Oct, /, "(");
+const studyNote = `Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one cloud Ultra call per case on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), after a warm-up and without restarting Nightshift.${study.systems.length > 2 ? " A further arm: Nemotron alone given the same free text the screener reads (customer note, payment reference, list remarks), with the same prompt otherwise, three runs; the first Nemotron-alone arm is kept as it was." : ""} Result file: [eval/repeat-study.json](../eval/repeat-study.json).`;
 const table = [
-  `**${study.label}.** ${study.note}`,
+  `**${study.label}.** ${studyNote}`,
   "",
   `**1. Agreement between runs.** Same outcome in all ${study.systems[0]?.runs.length ?? 3} runs: ${study.systems.map((s) => `${s.system} on ${s.all_runs_agree} of ${s.cases} cases`).join("; ")}.`,
   "",
@@ -232,7 +239,7 @@ const table = [
   "| Runs | Cases with a confidence (n) | Brier score |",
   "| --- | ---: | ---: |",
   ...study.calibration.map(
-    (c) => `| ${c.label} | ${c.cases_with_confidence} | ${c.brier === null ? "n/a" : c.brier} |`,
+    (c) => `| ${docLabel(c.label)} | ${c.cases_with_confidence} | ${c.brier === null ? "n/a" : c.brier} |`,
   ),
   "",
   `Brier score: ${study.brier_definition}`,
@@ -298,15 +305,17 @@ if (aloneSets.every(({ r }) => r)) {
 } else if (existsSync(setsFile)) {
   sets = JSON.parse(readFileSync(setsFile, "utf8"));
 }
+/** A link from docs/NEMOTRON.md to a result file: recorded runs in eval/results, the Nemotron-alone runs in the study exports. */
+const resultLink = (source: string) => (source.startsWith("eval/") ? `../${source}` : "../eval/studies/README.md");
 const setsTable = sets
   ? [
-      `**${sets.label}.** ${sets.note}`,
+      `**${sets.label}.** Nemotron alone (one cloud Ultra call per case on the structured case facts, as above) once on held-out v1 and v3, the two rounds where the full system wrongly closed risk cases, after a warm-up and without restarting Nightshift; beside the recorded runs of the same frozen sets (one run each). Result file: [eval/nemotron-alone-sets.json](../eval/nemotron-alone-sets.json).`,
       "",
       "| Set | System | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors | Result file |",
       "| --- | --- | ---: | ---: | ---: | ---: | --- |",
       ...sets.rows.map(
         (r) =>
-          `| ${r.set} | ${r.system} | ${r.summary.wrong_closes} of ${r.summary.risk_cases} | ${r.summary.clears_made} of ${r.summary.clear_cases} | ${r.summary.acceptable} of ${r.summary.cases} | ${r.summary.errors} | \`${r.source.split("/").at(-1)}\` |`,
+          `| ${r.set} | ${r.system} | ${r.summary.wrong_closes} of ${r.summary.risk_cases} | ${r.summary.clears_made} of ${r.summary.clear_cases} | ${r.summary.acceptable} of ${r.summary.cases} | ${r.summary.errors} | [${r.source.split("/").at(-1)}](${resultLink(r.source)}) |`,
       ),
     ].join("\n")
   : undefined;
@@ -346,12 +355,12 @@ const aloneHeadlineBlock = `**Measured against Nemotron alone** (small study, he
 
 const json = `${JSON.stringify(study, null, 2)}\n`;
 let changed = !existsSync(outFile) || readFileSync(outFile, "utf8") !== json;
-if (changed && !check) writeFileSync(outFile, json);
+if (changed && !check && !docsOnly) writeFileSync(outFile, json);
 if (sets) {
   const setsJson = `${JSON.stringify(sets, null, 2)}\n`;
   if (!existsSync(setsFile) || readFileSync(setsFile, "utf8") !== setsJson) {
     changed = true;
-    if (!check) writeFileSync(setsFile, setsJson);
+    if (!check && !docsOnly) writeFileSync(setsFile, setsJson);
   }
 }
 for (const path of ["README.md", "docs/NEMOTRON.md", "docs/SPONSORS.md"]) {
@@ -403,8 +412,8 @@ if (existsSync(docFile)) {
     }
   }
 }
-// Held-out v3 three ways: Nemotron alone (once), the system recorded at the time (once, the headline), and today's
-// system (policy 8, fail-closed) re-run three times after the fix, not blind. Read from logs/v3today when present.
+// Held-out v3 three ways: Nemotron alone (once), the system with span grounding as recorded (once, the headline), and
+// the fail-closed system (policy 8) run three times after the fix, not blind. Read from logs/v3today when present.
 interface V3Today {
   label: string;
   note: string;
@@ -436,16 +445,22 @@ if (todayRuns.length > 0 && aloneV3 && recordedV3) {
 } else if (existsSync(v3File)) {
   v3 = JSON.parse(readFileSync(v3File, "utf8"));
 }
+/** The doc names of the held-out v3 columns: the committed summary names them by when they were run. */
+const V3_SYSTEM: Record<string, string> = {
+  "The system recorded at the time (one run, the headline)":
+    "The system with span grounding, as recorded (one run, the headline)",
+  "Today's system, re-run after the fail-closed fix, not blind": "The fail-closed system (policy 8), not blind",
+};
 const v3Table = v3
   ? [
-      `**${v3.label}.** ${v3.note}`,
+      `**${v3.label}.** Held-out v3 (12 cases, 6 risks, 6 clears) three ways. The recorded result of the system with span grounding stays the headline; the fail-closed system (policy 8) was run three times on the same set after the fail-closed fix, which held-out v3 led to, so those runs are not blind. The runs were made after a warm-up and without restarting Nightshift. Result file: [eval/v3-today.json](../eval/v3-today.json).`,
       "",
       "| Held-out v3 | Run | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors |",
       "| --- | --- | ---: | ---: | ---: | ---: |",
       ...v3.columns.flatMap((c) =>
         c.runs.map(
           (r) =>
-            `| ${c.system} | ${r.run} | ${r.wrong_closes} of ${r.risk_cases} | ${r.clears_made} of ${r.clear_cases} | ${r.acceptable} of ${r.cases} | ${r.errors} |`,
+            `| ${V3_SYSTEM[c.system] ?? c.system} | ${r.run} | ${r.wrong_closes} of ${r.risk_cases} | ${r.clears_made} of ${r.clear_cases} | ${r.acceptable} of ${r.cases} | ${r.errors} |`,
         ),
       ),
     ].join("\n")
@@ -454,7 +469,7 @@ if (v3) {
   const v3Json = `${JSON.stringify(v3, null, 2)}\n`;
   if (!existsSync(v3File) || readFileSync(v3File, "utf8") !== v3Json) {
     changed = true;
-    if (!check) writeFileSync(v3File, v3Json);
+    if (!check && !docsOnly) writeFileSync(v3File, v3Json);
   }
   for (const path of ["docs/NEMOTRON.md", "docs/EVALUATION.md"]) {
     const target = resolveProjectPath(path);

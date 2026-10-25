@@ -17,6 +17,7 @@
       "!eval/adversarial",
       "!eval/REPORT.md",
       "!eval/PROVE.md",
+      "!eval/receipts-check.json",
       "!README.md",
       "!output_examples",
       "!**/dist",

@@ -1,10 +1,11 @@
 /**
  * Small study of model choice, not part of the recorded evaluation: the same 20 cases (held-out v4 and 8 of the 70
  * exam cases) with the decision, critic and challenger on Nemotron 3 Ultra in the cloud (the default; the privacy-mode-
- * off run of 24 Oct 2026) and on Nemotron 3.5 Lightning on the laptop (the `lightning` variant). One live run each.
+ * off run of the privacy test) and on Nemotron 3.5 Lightning on the laptop (the `lightning` variant). One live run each.
  *
  *   npm run study:model-choice          # writes eval/model-choice.json, logs/model-choice/STUDY.md and the block in docs/NEMOTRON.md
  *   npm run study:model-choice -- --check
+ *   npm run study:model-choice -- --docs   # rewrites only the doc block, from the committed eval/model-choice.json
  *
  * It reads the result files in logs/privacy-test and logs/model-choice (kept on this machine) and the per-group call
  * statistics in eval/receipt-stats.json (npm run receipt:stats). Without the logs (a fresh clone) the committed
@@ -50,10 +51,12 @@ interface Arm {
 }
 
 const check = process.argv.includes("--check");
+// --docs: rebuild the doc block from the committed summary only; the logs are not read and no file is written but the doc.
+const docsOnly = process.argv.includes("--docs");
 const outFile = resolveProjectPath("eval/model-choice.json");
 const readResults = (dir: string, system: string): Result[] => {
   const d = resolveProjectPath(dir);
-  if (!existsSync(d)) return [];
+  if (docsOnly || !existsSync(d)) return [];
   return readdirSync(d)
     .filter((f) => f.endsWith(".json") && f.includes(`-${system}-`))
     .map((f) => JSON.parse(readFileSync(join(d, f), "utf8")) as Result)
@@ -131,8 +134,9 @@ if (ultra.length > 0 && lightning.length > 0) {
 }
 if (!study) throw new Error("no study results: run the two arms first (see the header)");
 
+// The note in the committed summary records when the study was run; the doc describes what was run instead.
 const table = [
-  `**${study.label}.** ${study.note}`,
+  `**${study.label}.** Held-out v4 (12 cases) and 8 of the 70 exam cases (4 risks, 4 clears), one live run per arm, Nightshift warmed up and not restarted. The default arm is the privacy-mode-off run of the privacy-mode test. Result file: [eval/model-choice.json](../eval/model-choice.json).`,
   "",
   "| Arm | Risk cases wrongly closed | Clears made | Outcomes identical to the default | Errors | Reasoning calls (receipts verified) | Median s per reasoning call | Median s per case | Answers set aside for more than 8 facts | Backup answers (no receipt) |",
   "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
@@ -153,9 +157,9 @@ const table = [
 
 const json = `${JSON.stringify(study, null, 2)}\n`;
 let changed = !existsSync(outFile) || readFileSync(outFile, "utf8") !== json;
-if (changed && !check) writeFileSync(outFile, json);
+if (changed && !check && !docsOnly) writeFileSync(outFile, json);
 const logDir = resolveProjectPath("logs/model-choice");
-if (!check && existsSync(logDir)) {
+if (!check && !docsOnly && existsSync(logDir)) {
   mkdirSync(logDir, { recursive: true });
   writeFileSync(join(logDir, "STUDY.md"), `# ${study.label}\n\n${table}\n`);
 }

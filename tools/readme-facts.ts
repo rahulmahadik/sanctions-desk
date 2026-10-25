@@ -14,6 +14,7 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } fro
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
+import { receiptsLine } from "./lib/receipts-scan.js";
 
 const read = (p: string) => JSON.parse(readFileSync(resolveProjectPath(p), "utf8"));
 const exam = read("eval/cases/exam.json") as { cases: { group: string; kind?: string }[] };
@@ -35,6 +36,23 @@ if (process.argv.includes("--count-tests")) {
   writeFileSync(factsFile, `${JSON.stringify(saved, null, 2)}\n`);
 }
 
+interface ReceiptGroup {
+  receipts: number;
+  folders: number;
+  with_added_memory: number;
+  cross_check: Record<string, number>;
+  cross_check_warnings: Record<string, number>;
+}
+const receipts = read("eval/receipts-check.json") as {
+  receipts: number;
+  from_runs: number;
+  from_studies: number;
+  valid_pinned: number;
+  groups: { runs: ReceiptGroup; studies: ReceiptGroup };
+};
+if (receipts.valid_pinned !== receipts.receipts)
+  throw new Error("eval/receipts-check.json has receipts that do not verify");
+const n = (x: number) => x.toLocaleString("en-US");
 const drafts = exam.cases.filter((c) => c.group === "tipping_off").length;
 const facts: Record<string, string> = {
   exam_cases: String(exam.cases.length),
@@ -45,6 +63,19 @@ const facts: Record<string, string> = {
   heldout_clears: String(heldout.cases.filter((c) => c.expected === "CLOSE_FALSE_POSITIVE").length),
   heldout_risks: String(heldout.cases.filter((c) => c.expected !== "CLOSE_FALSE_POSITIVE").length),
   edge_cases: String(edge.edge_cases.length),
+  receipts: n(receipts.receipts),
+  receipts_runs: n(receipts.from_runs),
+  receipts_studies: n(receipts.from_studies),
+  runs_exported: String(receipts.groups.runs.folders),
+  receipts_runs_memory: n(receipts.groups.runs.with_added_memory),
+  receipts_studies_memory: n(receipts.groups.studies.with_added_memory),
+  cross_check_runs: (() => {
+    const c = receipts.groups.runs.cross_check;
+    const kinds = Object.keys(receipts.groups.runs.cross_check_warnings);
+    const which = kinds.length === 1 ? `all \`${kinds[0]}\`` : kinds.map((k) => `\`${k}\``).join(", ");
+    return `${n(c.skipped ?? 0)} skipped, ${n(c.warning ?? 0)} warning (${which}, risk medium, not blocking), ${n(c.passed ?? 0)} passed`;
+  })(),
+  receipts_line: receiptsLine(receipts),
   ...(saved.tests ? { tests: saved.tests.toLocaleString("en-US") } : {}),
 };
 

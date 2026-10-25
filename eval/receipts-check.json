@@ -1,0 +1,459 @@
+{
+  "pinned_keys": [
+    "00OsSOXGbDitkESZueIJqDPdf9bXAvyrL+8cYDbY6II="
+  ],
+  "files": 51,
+  "receipts": 2371,
+  "from_runs": 1492,
+  "from_studies": 879,
+  "from_elsewhere": 0,
+  "valid_pinned": 2371,
+  "valid_unpinned": 0,
+  "invalid": 0,
+  "malformed": 0,
+  "groups": {
+    "runs": {
+      "receipts": 1492,
+      "folders": 28,
+      "with_added_memory": 1483,
+      "cross_check": {
+        "skipped": 979,
+        "warning": 465,
+        "passed": 48
+      },
+      "cross_check_warnings": {
+        "citation_consistency": 465
+      }
+    },
+    "studies": {
+      "receipts": 879,
+      "folders": 23,
+      "with_added_memory": 0,
+      "cross_check": {
+        "skipped": 636,
+        "warning": 234,
+        "passed": 9
+      },
+      "cross_check_warnings": {
+        "citation_consistency": 234
+      }
+    },
+    "elsewhere": {
+      "receipts": 0,
+      "folders": 0,
+      "with_added_memory": 0,
+      "cross_check": {},
+      "cross_check_warnings": {}
+    }
+  },
+  "per_file": [
+    {
+      "file": "eval/runs/escalate_all-20261023T085617Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/fuzzy-20261023T085617Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout-escalate_all-20261023T083248Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout-fuzzy-20261023T082432Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout-routed-20261023T121140Z/receipts.jsonl.gz",
+      "receipts": 142,
+      "valid_pinned": 142,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout-rules-20261023T081308Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout-sys2b-routed-20261023T214515Z/receipts.jsonl.gz",
+      "receipts": 135,
+      "valid_pinned": 135,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout2-escalate_all-20261023T193323Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout2-fuzzy-20261023T193323Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout2-rules-20261023T193324Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout2-sys2-routed-20261023T180732Z/receipts.jsonl.gz",
+      "receipts": 81,
+      "valid_pinned": 81,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout2-sys2b-routed-20261023T193436Z/receipts.jsonl.gz",
+      "receipts": 98,
+      "valid_pinned": 98,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout2-sys2bnoscreen-routed-20261023T222222Z/receipts.jsonl.gz",
+      "receipts": 102,
+      "valid_pinned": 102,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout3-escalate_all-20261023T233941Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout3-fuzzy-20261024T033840Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout3-rules-20261023T234147Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout3-sys3-routed-20261023T231901Z/receipts.jsonl.gz",
+      "receipts": 67,
+      "valid_pinned": 67,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout3-sys3-single-20261023T234224Z/receipts.jsonl.gz",
+      "receipts": 36,
+      "valid_pinned": 36,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout4-escalate_all-20261024T030324Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout4-fuzzy-20261024T033840Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout4-rules-20261024T030240Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout4-sys4-routed-20261024T024523Z/receipts.jsonl.gz",
+      "receipts": 56,
+      "valid_pinned": 56,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/heldout4-sys4-single-20261024T025629Z/receipts.jsonl.gz",
+      "receipts": 36,
+      "valid_pinned": 36,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/no_memory-20261023T173107Z/receipts.jsonl.gz",
+      "receipts": 42,
+      "valid_pinned": 42,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/routed-20261023T133311Z/receipts.jsonl.gz",
+      "receipts": 260,
+      "valid_pinned": 260,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/rules-20261023T085618Z/receipts.jsonl.gz",
+      "receipts": 0,
+      "valid_pinned": 0,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/single-20261023T161731Z/receipts.jsonl.gz",
+      "receipts": 132,
+      "valid_pinned": 132,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/sys2b-routed-20261023T195504Z/receipts.jsonl.gz",
+      "receipts": 305,
+      "valid_pinned": 305,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/heldout3-rerun/heldout3-todayt1-routed-20261024T183703Z/receipts.jsonl.gz",
+      "receipts": 73,
+      "valid_pinned": 73,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/heldout3-rerun/heldout3-todayt2-routed-20261024T190237Z/receipts.jsonl.gz",
+      "receipts": 69,
+      "valid_pinned": 69,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/heldout3-rerun/heldout3-todayt3-routed-20261024T191720Z/receipts.jsonl.gz",
+      "receipts": 66,
+      "valid_pinned": 66,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/model-choice/choice-lightning-20261024T142912Z/receipts.jsonl.gz",
+      "receipts": 34,
+      "valid_pinned": 34,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/model-choice/heldout4-choice-lightning-20261024T130809Z/receipts.jsonl.gz",
+      "receipts": 82,
+      "valid_pinned": 82,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/nemotron-alone-v1-v3/heldout-once-nemotron_alone-20261024T171105Z/receipts.jsonl.gz",
+      "receipts": 33,
+      "valid_pinned": 33,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/nemotron-alone-v1-v3/heldout3-once-nemotron_alone-20261024T175448Z/receipts.jsonl.gz",
+      "receipts": 14,
+      "valid_pinned": 14,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/privacy-mode/heldout4-privoff-routed-20261024T113700Z/receipts.jsonl.gz",
+      "receipts": 64,
+      "valid_pinned": 64,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/privacy-mode/heldout4-privon-routed-20261024T121820Z/receipts.jsonl.gz",
+      "receipts": 59,
+      "valid_pinned": 59,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/privacy-mode/privoff-routed-20261024T115611Z/receipts.jsonl.gz",
+      "receipts": 46,
+      "valid_pinned": 46,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/privacy-mode/privon-routed-20261024T123212Z/receipts.jsonl.gz",
+      "receipts": 45,
+      "valid_pinned": 45,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/repeat-heldout4/heldout4-r1-nemotron_alone-20261024T154302Z/receipts.jsonl.gz",
+      "receipts": 13,
+      "valid_pinned": 13,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/repeat-heldout4/heldout4-r2-nemotron_alone-20261024T161936Z/receipts.jsonl.gz",
+      "receipts": 13,
+      "valid_pinned": 13,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/repeat-heldout4/heldout4-r3-nemotron_alone-20261024T165121Z/receipts.jsonl.gz",
+      "receipts": 12,
+      "valid_pinned": 12,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/repeat-heldout4/heldout4-repr1-routed-20261024T152716Z/receipts.jsonl.gz",
+      "receipts": 65,
+      "valid_pinned": 65,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/repeat-heldout4/heldout4-repr2-routed-20261024T160401Z/receipts.jsonl.gz",
+      "receipts": 65,
+      "valid_pinned": 65,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/repeat-heldout4/heldout4-repr3-routed-20261024T163752Z/receipts.jsonl.gz",
+      "receipts": 58,
+      "valid_pinned": 58,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/repeat-heldout4/heldout4-text1-nemotron_alone-20261025T015053Z/receipts.jsonl.gz",
+      "receipts": 16,
+      "valid_pinned": 16,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/repeat-heldout4/heldout4-text2-nemotron_alone-20261025T020333Z/receipts.jsonl.gz",
+      "receipts": 19,
+      "valid_pinned": 19,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/repeat-heldout4/heldout4-text3-nemotron_alone-20261025T021654Z/receipts.jsonl.gz",
+      "receipts": 19,
+      "valid_pinned": 19,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/step-role-reviews/ALR-0043/receipts.jsonl.gz",
+      "receipts": 4,
+      "valid_pinned": 4,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/step-role-reviews/ALR-0073/receipts.jsonl.gz",
+      "receipts": 4,
+      "valid_pinned": 4,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/step-role-reviews/ALR-L0007/receipts.jsonl.gz",
+      "receipts": 6,
+      "valid_pinned": 6,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    }
+  ]
+}

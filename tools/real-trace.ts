@@ -70,7 +70,7 @@ const critic =
 
 const block = [
   START,
-  `Case **EX-064** (alert ${record.alert_ref}), first-system run of 23 Oct 2026, copied by \`npm run readme:trace\` from [${EXAMPLE}](../${EXAMPLE}) (the same events are in the signed evidence export \`eval/runs/routed-20261023T133311Z\`). The label is ESCALATE_L2; closing it is a must-not.`,
+  `Case **EX-064** (alert ${record.alert_ref}), from the headline 70-case run of the first system (no screener), copied by \`npm run readme:trace\` from [${EXAMPLE}](../${EXAMPLE}) (the same events are in the signed evidence export \`eval/runs/routed-20261023T133311Z\`). The label is ESCALATE_L2; closing it is a must-not.`,
   "",
   "| Seq | Agent | Action | Target | Model (requested → routed) | Status | Summary |",
   "|---:|---|---|---|---|---|---|",

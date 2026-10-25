@@ -2,7 +2,8 @@
  * Statistics of the model calls, per step and per model that served them, from the traces and the signed receipts:
  * calls, receipts that verify, median and p95 latency, median tokens in and out, and the fallbacks (answers from the
  * Ollama backup, and cloud answers set aside for citing more than 8 facts). The recorded runs (eval/runs) and the
- * labelled small runs of 24 Oct 2026 (logs/, kept on this machine) are reported separately and never added together.
+ * labelled small runs of the privacy-mode test and the model-choice study (logs/, kept on this machine) are reported
+ * separately and never added together.
  *
  *   npm run receipt:stats              # writes eval/receipt-stats.json and the table block in docs/NEMOTRON.md
  *   npm run receipt:stats -- --check   # exits 1 if either would change
@@ -165,7 +166,7 @@ const groups: Group[] = [
   ),
 ];
 
-// ---- labelled small runs of 24 Oct 2026 (kept apart) -------------------------------------------------------------
+// ---- labelled small runs (kept apart) ------------------------------------------------------------------------
 
 const LABELLED: Array<[string, string, RegExp]> = [
   [
@@ -213,9 +214,11 @@ for (const [id, label, pattern] of LABELLED) {
 // ---- outputs --------------------------------------------------------------------------------------------------------
 
 const json = `${JSON.stringify({ note: "Written by npm run receipt:stats; do not edit by hand.", groups }, null, 2)}\n`;
+// The labels in eval/receipt-stats.json record the day of the labelled runs; the doc names the runs without it.
+const docLabel = (label: string) => label.replace(/\(\d{1,2} Oct \d{4}, /, "(");
 const table = (g: Group): string =>
   [
-    `**${g.label}**`,
+    `**${docLabel(g.label)}**`,
     "",
     "| Step | Model that served it | Calls | Receipts verified | Median s | p95 s | Median tokens in | Median tokens out |",
     "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",

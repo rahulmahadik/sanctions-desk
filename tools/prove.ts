@@ -57,6 +57,7 @@ import {
   sampleEnv,
   summaryLine,
 } from "./lib/prove.js";
+import { receiptsLine, scanReceipts } from "./lib/receipts-scan.js";
 
 const ROOT = projectRoot();
 const ALERT = "ALR-0004";
@@ -229,9 +230,11 @@ async function evidence(): Promise<CheckOutcome> {
     );
   }
   const keyNote = pinned === valid ? "signing key pinned" : "signing key taken from each receipt, not pinned";
+  // Every receipt under eval/ (runs and studies), checked the same way as npm run receipts:check.
+  const all = scanReceipts(trusted);
   return {
-    ok: bad === 0 && receipts > 0,
-    detail: `${dirs.length} runs: ${valid}/${receipts} receipts verified (${keyNote}); ${calls - missing}/${calls} receipts named in the traces are present (answers from the Ollama backup and failed calls carry none); ${mismatched} trace/receipt model mismatches; run files: ${remapped} verified, commit field remapped (documented), ${otherFiles} other differences`,
+    ok: bad === 0 && receipts > 0 && all.valid_pinned === all.receipts,
+    detail: `${receiptsLine(all)}. In the ${dirs.length} exported runs: ${valid}/${receipts} receipts verified (${keyNote}); ${calls - missing}/${calls} receipts named in the traces are present (answers from the Ollama backup and failed calls carry none); ${mismatched} trace/receipt model mismatches; run files: ${remapped} verified, commit field remapped (documented), ${otherFiles} other differences`,
     output: lines.join("\n"),
   };
 }
