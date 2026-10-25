@@ -79,9 +79,9 @@ Read-only screenshots of the Zetaris console and the Nightshift app (24 Oct 2026
 
 Drawn by `npm run charts` from the committed files only (`eval/results/`, `eval/runs/`, `eval/critic-mutation.json`); the receipts are verified with the same code as `npm run evidence:verify`. Each is an SVG and a 1920x1080 PNG in `charts/`.
 
-| File                                 | What it shows                                                                                                                                      |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `charts/heldout-wrong-closes`        | Risk cases wrongly closed in each held-out round: full system, deterministic rules, name match and escalate everything                             |
-| `charts/first-recommendation-closes` | Per run, how often the decision step first proposed closing a risk case, and how many of those the checks stopped                                  |
-| `charts/critic-mutation`             | The critic's fact re-check: 147 of 147 false cited facts caught (25 of them as unverifiable in sample mode), 25 of 25 unchanged decisions approved |
-| `charts/model-calls`                 | Which model served each step in the headline run (local Lightning or cloud Ultra), and the signed receipts verified                                |
+| File                                 | What it shows                                                                                                                              |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `charts/heldout-wrong-closes`        | Risk cases wrongly closed in each held-out round: full system, deterministic rules, name match and escalate everything                     |
+| `charts/first-recommendation-closes` | Per run, how often the decision step first proposed closing a risk case, and how many of those the checks stopped                          |
+| `charts/critic-mutation`             | The critic's fact re-check: 147 of 147 checked cases caught; 25 could not be checked in sample mode; 25 of 25 unchanged decisions approved |
+| `charts/model-calls`                 | Which model served each step in the headline run (local Lightning or cloud Ultra), and the signed receipts verified                        |

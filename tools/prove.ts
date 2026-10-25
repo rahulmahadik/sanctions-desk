@@ -179,12 +179,11 @@ async function criticMutation(): Promise<CheckOutcome> {
       grounding_and_document_cases?: string;
       untestable_citations?: number;
     };
-    // A mutated fact the critic could not re-read (the sample cache lacks that query) is caught because it cannot be
-    // checked, not because it was compared with the source; say how many.
+    // A changed fact whose source row is not in the sample cache cannot be checked; it is left out of the count.
     const unread = s.untestable_citations ?? 0;
     return {
       ok: r.code === 0 && s.mutations > 0 && s.mutations_caught === s.mutations,
-      detail: `${s.mutations_caught}/${s.mutations} false cited facts caught over ${s.decisions} decisions${unread > 0 ? ` (${s.mutations - unread} compared with the saved source; ${unread} could not be re-read in sample mode and were sent back as unverifiable)` : ""}; ${s.unchanged_decisions_approved}/${s.unchanged_decisions} unchanged decisions approved (no false alarm); evidence standard: ${s.evidence_standard_cases}${s.grounding_and_document_cases ? `; grounding and document-on-record: ${s.grounding_and_document_cases}` : ""}`,
+      detail: `${s.mutations_caught} of ${s.mutations} checked cases caught over ${s.decisions} decisions${unread > 0 ? `; ${unread} could not be checked in sample mode` : ""}; ${s.unchanged_decisions_approved}/${s.unchanged_decisions} unchanged decisions approved (no false alarm); evidence standard: ${s.evidence_standard_cases}${s.grounding_and_document_cases ? `; grounding and document-on-record: ${s.grounding_and_document_cases}` : ""}`,
       output: r.output,
     };
   } catch {

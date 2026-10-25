@@ -27,7 +27,7 @@ import {
   summarise,
 } from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
-import { loadConfig, resolveProjectPath } from "@sanctions-desk/shared";
+import { countWithInterval, loadConfig, resolveProjectPath, wilson95 as wilsonInterval } from "@sanctions-desk/shared";
 import { formatMarkdown } from "./lib/format-markdown.js";
 
 interface Features {
@@ -1067,13 +1067,8 @@ const roundRows = rounds.map(
 );
 /** The 95% Wilson score interval for x of n, in whole percent. */
 const wilson95 = (x: number, n: number): string => {
-  const z = 1.96;
-  const p = x / n;
-  const d = 1 + (z * z) / n;
-  const centre = (p + (z * z) / (2 * n)) / d;
-  const half = (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d;
-  const pct = (v: number) => Math.round(Math.max(0, Math.min(1, v)) * 100);
-  return `${pct(centre - half)}% to ${pct(centre + half)}%`;
+  const { low, high } = wilsonInterval(x, n);
+  return `${low}% to ${high}%`;
 };
 const intervalCell = (name: string, cell: RoundCell | null) =>
   cell && cell.risk > 0
@@ -1108,6 +1103,14 @@ const noV2 = {
   rulesWrong: sumOf(withoutV2, (r) => r.cells.rules?.wrong_closes ?? 0),
   rulesClears: sumOf(withoutV2, (r) => r.cells.rules?.clears_made ?? 0),
 };
+/** "0–8%": a 95% Wilson interval in the plain style of the headline-intervals block. */
+const range = (x: number, n: number): string => {
+  const { low, high } = wilsonInterval(x, n);
+  return `${low}–${high}%`;
+};
+const howSure = full
+  ? `How sure we can be (95% Wilson intervals, small sets so the ranges are wide): exam, ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases wrongly closed (true rate ${range(full.metrics.false_closes, full.metrics.risk_cases)}); held-out rounds, ${heldoutFullWrong} of ${heldoutRiskCases} (${range(heldoutFullWrong, heldoutRiskCases)}), or ${noV2.fullWrong} of ${noV2.risk} without v2, where the screener failed (${range(noV2.fullWrong, noV2.risk)}).`
+  : "";
 const v2Caveat =
   withoutV2.length < blindRounds.length
     ? ` These totals include v2, where the screener failed and nothing could be closed; without v2: ${noV2.fullWrong} of ${noV2.risk} risk cases wrongly closed and ${noV2.fullClears} of ${noV2.clearCases} cleared (deterministic rules: ${noV2.rulesWrong} of ${noV2.risk} and ${noV2.rulesClears} of ${noV2.clearCases}).`
@@ -1133,7 +1136,7 @@ const examCloses = get("rules")
 if (head && full && readme.includes(START) && readme.includes(END)) {
   const block = [
     START,
-    `**Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails, the case is escalated or held for more information instead of closed. On the 70-case exam (the cases the rules were written for) the full system wrongly closed ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases, against ${get("fuzzy")?.metrics.false_closes ?? "not run"} for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: ${heldoutWrong.join("; ")}. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** ${examCloses}, and on the blind held-out rounds it cleared ${heldoutClears === 0 ? `none of the ${heldoutClearCases} alerts that should have been cleared (0 of ${heldoutClearCases}) and sent them` : `${heldoutClears} of the ${heldoutClearCases} alerts that should have been cleared and sent the rest`} to a person instead. It wrongly closed ${heldoutFullWrong} of ${heldoutRiskCases} risk cases${heldoutFullSplit ? ` (${heldoutFullSplit}, each before a later change to the system)` : ""}, against ${heldoutRulesWrong} of ${heldoutRiskCases} for the deterministic rules, which also cleared ${heldoutRulesClears} of ${heldoutClearCases}.${v2Caveat} This is the cost of failing closed. Every figure is one run. Details: [eval/REPORT.md](eval/REPORT.md).`,
+    `**Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails, the case is escalated or held for more information instead of closed. On the 70-case exam (the cases the rules were written for) the full system wrongly closed ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases, against ${get("fuzzy")?.metrics.false_closes ?? "not run"} for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: ${heldoutWrong.join("; ")}. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** ${examCloses}, and on the blind held-out rounds it cleared ${heldoutClears === 0 ? `none of the ${heldoutClearCases} alerts that should have been cleared (0 of ${heldoutClearCases}) and sent them` : `${heldoutClears} of the ${heldoutClearCases} alerts that should have been cleared and sent the rest`} to a person instead. It wrongly closed ${heldoutFullWrong} of ${heldoutRiskCases} risk cases${heldoutFullSplit ? ` (${heldoutFullSplit}, each before a later change to the system)` : ""}, against ${heldoutRulesWrong} of ${heldoutRiskCases} for the deterministic rules, which also cleared ${heldoutRulesClears} of ${heldoutClearCases}.${v2Caveat} This is the cost of failing closed. Every figure is one run. ${howSure} Details: [eval/REPORT.md](eval/REPORT.md).`,
     END,
   ].join("\n");
   writeFileSync(readmePath, readme.replace(new RegExp(`${START}[\\s\\S]*?${END}`), block));
@@ -1182,6 +1185,17 @@ if (full && readmeRounds.includes(JS) && readmeRounds.includes(JE)) {
 }
 const evaluationPath = resolveProjectPath("docs/EVALUATION.md");
 const evaluationDoc = readFileSync(evaluationPath, "utf8");
+// The headline counts with their 95% Wilson intervals, computed from the committed result files like every figure here.
+const IS = "<!-- headline-intervals:start -->";
+const IE = "<!-- headline-intervals:end -->";
+const evaluationNow = readFileSync(evaluationPath, "utf8");
+if (full && evaluationNow.includes(IS) && evaluationNow.includes(IE)) {
+  const block = [IS, howSure, IE].join("\n");
+  writeFileSync(
+    evaluationPath,
+    formatMarkdown(evaluationNow.replace(new RegExp(`${IS}[\\s\\S]*?${IE}`), block), evaluationPath),
+  );
+}
 const SS = "<!-- round-story:start -->";
 const SE = "<!-- round-story:end -->";
 if (full && evaluationDoc.includes(SS) && evaluationDoc.includes(SE)) {
@@ -1195,7 +1209,10 @@ if (full && evaluationDoc.includes(SS) && evaluationDoc.includes(SE)) {
   const block = [SS, ...rows, SE].join("\n");
   writeFileSync(
     evaluationPath,
-    formatMarkdown(evaluationDoc.replace(new RegExp(`${SS}[\\s\\S]*?${SE}`), block), evaluationPath),
+    formatMarkdown(
+      readFileSync(evaluationPath, "utf8").replace(new RegExp(`${SS}[\\s\\S]*?${SE}`), block),
+      evaluationPath,
+    ),
   );
 }
 console.log(

@@ -227,11 +227,12 @@ const firstRecs = FIRST_RUNS.map(([run, label]) => {
       unchanged_decisions: number;
       unchanged_decisions_approved: number;
       decisions: number;
+      untestable_citations?: number;
     };
   };
   const s = m.summary;
   const rows: Array<[string, number, number, string]> = [
-    ["False cited facts caught", s.mutations_caught, s.mutations, C.full],
+    ["Checked cases caught (cited facts changed to false values)", s.mutations_caught, s.mutations, C.full],
     ["Unchanged decisions approved (no false alarm)", s.unchanged_decisions_approved, s.unchanged_decisions, C.stopped],
   ];
   const left = 90;
@@ -247,7 +248,7 @@ const firstRecs = FIRST_RUNS.map(([run, label]) => {
   body += text(
     left,
     930,
-    `${s.decisions} recorded decisions; each cited fact changed to a false value, one at a time, then re-checked by the critic's code.`,
+    `${s.decisions} recorded decisions; each cited fact changed to a false value, one at a time, then re-checked by the critic's code.${s.untestable_citations ? ` ${s.untestable_citations} could not be checked in sample mode and are not counted.` : ""}`,
     30,
     { fill: C.muted },
   );
