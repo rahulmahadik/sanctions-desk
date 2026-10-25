@@ -55,7 +55,16 @@ const PLACE: Record<Exclude<TextCase["place"], "draft">, { field: string; alert:
   list_remark: { field: SCREENER_FIELDS.remarks, alert: "ALR-0003" },
   payment_reference: { field: SCREENER_FIELDS.reference, alert: "ALR-0074" },
 };
-const cases = buildAdversarialSet().text.slice(0, limit);
+// --cases A,B picks texts by id; --base ALR-x puts every text in that one alert instead (for example an alert that
+// escalates on its own data, to see whether a text can turn it into a close); --baseline-runs N reviews each base N times.
+const only = args.includes("--cases") ? (args[args.indexOf("--cases") + 1] as string).split(",") : undefined;
+const baseOverride = args.includes("--base") ? (args[args.indexOf("--base") + 1] as string) : undefined;
+const textRuns = args.includes("--text-runs") ? Number(args[args.indexOf("--text-runs") + 1]) : 1;
+const baselineRuns = args.includes("--baseline-runs") ? Number(args[args.indexOf("--baseline-runs") + 1]) : 1;
+if (baseOverride) for (const p of Object.values(PLACE)) p.alert = baseOverride;
+const cases = buildAdversarialSet()
+  .text.filter((c) => !only || only.includes(c.case_id))
+  .slice(0, limit);
 const bases = [...new Set(Object.values(PLACE).map((p) => p.alert))];
 
 if (args.includes("--dry-run")) {
@@ -103,6 +112,8 @@ const zetaris = createZetarisClient({ config });
 const stamp = new Date().toISOString().replace(/[:.]/g, "-");
 
 interface Row {
+  run_id?: string;
+  model_recommendation?: string;
   case_id: string;
   family: TextCase["family"] | "baseline";
   place: TextCase["place"] | "own text";
@@ -128,7 +139,9 @@ async function review(id: string, alertId: string, client: ZetarisClient) {
   const [record] = readDecisionRecords(config.logging.dir, (r) => r.run_id === runId);
   const contract = record ? buildTraceContract(record, config.costs) : undefined;
   return {
+    run_id: runId,
     decision: res.decision ?? "ERROR",
+    ...(res.model_last_recommendation ? { model_recommendation: res.model_last_recommendation } : {}),
     ...(record ? { confidence: record.confidence } : {}),
     ...(res.held_reason ? { held_reason: res.held_reason } : {}),
     injection_guard: res.guards?.find((g) => g.guard === "injection")?.detail,
@@ -169,6 +182,10 @@ function scoreOf(runId: string) {
     screener: record?.screener
       ? { flagged: signals.length > 0, signals: signals.map((s) => `${s.type} (${s.confidence})`) }
       : null,
+    // Where the local steps were answered: these steps read raw text and are meant to stay on the laptop.
+    local_steps: (record?.models ?? [])
+      .filter((m) => m.agent === "policy_guard" || m.agent === "screener")
+      .map((m) => ({ agent: m.agent, route: m.route_kind ?? "unknown" })),
   };
 }
 
@@ -178,12 +195,13 @@ if (args.includes("--score")) {
     rows: Array<Row & Record<string, unknown>>;
     run_stamp?: string;
   };
-  const runStamp = run.run_stamp ?? file.replace(/^.*review-/, "").replace(/\.json$/, "");
+  const runStamp = run.run_stamp ?? file.replace(/^.*(review|check)-/, "").replace(/\.json$/, "");
   for (const r of run.rows) {
     const id = r.family === "baseline" ? `base-${r.alert_id}` : r.case_id;
-    const s = scoreOf(`eval-advrev-${runStamp}-${id}`);
+    const s = scoreOf(typeof r.run_id === "string" ? r.run_id : `eval-advrev-${runStamp}-${id}`);
     r.guard = s.guard;
     r.screener = s.screener;
+    r.local_steps = s.local_steps;
     r.caught = r.place === "draft" ? r.decision === "DRAFT_BLOCKED" : Boolean(s.guard?.flagged || s.screener?.flagged);
   }
   writeFileSync(file, `${JSON.stringify({ ...run, run_stamp: runStamp }, null, 2)}\n`);
@@ -211,60 +229,72 @@ if (args.includes("--repeat-base")) {
 }
 
 const rows: Row[] = [];
-for (const b of bases) {
-  try {
-    rows.push({
-      case_id: `BASE-${b}`,
-      family: "baseline",
-      place: "own text",
-      technique: "none",
-      violation: false,
-      alert_id: b,
-      ...(await review(`base-${b}`, b, withOnly(zetaris, undefined, ""))),
-    });
-  } catch (err) {
-    rows.push({
-      case_id: `BASE-${b}`,
-      family: "baseline",
-      place: "own text",
-      technique: "none",
-      violation: false,
-      alert_id: b,
-      decision: "ERROR",
-      receipts: 0,
-      latency_s: 0,
-      error: String(err).slice(0, 200),
-    });
-  }
-  console.log(`baseline ${b}: ${rows.at(-1)?.decision}`);
-}
-for (const c of cases) {
-  const base = { case_id: c.case_id, family: c.family, place: c.place, technique: c.technique, violation: c.violation };
-  try {
-    if (c.place === "draft") {
-      const trace = createTraceLogger({
-        runId: `eval-advrev-${stamp}-${c.case_id}`,
-        dir: config.logging.dir,
-        stdout: false,
-        policyVersion: policy.version,
-      });
-      const started = performance.now();
-      const r = await screenOutbound({ config, policy, zetaris, generator, trace, now: () => new Date() }, c.text);
+for (const b of bases)
+  for (let k = 1; k <= baselineRuns; k++) {
+    try {
       rows.push({
-        ...base,
-        decision: r.violation ? "DRAFT_BLOCKED" : "DRAFT_ALLOWED",
-        receipts: r.calls.filter((m) => m.receipt).length,
-        latency_s: Math.round(performance.now() - started) / 1000,
+        case_id: `BASE-${b}`,
+        family: "baseline",
+        place: "own text",
+        technique: "none",
+        violation: false,
+        alert_id: b,
+        ...(await review(baselineRuns > 1 ? `base-${b}-${k}` : `base-${b}`, b, withOnly(zetaris, undefined, ""))),
       });
-    } else {
-      const { field, alert } = PLACE[c.place];
-      rows.push({ ...base, alert_id: alert, ...(await review(c.case_id, alert, withOnly(zetaris, field, c.text))) });
+    } catch (err) {
+      rows.push({
+        case_id: `BASE-${b}`,
+        family: "baseline",
+        place: "own text",
+        technique: "none",
+        violation: false,
+        alert_id: b,
+        decision: "ERROR",
+        receipts: 0,
+        latency_s: 0,
+        error: String(err).slice(0, 200),
+      });
     }
-  } catch (err) {
-    rows.push({ ...base, decision: "ERROR", receipts: 0, latency_s: 0, error: String(err).slice(0, 200) });
+    console.log(`baseline ${b}: ${rows.at(-1)?.decision}`);
   }
-  console.log(`${c.case_id} ${c.family}/${c.technique}: ${rows.at(-1)?.decision}`);
-}
+for (const c of cases)
+  for (let k = 1; k <= textRuns; k++) {
+    const base = {
+      case_id: c.case_id,
+      family: c.family,
+      place: c.place,
+      technique: c.technique,
+      violation: c.violation,
+    };
+    try {
+      if (c.place === "draft") {
+        const trace = createTraceLogger({
+          runId: `eval-advrev-${stamp}-${c.case_id}`,
+          dir: config.logging.dir,
+          stdout: false,
+          policyVersion: policy.version,
+        });
+        const started = performance.now();
+        const r = await screenOutbound({ config, policy, zetaris, generator, trace, now: () => new Date() }, c.text);
+        rows.push({
+          ...base,
+          decision: r.violation ? "DRAFT_BLOCKED" : "DRAFT_ALLOWED",
+          receipts: r.calls.filter((m) => m.receipt).length,
+          latency_s: Math.round(performance.now() - started) / 1000,
+        });
+      } else {
+        const { field, alert } = PLACE[c.place];
+        rows.push({
+          ...base,
+          alert_id: alert,
+          ...(await review(textRuns > 1 ? `${c.case_id}-${k}` : c.case_id, alert, withOnly(zetaris, field, c.text))),
+        });
+      }
+    } catch (err) {
+      rows.push({ ...base, decision: "ERROR", receipts: 0, latency_s: 0, error: String(err).slice(0, 200) });
+    }
+    console.log(`${c.case_id} ${c.family}/${c.technique}: ${rows.at(-1)?.decision}`);
+  }
 
 const texts = rows.filter((r) => r.family !== "baseline");
 const inbound = texts.filter((r) => r.place !== "draft");
@@ -285,7 +315,7 @@ const summary = {
 };
 const outDir = resolveProjectPath("eval/adversarial");
 mkdirSync(outDir, { recursive: true });
-const out = join(outDir, `review-${stamp}.json`);
+const out = join(outDir, `${baseOverride || only ? "check" : "review"}-${stamp}.json`);
 writeFileSync(
   out,
   `${JSON.stringify({ at: new Date().toISOString(), policy_version: policy.version, placement: PLACE, summary, rows }, null, 2)}\n`,
