@@ -497,6 +497,25 @@ const rounds = heldoutRounds(
   files.map((f) => ({ file: f, ...(JSON.parse(readFileSync(join(dir, f), "utf8")) as SavedResult) })),
 );
 const totals = heldoutTotals(rounds);
+/** The risk cases each arm wrongly closes under the labels as they were before the changes in eval/label-changes.json. */
+function originalWrongCloses(): string {
+  const moved = labelChanges.filter((c) => c.revised.must_not.length > c.original.must_not.length);
+  if (moved.length === 0) return "";
+  const original = new Map<string, LabelSet>([...labels, ...originalLabels]);
+  const before = armRows(
+    examArms(
+      files.map((f) => ({ ...(JSON.parse(readFileSync(join(dir, f), "utf8")) as Result), file: f })),
+      original,
+    ),
+  );
+  const figures = before
+    .filter((a) => a.run !== undefined)
+    .map((a) => {
+      const f = examFigures(a.run as Result & { file: string });
+      return `${a.label}: ${f.wrong} of ${f.risk}`;
+    });
+  return `**Under the original labels.** ${moved.map((c) => c.case_id).join(", ")} was relabelled after the runs, because the 50 percent rule applies through the holding company (\`eval/cases/README.md\`). With the labels as they were, the risk cases wrongly closed are: ${figures.join("; ")}.`;
+}
 const framing = rulesFraming(arms.rules ? examFigures(arms.rules) : undefined, totals);
 /** The trade-off between the full system and Nemotron alone, in words, from the result files. */
 function tradeOffLines(): string[] {
@@ -572,6 +591,8 @@ if (armRows(arms).some((a) => a.run !== undefined)) {
     "| System | Risk cases wrongly closed | Clear cases closed | Escalated | Blocks recommended | Unsupported blocks | Unusable answers | Decision answer used came from | File |",
     "|---|---:|---:|---:|---:|---:|---:|---|---|",
     ...armRows(arms).map((a) => fiveRow(a.label, a.run)),
+    "",
+    originalWrongCloses(),
     "",
     ...heldoutTotalsTable(heldoutSummary(totals)),
     "",

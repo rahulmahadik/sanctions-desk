@@ -34,6 +34,8 @@ The same 70 cases through the full system (the first system's run, and runs of t
 | Nemotron alone, without the free text | 3 of 43 (2–19%) | 23 of 25 (75–98%) | 3 of 70 | 32 | 5 of 35 (6–29%) | 4 | Ultra 50, Lightning (fast-lane retry) 14, Ollama backup 2, none 4 | [result](results/2026-10-25T10-41-35-156Z-notext70-nemotron_alone.json) |
 | Nemotron alone, with the free text (sent to the cloud) | 6 of 43 (7–27%) | 23 of 25 (75–98%) | 2 of 70 | 25 | 1 of 35 (1–15%) | 4 | Ultra 33, Lightning (fast-lane retry) 30, Ollama backup 3, none 4 | [result](results/2026-10-25T09-30-17-773Z-text70-nemotron_alone.json) |
 
+**Under the original labels.** EX-043 was relabelled after the runs, because the 50 percent rule applies through the holding company (`eval/cases/README.md`). With the labels as they were, the risk cases wrongly closed are: Full system, first system: 0 of 42; Full system, current system before the block fix: 0 of 42; Full system, current system: 0 of 42; Deterministic rules: 0 of 42; Name-match rules baseline: 10 of 42; Nemotron alone, without the free text: 3 of 42; Nemotron alone, with the free text (sent to the cloud): 5 of 42.
+
 **Blind held-out rounds, totals** (4 rounds, cases the rules were not written for; each round ran the system of its time, one run each; per round in the held-out table):
 
 | System | Risk cases wrongly closed | Clear cases closed |
