@@ -4,18 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'none'" />
     <meta name="theme-color" content="#0b1a2e" />
     <meta
       name="description"
-      content="Sanctions Desk: a review desk for sanctions-screening alerts. The desk recommends; a person makes the final call (automatic closing is off by default)."
+      content="Sanctions Desk gathers and checks the evidence for every sanctions-screening alert and recommends an outcome. A person with the right entitlement approves it."
     />
     <title>Sanctions Desk</title>
     <link rel="preload" href="fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="site.css" />
+    <script src="site.js" defer></script>
   </head>
   <body class="page-home">
     <a class="skip-link" href="#main">Skip to content</a>
-    <header class="topbar">
+    <header class="topbar" id="top">
       <div class="container">
         <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">SD</span>Sanctions Desk</a>
         <nav aria-label="Site">
@@ -32,22 +34,62 @@
       </div>
     </header>
 
-    <!-- The figures between the fact markers are written by npm run site:build from the committed data (tools/lib/site-facts.ts). -->
     <section class="hero" aria-labelledby="title">
+      <div class="container hero-grid">
+        <div class="hero-text">
+          <p class="eyebrow">A review desk for sanctions-screening alerts</p>
+          <h1 id="title">Sanctions Desk</h1>
+          <p class="promise">
+            The desk gathers and checks the evidence for every sanctions-screening alert and recommends an outcome.
+            <strong>A person with the right entitlement approves it.</strong>
+          </p>
+          <p class="sub">
+            Every review leaves a sealed record, signed receipts and a step-by-step replay. Nothing in it blocks an account,
+            writes to a source system or contacts a customer.
+          </p>
+          <p class="actions">
+            <a class="btn btn-primary" href="results.html">See the results</a>
+            <a class="btn btn-ghost" href="runs/index.html">Replay a recorded run</a>
+            <a class="btn btn-ghost" href="receipts/index.html">Open the receipt log</a>
+            <a class="btn btn-ghost" href="https://youtu.be/cF4ZXKxjpxs" target="_blank" rel="noopener noreferrer">Watch the demo video (3:51)</a>
+            <a class="btn btn-ghost" href="media/sanctions-desk-deck.pdf">Read the deck (PDF)</a>
+          </p>
+        </div>
+        <figure class="video">
+          <div class="video-frame">
+            <a
+              class="video-link"
+              href="https://youtu.be/cF4ZXKxjpxs"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-video="cF4ZXKxjpxs"
+              aria-label="Watch the demo video (3:51) on YouTube; opens in a new tab"
+            >
+              <img
+                src="media/video-thumbnail.png"
+                alt="Demo video thumbnail: the model alone said clear; the desk held the case for a person."
+                width="1280"
+                height="720"
+              />
+              <span class="play" aria-hidden="true"></span>
+            </a>
+          </div>
+          <figcaption>
+            A 3:51 walk-through of a live review, the checks, the receipts and the results, with subtitles in English,
+            Hindi, Spanish, Simplified Chinese, Japanese and Portuguese. Pressing play loads the player from
+            youtube-nocookie.com; until then nothing on this page comes from outside this site.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- The figures between the fact markers are written by npm run site:build from the committed data (tools/lib/site-facts.ts). -->
+    <section class="results-band" aria-labelledby="results-strip">
       <div class="container">
-        <p class="eyebrow">A review desk for sanctions-screening alerts</p>
-        <h1 id="title">Sanctions Desk</h1>
-        <p class="moment">
-          <strong>The desk recommends; a person decides.</strong> Every review leaves a sealed record, signed receipts
-          and a step-by-step replay.
-        </p>
-        <p class="actions">
-          <a class="btn btn-primary" href="results.html">See the results</a>
-          <a class="btn btn-ghost" href="runs/index.html">Replay a recorded run</a>
-          <a class="btn btn-ghost" href="receipts/index.html">Open the receipt log</a>
-          <a class="btn btn-ghost" href="https://youtu.be/cF4ZXKxjpxs" target="_blank" rel="noopener noreferrer">Watch the demo video (3:51)</a>
-          <a class="btn btn-ghost" href="media/sanctions-desk-deck.pdf">Read the deck (PDF)</a>
-        </p>
+        <div class="band-head">
+          <h2 id="results-strip">What the committed runs show</h2>
+          <a href="results.html">How each figure was measured</a>
+        </div>
         <ul class="stats">
           <li class="stat stat-good">
             <span class="value"><!--fact:full_wrong-->0 of 43<!--/fact--></span>
@@ -70,12 +112,114 @@
     </section>
 
     <main id="main" class="container">
-      <section class="section two-col" aria-label="What the desk is">
+      <section class="section problem" aria-labelledby="problem" data-reveal>
         <div class="measure">
-          <p>
-            A review desk for sanctions-screening alerts. The desk recommends; a person makes the final call (automatic closing is off by default). Nothing in it blocks an
-            account, writes to a source system or contacts a customer.
+          <p class="kicker">The problem</p>
+          <h2 id="problem">Thousands of alerts, and the one that is real</h2>
+          <p class="lead">
+            A bank's name screening raises thousands of alerts. Most are near-matches on a common name, and analysts work
+            each one by hand: they pull the list entry, the customer and the payment from separate systems, compare them
+            and write up why the alert can be closed. The work is slow and repetitive, and the costly mistake is the rare
+            one: closing the alert that is a real match.
           </p>
+        </div>
+        <ol class="flow">
+          <li>
+            <span class="flow-step" aria-hidden="true">1</span>
+            <h3>Gathers</h3>
+            <p>
+              Reads the list entry, the customer, the payment and the ownership chain through Zetaris, one semantic
+              layer, with a read-only role for each step that reads data.
+            </p>
+          </li>
+          <li>
+            <span class="flow-step" aria-hidden="true">2</span>
+            <h3>Checks</h3>
+            <p>
+              Code gives a first finding, a critic re-reads every cited fact from the data (at most three rounds), a
+              challenger argues against a doubtful close, and a policy guard can only add caution.
+            </p>
+          </li>
+          <li>
+            <span class="flow-step" aria-hidden="true">3</span>
+            <h3>Recommends</h3>
+            <p>
+              One of four outcomes (close as a false positive, escalate, ask for more information, recommend a block),
+              with what decided it and what would change it, for a person to approve or override.
+            </p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="section" aria-labelledby="roles" data-reveal>
+        <p class="kicker">Who uses it</p>
+        <h2 id="roles">Three people, three views of the same record</h2>
+        <p class="lead">
+          Every outcome is a recommendation for approval by a person with the right entitlement. Automatic closing is off
+          by default.
+        </p>
+        <div class="roles">
+          <article class="card role">
+            <a class="role-shot" href="media/screenshots/09-risk-signals.png">
+              <img
+                src="media/screenshots/09-risk-signals.png"
+                width="2368"
+                height="507"
+                loading="lazy"
+                alt="The desk in sample mode: a risk signal from a payment reference, with the word Tehran marked and a note that it blocks a close."
+              />
+            </a>
+            <h3>Analyst</h3>
+            <p class="role-tag">works the alert</p>
+            <ul class="checks">
+              <li>a prepared case: the customer, the listed party, the payment and the data-quality results, with identifier numbers masked</li>
+              <li>the recommendation, what decided it, what would change it, and any risk signal marked in the free text</li>
+              <li>approves it or overrides it with a written reason; a block then waits for a second approval, and an override towards less caution needs an approver</li>
+            </ul>
+          </article>
+          <article class="card role">
+            <a class="role-shot" href="media/screenshots/17-live-decision-panel.png">
+              <img
+                src="media/screenshots/17-live-decision-panel.png"
+                width="2368"
+                height="1142"
+                loading="lazy"
+                alt="The decision panel on a live review: the desk recommends Escalate to level 2 and waits for a person to approve or override with a reason."
+              />
+            </a>
+            <h3>Senior reviewer</h3>
+            <p class="role-tag">the approver role, with the approval entitlement</p>
+            <ul class="checks">
+              <li>everything the analyst sees, and the same decision panel</li>
+              <li>gives the second approval of a block: the first may come from an analyst or an approver, the second must be a different person with the approver role</li>
+              <li>may override towards less caution (an override to a close waits for a second, different approver), and can stop automatic closing at once</li>
+            </ul>
+          </article>
+          <article class="card role">
+            <a class="role-shot" href="media/screenshots/16-live-model-per-step.png">
+              <img
+                src="media/screenshots/16-live-model-per-step.png"
+                width="2368"
+                height="1137"
+                loading="lazy"
+                alt="The review steps of a live review: each model step with the Nemotron model that answered, its receipt id and the signature check."
+              />
+            </a>
+            <h3>Auditor</h3>
+            <p class="role-tag">the read-only viewer role</p>
+            <ul class="checks">
+              <li>reads everything and changes nothing</li>
+              <li>the sealed decision record of every review, and a signed receipt for every Nightshift answer, checkable against the pinned key</li>
+              <li>a replay of each run event by event, and the audit log of every action, accepted or refused, under the person's id</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section two-col" aria-labelledby="built" data-reveal>
+        <div class="measure">
+          <p class="kicker">How it is built</p>
+          <h2 id="built">Zetaris for data, Nightshift for models</h2>
           <p>
             Built on Zetaris, the only data path (one semantic layer over the sanctions lists, a bank database and a
             payments service); Meterless Nightshift, the primary path for every model call to local and cloud Nemotron models,
@@ -84,8 +228,9 @@
             (re-screening earlier decisions after a list change).
           </p>
           <p class="muted">
-            This site is documentation only. It is static and makes no call to the desk, its API or any other service; to
-            try the desk, run it in sample mode as the README describes.
+            This site is documentation only. It is static and makes no call to the desk, its API or any other service until
+            you press play on the video, which then loads from youtube-nocookie.com. To try the desk, run it in sample mode
+            as the README describes.
           </p>
         </div>
         <div class="card">
@@ -101,35 +246,19 @@
             <li><span class="step-name">Backup when Nightshift cannot answer</span><span class="badge badge-backup">Ollama · backup, no receipt</span></li>
             <!-- steps:end -->
           </ul>
-          <p class="muted summary-line" style="margin-top: 12px">
+          <p class="muted summary-line steps-note">
             The desk pins the mode it asks for, not the model that serves it. Details on the <a href="results.html#nemotron-scorecard">Nemotron scorecard</a>.
           </p>
         </div>
       </section>
 
-      <section class="section" aria-labelledby="video">
-        <h2 id="video">Demo video</h2>
-        <figure class="diagram video">
-          <a href="https://youtu.be/cF4ZXKxjpxs" target="_blank" rel="noopener noreferrer">
-            <img
-              src="media/video-thumbnail.png"
-              alt="Demo video thumbnail: the model alone said clear; the desk held the case for a person. Opens the 3:51 video on YouTube in a new tab."
-              width="1280"
-              height="720"
-              loading="lazy"
-            />
-          </a>
-          <figcaption>
-            A 3:51 walk-through of a live review, the checks, the receipts and the results. Opens on YouTube in a new tab;
-            subtitles in English, Hindi, Spanish, Simplified Chinese, Japanese and Portuguese. The 15-slide
-            <a href="media/sanctions-desk-deck.pdf">deck (PDF)</a> covers the same ground.
-          </figcaption>
-        </figure>
-      </section>
-
-      <section class="section" aria-labelledby="read">
+      <section class="section" aria-labelledby="read" data-reveal>
         <h2 id="read">Read</h2>
         <div class="cards">
+          <a class="card card-link" href="media/sanctions-desk-deck.pdf">
+            <span class="title">The deck (PDF)</span>
+            <span class="desc">the same ground as the video in 15 slides: the problem, how a review runs, the checks, the receipts and the results</span>
+          </a>
           <a class="card card-link" href="results.html">
             <span class="title">Results</span>
             <span class="desc">the held-out rounds as run, the small studies of Nemotron alone and of model choice, the safety guard against injected text and the receipt statistics, copied from the generated blocks of the README and the docs</span>
@@ -155,7 +284,7 @@
             <span class="desc">the source, the committed runs and receipts, and the README with the quick start (Apache-2.0)</span>
           </a>
         </div>
-        <ul class="links" style="margin-top: 18px">
+        <ul class="links links-gap">
           <li>
             <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/README.md">README</a><span class="muted">: what the desk does, how it was tested, and the quick start</span>
           </li>
@@ -174,14 +303,14 @@
         </ul>
       </section>
 
-      <section class="section" aria-labelledby="architecture">
+      <section class="section" aria-labelledby="architecture" data-reveal>
         <h2 id="architecture">Architecture</h2>
         <figure class="diagram">
           <a href="architecture.html">
             <img
+              class="fill"
               src="media/diagrams/1-architecture.svg"
               alt="Architecture: the review desk, the desk agents reading through Zetaris, the safety guard and screener on local Lightning, the decision and critic on cloud Ultra, the policy guard, the person and the sealed record."
-              style="width: 100%; height: auto"
             />
           </a>
           <figcaption>
@@ -191,7 +320,7 @@
         </figure>
       </section>
 
-      <section class="section" aria-labelledby="charts">
+      <section class="section" aria-labelledby="charts" data-reveal>
         <h2 id="charts">Charts</h2>
         <p class="lead">Drawn from the committed evaluation files; the README explains each run.</p>
         <div class="charts">
@@ -201,6 +330,7 @@
                 src="media/charts/heldout-wrong-closes.png"
                 width="1920"
                 height="1080"
+                loading="lazy"
                 alt="Bar chart: risk cases wrongly closed in each held-out round, for the full system and three simpler baselines."
               />
             </a>
@@ -215,6 +345,7 @@
                 src="media/charts/first-recommendation-closes.png"
                 width="1920"
                 height="1080"
+                loading="lazy"
                 alt="Chart: per run, how often the decision step first proposed closing a risk case, and how many of those the checks stopped."
               />
             </a>
@@ -229,6 +360,7 @@
                 src="media/charts/critic-mutation.png"
                 width="1920"
                 height="1080"
+                loading="lazy"
                 alt="Chart: the critic's fact re-check, changed facts caught (25 cited facts could not be checked in sample mode) and unchanged decisions approved."
               />
             </a>
@@ -240,6 +372,7 @@
                 src="media/charts/model-calls.png"
                 width="1920"
                 height="1080"
+                loading="lazy"
                 alt="Chart: which model served each step in the headline run, local or cloud, and the signed receipts verified."
               />
             </a>
@@ -253,6 +386,7 @@
                 src="media/charts/model-latency.png"
                 width="1920"
                 height="1080"
+                loading="lazy"
                 alt="Chart: median and 95th-percentile time per model call, by step and by the Nemotron model that served it."
               />
             </a>
@@ -266,6 +400,7 @@
       <div class="container">
         <p>Sanctions Desk. The desk recommends; a person decides.</p>
         <p>Source and licence: <a href="https://github.com/rahulmahadik/sanctions-desk">github.com/rahulmahadik/sanctions-desk</a> (Apache-2.0).</p>
+        <p><a class="to-top" href="#top" aria-label="Back to top">Back to top</a></p>
       </div>
     </footer>
   </body>

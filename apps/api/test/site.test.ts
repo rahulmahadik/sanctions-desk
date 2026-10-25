@@ -169,10 +169,49 @@ describe("the documentation site", () => {
     for (const page of pages) {
       const text = html(page);
       expect(text, page).not.toMatch(/localhost|127\.0\.0\.1|fetch\(/);
-      if (page !== "api.html") expect(text, page).not.toMatch(/<script|<iframe/);
+      // No page carries a player: the home page's script makes the video's frame only when play is pressed.
+      expect(text, page).not.toMatch(/<iframe/);
+      if (page === "index.html") {
+        // The home page loads one script, the site's own site.js, and runs nothing inline.
+        const tags = [...text.matchAll(/<script\b[^>]*>/g)].map((m) => m[0]);
+        expect(tags, page).toEqual(['<script src="site.js" defer>']);
+      } else if (page !== "api.html") expect(text, page).not.toMatch(/<script/);
       for (const m of text.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g))
         expect(/^(\.\.\/)?site\.css$/.test(m[1] as string), `${page}: ${m[1]}`).toBe(true);
     }
+  });
+
+  it("keeps the home page's content policy to the site itself, with the video's player frame the only outside origin", () => {
+    const csp = /http-equiv="Content-Security-Policy" content="([^"]+)"/.exec(html("index.html"))?.[1] ?? "";
+    const directives = Object.fromEntries(
+      csp.split(";").map((d) => {
+        const [name, ...sources] = d.trim().split(/\s+/);
+        return [name as string, sources];
+      }),
+    );
+    expect(directives["default-src"]).toEqual(["'self'"]);
+    expect(directives["script-src"]).toEqual(["'self'"]);
+    expect(directives["style-src"]).toEqual(["'self'"]);
+    expect(directives["img-src"]).toEqual(["'self'", "data:"]);
+    expect(directives["frame-src"]).toEqual(["https://www.youtube-nocookie.com"]);
+    expect(csp).not.toMatch(/unsafe-|\*/);
+    expect(csp.match(/https?:\/\/[^\s;]+/g)).toEqual(["https://www.youtube-nocookie.com"]);
+    // style-src 'self' would drop inline styles, so the page has none.
+    expect(html("index.html")).not.toMatch(/\sstyle="/);
+  });
+
+  it("ships a small script that loads nothing but the video's player, and only from youtube-nocookie.com", () => {
+    const js = readFileSync(join(out, "site.js"), "utf8");
+    expect(js.length).toBeLessThan(4000);
+    expect(js.match(/https?:\/\/[^\s"'`]+/g)).toEqual(["https://www.youtube-nocookie.com/embed/"]);
+    expect(js).not.toMatch(
+      /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|import\(|\beval\(|innerHTML|document\.write|localStorage/,
+    );
+    expect(js).toContain('createElement("iframe")');
+    // Without the script the thumbnail is a plain link to the video, opening in a new tab.
+    expect(html("index.html")).toMatch(
+      /<a\s+class="video-link"\s+href="https:\/\/youtu\.be\/cF4ZXKxjpxs"\s+target="_blank"\s+rel="noopener noreferrer"/,
+    );
   });
 
   it("fills the landing page's figures from the committed data, and the committed page carries them", () => {

@@ -17,9 +17,10 @@ import { fillIndex, siteFacts } from "./site-facts.js";
 
 /** The committed pages of the site, copied when the site is built somewhere other than site/. */
 export const SITE_PAGES = ["index.html", "api.html", "architecture.html"] as const;
-/** The committed assets every page loads. */
+/** The committed assets the pages load: the stylesheet, the home page's one small script, the fonts, Redoc. */
 export const SITE_ASSETS = [
   "site.css",
+  "site.js",
   ...FONT_FILES,
   "vendor/redoc/redoc.standalone.js",
   "vendor/redoc/redoc.standalone.js.LICENSE.txt",
@@ -39,6 +40,12 @@ export const SITE_IMAGES: Record<string, string> = {
     ].map((n) => [`media/diagrams/${n}.svg`, `docs/diagrams/${n}.svg`]),
   ),
   "media/video-thumbnail.png": "docs/media/video-thumbnail.png",
+  ...Object.fromEntries(
+    ["09-risk-signals", "16-live-model-per-step", "17-live-decision-panel"].map((n) => [
+      `media/screenshots/${n}.png`,
+      `docs/media/screenshots/${n}.png`,
+    ]),
+  ),
   "media/sanctions-desk-deck.pdf": "docs/sanctions-desk-deck.pdf",
   "media/charts/heldout-wrong-closes.png": "docs/media/charts/heldout-wrong-closes.png",
   "media/charts/first-recommendation-closes.png": "docs/media/charts/first-recommendation-closes.png",
