@@ -60,10 +60,14 @@ function ModelChips({ step }: { step: StepView }) {
           >
             receipt {step.receiptId}
           </a>
-          <div data-testid={`receipt-check-${step.id}`}>{receiptWords(step.receiptCheck)}</div>
+          <div data-testid={`receipt-check-${step.id}`}>
+            {step.receiptRejected ? `answer not used: ${step.receiptRejected}` : receiptWords(step.receiptCheck)}
+          </div>
         </>
       ) : (
-        <div data-testid={`receipt-check-${step.id}`}>{noReceiptWords(step.provider)}</div>
+        <div data-testid={`receipt-check-${step.id}`}>
+          {step.receiptRejected ? `answer not used: ${step.receiptRejected}` : noReceiptWords(step.provider)}
+        </div>
       )}
     </div>
   );

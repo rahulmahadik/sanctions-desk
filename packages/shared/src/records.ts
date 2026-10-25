@@ -143,6 +143,8 @@ export const ModelUseSchema = z.strictObject({
   served_mode: nonEmpty.optional(),
   /** Signed receipt for this call; the full envelope is stored beside the trace. */
   receipt: ReceiptSummarySchema.optional(),
+  /** Set when the answer was not used because its Nightshift receipt was missing or not signed by the pinned key. */
+  receipt_rejected: nonEmpty.optional(),
 });
 
 export type MemoryUseInput = z.input<typeof MemoryUseSchema>;

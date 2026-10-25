@@ -52,6 +52,8 @@ export interface StepView {
   receiptId?: string;
   /** The desk's check of the receipt when the call was made (for example valid_pinned). */
   receiptCheck?: string;
+  /** Set when the desk did not use this answer because its receipt was missing or not signed by the pinned key. */
+  receiptRejected?: string;
   provider?: string;
 }
 
@@ -89,6 +91,8 @@ function applyToStep(step: StepView, event: RunEvent): void {
     step.provider = event.provider;
     step.receiptId = event.receipt?.receipt_id;
     step.receiptCheck = event.receipt?.verification;
+    const rejected = event.detail?.receipt_rejected;
+    step.receiptRejected = typeof rejected === "string" ? rejected : undefined;
   }
   if (event.route_kind !== undefined) step.route = event.route_kind;
   if (event.latency_ms !== undefined) step.latencyMs = event.latency_ms;

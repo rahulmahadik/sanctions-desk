@@ -76,6 +76,19 @@ const laneOrModel = (value: string): { lane: Lane } | { model: string } =>
 
 const isLane = (value: string): value is Lane => (LANES as readonly string[]).includes(value);
 
+/**
+ * Why a Nightshift answer cannot be used because of its receipt: none, or one not signed by the pinned key. Undefined
+ * when the receipt verifies against the pinned key, and for the Ollama backup and the sample stand-in, which have no
+ * receipt by design.
+ */
+export function receiptProblem(result: GenerateResult): string | undefined {
+  if (result.provider !== "nightshift") return undefined;
+  const status = result.receipt?.verification;
+  if (status === undefined) return "receipt missing";
+  if (status === "valid_pinned") return undefined;
+  return status === "valid_unpinned" ? "receipt not signed by the pinned key" : `receipt ${status}`;
+}
+
 function modelUseOf(agent: AgentName, result: GenerateResult, thinking: ModelUseInput["thinking"]): ModelUseInput {
   return {
     agent,
@@ -90,6 +103,7 @@ function modelUseOf(agent: AgentName, result: GenerateResult, thinking: ModelUse
     latency_ms: result.latencyMs,
     ...(result.modeMismatch && result.servedMode !== undefined ? { served_mode: result.servedMode } : {}),
     ...(result.receipt ? { receipt: result.receipt } : {}),
+    ...(receiptProblem(result) ? { receipt_rejected: receiptProblem(result) } : {}),
   };
 }
 
@@ -239,6 +253,8 @@ function logStep(
     lane?: string;
     /** For a failed call: the error type and, per provider tried, its error type and message. */
     failure?: Record<string, unknown>;
+    /** Why an answer was not used because of its receipt. */
+    receiptRejected?: string;
   },
 ): void {
   const fields = step.result ? modelTraceFields(step.result) : {};
@@ -255,6 +271,7 @@ function logStep(
       structured: step.structured === true,
       ...(step.route ? { route: step.route } : {}),
       ...(step.lane ? { lane: step.lane } : {}),
+      ...(step.receiptRejected ? { receipt_rejected: step.receiptRejected } : {}),
       // Whether the answer arrived as a bare JSON object, which is what schema-constrained output should give.
       ...(step.result ? { pure_json: /^\s*\{[\s\S]*\}\s*$/.test(step.result.text) } : {}),
       // The steps that read raw free text keep no excerpt of a failed answer: it can repeat the customer's text.
@@ -316,19 +333,24 @@ function answeredRound(
   if (result.receipt && result.receiptEnvelope) {
     writeReceiptFile(deps.config.logging.dir, result.receipt.receipt_id, result.receiptEnvelope);
   }
-  const ok = "value" in outcome;
+  // An answer is used only when its Nightshift receipt is signed by the pinned key; otherwise the step retries as for
+  // any unusable answer, and with nothing usable the case is held.
+  const rejected = receiptProblem(result);
+  const ok = "value" in outcome && rejected === undefined;
+  const problem = rejected ? `answer not used: ${rejected}` : "problem" in outcome ? outcome.problem : "";
   logStep(deps, agent, {
     attempt: ctx.attempt,
     last: ctx.last,
     ok,
-    summary: ok ? `valid answer on attempt ${ctx.attempt}` : outcome.problem,
+    summary: ok ? `valid answer on attempt ${ctx.attempt}` : problem,
+    ...(rejected ? { receiptRejected: rejected } : {}),
     reasoning: ctx.reasoning,
     result,
     structured: tried.structured,
     route: ctx.route,
     lane: ctx.lane,
   });
-  return ok ? { done: true, value: outcome.value, route: ctx.route } : { done: false, problem: outcome.problem };
+  return ok && "value" in outcome ? { done: true, value: outcome.value, route: ctx.route } : { done: false, problem };
 }
 
 /** One round of asking: reasoning on the first try, the fast local path on the retry. */
