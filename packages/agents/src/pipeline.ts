@@ -1,3 +1,4 @@
+import { relative } from "node:path";
 import {
   AppError,
   type Citation,
@@ -499,7 +500,8 @@ export async function runReview(deps: AgentDeps, request: ReviewRequest): Promis
     action: "seal_record",
     status: "ok",
     output_summary: `record ${record.record_id} sealed`,
-    detail: { record_hash: record.record_hash, file },
+    // Relative to the log folder: an absolute path would carry the machine's user name into the trace.
+    detail: { record_hash: record.record_hash, file: relative(deps.config.logging.dir, file) },
   });
 
   const citations: Citation[] = evidence.citations.map((c) => ({ ...c, row_keys: c.row_keys }));

@@ -79,7 +79,7 @@ export async function screenInbound(deps: AgentDeps, texts: readonly string[]): 
   const unchecked = verdict === undefined;
   const violation = hits.length > 0 || verdict?.violation === true || unchecked;
   const reasons = [
-    ...(hits.length > 0 ? [`instruction-like text: ${hits.join("; ")}`] : []),
+    ...(hits.length > 0 ? [`instruction-like text (${hits.join(", ")})`] : []),
     ...(verdict?.violation ? verdict.reasons : []),
     ...(unchecked ? ["the guard model could not check the text, so it is not treated as clean"] : []),
   ];
@@ -97,7 +97,14 @@ export async function screenInbound(deps: AgentDeps, texts: readonly string[]): 
     action: "screen_inbound",
     status: violation ? "blocked" : "ok",
     input_summary: `${texts.length} text field(s) from the data`,
-    output_summary: violation ? `flagged: ${reasons.join("; ").slice(0, 250)}` : "no instruction-like text",
+    // The model's reasons quote the text, so the trace keeps only what flagged it; the reasons go to the caller.
+    output_summary: violation
+      ? `flagged: ${[
+          ...(hits.length > 0 ? [hits.join(", ")] : []),
+          ...(verdict?.violation ? ["the guard model"] : []),
+          ...(unchecked ? ["the guard model could not check the text"] : []),
+        ].join("; ")}`
+      : "no instruction-like text",
     detail: { pattern_hits: hits.length, model_answered: verdict !== undefined },
   });
   return result;

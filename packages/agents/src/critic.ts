@@ -4,6 +4,7 @@ import {
   type NotCitable,
   type Policy,
   type QueryEvidenceInput,
+  withholdQuoted,
 } from "@sanctions-desk/shared";
 import type { EvidenceTool } from "@sanctions-desk/zetaris";
 import { z } from "zod";
@@ -303,7 +304,8 @@ export async function review(
       (notCitable.length > 0
         ? `, ${notCitable.length} set aside as not citable (${notCitable.map((n) => `${n.table}.${n.column}`).join(", ")})`
         : ""),
-    detail: { issues, round, not_citable: notCitable },
+    // The issues quote the values compared; the trace withholds them (the sealed record keeps them).
+    detail: { issues: issues.map(withholdQuoted), round, not_citable: notCitable },
   });
 
   const prompt = [
@@ -343,7 +345,7 @@ export async function review(
     action: "judge",
     status: approved ? "ok" : "blocked",
     target_agent: approved ? "policy_guard" : "decision",
-    output_summary: approved ? "approved" : `rejected: ${all.join("; ").slice(0, 300)}`,
+    output_summary: approved ? "approved" : `rejected: ${withholdQuoted(all.join("; ")).slice(0, 300)}`,
   });
   return { approved, issues: all, checks, calls, notCitable };
 }

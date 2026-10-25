@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AppError, makeRedactor, Secret, toStructuredError } from "../src/index.js";
+import { AppError, makeRedactor, Secret, toStructuredError, withholdQuoted } from "../src/index.js";
 
 describe("makeRedactor", () => {
   it("masks exact secret values anywhere in a string", () => {
@@ -48,5 +48,20 @@ describe("AppError", () => {
   it("turns unknown errors into non-recoverable internal errors", () => {
     expect(toStructuredError(new Error("boom"))).toEqual({ type: "internal", message: "boom", recoverable: false });
     expect(toStructuredError("text").message).toBe("text");
+  });
+});
+
+describe("withholdQuoted and token_source", () => {
+  it("withholds quoted values and keeps the meaning", () => {
+    expect(withholdQuoted('customer.date_of_birth is "1978-01-15", not "1967-01-17"')).toBe(
+      "customer.date_of_birth is [value withheld], not [value withheld]",
+    );
+  });
+  it("does not hide which kind of credential a query used", () => {
+    const redact = makeRedactor();
+    expect(redact({ token_source: "role", api_key: "abcdefgh" })).toEqual({
+      token_source: "role",
+      api_key: "[REDACTED]",
+    });
   });
 });

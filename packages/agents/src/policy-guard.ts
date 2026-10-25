@@ -93,14 +93,17 @@ export function closeBlockers(policy: Policy, evidence: EvidenceBundle, document
   return reasons;
 }
 
-/** Instructions hidden in data: the policy's patterns, matched case-insensitively. */
+/**
+ * Instructions hidden in data: the policy's patterns, matched case-insensitively. Each hit is named by the pattern's
+ * number in the policy, not by the text it matched, so no customer text is carried into a trace.
+ */
 export function findInjection(policy: Policy, texts: readonly string[]): string[] {
   const hits: string[] = [];
-  for (const pattern of policy.guards.injectionPatterns) {
+  policy.guards.injectionPatterns.forEach((pattern, i) => {
     const re = new RegExp(pattern, "i");
-    for (const text of texts) if (re.test(text)) hits.push(text.slice(0, 80));
-  }
-  return [...new Set(hits)];
+    if (texts.some((text) => re.test(text))) hits.push(`injection pattern ${i + 1}`);
+  });
+  return hits;
 }
 
 const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

@@ -257,7 +257,12 @@ function logStep(
       ...(step.lane ? { lane: step.lane } : {}),
       // Whether the answer arrived as a bare JSON object, which is what schema-constrained output should give.
       ...(step.result ? { pure_json: /^\s*\{[\s\S]*\}\s*$/.test(step.result.text) } : {}),
-      ...(!step.ok && step.result ? failureExcerpt(step.result) : {}),
+      // The steps that read raw free text keep no excerpt of a failed answer: it can repeat the customer's text.
+      ...(!step.ok && step.result
+        ? agent === "screener" || agent === "policy_guard"
+          ? { finish_reason: step.result.finishReason ?? null, answer_chars: step.result.text.length }
+          : failureExcerpt(step.result)
+        : {}),
       ...(step.failure ?? {}),
     },
   });
