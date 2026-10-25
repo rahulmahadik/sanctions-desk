@@ -144,6 +144,9 @@
           <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/API.md">API notes</a><span class="muted">: errors, sign-in, demo users and worked examples</span>
         </li>
         <li>
+          <a href="architecture.html">Architecture diagrams</a><span class="muted">: six diagrams of how a review runs, its fail-closed paths, the life of an alert, where data goes and who may read what</span>
+        </li>
+        <li>
           <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/ARCHITECTURE.md">Architecture</a><span class="muted">: the agents, the data path and the checks around the decision</span>
         </li>
         <li>
@@ -153,17 +156,16 @@
 
       <h2>Architecture</h2>
       <figure>
-        <a href="media/architecture.png">
+        <a href="architecture.html">
           <img
-            src="media/architecture.png"
-            width="1200"
-            height="760"
-            alt="Architecture diagram: the agents read only through Zetaris; the model steps go through Nightshift to local and cloud Nemotron models; a raise-only policy guard checks the recommendation; a person makes the decision."
+            src="media/diagrams/1-architecture.svg"
+            alt="Architecture: the review desk, the desk agents reading through Zetaris, the safety guard and screener on local Lightning, the decision and critic on cloud Ultra, the policy guard, the person and the sealed record."
+            style="width: 100%; height: auto"
           />
         </a>
         <figcaption>
-          The agents, Zetaris as the only data path, local and cloud Nemotron through Nightshift, the raise-only policy
-          guard and the human decision.
+          How a review runs. Five more diagrams (one live review step by step, the fail-closed paths, the life of an
+          alert, where customer data goes, and who may read what in Zetaris) are on the <a href="architecture.html">architecture page</a>.
         </figcaption>
       </figure>
 

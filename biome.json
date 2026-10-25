@@ -11,6 +11,7 @@
       "!**/node_modules",
       "!eval/runs",
       "!eval/studies",
+      "!docs/diagrams/*.svg",
       "!eval/results",
       "!eval/adversarial",
       "!eval/REPORT.md",

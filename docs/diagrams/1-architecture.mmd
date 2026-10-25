@@ -1,0 +1,44 @@
+%% Architecture of one review. Labels follow the code (packages/agents/src/pipeline.ts, safety.ts, screener.ts,
+%% policy-guard.ts; config/policy.default.json). Rendered by npm run diagrams.
+flowchart TB
+  classDef hold fill:#78350f,stroke:#f59e0b,color:#ffffff
+  classDef store fill:#13325c,stroke:#22c55e,color:#ffffff
+  classDef person fill:#14532d,stroke:#22c55e,color:#ffffff
+
+  UI["Review desk (browser)"] --> DESK
+
+  subgraph ZET["Zetaris: semantic layer screening_usl, 14 tables"]
+    direction LR
+    LISTS[("OFAC and UN lists,<br/>definitions")]:::store
+    BANK[("Bank database<br/>Postgres, JDBC")]:::store
+    PAY[("Payments<br/>REST table")]:::store
+  end
+
+  DESK["Desk agents<br/>triage · evidence · matching or ownership · memory"]
+  DESK -- "read-only SQL,<br/>one Zetaris role per step" --> ZET
+
+  subgraph LAPTOP["Analyst's machine: raw text is read only here"]
+    direction LR
+    SAFE["Safety guard<br/>patterns + Lightning asked twice<br/>+ 'addresses the reviewer?'"]
+    SCREEN["Screener<br/>notes, payment references,<br/>list remarks"]
+    LIGHT["Nemotron 3.5 Lightning 30B<br/>local, via Nightshift"]
+    SAFE --> LIGHT
+    SCREEN --> LIGHT
+  end
+
+  DEC["Decision ⇄ critic (at most 3 rounds),<br/>challenger on a proposed close"]
+  subgraph CLOUD["Cloud: structured facts only, no free text"]
+    ULTRA["Nemotron 3 Ultra 550B<br/>via Nightshift"]
+  end
+  DEC -- "prompt checked for free text<br/>before it is sent" --> ULTRA
+
+  DESK -- "raw free text" --> LAPTOP
+  LAPTOP -- "risk signals with positions" --> DEC
+  DESK -- "structured facts" --> DEC
+  DEC --> PG["Policy guard<br/>fixed rules, can only raise"]
+  PG --> PERSON["A person decides: approve or override, with a reason<br/>four-eyes on blocks and on overrides to a close"]:::person
+  PERSON --> REC[("Sealed record, trace,<br/>signed Nightshift receipts")]:::store
+
+  LAPTOP -. "a flag, no answer, or an answer<br/>served from the cloud" .-> HOLD["Held for a person:<br/>escalate, never close"]:::hold
+  PG -. "a failed check" .-> HOLD
+  HOLD --> PERSON

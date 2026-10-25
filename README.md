@@ -14,7 +14,9 @@
 [![CI](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml) [![TypeScript 7](https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white)](package.json) [![Node >=24](https://img.shields.io/badge/node-%3E%3D24-339933?logo=nodedotjs&logoColor=white)](package.json) [![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 <!-- badges:end -->
 
-![Architecture: agents, Zetaris as the only data path, local and cloud Nemotron through Nightshift, a raise-only policy guard and a person who decides](docs/media/architecture.png)
+![Architecture: the desk agents read only through Zetaris; the safety guard and screener read the raw text on local Nemotron 3.5 Lightning; the decision and critic send only structured facts to Nemotron 3 Ultra in the cloud; a raise-only policy guard and a person who decides; flags, missing answers and cloud-served answers for raw text hold the case](docs/diagrams/1-architecture.svg)
+
+*Five more diagrams (one live review step by step, the fail-closed paths, the life of an alert, where customer data goes, who may read what in Zetaris): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#diagrams) and the [architecture page](https://rahulmahadik.github.io/sanctions-desk/architecture.html).*
 
 ![A review of alert ALR-0073 in sample mode: the steps light up, the Tehran signal in the payment reference, and the checks that keep the case open](docs/media/gifs/case-review.gif)
 

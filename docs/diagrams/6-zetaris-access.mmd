@@ -1,0 +1,13 @@
+%% Which Zetaris role each step reads with, and what it may read. From packages/zetaris/src/usl-spec.ts and client.ts;
+%% checked against Zetaris itself by npm run check:step-roles (zetaris/step-roles-check.json, 85 of 85).
+flowchart LR
+  classDef role fill:#13325c,stroke:#22c55e,color:#ffffff
+  classDef refuse fill:#78350f,stroke:#f59e0b,color:#ffffff
+
+  EV["evidence reads,<br/>data quality, queue"] --> R1["role_evidence_agent<br/>all 14 tables<br/>(identifier numbers masked by the desk)"]:::role
+  OW["ownership"] --> R2["role_ownership_agent<br/>beneficial_owner"]:::role
+  CR["critic re-read"] --> R3["role_critic_agent<br/>9 tables, no identifier tables"]:::role
+  ME["memory"] --> R4["role_memory_agent<br/>disposition"]:::role
+  DO["document-on-record check"] --> R5["role_document_agent<br/>customer_identifier"]:::role
+  RS["list-change re-check"] --> R6["role_rescreen_agent<br/>disposition, list_entry,<br/>alert, payment"]:::role
+  R2 & R3 & R4 & R5 & R6 -.-> NO["Every other table refused by Zetaris;<br/>writes refused; 85 of 85 checks"]:::refuse

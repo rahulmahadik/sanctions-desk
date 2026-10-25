@@ -14,11 +14,21 @@ import { buildResultsPage } from "./results-page.js";
 import { buildRunPages } from "./runs-site.js";
 
 /** The committed pages of the site, copied when the site is built somewhere other than site/. */
-export const SITE_PAGES = ["index.html", "api.html"] as const;
+export const SITE_PAGES = ["index.html", "api.html", "architecture.html"] as const;
 
 /** Each image the landing page shows: its path in the built site and the repository file it is copied from. */
 export const SITE_IMAGES: Record<string, string> = {
   "media/architecture.png": "docs/media/architecture.png",
+  ...Object.fromEntries(
+    [
+      "1-architecture",
+      "2-review-sequence",
+      "3-fail-closed",
+      "4-alert-lifecycle",
+      "5-data-privacy",
+      "6-zetaris-access",
+    ].map((n) => [`media/diagrams/${n}.svg`, `docs/diagrams/${n}.svg`]),
+  ),
   "media/charts/heldout-wrong-closes.png": "docs/media/charts/heldout-wrong-closes.png",
   "media/charts/first-recommendation-closes.png": "docs/media/charts/first-recommendation-closes.png",
   "media/charts/critic-mutation.png": "docs/media/charts/critic-mutation.png",

@@ -266,6 +266,8 @@ What follows is reference for the parts of the setup the checklist items above r
 
 ## Roles, identities and tokens
 
+![Zetaris access matrix: each step's role and tables; every other table and every write refused](diagrams/6-zetaris-access.svg)
+
 The application never uses the admin account at run time. Each identity is a **non-admin** user with its own API token and its own table-level grants. Each review step that reads data has its own role, granted only the tables that step reads; the application's per-agent allow-lists stay as a second layer:
 
 | Role                   | Identity used by                      | Tables granted                                                                                                                                                           |

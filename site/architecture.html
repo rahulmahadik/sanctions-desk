@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="description" content="Sanctions Desk architecture: how a review runs, one live review step by step, the fail-closed paths, the life of an alert, where customer data goes, and who may read what in Zetaris." />
+    <title>Sanctions Desk architecture</title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --panel: #ffffff;
+        --text: #16181d;
+        --muted: #4b5563;
+        --line: #d9dde3;
+        --link: #1d4ed8;
+        --focus: #d97706;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 32px 16px 48px;
+      }
+      h1 {
+        font-size: 2rem;
+        margin: 0 0 8px;
+      }
+      h2 {
+        font-size: 1.25rem;
+        margin: 32px 0 12px;
+      }
+      p {
+        margin: 0 0 12px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      a {
+        color: var(--link);
+      }
+      a:focus-visible {
+        outline: 3px solid var(--focus);
+        outline-offset: 2px;
+        border-radius: 3px;
+      }
+      ul.links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 8px;
+      }
+      ul.links li {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px 14px;
+      }
+      ul.links a {
+        font-weight: 600;
+      }
+      figure {
+        margin: 0 0 16px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+      }
+      figure img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 4px;
+      }
+      figcaption {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .charts {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+      }
+      footer {
+        margin-top: 40px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+    </style>
+    <style>
+      figure img { width: 100%; height: auto; }
+      section { margin-top: 32px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p><a href="index.html">Sanctions Desk</a></p>
+      <h1>Architecture</h1>
+      <p>Six diagrams, each drawn from the code it shows (the sources are in the repository, rendered with Mermaid). Every label names a step, role or model as the code does.</p>
+      <section id="1-architecture">
+        <h2>How a review runs</h2>
+        <p>The desk's agents read the bank's data only through Zetaris. The raw free text (notes, payment references, list remarks) is read by Nemotron 3.5 Lightning on the analyst's machine; the decision, critic and challenger send only structured facts to Nemotron 3 Ultra in the cloud. A raise-only policy guard checks the result, and a person decides.</p>
+        <figure>
+          <a href="media/diagrams/1-architecture.svg"><img src="media/diagrams/1-architecture.svg" alt="Architecture: the review desk, the desk agents reading through Zetaris, the safety guard and screener on local Lightning, the decision and critic on cloud Ultra, the policy guard, the person and the sealed record; flags, missing answers and cloud-served answers for raw text hold the case." /></a>
+          <figcaption>Source: <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/diagrams/1-architecture.mmd">docs/diagrams/1-architecture.mmd</a></figcaption>
+        </figure>
+      </section>
+      <section id="2-review-sequence">
+        <h2>One live review, step by step</h2>
+        <p>The live review of alert ALR-0073 on 24 Oct 2026: every Zetaris read and the role it ran under, every model call with the model that answered and its signed receipt, the critic's check, and the sealed record waiting for a person.</p>
+        <figure>
+          <a href="media/diagrams/2-review-sequence.svg"><img src="media/diagrams/2-review-sequence.svg" alt="Sequence of the live review of ALR-0073: reads from Zetaris, two local Lightning calls, a cloud Ultra decision, the critic re-reading six facts and approving, the policy guard keeping the escalation, and the record waiting for a person." /></a>
+          <figcaption>Source: <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/diagrams/2-review-sequence.mmd">docs/diagrams/2-review-sequence.mmd</a></figcaption>
+        </figure>
+      </section>
+      <section id="3-fail-closed">
+        <h2>Every failure ends in a hold, never a close</h2>
+        <p>Zetaris down, a data-quality failure or a cut-off list, a guard flag or no answer, an answer for raw text served from the cloud, a screener signal, a model that does not answer, a critic that does not approve, a credible challenge: each one holds or escalates the case. A block, or an override to a close, waits for a second approver.</p>
+        <figure>
+          <a href="media/diagrams/3-fail-closed.svg"><img src="media/diagrams/3-fail-closed.svg" alt="Flowchart of the decision and its fail-closed paths, each failure leading to a hold or an escalation, and the four-eyes step for blocks and overrides to a close." /></a>
+          <figcaption>Source: <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/diagrams/3-fail-closed.mmd">docs/diagrams/3-fail-closed.mmd</a></figcaption>
+        </figure>
+      </section>
+      <section id="4-alert-lifecycle">
+        <h2>The life of an alert</h2>
+        <p>An alert is reviewed, its recommendation sealed, and a person decides; a block or an override to a close waits for a second approver. A change in a listed entry lists earlier decisions for a person, on request. Automatic closing exists but is off by default.</p>
+        <figure>
+          <a href="media/diagrams/4-alert-lifecycle.svg"><img src="media/diagrams/4-alert-lifecycle.svg" alt="State diagram of an alert: new, under review, held, proposed, block pending, override pending, decided, automatically closed and reopened, and listed again after a list change." /></a>
+          <figcaption>Source: <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/diagrams/4-alert-lifecycle.mmd">docs/diagrams/4-alert-lifecycle.mmd</a></figcaption>
+        </figure>
+      </section>
+      <section id="5-data-privacy">
+        <h2>Where customer data goes</h2>
+        <p>Identifier numbers are masked as they are read. The raw free text goes only to the local model; every cloud prompt is checked for it before it is sent. The trace keeps ids and counts, the sealed record what an auditor needs, and receipts only the start of each prompt. Details: docs/PRIVACY.md.</p>
+        <figure>
+          <a href="media/diagrams/5-data-privacy.svg"><img src="media/diagrams/5-data-privacy.svg" alt="Data flow: data from Zetaris masked on read, the raw text to the local guard and screener only, the check before every cloud call, the cloud prompt's fields, and what the trace, the sealed record and the receipts keep." /></a>
+          <figcaption>Source: <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/diagrams/5-data-privacy.mmd">docs/diagrams/5-data-privacy.mmd</a></figcaption>
+        </figure>
+      </section>
+      <section id="6-zetaris-access">
+        <h2>Who may read what in Zetaris</h2>
+        <p>Each review step that reads data has its own non-admin Zetaris role with only its tables; Zetaris itself refuses every other table and every write (85 of 85 checks).</p>
+        <figure>
+          <a href="media/diagrams/6-zetaris-access.svg"><img src="media/diagrams/6-zetaris-access.svg" alt="Access matrix: each step mapped to its Zetaris role and the tables it is granted; every other table and every write refused." /></a>
+          <figcaption>Source: <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/diagrams/6-zetaris-access.mmd">docs/diagrams/6-zetaris-access.mmd</a></figcaption>
+        </figure>
+      </section>
+    </main>
+  </body>
+</html>

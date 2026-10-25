@@ -1,6 +1,34 @@
 # Architecture
 
-How the desk is built: who it is for, each step and what it may do, the guardrails and how it fails. The diagram is in the [README](../README.md#how-it-works); memory and the engines are in [MEMORY.md](MEMORY.md).
+How the desk is built: who it is for, each step and what it may do, the guardrails and how it fails. The diagrams are [below](#diagrams); memory and the engines are in [MEMORY.md](MEMORY.md).
+
+## Diagrams
+
+Drawn from the code (sources in [docs/diagrams/](diagrams/), rendered by `npm run diagrams`; also on the [architecture page](https://rahulmahadik.github.io/sanctions-desk/architecture.html)).
+
+**How a review runs.**
+
+![Architecture of one review](diagrams/1-architecture.svg)
+
+**One live review, step by step (ALR-0073, 24 Oct 2026).**
+
+![Sequence of the live review of ALR-0073](diagrams/2-review-sequence.svg)
+
+**Every failure ends in a hold, never a close.**
+
+![Fail-closed paths of a review](diagrams/3-fail-closed.svg)
+
+**The life of an alert.**
+
+![States of an alert](diagrams/4-alert-lifecycle.svg)
+
+**Where customer data goes.**
+
+![Data flow and masking points](diagrams/5-data-privacy.svg)
+
+**Who may read what in Zetaris.**
+
+![Zetaris access matrix](diagrams/6-zetaris-access.svg)
 
 ## Who uses it and what stays private
 

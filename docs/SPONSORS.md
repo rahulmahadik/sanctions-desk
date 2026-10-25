@@ -2,7 +2,13 @@
 
 Zetaris, Meterless and NVIDIA each do real work in Sanctions Desk. This page says what each one does, where it sits in the code, and how to see it working, with commands you can run from a clone. Figures that depend on a run live in [the exam report](../eval/REPORT.md) and in the signed evidence under `eval/runs/`; the few quoted here are written from those files (the Nemotron-alone summary by `npm run study:repeat`) or name the command that checks them.
 
+![Architecture of one review](diagrams/1-architecture.svg)
+
+![Sequence of the live review of ALR-0073](diagrams/2-review-sequence.svg)
+
 ## 1. Zetaris: the only way the desk reads data
+
+![Zetaris access matrix: each step's role and tables](diagrams/6-zetaris-access.svg)
 
 **What it does.** Three kinds of source meet in one Unified Semantic Layer, `lightning.metastore.sanctions.screening_usl`, of 14 tables (the Zetaris home page shows 6 sources and 62 tables because it also lists a file copy of the bank kept as a fallback and Zetaris's own two sample databases, which the desk does not use; see [ZETARIS.md](ZETARIS.md#zetaris-at-a-glance)):
 

@@ -1,0 +1,22 @@
+%% The states of an alert, from packages/agents/src/human-state.ts, human-decision.ts, autonomy.ts and list-change.ts.
+stateDiagram-v2
+  direction TB
+  [*] --> New: alert raised in the bank data
+  New --> UnderReview: a review is started
+  UnderReview --> Held: Zetaris unreachable (no record)
+  UnderReview --> Proposed: recommendation sealed
+  Held --> UnderReview
+  Proposed --> Decided: a person approves or overrides, with a reason
+  Proposed --> BlockPending: a block recommended and approved once
+  Proposed --> OverridePending: an override that lowers caution (to a close)
+  BlockPending --> Decided: a second, different approver confirms or declines
+  OverridePending --> Decided: a second, different approver confirms or declines
+  Proposed --> AutoClosed: automatic close (level 1, off by default)
+  AutoClosed --> Proposed: a person reopens it
+  Decided --> ListChange: a listed entry changes
+  ListChange --> UnderReview: listed for a person on request, then reviewed again
+  Decided --> [*]
+  note right of Decided
+    escalated, closed, need more information,
+    or block recommended: always by a person
+  end note

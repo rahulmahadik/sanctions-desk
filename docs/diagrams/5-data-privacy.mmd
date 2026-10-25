@@ -1,0 +1,23 @@
+%% Where customer data goes and where it is masked. From docs/PRIVACY.md and the code it cites.
+flowchart TB
+  classDef store fill:#13325c,stroke:#22c55e,color:#ffffff
+  classDef mask fill:#14532d,stroke:#22c55e,color:#ffffff
+  classDef hold fill:#78350f,stroke:#f59e0b,color:#ffffff
+
+  SRC[("Bank data and lists in Zetaris<br/>names, date of birth, identifier numbers,<br/>notes, payment references, remarks")]:::store
+  SRC --> M1["Masked by the desk on read:<br/>identifier number to its last 2 characters"]:::mask
+  M1 --> DESK["Desk agents"]
+  subgraph LOCAL["Analyst's machine"]
+    LM["Safety guard and screener on Lightning:<br/>the raw free text<br/>(text last in the prompt)"]
+    TR["Trace and app log: ids, counts, signal types;<br/>no free text, quoted values withheld"]
+    REC["Sealed record: what an auditor needs<br/>(rationale, query hashes; a cited document number as a hash)"]
+    RCPT["Signed receipts: the start of each prompt<br/>(instructions only, since 25 Oct)"]
+    CHECK["Checked before every cloud call:<br/>no note, reference or remark,<br/>whole or any 20 characters"]:::mask
+  end
+  subgraph CLOUD["Cloud"]
+    CP["Prompt to Ultra: names, date of birth, countries,<br/>masked identifiers, risk signals with positions<br/>(optional pseudonymise mode: tokens instead)"]
+  end
+  DESK --> LM
+  LM -. "answered from the cloud" .-> HOLD["Not accepted: the case is held"]:::hold
+  DESK --> CHECK --> CP
+  DESK --> TR & REC & RCPT

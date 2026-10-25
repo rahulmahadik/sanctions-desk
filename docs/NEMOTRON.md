@@ -8,6 +8,10 @@ Sanctions Desk uses two NVIDIA Nemotron models, both through Meterless Nightshif
 
 ## Which model does each step, and why
 
+![Architecture of one review: Lightning local for the raw text, Ultra in the cloud for structured facts](diagrams/1-architecture.svg)
+
+![Sequence of the live review of ALR-0073: each model call with its receipt](diagrams/2-review-sequence.svg)
+
 | Step                                 | Model                                                                   | Where                                                      | Why this model                                                                                                                                                                                                                                                                               |
 | ------------------------------------ | ----------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Safety guard (inbound)               | Nemotron 3.5 Lightning 30B                                              | Laptop (`sanctions-desk-guard`, bound to the local lane)   | It reads the free text of the data to flag instructions aimed at the reviewer, so the text must stay on the machine; a short yes/no answer, about half a second.                                                                                                                             |

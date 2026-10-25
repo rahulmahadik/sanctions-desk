@@ -104,7 +104,8 @@
     "adversarial:review": "tsx tools/adversarial-review.ts",
     "users:rotate": "tsx tools/users-add.ts --action rotate",
     "users:revoke": "tsx tools/users-add.ts --action revoke",
-    "check:auth-live": "tsx tools/check-auth-live.ts"
+    "check:auth-live": "tsx tools/check-auth-live.ts",
+    "diagrams": "tsx tools/render-diagrams.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.2",

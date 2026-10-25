@@ -1,0 +1,25 @@
+%% One live review of ALR-0073 (payment alert), 24 Oct 2026 19:40 UTC: trace logs/trace-ui-ALR-0073-1792870820973.jsonl,
+%% sealed record d59818c8...66fb, 4 model calls, each with a signed receipt. Since 25 Oct the safety guard asks its
+%% model twice and adds a narrow check.
+sequenceDiagram
+  autonumber
+  participant D as Desk
+  participant Z as Zetaris
+  participant L as Lightning (local)
+  participant U as Ultra (cloud)
+  participant H as Person
+  D->>Z: 17 reads (evidence role), ids masked
+  Z-->>D: rows, data-quality rules pass
+  D->>L: safety guard on 31 text fields
+  L-->>D: no instruction (receipt)
+  D->>L: screener on reference, remarks
+  L-->>D: signal: watched place (receipt)
+  D->>Z: earlier decisions (memory role)
+  Note over D,Z: matching: contested
+  D->>U: decision, no free text
+  U-->>D: escalate, 0.85 (receipt)
+  D->>Z: critic re-reads 6 facts (critic role)
+  D->>U: critic judges
+  U-->>D: approved, round 1 of 3 (receipt)
+  Note over D,Z: policy guard: Iran in the reference, escalation stands
+  D->>H: sealed record, waits for a person
