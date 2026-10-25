@@ -513,7 +513,7 @@ The Ollama backup (`nemotron-3.5-lightning:30b`) answers only if Nightshift cann
 - The exam labels follow the same definitions as the rules. So a high score on the 70 rule-defined cases shows consistency, not that the definitions are right; the held-out set is the test of reasoning beyond them.
 - Model answers vary between runs and cloud routing is decided by the runtime.
 - Cost figures rest on stated unit costs; analyst time saved was not measured and is not claimed.
-- The column policy on identifier numbers is not enforced on the Zetaris instance used, so the application masks them.
+- Some Zetaris features were not exposed to us in this edition with API-key access (column masks and row filters by SQL or REST, PII classification, an MCP endpoint, a lineage read); we covered each another way: grants in SQL plus console steps and masking in the adapter, an explicit list of identifier columns, REST, and query ids with the statement history ([details](docs/ZETARIS.md#features-we-covered-another-way-in-this-edition)).
 - The full list is under [Limits](docs/KNOWN_ISSUES.md#limits).
 
 **Sample mode.** With `SAMPLE_MODE=true` the desk runs without Zetaris or Nightshift. It replays saved answers recorded from real Zetaris runs, runs the real agent logic on them, and uses a rules-based stand-in in place of the language models. The interface says so in a banner on every page, and every record made this way carries a sample notice. Sample mode never presents the stand-in's output as a Nemotron answer.

@@ -437,9 +437,10 @@ The approved definition `effective_ownership_threshold@1` described effective ow
 - A cached REST table outlives the database it was created in; the reset script releases it first. It is also **lost when the Zetaris engine restarts**: run `npm run zetaris:cache-check` (add `--apply` to cache it again) after a restart.
 - Values come back as strings, with SQL NULL as null; the code casts explicitly.
 
-## What this build does not offer
+## Features we covered another way in this edition
 
-- **Column and row policies by SQL or REST**: not found (the OpenAPI document needs an administrator sign-in with a password, which the API key does not satisfy). Table-level grants are SQL; masking, hiding and row filters are therefore described as interface steps above, and masking is also done in the adapter.
-- **Automated PII classification**: no SQL statement or endpoint for it exists in this build.
-- **MCP endpoint**: none is exposed, so the adapter uses REST only.
-- **Lineage**: this application does not read Zetaris lineage; evidence is linked through query ids and the platform's statement history instead.
+These are about the local edition we ran and the way we connect to it (an API key over REST), not about Zetaris in general. For each one: what this edition, with our access method, did not expose, and what the desk does instead.
+- **Column and row policies.** _Not exposed to us:_ no SQL statement or REST call for column masks or row filters was found, and the OpenAPI document needs an administrator sign-in with a password, which an API key does not satisfy. _What we did instead:_ table-level grants in SQL (one role per review step, generated), the console steps for masking, hiding and row filters described above, and masking of identifier numbers in the adapter.
+- **Automated PII classification.** _Not exposed to us:_ no SQL statement or endpoint for it exists in this edition. _What we did instead:_ an explicit list: the identifier columns are marked "(sensitive)" in the semantic-layer model (`packages/zetaris/src/usl-spec.ts`), the adapter masks them before any value reaches a model (`packages/zetaris/src/tools.ts`), and the policy keeps `id_number` away from every agent except the evidence step.
+- **An MCP endpoint.** _Not exposed to us:_ this edition offers none. _What we did instead:_ the adapter talks to Zetaris over REST.
+- **Lineage.** _Not read by this application._ _What we did instead:_ every query carries a query id, and evidence is tied to the platform's own statement history by that id.
