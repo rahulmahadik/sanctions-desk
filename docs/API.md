@@ -14,7 +14,7 @@ The site is built and published by the Pages workflow (Pages set to "GitHub Acti
 **Get a token.** An administrator adds each person to the users file, which is kept outside the repository and named by `DESK_USERS_FILE`:
 
 ```bash
-npm run users:add -- --file ~/.sanctions-desk/users.json --id olga --role approver --by rahul --expires 90d
+npm run users:add -- --file ~/.sanctions-desk/users.json --id olga --role approver --by admin --expires 90d
 ```
 
 The token (`sd_` and 32 characters, 192 random bits) is printed once; the file keeps only its SHA-256. `npm run users:rotate` issues a new token and the old one stops working; `npm run users:revoke` stops a token at once; `--expires` (for example `90d` or an ISO time) makes a token stop working at that time. A running server reads the file again when it changes, so these take effect on the next request. Every change is logged in `users-audit.jsonl` beside the file (who, when, what; never a token). A token in any other form is refused, and with sign-in on the server will not start while the file holds a token that `users:add` did not make.
@@ -211,8 +211,8 @@ A draft that reveals screening, a match or an investigation is refused, with the
 
 ```bash
 curl -s localhost:8000/policy/versions | jq                              # versions and their status
-curl -s -X POST localhost:8000/policy/reload -H 'content-type: application/json' -d '{"proposed_by":"analyst-a"}'   # the file as a draft
-curl -s -X POST localhost:8000/policy/drafts/2/publish -H 'content-type: application/json' -d '{"approved_by":"lead-b"}'
+curl -s -X POST localhost:8000/policy/reload -H 'X-Demo-User: approver_demo' -H 'content-type: application/json' -d '{}'   # the file as a draft (sample mode)
+curl -s -X POST localhost:8000/policy/drafts/2/publish -H 'X-Demo-User: admin_demo' -H 'content-type: application/json' -d '{}'
 curl -s -X POST localhost:8000/policy/whatif -H 'content-type: application/json' -d '{"version":2,"limit":10}' | jq '.changed, .new_false_closes'
 ```
 

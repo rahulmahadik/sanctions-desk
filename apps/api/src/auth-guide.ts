@@ -32,7 +32,7 @@ export const AUTH_GUIDE = `## Authentication and access
 **Get a token.** An administrator adds each person to the users file, which is kept outside the repository and named by \`DESK_USERS_FILE\`:
 
 \`\`\`bash
-npm run users:add -- --file ~/.sanctions-desk/users.json --id olga --role approver --by rahul --expires 90d
+npm run users:add -- --file ~/.sanctions-desk/users.json --id olga --role approver --by admin --expires 90d
 \`\`\`
 
 The token (\`sd_\` and 32 characters, 192 random bits) is printed once; the file keeps only its SHA-256. \`npm run users:rotate\` issues a new token and the old one stops working; \`npm run users:revoke\` stops a token at once; \`--expires\` (for example \`90d\` or an ISO time) makes a token stop working at that time. A running server reads the file again when it changes, so these take effect on the next request. Every change is logged in \`users-audit.jsonl\` beside the file (who, when, what; never a token). A token in any other form is refused, and with sign-in on the server will not start while the file holds a token that \`users:add\` did not make.

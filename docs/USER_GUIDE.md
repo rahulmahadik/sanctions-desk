@@ -19,7 +19,7 @@ A small Next.js application (`apps/web`) on http://localhost:3001. It works in s
 | Policy studio                   | The active policy, drafts, a replay of a draft on the exam, publishing by a different person, the autonomy card and its kill switch, and the audit log                                                                                                  |
 | Exam results                    | Every held-out round as run with its baselines (the same table as the README), then the 70-case variants with false closes and results by case group                                                                                                    |
 
-The interface recommends and records. A person with the right role can **approve or override** a recommendation with a reason, and the next action (a closure note, an escalation ticket, a request for information or a hold instruction) is prepared only after that decision; a block needs a second, different approver. Nothing in it blocks an account, writes to a source system or contacts a customer. Roles, demo users and the decision step are described under [People, roles and the decision step](GOVERNANCE.md#people-roles-and-the-decision-step). It respects the visitor's reduced-motion setting (the working step is marked with a double border instead of a pulse) and follows the light or dark theme of the system.
+The interface recommends and records. A person with the right role can **approve or override** a recommendation with a reason, and the next action (a closure note, an escalation ticket, a request for information or a hold instruction) is prepared only after that decision; a block, or an override that lowers caution to a close, needs a second, different approver. Nothing in it blocks an account, writes to a source system or contacts a customer. Roles, demo users and the decision step are described under [People, roles and the decision step](GOVERNANCE.md#people-roles-and-the-decision-step). It respects the visitor's reduced-motion setting (the working step is marked with a double border instead of a pulse) and follows the light or dark theme of the system.
 
 Commands to run and build the interface: [DEVELOPMENT.md](DEVELOPMENT.md#the-review-desk-interface).
 
@@ -136,14 +136,17 @@ Every step is in the audit log under **Versions and changes**.
 
 ## 11. When something goes wrong
 
-| What you see                                            | What it means                                                                               |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| "Choose a demo user (or sign in) to record a decision." | In sample mode, deciding or changing policy needs a demo user. Pick one in the top bar.     |
-| "the recommendation changed since you looked at it"     | Someone reviewed the alert again. Reload the case and decide again.                         |
-| "a valid token is required"                             | Sign-in is on. Ask for a token.                                                             |
-| "No recommendation" or "model decision unavailable"     | No model gave a usable answer. The case goes to a person and is never closed.               |
-| Block approval pending                                  | A block has one approval. A different approver must confirm it.                             |
-| Close override pending                                  | Someone overrode a block or an escalation to a close. A different approver must confirm it. |
-| A receipt shows "Not verified"                          | The signature does not match, or the receipt is malformed. Do not rely on that call.        |
+| What you see                                                    | What it means                                                                                                                                                                        |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| "Choose a demo user (or sign in) to record a decision."         | In sample mode, deciding or changing policy needs a demo user. Pick one in the top bar.                                                                                              |
+| "the recommendation changed since you looked at it"             | Someone reviewed the alert again. Reload the case and decide again.                                                                                                                  |
+| "a valid token is required"                                     | Sign-in is on. Ask for a token.                                                                                                                                                      |
+| "No recommendation" or "model decision unavailable"             | No model gave a usable answer. The case goes to a person and is never closed.                                                                                                        |
+| Block approval pending                                          | A block has one approval. A different approver must confirm it.                                                                                                                      |
+| Close override pending                                          | Someone overrode a more cautious recommendation (block, escalation or need more information) to a close. A different approver must confirm it.                                       |
+| "the data service could not be reached"                         | Zetaris was slow or down. The case is held for a person and nothing is recommended. Review it again later.                                                                           |
+| "the guard ran in the cloud" or "the screener ran in the cloud" | The safety guard or the screener was answered by a cloud route. Its answer is not accepted and the case cannot be closed.                                                            |
+| "the guard model could not check the text"                      | The guard model (asked twice, plus a narrow check on whether the text addresses the reviewer) gave no usable answer. The text is not treated as clean and the case cannot be closed. |
+| A receipt shows "Not verified"                                  | The signature does not match, or the receipt is malformed. Do not rely on that call.                                                                                                 |
 
 More: the failure-handling table in [ARCHITECTURE.md](ARCHITECTURE.md#failure-handling) and [KNOWN_ISSUES.md](KNOWN_ISSUES.md).

@@ -1,9 +1,9 @@
 /**
  * Add a person to the users file, rotate their token, or revoke it.
  *
- *   npm run users:add -- --file ~/.sanctions-desk/users.json --id olga --role approver --by rahul [--expires 90d]
- *   npm run users:rotate -- --file ~/.sanctions-desk/users.json --id olga --by rahul [--expires 90d]
- *   npm run users:revoke -- --file ~/.sanctions-desk/users.json --id olga --by rahul
+ *   npm run users:add -- --file ~/.sanctions-desk/users.json --id olga --role approver --by admin [--expires 90d]
+ *   npm run users:rotate -- --file ~/.sanctions-desk/users.json --id olga --by admin [--expires 90d]
+ *   npm run users:revoke -- --file ~/.sanctions-desk/users.json --id olga --by admin
  *
  * Roles: analyst, approver, policy_admin, viewer. A new token (192 random bits) is printed once; the file keeps only
  * its SHA-256, so a lost token is rotated, not recovered. A rotated or revoked token stops working on the next request

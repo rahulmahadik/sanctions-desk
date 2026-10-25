@@ -151,7 +151,7 @@
       "id": "entry_updated_reopen",
       "area": "lists and memory",
       "what": "A listed entry changes after a case was cleared",
-      "expected": "The clearance is stale; the case is re-opened",
+      "expected": "The clearance is stale; the case is listed for a person to re-open",
       "covered_by": ["exam:pcc_*", "test:apps/api/test/review.test.ts::list-change replay"]
     },
     {
@@ -188,7 +188,7 @@
     {
       "id": "zetaris_timeout",
       "area": "data and systems",
-      "what": "Zetaris is slow, down or returns nothing",
+      "what": "Zetaris is slow or down",
       "expected": "Held for a person: escalated at confidence 0 with held_reason data_service_unavailable; no record sealed; no invented decision",
       "covered_by": [
         "test:packages/zetaris/test/client.test.ts::network failures",
@@ -207,7 +207,7 @@
       "id": "model_invalid_json",
       "area": "data and systems",
       "what": "A model returns an empty answer, an error or invalid JSON",
-      "expected": "One retry on the fast path, then a structured error; a critic that cannot answer approves nothing",
+      "expected": "A retry on the fast lane, then the Ollama backup; if none gives a usable answer, the case is escalated, never closed; a critic that cannot answer approves nothing",
       "covered_by": [
         "test:packages/agents/test/model-call.test.ts::falls back",
         "test:packages/agents/test/pipeline.test.ts::cannot answer"

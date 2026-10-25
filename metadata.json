@@ -96,7 +96,7 @@
     "status": "working",
     "stack": "Next.js; a person approves or overrides with a reason, a block, or an override to a close, needs two approvers; works in sample mode"
   },
-  "data": "real public list entries (OFAC SDN, OFAC consolidated and UN consolidated, Oct 2026; 365 in Zetaris after a labelled synthetic edit to 6) plus synthetic customers, accounts, owners, alerts and payments",
+  "data": "real public list entries (OFAC SDN, OFAC consolidated and UN consolidated, Oct 2026; 365 in Zetaris after a labelled synthetic update to 6 of them, 5 edited and 1 removed) plus synthetic customers, accounts, owners, alerts and payments",
   "pre_existing_components": "none; first commit 22 Oct 2026",
   "coding_tool": "Claude Code (scaffolding, tests, debugging and documentation; all generated code reviewed and tested; Cursor was not used)",
   "ai_usage": "Built with the help of an AI coding assistant (Claude Code). Product models are NVIDIA Nemotron via Meterless Nightshift."

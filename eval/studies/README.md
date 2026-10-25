@@ -11,7 +11,7 @@ Each run folder has the same files as an exported evaluation run:
 
 Tokens, local paths, hostnames and addresses other than the local machine, usernames, e-mail addresses and secret values are removed from the results and the trace, with the same patterns as `npm run evidence:export`. In the study runs nothing needed removing, so each `results.json` is byte for byte the file the run wrote; in the step-role reviews below, a few local paths and host names were removed from the traces. The receipts are never edited, because their signatures cover them.
 
-[index.json](index.json) lists every run with its source file, start time, case count, event count and receipt count.
+[index.json](index.json) lists every study run with its source file, start time, case count, event count and receipt count; the step-role reviews are not in it (see their folder, `step-role-reviews/`).
 
 ## Check them
 
