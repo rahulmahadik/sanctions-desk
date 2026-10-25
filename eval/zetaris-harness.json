@@ -482,5 +482,5 @@
       }
     ]
   },
-  "timing": "not measured yet"
+  "timing": "eval/zetaris-timing.json"
 }

@@ -31,7 +31,7 @@ The same 70 cases through the full system (the first system's run, and runs of t
 | Full system, current system | not run yet | | | | | | | |
 | Deterministic rules | 1 of 43 (0–12%) | 25 of 25 (87–100%) | 36 of 70 | 0 | 0 of 35 (0–10%) | 0 | no model | [result](results/2026-10-23T08-56-18-162Z-rules.json) |
 | Name-match rules baseline | 10 of 43 (13–38%) | 3 of 25 (4–30%) | 55 of 70 | 0 | 0 of 35 (0–10%) | 0 | no model | [result](results/2026-10-23T08-56-17-916Z-fuzzy.json) |
-| Nemotron alone, without the free text | not run yet | | | | | | | |
+| Nemotron alone, without the free text | 3 of 43 (2–19%) | 23 of 25 (75–98%) | 3 of 70 | 32 | 5 of 35 (6–29%) | 4 | Ultra 50, Lightning (fast-lane retry) 14, Ollama backup 2, none 4 | [result](results/2026-10-25T10-41-35-156Z-notext70-nemotron_alone.json) |
 | Nemotron alone, with the free text (sent to the cloud) | 6 of 43 (7–27%) | 23 of 25 (75–98%) | 2 of 70 | 25 | 1 of 35 (1–15%) | 4 | Ultra 33, Lightning (fast-lane retry) 30, Ollama backup 3, none 4 | [result](results/2026-10-25T09-30-17-773Z-text70-nemotron_alone.json) |
 
 **Blind held-out rounds, totals** (4 rounds, cases the rules were not written for; each round ran the system of its time, one run each; per round in the held-out table):
@@ -186,6 +186,7 @@ The exam has 70 cases built from real public list entries and synthetic customer
 | Full system (Nemotron models through Nightshift, critic, challenger, memory) — **earlier code version** (run of 2026-10-23; superseded by the later full run above) | 70 | 62.9% | 95.7% | 95.7% | 95.7% (70 cases) | 1 of 43 (2.3%) | 0 / 0 | 50.52 | 188.8 | 75.8% | 0.6347 |
 | Single recommendation (no critic, no challenger, no memory) — **earlier code version** (run of 2026-10-23; superseded by the later full run above) | 70 | 70.0% | 95.7% | 97.1% | 95.7% (70 cases) | 1 of 43 (2.3%) | 0 / 0 | 16.73 | 84.76 | 50.4% | 0.2074 |
 | Full system with memory off (earlier-cleared cases only) — **earlier code version** (run of 2026-10-23; superseded by the later full run above) | 11 | 72.7% | 100.0% | 100.0% | 100.0% (11 cases) | 0 of 5 (0.0%) | 0 / 0 | 42.48 | 121.09 | 76.5% | 0.0955 |
+| nemotron_alone — **earlier code version** (run of 2026-10-25; superseded by the later full run above) | 70 | 42.9% | 80.0% | 81.4% | 80.0% (70 cases) | 6 of 43 (14.0%) | 0 / 0 | 50.99 | 120.31 | 58.4% | 0.2600 |
 
 **Labels.** 3 labels changed after the first full run: EX-008 gained ESCALATE_L2 as an acceptable answer; EX-009 gained ESCALATE_L2 as an acceptable answer; EX-043 was relabelled from CLOSE_FALSE_POSITIVE to ESCALATE_L2 (a close is now a miss). The "original labels" column scores every variant with the labels as they were, the "revised labels" column and every other figure with the current ones. A change that makes a close a miss also moves the false-close figures, which use the revised labels. Reason and detail: `eval/label-changes.json` and the limits section below.
 
@@ -213,6 +214,7 @@ Code version: for the recorded runs, the commit checked out when the run ended (
 | routed (earlier code version) | exam | 2026-10-23T04:52:42.248Z | not recorded | not recorded | live, REST service | not part of this system | same identity | see the run's traces | see the run's traces |
 | single (earlier code version) | exam | 2026-10-23T06:10:44.390Z | 74859ff | not recorded | live, REST service | not part of this system | same identity | yes | on |
 | no_memory (earlier code version) | exam | 2026-10-23T06:39:11.480Z | 74859ff | not recorded | live, REST service | not part of this system | same identity | yes | on |
+| nemotron_alone (earlier code version) | exam | 2026-10-25T09:30:17.773Z | ? | reasoning: deep | live, REST service | not part of this system | same identity | no | off |
 | rules | heldout | 2026-10-23T08:13:08.222Z | 5716bb5+local changes | none (no model call) | live, REST service | not part of this system | same identity | yes | on |
 | fuzzy | heldout | 2026-10-23T08:24:32.964Z | 5716bb5+local changes | none (no model call) | live, REST service | not part of this system | same identity | yes | on |
 | escalate_all | heldout | 2026-10-23T08:32:48.372Z | 480c701 | none (no model call) | live, REST service | not part of this system | same identity | yes | on |

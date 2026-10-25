@@ -4,7 +4,8 @@
  * receipts.jsonl.gz. Receipts are copied untouched (their signatures cover them); if one matches a redaction pattern
  * the export stops.
  *
- *   npm run studies:export
+ *   npm run studies:export                       # every study
+ *   npm run studies:export -- --study local-mode # one study only; the other folders and their index rows are kept
  *
  * It reads only files already in logs/ and calls nothing live. It fails when anything under eval/studies still
  * matches a redaction pattern, and reports the size. `npm run evidence:verify` checks every run it writes.
@@ -23,6 +24,24 @@ if (existsSync(envFile)) process.loadEnvFile(envFile);
 const config = loadConfig();
 const logs = resolveProjectPath(config.logging.dir);
 const outRoot = resolveProjectPath("eval/studies");
+// --study <name>: export that study only (no other study folder is removed or rewritten).
+const only = process.argv.includes("--study") ? process.argv[process.argv.indexOf("--study") + 1] : undefined;
+
+/**
+ * The fully local mode study (npm run study:local-mode): held-out v4 run by the current system three times with every
+ * model step on Lightning (`--variant lightning --tag a3-local-rN`) and three times in the default mode (`--variant
+ * routed --tag a3-default-rN`), result files in logs/a3. The newest file of each tag is taken.
+ */
+function localModeRuns(): string[] {
+  const dir = join(logs, "a3");
+  if (!existsSync(dir)) return [];
+  const newest = new Map<string, string>();
+  for (const f of readdirSync(dir).sort()) {
+    const m = /-heldout4-sys\d+-(lightning|routed)-(a3-(local|default)-r\d+)\.json$/.exec(f);
+    if (m) newest.set(m[2] as string, `a3/${f}`);
+  }
+  return [...newest.values()].sort();
+}
 
 /** Each study: its folder name and the result files (under logs/) of its runs. */
 const STUDIES: Array<{ name: string; runs: string[]; extra?: string[] }> = [
@@ -67,6 +86,7 @@ const STUDIES: Array<{ name: string; runs: string[]; extra?: string[] }> = [
     ],
     extra: ["model-choice/STUDY.md"],
   },
+  { name: "local-mode", runs: localModeRuns() },
   {
     name: "privacy-mode",
     runs: [
@@ -111,6 +131,8 @@ function nightshiftBuildAt(startedAt: string): { version: string; source: string
 
 interface Result {
   variant: string;
+  /** --tag of the exam run: in the result file name, not in the run ids of the trace. */
+  tag?: string | null;
   exam?: string | null;
   system?: string | null;
   started_at: string;
@@ -125,9 +147,25 @@ const sha = (data: Buffer | string) => createHash("sha256").update(data).digest(
 const problems: string[] = [];
 const index: Array<Record<string, unknown>> = [];
 
-// Each study folder is written afresh; eval/studies/README.md (written by hand) is kept.
-for (const study of STUDIES) rmSync(join(outRoot, study.name), { recursive: true, force: true });
-for (const study of STUDIES) {
+if (only && !STUDIES.some((s) => s.name === only)) throw new Error(`--study: no study named ${only}`);
+// A study with no run files on this machine is left as it is (its committed folder is not removed).
+const selected = STUDIES.filter((s) => (!only || s.name === only) && s.runs.length > 0);
+// Each selected study folder is written afresh; eval/studies/README.md (written by hand) is kept.
+for (const study of selected) rmSync(join(outRoot, study.name), { recursive: true, force: true });
+/** "<started>-<exam>-<system>-<variant>[-<tag>].json" without the time and the tag: the run's trace prefix. */
+const traceStem = (source: string, r: Result) => {
+  const named = basename(source, ".json").replace(/^\d{4}-\d{2}-\d{2}T[\d-]+Z-/, "");
+  return r.tag && named.endsWith(`-${r.tag}`) ? named.slice(0, -(r.tag.length + 1)) : named;
+};
+for (const study of selected) {
+  // Runs of one study that share a trace prefix (repeats told apart only by --tag) write to the same trace files, so
+  // each run's window ends where the next one starts.
+  const starts = study.runs
+    .filter((src) => existsSync(join(logs, src)))
+    .map((src) => {
+      const r = JSON.parse(readFileSync(join(logs, src), "utf8")) as Result;
+      return { stem: traceStem(src, r), started_at: r.started_at };
+    });
   for (const source of study.runs) {
     const path = join(logs, source);
     if (!existsSync(path)) {
@@ -135,14 +173,21 @@ for (const study of STUDIES) {
       continue;
     }
     const r = JSON.parse(readFileSync(path, "utf8")) as Result;
-    // "<started>-<exam>-<system>-<variant>.json": the part after the time is the run's trace prefix.
-    const stem = basename(source, ".json").replace(/^\d{4}-\d{2}-\d{2}T[\d-]+Z-/, "");
-    const id = `${stem}-${r.started_at.replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z")}`;
+    // "<started>-<exam>-<system>-<variant>[-<tag>].json": the part after the time, without the tag, is the trace prefix.
+    const named = basename(source, ".json").replace(/^\d{4}-\d{2}-\d{2}T[\d-]+Z-/, "");
+    const stem = traceStem(source, r);
+    const id = `${named}-${r.started_at.replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z")}`;
     const dir = join(outRoot, study.name, id);
     mkdirSync(dir, { recursive: true });
 
     // The trace: the events of the run's last attempt at each case, within the run's time window.
-    const until = new Date(Date.parse(r.finished_at) + 60_000).toISOString();
+    const next = starts
+      .filter((x) => x.stem === stem && x.started_at > r.started_at)
+      .map((x) => x.started_at)
+      .sort()[0];
+    const grace = new Date(Date.parse(r.finished_at) + 60_000).toISOString();
+    // Exclusive at the next run's start, so that run's first events are never taken as this run's last attempt.
+    const until = next && next <= grace ? new Date(Date.parse(next) - 1).toISOString() : grace;
     const lines: string[] = [];
     const receiptIds = new Set<string>();
     for (const c of r.cases) {
@@ -236,8 +281,8 @@ for (const study of STUDIES) {
 // record hash still checks; like a receipt, a record that matches a redaction pattern stops the export.
 const LIVE = "step-roles-live";
 const liveOut = join(outRoot, "step-role-reviews");
-rmSync(liveOut, { recursive: true, force: true });
-if (existsSync(join(logs, LIVE))) {
+if (!only) rmSync(liveOut, { recursive: true, force: true });
+if (!only && existsSync(join(logs, LIVE))) {
   for (const alert of readdirSync(join(logs, LIVE), { withFileTypes: true }).filter((e) => e.isDirectory())) {
     const src = join(logs, LIVE, alert.name);
     const dir = join(liveOut, alert.name);
@@ -269,7 +314,15 @@ if (existsSync(join(logs, LIVE))) {
   else problems.push(`${LIVE}: statement-history-audit.json missing`);
 }
 
-writeFileSync(join(outRoot, "index.json"), `${JSON.stringify({ runs: index }, null, 2)}\n`);
+// The index keeps the rows of every study not written by this call.
+const indexFile = join(outRoot, "index.json");
+const written = new Set(selected.map((s) => s.name));
+const kept = existsSync(indexFile)
+  ? (JSON.parse(readFileSync(indexFile, "utf8")) as { runs: Array<Record<string, unknown>> }).runs.filter(
+      (row) => !written.has(String(row.study)),
+    )
+  : [];
+writeFileSync(indexFile, `${JSON.stringify({ runs: [...kept, ...index] }, null, 2)}\n`);
 
 // Whatever is under eval/studies must be clean (receipts are held to it too: they were never edited).
 const walk = (d: string): string[] =>

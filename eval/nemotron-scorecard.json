@@ -44,46 +44,46 @@
       "why": "Keeps a step answering when Nightshift fails; the same model as the local steps"
     }
   ],
-  "recorded_runs": 30,
+  "recorded_runs": 28,
   "models": [
     {
       "model": "Nemotron 3.5 Lightning 30B",
       "where": "Local laptop",
-      "calls": 825,
-      "median_latency_s": 0.5,
-      "median_tokens_in": 525,
+      "calls": 532,
+      "median_latency_s": 0.6,
+      "median_tokens_in": 556,
       "median_tokens_out": 19,
       "cost": {
-        "receipts": 825,
+        "receipts": 532,
         "actual_usd_total": 0
       }
     },
     {
       "model": "Nemotron 3 Ultra 550B",
       "where": "Cloud",
-      "calls": 1190,
-      "median_latency_s": 26,
-      "median_tokens_in": 4109,
-      "median_tokens_out": 497,
+      "calls": 960,
+      "median_latency_s": 24.8,
+      "median_tokens_in": 4429,
+      "median_tokens_out": 505,
       "cost": {
-        "receipts": 1190,
+        "receipts": 960,
         "actual_usd_total": 0
       }
     },
     {
       "model": "Ollama backup (Lightning, no receipt)",
       "where": "Local laptop",
-      "calls": 35,
-      "median_latency_s": 12.4,
-      "median_tokens_in": 2584,
-      "median_tokens_out": 1299,
+      "calls": 19,
+      "median_latency_s": 16.2,
+      "median_tokens_in": 2606,
+      "median_tokens_out": 1817,
       "cost": null
     }
   ],
   "local_share": {
-    "local_calls": 860,
-    "all_calls": 2050,
-    "share": 0.42
+    "local_calls": 551,
+    "all_calls": 1511,
+    "share": 0.365
   },
   "calibration": [
     {
@@ -139,6 +139,12 @@
       "cases_with_confidence": 32,
       "brier": 0.324,
       "source": "eval/studies/nemotron-alone-v1-v3"
+    },
+    {
+      "arm": "Nemotron alone, no free text (exam, 70 cases, one run notext70)",
+      "cases_with_confidence": 64,
+      "brier": 0.107,
+      "source": "eval/results/2026-10-25T10-41-35-156Z-notext70-nemotron_alone.json"
     },
     {
       "arm": "Nemotron alone, with the free text (exam, 70 cases, one run text70)",
@@ -567,8 +573,20 @@
     },
     {
       "arm": "Nemotron alone, without the free text",
-      "source": null,
-      "figures": null
+      "source": "eval/results/2026-10-25T10-41-35-156Z-notext70-nemotron_alone.json",
+      "figures": {
+        "wrong": 3,
+        "risk": 43,
+        "wrong_range": "2–19%",
+        "clears_made": 23,
+        "clears": 25,
+        "blocks": 32,
+        "unsupported_blocks": 5,
+        "not_block_cases": 35,
+        "unsupported_range": "6–29%",
+        "unusable": 4,
+        "answer_from": "Ultra 50, Lightning (fast-lane retry) 14, Ollama backup 2, none 4"
+      }
     },
     {
       "arm": "Nemotron alone, with the free text (sent to the cloud)",

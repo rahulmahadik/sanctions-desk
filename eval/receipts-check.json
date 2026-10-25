@@ -2,27 +2,27 @@
   "pinned_keys": [
     "00OsSOXGbDitkESZueIJqDPdf9bXAvyrL+8cYDbY6II="
   ],
-  "files": 53,
-  "receipts": 2894,
-  "from_runs": 2015,
+  "files": 54,
+  "receipts": 2971,
+  "from_runs": 2092,
   "from_studies": 879,
   "from_elsewhere": 0,
-  "valid_pinned": 2894,
+  "valid_pinned": 2971,
   "valid_unpinned": 0,
   "invalid": 0,
   "malformed": 0,
   "groups": {
     "runs": {
-      "receipts": 2015,
-      "folders": 30,
+      "receipts": 2092,
+      "folders": 31,
       "with_added_memory": 1483,
       "cross_check": {
-        "skipped": 1378,
-        "warning": 576,
-        "passed": 61
+        "skipped": 1400,
+        "warning": 630,
+        "passed": 62
       },
       "cross_check_warnings": {
-        "citation_consistency": 576
+        "citation_consistency": 630
       }
     },
     "studies": {
@@ -235,6 +235,14 @@
       "file": "eval/runs/no_memory-20261023T173107Z/receipts.jsonl.gz",
       "receipts": 42,
       "valid_pinned": 42,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/notext70-nemotron_alone-20261025T104135Z/receipts.jsonl.gz",
+      "receipts": 77,
+      "valid_pinned": 77,
       "valid_unpinned": 0,
       "invalid": 0,
       "malformed": 0

@@ -40,6 +40,8 @@ jobs:
         run: npm run zetaris:harness -- --check
       - name: The Nemotron scorecard in docs/NEMOTRON.md matches the committed files
         run: npm run nemotron:scorecard -- --check
+      - name: The fully local mode study in README.md and docs/NEMOTRON.md matches its committed runs
+        run: npm run study:local-mode -- --check
       # Every relative link, image and #anchor in the tracked Markdown files resolves.
       - run: npm run check:links
 

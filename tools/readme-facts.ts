@@ -61,6 +61,43 @@ const receipts = read("eval/receipts-check.json") as {
 if (receipts.valid_pinned !== receipts.receipts)
   throw new Error("eval/receipts-check.json has receipts that do not verify");
 const n = (x: number) => x.toLocaleString("en-US");
+
+// Who answered each step in the recorded evaluation runs (the "recorded" group of npm run receipt:stats; the
+// current-system runs and the Nemotron-alone study arm are counted apart there).
+interface StatsRow {
+  step: string;
+  model: string;
+  calls: number;
+}
+const recordedStats = (
+  read("eval/receipt-stats.json") as { groups: Array<{ id: string; runs: number; rows: StatsRow[] }> }
+).groups.find((g) => g.id === "recorded");
+if (!recordedStats) throw new Error("eval/receipt-stats.json has no recorded group: run npm run receipt:stats");
+const SHORT: Array<[RegExp, string]> = [
+  [/Ultra/, "Ultra"],
+  [/Ollama/, "Ollama backup"],
+  [/Lightning/, "Lightning"],
+];
+const shortModel = (m: string) => SHORT.find(([re]) => re.test(m))?.[1] ?? m;
+/** "Ultra 504, Lightning 16, Ollama backup 15 (no receipt) of 535", from the recorded group's rows of one step. */
+function whoAnswered(step: string, noReceiptNote: boolean): string {
+  const rows = recordedStats?.rows.filter((r) => r.step === step) ?? [];
+  const order = ["Ultra", "Lightning", "Ollama backup"];
+  const parts = rows
+    .map((r) => ({ name: shortModel(r.model), calls: r.calls }))
+    .sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name))
+    .map((p) => `${p.name} ${n(p.calls)}${p.name === "Ollama backup" && noReceiptNote ? " (no receipt)" : ""}`);
+  return `${parts.join(", ")} of ${n(rows.reduce((t, r) => t + r.calls, 0))}`;
+}
+const backup = ["Decision", "Critic", "Challenger"].map((step) => ({
+  step: step.toLowerCase(),
+  calls: recordedStats.rows.filter((r) => r.step === step && /Ollama/.test(r.model)).reduce((t, r) => t + r.calls, 0),
+}));
+const backupLine = `${backup.reduce((t, b) => t + b.calls, 0)} answers in the recorded evaluation runs (${backup
+  .filter((b) => b.calls > 0)
+  .map((b) => `${b.calls} ${b.step}`)
+  .join(", ")})`;
+
 const drafts = exam.cases.filter((c) => c.group === "tipping_off").length;
 const facts: Record<string, string> = {
   exam_cases: String(exam.cases.length),
@@ -84,6 +121,13 @@ const facts: Record<string, string> = {
     return `${n(c.skipped ?? 0)} skipped, ${n(c.warning ?? 0)} warning (${which}, risk medium, not blocking), ${n(c.passed ?? 0)} passed`;
   })(),
   receipts_line: receiptsLine(receipts),
+  recorded_runs: String(recordedStats.runs),
+  who_guard: whoAnswered("Safety guard", false),
+  who_screener: whoAnswered("Screener", false),
+  who_decision: whoAnswered("Decision", true),
+  who_critic: whoAnswered("Critic", false),
+  who_challenger: whoAnswered("Challenger", false),
+  backup_recorded: backupLine,
   receipt_gate:
     "The desk only uses a model answer whose Nightshift receipt is signed by the pinned key; otherwise it retries, then holds the case.",
   harness_agent_files: `${harness.agent_files.naming_any_source} of ${harness.agent_files.scanned} agent files name any source, table or driver`,

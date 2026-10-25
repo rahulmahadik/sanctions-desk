@@ -1,0 +1,27 @@
+{
+  "note": "Written by npm run study:local-mode from the exported study runs in eval/studies/local-mode; do not edit by hand.",
+  "label": "Small study of the fully local mode, held-out v4, three runs per arm, not part of the recorded evaluation",
+  "status": "in_progress",
+  "runs_found": 0,
+  "runs_expected": 6,
+  "unit_costs": {
+    "currency": "USD",
+    "cloudInputPerMillionTokens": 0.5,
+    "cloudOutputPerMillionTokens": 1.5,
+    "localPerMillionTokens": 0
+  },
+  "arms": [
+    {
+      "id": "local",
+      "label": "Fully local mode: every step on Nemotron 3.5 Lightning (laptop)",
+      "runs": [],
+      "pooled": null
+    },
+    {
+      "id": "default",
+      "label": "Default mode: decision, critic and challenger on the cloud lane",
+      "runs": [],
+      "pooled": null
+    }
+  ]
+}

@@ -28,6 +28,7 @@ import {
   range95,
   rulesFraming,
 } from "./exam-figures.js";
+import { RUN_GROUP_ORDER, type RunGroupId, runGroup } from "./run-groups.js";
 
 // ---- the steps (the why text is the start of the "Why this model" cell in docs/NEMOTRON.md; checked on build) ----
 
@@ -154,9 +155,24 @@ export interface ModelStats {
   local_share: { local_calls: number; all_calls: number; share: number };
 }
 
-/** Per model, over the exported recorded runs in eval/runs: the trace events and the receipts of each run. */
-export function modelStats(root: string): ModelStats {
-  const files = tracked(root, "eval/runs");
+/** The run folders under eval/runs (tracked by git) whose group is `group` (tools/lib/run-groups.ts). */
+export function runFoldersIn(root: string, group: RunGroupId): string[] {
+  return tracked(root, "eval/runs")
+    .filter((f) => f.endsWith("/run-meta.json"))
+    .filter((f) => {
+      const meta = readJson<{ run_id?: string; variant: string }>(root, f);
+      return runGroup(meta.run_id ?? (f.split("/").at(-2) as string), meta.variant) === group;
+    })
+    .map((f) => f.slice(0, -"/run-meta.json".length));
+}
+
+/**
+ * Per model, over the exported runs of one group in eval/runs (the recorded evaluation runs unless told otherwise):
+ * the trace events and the receipts of each run.
+ */
+export function modelStats(root: string, group: RunGroupId = "recorded"): ModelStats {
+  const folders = new Set(runFoldersIn(root, group));
+  const files = tracked(root, "eval/runs").filter((f) => folders.has(f.split("/").slice(0, -1).join("/")));
   const traces = files.filter((f) => f.endsWith("/trace.jsonl.gz"));
   const cells = new Map<string, { lat: number[]; tin: number[]; tout: number[]; calls: number }>();
   for (const t of traces) {
@@ -646,22 +662,46 @@ export interface Scorecard {
 
 export const NOT_USED_LINK = "docs/NEMOTRON.md#what-we-tried-and-why-it-isnt-used";
 
+interface ReceiptStatsGroup {
+  id: string;
+  runs: number;
+  rows: Array<{ model: string; calls: number }>;
+}
+
+/**
+ * Throws unless each group of exported runs in eval/receipt-stats.json (recorded, current system, Nemotron alone) has
+ * the same number of runs and, per model, the same calls as the traces of that group in eval/runs, and no group is
+ * missing from either side; otherwise eval/receipt-stats.json is out of date.
+ */
+export function checkAgainstReceiptStats(root: string, groups: readonly ReceiptStatsGroup[]): void {
+  for (const id of RUN_GROUP_ORDER) {
+    const ours = modelStats(root, id);
+    const theirs = groups.find((g) => g.id === id);
+    if (ours.runs === 0 && !theirs) continue;
+    if (!theirs || theirs.runs !== ours.runs)
+      throw new Error(
+        `${id}: ${ours.runs} runs in eval/runs, ${theirs?.runs ?? 0} in eval/receipt-stats.json; run npm run receipt:stats`,
+      );
+    const models = new Set([
+      ...ours.models.map((m) => m.model),
+      ...theirs.rows.map((r) => r.model.replace(/ \((local|cloud)\)$/, "")),
+    ]);
+    for (const model of models) {
+      const mine = ours.models.find((m) => m.model === model)?.calls ?? 0;
+      const listed = theirs.rows
+        .filter((r) => r.model.replace(/ \((local|cloud)\)$/, "") === model)
+        .reduce((t, r) => t + r.calls, 0);
+      if (mine !== listed)
+        throw new Error(
+          `${id}, ${model}: ${mine} calls in eval/runs, ${listed} in eval/receipt-stats.json; run npm run receipt:stats`,
+        );
+    }
+  }
+}
+
 export function buildScorecard(root: string): Scorecard {
   const stats = modelStats(root);
-  // The same calls as the recorded group of eval/receipt-stats.json, or that file is out of date.
-  const rs = readJson<{ groups: Array<{ id: string; rows: Array<{ model: string; calls: number }> }> }>(
-    root,
-    "eval/receipt-stats.json",
-  ).groups.find((g) => g.id === "recorded");
-  for (const m of stats.models) {
-    const theirs = (rs?.rows ?? [])
-      .filter((r) => r.model.replace(/ \((local|cloud)\)$/, "") === m.model)
-      .reduce((t, r) => t + r.calls, 0);
-    if (theirs !== m.calls)
-      throw new Error(
-        `${m.model}: ${m.calls} calls in eval/runs, ${theirs} in eval/receipt-stats.json; run npm run receipt:stats`,
-      );
-  }
+  checkAgainstReceiptStats(root, readJson<{ groups: ReceiptStatsGroup[] }>(root, "eval/receipt-stats.json").groups);
   const cal = calibration(root);
   const shares = reasoningShares(root);
   const exam = examComparison(root);
@@ -727,7 +767,7 @@ export function renderScorecard(s: Scorecard): string {
     "",
     s.rules_framing,
     "",
-    `**Per model, recorded runs** (${s.recorded_runs} exported runs in eval/runs; safety guard, screener, decision, critic and challenger calls):`,
+    `**Per model, recorded evaluation runs** (${s.recorded_runs} exported runs in eval/runs; safety guard, screener, decision, critic and challenger calls; the current-system runs and the Nemotron-alone study arm are counted apart under [Receipt statistics](#receipt-statistics)):`,
     "",
     "| Model | Where | Calls | Median s | Median tokens in | Median tokens out | Cost recorded in the receipts |",
     "| --- | --- | ---: | ---: | ---: | ---: | --- |",

@@ -14,14 +14,14 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
 ### Which Nemotron model does each step
 
-| Step | Model | Where it runs | What it receives | Who answered, from the signed receipts of the 29 recorded runs |
+| Step | Model | Where it runs | What it receives | Who answered, from the signed receipts of the <!--fact:recorded_runs-->28<!--/fact--> recorded evaluation runs |
 | --- | --- | --- | --- | --- |
-| Safety guard (inbound text and outbound drafts) | Nemotron 3.5 Lightning 30B | the analyst's laptop | the raw free text; only a local answer is accepted | Lightning 592 of 592 |
-| Free-text screener | Nemotron 3.5 Lightning 30B | the analyst's laptop | customer notes, payment references and list remarks; it returns risk signals with the exact text span | Lightning 153 of 153 |
-| Decision | Nemotron 3 Ultra 550B in most calls (the router chooses) | cloud | structured fields and risk signals, no free text (four recorded runs made without the screener differ: [docs/PRIVACY.md](docs/PRIVACY.md#earlier-runs)) | Ultra 587, Lightning 29, Ollama backup 22 (no receipt) of 638 |
-| Critic (after code re-reads every cited fact) | Nemotron 3 Ultra 550B in most calls (the router chooses) | cloud | the recommendation and the re-checked evidence | Ultra 500, Lightning 10, Ollama backup 3 of 513 |
-| Challenger (argues against a close) | Nemotron 3 Ultra 550B in most calls (the router chooses) | cloud | the proposed close and its evidence | Ultra 49, Lightning 3, Ollama backup 3 of 55 |
-| Backup, only when Nightshift cannot answer | Nemotron 3.5 Lightning 30B in the local Ollama (`nemotron-3.5-lightning:30b`) | the analyst's laptop | the same request the step sent | 28 answers in the recorded runs (22 decision, 3 critic, 3 challenger); no receipt, because the call does not go through Nightshift; labelled `ollama` in the trace; none of those cases ended in a wrong close |
+| Safety guard (inbound text and outbound drafts) | Nemotron 3.5 Lightning 30B | the analyst's laptop | the raw free text; only a local answer is accepted | <!--fact:who_guard-->Lightning 386 of 386<!--/fact--> |
+| Free-text screener | Nemotron 3.5 Lightning 30B | the analyst's laptop | customer notes, payment references and list remarks; it returns risk signals with the exact text span | <!--fact:who_screener-->Lightning 122 of 122<!--/fact--> |
+| Decision | Nemotron 3 Ultra 550B in most calls (the router chooses) | cloud | structured fields and risk signals, no free text (four recorded runs made without the screener differ: [docs/PRIVACY.md](docs/PRIVACY.md#earlier-runs)) | <!--fact:who_decision-->Ultra 504, Lightning 16, Ollama backup 15 (no receipt) of 535<!--/fact--> |
+| Critic (after code re-reads every cited fact) | Nemotron 3 Ultra 550B in most calls (the router chooses) | cloud | the recommendation and the re-checked evidence | <!--fact:who_critic-->Ultra 418, Lightning 8, Ollama backup 2 of 428<!--/fact--> |
+| Challenger (argues against a close) | Nemotron 3 Ultra 550B in most calls (the router chooses) | cloud | the proposed close and its evidence | <!--fact:who_challenger-->Ultra 38, Ollama backup 2 of 40<!--/fact--> |
+| Backup, only when Nightshift cannot answer | Nemotron 3.5 Lightning 30B in the local Ollama (`nemotron-3.5-lightning:30b`) | the analyst's laptop | the same request the step sent | <!--fact:backup_recorded-->19 answers in the recorded evaluation runs (15 decision, 2 critic, 2 challenger)<!--/fact-->; no receipt, because the call does not go through Nightshift; labelled `ollama` in the trace; none of those cases ended in a wrong close |
 
 > **Every one of these calls has its signed receipt in the [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/).** It shows the mode asked for and the model that served it; each signature is checked when the site is built.
 
@@ -29,6 +29,9 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 - <!--fact:decision_models_line-->The decision step asks for the deep lane (`meterless/deep`): the mode is pinned, the serving model is not, because Nightshift's router chooses it. Ultra answered 87 of the 89 decision calls Nightshift served in the first system's run and 83 of 96 in the run of the current system before the block fix.<!--/fact-->
 - <!--fact:decision_lightning_note-->Of the 13 decision calls Lightning answered in the run of the current system before the block fix, 10 were the desk's fast-lane retry after an unusable or failed first answer (a deliberate fallback: the retry asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane, so Lightning answers) and 3 were deep-lane calls where Nightshift's learned router predicted Ultra but Lightning won a hedged race; 7 more decision answers came from the Ollama backup (no receipt).<!--/fact-->
 - A decision answered by that retry still goes through the critic and the policy guard ([docs/MODELS.md](docs/MODELS.md#how-a-call-is-routed)).
+<!-- local-mode:start -->
+- **Fully local mode** (every step on Nemotron 3.5 Lightning on the laptop; all data and models stay on the machine): an option, with its trade-off: in the model-choice study (20 cases, one run per arm) Lightning doing the reasoning made 1 of 10 clears against 3 of 10 and took a median of 385 s per case against 110 s. A held-out v4 study of this mode, three runs per mode, is in progress (0 of 6 runs exported). 70-case local run: not measured (about 6 minutes per alert locally, the median per case of the model-choice study's Lightning arm). How to run it: [docs/MODELS.md](docs/MODELS.md#fully-local-mode).
+<!-- local-mode:end -->
 - Why each model, the privacy design and the studies of model choice: [docs/NEMOTRON.md](docs/NEMOTRON.md).
 
 ## At a glance
@@ -347,7 +350,7 @@ The step-by-step model table and the receipt log are at the [top of this page](#
 
 ### Meterless Nightshift
 
-> **<!--fact:receipts_line-->2,894 signed receipts: 2,015 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->.** Nightshift serves every model call; Ollama is a backup only.
+> **<!--fact:receipts_line-->2,971 signed receipts: 2,092 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->.** Nightshift serves every model call; Ollama is a backup only.
 
 - The desk talks to Nightshift's OpenAI-compatible API through one injected generator.
 - It uses two app identities, with binds set in the Nightshift cockpit:

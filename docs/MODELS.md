@@ -71,6 +71,23 @@ Without these two binds the desk still works: the identities are then bound to `
 
 **Pinned-model check (exact model ids): not run.** The plan was a five-case smoke test asking for exact model ids (Lightning for the guard and the screener, Ultra for the decision, the critic and the challenger) and checking that each receipt's routed model equals the requested one. That needs Nightshift 1.2.3 or later; the runtime on the laptop used is 1.2.1 (`defaults read /Applications/Nightshift.app/Contents/Info CFBundleShortVersionString`), and the runtime was not updated during the evaluation. Every model named in this repository is therefore the one Nightshift's router chose under the binds above, as each signed receipt records; none was pinned.
 
+### Fully local mode
+
+An option, not the default: every model step (safety guard, screener, decision, critic and challenger) is answered by Nemotron 3.5 Lightning on the laptop, so all data and models stay on the machine. The trade-off, measured so far only on small samples, is fewer clears and more time per case; the figures are in [NEMOTRON.md](NEMOTRON.md#fully-local-mode-every-step-on-the-laptop).
+
+There is no separate switch or environment variable for it. It is a policy setting plus the cockpit bind already used for the guard:
+- **Cockpit:** `sanctions-desk-guard` bound to **local**, as in the setup above.
+- **Policy:** `models.decision`, `models.critic` and `models.challenger` with `"identity": "guard"` and `"model": "fast"` (the guard and the screener already use the guard identity; `retryIdentity` is already `guard`). Every other field stays as it is.
+
+To try it as a study, the exam tool applies exactly that change for one run, without touching the active policy:
+
+```bash
+npm run exam -- --variant lightning --exam heldout4 --system sys6 --tag a3-local-r1 --out logs/a3
+npm run study:local-mode   # exports the runs and writes the summary once all six runs are in logs/a3
+```
+
+To use it in the desk, propose a policy version with that change as a draft (`POST /policy/drafts`, or edit `config/policy.default.json` and `POST /policy/reload`) and have a second person publish it (four-eyes, see [GOVERNANCE.md](GOVERNANCE.md)); it applies to the next run without a restart. The receipts then show which model served each call, as for any run.
+
 ## The model ledger
 
 Every recommendation carries a ledger of the model calls behind it: step, the mode asked for and the model that answered (cloud or local), reasoning budget, tokens in and out, latency and the signed receipt.
@@ -93,7 +110,7 @@ Nightshift signs a receipt for every answer (Ed25519 over the sorted-key JSON of
 
 A receipt also carries the runtime's host readings at the time of the call (`host_pressure`: memory, CPU, GPU, thermal, battery and network), the ids of any memories Nightshift added, and a short preview of the prompt. They are part of the signed body, so the exported receipts in `eval/runs/` publish them unchanged; for the guard identity the prompt preview can hold the start of a synthetic note or payment reference.
 
-**The key is pinned:** `config/default.json` holds the Nightshift runtime's public key, `00OsSOXGbDitkESZueIJqDPdf9bXAvyrL+8cYDbY6II=`, taken from two places that agree: all <!--fact:receipts-->2,894<!--/fact--> committed receipts are signed with it, and a fresh live receipt (`npm run receipt:pubkey`) carried the same key. With a key pinned, a receipt signed by any other key is `invalid`: `npm run evidence:verify`, `npm run prove`, the case view and the site's replay pages and receipt log all report "signature valid, key pinned" or fail.
+**The key is pinned:** `config/default.json` holds the Nightshift runtime's public key, `00OsSOXGbDitkESZueIJqDPdf9bXAvyrL+8cYDbY6II=`, taken from two places that agree: all <!--fact:receipts-->2,971<!--/fact--> committed receipts are signed with it, and a fresh live receipt (`npm run receipt:pubkey`) carried the same key. With a key pinned, a receipt signed by any other key is `invalid`: `npm run evidence:verify`, `npm run prove`, the case view and the site's replay pages and receipt log all report "signature valid, key pinned" or fail.
 
 To pin a different runtime's key: `npm run receipt:pubkey` prints the public key (and nothing secret). Put it in `METERLESS_RECEIPT_PUBLIC_KEY`, or for this machine only in the git-ignored `config/local.json`:
 
@@ -117,7 +134,7 @@ Pinning the key printed by the runtime trusts it on first use. Compare it with a
 
 Every receipt carries a `cross_check` block: Nightshift's own check on the call (for example whether the response holds personal data or credentials, matches the declared schema, or backs factual claims with citation markers), with a status, a risk level and a recommended action. It is part of the signed receipt body, so it is stored with every receipt in `logs/receipts/` and in the exported `eval/runs/*/receipts.jsonl.gz`. The desk does not display it and does not act on it; its own checks (the critic's fact re-check and the policy guard) are separate.
 
-Across the <!--fact:receipts_runs-->2,015<!--/fact--> receipts of the <!--fact:runs_exported-->30<!--/fact--> exported runs, every receipt has the field (none predates it):
+Across the <!--fact:receipts_runs-->2,092<!--/fact--> receipts of the <!--fact:runs_exported-->31<!--/fact--> exported runs, every receipt has the field (none predates it):
 
 | Status  | Receipts | Where                                                                                                                                                                                                                                           |
 | ------- | -------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -132,7 +149,7 @@ The desk's answers cite their facts in a structured `citations` field rather tha
 ### Nightshift's own memory (switched off)
 
 Nightshift 1.2.1 has an answer memory of its own, separate from the desk's H-MEM. It keeps the text of earlier answers it judged reliable (up to 4,000 characters each, with the first 600 characters of the prompt, stored on the laptop) and adds up to three of the closest ones to later requests as a system message of "prior vetted answers". The receipt records it: `hmem.injected`, `hmem.ids`, and `hmem:N records` in `egress.sent.context_sources`.
-- **In the recorded runs it was on.** <!--fact:receipts_runs_memory-->1,483<!--/fact--> of the <!--fact:receipts_runs-->2,015<!--/fact--> receipts in `eval/runs/` carry added memories; 960 of them are cloud calls of the reasoning identity, carrying 996 different memories. Memories are found by similarity across cases and runs, so a call for one case could carry an answer given for another.
+- **In the recorded runs it was on.** <!--fact:receipts_runs_memory-->1,483<!--/fact--> of the <!--fact:receipts_runs-->2,092<!--/fact--> receipts in `eval/runs/` carry added memories; 960 of them are cloud calls of the reasoning identity, carrying 996 different memories. Memories are found by similarity across cases and runs, so a call for one case could carry an answer given for another.
 - **What that could carry.** In 1.2.1 the runtime looks memories up by scope, not by app identity, and for a request that may go to the cloud it does not leave out memories made from answers of the local model. A screener answer can hold a document number, a date of birth or a name it read in a note, so text first read on the laptop could have been added to a cloud call. Whether that happened cannot be checked: receipts keep memory ids, not their text, and the memories from the recorded runs are not in the runtime's store. As for the desk's own prompts, in four early runs, made before the screener existed (the headline 70-case run, single, no_memory and held-out v1), the cloud decision prompt held payment references and list remarks; customer notes were never in it. In every run with the screener, a check keeps all free text out of cloud prompts. The check is below, and the SHA-256 recorded as `cloud_payloads` covers the desk's prompt only, not what Nightshift added.
 - **The memory comparison.** The `no_memory` variant switched off the desk's memory step; Nightshift's memory was still on in that run, so the comparison is between the desk's memory on and off, not memory on and off.
 - **Off.** There is no per-app or per-request switch through the OpenAI-compatible API in 1.2.1. The runtime's knowledge memory was switched off for the whole runtime with its setting `hmemKnowledge: false` (local admin socket, `POST /admin/setpoints`). Checked on six live runs with it off (ALR-0004 twice, ALR-0020, ALR-0043, ALR-0058, ALR-0073, with no restart of the runtime): all 30 receipts show no added memory and `context_sources` of `messages` only, 9 on the guard identity served by Lightning and 21 on the reasoning identity served by Ultra.
@@ -265,6 +282,7 @@ Which agent runs on which Nemotron model, and what it does:
 | `heldout4-fuzzy-20261024T033840Z`                |        0 | [eval/runs/heldout4-fuzzy-20261024T033840Z/receipts.jsonl.gz](../eval/runs/heldout4-fuzzy-20261024T033840Z/receipts.jsonl.gz)                               | `npm run evidence:verify -- eval/runs/heldout4-fuzzy-20261024T033840Z`                |
 | `sys5-routed-20261025T074505Z`                   |      431 | [eval/runs/sys5-routed-20261025T074505Z/receipts.jsonl.gz](../eval/runs/sys5-routed-20261025T074505Z/receipts.jsonl.gz)                                     | `npm run evidence:verify -- eval/runs/sys5-routed-20261025T074505Z`                   |
 | `text70-nemotron_alone-20261025T093017Z`         |       92 | [eval/runs/text70-nemotron_alone-20261025T093017Z/receipts.jsonl.gz](../eval/runs/text70-nemotron_alone-20261025T093017Z/receipts.jsonl.gz)                 | `npm run evidence:verify -- eval/runs/text70-nemotron_alone-20261025T093017Z`         |
+| `notext70-nemotron_alone-20261025T104135Z`       |       77 | [eval/runs/notext70-nemotron_alone-20261025T104135Z/receipts.jsonl.gz](../eval/runs/notext70-nemotron_alone-20261025T104135Z/receipts.jsonl.gz)             | `npm run evidence:verify -- eval/runs/notext70-nemotron_alone-20261025T104135Z`       |
 
 `npm run evidence:verify` with no argument checks every run: each signature, that every model call has a receipt, and that the model in the trace equals the model in the receipt.
 <!-- receipts:end -->

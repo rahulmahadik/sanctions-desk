@@ -219,7 +219,15 @@ The agents take the rule list from the layer's own description (`LOAD USL`), so 
 
 **Query time on the same reads**, through Zetaris and directly against each source (`npm run zetaris:timing`):
 
-Not measured yet.
+| Read                                 | Source   | Zetaris median ms | Zetaris p95 ms | Direct median ms | Direct p95 ms |
+| ------------------------------------ | -------- | ----------------: | -------------: | ---------------: | ------------: |
+| alert by id                          | bank     |             115.9 |          245.5 |              0.1 |           0.3 |
+| customer by id                       | bank     |             113.4 |          222.1 |              0.1 |           0.1 |
+| customer identifiers of the customer | bank     |              87.9 |          117.8 |              0.1 |           0.1 |
+| payments of the customer             | payments |              87.7 |          425.4 |              0.4 |           1.4 |
+| listed entry by id                   | lists    |             101.9 |          501.6 |              0.7 |           0.8 |
+
+20 repeats per read; Zetaris times are end to end from this machine through the desk's own client (SQL guard, HTTP, parsing), as the eval identity, on the semantic-layer table. Direct times are taken inside a container on the sources' network with no guard; the Postgres connection is opened once (7.8 ms, not in the times). The payment table in Zetaris is cached, so that read does not call the payments service; the direct read does. The first call of each read is reported apart (first_ms) and left out of the median and p95. Data: [eval/zetaris-timing.json](../eval/zetaris-timing.json).
 <!-- zetaris-harness:end -->
 
 **Where the data lives, and what the agents see of it.** The agents' statements name only semantic-layer tables, never a source, and the count above finds no agent code that names a source's database, table, driver or address. One recorded check shows a source going away while the same read keeps its answer: with the payments service stopped, Zetaris answered the payment table from its cache, every row ([the exam report](../eval/REPORT.md#what-each-run-had)). The file copy of the bank (`sanctions_bank_files`) is not an automatic failover: using it means rebuilding the model with `npm run zetaris:rebuild -- --files`, which activates the eight bank and payment tables from the file copy ([06_activate_files_create.sql](../zetaris/sql/06_activate_files_create.sql)) and, like any rebuild, empties the model's access lists ([Access control](#access-control)). No recorded run has the bank database unreachable and a review answered from the file copy, so that is not claimed.

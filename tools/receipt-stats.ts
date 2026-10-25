@@ -1,20 +1,23 @@
 /**
  * Statistics of the model calls, per step and per model that served them, from the traces and the signed receipts:
  * calls, receipts that verify, median and p95 latency, median tokens in and out, and the fallbacks (answers from the
- * Ollama backup, and cloud answers set aside for citing more than 8 facts). The recorded runs (eval/runs) and the
- * labelled small runs of the privacy-mode test and the model-choice study (logs/, kept on this machine) are reported
- * separately and never added together.
+ * Ollama backup, and cloud answers set aside for citing more than 8 facts). The exported runs in eval/runs are split
+ * into the recorded evaluation runs, the current-system runs (sys5 and later) and the Nemotron-alone study arm
+ * (tools/lib/run-groups.ts); with the labelled small runs of the privacy-mode test and the model-choice study (logs/,
+ * kept on this machine), every group is reported separately and never added together.
  *
  *   npm run receipt:stats              # writes eval/receipt-stats.json and the table block in docs/NEMOTRON.md
  *   npm run receipt:stats -- --check   # exits 1 if either would change
  *
  * When logs/ holds no labelled run (a fresh clone), the labelled groups already in eval/receipt-stats.json are kept.
  */
+import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
-import { loadConfig, median, percentile, resolveProjectPath, verifyReceipt } from "@sanctions-desk/shared";
+import { loadConfig, median, percentile, projectRoot, resolveProjectPath, verifyReceipt } from "@sanctions-desk/shared";
 import { formatMarkdown } from "./lib/format-markdown.js";
+import { RUN_GROUP_ORDER, type RunGroupId, runGroup, runGroupLabel } from "./lib/run-groups.js";
 
 interface Event {
   run_id?: string;
@@ -141,30 +144,46 @@ function summarise(id: string, label: string, runs: number, events: Event[], ver
 
 const lines = (text: string) => text.split("\n").filter((l) => l.trim() !== "");
 
-// ---- recorded runs ---------------------------------------------------------------------------------------------
+// ---- exported runs in eval/runs, one group each (tools/lib/run-groups.ts) -----------------------------------------
 
 const runsDir = resolveProjectPath("eval/runs");
-const recordedRuns = readdirSync(runsDir).filter((d) => existsSync(join(runsDir, d, "receipts.jsonl.gz")));
-const recordedEvents: Event[] = [];
-const recordedVerified = new Set<string>();
-for (const d of recordedRuns) {
-  for (const l of lines(gunzipSync(readFileSync(join(runsDir, d, "receipts.jsonl.gz"))).toString("utf8"))) {
-    const env = JSON.parse(l) as { body?: { receipt?: { receipt_id?: string } } };
-    const id = env.body?.receipt?.receipt_id;
-    if (id && verifyReceipt(env, trusted).status.startsWith("valid")) recordedVerified.add(id);
-  }
-  for (const l of lines(gunzipSync(readFileSync(join(runsDir, d, "trace.jsonl.gz"))).toString("utf8")))
-    recordedEvents.push(JSON.parse(l) as Event);
+// Only run folders tracked by git (committed or staged), as npm run nemotron:scorecard reads them, so the two always
+// count the same runs; a run exported but not yet added is left out until it is.
+const trackedRuns = new Set(
+  execFileSync("git", ["ls-files", "-z", "--", "eval/runs"], { cwd: projectRoot(), encoding: "utf8" })
+    .split("\0")
+    .filter((f) => f.endsWith("/receipts.jsonl.gz"))
+    .map((f) => f.split("/")[2] as string),
+);
+const exported = readdirSync(runsDir).filter(
+  (d) => trackedRuns.has(d) && existsSync(join(runsDir, d, "receipts.jsonl.gz")),
+);
+const byGroup = new Map<RunGroupId, string[]>();
+for (const d of exported) {
+  const meta = JSON.parse(readFileSync(join(runsDir, d, "run-meta.json"), "utf8")) as {
+    run_id?: string;
+    variant: string;
+  };
+  const g = runGroup(meta.run_id ?? d, meta.variant);
+  byGroup.set(g, [...(byGroup.get(g) ?? []), d]);
 }
-const groups: Group[] = [
-  summarise(
-    "recorded",
-    `Recorded runs (${recordedRuns.length} exported runs in eval/runs)`,
-    recordedRuns.length,
-    recordedEvents,
-    recordedVerified,
-  ),
-];
+const groups: Group[] = [];
+for (const id of RUN_GROUP_ORDER) {
+  const dirs = byGroup.get(id) ?? [];
+  if (dirs.length === 0) continue;
+  const events: Event[] = [];
+  const verified = new Set<string>();
+  for (const d of dirs) {
+    for (const l of lines(gunzipSync(readFileSync(join(runsDir, d, "receipts.jsonl.gz"))).toString("utf8"))) {
+      const env = JSON.parse(l) as { body?: { receipt?: { receipt_id?: string } } };
+      const rid = env.body?.receipt?.receipt_id;
+      if (rid && verifyReceipt(env, trusted).status.startsWith("valid")) verified.add(rid);
+    }
+    for (const l of lines(gunzipSync(readFileSync(join(runsDir, d, "trace.jsonl.gz"))).toString("utf8")))
+      events.push(JSON.parse(l) as Event);
+  }
+  groups.push(summarise(id, runGroupLabel(id, dirs.length), dirs.length, events, verified));
+}
 
 // ---- labelled small runs (kept apart) ------------------------------------------------------------------------
 
