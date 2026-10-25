@@ -12,6 +12,8 @@
 - **Headline results:** on the 70-case exam the desk wrongly closed **0 of 43** risk cases, against **3 and 6** for Nemotron alone (without and with the free text; one run each). The critic caught **147 of 147** changed facts in the mutation test.
 - **Watch and read:** [demo video (3:51)](https://youtu.be/cF4ZXKxjpxs) · [deck (PDF, 15 slides)](docs/sanctions-desk-deck.pdf)
 
+<a href="https://youtu.be/cF4ZXKxjpxs"><img src="docs/media/video-thumbnail.png" width="320" alt="Demo video (3:51) on YouTube: the model alone said clear; the desk held the case for a person"></a>
+
 **Try it without keys:** sample mode replays saved real data with a labelled rules stand-in. Run `SAMPLE_MODE=true docker compose up --build`, then open http://localhost:3001 ([Quick start](#quick-start)).
 
 An AI review desk for bank sanctions-screening alerts. **It recommends; a person makes the final call.**
@@ -23,7 +25,18 @@ An AI review desk for bank sanctions-screening alerts. **It recommends; a person
 - **Automatic closing is off by default and was off in every recorded run.**
 - By design, the desk does not block, write to a source system or message a customer.
 
-**Terms:** _semantic layer_ = Zetaris's governed tables over the bank's sources · _held-out_ = test cases written apart from the rules and frozen before the run · _Nightshift_ = the Meterless model runtime that routes each call and signs a receipt · _H-MEM_ = the memory engine for earlier decisions · _World Model_ = the engine that holds ownership registers · _critic_ = the step that re-checks the decision's cited facts · _challenger_ = the step that argues against a proposed close · _sealed record_ = the hash-sealed file of a review's evidence, model calls and checks.
+**Terms:**
+
+| Term | Meaning |
+| --- | --- |
+| semantic layer | Zetaris's governed tables over the bank's sources |
+| held-out | test cases written apart from the rules and frozen before the run |
+| Nightshift | the Meterless model runtime that routes each call and signs a receipt |
+| H-MEM | the memory engine for earlier decisions |
+| World Model | the engine that holds ownership registers |
+| critic | the step that re-checks the decision's cited facts |
+| challenger | the step that argues against a proposed close |
+| sealed record | the hash-sealed file of a review's evidence, model calls and checks |
 
 Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
