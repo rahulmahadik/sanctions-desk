@@ -25,7 +25,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:live": "LIVE_TESTS=1 vitest run packages/shared/test/live packages/zetaris/test/live",
-    "ci": "npm run typecheck && npm run lint && npm run lint:voice && npm run check:links && npm run test:coverage",
+    "ci": "npm run typecheck && npm run lint && npm run lint:voice && npm run check:links && npm run test:coverage && npm run test:engines && npm run evidence:verify && npm run evidence:hash-changes && npm run readme:refresh -- --check && npm run adversarial:summary -- --check && npm run zetaris:harness -- --check && npm run nemotron:scorecard -- --check",
     "prove": "tsx tools/prove.ts",
     "gate:sample": "tsx tools/sample-gate.ts",
     "case": "tsx tools/run-case.ts",
