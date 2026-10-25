@@ -2,7 +2,7 @@
  * One source of truth for the counts that appear in prose. Marked values in README.md and docs/*.md, written as
  * <!--fact:name-->value<!--/fact-->, are replaced with the value computed here from the committed data.
  *
- *   npm run readme:refresh                    # rewrite the marked values
+ *   npm run readme:refresh                    # rewrite the marked values (and the data-harness counts)
  *   npm run readme:refresh -- --check         # fail if any marked value is out of date (used in CI)
  *   npm run readme:refresh -- --count-tests   # also run the test suite and record how many tests it has
  *
@@ -22,6 +22,11 @@ const heldout = read("eval/cases/heldout.json") as { cases: { expected: string }
 const edge = read("eval/edge-cases.json") as { edge_cases: unknown[] };
 const factsFile = resolveProjectPath("eval/facts.json");
 const saved = existsSync(factsFile) ? (JSON.parse(readFileSync(factsFile, "utf8")) as { tests?: number }) : {};
+
+// A refresh also rewrites the data-harness counts; with --check, CI checks them in their own step.
+if (!process.argv.includes("--check"))
+  execFileSync("npx", ["tsx", resolveProjectPath("tools/zetaris-harness.ts")], { stdio: "inherit" });
+const harness = read("eval/zetaris-harness.json") as { agent_files: { scanned: number; naming_any_source: number } };
 
 if (process.argv.includes("--count-tests")) {
   const out = join(mkdtempSync(join(tmpdir(), "tests-")), "vitest.json");
@@ -76,6 +81,7 @@ const facts: Record<string, string> = {
     return `${n(c.skipped ?? 0)} skipped, ${n(c.warning ?? 0)} warning (${which}, risk medium, not blocking), ${n(c.passed ?? 0)} passed`;
   })(),
   receipts_line: receiptsLine(receipts),
+  harness_agent_files: `${harness.agent_files.naming_any_source} of ${harness.agent_files.scanned} agent files name any source, table or driver`,
   ...(saved.tests ? { tests: saved.tests.toLocaleString("en-US") } : {}),
 };
 

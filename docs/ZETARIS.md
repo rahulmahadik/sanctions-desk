@@ -177,6 +177,8 @@ So adding a source is cheaper in lines for the agents on the Zetaris path, and n
 Zetaris is the desk's data harness: the agents query the data where it lives, through one governed semantic layer holding business rules (the approved definitions) and data-quality rules. The block below is generated from the committed code, not estimated; where the two paths do not do the same work, it says so.
 
 <!-- zetaris-harness:start -->
+**0 of 73 agent files name any source, table or driver.** The agents ask the one governed semantic layer, which holds the business rules and data-quality rules, and Zetaris queries the data where it lives. Switching a source is a semantic-layer change; no agent code changes.
+
 Counted by `npm run zetaris:harness` from the committed files (non-blank lines that do not start with //, /*, *, -- or # after trimming); every number below is in [eval/zetaris-harness.json](../eval/zetaris-harness.json) with its file and line range.
 
 **Connection code per source.** The direct path is the hand-coded comparison program in [compare/hand-coded/](../compare/hand-coded/), which reads each source without Zetaris; no agent uses it. On the Zetaris path, onboarding a source is a SQL script (generated) and the agents have one client for every source.

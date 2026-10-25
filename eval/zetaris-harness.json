@@ -1,4 +1,8 @@
 {
+  "agent_files": {
+    "scanned": 73,
+    "naming_any_source": 0
+  },
   "note": "Written by npm run zetaris:harness from committed files; do not edit by hand. A line counts when it is not blank and not a comment-only line.",
   "counting_rule": "non-blank lines that do not start with //, /*, *, -- or # after trimming",
   "connection": {

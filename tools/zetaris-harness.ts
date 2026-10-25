@@ -436,7 +436,12 @@ const timing = existsSync(timingFile)
 
 // ---- outputs --------------------------------------------------------------------------------------------------------
 
+/** Agent files that name any source, table, driver or address: the code the data harness keeps free of sources. */
+const namingAnySource = new Set(perSource.flatMap((s) => s.agent_code_naming_this_source.map((h) => h.split(":")[0])))
+  .size;
+
 const result = {
+  agent_files: { scanned: runtimeFiles.length, naming_any_source: namingAnySource },
   note: "Written by npm run zetaris:harness from committed files; do not edit by hand. A line counts when it is not blank and not a comment-only line.",
   counting_rule: "non-blank lines that do not start with //, /*, *, -- or # after trimming",
   connection: {
@@ -473,6 +478,8 @@ const list = (cs: Counted[]) => cs.map(link).join("; ");
 const LABEL = { bank: "Bank database", payments: "Payments service", lists: "List files" } as const;
 
 const block = [
+  `**${namingAnySource} of ${runtimeFiles.length} agent files name any source, table or driver.** The agents ask the one governed semantic layer, which holds the business rules and data-quality rules, and Zetaris queries the data where it lives. Switching a source is a semantic-layer change; no agent code changes.`,
+  "",
   `Counted by \`npm run zetaris:harness\` from the committed files (${result.counting_rule}); every number below is in [eval/zetaris-harness.json](../eval/zetaris-harness.json) with its file and line range.`,
   "",
   "**Connection code per source.** The direct path is the hand-coded comparison program in [compare/hand-coded/](../compare/hand-coded/), which reads each source without Zetaris; no agent uses it. On the Zetaris path, onboarding a source is a SQL script (generated) and the agents have one client for every source.",
