@@ -1,6 +1,6 @@
 # How NVIDIA Nemotron is used
 
-Sanctions Desk uses two NVIDIA Nemotron models, both through Meterless Nightshift: **Nemotron 3.5 Lightning 30B** on the analyst's laptop, where the raw text is, and **Nemotron 3 Ultra 550B** in the cloud, where the reasoning over structured evidence happens. Every answer from Nightshift carries a signed receipt naming the model that served it, so each statement below can be checked.
+Sanctions Desk uses two NVIDIA Nemotron models, both through Meterless Nightshift: **Nemotron 3.5 Lightning 30B** on the analyst's laptop, where the raw text is, and **Nemotron 3 Ultra 550B** in the cloud, where the reasoning over structured evidence happens. Every Nightshift answer carries a signed receipt naming the model that served it, so each statement below can be checked; local backup answers are labelled "Ollama backup, no receipt".
 
 ## Nemotron at a glance
 

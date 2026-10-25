@@ -6,16 +6,13 @@
 
 ### In 30 seconds
 
-- **What it is:** an AI review desk for bank sanctions-screening alerts. Nemotron models answer through Meterless Nightshift, every fact is read through Zetaris, and every answer carries a signed receipt.
+- **What it is:** an AI review desk for bank sanctions-screening alerts. Nemotron models answer through Meterless Nightshift, every fact is read through Zetaris, and every Nightshift answer carries a signed receipt; local backup answers are labelled.
 - **Who it is for:** sanctions-screening analysts and their senior reviewers.
 - **What it is for:** a checked evidence pack for every alert and zero wrong closes, with a person deciding.
 - **Headline results:** on the 70-case exam the desk wrongly closed **0 of 43** risk cases, against **3 and 6** for Nemotron alone (without and with the free text; one run each). The critic caught **147 of 147** changed facts in the mutation test.
 - **Watch and read:** [demo video (3:51)](https://youtu.be/cF4ZXKxjpxs) · [deck (PDF, 15 slides)](docs/sanctions-desk-deck.pdf)
 
 **Try it without keys:** sample mode replays saved real data with a labelled rules stand-in. Run `SAMPLE_MODE=true docker compose up --build`, then open http://localhost:3001 ([Quick start](#quick-start)).
-
-<!-- media-links -->
-**Demo video (3:51):** https://youtu.be/cF4ZXKxjpxs · **Deck (PDF):** [docs/sanctions-desk-deck.pdf](docs/sanctions-desk-deck.pdf)
 
 An AI review desk for bank sanctions-screening alerts. **It recommends; a person makes the final call.**
 
