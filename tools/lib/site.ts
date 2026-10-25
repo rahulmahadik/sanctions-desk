@@ -18,7 +18,13 @@ import { fillIndex, siteFacts } from "./site-facts.js";
 /** The committed pages of the site, copied when the site is built somewhere other than site/. */
 export const SITE_PAGES = ["index.html", "api.html", "architecture.html"] as const;
 /** The committed assets every page loads. */
-export const SITE_ASSETS = ["site.css", ...FONT_FILES] as const;
+export const SITE_ASSETS = [
+  "site.css",
+  ...FONT_FILES,
+  "vendor/redoc/redoc.standalone.js",
+  "vendor/redoc/redoc.standalone.js.LICENSE.txt",
+  "vendor/redoc/LICENSE-redoc.txt",
+] as const;
 
 /** Each image the landing page shows: its path in the built site and the repository file it is copied from. */
 export const SITE_IMAGES: Record<string, string> = {

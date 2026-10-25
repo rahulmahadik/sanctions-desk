@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:" />
     <meta name="theme-color" content="#0b1a2e" />
     <meta name="description" content="Sanctions Desk API reference, from the API's own OpenAPI document." />
     <title>Sanctions Desk API</title>
@@ -44,9 +45,9 @@
         <p>Source and licence: <a href="https://github.com/rahulmahadik/sanctions-desk">github.com/rahulmahadik/sanctions-desk</a> (Apache-2.0).</p>
       </div>
     </footer>
-    <!-- Redoc renders the document; it has no "try it out", so nothing here calls the API. Pinned with a hash. -->
+    <!-- Redoc 2.5.4 (MIT), served from this site; it has no "try it out", so nothing here calls the API. Pinned with a hash. -->
     <script
-      src="https://cdn.jsdelivr.net/npm/redoc@2.5.4/bundles/redoc.standalone.js"
+      src="vendor/redoc/redoc.standalone.js"
       integrity="sha384-w447zOpYfw/1Tv/5AK9NfHTlQIqE3RVR6KY62jCyy9zNDgO64cMwGGP1Fj0zJVf5"
       crossorigin="anonymous"
     ></script>

@@ -18,6 +18,7 @@
       "!eval/REPORT.md",
       "!eval/PROVE.md",
       "!eval/receipts-check.json",
+      "!site/vendor",
       "!README.md",
       "!output_examples",
       "!**/dist",

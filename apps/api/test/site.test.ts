@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
@@ -19,7 +20,7 @@ import { ROUTES } from "../src/openapi.js";
 const REPO_URL = "https://github.com/rahulmahadik/sanctions-desk";
 const REPO_BLOB = `${REPO_URL}/blob/main/`;
 /** The only places a page may load anything from: the fonts, and (API page only) the pinned Redoc bundle. */
-const EXTERNAL_OK = ["https://cdn.jsdelivr.net/npm/redoc@"];
+const EXTERNAL_OK: string[] = [];
 const out = mkdtempSync(join(tmpdir(), "desk-site-"));
 afterAll(() => rmSync(out, { recursive: true, force: true }));
 
@@ -47,6 +48,24 @@ function htmlFiles(dir: string, base = dir): string[] {
     return d.name.endsWith(".html") ? [relative(base, p)] : [];
   });
 }
+
+describe("the self-hosted Redoc bundle", () => {
+  it("is the pinned 2.5.4 bundle, checked by the same integrity hash, with its MIT licence", () => {
+    const api = readFileSync(resolveProjectPath("site/api.html"), "utf8");
+    const integrity = /src="vendor\/redoc\/redoc\.standalone\.js"\s+integrity="([^"]+)"/.exec(api)?.[1];
+    const bundle = readFileSync(resolveProjectPath("site/vendor/redoc/redoc.standalone.js"));
+    expect(integrity).toBe(`sha384-${createHash("sha384").update(bundle).digest("base64")}`);
+    expect(readFileSync(resolveProjectPath("site/vendor/redoc/LICENSE-redoc.txt"), "utf8")).toContain("MIT License");
+  });
+
+  it("keeps a self-only content policy on the API page, which stops Redoc's one outside image (its logo)", () => {
+    const api = readFileSync(resolveProjectPath("site/api.html"), "utf8");
+    const csp = /http-equiv="Content-Security-Policy" content="([^"]+)"/.exec(api)?.[1] ?? "";
+    expect(csp).toContain("default-src 'self'");
+    expect(csp).toContain("img-src 'self' data:");
+    expect(csp).not.toMatch(/https?:/);
+  });
+});
 
 describe("the self-hosted fonts", () => {
   it("ships every font file with its OFL licence, and the stylesheet points at them", () => {
@@ -140,11 +159,12 @@ describe("the documentation site", () => {
     expect(checked).toBeGreaterThan(100);
   });
 
-  it("loads only a pinned, hash-checked script from outside, the fonts, and calls no API", () => {
+  it("loads only its own hash-checked copy of Redoc, nothing from outside, and calls no API", () => {
     const api = html("api.html");
     const scripts = [...api.matchAll(/<script\s[^>]*src="([^"]+)"[^>]*>/g)];
     expect(scripts).toHaveLength(1);
-    expect(scripts[0]?.[1]).toMatch(/^https:\/\/cdn\.jsdelivr\.net\/npm\/redoc@\d+\.\d+\.\d+\//);
+    expect(scripts[0]?.[1]).toBe("vendor/redoc/redoc.standalone.js");
+    expect(existsSync(join(out, "vendor/redoc/redoc.standalone.js"))).toBe(true);
     expect(scripts[0]?.[0]).toMatch(/integrity="sha384-/);
     for (const page of pages) {
       const text = html(page);

@@ -24,7 +24,8 @@ export const SKIP_FILES = new Set([
   "scripts/scan-public.mjs",
 ]);
 // Rows copied from public sanctions lists and GLEIF are data, not our wording.
-export const SKIP_PREFIXES = ["data/sample/", "data/reference/", "packages/engines/conformance/"];
+// Third-party files kept byte for byte (site/vendor: Redoc, checked by its integrity hash) are not ours to reword.
+export const SKIP_PREFIXES = ["data/sample/", "data/reference/", "packages/engines/conformance/", "site/vendor/"];
 
 export const RULES = [
   { name: "milestone wording", pattern: /\bmilestones?\b/i },

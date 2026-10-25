@@ -44,6 +44,10 @@ The site serves its own copies of two fonts, so no page calls a font service:
 
 The font files were taken unmodified from the Fontsource packages `@fontsource-variable/inter` 5.3.0 and `@fontsource/jetbrains-mono` 5.3.0.
 
+## Redoc on the API page
+
+The API page renders the OpenAPI document with **Redoc** 2.5.4, Copyright (c) 2015-present Rebilly, Inc., MIT License. The site serves its own copy, unmodified from the npm package `redoc@2.5.4`: `site/vendor/redoc/redoc.standalone.js` (the page checks it with its sha384 integrity hash), with the licence in `site/vendor/redoc/LICENSE-redoc.txt` and the notices of the libraries bundled inside it in `site/vendor/redoc/redoc.standalone.js.LICENSE.txt`. A content policy on the page allows only the site's own files, so the one outside image Redoc would load (its logo) is never requested.
+
 ## npm dependencies
 
 Runtime and development dependencies are listed in `package.json` and `package-lock.json`. Each is used
