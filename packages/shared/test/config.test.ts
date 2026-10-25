@@ -151,7 +151,8 @@ describe("loadConfig", () => {
 
   it("reads pinned receipt public keys from a comma separated variable and validates them", () => {
     const key = "00OsSOXGbDitkESZueIJqDPdf9bXAvyrL+8cYDbY6II=";
-    expect(testConfig().nightshift.receiptPublicKeys).toEqual([]);
+    // The committed configuration pins the Nightshift runtime's key; the variable replaces it.
+    expect(testConfig().nightshift.receiptPublicKeys).toEqual([key]);
     expect(testConfig({ METERLESS_RECEIPT_PUBLIC_KEY: `${key}, ${key}` }).nightshift.receiptPublicKeys).toEqual([
       key,
       key,

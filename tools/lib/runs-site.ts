@@ -14,7 +14,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { gunzipSync } from "node:zlib";
-import { resolveProjectPath, verifyReceipt } from "@sanctions-desk/shared";
+import { loadConfig, resolveProjectPath, verifyReceipt } from "@sanctions-desk/shared";
 import { problemsIn, type RunVerification, verifyExportedRun } from "./evidence.js";
 
 export const REPO_URL = "https://github.com/rahulmahadik/sanctions-desk";
@@ -183,6 +183,10 @@ interface SealedRecord {
 /** Thrown when a committed input is missing or does not verify; the site build exits non-zero on it. */
 export class RecordedRunError extends Error {}
 
+/** The Nightshift receipt key the configuration pins (committed in config/default.json); receipts must carry it. */
+export const pinnedKeys = (): readonly string[] =>
+  loadConfig({ env: { SAMPLE_MODE: "true" } }).nightshift.receiptPublicKeys;
+
 const need = (path: string, what: string): string => {
   if (!existsSync(path)) throw new RecordedRunError(`${what} is missing: ${path}`);
   return path;
@@ -236,7 +240,7 @@ export interface LoadOptions {
   root?: string;
   /** Folder holding the run exports (default: <root>/eval/runs). */
   runsDir?: string;
-  /** Pinned receipt keys. Empty by default, so the check is the one anyone can repeat from the committed files. */
+  /** Pinned receipt keys. By default the key the configuration pins, so a receipt signed by another key fails. */
   trustedKeys?: readonly string[];
 }
 
@@ -345,10 +349,10 @@ export function loadRecordedCase(spec: RecordedCase, opts: LoadOptions = {}): Lo
   const events = trace.filter((e) => e.case_id === spec.caseId).sort((a, b) => a.seq - b.seq);
   if (events.length === 0) throw new RecordedRunError(`${where}: no trace events for the case`);
 
-  const calls = checkCalls(events, envelopes, opts.trustedKeys ?? [], where);
+  const calls = checkCalls(events, envelopes, opts.trustedKeys ?? pinnedKeys(), where);
   if (!calls.some((c) => c.receipt)) throw new RecordedRunError(`${where}: no model call in the case has a receipt`);
   // The whole run, through the code `npm run evidence:verify` uses.
-  const run = verifyExportedRun(runDir, [...(opts.trustedKeys ?? [])]);
+  const run = verifyExportedRun(runDir, [...(opts.trustedKeys ?? pinnedKeys())]);
   if (problemsIn(run) > 0)
     throw new RecordedRunError(
       `${where}: the run fails npm run evidence:verify (${run.status.invalid} invalid, ${run.status.malformed} malformed, ${run.missing.length} missing, ${run.mismatched.length} model mismatches)`,
@@ -718,7 +722,7 @@ ${stoppedSection(c, s)}
 ${table("Every step of the run, in order", ["#", "Agent", "Action", "Status", "What happened", "Model", "Receipt", "Zetaris read"], steps)}
 
       <h2 id="receipts">Model calls and receipts</h2>
-      <p>Each signature was checked when this page was built, with the same code as <code>npm run evidence:verify</code> (Ed25519 over the receipt body in <code>receipts.jsonl.gz</code>); the build stops if one does not verify, is missing, or names a different model from the trace.${unpinned ? " No key is pinned for the site build, so the check uses the key carried in each receipt: <strong>signature valid, key from the receipt</strong> shows the receipt was not changed after signing, not who signed it. The column “at run time” is what the desk recorded when it checked the receipt against its pinned key during the run." : ""}</p>
+      <p>Each signature was checked when this page was built, with the same code as <code>npm run evidence:verify</code> (Ed25519 over the receipt body in <code>receipts.jsonl.gz</code>); the build stops if one does not verify, is missing, or names a different model from the trace.${unpinned ? " No key is pinned for the site build, so the check uses the key carried in each receipt: <strong>signature valid, key from the receipt</strong> shows the receipt was not changed after signing, not who signed it. The column “at run time” is what the desk recorded when it checked the receipt against its pinned key during the run." : " The Nightshift runtime's receipt key is pinned in <code>config/default.json</code>, so <strong>signature valid, key pinned</strong> shows the receipt was not changed and that this runtime signed it; a receipt signed by any other key stops the build."}</p>
 ${table("Model calls and their receipts", ["#", "Step", "Mode asked for", "Model that served it", "Receipt", "App", "Checked now", "At run time", "Time", "Tokens in / out"], callRows)}
       <p>The whole run passes the same check: ${c.run.receipts} receipts with valid signatures, ${c.run.calls} model calls in the trace that name a receipt, none missing and none naming a different model from its receipt.</p>
       <p class="muted">Signing key fingerprint (first 16 hex of SHA-256): ${[...new Set(receipts.map((x) => x.receipt?.keyFingerprint))].map((k) => `<code>${esc(k)}</code>`).join(", ")}.</p>

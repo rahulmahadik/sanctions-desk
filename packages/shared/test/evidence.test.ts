@@ -12,13 +12,18 @@ import { tempDir } from "./helpers.js";
 
 const ROOT = fileURLToPath(new URL("../../..", import.meta.url));
 
+/** One test runtime key, pinned for the checks below the way config/default.json pins the real one. */
+const KEYS = generateKeyPairSync("ed25519");
+const PINNED = (() => {
+  const der = KEYS.publicKey.export({ format: "der", type: "spki" });
+  return der.subarray(der.length - 32).toString("base64");
+})();
+
 /** A signed receipt the way Nightshift makes one: Ed25519 over the canonical JSON of the body. */
 function receipt(id: string, model: string, extra: Record<string, unknown> = {}) {
-  const { publicKey, privateKey } = generateKeyPairSync("ed25519");
   const body = { receipt: { receipt_id: id, winning_route: { kind: "cloud", model }, ...extra }, signer: "test" };
-  const sig = sign(null, Buffer.from(canonicalJson(body)), privateKey).toString("base64");
-  const der = publicKey.export({ format: "der", type: "spki" });
-  return { body, pubkey_b64: der.subarray(der.length - 32).toString("base64"), sig_b64: sig };
+  const sig = sign(null, Buffer.from(canonicalJson(body)), KEYS.privateKey).toString("base64");
+  return { body, pubkey_b64: PINNED, sig_b64: sig };
 }
 
 function sandbox(trace: Record<string, unknown>[], receipts: Array<ReturnType<typeof receipt>>) {
@@ -49,7 +54,12 @@ const run = (script: string, args: string[]) =>
   spawnSync("npx", ["tsx", script, ...args], {
     cwd: ROOT,
     encoding: "utf8",
-    env: { ...process.env, SAMPLE_MODE: "true" },
+    // The verifier checks against the pinned test key; the exporter is run without it, as the real one is.
+    env: {
+      ...process.env,
+      SAMPLE_MODE: "true",
+      ...(script.endsWith("evidence-verify.ts") ? { METERLESS_RECEIPT_PUBLIC_KEY: PINNED } : {}),
+    },
   });
 
 const event = (over: Record<string, unknown> = {}) => ({

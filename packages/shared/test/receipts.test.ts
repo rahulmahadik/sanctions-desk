@@ -15,7 +15,11 @@ describe("verifyReceipt", () => {
     const { envelope, publicKeyB64 } = signedReceipt();
     expect(verifyReceipt(envelope).status).toBe("valid_unpinned");
     expect(verifyReceipt(envelope, [publicKeyB64]).status).toBe("valid_pinned");
-    expect(verifyReceipt(envelope, ["AAAA"]).status).toBe("valid_unpinned");
+    // With a different key pinned, a receipt signed by another key is refused.
+    expect(verifyReceipt(envelope, ["AAAA"])).toMatchObject({
+      status: "invalid",
+      reason: "signed by a key that is not the pinned one",
+    });
     expect(verifyReceipt(envelope).bodyHash).toMatch(/^[a-f0-9]{64}$/);
   });
 

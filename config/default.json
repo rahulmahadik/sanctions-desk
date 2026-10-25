@@ -48,7 +48,7 @@
       "deep": "meterless/deep",
       "judge": "meterless/judge"
     },
-    "receiptPublicKeys": [],
+    "receiptPublicKeys": ["00OsSOXGbDitkESZueIJqDPdf9bXAvyrL+8cYDbY6II="],
     "evalAppId": "sanctions-desk-eval",
     "apps": {
       "reasoning": "sanctions-desk-reasoning",

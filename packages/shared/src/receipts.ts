@@ -80,7 +80,11 @@ export function verifyReceipt(input: unknown, trustedKeys: readonly string[] = [
     return { status: "malformed", reason: "public key is not a valid Ed25519 key", bodyHash };
   }
   if (!ok) return { status: "invalid", reason: "signature does not match the body", bodyHash };
-  return { status: trustedKeys.includes(pubkey_b64) ? "valid_pinned" : "valid_unpinned", bodyHash };
+  if (trustedKeys.includes(pubkey_b64)) return { status: "valid_pinned", bodyHash };
+  // With a key pinned, a receipt signed by any other key is not accepted, however valid its own signature.
+  if (trustedKeys.length > 0)
+    return { status: "invalid", reason: "signed by a key that is not the pinned one", bodyHash };
+  return { status: "valid_unpinned", bodyHash };
 }
 
 export interface ExtractedReceipt {

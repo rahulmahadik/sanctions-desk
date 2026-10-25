@@ -210,7 +210,7 @@ Fallbacks: Decision: 18 answer(s) from the Ollama backup, 0 answer(s) set aside 
 
 ```bash
 npm ci
-npm run evidence:verify      # every signature of the exported runs, every call has a receipt, trace model = receipt model
+npm run evidence:verify      # every signature against the pinned key, every named receipt present, trace model = receipt model
 ```
 
 Without installing anything: the [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/) lists every model call of the committed runs with its receipt, each signature checked when the site was built. The case view's **Verify receipt** button checks one call of a live review the same way. How a receipt is signed and how to pin the key: [MODELS.md](MODELS.md#verifying-a-receipt).

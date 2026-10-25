@@ -149,17 +149,17 @@ describe("the audit link", () => {
 });
 
 describe("GET /receipts/:id/verify", () => {
-  it("checks a stored receipt: valid signature, pinned or not, and what it says about the call", async () => {
-    const { app, config } = await makeApp();
+  it("checks a stored receipt: valid signature, pinned key, and what it says about the call", async () => {
     const signed = signedReceiptForTest();
+    const { app, config } = await makeApp({ env: { METERLESS_RECEIPT_PUBLIC_KEY: signed.pubkey_b64 } });
     mkdirSync(join(resolveProjectPath(config.logging.dir), "receipts"), { recursive: true });
     writeFileSync(join(resolveProjectPath(config.logging.dir), "receipts", "rcpt_t1.json"), JSON.stringify(signed));
     const res = await app.inject({ method: "GET", url: "/receipts/rcpt_t1/verify" });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toMatchObject({
       receipt_id: "rcpt_t1",
-      status: "valid_unpinned",
-      key_pinned: false,
+      status: "valid_pinned",
+      key_pinned: true,
       app: "sanctions-desk-guard",
       requested_mode: "fast",
       routed_mode: "local",
@@ -168,6 +168,15 @@ describe("GET /receipts/:id/verify", () => {
       route_kind: "local",
     });
     expect(res.json().body_hash).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it("refuses a receipt signed by a key other than the pinned one", async () => {
+    const { app, config } = await makeApp();
+    const signed = signedReceiptForTest();
+    mkdirSync(join(resolveProjectPath(config.logging.dir), "receipts"), { recursive: true });
+    writeFileSync(join(resolveProjectPath(config.logging.dir), "receipts", "rcpt_t3.json"), JSON.stringify(signed));
+    const res = await app.inject({ method: "GET", url: "/receipts/rcpt_t3/verify" });
+    expect(res.json()).toMatchObject({ receipt_id: "rcpt_t3", status: "invalid", key_pinned: false });
   });
 
   it("reports an altered receipt as invalid, and an unknown or unsafe id as not found", async () => {

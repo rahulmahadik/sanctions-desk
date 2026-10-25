@@ -85,15 +85,17 @@ or over HTTP: `GET /cases/:alertId/trace`. Costs use the unit costs in `config/d
 
 Nightshift signs a receipt for every answer (Ed25519 over the sorted-key JSON of its body). The full signed receipt is stored next to the trace in `logs/receipts/<receipt id>.json`, and its status is in the ledger:
 
-| Status                  | Meaning                                                                                                                  |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `valid_pinned`          | The signature is valid and the key is one you pinned.                                                                    |
-| `valid_unpinned`        | The signature is valid but the key came from the same response: it shows the receipt was not altered, not who signed it. |
-| `invalid` / `malformed` | The receipt does not check out.                                                                                          |
+| Status                  | Meaning                                                                                                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `valid_pinned`          | The signature is valid and the key is one you pinned.                                                                                                         |
+| `valid_unpinned`        | The signature is valid but the key came from the same response: it shows the receipt was not altered, not who signed it. Only possible when no key is pinned. |
+| `invalid` / `malformed` | The receipt does not check out, or (with a key pinned) it is signed by another key.                                                                           |
 
 A receipt also carries the runtime's host readings at the time of the call (`host_pressure`: memory, CPU, GPU, thermal, battery and network), the ids of any memories Nightshift added, and a short preview of the prompt. They are part of the signed body, so the exported receipts in `eval/runs/` publish them unchanged; for the guard identity the prompt preview can hold the start of a synthetic note or payment reference.
 
-To pin the runtime's key: `npm run receipt:pubkey` prints the public key (and nothing secret). Put it in `METERLESS_RECEIPT_PUBLIC_KEY`, or for this machine only in the git-ignored `config/local.json`:
+**The key is pinned** (since 25 Oct 2026): `config/default.json` holds the Nightshift runtime's public key, `00OsSOXGbDitkESZueIJqDPdf9bXAvyrL+8cYDbY6II=`, taken from two places that agree: all 1,492 recorded receipts are signed with it, and a fresh live receipt (`npm run receipt:pubkey`) carried the same key. With a key pinned, a receipt signed by any other key is `invalid`: `npm run evidence:verify`, `npm run prove`, the case view and the site's replay pages and receipt log all report "signature valid, key pinned" or fail.
+
+To pin a different runtime's key: `npm run receipt:pubkey` prints the public key (and nothing secret). Put it in `METERLESS_RECEIPT_PUBLIC_KEY`, or for this machine only in the git-ignored `config/local.json`:
 
 ```json
 { "nightshift": { "receiptPublicKeys": ["<printed key>"] } }

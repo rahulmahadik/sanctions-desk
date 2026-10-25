@@ -17,6 +17,7 @@ import {
   type CheckedCall,
   checkCalls,
   esc,
+  pinnedKeys,
   REPO_URL,
   RecordedRunError,
   RUNS_CSS,
@@ -50,7 +51,7 @@ export interface RunLog {
 export interface ReceiptLogOptions {
   /** Folder holding the run exports (default: eval/runs). */
   runsDir?: string;
-  /** Pinned receipt keys. Empty by default, so the check is the one anyone can repeat from the committed files. */
+  /** Pinned receipt keys. By default the key the configuration pins, so a receipt signed by another key fails. */
   trustedKeys?: readonly string[];
 }
 
@@ -64,14 +65,14 @@ export function loadRunLog(runDir: string, opts: ReceiptLogOptions = {}): RunLog
   for (const [caseId, events] of [...byCase].sort(([a], [b]) => a.localeCompare(b))) {
     const sorted = [...events].sort((a, b) => a.seq - b.seq);
     const answers = sorted.filter((e) => e.action === "model_answer");
-    const checked = checkCalls(sorted, envelopes, opts.trustedKeys ?? [], `${runId} ${caseId}`);
+    const checked = checkCalls(sorted, envelopes, opts.trustedKeys ?? pinnedKeys(), `${runId} ${caseId}`);
     checked.forEach((c, i) => {
       const provider = (answers[i] as TraceEvent).provider;
       // The rules stand-in of a baseline variant answers in the same event shape, but it is not a model call.
       if (provider !== "fallback-rules") calls.push({ ...c, caseId, provider });
     });
   }
-  const run = verifyExportedRun(runDir, [...(opts.trustedKeys ?? [])]);
+  const run = verifyExportedRun(runDir, [...(opts.trustedKeys ?? pinnedKeys())]);
   if (problemsIn(run) > 0)
     throw new RecordedRunError(
       `${runId}: the run fails npm run evidence:verify (${run.status.invalid} invalid, ${run.status.malformed} malformed, ${run.missing.length} missing, ${run.mismatched.length} model mismatches)`,
@@ -143,7 +144,7 @@ ${rows.map((r) => `            <tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr
         </table>
       </div>`;
 
-const HOW = `<p>Each signature is Ed25519 over the receipt body in <code>receipts.jsonl.gz</code>, checked with the same code as <code>npm run evidence:verify</code>. No key is pinned for the site build, so the check uses the key carried in each receipt: it shows the receipt was not changed after signing, not who signed it. The build stops if a receipt is missing, does not verify, or names a different model from the trace.</p>`;
+const HOW = `<p>Each signature is Ed25519 over the receipt body in <code>receipts.jsonl.gz</code>, checked with the same code as <code>npm run evidence:verify</code>. The receipt key of the Nightshift runtime is pinned in <code>config/default.json</code>: a receipt counts only if it is signed by that key, so it shows both that the receipt was not changed and that this runtime signed it. The build stops if a receipt is signed by another key, if a receipt is missing, does not verify, or names a different model from the trace.</p>`;
 
 export function renderRunLog(log: RunLog): string {
   const rows = log.calls.map((c) => [
