@@ -23,7 +23,7 @@ Open http://localhost:3001 for the review desk: pick an alert, press **Review th
 Needs Zetaris running locally, the Nightshift runtime, and optionally Ollama.
 
 ```bash
-npm install
+npm ci
 cp .env.example .env                       # then add your own values; never commit .env
 docker compose --env-file .env.data --profile data up -d --build bankdb payments-api   # synthetic bank + payments (see below)
 npm run zetaris:rebuild                    # create everything in Zetaris from the committed scripts

@@ -215,7 +215,7 @@ Limits: it tests the safety guard only (not the decision, critic or challenger, 
 
 ## One-command proof
 
-**Check the claims without Docker.** With Node 24, `npm ci && npm run prove` runs seven checks in a few seconds once installed and prints one PASS or FAIL line each, then a summary; it exits with 1 if any check fails. It needs no credentials and no services, forces sample mode and never reads `.env`:
+**Check the claims without Docker.** With Node 24 or newer (CI runs 24 and 26; `.node-version` says 26) and a full clone (not `--depth 1`: the preregistration check looks for the freeze commits in the history), `npm ci && npm run prove` runs seven checks in a few seconds once installed and prints one PASS or FAIL line each, then a summary; it exits with 1 if any check fails. It needs no credentials and no services, forces sample mode and never reads `.env`:
 
 | Check                  | What it does                                                                                                                                                                                                                                                            |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

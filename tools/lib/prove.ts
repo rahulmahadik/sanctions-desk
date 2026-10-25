@@ -122,7 +122,7 @@ export function readmeBlock(info: RunInfo, results: CheckResult[]): string {
     summaryLine(results),
     "```",
     "",
-    `Reproduce with \`${REPRODUCE}\`, or \`npm run prove -- --fresh\` to clone this commit into a temporary folder, install and run the same checks there. Details: [eval/PROVE.md](eval/PROVE.md).`,
+    `Reproduce with \`${REPRODUCE}\`, or \`npm run prove -- --fresh\` to clone this commit into a temporary folder, install and run the same checks there. The sealed-record hash in the first line changes on every run (the record holds its own run id and time); the other figures do not. Details: [eval/PROVE.md](eval/PROVE.md).`,
   ].join("\n");
 }
 

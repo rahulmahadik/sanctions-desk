@@ -20,7 +20,7 @@ The governance view, mapped to the headings of the Monetary Authority of Singapo
 ## The review desk interface
 
 ```bash
-npm install
+npm ci
 SAMPLE_MODE=true npm run dev                  # the API on :8000
 npm run dev -w @sanctions-desk/web            # the interface on :3001
 npm run build -w @sanctions-desk/web          # production build

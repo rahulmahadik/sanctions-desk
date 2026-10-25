@@ -3,12 +3,12 @@
  *
  *   npm run -s case -- input_examples/run-ALR-0004.json
  *   SAMPLE_MODE=true npm run -s case -- input_examples/run-ALR-0004.json      (saved data, no services needed)
- *   TRACE_STDOUT_PRETTY=false npm run -s case -- input_examples/run-ALR-0004.json | jq    (only the JSON answer)
+ *   SAMPLE_MODE=true npm run -s case -- input_examples/run-ALR-0004.json | jq          (the trace lines stay on stderr)
  *
  * The file holds the body POST /run accepts ({"alert_id": "ALR-0004"} and optionally run_id, alert_type, options).
  * The review goes through the same route as POST /run, inside this process: same configuration, same data path,
- * same models, same trace file and sealed record. While it runs, one short line per trace event is printed (turn
- * that off with TRACE_STDOUT_PRETTY=false); at the end one JSON object is printed. A failure is a structured error
+ * same models, same trace file and sealed record. While it runs, one short line per trace event is printed to stderr
+ * (turn that off with TRACE_STDOUT_PRETTY=false); at the end one JSON object is printed to stdout, so it can be piped. A failure is a structured error
  * and a non-zero exit code, never an invented decision.
  */
 import { existsSync, readFileSync } from "node:fs";
@@ -41,8 +41,12 @@ interface CaseAnswer {
 const started = performance.now();
 const elapsed = (): number => Math.round((performance.now() - started) / 10) / 100;
 
+// The trace writer echoes to stdout; in this command stdout is kept for the answer alone and the echo goes to stderr.
+const writeAnswer = process.stdout.write.bind(process.stdout);
+process.stdout.write = process.stderr.write.bind(process.stderr) as typeof process.stdout.write;
+
 function finish(answer: CaseAnswer): never {
-  process.stdout.write(`${JSON.stringify(answer, null, 2)}\n`);
+  writeAnswer(`${JSON.stringify(answer, null, 2)}\n`);
   process.exit(answer.status === "ok" ? 0 : 1);
 }
 
@@ -85,7 +89,7 @@ async function main(): Promise<void> {
     // Configuration problems are reported without any values.
     return fail("config_missing", err instanceof ConfigError ? err.message : (err as Error).message);
   }
-  // stdout carries the readable trace lines (when on) and the answer; the service log goes to stderr, warnings only.
+  // stdout carries only the answer; the readable trace lines (when on) and the service log (warnings only) go to stderr.
   // No HTTP server is started, so the Swagger description is not built.
   const config = {
     ...loaded,

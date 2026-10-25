@@ -352,7 +352,7 @@ function laterHeldout(f: Findings, n: number, commit: string): void {
     else f.notes.push(`held-out v${n} frozen in commit ${commit}, the same file`);
   } catch {
     f.problems.push(
-      `the v${n} freeze commit ${commit} is not in this history (a shallow clone has too little history)`,
+      `the v${n} freeze commit ${commit} is not in this history (a shallow clone has too little history: run git fetch --unshallow)`,
     );
   }
 }
@@ -369,7 +369,9 @@ function freezeCommit(f: Findings): void {
     git(["merge-base", "--is-ancestor", freeze, "HEAD"]);
     f.notes.push(`held-out v2 freeze commit ${freeze} is in the history`);
   } catch {
-    f.problems.push(`freeze commit ${freeze} is not in this history (a shallow clone has too little history)`);
+    f.problems.push(
+      `freeze commit ${freeze} is not in this history (a shallow clone has too little history: run git fetch --unshallow)`,
+    );
   }
 }
 

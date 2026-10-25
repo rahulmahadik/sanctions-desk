@@ -88,13 +88,13 @@ Open http://localhost:3001 for the review desk: pick an alert, press **Review th
 One review from the command line, without the interface or a server. The request file holds the same body as `POST /run`; with `SAMPLE_MODE=true` no service or key is needed.
 
 ```bash
-npm install
+npm ci
 SAMPLE_MODE=true npm run -s case -- input_examples/run-ALR-0004.json
 ```
 
 The request files are in [input_examples/README.md](input_examples/README.md); the answer's shape is in [docs/API.md](docs/API.md#run-one-case).
 
-**Check the claims without Docker.** With Node 24, `npm ci && npm run prove` runs seven checks in a few seconds once installed and prints one PASS or FAIL line each, then a summary; it exits with 1 if any check fails. It needs no credentials and no services, forces sample mode and never reads `.env`. What each check does: [docs/EVALUATION.md](docs/EVALUATION.md#one-command-proof).
+**Check the claims without Docker.** With Node 24 or newer (CI runs 24 and 26; `.node-version` says 26) and a full clone (not `--depth 1`: the preregistration check looks for the freeze commits in the history), `npm ci && npm run prove` runs seven checks in a few seconds once installed and prints one PASS or FAIL line each, then a summary; it exits with 1 if any check fails. It needs no credentials and no services, forces sample mode and never reads `.env`. What each check does: [docs/EVALUATION.md](docs/EVALUATION.md#one-command-proof).
 
 <!-- prove:start -->
 **One-command proof** (`npm run prove`, no credentials or services; last run 2026-10-24T19:55:38.153Z on commit 8354825):

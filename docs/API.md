@@ -75,8 +75,8 @@ Every answer, including an error, also carries the run's bookkeeping:
 ### The same review from the command line
 
 ```bash
-npm run -s case -- input_examples/run-ALR-0004.json                              # readable trace lines, then the answer
-TRACE_STDOUT_PRETTY=false npm run -s case -- input_examples/run-ALR-0004.json | jq   # only the answer
+npm run -s case -- input_examples/run-ALR-0004.json        # readable trace lines on stderr, the answer on stdout
+npm run -s case -- input_examples/run-ALR-0004.json | jq   # the answer through jq; the trace lines still show
 ```
 
 The file holds the same body as `POST /run`. The command runs the `/run` route inside the process (no server, no sign-in step), prints one JSON object with `run_id`, `status`, `decision`, `confidence`, `agents`, `trace_id`, `log_file`, `record_hash`, `execution_time_seconds` and `sample_mode`, and exits with a non-zero code and `{"error": {"type", "message"}}` when the review could not run. See [input_examples/README.md](../input_examples/README.md).
@@ -86,7 +86,7 @@ The file holds the same body as `POST /run`. The command runs the `/run` route i
 One review from the command line, without the interface or a server. The request file holds the same body as `POST /run`; with `SAMPLE_MODE=true` no service or key is needed.
 
 ```bash
-npm install
+npm ci
 SAMPLE_MODE=true npm run -s case -- input_examples/run-ALR-0004.json
 ```
 
@@ -96,7 +96,7 @@ The same review over HTTP, with the API running in sample mode (`SAMPLE_MODE=tru
 curl -s localhost:8000/run -H 'content-type: application/json' -d @input_examples/run-ALR-0004.json
 ```
 
-While it runs, `npm run case` prints one short line per step (time, agent, action, status, summary, receipt id; turn off with `TRACE_STDOUT_PRETTY=false`), then one JSON object. Shape of the answer (values from a sample-mode run; `POST /run` returns these fields and more):
+While it runs, `npm run case` prints one short line per step to stderr (time, agent, action, status, summary, receipt id; turn off with `TRACE_STDOUT_PRETTY=false`), then one JSON object to stdout. Shape of the answer (values from a sample-mode run; `POST /run` returns these fields and more):
 
 ```json
 {
