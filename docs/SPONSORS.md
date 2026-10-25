@@ -56,7 +56,7 @@ Two Nemotron models do the language work: **Nemotron 3 Ultra 550B** (served in t
 
 | Step                                                         | Model                                          | Where  | Why                                                                         |
 | ------------------------------------------------------------ | ---------------------------------------------- | ------ | --------------------------------------------------------------------------- |
-| Safety guard (text from the data, and drafts for a customer) | Nemotron 3.5 Lightning 30B                     | laptop | reads raw text, which stays on the machine                                  |
+| Safety guard (text from the data, and drafts for a customer) | Nemotron 3.5 Lightning 30B                     | laptop | reads raw text; only a local answer is accepted                             |
 | Free-text screener                                           | Nemotron 3.5 Lightning 30B                     | laptop | turns notes and payment references into risk signals with their exact spans |
 | Decision, critic, challenger                                 | Nemotron 3 Ultra 550B                          | cloud  | reasons over structured facts and signals, never free text                  |
 | Backup when Nightshift cannot answer                         | Nemotron 3.5 Lightning 30B in the local Ollama | laptop | keeps a step answering; no receipt, labelled in the trace                   |

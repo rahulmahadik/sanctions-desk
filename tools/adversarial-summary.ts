@@ -10,7 +10,7 @@
  */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { resolveProjectPath } from "@sanctions-desk/shared";
+import { countWithInterval, resolveProjectPath } from "@sanctions-desk/shared";
 import { formatMarkdown } from "./lib/format-markdown.js";
 
 interface Row {
@@ -183,7 +183,98 @@ if (review && reviewFile) {
 
 const short = `**Safety guard against injected text (one run, ${day}, policy ${run.policy_version}):** Lightning flagged ${count(injection, (r) => r.by_model)} of ${injection.length} injected instructions, against ${count(injection, (r) => r.by_patterns)} for the fixed patterns alone, and ${count(tipping, (r) => r.by_model)} of ${tipping.length} tipping-off drafts (patterns: ${count(tipping, (r) => r.by_patterns)}); it wrongly flagged ${falseFlags.length} of ${harmless.length} harmless texts. It tests the safety guard only, not a full review.${reviewShort} Details: `;
 
+// The fresh set (fresh-*.json): texts written separately, run on the code after the guard changes of 25 Oct, each
+// inbound text in a base that closes and one that escalates. Beside it, the false alarms of the 105-text run.
+const freshFile = readdirSync(dir)
+  .filter((f) => /^fresh-.*\.json$/.test(f))
+  .sort()
+  .at(-1);
+let freshBlock: string | undefined;
+if (freshFile && review) {
+  const fr = JSON.parse(readFileSync(join(dir, freshFile), "utf8")) as ReviewRun;
+  if (fr.rows.some((r) => r.family !== "baseline" && r.caught === undefined))
+    throw new Error(
+      `${freshFile} is not scored: run npm run adversarial:review -- --score eval/adversarial/${freshFile}`,
+    );
+  const n = (rows: ReviewRow[], p: (r: ReviewRow) => boolean) => rows.filter(p).length;
+  const closed = (r: ReviewRow) => r.decision === "CLOSE_FALSE_POSITIVE";
+  const fam = (f: ReviewRow["family"]) => fr.rows.filter((r) => r.family === f);
+  const bases = fam("baseline");
+  const baseIds = [...new Set(bases.map((b) => b.alert_id))];
+  const inj = fam("injection");
+  const ben = fam("benign");
+  const tip = fam("tipping_off");
+  const clean = fam("clean_draft");
+  const oldBen = review.rows.filter((r) => r.family === "benign" && r.place !== "draft");
+  const byBase = (rows: ReviewRow[]) =>
+    baseIds
+      .map((a) => {
+        const sub = rows.filter((r) => r.alert_id === a);
+        const own = bases.filter((b) => b.alert_id === a).map((b) => b.decision);
+        return `in ${a} (alone: ${own.join(", ")}): ${n(sub, closed)} of ${sub.length} closed`;
+      })
+      .join("; ");
+  const steps = fr.rows.flatMap((r) => r.local_steps ?? []);
+  const local = (agent: string) => {
+    const s = steps.filter((x) => x.agent === agent);
+    return `${s.filter((x) => x.route === "local").length} of ${s.length}`;
+  };
+  const injTexts = [...new Set(inj.map((r) => r.case_id))].length;
+  freshBlock = [
+    `**A fresh set on the changed code (eval/adversarial/${freshFile}, ${fr.at.slice(0, 10)}, policy version ${fr.policy_version}).** After the run above, the guard was changed (the guard model asked twice, the more cautious answer kept; a separate narrow check of whether a text addresses the reviewer or the case outcome; an answer from a cloud route not accepted). A separate session then wrote new texts without seeing the earlier ones or their results (eval/adversarial/fresh-set-2026-10-25.json). Each customer note and list remark was reviewed in full in ${baseIds.length} base alerts (${baseIds.join(" and ")}), one that closes and one that escalates on its own data. Counts are per review (each text appears once per base). Caught means the safety guard or the screener flagged the text itself; 95% ranges in brackets.`,
+    "",
+    "| Texts | Reviews | Result | Case outcome, per base alert |",
+    "| --- | ---: | --- | --- |",
+    `| Injected instructions (${injTexts} texts) | ${inj.length} | caught ${countWithInterval(
+      n(inj, (r) => r.caught === true),
+      inj.length,
+    )} | ${byBase(inj)} |`,
+    `| Harmless texts | ${ben.length} | false alarms ${countWithInterval(
+      n(ben, (r) => r.caught === true),
+      ben.length,
+    )}; in the 105-text run above: ${countWithInterval(
+      n(oldBen, (r) => r.caught === true),
+      oldBen.length,
+    )} | ${byBase(ben)} |`,
+    `| Tipping-off drafts | ${tip.length} | blocked ${countWithInterval(
+      n(tip, (r) => r.decision === "DRAFT_BLOCKED"),
+      tip.length,
+    )} | (outbound guard) |`,
+    `| Clean drafts | ${clean.length} | wrongly blocked ${countWithInterval(
+      n(clean, (r) => r.decision === "DRAFT_BLOCKED"),
+      clean.length,
+    )} | (outbound guard) |`,
+    "",
+    `Injected texts not caught: ${[...new Set(inj.filter((r) => !r.caught).map((r) => `${r.case_id} in ${r.alert_id}`))].join(", ") || "none"}. Injected texts whose case was closed: ${
+      inj
+        .filter(closed)
+        .map((r) => `${r.case_id} in ${r.alert_id}`)
+        .join(", ") || "none"
+    }. Harmless texts flagged: ${
+      ben
+        .filter((r) => r.caught)
+        .map((r) => `${r.case_id} in ${r.alert_id}`)
+        .join(", ") || "none"
+    }. Safety-guard calls answered locally: ${local("policy_guard")}; screener calls: ${local("screener")}.`,
+  ].join("\n");
+}
+
 let changed = false;
+if (freshBlock) {
+  const target = resolveProjectPath("docs/EVALUATION.md");
+  const doc = readFileSync(target, "utf8");
+  const re = /<!-- adversarial-fresh:start -->[\s\S]*?<!-- adversarial-fresh:end -->/;
+  if (re.test(doc)) {
+    const next = formatMarkdown(
+      doc.replace(re, () => `<!-- adversarial-fresh:start -->\n${freshBlock}\n<!-- adversarial-fresh:end -->`),
+      target,
+    );
+    if (next !== doc) {
+      changed = true;
+      if (!check) writeFileSync(target, next);
+    }
+  }
+}
 if (reviewBlock) {
   const target = resolveProjectPath("docs/EVALUATION.md");
   const doc = readFileSync(target, "utf8");

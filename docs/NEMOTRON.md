@@ -229,6 +229,7 @@ Without installing anything: the [receipt log](https://rahulmahadik.github.io/sa
 ## Honest limits
 
 - **Lane names.** The two cloud lanes in Nightshift are still named `nemotron-3-super-120b-a1` from before the Super endpoint was retired; they serve Ultra 550B, and every receipt names the model that answered ([MODELS.md](MODELS.md#why-the-cloud-lane-names-say-super-120b)).
+- **Guard calls answered in the cloud.** On 22 and 23 Oct 2026, 7 safety-guard calls (evaluation app, mode `meterless/auto`) were answered by Nemotron 3 Ultra in the cloud because Nightshift's router chose it; the desk did not check this for the guard then. Since 25 Oct the desk only accepts local answers for raw text: a guard or screener answer from a cloud route is not accepted and the case is held ([PRIVACY.md](PRIVACY.md)).
 - **Nightshift's memory in the recorded runs.** It was on, so whether text read on the laptop reached the cloud that way cannot be checked for those runs; it is off now.
 - **Exact model pinning is not available.** Nightshift 1.2.1 lets the router choose inside a lane; a run with the exact model fixed per step needs a newer build, so "mostly Ultra" is a measurement, not a guarantee.
 - **Not available on Nightshift 1.2.1:** a Nemotron embedding route (the catalog lists `nemotron-3-embed-1b`, but no route returns an embedding), a rerank model, and an NVIDIA guard or jailbreak-detection model (calls naming them are answered by Ultra, as the receipts show). Details: [KNOWN_ISSUES.md](KNOWN_ISSUES.md#considered-not-done).

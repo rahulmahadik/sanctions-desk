@@ -62,12 +62,18 @@ const baseOverride = args.includes("--base") ? (args[args.indexOf("--base") + 1]
 const textRuns = args.includes("--text-runs") ? Number(args[args.indexOf("--text-runs") + 1]) : 1;
 const baselineRuns = args.includes("--baseline-runs") ? Number(args[args.indexOf("--baseline-runs") + 1]) : 1;
 if (baseOverride) for (const p of Object.values(PLACE)) p.alert = baseOverride;
-const cases = buildAdversarialSet()
-  .text.filter((c) => !only || only.includes(c.case_id))
-  .slice(0, limit);
-const bases = [...new Set(Object.values(PLACE).map((p) => p.alert))];
+// --set <file> reads another set of texts (same fields as the built-in set); --bases A,B reviews every inbound text in
+// each of those alerts (for example one that closes on its own data and one that escalates).
+const setFile = args.includes("--set") ? resolveProjectPath(args[args.indexOf("--set") + 1] as string) : undefined;
+const baseList = args.includes("--bases") ? (args[args.indexOf("--bases") + 1] as string).split(",") : undefined;
+const source: TextCase[] = setFile
+  ? (JSON.parse(readFileSync(setFile, "utf8")) as { texts: TextCase[] }).texts
+  : buildAdversarialSet().text;
+const cases = source.filter((c) => !only || only.includes(c.case_id)).slice(0, limit);
+const bases = baseList ?? [...new Set(Object.values(PLACE).map((p) => p.alert))];
 
 if (args.includes("--dry-run")) {
+  if (baseList) console.log(`each inbound text in: ${baseList.join(", ")}`);
   for (const b of bases) console.log(`baseline ${b}: free-text fields blank`);
   for (const c of cases)
     console.log(
@@ -195,7 +201,7 @@ if (args.includes("--score")) {
     rows: Array<Row & Record<string, unknown>>;
     run_stamp?: string;
   };
-  const runStamp = run.run_stamp ?? file.replace(/^.*(review|check)-/, "").replace(/\.json$/, "");
+  const runStamp = run.run_stamp ?? file.replace(/^.*(review|check|fresh)-/, "").replace(/\.json$/, "");
   for (const r of run.rows) {
     const id = r.family === "baseline" ? `base-${r.alert_id}` : r.case_id;
     const s = scoreOf(typeof r.run_id === "string" ? r.run_id : `eval-advrev-${runStamp}-${id}`);
@@ -284,11 +290,11 @@ for (const c of cases)
         });
       } else {
         const { field, alert } = PLACE[c.place];
-        rows.push({
-          ...base,
-          alert_id: alert,
-          ...(await review(textRuns > 1 ? `${c.case_id}-${k}` : c.case_id, alert, withOnly(zetaris, field, c.text))),
-        });
+        for (const target of baseList ?? [alert]) {
+          const id = `${c.case_id}${baseList ? `-${target}` : ""}${textRuns > 1 ? `-${k}` : ""}`;
+          rows.push({ ...base, alert_id: target, ...(await review(id, target, withOnly(zetaris, field, c.text))) });
+          if (baseList) console.log(`${c.case_id} in ${target}: ${rows.at(-1)?.decision}`);
+        }
       }
     } catch (err) {
       rows.push({ ...base, decision: "ERROR", receipts: 0, latency_s: 0, error: String(err).slice(0, 200) });
@@ -315,7 +321,7 @@ const summary = {
 };
 const outDir = resolveProjectPath("eval/adversarial");
 mkdirSync(outDir, { recursive: true });
-const out = join(outDir, `${baseOverride || only ? "check" : "review"}-${stamp}.json`);
+const out = join(outDir, `${setFile ? "fresh" : baseOverride || only ? "check" : "review"}-${stamp}.json`);
 writeFileSync(
   out,
   `${JSON.stringify({ at: new Date().toISOString(), policy_version: policy.version, placement: PLACE, summary, rows }, null, 2)}\n`,
