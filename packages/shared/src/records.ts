@@ -416,5 +416,7 @@ export const ReviewResponseSchema = RunResponseSchema.extend({
   critic_unresolved: z.boolean().optional(),
   sample_mode: z.boolean().optional(),
   sample_notice: z.string().optional(),
+  /** Set when the review could not run and the alert is held for a person, with why (no record is sealed then). */
+  held_reason: z.enum(["data_service_unavailable"]).optional(),
 });
 export type ReviewResponse = z.infer<typeof ReviewResponseSchema>;

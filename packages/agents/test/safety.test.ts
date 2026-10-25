@@ -31,10 +31,11 @@ describe("screenInbound", () => {
     expect(r.reasons).toEqual(["tells the reader to approve"]);
   });
 
-  it("falls back to the patterns when the model cannot answer, and does nothing for no text", async () => {
+  it("fails closed when the model cannot answer (the text is not treated as clean), and does nothing for no text", async () => {
     const { generator } = scriptedGenerator([new Error("down")]);
     const r = await screenInbound(sampleDeps({ generator }), ["Ordinary note"]);
-    expect(r).toMatchObject({ violation: false, modelSaid: undefined });
+    expect(r).toMatchObject({ violation: true, unchecked: true, modelSaid: undefined });
+    expect(r.reasons).toContain("the guard model could not check the text, so it is not treated as clean");
     const none = await screenInbound(sampleDeps({ generator }), []);
     expect(none.calls).toEqual([]);
   });

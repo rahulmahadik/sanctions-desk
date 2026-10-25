@@ -25,6 +25,8 @@ export interface DqFinding {
   table: string;
   rule: string;
   failed: boolean;
+  /** The list of failing records came back cut off and did not show this record: it counts as failing (fail closed). */
+  cutOff?: true;
 }
 
 export interface EvidenceBundle {
@@ -274,16 +276,23 @@ async function checkDataQuality(
       "evidence",
       `SHOW DQ INVALID RECORD ${rule.name} TABLE ${table.qualifiedName}`,
     );
-    const failed = result.objects.some((o) =>
+    const listed = result.objects.some((o) =>
       keyColumn ? o[keyColumn] === keyValue : Object.values(o).includes(keyValue),
     );
-    findings.push({ table: table.name, rule: rule.name, failed });
+    // A cut-off list cannot show that the record passes: unless the record is in it, it counts as failing.
+    const cutOff = !listed && result.truncated;
+    const failed = listed || cutOff;
+    findings.push({ table: table.name, rule: rule.name, failed, ...(cutOff ? { cutOff: true as const } : {}) });
     deps.trace.log({
       agent: "evidence",
       action: "data_quality",
       status: failed ? "blocked" : "ok",
       input_summary: `${table.name}.${rule.name} for ${keyValue}`,
-      output_summary: failed ? "record fails this rule" : "record passes this rule",
+      output_summary: cutOff
+        ? "the list of failing records was cut off, so the record cannot be shown to pass; treated as failing"
+        : failed
+          ? "record fails this rule"
+          : "record passes this rule",
       zetaris_query_id: result.query_id,
       latency_ms: result.latency_ms,
     });

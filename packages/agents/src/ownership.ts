@@ -147,8 +147,11 @@ export async function ownershipQuality(
       "ownership",
       `SHOW DQ INVALID RECORD ${rule.name} TABLE ${table.qualifiedName}`,
     );
-    const failed = result.objects.some((o) => inChain.has(o.ownership_id ?? ""));
-    findings.push({ table: table.name, rule: rule.name, failed });
+    const listed = result.objects.some((o) => inChain.has(o.ownership_id ?? ""));
+    // A cut-off list cannot show that the chain passes: it counts as failing (fail closed).
+    const cutOff = !listed && result.truncated;
+    const failed = listed || cutOff;
+    findings.push({ table: table.name, rule: rule.name, failed, ...(cutOff ? { cutOff: true as const } : {}) });
     deps.trace.log({
       agent: "ownership",
       action: "data_quality",

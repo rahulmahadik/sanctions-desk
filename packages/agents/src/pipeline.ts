@@ -410,12 +410,64 @@ function decisionSource(deliberated: Awaited<ReturnType<typeof deliberate>>) {
   };
 }
 
+/**
+ * True when Zetaris itself could not be reached (no connection, a time-out, or a server error), as opposed to a query
+ * Zetaris refused or a case the data cannot answer.
+ */
+export function dataServiceDown(deps: Pick<AgentDeps, "config">, err: unknown): boolean {
+  if (!(err instanceof AppError)) return false;
+  const url = String((err.details as { url?: unknown } | undefined)?.url ?? "");
+  const fromZetaris = url === "" || url.startsWith(deps.config.zetaris.restUrl);
+  if ((err.type === "network" || err.type === "timeout") && fromZetaris) return true;
+  const status = Number((err.details as { status?: unknown } | undefined)?.status ?? 0);
+  return err.type === "query_failed" && status >= 500;
+}
+
+/**
+ * The answer when the data service is down: nothing was read or checked, so nothing is recommended. The alert is held
+ * for a person (escalated with the reason) and must be reviewed again when Zetaris is back. No record is sealed,
+ * because there is no evidence to seal.
+ */
+function heldForDataService(deps: AgentDeps, request: ReviewRequest, started: number, err: AppError): ReviewResponse {
+  const reason = `The data service (Zetaris) could not be reached (${err.message.slice(0, 120)}), so nothing was read or checked. The alert is held for a person and must be reviewed again when the data service is back.`;
+  deps.trace.log({
+    agent: "evidence",
+    action: "data_service_unavailable",
+    status: "blocked",
+    output_summary: "held for a person: the data service could not be reached",
+    detail: { error_type: err.type },
+  });
+  return ReviewResponseSchema.parse({
+    run_id: request.runId,
+    status: "ok",
+    policy_version: deps.policy.version,
+    decision: "ESCALATE_L2",
+    confidence: 0,
+    rationale: reason,
+    what_would_change: ["Review the alert again once the data service answers."],
+    key_evidence: ["the data service could not be reached; nothing was read or checked"],
+    agents: ["triage", "evidence"],
+    held_reason: "data_service_unavailable",
+    human_review_required: true,
+    trace_id: request.runId,
+    execution_time_seconds: Math.round((performance.now() - started) / 10) / 100,
+    ...(request.sampleMode ? { sample_mode: true, sample_notice: request.sampleNotice } : {}),
+  });
+}
+
 export async function runReview(deps: AgentDeps, request: ReviewRequest): Promise<ReviewResponse> {
   const started = performance.now();
   const { trace, policy } = deps;
   triage(deps, "customer", request.alertId);
 
-  const prepared = await prepare(deps, request.alertId, request.options);
+  let prepared: Awaited<ReturnType<typeof prepare>>;
+  try {
+    prepared = await prepare(deps, request.alertId, request.options);
+  } catch (err) {
+    // Fail closed with a reason: a review that cannot reach its data is held for a person, not stopped by an error.
+    if (dataServiceDown(deps, err)) return heldForDataService(deps, request, started, err as AppError);
+    throw err;
+  }
   const { evidence, match } = prepared;
   const deliberated = await deliberate(deps, prepared, request.options);
   const { output, approved, rounds, criticQueries, models, criticRan } = deliberated;

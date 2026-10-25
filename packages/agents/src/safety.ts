@@ -28,6 +28,8 @@ export interface SafetyResult {
   /** What the fixed patterns found, whatever the model said. */
   patternHits: string[];
   modelSaid: SafetyVerdict | undefined;
+  /** True when there was text to check and the guard model gave no usable answer: the text is not treated as clean. */
+  unchecked?: boolean;
   calls: ModelUseInput[];
 }
 
@@ -73,10 +75,13 @@ export async function screenInbound(deps: AgentDeps, texts: readonly string[]): 
     return { violation: false, category: "none", reasons: [], patternHits: [], modelSaid: undefined, calls: [] };
   }
   const { verdict, calls } = await ask(deps, INBOUND_POLICY, "safety_inbound", JSON.stringify(texts));
-  const violation = hits.length > 0 || verdict?.violation === true;
+  // Fail closed: if the model cannot answer, the text is not treated as clean (as for drafts in screenOutbound).
+  const unchecked = verdict === undefined;
+  const violation = hits.length > 0 || verdict?.violation === true || unchecked;
   const reasons = [
     ...(hits.length > 0 ? [`instruction-like text: ${hits.join("; ")}`] : []),
     ...(verdict?.violation ? verdict.reasons : []),
+    ...(unchecked ? ["the guard model could not check the text, so it is not treated as clean"] : []),
   ];
   const result: SafetyResult = {
     violation,
@@ -84,6 +89,7 @@ export async function screenInbound(deps: AgentDeps, texts: readonly string[]): 
     reasons,
     patternHits: hits,
     modelSaid: verdict,
+    ...(unchecked ? { unchecked: true } : {}),
     calls,
   };
   deps.trace.log({

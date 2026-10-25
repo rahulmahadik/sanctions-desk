@@ -9,6 +9,10 @@
  *   npm run exam:alone -- --exam heldout4               # a held-out set (heldout, heldout2, heldout3 or heldout4)
  *   npm run exam:alone -- --exam heldout4 --run r1 --out logs/repeat   # a labelled repeat, written outside eval/results
  *   npm run exam:alone -- --limit 5 --dry-run
+ *   npm run exam:alone -- --exam heldout4 --with-text --run text1 --out logs/repeat
+ *       the same, but the prompt also holds the free text the screener reads (customer note, payment reference,
+ *       list remarks). A study arm only: it sends that text to the cloud model, which the desk itself never does, so the
+ *       desk's free-text check is skipped for these calls and the result says so. Synthetic data only.
  *
  * The call is sent under the decision step's app identity (the one the cockpit binds for reasoning), so the same model
  * lane serves it and its receipt is stored like any other. Drafts (tipping-off cases) get one yes-or-no call. The result
@@ -69,6 +73,7 @@ const EXAM_FILES: Record<string, string> = {
 if (!EXAM_FILES[examName]) throw new Error("--exam must be exam, heldout, heldout2, heldout3 or heldout4");
 // --run labels a repeat (lower-case letters and digits); it goes into the run ids, the file name and the result.
 const runLabel = flag("--run");
+const withText = args.includes("--with-text");
 if (runLabel !== undefined && !/^[a-z0-9]+$/.test(runLabel))
   throw new Error("--run must be lower-case letters and digits");
 const exam = loadExam(EXAM_FILES[examName] as string);
@@ -190,6 +195,16 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
       ownership_register_rows: ownershipRows?.map((r) =>
         pick(r, ["ownership_id", "owned_party_id", "owner_party_id", "owner_name", "ownership_pct"]),
       ),
+      // --with-text: the free text the full system's screener reads, and nothing else is added.
+      ...(withText
+        ? {
+            free_text: {
+              customer_notes: evidence.customer.notes ?? null,
+              payment_reference: evidence.payment?.payment_reference ?? null,
+              list_remarks: evidence.entry.remarks ?? null,
+            },
+          }
+        : {}),
     };
     const prompt = [
       "TASK: decision",
@@ -199,7 +214,8 @@ async function runCase(c: ExamCaseRecord): Promise<ScoredCase> {
       "Give your recommendation as the JSON object described.",
     ].join("\n");
     // The same free-text check as the decision step: the call is not made if a note, reference or remark is in it.
-    recordCloudPayload(deps, evidence, "decision", prompt);
+    // The --with-text study arm puts that text in on purpose, so it skips the check (and the result says so).
+    if (!withText) recordCloudPayload(deps, evidence, "decision", prompt);
     const asked = await askJson(deps, {
       agent: "decision",
       system: SYSTEM,
@@ -274,7 +290,7 @@ const file = join(
 );
 writeFileSync(
   file,
-  `${JSON.stringify({ variant: "nemotron_alone", ...(examName === "exam" ? {} : { exam: examName }), ...(runLabel ? { run: runLabel } : {}), features: { cockpit_binds: binds(), what: "one Nemotron call per case on the structured case facts (no free text); no guard, screener, rules, engines, memory, critic, challenger or policy guard" }, selection: { limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: { decision: policy.models.decision.model }, cases: outcomes, metrics }, null, 2)}\n`,
+  `${JSON.stringify({ variant: "nemotron_alone", ...(examName === "exam" ? {} : { exam: examName }), ...(runLabel ? { run: runLabel } : {}), features: { cockpit_binds: binds(), what: withText ? "one Nemotron call per case on the structured case facts plus the free text the screener reads (customer note, payment reference, list remarks), sent to the cloud model for this study arm only; no guard, screener, rules, engines, memory, critic, challenger or policy guard" : "one Nemotron call per case on the structured case facts (no free text); no guard, screener, rules, engines, memory, critic, challenger or policy guard", with_free_text: withText }, selection: { limit }, started_at: startedAt, finished_at: new Date().toISOString(), policy_version: policy.version, models: { decision: policy.models.decision.model }, cases: outcomes, metrics }, null, 2)}\n`,
 );
 console.log(
   JSON.stringify({

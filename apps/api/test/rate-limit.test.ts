@@ -166,7 +166,7 @@ describe("reviews in flight", () => {
     expect(check()).toBe(true);
   };
 
-  it("refuses the fifth concurrent review and frees the slots when the reviews end, even in failure", async () => {
+  it("refuses the fifth concurrent review and frees the slots when the reviews end, even when they are held", async () => {
     const held = heldZetaris();
     const { app, bus } = await makeApp({
       overrides: limits({ writesPerWindow: 100, reviewsPerWindow: 100 }),
@@ -184,7 +184,8 @@ describe("reviews in flight", () => {
 
     held.release();
     const ended = await Promise.all(running);
-    for (const res of ended) expect(res.statusCode).toBeGreaterThanOrEqual(500);
+    // The data service answered 503, so each review ends held for a person (fail closed), not with a recommendation.
+    for (const res of ended) expect(res.json()).toMatchObject({ held_reason: "data_service_unavailable" });
 
     // All four slots are free again.
     const again = await Promise.all(["RL-6", "RL-7", "RL-8", "RL-9"].map((id) => review(app, { alert_id: id })));

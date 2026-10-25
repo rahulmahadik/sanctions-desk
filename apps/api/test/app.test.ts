@@ -104,22 +104,30 @@ describe("POST /run", () => {
     expect(JSON.stringify(body) + lines.join("")).not.toContain("rt-never-in-output");
   });
 
-  it("answers with a structured error, and no invented decision, when the data service is unreachable", async () => {
+  it("holds the case for a person, with the reason and no recommendation of its own, when the data service is unreachable", async () => {
     const { app, logDir } = await makeApp({ env: { ZETARIS_TOKEN_EVIDENCE: "e-token-123456" } });
     const res = await app.inject({
       method: "POST",
       url: "/run",
       payload: { run_id: "run-down", alert_id: "ALR-0001" },
     });
-    expect(res.statusCode).toBe(502);
-    expect(res.json()).toMatchObject({ status: "error", run_id: "run-down", error: { type: "query_failed" } });
-    expect(res.json().decision).toBeUndefined();
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({
+      status: "ok",
+      run_id: "run-down",
+      decision: "ESCALATE_L2",
+      confidence: 0,
+      held_reason: "data_service_unavailable",
+      human_review_required: true,
+    });
+    expect(res.json().record_hash).toBeUndefined();
     const actions = readFileSync(join(logDir, "trace-run-down.jsonl"), "utf8")
       .trim()
       .split("\n")
       .map((l) => JSON.parse(l).action);
     expect(actions[0]).toBe("run_started");
-    expect(actions.at(-1)).toBe("run_failed");
+    expect(actions).toContain("data_service_unavailable");
+    expect(actions.at(-1)).toBe("run_completed");
   });
 
   it("generates a run id when none is given", async () => {

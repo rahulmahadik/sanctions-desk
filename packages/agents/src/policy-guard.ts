@@ -82,6 +82,12 @@ export function closeBlockers(policy: Policy, evidence: EvidenceBundle, document
   if (s?.status === "failed") reasons.push("the free text could not be read");
   if ((s?.truncatedFields.length ?? 0) > 0) reasons.push("part of the free text was not read");
   if (findInjection(policy, evidence.freeText).length > 0) reasons.push("instruction-like text in the data");
+  else if (evidence.safety?.violation)
+    reasons.push(
+      evidence.safety.unchecked
+        ? "the safety guard could not check the free text"
+        : "the safety guard flagged instruction-like text in the data",
+    );
   const dq = blockingDataQuality(evidence, documentaryDob);
   if (dq.length > 0) reasons.push(`a failing data-quality rule (${dq.join(", ")})`);
   return reasons;
@@ -432,11 +438,19 @@ const jurisdictionRule: Rule = ({ closing, policy, evidence }) => {
 };
 
 const injectionRule: Rule = ({ closing, policy, evidence }) => {
-  if (findInjection(policy, evidence.freeText).length === 0)
-    return passes("injection", "no instruction-like text in the data");
-  const detail = closing
-    ? "instruction-like text in the data; no automatic close"
-    : "instruction-like text found in the data; ignored as data";
+  // The fixed patterns, or the safety guard's model on its own: either blocks a close. A guard that could not check
+  // the text blocks it too (fail closed).
+  const patterns = findInjection(policy, evidence.freeText).length > 0;
+  const model = evidence.safety?.violation === true;
+  if (!patterns && !model) return passes("injection", "no instruction-like text in the data");
+  const what = patterns
+    ? "instruction-like text in the data"
+    : evidence.safety?.unchecked
+      ? "the safety guard could not check the free text"
+      : "the safety guard flagged instruction-like text in the data";
+  // The wording for a pattern hit is the one sealed records already carry.
+  const seen = patterns ? "instruction-like text found in the data" : what;
+  const detail = closing ? `${what}; no automatic close` : `${seen}; ignored as data`;
   return closing ? fails("injection", "ESCALATE_L2", detail) : { guard: "injection", detail, flag: true };
 };
 

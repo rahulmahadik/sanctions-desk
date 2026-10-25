@@ -57,6 +57,8 @@ export interface QueryResult extends QueryRecord {
   rows: Array<Array<string | null>>;
   /** Rows as objects keyed by column name. Every value is a string, or null for SQL NULL, exactly as Zetaris returns it. */
   objects: Array<Record<string, string | null>>;
+  /** True when Zetaris reports more rows than it returned (the row limit cut the answer off). */
+  truncated: boolean;
 }
 
 export interface ZetarisClientOptions {
@@ -190,7 +192,10 @@ export function createZetarisClient(options: ZetarisClientOptions): ZetarisClien
     const objects = rows.map((r) => Object.fromEntries(parsed.headers.map((h, i) => [h, r[i] ?? null])));
     const final: QueryRecord = { ...record, status: "ok", row_count: rows.length, latency_ms: latency };
     options.onQuery?.(final);
-    return { ok: true, result: { ...final, headers: parsed.headers, rows, objects } };
+    return {
+      ok: true,
+      result: { ...final, headers: parsed.headers, rows, objects, truncated: parsed.total > rows.length },
+    };
   }
 
   /**
