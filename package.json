@@ -103,7 +103,8 @@
     "data:synthetic": "tsx data/scripts/synthetic.ts",
     "adversarial:review": "tsx tools/adversarial-review.ts",
     "users:rotate": "tsx tools/users-add.ts --action rotate",
-    "users:revoke": "tsx tools/users-add.ts --action revoke"
+    "users:revoke": "tsx tools/users-add.ts --action revoke",
+    "check:auth-live": "tsx tools/check-auth-live.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.2",

@@ -1,0 +1,154 @@
+{
+  "at": "2026-10-25T04:51:11.110Z",
+  "stack": "the API built as in live mode (real Zetaris and Nightshift clients, sign-in on), on 127.0.0.1, throwaway users",
+  "record": "the sealed live record rec-ui-ALR-0073-1792870820973.json (ALR-0073, recommendation ESCALATE_L2), copied into a temporary folder",
+  "rate_limit": "writes per window set to 3 for this check",
+  "passed": 17,
+  "total": 17,
+  "checks": [
+    {
+      "check": "health is public",
+      "request": "GET /health",
+      "expected": 200,
+      "received": 200,
+      "pass": true
+    },
+    {
+      "check": "no token",
+      "request": "GET /alerts",
+      "expected": 401,
+      "received": 401,
+      "error_type": "unauthorized",
+      "message": "a valid token is required",
+      "pass": true
+    },
+    {
+      "check": "a token not in the issued form",
+      "request": "GET /alerts",
+      "expected": 401,
+      "received": 401,
+      "error_type": "unauthorized",
+      "message": "a valid token is required",
+      "pass": true
+    },
+    {
+      "check": "a well-formed token that is not in the file",
+      "request": "GET /alerts",
+      "expected": 401,
+      "received": 401,
+      "error_type": "unauthorized",
+      "message": "a valid token is required",
+      "pass": true
+    },
+    {
+      "check": "viewer reads",
+      "request": "GET /alerts",
+      "expected": 200,
+      "received": 200,
+      "pass": true
+    },
+    {
+      "check": "wrong role: a viewer starts a review",
+      "request": "POST /run",
+      "expected": 403,
+      "received": 403,
+      "error_type": "forbidden",
+      "message": "viewer may not do this",
+      "pass": true
+    },
+    {
+      "check": "wrong role: a viewer records a decision",
+      "request": "POST /cases/ALR-0073/decision",
+      "expected": 403,
+      "received": 403,
+      "error_type": "forbidden",
+      "message": "viewer may not do this",
+      "pass": true
+    },
+    {
+      "check": "wrong role: an analyst overrides towards a close",
+      "request": "POST /cases/ALR-0073/decision",
+      "expected": 403,
+      "received": 403,
+      "error_type": "forbidden",
+      "message": "only an approver may override towards a less cautious outcome",
+      "pass": true
+    },
+    {
+      "check": "an approver overrides an escalation to a close: it waits for a second approver",
+      "request": "POST /cases/ALR-0073/decision",
+      "expected": 201,
+      "received": 201,
+      "pass": true
+    },
+    {
+      "check": "the case now waits for a second approver",
+      "request": "GET /cases/ALR-0073/human",
+      "expected": 200,
+      "received": 200,
+      "message": "status override_pending",
+      "pass": true
+    },
+    {
+      "check": "four-eyes: the same approver gives the second approval",
+      "request": "POST /cases/ALR-0073/second-approval",
+      "expected": 403,
+      "received": 403,
+      "error_type": "forbidden",
+      "message": "the second approval must come from a different person",
+      "pass": true
+    },
+    {
+      "check": "four-eyes: a different approver declines the close",
+      "request": "POST /cases/ALR-0073/second-approval",
+      "expected": 201,
+      "received": 201,
+      "pass": true
+    },
+    {
+      "check": "rate limit: write 1 of 3",
+      "request": "POST /guard/outbound",
+      "expected": 400,
+      "received": 400,
+      "error_type": "validation",
+      "message": "invalid draft",
+      "pass": true
+    },
+    {
+      "check": "rate limit: write 2 of 3",
+      "request": "POST /guard/outbound",
+      "expected": 400,
+      "received": 400,
+      "error_type": "validation",
+      "message": "invalid draft",
+      "pass": true
+    },
+    {
+      "check": "rate limit: write 3 of 3",
+      "request": "POST /guard/outbound",
+      "expected": 400,
+      "received": 400,
+      "error_type": "validation",
+      "message": "invalid draft",
+      "pass": true
+    },
+    {
+      "check": "rate limit: one write over the limit",
+      "request": "POST /guard/outbound",
+      "expected": 429,
+      "received": 429,
+      "error_type": "rate_limited",
+      "message": "too many requests (at most 3 changes per window); try again in 60 s",
+      "pass": true
+    },
+    {
+      "check": "a revoked token, on the next request",
+      "request": "GET /alerts",
+      "expected": 401,
+      "received": 401,
+      "error_type": "unauthorized",
+      "message": "a valid token is required",
+      "pass": true
+    }
+  ]
+}

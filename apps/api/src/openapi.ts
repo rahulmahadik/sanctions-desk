@@ -197,7 +197,8 @@ export const ROUTES: RouteDoc[] = [
     method: "post",
     path: "/cases/{alertId}/second-approval",
     tag: "People",
-    summary: "The second approver confirms or declines a block. Must be an approver and a different person",
+    summary:
+      "The second approver confirms or declines a block, or an override to a close (status override_pending). Must be an approver and a different person",
     params: [AlertIdParam],
     body: obj(
       {
