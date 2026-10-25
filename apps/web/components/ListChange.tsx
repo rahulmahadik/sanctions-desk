@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { postListChange } from "../lib/api";
 import { DECISION_LABEL, label } from "../lib/format";
+import { actionProblem, refusal } from "../lib/permissions";
 import type { ListChangeCaseView, ListChangeView } from "../lib/types";
+import { useWho } from "../lib/use-who";
+import { GuardedButton } from "./GuardedButton";
 
 function CaseRow({ c }: { c: ListChangeCaseView }) {
   return (
@@ -44,13 +47,14 @@ export function ListChangePanel() {
   const [report, setReport] = useState<ListChangeView>();
   const [problem, setProblem] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const who = useWho();
   const run = async () => {
     setBusy(true);
     setProblem(undefined);
     try {
       setReport(await postListChange());
     } catch (err) {
-      setProblem(err instanceof Error ? err.message : String(err));
+      setProblem(actionProblem(err, "listChange"));
     } finally {
       setBusy(false);
     }
@@ -60,9 +64,14 @@ export function ListChangePanel() {
     <section className="panel" aria-labelledby="list-change-title">
       <h2 id="list-change-title">List change</h2>
       <p>
-        <button type="button" className="secondary" disabled={busy} onClick={() => void run()}>
+        <GuardedButton
+          className="secondary"
+          disabled={busy}
+          reason={refusal(who, "listChange")}
+          onClick={() => void run()}
+        >
           {busy ? "Checking…" : "Check earlier decisions against the list as it is now"}
-        </button>
+        </GuardedButton>
       </p>
       {problem ? (
         <p role="alert" className="tone-stop">

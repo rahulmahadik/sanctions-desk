@@ -64,7 +64,7 @@ export function UserSwitcher() {
             value={me.user.demo ? me.user.id : ""}
             onChange={(e) => setDemoUser(e.target.value === "" ? null : e.target.value)}
           >
-            <option value="">Visitor (read only)</option>
+            <option value="">Visitor (can review, cannot decide)</option>
             {me.demo_users.map((u) => (
               <option key={u.id} value={u.id}>
                 {u.id} — {roleLabel(u.role)}

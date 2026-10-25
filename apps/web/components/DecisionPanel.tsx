@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import {
   ApiError,
   downloadCaseFile,
@@ -19,8 +19,9 @@ import {
   roleLabel,
   shortHash,
 } from "../lib/format";
+import { type Action, actionProblem, refusal, type Who, whoFromError } from "../lib/permissions";
 import { SESSION_EVENT } from "../lib/session";
-import type { ActionCheck, ActionRecordView, Decision, HumanActionView, HumanView, MeView } from "../lib/types";
+import type { ActionCheck, ActionRecordView, Decision, HumanActionView, HumanView } from "../lib/types";
 
 const OUTCOMES: Decision[] = ["CLOSE_FALSE_POSITIVE", "NEED_MORE_INFO", "ESCALATE_L2", "RECOMMEND_BLOCK"];
 const CAUTION: Record<Decision, number> = {
@@ -68,18 +69,20 @@ const needsReason = `Give a reason of at least ${MIN_REASON} characters.`;
 
 /** Why a decision cannot be sent yet, in words, or undefined when it can. */
 export function decideBlocker(
-  me: MeView | undefined,
+  who: Who,
   rec: Decision,
   action: "approve" | "override" | undefined,
   outcome: Decision,
   reasonOk: boolean,
 ): string | undefined {
-  if (!me || me.user.role === "viewer") return "Choose a demo user (or sign in) to record a decision.";
-  if (!me.permissions.decide) return `The ${roleLabel(me.user.role)} role cannot record decisions.`;
+  const refused = refusal(who, "decide");
+  if (refused) return refused;
   // Nothing is chosen for the person: they pick approve or override themselves.
   if (action === undefined) return "Choose approve or override.";
-  if (action === "override" && CAUTION[outcome] < CAUTION[rec] && !me.permissions.override_towards_less_caution)
-    return "Only an approver can override towards a less cautious outcome.";
+  if (action === "override" && CAUTION[outcome] < CAUTION[rec]) {
+    const lessCautious = refusal(who, "overrideLessCautious");
+    if (lessCautious) return lessCautious;
+  }
   if (action === "override" && outcome === rec) return "An override must choose a different outcome.";
   return reasonOk ? undefined : needsReason;
 }
@@ -94,27 +97,35 @@ export function recordLine(view: Pick<HumanView, "record_hash" | "previous_recor
     : `(record ${shortHash(view.record_hash)})`;
 }
 
-export function secondBlocker(me: MeView | undefined, firstActor: string | undefined, reasonOk: boolean) {
-  if (!me) return "Choose a demo user.";
-  if (!me.permissions.approve_block) return "The second approval must come from an approver.";
-  if (me.user.id === firstActor) return "You made the first decision; a different approver must confirm.";
-  return reasonOk ? undefined : needsReason;
+export function secondBlocker(who: Who, firstActor: string | undefined, reasonOk: boolean) {
+  return refusal(who, "secondApproval", { firstActor }) ?? (reasonOk ? undefined : needsReason);
 }
 
-export function reopenBlocker(me: MeView | undefined, reasonOk: boolean) {
-  if (!me?.permissions.decide) return "Choose a demo user who can decide (analyst or approver), or sign in.";
-  return reasonOk ? undefined : needsReason;
+export function reopenBlocker(who: Who, reasonOk: boolean) {
+  return refusal(who, "reopen") ?? (reasonOk ? undefined : needsReason);
 }
+
+/** The person whose decision waits for the second approval: the first approve or override, as the server reads it. */
+const firstDecider = (view: HumanView): string | undefined =>
+  view.actions_taken.find((a) => a.action === "approve" || a.action === "override")?.actor;
 
 interface Shared {
   alertId: string;
   view: HumanView;
-  me?: MeView;
+  who: Who;
   reason: string;
   setReason: (v: string) => void;
   busy: boolean;
-  submit: (fn: () => Promise<HumanView>) => Promise<void>;
+  submit: (action: Action, fn: () => Promise<HumanView>) => Promise<void>;
 }
+
+/** The reason a form's buttons cannot be pressed, linked to them by id. */
+const Blocked = ({ id, text }: { id: string; text: string | undefined }) =>
+  text ? (
+    <span id={id} className="muted">
+      {text}
+    </span>
+  ) : null;
 
 const ReasonBox = ({
   label,
@@ -155,37 +166,41 @@ function ActionsTaken({ view }: { view: HumanView }) {
   );
 }
 
-function ReopenForm({ alertId, view, me, reason, setReason, busy, submit }: Shared) {
-  const blocked = reopenBlocker(me, reason.trim().length >= MIN_REASON);
+function ReopenForm({ alertId, view, who, reason, setReason, busy, submit }: Shared) {
+  const blocked = reopenBlocker(who, reason.trim().length >= MIN_REASON);
+  const why = useId();
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (!blocked) void submit(() => postReopen(alertId, { reason: reason.trim(), record_hash: view.record_hash }));
+        if (!blocked)
+          void submit("reopen", () => postReopen(alertId, { reason: reason.trim(), record_hash: view.record_hash }));
       }}
     >
       <p data-testid="auto-closed-statement">{view.autonomy?.statement}.</p>
       <ReasonBox label="Reason for reopening" rows={2} reason={reason} setReason={setReason} />
-      <button type="submit" disabled={busy || blocked !== undefined}>
+      <button type="submit" disabled={busy || blocked !== undefined} aria-describedby={blocked ? why : undefined}>
         Reopen this close
       </button>{" "}
-      {blocked ? <span className="muted">{blocked}</span> : null}
+      <Blocked id={why} text={blocked} />
     </form>
   );
 }
 
-function DecideForm({ alertId, view, me, reason, setReason, busy, submit }: Shared) {
+function DecideForm({ alertId, view, who, reason, setReason, busy, submit }: Shared) {
   const [action, setAction] = useState<"approve" | "override">();
   const [outcome, setOutcome] = useState<Decision>("ESCALATE_L2");
+  const why = useId();
   const rec = view.recommendation.decision;
-  const blocked = decideBlocker(me, rec, action, outcome, reason.trim().length >= MIN_REASON);
+  const blocked = decideBlocker(who, rec, action, outcome, reason.trim().length >= MIN_REASON);
   const chosen = action === "approve" ? rec : action === "override" ? outcome : undefined;
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         if (blocked || action === undefined) return;
-        void submit(() =>
+        const lessCautious = action === "override" && CAUTION[outcome] < CAUTION[rec];
+        void submit(lessCautious ? "overrideLessCautious" : "decide", () =>
           postDecision(alertId, {
             action,
             ...(action === "override" ? { outcome } : {}),
@@ -226,18 +241,22 @@ function DecideForm({ alertId, view, me, reason, setReason, busy, submit }: Shar
             ? "An override to a close is not final: it waits for a second, different approver. Nothing is sent or executed."
             : "Nothing is sent or executed. Deciding prepares the next record below; you can read it before anyone acts on it."}
       </p>
-      <button type="submit" disabled={busy || blocked !== undefined}>
+      <button type="submit" disabled={busy || blocked !== undefined} aria-describedby={blocked ? why : undefined}>
         {busy ? "Saving…" : action === "override" ? "Override" : action === "approve" ? "Approve" : "Decide"}
       </button>{" "}
-      {blocked ? <span className="muted">{blocked}</span> : null}
+      <Blocked id={why} text={blocked} />
     </form>
   );
 }
 
-function SecondForm({ alertId, view, me, reason, setReason, busy, submit }: Shared) {
-  const blocked = secondBlocker(me, view.actions_taken[0]?.actor, reason.trim().length >= MIN_REASON);
+function SecondForm({ alertId, view, who, reason, setReason, busy, submit }: Shared) {
+  const blocked = secondBlocker(who, firstDecider(view), reason.trim().length >= MIN_REASON);
+  const why = useId();
+  const described = blocked ? why : undefined;
   const send = (approve: boolean) =>
-    submit(() => postSecondApproval(alertId, { approve, reason: reason.trim(), record_hash: view.record_hash }));
+    submit("secondApproval", () =>
+      postSecondApproval(alertId, { approve, reason: reason.trim(), record_hash: view.record_hash }),
+    );
   return (
     <form
       onSubmit={(e) => {
@@ -246,18 +265,19 @@ function SecondForm({ alertId, view, me, reason, setReason, busy, submit }: Shar
       }}
     >
       <ReasonBox label="Reason for the second approval" rows={2} reason={reason} setReason={setReason} />
-      <button type="submit" disabled={busy || blocked !== undefined}>
+      <button type="submit" disabled={busy || blocked !== undefined} aria-describedby={described}>
         Give the second approval
       </button>{" "}
       <button
         type="button"
         className="secondary"
         disabled={busy || blocked !== undefined}
+        aria-describedby={described}
         onClick={() => void send(false)}
       >
         {view.status === "override_pending" ? "Decline the close" : "Decline the block"}
       </button>{" "}
-      {blocked ? <span className="muted">{blocked}</span> : null}
+      <Blocked id={why} text={blocked} />
     </form>
   );
 }
@@ -280,13 +300,13 @@ function NextActions({ view }: { view: HumanView }) {
 
 /** Loads the case's decision state and who is signed in, and reloads when either changes. */
 function useDecisionState(alertId: string, refreshKey: unknown) {
-  const [me, setMe] = useState<MeView>();
+  const [who, setWho] = useState<Who>();
   const [view, setView] = useState<HumanView>();
   const [problem, setProblem] = useState<string>();
   const load = useCallback(() => {
     fetchMe()
-      .then(setMe)
-      .catch(() => setMe(undefined));
+      .then(setWho)
+      .catch((err: unknown) => setWho(whoFromError(err)));
     fetchHuman(alertId)
       .then((v) => {
         setView(v);
@@ -303,12 +323,12 @@ function useDecisionState(alertId: string, refreshKey: unknown) {
     window.addEventListener(SESSION_EVENT, load);
     return () => window.removeEventListener(SESSION_EVENT, load);
   }, [load, refreshKey]);
-  return { me, view, setView, problem, setProblem };
+  return { who, view, setView, problem, setProblem };
 }
 
 /** The step where a person decides. The desk recommends; nothing happens until someone approves or overrides. */
 export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refreshKey?: unknown }) {
-  const { me, view, setView, problem, setProblem } = useDecisionState(alertId, refreshKey);
+  const { who, view, setView, problem, setProblem } = useDecisionState(alertId, refreshKey);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -327,24 +347,25 @@ export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refres
     );
   }
 
-  const run = async (fn: () => Promise<unknown>, after?: (v: HumanView) => void) => {
+  const run = async (fn: () => Promise<unknown>, action?: Action, after?: (v: HumanView) => void) => {
     setBusy(true);
     setProblem(undefined);
     try {
       const value = await fn();
       if (after) after(value as HumanView);
     } catch (err) {
-      setProblem(err instanceof Error ? err.message : String(err));
+      // A refusal for the role is said in plain words; any other failure as the server said it.
+      setProblem(action ? actionProblem(err, action) : err instanceof Error ? err.message : String(err));
     } finally {
       setBusy(false);
     }
   };
-  const submit = (fn: () => Promise<HumanView>) =>
-    run(fn, (v) => {
+  const submit = (action: Action, fn: () => Promise<HumanView>) =>
+    run(fn, action, (v) => {
       setView(v);
       setReason("");
     });
-  const shared: Shared = { alertId, view, me, reason, setReason, busy, submit };
+  const shared: Shared = { alertId, view, who, reason, setReason, busy, submit };
   const rec = view.recommendation.decision;
 
   return (

@@ -208,13 +208,13 @@ describe("changing autonomy", () => {
     studio({ ...ME_ADMIN, user: { id: "approver_demo", role: "policy_admin", demo: true } }, { versions: [DRAFT] });
     const own = render(<PolicyStudio />);
     expect(((await screen.findByRole("button", { name: "Publish" })) as HTMLButtonElement).disabled).toBe(true);
-    expect(screen.getByText(/You wrote this draft; a different policy admin must publish it/)).toBeTruthy();
+    expect(screen.getByText("A different policy admin must publish this draft.")).toBeTruthy();
     own.unmount();
 
     studio(ME_APPROVER, { versions: [DRAFT] });
     const approver = render(<PolicyStudio />);
     expect(((await screen.findByRole("button", { name: "Publish" })) as HTMLButtonElement).disabled).toBe(true);
-    expect(screen.getByText("Only a policy admin can publish.")).toBeTruthy();
+    expect(screen.getByText("Only a policy admin can publish a draft.")).toBeTruthy();
     approver.unmount();
 
     studio(ME_ADMIN, { versions: [DRAFT] });

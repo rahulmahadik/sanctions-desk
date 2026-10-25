@@ -16,6 +16,7 @@ import {
   postWhatIf,
 } from "../lib/api";
 import { REASON_LENGTH } from "../lib/format";
+import { type Action, actionProblem, refusal } from "../lib/permissions";
 import { SESSION_EVENT } from "../lib/session";
 import type {
   AutoClosedItem,
@@ -25,6 +26,7 @@ import type {
   PolicyVersionRow,
   WhatIfView,
 } from "../lib/types";
+import { GuardedButton } from "./GuardedButton";
 
 const MIN_QA = 0.05;
 const MIN_REASON = REASON_LENGTH.min;
@@ -34,8 +36,6 @@ function AutonomyCard({ view, me, onChange }: { view: AutonomyView; me?: MeView;
   const [reason, setReason] = useState("");
   const [problem, setProblem] = useState<string>();
   const killed = view.kill_switch.active;
-  const canStop = me?.user.role === "approver" || me?.user.role === "policy_admin";
-  const canRestore = me?.user.role === "policy_admin";
   const ok = reason.trim().length >= MIN_REASON;
 
   const toggle = async (active: boolean) => {
@@ -45,7 +45,7 @@ function AutonomyCard({ view, me, onChange }: { view: AutonomyView; me?: MeView;
       setReason("");
       onChange();
     } catch (err) {
-      setProblem(err instanceof Error ? err.message : String(err));
+      setProblem(actionProblem(err, active ? "stopAutonomy" : "restoreAutonomy"));
     }
   };
 
@@ -96,19 +96,19 @@ function AutonomyCard({ view, me, onChange }: { view: AutonomyView; me?: MeView;
           />
         </label>{" "}
         {killed ? (
-          <button type="button" disabled={!canRestore || !ok} onClick={() => void toggle(false)}>
+          <GuardedButton reason={refusal(me, "restoreAutonomy")} disabled={!ok} onClick={() => void toggle(false)}>
             Switch autonomy back on
-          </button>
+          </GuardedButton>
         ) : (
-          <button type="button" className="secondary" disabled={!canStop || !ok} onClick={() => void toggle(true)}>
+          <GuardedButton
+            className="secondary"
+            reason={refusal(me, "stopAutonomy")}
+            disabled={!ok}
+            onClick={() => void toggle(true)}
+          >
             Kill switch: force level 0 now
-          </button>
-        )}{" "}
-        {!canStop ? (
-          <span className="muted">
-            An approver or policy admin can stop autonomy; only a policy admin can switch it back on.
-          </span>
-        ) : null}
+          </GuardedButton>
+        )}
       </p>
       {problem ? (
         <p role="alert" className="tone-stop">
@@ -130,13 +130,13 @@ function ChangeAutonomy({ view, me, onDone }: { view: AutonomyView; me?: MeView;
 
   const rateNum = Number(rate) / 100;
   const tooLow = rateNum < MIN_QA;
-  const blocked = !me?.permissions.propose_policy
-    ? "Only an approver or a policy admin can propose a policy change."
-    : tooLow
+  const blocked =
+    refusal(me, "propose") ??
+    (tooLow
       ? "The quality-assurance sample must be at least 5%."
       : reason.trim().length < MIN_REASON
         ? `Give a reason of at least ${MIN_REASON} characters.`
-        : undefined;
+        : undefined);
 
   const propose = async () => {
     setProblem(undefined);
@@ -156,7 +156,7 @@ function ChangeAutonomy({ view, me, onDone }: { view: AutonomyView; me?: MeView;
       setDone(draft.version);
       onDone();
     } catch (err) {
-      setProblem(err instanceof Error ? err.message : String(err));
+      setProblem(actionProblem(err, "propose"));
     }
   };
 
@@ -197,10 +197,9 @@ function ChangeAutonomy({ view, me, onDone }: { view: AutonomyView; me?: MeView;
           <input className="reason-input" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} />
         </label>
       </p>
-      <button type="button" disabled={blocked !== undefined} onClick={() => void propose()}>
+      <GuardedButton reason={blocked} onClick={() => void propose()}>
         Create a draft
-      </button>{" "}
-      {blocked ? <span className="muted">{blocked}</span> : null}
+      </GuardedButton>
       {done ? <p role="status">Draft version {done} created. Preview it below.</p> : null}
       {problem ? (
         <p role="alert" className="tone-stop">
@@ -238,16 +237,9 @@ function WhatIfResult({ version, report }: { version: number; report: WhatIfView
   );
 }
 
-const publishBlocker = (me: MeView | undefined, draft: PolicyVersionRow): string | undefined => {
-  if (!me?.permissions.publish_policy) return "Only a policy admin can publish.";
-  return me.user.id === draft.proposed_by
-    ? "You wrote this draft; a different policy admin must publish it."
-    : undefined;
-};
-
 interface DraftActions {
   preview: (version: number) => Promise<void>;
-  act: (fn: () => Promise<unknown>) => Promise<void>;
+  act: (action: Action, fn: () => Promise<unknown>) => Promise<void>;
 }
 
 function DraftCard({
@@ -261,32 +253,33 @@ function DraftCard({
   report?: WhatIfView | "running";
   actions: DraftActions;
 }) {
-  const blocked = publishBlocker(me, d);
   return (
     <article aria-label={`Draft ${d.version}`}>
       <h3>
         Version {d.version} <span className="muted">proposed by {d.proposed_by}</span>
       </h3>
       {d.reason ? <p className="muted">{d.reason}</p> : null}
-      <button
-        type="button"
+      <GuardedButton
         className="secondary"
+        reason={refusal(me, "preview")}
         disabled={report === "running"}
         onClick={() => void actions.preview(d.version)}
       >
         {report === "running" ? "Replaying the exam…" : "Preview on the exam"}
-      </button>{" "}
-      <button
-        type="button"
-        disabled={blocked !== undefined}
-        onClick={() => void actions.act(() => postPublish(d.version))}
+      </GuardedButton>{" "}
+      <GuardedButton
+        reason={refusal(me, "publish", { proposedBy: d.proposed_by })}
+        onClick={() => void actions.act("publish", () => postPublish(d.version))}
       >
         Publish
-      </button>{" "}
-      <button type="button" className="secondary" onClick={() => void actions.act(() => postDiscard(d.version))}>
+      </GuardedButton>{" "}
+      <GuardedButton
+        className="secondary"
+        reason={refusal(me, "discard")}
+        onClick={() => void actions.act("discard", () => postDiscard(d.version))}
+      >
         Discard
-      </button>{" "}
-      {blocked ? <span className="muted">{blocked}</span> : null}
+      </GuardedButton>
       {report && report !== "running" ? <WhatIfResult version={d.version} report={report} /> : null}
     </article>
   );
@@ -298,7 +291,7 @@ function Drafts({ versions, me, onChange }: { versions: PolicyVersionRow[]; me?:
   const drafts = versions.filter((v) => v.status === "draft");
   if (drafts.length === 0) return null;
 
-  const fail = (err: unknown) => setProblem(err instanceof Error ? err.message : String(err));
+  const fail = (err: unknown, action: Action) => setProblem(actionProblem(err, action));
   const preview = async (version: number) => {
     setViews((v) => ({ ...v, [version]: "running" }));
     try {
@@ -309,16 +302,16 @@ function Drafts({ versions, me, onChange }: { versions: PolicyVersionRow[]; me?:
         const { [version]: _gone, ...rest } = v;
         return rest;
       });
-      fail(err);
+      fail(err, "preview");
     }
   };
-  const act = async (fn: () => Promise<unknown>) => {
+  const act = async (action: Action, fn: () => Promise<unknown>) => {
     setProblem(undefined);
     try {
       await fn();
       onChange();
     } catch (err) {
-      fail(err);
+      fail(err, action);
     }
   };
 

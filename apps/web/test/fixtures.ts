@@ -192,6 +192,7 @@ const DEMO = [
   { id: "approver_demo", role: "approver" },
   { id: "approver2_demo", role: "approver" },
   { id: "admin_demo", role: "policy_admin" },
+  { id: "admin2_demo", role: "policy_admin" },
 ];
 export const ME_VIEWER: MeView = {
   user: { id: "anonymous", role: "viewer", demo: false },

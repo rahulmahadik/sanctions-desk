@@ -231,6 +231,68 @@ describe("an override that lowers caution to a close (four eyes)", () => {
     expect(note).not.toMatch(/missing_customer|\bconflict\b|ESCALATE_L2|CLOSE_FALSE_POSITIVE|_/);
   });
 
+  const CODED = "Rules-based sample answer. Name is weak, date of birth is missing_customer, nationality is conflict.";
+  const noCodes = (text: string) =>
+    expect(text).not.toMatch(/missing_customer|is conflict|ESCALATE_L2|CLOSE_FALSE_POSITIVE|RECOMMEND_BLOCK|_/);
+
+  it("names both people in the escalation after a declined close, with both reasons and the desk's view apart", () => {
+    const r = recordFor("ESCALATE_L2", "customer", "run-1", CODED);
+    const pending = recordDecision(
+      r,
+      {
+        action: "override",
+        outcome: "CLOSE_FALSE_POSITIVE",
+        reason: "Looks like a different person.",
+        record_hash: r.record_hash,
+      },
+      officer,
+      NOW,
+    );
+    const done = secondApproval(
+      pending,
+      { approve: false, reason: "The passport is not checked yet.", record_hash: pending.record_hash },
+      officer2,
+      NOW,
+    );
+    const ticket = planActions(done, policy, NOW)[0];
+    expect(ticket?.status).toBe("escalated after the close was declined");
+    expect(ticket?.content).toContain(
+      "was escalated to level 2: off overrode it to a close, and off2, the second approver, declined the close.",
+    );
+    expect(ticket?.content).toContain(
+      "Basis: off: Looks like a different person.; off2: The passport is not checked yet.",
+    );
+    expect(ticket?.content).toContain("The desk had recommended Escalate to level 2 because:");
+    noCodes(ticket?.content ?? "");
+  });
+
+  it("an approved escalation names the person, rests on their reason and gives the desk's reason in words", () => {
+    const r = recordFor("ESCALATE_L2", "customer", "run-1", CODED);
+    const ticket = planActions(approve(r), policy, NOW)[0];
+    expect(ticket?.content).toContain(`was escalated to level 2 by ana. Basis: ana: ${REASON}`);
+    expect(ticket?.content).toContain("nationality: conflicts");
+    noCodes(ticket?.content ?? "");
+  });
+
+  it("a declined block names both approvers; a pending block names the first", () => {
+    const r = recordFor("RECOMMEND_BLOCK", "customer", "run-1", CODED);
+    const first = approve(r, officer);
+    const pending = planActions(first, policy, NOW)[0]?.content ?? "";
+    expect(pending).toContain("has one approval, from off.");
+    expect(pending).toContain("Basis: off:");
+    noCodes(pending);
+    const done = secondApproval(
+      first,
+      { approve: false, reason: "Not enough for a block.", record_hash: first.record_hash },
+      officer2,
+      NOW,
+    );
+    const ticket = planActions(done, policy, NOW)[0];
+    expect(ticket?.status).toBe("escalated after the block was declined");
+    expect(ticket?.content).toContain("off approved a block, and off2, the second approver, declined the block.");
+    noCodes(ticket?.content ?? "");
+  });
+
   it("escalates when the second approver declines", () => {
     const pending = overrideToClose("RECOMMEND_BLOCK");
     const done = secondApproval(

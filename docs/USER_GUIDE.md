@@ -41,11 +41,12 @@ In the top bar, under **Demo user**, choose who you are. Demo users exist only i
 
 | User             | Role                         | Can do                                                                                                                                                                       |
 | ---------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _Visitor_        | viewer                       | read everything, run a review                                                                                                                                                |
+| _Visitor_        | viewer                       | read everything, run a review; cannot decide or change anything                                                                                                              |
 | `analyst_demo`   | analyst                      | approve or override a recommendation with a reason; reopen an automatic close                                                                                                |
 | `approver_demo`  | approver (sanctions officer) | everything an analyst can; give the second approval of a block or of an override to a close; override towards a less cautious outcome; propose policy changes; stop autonomy |
 | `approver2_demo` | approver (sanctions officer) | the same as `approver_demo`: a second, different approver, so a block or an override to a close can get its second approval in sample mode                                   |
-| `admin_demo`     | policy admin                 | publish a policy change written by someone else; switch autonomy back on                                                                                                     |
+| `admin_demo`     | policy admin                 | propose a policy change; publish one written by someone else; switch autonomy back on                                                                                        |
+| `admin2_demo`    | policy admin                 | the same as `admin_demo`: a second, different policy admin, so a draft `admin_demo` proposed can be published in sample mode                                                 |
 
 A live deployment has no demo users. Each person has a token, and the desk asks for it when you open it. See [People, roles and the decision step](GOVERNANCE.md#people-roles-and-the-decision-step) in GOVERNANCE.md.
 

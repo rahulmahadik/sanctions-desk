@@ -14,11 +14,14 @@ import {
 } from "../lib/api";
 import { type ReadProblem, readProblem } from "../lib/format";
 import { graphAt } from "../lib/graph";
+import { actionProblem, refusal } from "../lib/permissions";
 import type { EvidenceView, RecordView, ReviewAnswer, RoutingSplit, RunEvent, TraceView } from "../lib/types";
+import { useWho } from "../lib/use-who";
 import { HumanBanner, ProblemNote } from "./Banner";
 import { CaseBanner } from "./CaseBanner";
 import { DecisionPanel } from "./DecisionPanel";
 import { EvidenceCards } from "./Evidence";
+import { GuardedButton } from "./GuardedButton";
 import { FourQuestions, Outcome, Replay } from "./Record";
 import { RoutingPanel } from "./Routing";
 import { RunGraph, stoppedSteps } from "./RunGraph";
@@ -50,6 +53,7 @@ export function CaseView({ alertId }: { alertId: string }) {
   const [problem, setProblem] = useState<ReadProblem>();
   const [facts, setFacts] = useState<"reading" | "read">("reading");
   const stop = useRef<() => void>(() => undefined);
+  const who = useWho();
 
   const loadDetails = useCallback(async () => {
     const [e, t, r] = await Promise.allSettled([fetchEvidence(alertId), fetchTrace(alertId), fetchRecord(alertId)]);
@@ -103,7 +107,11 @@ export function CaseView({ alertId }: { alertId: string }) {
       if (history) setEvents(history.events);
       await loadDetails();
     } catch (err) {
-      setProblem(readProblem(err, "this case"));
+      // A refusal for the role (403) is said in plain words; a failed read as readProblem says it.
+      const status = (err as { status?: unknown } | null)?.status;
+      setProblem(
+        status === 403 ? { text: actionProblem(err, "review"), signIn: false } : readProblem(err, "this case"),
+      );
     } finally {
       stop.current();
       setPhase("finished");
@@ -122,9 +130,9 @@ export function CaseView({ alertId }: { alertId: string }) {
         alertType={alertType}
       />
       <p>
-        <button type="button" onClick={review} disabled={phase === "running"}>
+        <GuardedButton onClick={review} disabled={phase === "running"} reason={refusal(who, "review")}>
           {BUTTON[phase]}
-        </button>{" "}
+        </GuardedButton>{" "}
         <span className="muted">Alert {alertId}</span>
       </p>
       <p role="status" aria-live="polite" className="sr-only">

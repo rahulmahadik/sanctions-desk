@@ -34,6 +34,8 @@ export const DEMO_USERS: readonly Actor[] = [
   // A second approver, so the four-eyes step (a block, or an override to a close) can be finished in sample mode.
   { id: "approver2_demo", role: "approver", demo: true },
   { id: "admin_demo", role: "policy_admin", demo: true },
+  // A second policy admin, so a draft one admin proposed can be published by a different one in sample mode.
+  { id: "admin2_demo", role: "policy_admin", demo: true },
 ];
 
 export const ANONYMOUS: Actor = { id: "anonymous", role: "viewer", demo: false };

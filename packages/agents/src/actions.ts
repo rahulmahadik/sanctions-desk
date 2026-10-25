@@ -170,25 +170,38 @@ export function rfiText(policy: Policy, alertType: "customer" | "payment"): { te
 
 type Base = Omit<ActionBody, "kind" | "status" | "title" | "content" | "tipping_off_check" | "needs_approval">;
 
-const reasonOf = (a?: HumanAction): string => (a?.reason ? ` Reason given: ${a.reason}` : "");
-
 /** The desk's own recommendation and why, in plain words. */
 const deskBasis = (record: DecisionRecord): string =>
   `The desk had recommended ${DECISION_WORDS[record.decision]} because: ${plainReason(record.rationale, record.alert_type)}`;
 
-/**
- * A person's close. After an override the people's reasons are the basis and the desk's recommendation is said
- * separately; when a person approved the desk's own close, the desk's reason is the basis.
- */
-function closureText(record: DecisionRecord, state: HumanState): string {
-  const by = state.second ? `${state.first?.actor}, second approval by ${state.second.actor}` : `${state.first?.actor}`;
-  const head = `Alert ${record.alert_ref} was ${REASON_TEXT.CLOSE_FALSE_POSITIVE} by ${by}.`;
-  if (record.decision === "CLOSE_FALSE_POSITIVE")
-    return `${head}${reasonOf(state.first)} Basis: ${plainReason(record.rationale, record.alert_type)}`;
-  const reasons = [state.first, state.second]
+/** Who settled it: one person, two who agreed, or a second approver who declined the first one's close or block. */
+function settledBy(state: HumanState): string {
+  const first = state.first?.actor;
+  const second = state.second?.actor;
+  if (state.status === "override_declined")
+    return `${first} overrode it to a close, and ${second}, the second approver, declined the close`;
+  if (state.status === "block_declined")
+    return `${first} approved a block, and ${second}, the second approver, declined the block`;
+  return second ? `${first}, second approval by ${second}` : `${first}`;
+}
+
+/** The people's reasons, each with who gave it. */
+const basisOf = (state: HumanState): string =>
+  [state.first, state.second]
     .filter((a): a is HumanAction => Boolean(a?.reason))
-    .map((a) => `${a.actor}: ${a.reason}`);
-  return `${head} Basis: ${reasons.length ? reasons.join("; ") : "no reason was given"}.\n${deskBasis(record)}`;
+    .map((a) => `${a.actor}: ${a.reason}`)
+    .join("; ") || "no reason was given";
+
+/**
+ * The text of a note a person's decision settled: the people and their reasons are the basis, and the desk's own
+ * recommendation and its reason are said apart, in plain words.
+ */
+function personText(record: DecisionRecord, state: HumanState, outcome: string): string {
+  const declined = state.status === "override_declined" || state.status === "block_declined";
+  const head = declined
+    ? `Alert ${record.alert_ref} was ${outcome}: ${settledBy(state)}.`
+    : `Alert ${record.alert_ref} was ${outcome} by ${settledBy(state)}.`;
+  return `${head} Basis: ${basisOf(state)}.\n${deskBasis(record)}`;
 }
 
 /** The record that follows a settled decision other than a block waiting for its second approval. */
@@ -198,7 +211,7 @@ function settledAction(record: DecisionRecord, policy: Policy, state: HumanState
       kind: "block_recommendation",
       status: "ready for the sanctions officer",
       title: `Block recommendation for the sanctions officer: ${record.alert_ref}`,
-      content: `Two different approvers support a block. This is a recommendation for the sanctions officer to act on; the desk has not blocked anything.${reasonOf(state.first)}${reasonOf(state.second)}`,
+      content: `Two different approvers support a block: ${state.first?.actor} and ${state.second?.actor}. This is a recommendation for the sanctions officer to act on; the desk has not blocked anything. Basis: ${basisOf(state)}.\n${deskBasis(record)}`,
     };
   }
   if (state.final === "CLOSE_FALSE_POSITIVE") {
@@ -206,7 +219,7 @@ function settledAction(record: DecisionRecord, policy: Policy, state: HumanState
       kind: "closure_note",
       status: "closed by a person",
       title: `Closure note: ${record.alert_ref}`,
-      content: closureText(record, state),
+      content: personText(record, state, REASON_TEXT.CLOSE_FALSE_POSITIVE),
     };
   }
   if (state.final === "NEED_MORE_INFO") {
@@ -227,9 +240,11 @@ function settledAction(record: DecisionRecord, policy: Policy, state: HumanState
   const declined = state.status === "block_declined" || state.status === "override_declined";
   return {
     kind: "escalation_ticket",
-    status: declined ? "escalated after the block was declined" : "open",
+    status: declined
+      ? `escalated after the ${state.status === "block_declined" ? "block" : "close"} was declined`
+      : "open",
     title: `Level 2 review: ${record.alert_ref}`,
-    content: `Alert ${record.alert_ref} was ${REASON_TEXT.ESCALATE_L2}.${reasonOf(declined ? state.second : state.first)} Basis: ${plainReason(record.rationale, record.alert_type)}`,
+    content: personText(record, state, REASON_TEXT.ESCALATE_L2),
   };
 }
 
@@ -277,7 +292,8 @@ export function planActions(record: DecisionRecord, policy: Policy, now: Date): 
         kind: "escalation_ticket",
         status: "block approval pending",
         title: `Block approval pending: ${record.alert_ref}`,
-        content: `A block is recommended for this alert and has one approval. A second, different approver must confirm before the sanctions officer receives a block recommendation. Nothing has been blocked.${reasonOf(state.first)}`,
+        // The opening stays the ticket's own words, so it reads as a pending approval and not as the block itself.
+        content: `A block is recommended for this alert and has one approval, from ${state.first?.actor}. A second, different approver must confirm before the sanctions officer receives a block recommendation. Nothing has been blocked. Basis: ${basisOf(state)}.\n${deskBasis(record)}`,
       },
     ];
   }

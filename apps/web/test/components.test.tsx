@@ -973,11 +973,12 @@ describe("UserSwitcher", () => {
         .getAllByRole("option")
         .map((o) => o.textContent),
     ).toEqual([
-      "Visitor (read only)",
+      "Visitor (can review, cannot decide)",
       "analyst_demo — Analyst (L1)",
       "approver_demo — Approver (L2 senior reviewer)",
       "approver2_demo — Approver (L2 senior reviewer)",
       "admin_demo — Policy admin",
+      "admin2_demo — Policy admin",
     ]);
     expect(screen.getByText("Demo user")).toBeTruthy();
   });
@@ -1005,8 +1006,10 @@ describe("DecisionPanel", () => {
   it("will not let a visitor decide, and says what to do", async () => {
     vi.mocked(api.fetchHuman).mockResolvedValue(HUMAN.awaiting);
     render(<DecisionPanel alertId="ALR-0001" />);
-    expect(await screen.findByText(/Choose a demo user/)).toBeTruthy();
-    expect((screen.getByRole("button", { name: "Decide" }) as HTMLButtonElement).disabled).toBe(true);
+    const why = await screen.findByText("Only an analyst or an approver can record a decision.");
+    const decide = screen.getByRole("button", { name: "Decide" }) as HTMLButtonElement;
+    expect(decide.disabled).toBe(true);
+    expect(decide.getAttribute("aria-describedby")).toBe(why.id);
   });
 
   it("pre-selects nothing: neither approve nor override is chosen until the person picks one", async () => {
@@ -1054,7 +1057,7 @@ describe("DecisionPanel", () => {
     });
     vi.mocked(api.fetchHuman).mockResolvedValue(HUMAN.awaiting);
     render(<DecisionPanel alertId="ALR-0001" />);
-    expect(await screen.findByText("The Policy admin role cannot record decisions.")).toBeTruthy();
+    expect(await screen.findByText("Only an analyst or an approver can record a decision.")).toBeTruthy();
   });
 
   it("stops an analyst from overriding towards a less cautious outcome", async () => {
@@ -1080,7 +1083,8 @@ describe("DecisionPanel", () => {
     const { unmount } = render(<DecisionPanel alertId="ALR-0001" />);
     expect(await screen.findByText(/Block approval pending/)).toBeTruthy();
     expect(screen.getByText("block approval pending")).toBeTruthy();
-    expect(await screen.findByText(/You made the first decision; a different approver must confirm/)).toBeTruthy();
+    expect(await screen.findByText("A different approver must give the second approval.")).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Decline the block" }) as HTMLButtonElement).disabled).toBe(true);
     unmount();
 
     vi.mocked(api.fetchMe).mockResolvedValue(ME_APPROVER);
@@ -1261,6 +1265,8 @@ describe("help and the first-run pointer", () => {
       "approver_demo",
       "approver2_demo",
       "admin_demo",
+      "admin2_demo",
+      "Visitor (can review, cannot decide)",
       "Review this alert",
       "Verify receipt",
       "Verify all receipts",

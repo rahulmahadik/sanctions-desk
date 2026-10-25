@@ -74,6 +74,7 @@ describe("sample mode: the demo users", () => {
       "approver_demo",
       "approver2_demo",
       "admin_demo",
+      "admin2_demo",
     ]);
     const analyst = (await ctx.app.inject({ method: "GET", url: "/me", headers: as("analyst_demo") })).json();
     expect(analyst.permissions).toMatchObject({ decide: true, approve_block: false, publish_policy: false });
@@ -311,6 +312,31 @@ describe("policy changes", () => {
     });
     expect(own.statusCode).toBeGreaterThanOrEqual(400);
     expect(JSON.stringify(own.json())).toMatch(/different|four|same|proposer/i);
+  });
+
+  it("lets admin2_demo publish a draft admin_demo proposed, which admin_demo cannot publish itself", async () => {
+    const ctx = await sampleApp();
+    const me = (await ctx.app.inject({ method: "GET", url: "/me" })).json();
+    expect(me.demo_users).toHaveLength(5);
+    expect(me.demo_users).toContainEqual({ id: "admin2_demo", role: "policy_admin" });
+    const draft = await ctx.app.inject({
+      method: "POST",
+      url: "/policy/drafts",
+      headers: as("admin_demo"),
+      payload: await draftBody(ctx),
+    });
+    expect(draft.statusCode).toBe(201);
+    const v = draft.json().version;
+    const publish = (user: string) =>
+      ctx.app.inject({ method: "POST", url: `/policy/drafts/${v}/publish`, headers: as(user), payload: {} });
+    expect((await publish("admin_demo")).statusCode).toBeGreaterThanOrEqual(400);
+    const ok = await publish("admin2_demo");
+    expect(ok.statusCode).toBe(200);
+    expect(ok.json().published).toBe(v);
+    const row = (await ctx.app.inject({ method: "GET", url: "/policy/versions" }))
+      .json()
+      .versions.find((r: { version: number }) => r.version === v);
+    expect(row).toMatchObject({ status: "active", proposed_by: "admin_demo", approved_by: "admin2_demo" });
   });
 
   it("does not let a caller name someone else as the author or the approver", async () => {

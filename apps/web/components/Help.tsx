@@ -44,9 +44,10 @@ export function Help() {
         <p>
           In the top bar, under <strong>Demo user</strong>, choose <strong>analyst_demo</strong> to approve, or override
           towards more caution, <strong>approver_demo</strong> or <strong>approver2_demo</strong> to give a second
-          approval or stop autonomy, or <strong>admin_demo</strong> to publish a policy change. There are two approvers
-          so a second approval can come from a different person. <strong>Visitor</strong> can read and run a review.
-          Demo users exist only in sample mode; a live deployment asks for a sign-in token.
+          approval or stop autonomy, <strong>admin_demo</strong> to propose a policy change, or{" "}
+          <strong>admin2_demo</strong> to publish it. There are two approvers and two policy admins, so the second step
+          can come from a different person. <strong>Visitor (can review, cannot decide)</strong> can read and start a
+          review, but not decide. Demo users exist only in sample mode; a live deployment asks for a sign-in token.
         </p>
       </Section>
 
@@ -169,7 +170,10 @@ export function Help() {
 
       <Section id="help-wrong">
         <ul>
-          <li>No decision buttons: choose a demo user in the top bar, or sign in.</li>
+          <li>
+            A button is greyed out: the words next to it say who can use it. Choose that demo user in the top bar, or
+            sign in.
+          </li>
           <li>The recommendation changed since you looked at it: reload the case and decide again.</li>
           <li>No recommendation, or model decision unavailable: the case goes to a person and is never closed.</li>
           <li>A receipt shows Not verified: the signature does not match. Do not rely on that call.</li>
