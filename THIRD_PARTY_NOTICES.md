@@ -36,6 +36,14 @@ reference implementations (Apache-2.0) and follow the public Meterless engine sp
 
 All customer, payment and ownership data in this project is synthetic and labelled as such.
 
+## Fonts on the documentation site
+
+The site serves its own copies of two fonts, so no page calls a font service:
+- **Inter** (variable, Latin subset), Copyright 2016 The Inter Project Authors, SIL Open Font License 1.1: `site/fonts/inter-latin-variable.woff2`, licence in `site/fonts/OFL-Inter.txt`.
+- **JetBrains Mono** (weights 400 and 500, Latin subset), Copyright 2020 The JetBrains Mono Project Authors, SIL Open Font License 1.1: `site/fonts/jetbrains-mono-latin-400-normal.woff2` and `-500-normal.woff2`, licence in `site/fonts/OFL-JetBrainsMono.txt`.
+
+The font files were taken unmodified from the Fontsource packages `@fontsource-variable/inter` 5.3.0 and `@fontsource/jetbrains-mono` 5.3.0.
+
 ## npm dependencies
 
 Runtime and development dependencies are listed in `package.json` and `package-lock.json`. Each is used

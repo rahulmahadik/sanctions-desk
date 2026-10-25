@@ -24,9 +24,18 @@ export const NAV_LINKS: ReadonlyArray<{ label: string; path: string }> = [
   { label: "API", path: "api.html" },
 ];
 
-/** The Google Fonts stylesheet the pages load (Inter for text, JetBrains Mono for ids and code); system fonts stand in. */
-export const FONTS_URL =
-  "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap";
+/**
+ * The fonts the pages use, served from the site itself (site/fonts, SIL Open Font License; the licence files sit
+ * beside them): Inter for text, JetBrains Mono for ids and code. The @font-face rules are in site.css; system fonts
+ * stand in until they load. No page calls another service for them.
+ */
+export const FONT_FILES = [
+  "fonts/inter-latin-variable.woff2",
+  "fonts/jetbrains-mono-latin-400-normal.woff2",
+  "fonts/jetbrains-mono-latin-500-normal.woff2",
+  "fonts/OFL-Inter.txt",
+  "fonts/OFL-JetBrainsMono.txt",
+] as const;
 
 export interface PageOptions {
   title: string;
@@ -51,9 +60,7 @@ export function headOf(o: PageOptions): string {
     <meta name="theme-color" content="#0b1a2e" />
     <meta name="description" content="${esc(o.description)}" />
     <title>${esc(o.title)}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="${FONTS_URL}" />
+    <link rel="preload" href="${p}fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="${p}site.css" />
   </head>`;
 }

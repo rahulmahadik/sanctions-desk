@@ -12,18 +12,14 @@ import {
   SITE_IMAGES,
   SITE_PAGES,
 } from "../../../tools/lib/site.js";
-import { FONTS_URL, NAV_LINKS } from "../../../tools/lib/site-chrome.js";
+import { FONT_FILES, NAV_LINKS } from "../../../tools/lib/site-chrome.js";
 import { fillIndex, SiteFactsError, siteFacts } from "../../../tools/lib/site-facts.js";
 import { ROUTES } from "../src/openapi.js";
 
 const REPO_URL = "https://github.com/rahulmahadik/sanctions-desk";
 const REPO_BLOB = `${REPO_URL}/blob/main/`;
 /** The only places a page may load anything from: the fonts, and (API page only) the pinned Redoc bundle. */
-const EXTERNAL_OK = [
-  "https://fonts.googleapis.com",
-  "https://fonts.gstatic.com",
-  "https://cdn.jsdelivr.net/npm/redoc@",
-];
+const EXTERNAL_OK = ["https://cdn.jsdelivr.net/npm/redoc@"];
 const out = mkdtempSync(join(tmpdir(), "desk-site-"));
 afterAll(() => rmSync(out, { recursive: true, force: true }));
 
@@ -51,6 +47,15 @@ function htmlFiles(dir: string, base = dir): string[] {
     return d.name.endsWith(".html") ? [relative(base, p)] : [];
   });
 }
+
+describe("the self-hosted fonts", () => {
+  it("ships every font file with its OFL licence, and the stylesheet points at them", () => {
+    for (const f of FONT_FILES) expect(existsSync(resolveProjectPath(`site/${f}`)), f).toBe(true);
+    const css = readFileSync(resolveProjectPath("site/site.css"), "utf8");
+    for (const f of FONT_FILES.filter((x) => x.endsWith(".woff2"))) expect(css).toContain(`url("${f}")`);
+    expect(readFileSync(resolveProjectPath("site/fonts/OFL-Inter.txt"), "utf8")).toContain("SIL Open Font License");
+  });
+});
 
 describe("the exported OpenAPI document", () => {
   it("is an OpenAPI 3.1 document with a title, a version and every documented route", () => {
@@ -99,7 +104,8 @@ describe("the documentation site", () => {
       const text = html(page);
       const up = page.includes("/") ? "../" : "";
       expect(text, page).toContain(`href="${up}site.css"`);
-      expect(text, page).toContain(`href="${FONTS_URL}"`);
+      expect(text, page).toContain("fonts/inter-latin-variable.woff2");
+      expect(text, page).not.toMatch(/fonts\.(googleapis|gstatic)\.com/);
       expect(text, page).toContain('<meta name="theme-color" content="#0b1a2e" />');
       expect(text, page).toContain('<meta name="color-scheme" content="light dark" />');
       expect(text, page).toContain('class="topbar"');
@@ -145,7 +151,7 @@ describe("the documentation site", () => {
       expect(text, page).not.toMatch(/localhost|127\.0\.0\.1|fetch\(/);
       if (page !== "api.html") expect(text, page).not.toMatch(/<script|<iframe/);
       for (const m of text.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g))
-        expect(m[1] === FONTS_URL || /^(\.\.\/)?site\.css$/.test(m[1] as string), `${page}: ${m[1]}`).toBe(true);
+        expect(/^(\.\.\/)?site\.css$/.test(m[1] as string), `${page}: ${m[1]}`).toBe(true);
     }
   });
 

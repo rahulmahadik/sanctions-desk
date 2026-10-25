@@ -12,12 +12,13 @@ import { buildOpenApi } from "../../apps/api/src/openapi.js";
 import { buildReceiptLog } from "./receipt-log.js";
 import { buildResultsPage } from "./results-page.js";
 import { buildRunPages } from "./runs-site.js";
+import { FONT_FILES } from "./site-chrome.js";
 import { fillIndex, siteFacts } from "./site-facts.js";
 
 /** The committed pages of the site, copied when the site is built somewhere other than site/. */
 export const SITE_PAGES = ["index.html", "api.html", "architecture.html"] as const;
 /** The committed assets every page loads. */
-export const SITE_ASSETS = ["site.css"] as const;
+export const SITE_ASSETS = ["site.css", ...FONT_FILES] as const;
 
 /** Each image the landing page shows: its path in the built site and the repository file it is copied from. */
 export const SITE_IMAGES: Record<string, string> = {
@@ -77,6 +78,7 @@ export function buildSite(outDir = resolveProjectPath("site")): string[] {
   written.push("index.html");
   if (out !== resolve(source)) {
     for (const f of [...SITE_PAGES.filter((p) => p !== "index.html"), ...SITE_ASSETS]) {
+      mkdirSync(dirname(join(out, f)), { recursive: true });
       copyFileSync(join(source, f), join(out, f));
       written.push(f);
     }

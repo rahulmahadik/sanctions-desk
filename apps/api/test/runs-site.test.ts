@@ -22,11 +22,11 @@ import {
   WINDOW_WORDS,
   wordWindows,
 } from "../../../tools/lib/runs-site.js";
-import { FONTS_URL, NAV_LINKS } from "../../../tools/lib/site-chrome.js";
+import { FONT_FILES, NAV_LINKS } from "../../../tools/lib/site-chrome.js";
 
 const REPO_BLOB = `${REPO_URL}/blob/main/`;
 /** What a page under site/runs/ may point at one level up: the stylesheet and the site's sections. */
-const SITE_ROOT_FILES = new Set(["site.css", ...NAV_LINKS.map((l) => l.path)]);
+const SITE_ROOT_FILES = new Set(["site.css", ...FONT_FILES, ...NAV_LINKS.map((l) => l.path)]);
 const out = mkdtempSync(join(tmpdir(), "desk-runs-"));
 const scratch = mkdtempSync(join(tmpdir(), "desk-runs-tamper-"));
 afterAll(() => {
@@ -209,7 +209,7 @@ describe("the recorded-run pages", () => {
     }
   });
 
-  it("have only links that resolve, call nothing and load nothing from outside but the fonts", () => {
+  it("have only links that resolve, call nothing and load nothing from outside", () => {
     for (const f of written.filter((x) => x.endsWith(".html"))) {
       const page = html(f);
       expect(page).not.toMatch(/<script|<iframe|localhost|127\.0\.0\.1/);
@@ -217,7 +217,7 @@ describe("the recorded-run pages", () => {
         const link = m[1] as string;
         if (link.startsWith(REPO_BLOB)) {
           expect(tracked.has(link.slice(REPO_BLOB.length).split("#")[0] as string), `${f}: ${link}`).toBe(true);
-        } else if (link === REPO_URL || link === FONTS_URL || link.startsWith("https://fonts.g")) {
+        } else if (link === REPO_URL) {
         } else if (link.startsWith("../")) {
           expect(SITE_ROOT_FILES.has(link.slice(3)), `${f}: ${link}`).toBe(true);
         } else if (link.startsWith("#")) {
