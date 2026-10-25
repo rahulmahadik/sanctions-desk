@@ -156,6 +156,9 @@ async function review(id: string, alertId: string, client: ZetarisClient) {
   };
 }
 
+const thresholdOf = (type: string) =>
+  type === "other" ? policy.screener.otherConfidenceThreshold : policy.screener.confidenceThreshold;
+
 /** What the safety guard and the screener said about the text itself, read from the run's trace and sealed record. */
 function scoreOf(runId: string) {
   const traceFile = join(config.logging.dir, `trace-${runId}.jsonl`);
@@ -185,8 +188,14 @@ function scoreOf(runId: string) {
           reason: (g.output_summary ?? "").slice(0, 240),
         }
       : null,
+    // A screener signal blocks a close only at or above its threshold ("other" has a higher one); a weaker signal is
+    // recorded for the reviewer and changes nothing, so it does not count as flagging the text.
     screener: record?.screener
-      ? { flagged: signals.length > 0, signals: signals.map((s) => `${s.type} (${s.confidence})`) }
+      ? {
+          flagged: signals.some((s) => s.confidence >= thresholdOf(s.type)),
+          signals: signals.map((s) => `${s.type} (${s.confidence})`),
+          weak_signals: signals.filter((s) => s.confidence < thresholdOf(s.type)).length,
+        }
       : null,
     // Where the local steps were answered: these steps read raw text and are meant to stay on the laptop.
     local_steps: (record?.models ?? [])

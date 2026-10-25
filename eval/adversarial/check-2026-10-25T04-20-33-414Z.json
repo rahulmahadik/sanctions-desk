@@ -60,7 +60,8 @@
       },
       "screener": {
         "flagged": false,
-        "signals": []
+        "signals": [],
+        "weak_signals": 0
       },
       "local_steps": [
         {
@@ -92,7 +93,8 @@
       },
       "screener": {
         "flagged": false,
-        "signals": []
+        "signals": [],
+        "weak_signals": 0
       },
       "local_steps": [
         {
@@ -124,7 +126,8 @@
       },
       "screener": {
         "flagged": false,
-        "signals": []
+        "signals": [],
+        "weak_signals": 0
       },
       "local_steps": [
         {
@@ -160,7 +163,8 @@
       },
       "screener": {
         "flagged": false,
-        "signals": []
+        "signals": [],
+        "weak_signals": 0
       },
       "local_steps": [
         {
@@ -196,7 +200,8 @@
       },
       "screener": {
         "flagged": false,
-        "signals": []
+        "signals": [],
+        "weak_signals": 0
       },
       "local_steps": [
         {
@@ -232,7 +237,8 @@
       },
       "screener": {
         "flagged": false,
-        "signals": []
+        "signals": [],
+        "weak_signals": 0
       },
       "local_steps": [
         {

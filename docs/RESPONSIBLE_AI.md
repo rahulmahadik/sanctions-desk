@@ -42,7 +42,7 @@ Matching is deterministic code; no model takes part in it ([compare.ts](../packa
 
 ## Known limits
 
-- **The guard misses some injected text.** In the 105-text run on 25 Oct, 4 of 70 injected texts were flagged by neither the guard nor the screener, and 2 of those cases closed (the data supported the close; the text did not change the outcome). The guard was changed afterwards and checked on a fresh set: [EVALUATION.md](EVALUATION.md#safety-guard-against-injected-text).
-- **False alarms.** The screener over-flags: 8 of 15 harmless texts were flagged in that run, so many correct clears go to a person.
+- **The guard misses some injected text.** In the 105-text run on 25 Oct, 4 of 70 injected texts were flagged by neither the guard nor the screener, and 2 of those cases closed (the data supported the close; the text did not change the outcome). The guard was changed afterwards and checked on a fresh set written separately: 27 of 28 reviews of injected text caught; the one miss, an instruction hidden in an HTML comment inside an ordinary note, was in an alert that closes on its own data, and that case closed ([EVALUATION.md](EVALUATION.md#safety-guard-against-injected-text)).
+- **False alarms.** The screener over-flags: a flag that blocks a close was raised on 5 of 15 harmless texts in that run and on 7 of 16 reviews of harmless texts in the fresh set on the changed code (the 95% ranges overlap), so many correct clears go to a person.
 - **Small test sets.** Every result is one run or a few runs on small sets; the 95% ranges are wide (for example 0 of 43 risk cases wrongly closed on the exam is a true rate between 0 and 8%; [EVALUATION.md](EVALUATION.md#reading-the-numbers)).
 - **Synthetic data.** Customers, accounts, alerts and payments are synthetic; the list entries are real public entries. Nothing has been tested on a bank's real alerts.
