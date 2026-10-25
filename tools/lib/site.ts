@@ -18,7 +18,6 @@ export const SITE_PAGES = ["index.html", "api.html", "architecture.html"] as con
 
 /** Each image the landing page shows: its path in the built site and the repository file it is copied from. */
 export const SITE_IMAGES: Record<string, string> = {
-  "media/architecture.png": "docs/media/architecture.png",
   ...Object.fromEntries(
     [
       "1-architecture",

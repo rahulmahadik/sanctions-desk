@@ -4,7 +4,6 @@ Screenshots 01 to 12 were made from the running desk in sample mode (saved real 
 
 | File                                               | What it shows                                                                                                                                                                          |
 | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `architecture.svg`, `architecture.png`             | The agents, Zetaris as the only data path, local and cloud Nemotron through Nightshift, the raise-only policy guard and the human decision                                             |
 | `screenshots/01-alert-queue.png`                   | Home: the summary strip (open alerts, recommendations waiting for a person, closes stopped by a check, models used), the list-change panel, the alert list sorted by severity          |
 | `screenshots/02-case-evidence.png`                 | A case (ALR-0073): the recommendation banner, the decision panel, the decision trace, the risk signals and the evidence                                                                |
 | `screenshots/03-decision-panel.png`                | The decision panel: approve or override with a reason; nothing is pre-selected, and the button reads Decide until a choice is made                                                     |

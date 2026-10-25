@@ -17,7 +17,7 @@ flowchart TB
   DESK["Desk agents<br/>triage · evidence · matching or ownership · memory"]
   DESK -- "read-only SQL,<br/>one Zetaris role per step" --> ZET
 
-  subgraph LAPTOP["Analyst's machine: raw text is read only here"]
+  subgraph LAPTOP["Analyst's machine: raw text is read here (a cloud-served answer holds the case)"]
     direction LR
     SAFE["Safety guard<br/>patterns + Lightning asked twice<br/>+ 'addresses the reviewer?'"]
     SCREEN["Screener<br/>notes, payment references,<br/>list remarks"]
@@ -27,7 +27,7 @@ flowchart TB
   end
 
   DEC["Decision ⇄ critic (at most 3 rounds),<br/>challenger on a close the policy guard leaves standing"]
-  subgraph CLOUD["Cloud: structured facts only, no free text"]
+  subgraph CLOUD["Cloud: structured facts only, no free text (since 23 Oct)"]
     ULTRA["Nemotron 3 Ultra 550B<br/>via Nightshift"]
   end
   DEC -- "prompt checked for free text<br/>before it is sent" --> ULTRA

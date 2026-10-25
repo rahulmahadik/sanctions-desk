@@ -9,7 +9,7 @@ flowchart TB
   M1 --> DESK["Desk agents"]
   subgraph LOCAL["Analyst's machine"]
     LM["Safety guard and screener on Lightning:<br/>the raw free text<br/>(text last in the prompt)"]
-    TR["Trace and app log: ids, counts, signal types;<br/>no free text, quoted values withheld"]
+    TR["Trace and app log: ids, counts, signal types;<br/>no free text, quoted values withheld (since 25 Oct)"]
     REC["Sealed record: what an auditor needs<br/>(rationale, query hashes; a cited document number as a hash)"]
     RCPT["Signed receipts: the start of each prompt<br/>(instructions only, since 25 Oct)"]
     CHECK["Checked before every cloud call:<br/>no note, reference or remark,<br/>whole or any 20 characters"]:::mask

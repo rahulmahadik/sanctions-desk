@@ -58,7 +58,7 @@ A 70-case exam, written from the approved definitions, with the system compared 
 
 - The model ledger records, for every call, the mode asked for, the model that answered, reasoning budget, tokens, latency, cost and the signed receipt's verification status.
 - The report gives the measured split of calls by serving model, the rate of answers that could not be used as JSON, and the calls that ended before any answer (provider failures) by mode asked for.
-- `npm run check:roles` verifies the access of the evidence, reviewer and eval identities, and the API checks those three at start-up; `npm run check:step-roles` covers the five step identities (ownership, critic, memory, document on record, list change), which the start-up check does not.
+- `npm run check:roles` verifies the access of the evidence, reviewer and eval identities and of each of the five step identities that has a token (one read each on a table it was granted), and the API checks the same at start-up and will not start live while one is refused; `npm run check:step-roles` covers the five step identities (ownership, critic, memory, document on record, list change), which the start-up check does not.
 
 ## Change control
 

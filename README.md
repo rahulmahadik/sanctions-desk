@@ -213,7 +213,7 @@ Every one of these calls, with the mode asked for, the model that served it and 
 
 **What was unique**
 1. The critic does not trust the decision: code re-reads every cited fact from Zetaris before the critic's model sees it, and a fact that does not hold is never approved.
-2. Raw text stays out of the desk's cloud prompts: the local model turns it into risk signals with exact spans, and a signal at or above its threshold blocks a close whether or not its span is grounded.
+2. Raw text stays out of the desk's cloud prompts (since the screener was added on 23 Oct 2026; [earlier runs](docs/PRIVACY.md#earlier-runs)): the local model turns it into risk signals with exact spans, and a signal at or above its threshold blocks a close whether or not its span is grounded.
 3. Every held-out round is published as run, wrong closes included, and every Nightshift answer has a signed receipt that one command re-checks.
 
 **Limitation:** By default the cloud decision model receives structured personal fields from the case (name, date of birth, nationality); the desk does not put free text in a cloud prompt (since the screener was added on 23 Oct 2026; earlier runs: [docs/PRIVACY.md](docs/PRIVACY.md#earlier-runs)). The optional privacy mode sends tokens instead, and has been tested only on a small live sample. **Future work:** For deployments that require it, make privacy mode the default once a full evaluation run confirms it, or keep the decision step local.

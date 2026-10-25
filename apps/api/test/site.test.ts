@@ -70,7 +70,7 @@ describe("the documentation site", () => {
     for (const page of SITE_PAGES) {
       for (const link of linksOf(readFileSync(join(out, page), "utf8"))) {
         if (link.startsWith(REPO_BLOB)) {
-          expect(tracked.has(link.slice(REPO_BLOB.length)), `${page}: ${link}`).toBe(true);
+          expect(tracked.has(link.slice(REPO_BLOB.length).split("#")[0] ?? ""), `${page}: ${link}`).toBe(true);
         } else if (!/^[a-z]+:/i.test(link)) {
           expect(existsSync(join(out, link.split("#")[0] as string)), `${page}: ${link}`).toBe(true);
         }
