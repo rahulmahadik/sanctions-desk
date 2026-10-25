@@ -73,7 +73,7 @@ gunzip -c eval/runs/<run-id>/receipts.jsonl.gz | head -1     # one signed receip
 
 In the review desk, the routing panel of any case lists the Nemotron model that answered each step, the app it was sent under, time, tokens and cost, with a **Verify receipt** button that checks the signature and says what the receipt proves (`GET /receipts/:id/verify`).
 
-How the two models compare on the decision step, with the router's choice stated, is in the report section "Which Nemotron model does what, and why" and in [MODELS.md](MODELS.md).
+How the two models compare on the decision step, with the router's choice stated, is in the report section [Where the model calls were answered](../eval/REPORT.md#where-the-model-calls-were-answered) and in [MODELS.md](MODELS.md).
 
 ## 5. What is unique
 

@@ -28,17 +28,17 @@ The `request_id` is also returned in the `x-request-id` header; send your own `x
 
 Once sign-in is on, every route except `/health` needs `Authorization: Bearer <token>`. In sample mode a demo user can be chosen with the header `X-Demo-User` (`analyst_demo`, `approver_demo`, `admin_demo`).
 
-| Route                                                             | What it does                                                                                     |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `GET /me`                                                         | Who you are, what you may do, and the demo users in sample mode                                  |
-| `GET /cases/{alertId}/human`                                      | Where a recommendation stands after people acted, and the records prepared from their decision   |
-| `POST /cases/{alertId}/decision`                                  | Approve or override with a reason (`action`, `outcome` for an override, `reason`, `record_hash`) |
-| `POST /cases/{alertId}/second-approval`                           | The second approver confirms or declines a block (`approve`, `reason`, `record_hash`)            |
-| `POST /cases/{alertId}/reopen`                                    | Reopen a close the desk made automatically                                                       |
-| `GET /cases/{alertId}/actions`                                    | The prepared records, each with its seal check                                                   |
-| `GET /cases/{alertId}/file?format=md\|pdf`                        | The case file                                                                                    |
-| `GET /autonomy`, `POST /autonomy/kill-switch`, `GET /auto-closed` | The autonomy level in force, the kill switch, and the automatic closes for review                |
-| `GET /receipts/{receiptId}/verify`                                | Check a stored signed receipt: signature, pinned key, app, modes, serving model                  |
+| Route                                                             | What it does                                                                                                                                 |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /me`                                                         | Who you are, what you may do, and the demo users in sample mode                                                                              |
+| `GET /cases/{alertId}/human`                                      | Where a recommendation stands after people acted, and the records prepared from their decision                                               |
+| `POST /cases/{alertId}/decision`                                  | Approve or override with a reason (`action`, `outcome` for an override, `reason`, `record_hash`)                                             |
+| `POST /cases/{alertId}/second-approval`                           | The second approver confirms or declines a block, or an override to a close (status `override_pending`) (`approve`, `reason`, `record_hash`) |
+| `POST /cases/{alertId}/reopen`                                    | Reopen a close the desk made automatically                                                                                                   |
+| `GET /cases/{alertId}/actions`                                    | The prepared records, each with its seal check                                                                                               |
+| `GET /cases/{alertId}/file?format=md\|pdf`                        | The case file                                                                                                                                |
+| `GET /autonomy`, `POST /autonomy/kill-switch`, `GET /auto-closed` | The autonomy level in force, the kill switch, and the automatic closes for review                                                            |
+| `GET /receipts/{receiptId}/verify`                                | Check a stored signed receipt: signature, pinned key, app, modes, serving model                                                              |
 
 ## Review an alert
 
@@ -58,7 +58,7 @@ curl -s localhost:8000/run -H 'content-type: application/json' \
 }
 ```
 
-`decision` is one of `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs two approvals) and `NEED_MORE_INFO`. Every answer says a review by a person is required. A review that could not run is an error body, never an invented decision. Only one review of the same alert runs at a time.
+`decision` is one of `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs two approvals) and `NEED_MORE_INFO`. Every answer says a review by a person is required. A review that could not run is an error body, never an invented decision. If Zetaris cannot be reached, the answer is `status: ok`, `ESCALATE_L2`, confidence 0, `held_reason: data_service_unavailable` and no `record_hash`: the case is held for a person. Only one review of the same alert runs at a time.
 
 Every answer, including an error, also carries the run's bookkeeping:
 
@@ -68,7 +68,8 @@ Every answer, including an error, also carries the run's bookkeeping:
 | `status`                 | `ok`, or `error` with `error: {type, message, recoverable}`                                      |
 | `agents`                 | The steps that ran, in order (for example `triage`, `evidence`, ..., `policy_guard`, `reporter`) |
 | `log_file`               | The run's trace file, relative to the project root: `logs/trace-<run_id>.jsonl`                  |
-| `record_hash`            | SHA-256 of the sealed decision record                                                            |
+| `record_hash`            | SHA-256 of the sealed decision record (absent when the case was held without a record)           |
+| `held_reason`            | `data_service_unavailable` when Zetaris could not be reached and the case is held for a person   |
 | `execution_time_seconds` | Time the review took                                                                             |
 | `sample_mode`            | `true` when the run used saved data and the labelled rules-based model (absent in a live run)    |
 
@@ -124,7 +125,7 @@ While it runs, `npm run case` prints one short line per step to stderr (time, ag
 }
 ```
 
-A review that cannot run prints `{"status": "error", ..., "error": {"type": "...", "message": "..."}}` and exits with a non-zero code. The request files and the kind of outcome each one gives are in [input_examples/README.md](../input_examples/README.md).
+A review held because Zetaris cannot be reached prints `status: ok` with `held_reason: data_service_unavailable` and exits with 0. A review that cannot run prints `{"status": "error", ..., "error": {"type": "...", "message": "..."}}` and exits with a non-zero code. The request files and the kind of outcome each one gives are in [input_examples/README.md](../input_examples/README.md).
 
 ### Trace lines
 

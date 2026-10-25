@@ -189,7 +189,7 @@
       "id": "zetaris_timeout",
       "area": "data and systems",
       "what": "Zetaris is slow, down or returns nothing",
-      "expected": "A structured, recoverable error; no invented decision",
+      "expected": "Held for a person: escalated at confidence 0 with held_reason data_service_unavailable; no record sealed; no invented decision",
       "covered_by": [
         "test:packages/zetaris/test/client.test.ts::network failures",
         "test:packages/shared/test/http.test.ts::timeout",
@@ -200,7 +200,7 @@
       "id": "rest_down",
       "area": "data and systems",
       "what": "The payments service is down",
-      "expected": "Payment alerts fail with a structured error; customer alerts are unaffected",
+      "expected": "Payment alerts that need the payments table are held for a person (held_reason data_service_unavailable); customer alerts are unaffected",
       "covered_by": ["test:apps/api/test/app.test.ts::data service is unreachable"]
     },
     {

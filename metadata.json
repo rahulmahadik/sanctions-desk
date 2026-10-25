@@ -55,7 +55,7 @@
     "status": "working",
     "role": "the only data path: agents send one read-only SQL statement at a time to the Zetaris REST API, under one read-only Zetaris role per data-reading step (when its token is configured), with per-agent allow-lists and data-quality rules",
     "sources": [
-      "semantic layer over the public list files (OFAC, UN, GLEIF)",
+      "semantic layer over the public list files (OFAC, UN)",
       "Postgres synthetic bank database via JDBC",
       "synthetic payments REST service"
     ]
@@ -94,7 +94,7 @@
   },
   "user_interface": {
     "status": "working",
-    "stack": "Next.js; a person approves or overrides with a reason, a block needs two approvers; works in sample mode"
+    "stack": "Next.js; a person approves or overrides with a reason, a block, or an override to a close, needs two approvers; works in sample mode"
   },
   "data": "public lists (OFAC, UN, GLEIF CC0) plus synthetic customers, payments and owners",
   "pre_existing_components": "none; first commit 22 Oct 2026",

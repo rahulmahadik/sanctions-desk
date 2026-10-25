@@ -1,6 +1,6 @@
 # Benchmarks
 
-Measured on one machine (a recent Apple silicon laptop, macOS 27, Node 26), with the API in sample mode (saved Zetaris answers and the labelled stand-in model, so no network or model service is involved), a local client, 200 requests per route and 20 at a time. Reproduce with `npm run bench:api -- --requests 200 --concurrency 20`. These numbers describe this software on this machine, not a deployment: a live review is bounded by the model service and by Zetaris, and its times are in [the exam report](../eval/REPORT.md).
+Measured on one machine (a recent Apple silicon laptop, macOS 27, Node 26), with the API in sample mode (saved Zetaris answers and the labelled stand-in model, so no network or model service is involved), a local client, 200 requests per route and 20 at a time. Reproduce with `npm run bench:api -- --requests 200 --concurrency 20`. Measured on 23 Oct 2026, before the rate limits were added on 24 Oct (10 reviews a minute per caller, 4 in flight); with the default limits the same command now gets 429 answers, so raise them for this test as described below. These numbers describe this software on this machine, not a deployment: a live review is bounded by the model service and by Zetaris, and its times are in [the exam report](../eval/REPORT.md).
 
 | Route                                                                               | Errors | Median ms | p95 ms | Max ms | Requests/s |
 | ----------------------------------------------------------------------------------- | -----: | --------: | -----: | -----: | ---------: |
@@ -10,7 +10,7 @@ Measured on one machine (a recent Apple silicon laptop, macOS 27, Node 26), with
 | `GET /governance`                                                                   |      0 |       9.3 |   19.0 |   21.3 |      1,886 |
 | `POST /run` (a full review in sample mode, every agent step, sealed record written) |      0 |      39.7 |   80.0 |  107.8 |        431 |
 
-What this shows: the application around the models is not the bottleneck. A full review in sample mode (nine steps, 10 to 17 read-only data queries replayed from the saved cache, the critic's fact checks, the policy guard and a sealed, hashed record on disk) takes about 40 ms at the median under 20 concurrent callers. In a live review the time is the model calls (tens of seconds each for the cloud model) and Zetaris round trips (about 100 ms each).
+What this shows: the application around the models is not the bottleneck. A full review in sample mode (ten steps, 10 to 17 read-only data queries replayed from the saved cache, the critic's fact checks, the policy guard and a sealed, hashed record on disk) takes about 40 ms at the median under 20 concurrent callers. In a live review the time is the model calls (tens of seconds each for the cloud model) and Zetaris round trips (about 100 ms each).
 
 **Bounds that keep a run short.** Every model call has a timeout; the critic gets at most three rounds; one review runs per alert at a time (a second request for the same alert is answered, not queued); a 429 from the model service is waited out three times (3, 6 and 12 seconds) before the step's own fallback takes over; a case that exceeds ten minutes in the exam runner is abandoned and recorded as an error.
 

@@ -79,7 +79,7 @@ const block = [
   `- **What happened:** the decision's first recommendation was ${first?.output_summary?.split(":")[0] ?? "?"} at confidence ${first?.confidence ?? "?"}, and ${critic}. The policy guard then blocked the close on a rule.`,
   `- **The rule that blocked:** ${blocked.map((g) => `\`${g.guard}\`: ${g.detail ?? ""}`).join("; ")}.`,
   `- **Final outcome:** ${record.decision} at confidence ${record.confidence}, sealed as record \`${record.record_hash.slice(0, 12)}…\`.`,
-  `- **The human step:** ${record.human.length === 0 ? "none recorded yet: the recommendation waits for a person." : `${record.human.length} human action(s) recorded.`} An analyst or approver approves it or overrides it with a reason against the sealed record; only an approver may override towards a close. The escalation ticket is prepared only after that decision, and nothing is sent.`,
+  `- **The human step:** ${record.human.length === 0 ? "none recorded yet: the recommendation waits for a person." : `${record.human.length} human action(s) recorded.`} An analyst or approver approves it or overrides it with a reason against the sealed record; only an approver may override towards a close, and such an override needs a second, different approver. The escalation ticket is prepared only after that decision, and nothing is sent.`,
   END,
 ].join("\n");
 

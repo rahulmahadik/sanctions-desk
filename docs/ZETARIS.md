@@ -133,7 +133,7 @@ Counted by `tools/count-lines.mjs` (no blank or comment-only lines, after the fo
 How to read this:
 - **The application-code column is large because we chose to do more**, not because Zetaris needs it: `metadata.ts` validates the model description and builds the agents' tools from it, `audit.ts` cross-checks every query id against the platform, and the mask exists only because the column policy is not enforced on this instance. A hand-coded version that wanted the same cross-check would need its own equivalent.
 - **Access control is the one concern where Zetaris is not shorter.** The grants are generated SQL (45 lines), but four settings exist only in the interface and are lost on a rebuild (see "Access control" below). In the hand-coded version the same rule is 37 lines in the application, that anyone can review and test.
-- **Not verified:** that Zetaris keeps a data-quality run history of its own, and that its statement history records which user ran a statement. We rely on our own query records for both.
+- **Not verified:** that Zetaris keeps a data-quality run history of its own; we rely on our own query records for it. **Verified on 25 Oct 2026:** the statement history is kept per user (64 of 64 statements of three live reviews found in the history of the step identity that ran them; [eval/studies](../eval/studies/README.md#the-live-step-role-reviews)).
 
 ### Time
 

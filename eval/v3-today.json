@@ -15,7 +15,9 @@
           "acceptable": 2,
           "cases": 12,
           "escalated_share": 0,
-          "errors": 3
+          "errors": 3,
+          "no_usable_answer": 3,
+          "risk_without_answer": 2
         }
       ]
     },
@@ -32,7 +34,9 @@
           "acceptable": 3,
           "cases": 12,
           "escalated_share": 0.417,
-          "errors": 0
+          "errors": 0,
+          "no_usable_answer": 1,
+          "risk_without_answer": 0
         }
       ]
     },
@@ -49,7 +53,9 @@
           "acceptable": 6,
           "cases": 12,
           "escalated_share": 0.667,
-          "errors": 0
+          "errors": 0,
+          "no_usable_answer": 1,
+          "risk_without_answer": 1
         },
         {
           "run": "t2",
@@ -60,7 +66,9 @@
           "acceptable": 6,
           "cases": 12,
           "escalated_share": 0.583,
-          "errors": 0
+          "errors": 0,
+          "no_usable_answer": 0,
+          "risk_without_answer": 0
         },
         {
           "run": "t3",
@@ -71,7 +79,9 @@
           "acceptable": 6,
           "cases": 12,
           "escalated_share": 0.583,
-          "errors": 0
+          "errors": 0,
+          "no_usable_answer": 1,
+          "risk_without_answer": 0
         }
       ]
     }

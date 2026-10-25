@@ -25,7 +25,7 @@ HO-001 to HO-022 are byte-identical across all three freezes; a test checks them
 
 To check that nothing changed after the third freeze: `git diff d65f5cc99f8ea270bd1c1b4ddc6baf4836da2238 -- eval/cases/heldout.json` (empty means unchanged).
 
-Results are reported in both directions: **risks caught** (recall on the 18 risk cases) and **clears correctly made** (the share of the 8 clear cases that are closed; the rest is the over-escalation rate), with the escalate-all baseline on the same set, which catches every risk and makes no clear.
+Results are reported in both directions: **risks caught** (recall on the 22 cases where a close is a miss: 18 risks and 4 that need more information) and **clears correctly made** (the share of the 8 clear cases that are closed; the rest is the over-escalation rate), with the escalate-all baseline on the same set, which catches every risk and makes no clear.
 
 The cases are not loaded into Zetaris or the bank database until the main exam variants have finished. Rows for them are built from their own seed and id marker (`CUST-H0001`, `ALR-H0001`, ...), so the main synthetic rows do not change when they are added.
 
@@ -83,7 +83,7 @@ Every clear is reachable under the written policy, and every clear's text is in 
 
 The rows are built from their own seed and id marker (`CUST-K0001`, `ALR-K0001`, ...) after the second set's rows. `npm run data:synthetic -- --include-heldout3` writes them into `data/synthetic/` after both earlier sets' rows, and `npm run heldout3:load` loads them into the bank database (dry run unless `--apply` is given). Without the flag every existing output is unchanged; a test checks the existing outputs byte for byte.
 
-**Final freeze:** recorded at the first v3 run.
+**Final freeze:** commit `02d0a2e` (24 Oct 2026 04:04:03 SGT).
 
 ## Held-out v4
 

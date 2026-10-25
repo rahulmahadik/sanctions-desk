@@ -33,7 +33,7 @@ npm run exam -- --variant routed           # the <!--fact:exam_cases-->70<!--/fa
 
 The `data` profile needs `BANKDB_ADMIN_PASSWORD`, `BANKDB_READER_PASSWORD` and `PAYMENTS_API_KEY` (any random values; keep them in a git-ignored file such as `.env.data`). The two containers join the Zetaris network only and publish no ports; `npm run check:isolation` proves that Zetaris can reach them and nothing else can.
 
-Create the three non-admin Zetaris users and tokens as described in [docs/ZETARIS.md](ZETARIS.md#roles-identities-and-tokens).
+Create the three non-admin Zetaris users and tokens, and optionally the five per-step users, as described in [docs/ZETARIS.md](ZETARIS.md#roles-identities-and-tokens).
 
 **Running the API in Docker against live services.** `SAMPLE_MODE=false docker compose up --build` runs the API in a container. Inside a container, `localhost` is the container itself, so Zetaris, Nightshift and Ollama on the host are reached at `http://host.docker.internal:<port>`: `ZETARIS_REST_URL=http://host.docker.internal:8888/api/v1.0`, `METERLESS_BASE_URL=http://host.docker.internal:8088/v1`, `OLLAMA_BASE_URL=http://host.docker.internal:11434/v1`. Compose sets these three for the `api` service (override them with `DOCKER_ZETARIS_REST_URL`, `DOCKER_METERLESS_BASE_URL`, `DOCKER_OLLAMA_BASE_URL`) and adds `extra_hosts: host.docker.internal:host-gateway`, which makes the name resolve on Linux as well as on Docker Desktop. The image sets `HOST=0.0.0.0` so the API listens inside the container; outside a container the default is `127.0.0.1`, and compose publishes the port on `127.0.0.1` unless `BIND_ADDRESS` says otherwise.
 

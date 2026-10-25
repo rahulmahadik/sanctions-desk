@@ -30,7 +30,7 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 <!-- headline:end -->
 
 **What changes for the analyst** (measured on this machine, recorded 70-case run):
-- The desk prepares each alert in a median of 130 seconds (p95 306 s; over the 68 alerts, while the per-case tables give 124 s over all 70 cases, which include the draft checks), at about 0.0085 USD of model cost, for the recommendation only; a person still decides ([eval/REPORT.md](eval/REPORT.md)).
+- The desk prepares each alert in a median of 130 seconds (p95 306 s; over the 68 alerts, while the per-case tables give 123.79 s over all 70 cases, which include the draft checks), at about 0.0085 USD of model cost, for the recommendation only; a person still decides ([eval/REPORT.md](eval/REPORT.md)).
 - Every alert in that run got a sealed record with its evidence, cited facts and checks (70 of 70, no errors); the analyst starts from the gathered evidence instead of an empty screen.
 - It wrongly closed 0 of 43 risk cases; plain name matching closed 10. Analyst time saved was not measured and is not claimed.
 
@@ -42,7 +42,7 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
 **What it does without being asked:**
 - On every review, the memory step checks whether an earlier decision on the same customer and listed entry still holds, and marks it stale if the entry changed since. After a list update, one request (the home-page button or `POST /list-change/replay`) re-checks every earlier decision and lists those whose listed entry changed or was removed, for a person to review; it reopens nothing itself ([user guide](docs/USER_GUIDE.md#3-the-alert-queue), [screenshot](docs/media/screenshots/10-list-change.png)).
-- A challenger argues against a proposed close when its confidence is below 0.85, the name similarity is at least 0.95, or a data-quality rule fails (policy `challenger`); a close it cannot rule out becomes an escalation ([architecture](docs/ARCHITECTURE.md#the-steps)).
+- A challenger argues against a proposed close when its confidence is below 0.85, the name similarity is at least 0.95, or a data-quality rule fails, or the screener recorded any signal in the free text (policy `challenger`); a close it cannot rule out becomes an escalation ([architecture](docs/ARCHITECTURE.md#the-steps)).
 - Every draft for a customer is checked for tipping-off wording before it is saved, and every text from the data is checked for instructions aimed at the desk ([safety guard results](docs/EVALUATION.md#safety-guard-against-injected-text)).
 
 **How to see afterwards what it did:**

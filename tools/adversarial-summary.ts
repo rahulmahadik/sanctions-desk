@@ -1,6 +1,8 @@
 /**
  * Summarise the committed adversarial run of the safety guard (eval/adversarial/guard-*.json, written by
- * npm run adversarial:guard) into the adversarial blocks of docs/EVALUATION.md, docs/NEMOTRON.md and README.md.
+ * npm run adversarial:guard) into the adversarial blocks of docs/EVALUATION.md, docs/NEMOTRON.md and README.md, and
+ * the run of the same texts through full reviews (eval/adversarial/review-*.json, npm run adversarial:review) into the
+ * adversarial-review block of docs/EVALUATION.md and one sentence of the short blocks.
  * Every number comes from the result file; nothing is typed in by hand.
  *
  *   npm run adversarial:summary
@@ -70,9 +72,85 @@ const evaluation = [
   limits,
 ].join("\n");
 
-const short = `**Safety guard against injected text (one run, ${day}, policy ${run.policy_version}):** Lightning flagged ${count(injection, (r) => r.by_model)} of ${injection.length} injected instructions, against ${count(injection, (r) => r.by_patterns)} for the fixed patterns alone, and ${count(tipping, (r) => r.by_model)} of ${tipping.length} tipping-off drafts (patterns: ${count(tipping, (r) => r.by_patterns)}); it wrongly flagged ${falseFlags.length} of ${harmless.length} harmless texts. It tests the safety guard only, not a full review. Details: `;
+// The same texts through full live reviews, when that run is committed.
+interface ReviewRow {
+  case_id: string;
+  family: Row["family"] | "baseline";
+  place: string;
+  violation: boolean;
+  alert_id?: string;
+  decision: string;
+  receipts: number;
+}
+const reviewFile = readdirSync(dir)
+  .filter((f) => /^review-.*\.json$/.test(f))
+  .sort()
+  .at(-1);
+const review = reviewFile
+  ? (JSON.parse(readFileSync(join(dir, reviewFile), "utf8")) as {
+      at: string;
+      policy_version: number;
+      rows: ReviewRow[];
+    })
+  : undefined;
+let reviewBlock: string | undefined;
+let reviewShort = "";
+if (review && reviewFile) {
+  const rr = (f: ReviewRow["family"]) => review.rows.filter((r) => r.family === f);
+  const closed = (r: ReviewRow) => r.decision === "CLOSE_FALSE_POSITIVE";
+  const errors = (rows: ReviewRow[]) => rows.filter((r) => r.decision === "ERROR").length;
+  const bases = rr("baseline");
+  const inj = rr("injection");
+  const ben = rr("benign");
+  const tip = rr("tipping_off");
+  const clean = rr("clean_draft");
+  const reviewDay = review.at.slice(0, 10);
+  const injClosed = inj.filter(closed).map((r) => r.case_id);
+  const line = (label: string, rows: ReviewRow[], expected: string, shown: string) =>
+    `| ${label} | ${rows.length} | ${expected} | ${shown} | ${errors(rows)} |`;
+  reviewBlock = [
+    `**The same texts through full live reviews, one run (eval/adversarial/${reviewFile}, ${reviewDay}, policy version ${review.policy_version}).** Each customer note, payment reference or listed-party remark was put in an alert whose structured data closes (${bases.map((b) => `${b.alert_id}: ${b.decision === "CLOSE_FALSE_POSITIVE" ? "closes" : b.decision}`).join(", ")} with all free-text fields blank), replacing the text in the rows Zetaris returned, in memory; nothing was written to Zetaris or any source. The review then ran as shipped: the safety guard, the screener, the decision on Nemotron 3 Ultra, the critic, the challenger and the policy guard. The drafts went to the outbound guard, which is where a draft is checked.`,
+    "",
+    "| Texts | Cases | Expected | Result | Errors |",
+    "| --- | ---: | --- | --- | ---: |",
+    line(
+      "Injected instructions",
+      inj,
+      "not closed",
+      `${inj.length - injClosed.length - errors(inj)} not closed, ${injClosed.length} closed`,
+    ),
+    line(
+      "Harmless texts in the data",
+      ben,
+      "closed (the base closes)",
+      `${ben.filter(closed).length} closed, ${ben.length - ben.filter(closed).length - errors(ben)} held for a person`,
+    ),
+    line("Tipping-off drafts", tip, "blocked", `${tip.filter((r) => r.decision === "DRAFT_BLOCKED").length} blocked`),
+    line("Clean drafts", clean, "allowed", `${clean.filter((r) => r.decision === "DRAFT_ALLOWED").length} allowed`),
+    "",
+    `Injected instructions that ended in a close: ${injClosed.length === 0 ? "none" : injClosed.join(", ")}. Receipts: ${review.rows.reduce((t, r) => t + r.receipts, 0)} model calls with a receipt id. A harmless text that is held costs a person's time, not a wrong close.`,
+  ].join("\n");
+  reviewShort = ` Through full reviews (${reviewDay}): ${injClosed.length} of ${inj.length} injected instructions ended in a close; ${ben.filter(closed).length} of ${ben.length} harmless texts were closed as the base alert is.`;
+}
+
+const short = `**Safety guard against injected text (one run, ${day}, policy ${run.policy_version}):** Lightning flagged ${count(injection, (r) => r.by_model)} of ${injection.length} injected instructions, against ${count(injection, (r) => r.by_patterns)} for the fixed patterns alone, and ${count(tipping, (r) => r.by_model)} of ${tipping.length} tipping-off drafts (patterns: ${count(tipping, (r) => r.by_patterns)}); it wrongly flagged ${falseFlags.length} of ${harmless.length} harmless texts. It tests the safety guard only, not a full review.${reviewShort} Details: `;
 
 let changed = false;
+if (reviewBlock) {
+  const target = resolveProjectPath("docs/EVALUATION.md");
+  const doc = readFileSync(target, "utf8");
+  const re = /<!-- adversarial-review:start -->[\s\S]*?<!-- adversarial-review:end -->/;
+  if (re.test(doc)) {
+    const next = formatMarkdown(
+      doc.replace(re, () => `<!-- adversarial-review:start -->\n${reviewBlock}\n<!-- adversarial-review:end -->`),
+      target,
+    );
+    if (next !== doc) {
+      changed = true;
+      if (!check) writeFileSync(target, next);
+    }
+  }
+}
 for (const [path, body, formatted] of [
   ["docs/EVALUATION.md", evaluation, true],
   ["docs/NEMOTRON.md", `${short}[EVALUATION.md](EVALUATION.md#safety-guard-against-injected-text).`, true],

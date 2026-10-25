@@ -32,7 +32,7 @@ Conclusion: treated as material. The controls below apply to every recommendatio
 - A recommended block needs two different approvers.
 - An override that lowers caution to a close (from an escalation, a block or a request for more information) needs a second, different approver before it is final; declining escalates the case.
 - The policy guard can only make an outcome more cautious.
-- A close is challenged by a second model when confidence is low, the name is very close, or a data-quality rule fails.
+- A close is challenged by a second model when confidence is low, the name is very close, a data-quality rule fails, or the screener recorded any signal in the free text.
 - Text in the data that tries to instruct the reviewer is flagged, treated as data, and cannot close a case.
 - Every risk signal from the free text at or above the policy threshold stops a close, grounded or not. Grounding (whether code found a term of the signal's type and a name from the evidence at the cited span, policy version 7) only adds context for the reviewer: a signal that is not grounded is kept, recorded with its reason and shown as a flag, and it still stops a close. Grounding can never remove a block. (A first version let ungrounded signals through; on held-out v3 that wrongly closed two risk cases, so the rule was changed to fail closed in policy version 8.)
 - A note counts as documentary evidence only if the document number it cites is one of the customer's documents, checked by a count inside the data layer. When it is not, the reviewer sees "document cited in note not on customer record" and a close becomes a request for more information. When the check cannot be made, the note is not documentary.

@@ -8,16 +8,16 @@ The sections follow the order you meet things. The **Help** page in the desk say
 
 A small Next.js application (`apps/web`) on http://localhost:3001. It works in sample mode and live, and reads everything from the API.
 
-| Screen                          | What it shows                                                                                                                                                                                                                  |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Alert queue                     | Every alert read through the semantic layer, with the latest recommendation and record hash; filter by type and by reviewed or not                                                                                             |
-| Case: live run                  | The review steps lighting up from the real run events (a server-sent stream, not a timer), the critic's round count against the three allowed, retries on each step, and which model answered each model step and where it ran |
-| Case: evidence                  | The customer, the listed party, the payment route and the data-quality results. Identifier numbers are drawn as `••••`; the API names the masked columns                                                                       |
-| Case: model routing and cost    | Per step: the mode asked for and the model that answered (cloud or local), reasoning budget, time, tokens, signed-receipt status and cost under the configured unit costs, with the measured split of the latest full exam     |
-| Case: decision trace and replay | The four questions answered from the sealed record, and a slider that replays the run as of any recorded event                                                                                                                 |
-| Case: decision and next action  | Approve or override with a reason; the second approval of a block; the prepared next action with its seal; the case file as PDF or Markdown; reopen an automatic close. Which buttons appear depends on the signed-in role     |
-| Policy studio                   | The active policy, drafts, a replay of a draft on the exam, publishing by a different person, the autonomy card and its kill switch, and the audit log                                                                         |
-| Exam results                    | Every held-out round as run with its baselines (the same table as the README), then the 70-case variants with false closes and results by case group                                                                           |
+| Screen                          | What it shows                                                                                                                                                                                                                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Alert queue                     | Every alert read through the semantic layer, with the latest recommendation and record hash; filter by type and by reviewed or not                                                                                                                      |
+| Case: live run                  | The review steps lighting up from the real run events (a server-sent stream, not a timer), the critic's round count against the three allowed, retries on each step, and which model answered each model step and where it ran                          |
+| Case: evidence                  | The customer, the listed party, the payment route and the data-quality results. Identifier numbers are drawn as `••••`; the API names the masked columns                                                                                                |
+| Case: model routing and cost    | Per step: the mode asked for and the model that answered (cloud or local), reasoning budget, time, tokens, signed-receipt status and cost under the configured unit costs, with the measured split of the latest full exam                              |
+| Case: decision trace and replay | The four questions answered from the sealed record, and a slider that replays the run as of any recorded event                                                                                                                                          |
+| Case: decision and next action  | Approve or override with a reason; the second approval of a block or of an override to a close; the prepared next action with its seal; the case file as PDF or Markdown; reopen an automatic close. Which buttons appear depends on the signed-in role |
+| Policy studio                   | The active policy, drafts, a replay of a draft on the exam, publishing by a different person, the autonomy card and its kill switch, and the audit log                                                                                                  |
+| Exam results                    | Every held-out round as run with its baselines (the same table as the README), then the 70-case variants with false closes and results by case group                                                                                                    |
 
 The interface recommends and records. A person with the right role can **approve or override** a recommendation with a reason, and the next action (a closure note, an escalation ticket, a request for information or a hold instruction) is prepared only after that decision; a block needs a second, different approver. Nothing in it blocks an account, writes to a source system or contacts a customer. Roles, demo users and the decision step are described under [People, roles and the decision step](GOVERNANCE.md#people-roles-and-the-decision-step). It respects the visitor's reduced-motion setting (the working step is marked with a double border instead of a pulse) and follows the light or dark theme of the system.
 
@@ -39,12 +39,12 @@ To run it live against Zetaris and Nightshift, follow [Run it live](SETUP.md#run
 
 In the top bar, under **Demo user**, choose who you are. Demo users exist only in sample mode.
 
-| User            | Role                         | Can do                                                                                                                                          |
-| --------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| _Visitor_       | viewer                       | read everything, run a review                                                                                                                   |
-| `analyst_demo`  | analyst                      | approve or override a recommendation with a reason; reopen an automatic close                                                                   |
-| `approver_demo` | approver (sanctions officer) | everything an analyst can; give the second approval of a block; override towards a less cautious outcome; propose policy changes; stop autonomy |
-| `admin_demo`    | policy admin                 | publish a policy change written by someone else; switch autonomy back on                                                                        |
+| User            | Role                         | Can do                                                                                                                                                                       |
+| --------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _Visitor_       | viewer                       | read everything, run a review                                                                                                                                                |
+| `analyst_demo`  | analyst                      | approve or override a recommendation with a reason; reopen an automatic close                                                                                                |
+| `approver_demo` | approver (sanctions officer) | everything an analyst can; give the second approval of a block or of an override to a close; override towards a less cautious outcome; propose policy changes; stop autonomy |
+| `admin_demo`    | policy admin                 | publish a policy change written by someone else; switch autonomy back on                                                                                                     |
 
 A live deployment has no demo users. Each person has a token, and the desk asks for it when you open it. See [People, roles and the decision step](GOVERNANCE.md#people-roles-and-the-decision-step) in GOVERNANCE.md.
 
@@ -52,7 +52,7 @@ A live deployment has no demo users. Each person has a token, and the desk asks 
 
 ![The alert queue](media/screenshots/01-alert-queue.png)
 
-The queue lists every alert with its latest recommendation and where people have taken it: _waiting for a person_, _human-approved_, _block approval pending_, _auto-closed_ or _QA sample_. Filter by type, or by reviewed or not yet reviewed. Click an alert to open it.
+The queue lists every alert with its latest recommendation and where people have taken it: _waiting for a person_, _human-approved_, _block approval pending_, _close override pending_, _auto-closed_ or _QA sample_. Filter by type, or by reviewed or not yet reviewed. Click an alert to open it.
 
 ## 4. Open a case and review
 
@@ -84,6 +84,8 @@ _Sample mode, ALR-0073: each model step shows where it ran and the model that se
 ## 6. Decide
 
 ![The decision panel](media/screenshots/03-decision-panel.png)
+
+_Taken before 25 Oct 2026, when **Approve the recommendation** was pre-selected; today nothing is pre-selected._
 
 In **Decision**:
 1. Choose **Approve the recommendation**, or **Override with** another outcome. Nothing is chosen for you; the button reads **Decide** until you choose.
@@ -136,13 +138,14 @@ Every step is in the audit log under **Versions and changes**.
 
 ## 11. When something goes wrong
 
-| What you see                                            | What it means                                                                           |
-| ------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| "Choose a demo user (or sign in) to record a decision." | In sample mode, deciding or changing policy needs a demo user. Pick one in the top bar. |
-| "the recommendation changed since you looked at it"     | Someone reviewed the alert again. Reload the case and decide again.                     |
-| "a valid token is required"                             | Sign-in is on. Ask for a token.                                                         |
-| "No recommendation" or "model decision unavailable"     | No model gave a usable answer. The case goes to a person and is never closed.           |
-| Block approval pending                                  | A block has one approval. A different approver must confirm it.                         |
-| A receipt shows "Not verified"                          | The signature does not match, or the receipt is malformed. Do not rely on that call.    |
+| What you see                                            | What it means                                                                               |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| "Choose a demo user (or sign in) to record a decision." | In sample mode, deciding or changing policy needs a demo user. Pick one in the top bar.     |
+| "the recommendation changed since you looked at it"     | Someone reviewed the alert again. Reload the case and decide again.                         |
+| "a valid token is required"                             | Sign-in is on. Ask for a token.                                                             |
+| "No recommendation" or "model decision unavailable"     | No model gave a usable answer. The case goes to a person and is never closed.               |
+| Block approval pending                                  | A block has one approval. A different approver must confirm it.                             |
+| Close override pending                                  | Someone overrode a block or an escalation to a close. A different approver must confirm it. |
+| A receipt shows "Not verified"                          | The signature does not match, or the receipt is malformed. Do not rely on that call.        |
 
 More: the failure-handling table in [ARCHITECTURE.md](ARCHITECTURE.md#failure-handling) and [KNOWN_ISSUES.md](KNOWN_ISSUES.md).

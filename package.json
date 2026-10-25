@@ -100,7 +100,8 @@
     "data:diff": "tsx data/scripts/diff.ts",
     "data:gleif": "tsx data/scripts/gleif.ts",
     "data:sample": "tsx data/scripts/sample.ts",
-    "data:synthetic": "tsx data/scripts/synthetic.ts"
+    "data:synthetic": "tsx data/scripts/synthetic.ts",
+    "adversarial:review": "tsx tools/adversarial-review.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.2",
