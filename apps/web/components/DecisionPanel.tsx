@@ -43,6 +43,9 @@ const STATUS_LABEL: Record<HumanView["status"], string> = {
   block_pending: "Block approval pending: a second, different approver must confirm",
   block_approved: "Block recommendation approved by two people",
   block_declined: "Block declined by the second approver; escalated",
+  override_pending: "Override to a close pending: a second, different approver must confirm",
+  override_approved: "Override to a close approved by two people",
+  override_declined: "Override to a close declined by the second approver; escalated",
 };
 
 const ACTION_TEXT: Record<HumanActionView["action"], string> = {
@@ -230,7 +233,7 @@ function SecondForm({ alertId, view, me, reason, setReason, busy, submit }: Shar
         disabled={busy || blocked !== undefined}
         onClick={() => void send(false)}
       >
-        Decline the block
+        {view.status === "override_pending" ? "Decline the close" : "Decline the block"}
       </button>{" "}
       {blocked ? <span className="muted">{blocked}</span> : null}
     </form>
@@ -348,7 +351,7 @@ export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refres
       {view.status === "auto_closed" ? <ReopenForm {...shared} /> : null}
       <ActionsTaken view={view} />
       {view.status === "awaiting" ? <DecideForm {...shared} /> : null}
-      {view.status === "block_pending" ? <SecondForm {...shared} /> : null}
+      {view.status === "block_pending" || view.status === "override_pending" ? <SecondForm {...shared} /> : null}
       <p>
         {(["pdf", "md"] as const).map((format) => (
           <span key={format}>

@@ -25,7 +25,9 @@ type ModelUse = { model: string; route: string; calls: number };
 export function SummaryStrip({ alerts, models }: { alerts: readonly QueueAlert[]; models: readonly ModelUse[] }) {
   const open = alerts.filter((a) => a.status === "open").length;
   const waiting = alerts.filter(
-    (a) => a.recommendation && (a.human_status === "awaiting" || a.human_status === "block_pending"),
+    (a) =>
+      a.recommendation &&
+      (a.human_status === "awaiting" || a.human_status === "block_pending" || a.human_status === "override_pending"),
   ).length;
   const blocked = alerts.filter((a) => (a.blocked_by ?? []).length > 0).length;
   const calls = models.reduce((n, m) => n + m.calls, 0);
@@ -69,9 +71,11 @@ function PersonBadge({ alert: a }: { alert: QueueAlert }) {
     const text =
       a.human_status === "block_pending"
         ? "block approval pending"
-        : a.human_final
-          ? `human-approved: ${DECISION_LABEL[a.human_final]}`
-          : "human-approved";
+        : a.human_status === "override_pending"
+          ? "close override pending"
+          : a.human_final
+            ? `human-approved: ${DECISION_LABEL[a.human_final]}`
+            : "human-approved";
     return <Pill tone="close" icon="✓" text={text} />;
   }
   return a.recommendation ? <Pill tone="pending" icon="○" text="waiting for a person" /> : null;

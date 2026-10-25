@@ -126,17 +126,26 @@ export function secondApproval(
   now: Date,
 ): DecisionRecord {
   const state = humanState(record);
-  if (state.status !== "block_pending") refuse("conflict", "this recommendation is not waiting for a second approval");
+  const override = state.status === "override_pending";
+  if (state.status !== "block_pending" && !override)
+    refuse("conflict", "this recommendation is not waiting for a second approval");
   const reason = checkCommon(record, actor, request.reason, request.record_hash);
-  if (!can(actor, "approveBlock")) refuse("forbidden", "the second approval of a block must come from an approver");
+  if (!can(actor, "approveBlock"))
+    refuse(
+      "forbidden",
+      override
+        ? "the second approval of an override to a close must come from an approver"
+        : "the second approval of a block must come from an approver",
+    );
   if (state.first?.actor === actor.id) refuse("forbidden", "the second approval must come from a different person");
+  const approved: Decision = override ? "CLOSE_FALSE_POSITIVE" : "RECOMMEND_BLOCK";
   const action: HumanAction = {
     action: request.approve ? "second_approval" : "reject",
     actor: actor.id,
     role: actor.role,
     at: now.toISOString(),
     reason,
-    outcome: request.approve ? "RECOMMEND_BLOCK" : "ESCALATE_L2",
+    outcome: request.approve ? approved : "ESCALATE_L2",
   };
   return appendHumanAction(record, action, nextRecordId(record));
 }

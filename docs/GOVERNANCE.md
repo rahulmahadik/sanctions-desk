@@ -30,6 +30,7 @@ Conclusion: treated as material. The controls below apply to every recommendatio
 
 - The desk recommends. It never blocks an account, never writes to a source system and never contacts a customer. These limits are fixed in the policy schema (`autoBlock: false`, `messageCustomers: false`, `dataAccess: read_only`) and a policy draft that tries to change them is rejected.
 - A recommended block needs two different approvers.
+- An override that lowers caution to a close (from an escalation, a block or a request for more information) needs a second, different approver before it is final; declining escalates the case.
 - The policy guard can only make an outcome more cautious.
 - A close is challenged by a second model when confidence is low, the name is very close, or a data-quality rule fails.
 - Text in the data that tries to instruct the reviewer is flagged, treated as data, and cannot close a case.

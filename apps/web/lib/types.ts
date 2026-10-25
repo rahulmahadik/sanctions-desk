@@ -397,7 +397,10 @@ export type HumanStatus =
   | "decided"
   | "block_pending"
   | "block_approved"
-  | "block_declined";
+  | "block_declined"
+  | "override_pending"
+  | "override_approved"
+  | "override_declined";
 export type AutonomyOutcome = "human_review" | "auto_closed" | "qa_sample";
 export type ActionCheck = "signed_and_pinned" | "signed_unpinned" | "hash_sealed" | "invalid";
 

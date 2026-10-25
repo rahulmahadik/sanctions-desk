@@ -203,7 +203,7 @@ function settledAction(record: DecisionRecord, policy: Policy, state: HumanState
       needs_approval: true,
     };
   }
-  const declined = state.status === "block_declined";
+  const declined = state.status === "block_declined" || state.status === "override_declined";
   return {
     kind: "escalation_ticket",
     status: declined ? "escalated after the block was declined" : "open",
@@ -234,7 +234,8 @@ function autoClosedAction(record: DecisionRecord, policy: Policy, now: Date): Ac
 /** The records that follow a person's decision. Empty while nothing has been decided. */
 export function planActions(record: DecisionRecord, policy: Policy, now: Date): ActionBody[] {
   const state = humanState(record);
-  if (state.status === "awaiting") return [];
+  // Nothing is prepared while a block or an override to a close waits for its second approver.
+  if (state.status === "awaiting" || state.status === "override_pending") return [];
   if (state.status === "auto_closed") return [autoClosedAction(record, policy, now)];
   const final: Decision = state.status === "block_pending" ? "RECOMMEND_BLOCK" : (state.final as Decision);
   const b: Base = {

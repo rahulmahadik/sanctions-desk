@@ -141,7 +141,78 @@ describe("the first decision on a recommendation", () => {
     expect(() => recordDecision(e, less, analyst, NOW)).toThrow(
       /only an approver may override towards a less cautious/,
     );
-    expect(humanState(recordDecision(e, less, officer, NOW))).toMatchObject({ final: "CLOSE_FALSE_POSITIVE" });
+    // Towards a close it is not final on one approver's word: it waits for a second, different approver.
+    expect(humanState(recordDecision(e, less, officer, NOW))).toMatchObject({ status: "override_pending" });
+  });
+});
+
+describe("an override that lowers caution to a close (four eyes)", () => {
+  const overrideToClose = (from: Decision) => {
+    const r = recordFor(from, "payment");
+    return recordDecision(
+      r,
+      { action: "override", outcome: "CLOSE_FALSE_POSITIVE", reason: REASON, record_hash: r.record_hash },
+      officer,
+      NOW,
+    );
+  };
+
+  it.each(["ESCALATE_L2", "RECOMMEND_BLOCK", "NEED_MORE_INFO"] as const)(
+    "waits for a second approver after an override from %s to a close, and prepares nothing yet",
+    (from) => {
+      const pending = overrideToClose(from);
+      expect(humanState(pending)).toEqual({ status: "override_pending", first: pending.human[0] });
+      expect(planActions(pending, policy, NOW)).toEqual([]);
+    },
+  );
+
+  it("refuses a second approval by the same person", () => {
+    const pending = overrideToClose("ESCALATE_L2");
+    expect(() =>
+      secondApproval(pending, { approve: true, reason: REASON, record_hash: pending.record_hash }, officer, NOW),
+    ).toThrow(/different person/);
+  });
+
+  it("refuses a second approval by someone who is not an approver", () => {
+    const pending = overrideToClose("ESCALATE_L2");
+    expect(() =>
+      secondApproval(pending, { approve: true, reason: REASON, record_hash: pending.record_hash }, analyst2, NOW),
+    ).toThrow(/override to a close must come from an approver/);
+  });
+
+  it("closes once a second, different approver agrees, and prepares the closure note", () => {
+    const pending = overrideToClose("ESCALATE_L2");
+    const done = secondApproval(
+      pending,
+      { approve: true, reason: REASON, record_hash: pending.record_hash },
+      officer2,
+      NOW,
+    );
+    expect(humanState(done)).toMatchObject({ status: "override_approved", final: "CLOSE_FALSE_POSITIVE" });
+    expect(planActions(done, policy, NOW).map((a) => a.kind)).toEqual(["closure_note"]);
+  });
+
+  it("escalates when the second approver declines", () => {
+    const pending = overrideToClose("RECOMMEND_BLOCK");
+    const done = secondApproval(
+      pending,
+      { approve: false, reason: REASON, record_hash: pending.record_hash },
+      officer2,
+      NOW,
+    );
+    expect(humanState(done)).toMatchObject({ status: "override_declined", final: "ESCALATE_L2" });
+    expect(planActions(done, policy, NOW).map((a) => a.kind)).toEqual(["escalation_ticket", "hold_instruction"]);
+  });
+
+  it("does not need a second person for an override towards more caution", () => {
+    const r = recordFor("CLOSE_FALSE_POSITIVE");
+    const more = recordDecision(
+      r,
+      { action: "override", outcome: "ESCALATE_L2", reason: REASON, record_hash: r.record_hash },
+      analyst,
+      NOW,
+    );
+    expect(humanState(more)).toMatchObject({ status: "decided", final: "ESCALATE_L2" });
   });
 });
 

@@ -94,6 +94,7 @@ The rules, each enforced by the desk:
 - Only an analyst or an approver can decide.
 - An override must choose a different outcome. An override towards a less cautious outcome, for example from escalation to a close, needs an approver.
 - A **block** is not final on one decision. After the first approval it is marked **block approval pending**. A second, different approver must press **Give the second approval** or **Decline the block**. Even then it is only a recommendation for the sanctions officer.
+- An **override to a close** from a more cautious recommendation (an escalation, a block or a request for more information) is not final on one decision either. It is marked **override to a close pending**, nothing is prepared, and a second, different approver must press **Give the second approval** or **Decline the close** (declining escalates the case). Overrides towards more caution need only one person.
 - A case that was decided cannot be decided again. If the recommendation changed since you looked, reload the case and decide again.
 
 Your decision is remembered. The next review of the same customer and listed party sees it as an earlier decision, with who made it and why.

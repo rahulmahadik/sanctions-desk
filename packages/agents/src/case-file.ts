@@ -49,6 +49,9 @@ const STATUS_TEXT: Record<string, string> = {
   block_pending: "block approval pending: a second, different approver must confirm",
   block_approved: "a block recommendation, approved by two people",
   block_declined: "the block was declined by the second approver; escalated",
+  override_pending: "override to a close pending: a second, different approver must confirm",
+  override_approved: "an override to a close, approved by two people",
+  override_declined: "the override to a close was declined by the second approver; escalated",
 };
 const CHECK_TEXT: Record<string, string> = {
   signed_and_pinned: "signed (Ed25519), key matches the configured public key",
