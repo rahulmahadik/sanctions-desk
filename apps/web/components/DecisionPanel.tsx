@@ -62,12 +62,14 @@ const needsReason = `Give a reason of at least ${MIN_REASON} characters.`;
 export function decideBlocker(
   me: MeView | undefined,
   rec: Decision,
-  action: "approve" | "override",
+  action: "approve" | "override" | undefined,
   outcome: Decision,
   reasonOk: boolean,
 ): string | undefined {
   if (!me || me.user.role === "viewer") return "Choose a demo user (or sign in) to record a decision.";
   if (!me.permissions.decide) return `The ${roleLabel(me.user.role)} role cannot record decisions.`;
+  // Nothing is chosen for the person: they pick approve or override themselves.
+  if (action === undefined) return "Choose approve or override.";
   if (action === "override" && CAUTION[outcome] < CAUTION[rec] && !me.permissions.override_towards_less_caution)
     return "Only an approver can override towards a less cautious outcome.";
   if (action === "override" && outcome === rec) return "An override must choose a different outcome.";
@@ -155,16 +157,16 @@ function ReopenForm({ alertId, view, me, reason, setReason, busy, submit }: Shar
 }
 
 function DecideForm({ alertId, view, me, reason, setReason, busy, submit }: Shared) {
-  const [action, setAction] = useState<"approve" | "override">("approve");
+  const [action, setAction] = useState<"approve" | "override">();
   const [outcome, setOutcome] = useState<Decision>("ESCALATE_L2");
   const rec = view.recommendation.decision;
   const blocked = decideBlocker(me, rec, action, outcome, reason.trim().length >= MIN_REASON);
-  const chosen = action === "approve" ? rec : outcome;
+  const chosen = action === "approve" ? rec : action === "override" ? outcome : undefined;
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (blocked) return;
+        if (blocked || action === undefined) return;
         void submit(() =>
           postDecision(alertId, {
             action,
@@ -202,10 +204,12 @@ function DecideForm({ alertId, view, me, reason, setReason, busy, submit }: Shar
       <p id="decision-hint" className="muted">
         {chosen === "RECOMMEND_BLOCK"
           ? "A block is not final: it waits for a second, different approver, and even then it is only a recommendation for the sanctions officer."
-          : "Nothing is sent or executed. Approving prepares the next record below; you can read it before anyone acts on it."}
+          : chosen === "CLOSE_FALSE_POSITIVE" && action === "override"
+            ? "An override to a close is not final: it waits for a second, different approver. Nothing is sent or executed."
+            : "Nothing is sent or executed. Deciding prepares the next record below; you can read it before anyone acts on it."}
       </p>
       <button type="submit" disabled={busy || blocked !== undefined}>
-        {busy ? "Saving…" : action === "approve" ? "Approve" : "Override"}
+        {busy ? "Saving…" : action === "override" ? "Override" : action === "approve" ? "Approve" : "Decide"}
       </button>{" "}
       {blocked ? <span className="muted">{blocked}</span> : null}
     </form>

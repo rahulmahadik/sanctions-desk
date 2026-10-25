@@ -1,4 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterAll, describe, expect, it } from "vitest";
 import { type AppError, loadPolicyFile, type Policy, type PolicyChange, PolicyStore } from "../src/index.js";
 import { type Editor, policyJson } from "./helpers.js";
 
@@ -202,5 +205,53 @@ describe("PolicyStore", () => {
     store.createDraft(candidate(), "alice");
     expect(() => store.publish(2, "bob")).not.toThrow();
     expect(store.activeVersion()).toBe(2);
+  });
+});
+
+describe("PolicyStore on disk", () => {
+  const scratch = mkdtempSync(join(tmpdir(), "desk-policy-"));
+  afterAll(() => rmSync(scratch, { recursive: true, force: true }));
+
+  it("keeps every version and the audit log across a restart", () => {
+    const dir = join(scratch, "restart");
+    const first = new PolicyStore(base(), { now: fixedClock(), bootstrapActor: "boot", persistDir: dir });
+    first.createDraft(
+      candidate((e) => e.set("ownership.thresholdPercent", 25)),
+      "alice",
+      "tighten ownership",
+    );
+    first.publish(2, "bob");
+    first.createDraft(candidate(), "alice");
+    first.discardDraft(3, "alice");
+
+    // The policy file passed on restart is ignored: the saved versions win.
+    const second = new PolicyStore(base(), { persistDir: dir });
+    expect(second.activeVersion()).toBe(2);
+    expect(second.active().ownership.thresholdPercent).toBe(25);
+    expect(second.list().map((r) => [r.policy.version, r.status])).toEqual([
+      [1, "retired"],
+      [2, "active"],
+      [3, "discarded"],
+    ]);
+    expect(second.audit()).toEqual(first.audit());
+    expect(second.audit().map((a) => a.action)).toEqual([
+      "bootstrapped",
+      "draft_created",
+      "published",
+      "draft_created",
+      "draft_discarded",
+    ]);
+    expect(Object.isFrozen(second.active())).toBe(true);
+    expect(second.createDraft(candidate(), "carol").policy.version).toBe(4);
+    expect(readFileSync(join(dir, "audit.jsonl"), "utf8").trim().split("\n")).toHaveLength(6);
+  });
+
+  it("writes nothing without a folder, and starts from the policy file when the folder is empty", () => {
+    const dir = join(scratch, "fresh");
+    new PolicyStore(base()).createDraft(candidate(), "alice");
+    expect(existsSync(dir)).toBe(false);
+    const store = new PolicyStore(base(), { persistDir: dir });
+    expect(store.activeVersion()).toBe(1);
+    expect(existsSync(join(dir, "policies.json"))).toBe(true);
   });
 });

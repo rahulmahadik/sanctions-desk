@@ -970,7 +970,18 @@ describe("DecisionPanel", () => {
     vi.mocked(api.fetchHuman).mockResolvedValue(HUMAN.awaiting);
     render(<DecisionPanel alertId="ALR-0001" />);
     expect(await screen.findByText(/Choose a demo user/)).toBeTruthy();
-    expect((screen.getByRole("button", { name: "Approve" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "Decide" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("pre-selects nothing: neither approve nor override is chosen until the person picks one", async () => {
+    vi.mocked(api.fetchMe).mockResolvedValue(ME_ANALYST);
+    vi.mocked(api.fetchHuman).mockResolvedValue(HUMAN.awaiting);
+    render(<DecisionPanel alertId="ALR-0001" />);
+    const radios = (await screen.findAllByRole("radio")) as HTMLInputElement[];
+    expect(radios.map((r) => r.checked)).toEqual([false, false]);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "Dates of birth differ by 14 years." } });
+    expect((screen.getByRole("button", { name: "Decide" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByText("Choose approve or override.")).toBeTruthy();
   });
 
   it("needs a reason before an analyst can approve, then sends the decision with the record hash", async () => {
@@ -978,6 +989,7 @@ describe("DecisionPanel", () => {
     vi.mocked(api.fetchHuman).mockResolvedValue(HUMAN.awaiting);
     vi.mocked(api.postDecision).mockResolvedValue(HUMAN.decided);
     render(<DecisionPanel alertId="ALR-0001" />);
+    fireEvent.click(await screen.findByRole("radio", { name: /Approve the recommendation/ }));
     const button = (await screen.findByRole("button", { name: "Approve" })) as HTMLButtonElement;
     await waitFor(() => expect(screen.getByText(/at least 10 characters/)).toBeTruthy());
     expect(button.disabled).toBe(true);
@@ -1052,6 +1064,7 @@ describe("DecisionPanel", () => {
     vi.mocked(api.postDecision).mockRejectedValue(new Error("the recommendation changed since you looked at it"));
     render(<DecisionPanel alertId="ALR-0001" />);
     fireEvent.change(await screen.findByRole("textbox"), { target: { value: "A long enough reason to submit." } });
+    fireEvent.click(screen.getByRole("radio", { name: /Approve the recommendation/ }));
     fireEvent.click(screen.getByRole("button", { name: "Approve" }));
     expect((await screen.findByRole("alert")).textContent).toContain("changed since you looked");
     expect(screen.getByRole("button", { name: "Approve" })).toBeTruthy();

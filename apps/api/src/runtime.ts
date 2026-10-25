@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import { loadSigner } from "@sanctions-desk/agents";
 import {
   buildGenerator,
@@ -7,6 +8,7 @@ import {
   loadUsersFile,
   PolicyStore,
   RunEventBus,
+  resolveProjectPath,
 } from "@sanctions-desk/shared";
 import { createZetarisClient, type ZetarisClient } from "@sanctions-desk/zetaris";
 import type { Logger } from "pino";
@@ -48,7 +50,10 @@ export function buildRuntime(config: Config, logger: Logger): Omit<AppDeps, "con
     maxRuns: config.events.maxRuns,
     onListenerError: (err) => logger.warn({ err }, "run event subscriber failed"),
   });
+  // Every version and the audit log are kept under logs/policy, so a policy hash in a sealed record can be looked up
+  // after a restart. Once saved, the folder (not the policy file) is the starting point.
   const policies = new PolicyStore(loadPolicyFile(config.policy.file), {
+    persistDir: join(resolveProjectPath(config.logging.dir), "policy"),
     onListenerError: (err) => logger.warn({ err }, "policy change subscriber failed"),
   });
 

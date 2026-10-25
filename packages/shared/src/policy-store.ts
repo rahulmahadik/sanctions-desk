@@ -1,3 +1,5 @@
+import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { AppError } from "./errors.js";
 import { type Policy, type PolicyIssue, type PolicyRef, policyRef, validatePolicy } from "./policy.js";
 
@@ -10,6 +12,9 @@ import { type Policy, type PolicyIssue, type PolicyRef, policyRef, validatePolic
  *   (four-eyes). There is no way to edit the active policy in place.
  * - Rolling back republishes an old version's content as a new, higher version.
  * - Every action is appended to an audit log.
+ * - With `persistDir`, every version (draft, active, retired, discarded) is kept in `policies.json` and every audit
+ *   entry is appended to `audit.jsonl`, and both are read back on start, so a policy hash in a sealed record can
+ *   still be looked up after a restart.
  */
 
 export type PolicyStatus = "draft" | "active" | "retired" | "discarded";
@@ -51,6 +56,13 @@ export interface PolicyStoreOptions {
   /** Actor recorded for the initial policy. */
   bootstrapActor?: string;
   onListenerError?: (error: unknown, change: PolicyChange) => void;
+  /** Folder that keeps every policy version and the audit log across restarts. Without it the store is in memory. */
+  persistDir?: string;
+}
+
+interface PersistedState {
+  activeVersion: number;
+  records: Array<MutableRecord & { version: number }>;
 }
 
 interface MutableRecord {
@@ -70,11 +82,26 @@ export class PolicyStore {
   readonly #listeners = new Set<PolicyChangeListener>();
   readonly #now: () => Date;
   readonly #onListenerError?: (error: unknown, change: PolicyChange) => void;
+  readonly #persistDir?: string;
   #activeVersion: number;
 
   constructor(initial: Policy, opts: PolicyStoreOptions = {}) {
     this.#now = opts.now ?? (() => new Date());
     this.#onListenerError = opts.onListenerError;
+    this.#persistDir = opts.persistDir;
+    const saved = this.#readSaved();
+    if (saved) {
+      for (const r of saved.records) {
+        const validation = validatePolicy(r.policy);
+        if (!validation.ok) throw invalidPolicy(validation.errors);
+        const { version, ...rest } = r;
+        this.#records.set(version, { ...rest, policy: freeze(validation.policy) });
+      }
+      this.#activeVersion = saved.activeVersion;
+      this.#require(this.#activeVersion);
+      this.#audit.push(...this.#readAudit());
+      return;
+    }
     const actor = opts.bootstrapActor ?? "system";
     const ts = this.#now().toISOString();
     const policy = freeze(initial);
@@ -213,7 +240,40 @@ export class PolicyStore {
   }
 
   #log(actor: string, action: PolicyAuditAction, version: number, detail?: string, ts?: string): void {
-    this.#audit.push({ ts: ts ?? this.#now().toISOString(), actor, action, version, ...(detail ? { detail } : {}) });
+    const entry = { ts: ts ?? this.#now().toISOString(), actor, action, version, ...(detail ? { detail } : {}) };
+    this.#audit.push(entry);
+    if (!this.#persistDir) return;
+    mkdirSync(this.#persistDir, { recursive: true });
+    appendFileSync(join(this.#persistDir, "audit.jsonl"), `${JSON.stringify(entry)}\n`, { mode: 0o640 });
+    this.#save();
+  }
+
+  /** Write every version and the active one, through a temporary file so a crash never leaves half a file. */
+  #save(): void {
+    if (!this.#persistDir) return;
+    const state: PersistedState = {
+      activeVersion: this.#activeVersion,
+      records: [...this.#records.entries()].map(([version, r]) => ({ version, ...r })),
+    };
+    const file = join(this.#persistDir, "policies.json");
+    writeFileSync(`${file}.tmp`, `${JSON.stringify(state, null, 2)}\n`, { mode: 0o640 });
+    renameSync(`${file}.tmp`, file);
+  }
+
+  #readSaved(): PersistedState | undefined {
+    if (!this.#persistDir) return undefined;
+    const file = join(this.#persistDir, "policies.json");
+    if (!existsSync(file)) return undefined;
+    return JSON.parse(readFileSync(file, "utf8")) as PersistedState;
+  }
+
+  #readAudit(): PolicyAuditEntry[] {
+    const file = join(this.#persistDir ?? "", "audit.jsonl");
+    if (!this.#persistDir || !existsSync(file)) return [];
+    return readFileSync(file, "utf8")
+      .split("\n")
+      .filter(Boolean)
+      .map((l) => JSON.parse(l) as PolicyAuditEntry);
   }
 
   #notify(change: PolicyChange): void {
