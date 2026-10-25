@@ -91,6 +91,8 @@ SAMPLE_MODE=true docker compose up --build        # the API on http://localhost:
 
 Open http://localhost:3001 for the review desk: pick an alert, press **Review this alert** and watch the steps light up as the real events arrive. More sample-mode requests: [docs/SETUP.md](docs/SETUP.md#try-it-in-two-minutes); running it live: [docs/SETUP.md](docs/SETUP.md#run-it-live).
 
+**Upgrading an existing live setup:** a users file made before 25 Oct 2026 has tokens the server can no longer vouch for, so with sign-in on it will not start until each user is rotated: `npm run users:rotate -- --file <users file> --id <name> --by <your name>` (sample mode needs no users file and no sign-in).
+
 One review from the command line, without the interface or a server. The request file holds the same body as `POST /run`; with `SAMPLE_MODE=true` no service or key is needed.
 
 ```bash
