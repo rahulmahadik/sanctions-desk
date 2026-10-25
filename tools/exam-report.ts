@@ -216,7 +216,6 @@ function callStats(variant: string, since: string) {
   return { lanes, failedBy, unstructured };
 }
 
-/** The measured split as a markdown table: for each step, the share of its calls each model served, from receipts. */
 /** One label change in words: an added acceptable answer, or a new expected answer. */
 function describeLabelChange(c: LabelChange): string {
   if (c.original.expected === c.revised.expected) {
@@ -1034,8 +1033,8 @@ const readmePath = resolveProjectPath("README.md");
 const readme = readFileSync(readmePath, "utf8");
 const START = "<!-- headline:start -->";
 const END = "<!-- headline:end -->";
-/** What each held-out round found and what was changed after it: history, written once per round. The numbers come
- * from heldoutRounds, the same function the review desk's test-scores screen uses. */
+/** What each held-out round found and what was changed after it, written once per round. The numbers come from
+ * heldoutRounds, the same function the review desk's test-scores screen uses. */
 const ROUND_STORY: Record<string, { found: string; changed: string }> = {
   v1: {
     found: "risk stated only in free text (a note, a payment reference) never reached the decision",

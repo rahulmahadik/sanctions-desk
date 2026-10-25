@@ -5,8 +5,8 @@ import { type Candidate, company, fullDobOf, nameVariant, nationalityOf, otherCo
 /**
  * The held-out set: cases where the deciding evidence is in free text (a payment reference, a customer note, a
  * listed party's remarks), in an alias or transliteration pattern the name rules were not written for, or in
- * documents that disagree. The labels follow the approved definitions and were written before any run on them.
- * The set is frozen when it is committed; the report names the commit and says if the file changed afterwards.
+ * documents that disagree. The labels follow the approved definitions. The set is frozen once committed; the report
+ * names the commit and says if the file changed afterwards.
  *
  * Every row is built with its own id marker (CUST-H0001, ALR-H0001, ...) and from its own seed, so adding the set
  * leaves every other row of the synthetic bank exactly as it was.
@@ -49,9 +49,8 @@ function record(b: BankBuilder, s: Spec): void {
 }
 
 /**
- * Freeze 3: four cases whose text does not meet the documentary evidence standard of policy version 2 are relabelled
- * from a close to NEED_MORE_INFO. The labels were written before the standard was made explicit; under policy version
- * 2 these notes are claims. Their rows are unchanged.
+ * Clearing cases whose text does not meet the documentary evidence standard (policy version 2): the notes are only
+ * claims, so the answer is NEED_MORE_INFO, not a close.
  */
 const CLAIM_ONLY = new Set([
   "ho_clear_remarks_parents_differ",
@@ -479,10 +478,9 @@ export function buildHeldoutCases(b: BankBuilder): void {
 }
 
 /**
- * The second part of the held-out set, added before any run on it: cases where free text correctly clears a match
- * that looks strong. They are labelled with a close as the only right answer, so escalating them is a miss. They
- * keep the set from rewarding a system that escalates everything. Each clearing fact is specific and checkable
- * (a document number, a date of birth, a registry number, a named unlisted party), not a bare claim.
+ * The second part of the held-out set: cases where free text correctly clears a match that looks strong. A close is
+ * the only right answer, so the set does not reward a system that escalates everything. Each clearing fact is
+ * specific and checkable (a document number, a date of birth, a registry number, a named unlisted party).
  */
 export function buildClearingCases(b: BankBuilder): void {
   const CLOSE = "CLOSE_FALSE_POSITIVE" as const;
@@ -710,7 +708,7 @@ export function buildClearingCases(b: BankBuilder): void {
       entryId: c.party.entryId,
     });
   }
-  // J. Freeze 3: clearing text that meets the documentary standard, so a close is reachable under policy version 2.
+  // J. Clearing text that meets the documentary standard, so a close is reachable under policy version 2.
   const documented = (dob: string) => `${kyc()}) on 2026-09-${b.rng.int(10, 28)}: date of birth ${dob}`;
   {
     const c = byEntry(b, "UN-QDi.252");

@@ -4,14 +4,12 @@
  *   npm run critic:mutation                 # sample mode: saved Zetaris answers, labelled rules-based model, no network
  *   npm run critic:mutation -- --limit 25 --write
  *
- * For each alert in the saved sample data (non-ownership alerts, in id order): read the evidence, ask the decision step
- * for a recommendation with cited facts, then run only the critic twice against the same evidence: once on the decision
- * as it is (to measure false alarms) and once with one cited fact changed to a false value (a date of birth moved by
- * years, another country code, another list entry, a made-up document number, or a changed text value). The critic
- * re-reads every cited fact from the data, so a changed value should never be approved.
+ * For each non-ownership sample alert: get a decision with cited facts, then run only the critic on it unchanged (false
+ * alarms) and once per cited fact with that fact changed to a false value. The critic re-reads every cited fact from the
+ * data, so a changed value should never be approved.
  *
- * In sample mode the critic's model step is the rules-based stand-in, so what is measured is the critic's re-reading of
- * cited facts (code), not the model's opinion. `--write` saves eval/critic-mutation.json.
+ * In sample mode the critic's model step is the rules-based stand-in, so this measures the critic's re-reading of cited
+ * facts (code), not the model's opinion. `--write` saves eval/critic-mutation.json.
  */
 import { writeFileSync } from "node:fs";
 import {
@@ -333,8 +331,8 @@ const summary = {
   decisions: decisionsTested,
   mutations: done.length,
   mutations_caught: done.filter((r) => r.caught).length,
-  // A false alarm: a true cited fact (one whose value verifies) that the critic still rejected. By construction of the
-  // testable set that cannot happen here; it is measured on the unchanged decisions as a whole below.
+  // No per-mutation false-alarm count: a testable fact verifies by construction. False alarms are measured on the
+  // unchanged decisions below.
   untestable_citations: untestable.length,
   untestable_reasons: Object.fromEntries(
     [

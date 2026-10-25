@@ -6,9 +6,8 @@
  *   npm run readme:refresh -- --check         # fail if any marked value is out of date (used in CI)
  *   npm run readme:refresh -- --count-tests   # also run the test suite and record how many tests it has
  *
- * The badge line between <!-- badges:start --> and <!-- badges:end --> is written here too: the CI badge is GitHub's
- * own (it shows the workflow's live status, also on a private repository), and the TypeScript, Node and licence badges
- * are static, with their values taken from package.json, so --check fails when they drift.
+ * The badge line between <!-- badges:start --> and <!-- badges:end --> is written here too. The CI badge is GitHub's
+ * own (live status, also on a private repository); the others are static, from package.json, so --check catches drift.
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";

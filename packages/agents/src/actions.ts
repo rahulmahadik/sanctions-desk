@@ -131,7 +131,6 @@ export const TIPPING_OFF_FLOOR = [
 
 export interface TippingOffCheck {
   passed: boolean;
-  /** The patterns that matched. */
   hits: string[];
 }
 

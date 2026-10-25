@@ -13,8 +13,7 @@ import type { Candidate } from "./scenarios.js";
  * "director of studies", "nominee for an award", "sister branch", "a company owned by the customer") and one naming the
  * listed person only to record that a check found no match. The labels apply the approved definitions and the
  * documentary evidence standard (`false_positive@2`, `counterparty_match@1`, `effective_ownership_threshold@1`)
- * exactly as written, and were written before any system output on this set was seen. The set is frozen when its
- * hashes are recorded in `eval/cases/README.md`.
+ * exactly as written. The set is frozen once its hashes are recorded in `eval/cases/README.md`.
  *
  * Every row is built with its own id marker (CUST-L0001, ALR-L0001, ...) and from its own seed, after the rows of the
  * first three held-out sets, so adding the set leaves every other row of the synthetic bank exactly as it was.

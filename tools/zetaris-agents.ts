@@ -7,11 +7,9 @@
  *                                                 identities above are not touched. Their roles come from
  *                                                 zetaris/sql/10_step_roles_create.sql, applied first.
  *
- * For each user: any earlier copy is dropped (its password is unknown, so it could not sign in), the user is
- * created at the GENERAL level with a random password that exists only in memory, assigned to its role, signed
- * in once through the interface's own sign-in call, and asked for an API key. The key is written to `.env` as
- * ZETARIS_TOKEN_EVIDENCE, ZETARIS_TOKEN_REVIEWER or ZETARIS_TOKEN_EVAL. Neither the password nor the key is
- * printed or logged. The admin key is read from the environment and used here only.
+ * Any earlier copy of a user is dropped (its password is unknown, so it could not sign in). The new user gets a random
+ * password held only in memory; its API key is written to `.env`. Neither the password nor the key is printed or
+ * logged. The admin key is read from the environment and used here only.
  */
 import { randomBytes, randomUUID } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";

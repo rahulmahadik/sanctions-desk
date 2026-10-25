@@ -10,9 +10,9 @@ import type { AgentDeps } from "./types.js";
 /**
  * The challenger. A recommendation to close is the costliest one to get wrong, so before a close stands, a second
  * model is asked to argue the opposite: that the customer really is the listed party. It runs only when the case
- * is one a close could slip through (low confidence, a very close name, or a data-quality problem), reasons on the
- * deep lane, and can only make the outcome more cautious: a credible argument turns the close into an escalation
- * and its reason is shown to the reviewer. If it cannot answer, the close does not stand either.
+ * is one a close could slip through (see `challengeTriggers`) and can only make the outcome more cautious: a credible
+ * argument turns the close into an escalation, with its reason shown to the reviewer. If it cannot answer, the close
+ * does not stand either.
  */
 
 const MAX_POINTS = 8;

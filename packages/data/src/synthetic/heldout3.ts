@@ -10,8 +10,8 @@ import type { Candidate } from "./scenarios.js";
  * references that meet the evidence standard, some naming the listed person in a name check and some carrying
  * harmless words next to a name ("father's name", "director of studies", "nominee for the award", "sister company of
  * our branch office"). The labels apply the approved definitions and the documentary evidence standard
- * (`false_positive@2`, `counterparty_match@1`) exactly as written, and were written before any system output on this
- * set was seen. The set is frozen when its file hash is recorded in `eval/cases/README.md`.
+ * (`false_positive@2`, `counterparty_match@1`) exactly as written. The set is frozen once its file hash is recorded
+ * in `eval/cases/README.md`.
  *
  * Every row is built with its own id marker (CUST-K0001, ALR-K0001, ...) and from its own seed, after the rows of the
  * first two held-out sets, so adding the set leaves every other row of the synthetic bank exactly as it was.

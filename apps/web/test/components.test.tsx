@@ -806,7 +806,6 @@ describe("ExamDashboard", () => {
       "not part of this round",
       "0 of 6 risks closed; 0 of 6 clears",
     ]);
-    // The 70-case table shows the exam run only.
     expect(screen.getByText("0 of 37 risk cases")).toBeTruthy();
     expect(screen.queryByText("3 of 6 risk cases")).toBeNull();
   });
@@ -1105,7 +1104,6 @@ describe("DecisionPanel", () => {
     expect(await screen.findByText(/Decided by a person/)).toBeTruthy();
     expect(screen.getByText("Closure note")).toBeTruthy();
     expect(screen.getByText(/hash-sealed/)).toBeTruthy();
-    // The person who decided is shown with the role name people read, not the role id.
     expect(screen.getByText("Analyst (L1)")).toBeTruthy();
     expect(screen.queryByText(/\(analyst\)/)).toBeNull();
   });

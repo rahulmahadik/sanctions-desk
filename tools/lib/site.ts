@@ -1,9 +1,8 @@
 /**
- * The static API documentation site (site/): the OpenAPI document the API serves at /docs/json, written to a file
- * without starting a server or calling any service, the images the landing page shows, and the "Recorded runs"
- * pages (runs/, from the committed run exports; see runs-site.ts) the receipt log (receipts/, every model call
- * with its checked receipt; see receipt-log.ts) and the results page (results.html, see results-page.ts). The landing and API pages are committed; what is
- * generated here is git-ignored and rebuilt by `npm run site:build`, so it never goes stale.
+ * The static API documentation site (site/): the OpenAPI document (built without starting a server), the landing
+ * page images, the recorded runs (runs-site.ts), the receipt log (receipt-log.ts) and the results page
+ * (results-page.ts). The landing and API pages are committed; everything generated here is git-ignored and rebuilt
+ * by `npm run site:build`, so it never goes stale.
  */
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -37,7 +36,6 @@ export const SITE_IMAGES: Record<string, string> = {
   "media/charts/repeat-study.png": "docs/media/charts/repeat-study.png",
 };
 
-/** The API's version, as its package states it. */
 export function apiVersion(): string {
   return (JSON.parse(readFileSync(resolveProjectPath("apps/api/package.json"), "utf8")) as { version: string }).version;
 }

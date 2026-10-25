@@ -67,7 +67,7 @@ export function sampleDepsWithText(
   return { ...deps, zetaris: createZetarisClient({ config: deps.config, offline: true, fetchImpl }) };
 }
 
-/** A generator that answers from a script, one answer per call, and remembers what it was asked. */
+/** A screener answer that finds nothing. */
 export const CLEAN_SCREENER = JSON.stringify({
   analysis: "nothing of note",
   risk_signals: [],
@@ -100,7 +100,7 @@ export function scriptedGenerator(
 } {
   const requests: GenerateRequest[] = [];
   const screenerRequests: GenerateRequest[] = [];
-  /** The guard's second call and its narrow check, kept apart so the script's order is the same as before. */
+  /** The guard's second call and its narrow check, kept apart so they do not use up the script. */
   const guardRequests: GenerateRequest[] = [];
   let i = 0;
   // The text the guard is asked about: a retry may word the request differently, but checks the same text.

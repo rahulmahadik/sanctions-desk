@@ -18,7 +18,7 @@ export interface AccessResult {
   optional?: boolean;
 }
 
-/** The token setting of each per-step identity, and the table each one is granted first (from usl-spec.ts). */
+/** The token setting of each per-step identity (see USL_STEP_ROLES) mapped to its role. */
 const STEP_TOKEN: Record<string, ZetarisRole> = {
   ZETARIS_TOKEN_OWNERSHIP: "ownership",
   ZETARIS_TOKEN_CRITIC: "critic",

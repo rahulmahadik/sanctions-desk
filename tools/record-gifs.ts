@@ -1,8 +1,7 @@
 /**
  * Record the short animated GIFs of the review desk (docs/media/gifs/) from a running desk in sample mode. Playwright
- * drives the locally installed Google Chrome in the light colour scheme as the demo analyst and records each scene
- * from Chrome's screencast (every painted frame with its time; sharper text than a compressed video, and no extra
- * download). ffmpeg then turns the useful part into a looping GIF in two passes: a palette, then the GIF.
+ * drives the installed Google Chrome and records Chrome's screencast (every painted frame; sharper than a compressed
+ * video). ffmpeg turns the useful part into a looping GIF in two passes: a palette, then the GIF.
  *
  *   npm run gifs -- --web http://localhost:3021 --out docs/media/gifs
  *
@@ -15,10 +14,8 @@
  * --max-mb 4 (a larger GIF fails the run); --user analyst_demo; --chrome <path> (default: the installed Google Chrome);
  * --keep keeps the recorded frames in the output folder's .frames/ for checking.
  *
- * Each scene presses the real buttons: the review runs the agents on the saved sample data, and the step lights come
- * from the run's recorded events (the replay slider steps through them). The only additions to the page are an outline
- * or a tint on the part being pointed at. Before a scene is converted, the page's text is checked for local paths,
- * user names, e-mail addresses and tokens; a scene that shows one is not saved.
+ * Each scene presses the real buttons; the only additions to the page are an outline or a tint. A scene whose page
+ * text shows a local path, user name, e-mail address or token is not saved.
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -96,7 +93,6 @@ async function jumpTo(page: Page, selector: string, offset = 20): Promise<void> 
   );
 }
 
-/** Outline one element (or none) to point at it. */
 async function point(page: Page, selector: string | null): Promise<void> {
   await inPage(
     page,

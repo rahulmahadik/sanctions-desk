@@ -12,7 +12,7 @@ import { type Policy, type ScreenerSignalType, watchedJurisdictions } from "@san
 
 export interface GroundingResult {
   grounded: boolean;
-  /** Why a signal is not grounded, or which check it was exempt from. Never quotes the text. */
+  /** Why a signal is not grounded. Never quotes the text. */
   reason?: string;
 }
 
@@ -58,7 +58,6 @@ function termPattern(term: string): RegExp {
   return re;
 }
 
-/** True when the text holds one of the terms. */
 function holdsTerm(text: string, terms: readonly string[]): boolean {
   const folded = foldText(text);
   return terms.some((t) => termPattern(t).test(folded));

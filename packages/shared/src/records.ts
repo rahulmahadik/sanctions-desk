@@ -5,14 +5,14 @@ import { ReceiptSummarySchema } from "./receipts.js";
 import { AgentNameSchema, AlertTypeSchema, DecisionSchema, RunIdSchema, RunResponseSchema } from "./schemas.js";
 
 /**
- * Pointer memory (D3) and replayable decision records (D4).
+ * Pointer memory and replayable decision records.
  *
  * Memory never stores a copy of customer data. It stores a pointer to the source row plus a hash of
  * what the row contained, and re-reads the row through Zetaris when it is recalled. A changed hash
  * means the memory is stale and the case must be checked again.
  *
- * A decision record holds everything needed to answer "what did you know when you decided?". Records are sealed with a hash and never edited; a later
- * human action creates a new record that points back at the previous hash.
+ * A decision record holds everything needed to answer "what did you know when you decided?". Records are sealed with a
+ * hash and never edited; a later human action creates a new record that points back at the previous hash.
  */
 
 const nonEmpty = z.string().min(1);
@@ -21,7 +21,7 @@ const sha256 = z.string().regex(SHA256_HEX, "expected a 64 character lowercase S
 const isoTime = z.iso.datetime();
 const count = z.number().int().nonnegative();
 
-// ---- memory pointers (D3) ------------------------------------------------------------------
+// ---- memory pointers ------------------------------------------------------------------------
 
 export const MemoryPointerSchema = z.strictObject({
   /** Qualified USL table the row lives in. */
@@ -85,7 +85,7 @@ export function memoryUsable(states: readonly PointerState[]): boolean {
   return states.length > 0 && states.every((s) => s === "fresh");
 }
 
-// ---- decision records (D4) -----------------------------------------------------------------
+// ---- decision records -----------------------------------------------------------------------
 
 export const ListSnapshotRefSchema = z.strictObject({
   list: ListIdSchema,
@@ -238,7 +238,7 @@ export const ScreenerRecordSchema = z.strictObject({
       span_valid: z.boolean(),
       /**
        * False when the span's text holds no term of the signal's type or no name from the evidence near it: the signal
-       * is kept and shown, and from policy version 8 still blocks a close. Absent in records made before policy version 7.
+       * is kept and shown, and still blocks a close. Optional: records made before policy version 7 do not have it.
        */
       grounded: z.boolean().optional(),
       grounding_reason: nonEmpty.optional(),

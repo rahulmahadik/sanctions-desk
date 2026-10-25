@@ -402,7 +402,6 @@ const errorExample = (type: string, message: string) => ({
   error: { type, message, recoverable: type === "rate_limited" },
 });
 
-/** The OpenAPI 3.1 document. */
 export function buildOpenApi(version: string, extra: RouteDoc[] = []): Json {
   const paths: Record<string, Record<string, Json>> = {};
   for (const r of [...ROUTES, ...extra]) {

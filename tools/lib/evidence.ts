@@ -104,7 +104,7 @@ export function verifyExportedRun(dir: string, trusted: string[]): RunVerificati
   };
 }
 
-/** Problems that make a run fail the check. */
+/** Count of problems that make a run fail the check. */
 export const problemsIn = (v: RunVerification): number =>
   v.status.invalid +
   v.status.malformed +

@@ -1,8 +1,7 @@
 /**
- * The results page of the static site (site/results.html): the evaluation as the README and the docs state it, on
- * one page, without installing anything. It copies the generated blocks (the text between <!-- name:start --> and
- * <!-- name:end --> markers, each written by a script from committed result files) out of README.md, docs/EVALUATION.md
- * and docs/NEMOTRON.md, so the page and the docs can never disagree. Nothing on the page is typed in by hand.
+ * The results page of the static site (site/results.html). It copies the generated blocks (between <!-- name:start -->
+ * and <!-- name:end --> markers) out of README.md, docs/EVALUATION.md and docs/NEMOTRON.md, so the page and the docs
+ * can never disagree. Nothing on the page is typed in by hand.
  *
  * The build stops (throws ResultsPageError) when a document or one of its blocks is missing.
  */

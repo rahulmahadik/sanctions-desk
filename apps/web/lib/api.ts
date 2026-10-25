@@ -137,7 +137,6 @@ export const postSecondApproval = (alertId: string, input: { approve: boolean; r
 
 const END_ACTIONS = ["run_completed", "run_failed", "run_rejected"];
 
-/** True for the event that closes a run. */
 export const endsRun = (event: RunEvent): boolean => event.agent === "system" && END_ACTIONS.includes(event.action);
 
 /** The run events in the complete blocks of a server-sent stream, and what is left of an unfinished block. */

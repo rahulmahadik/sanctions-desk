@@ -202,7 +202,7 @@ function decisionAnswer(e: Evidence, prompt = ""): string {
   });
 }
 
-/** The labelled rules used when SAMPLE_MODE is on and no model service answers. */
+/** Tipping-off wording the sample outbound safety check looks for. */
 const TIPPING =
   /sanction(s|ed)?\b|watch ?list|\bOFAC\b|screening|investigat|suspicious (activity|transaction)|\bSAR\b|frozen|regulator/i;
 

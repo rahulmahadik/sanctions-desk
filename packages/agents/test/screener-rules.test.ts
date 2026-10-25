@@ -21,10 +21,9 @@ import {
 import { caseFacts, quietPolicy, sampleDeps, sampleDepsWithText, scriptedGenerator } from "./helpers.js";
 
 /**
- * The rules added after the independent review of the screener: the date of birth must be the one the note labels,
- * nothing copied from the text may reach a cloud prompt, the critic and the first finding never ask for a close the
- * guard will refuse, a verified-note date of birth can be approved, and the screener's locality, truncation and off
- * switch are each visible and fail closed.
+ * Screener rules: the date of birth must be the one the note labels, nothing copied from the text may reach a cloud
+ * prompt, the critic and the first finding never ask for a close the guard will refuse, a verified-note date of birth
+ * can be approved, and the screener's locality, truncation and off switch are each visible and fail closed.
  */
 const fp = caseFacts("fp_dob_exact_name_0");
 const safe = JSON.stringify({ violation: false, category: "none", reasons: [] });

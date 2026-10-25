@@ -298,7 +298,7 @@ function NextActions({ view }: { view: HumanView }) {
         <li key={a.action_id}>
           <strong>{KIND_LABEL[a.body.kind]}</strong> <span className="badge tone-wait">{a.body.status}</span>{" "}
           <span className="muted">not sent; {CHECK_LABEL[a.check]}</span>
-          {/* A note sealed before the notes were written in plain words still shows its codes in words. */}
+          {/* Older sealed notes hold raw codes; show them in words. */}
           <pre className="note">{plainReason(a.body.content, a.body.alert_type)}</pre>
         </li>
       ))}

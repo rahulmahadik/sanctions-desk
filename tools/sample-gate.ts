@@ -1,8 +1,7 @@
 /**
  * Review every alert in the sample data, in process, with a fixed clock and the labelled rules stand-in, and write
- * each alert's answer and a digest of its sealed record. The digest leaves out what differs on every run by design:
- * the random Zetaris query ids, the hashes that cover them, and measured timings (`latency_ms`). Run it before and after a change that must not alter the default
- * review: the two files are identical, or the change altered an answer or a record.
+ * each alert's answer and a digest of its sealed record (without the per-run parts, see VARIES). Run it before and after
+ * a change that must not alter the default review: the two files are identical, or the change altered an answer or a record.
  *
  *   npm run gate:sample -- --out before.json
  *   npm run gate:sample -- --out after.json && cmp before.json after.json

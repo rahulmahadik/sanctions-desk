@@ -73,7 +73,7 @@ export function blockingDataQuality(evidence: EvidenceBundle, documentaryDob: bo
  * Why the policy guard would refuse a close whatever the comparison says: a blocking risk signal, a screener that
  * could not read or did not read all of the free text, instruction-like text in the data, or a failing data-quality
  * rule that a verified note does not answer. Matching uses this so that the approved definition of a false positive is
- * never reported as met for a case the guard will not let close; the critic and the first finding then agree.
+ * never reported as met for a case the guard will not let close.
  */
 export function closeBlockers(policy: Policy, evidence: EvidenceBundle, documentaryDob: boolean): string[] {
   const s = evidence.screener;
@@ -256,11 +256,9 @@ const closeRules: Rule = ({ closing, match, policy, decision }) => {
 };
 
 /**
- * The document number a documentary customer note cites, compared with the customer's documents inside Zetaris. Not on
- * the record: the note is not documentary, and a close of a customer alert (or any close that cites the note) goes to
- * NEED_MORE_INFO with the reason shown. Not verified (the count could not be made): the note is not documentary, and a
- * close that cites it goes to NEED_MORE_INFO. Otherwise the finding is a flag, so the reason is always visible. Raise
- * only: a recommendation already more cautious than NEED_MORE_INFO stays as it is.
+ * The document number a customer note cites, checked against the customer's documents in Zetaris. If it is not on the
+ * record or could not be verified, the note is not documentary: a close that relies on it (or, when not on record, any
+ * close of a customer alert) goes to NEED_MORE_INFO; otherwise the reason is shown as a flag. Raise only.
  */
 function noteDocumentFinding(closing: boolean, evidence: EvidenceBundle, notesCited: boolean): Finding | undefined {
   const check = evidence.noteDocument;

@@ -1,9 +1,8 @@
 /**
  * Copy the small studies (not part of the recorded evaluation) into eval/studies/<study>/<run-id>/, in the same
  * shape and with the same redaction as `npm run evidence:export`: results.json, run-meta.json, trace.jsonl.gz and
- * receipts.jsonl.gz. Tokens, local paths, hostnames and addresses other than the local machine, usernames, e-mail
- * addresses and the values of secret environment variables are removed from the results and the trace. Receipts are
- * copied untouched (their signatures cover them); if one matches a redaction pattern the export stops.
+ * receipts.jsonl.gz. Receipts are copied untouched (their signatures cover them); if one matches a redaction pattern
+ * the export stops.
  *
  *   npm run studies:export
  *
@@ -43,7 +42,7 @@ const STUDIES: Array<{ name: string; runs: string[]; extra?: string[] }> = [
       "repeat/2026-10-24T16-19-36-310Z-heldout4-r2-nemotron_alone.json",
       "repeat/2026-10-24T16-37-52-619Z-heldout4-repr3-routed.json",
       "repeat/2026-10-24T16-51-21-563Z-heldout4-r3-nemotron_alone.json",
-      // The fairer arm of 25 Oct 2026: Nemotron alone given the free text the screener reads (text1 to text3).
+      // The fairer arm: Nemotron alone given the free text the screener reads (text1 to text3).
       ...(existsSync(join(logs, "repeat"))
         ? readdirSync(join(logs, "repeat"))
             .filter((f) => /-heldout4-text\d-nemotron_alone\.json$/.test(f))
@@ -232,8 +231,8 @@ for (const study of STUDIES) {
     writeFileSync(join(outRoot, study.name, basename(extra)), redact(readFileSync(path, "utf8")));
   }
 }
-// The three live reviews run with every step under its own Zetaris identity (25 Oct 2026), and the read-only match
-// of their statements with each identity's statement history. The sealed records are copied untouched, so their
+// The three live reviews run with every step under its own Zetaris identity, and the read-only match of their
+// statements with each identity's statement history. The sealed records are copied untouched, so their
 // record hash still checks; like a receipt, a record that matches a redaction pattern stops the export.
 const LIVE = "step-roles-live";
 const liveOut = join(outRoot, "step-role-reviews");

@@ -22,7 +22,6 @@ export interface RoutingSplitRow {
 
 export interface RoutingSplit {
   rows: RoutingSplitRow[];
-  /** Receipts read, and how many of them show the requested mode replaced by the router's "auto". */
   receipts: number;
   /** Receipts where the runtime marked the requested mode as replaced (deep and fast). */
   mode_coerced: number;

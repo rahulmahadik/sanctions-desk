@@ -6,7 +6,7 @@
  *   npm run evidence:hash-changes            # the proof: put each old value back and match the original hash
  *   npm run evidence:hash-changes -- --write # build HASH-CHANGES.json from the git history (done once; needs git)
  *
- * --write reads each file as it was before the commit that re-pointed the references (20fcdde), takes the old and new
+ * --write reads each file as it was before the commit that re-pointed the references (REPOINT_COMMIT), takes the old and new
  * "commit" values, and checks each pair against the commit map of the rewrite when one is given with --map <file>.
  */
 import { execFileSync } from "node:child_process";

@@ -23,7 +23,7 @@ describe("policy schema", () => {
     const policy = loadPolicyFile("config/policy.default.json");
     expect(policy.version).toBe(9);
     expect(policy.evidenceStandard.requireCheckReference).toBe(true);
-    // Version 7: span grounding of screener signals, with the term lists as policy data.
+    // Span grounding of screener signals, with the term lists as policy data.
     expect(policy.screener.grounding.enabled).toBe(true);
     expect(policy.screener.grounding.terms.relationship_to_listed_party).toContain("on behalf of");
     expect(policy.screener.grounding.placeTypes).toEqual(["sanctioned_jurisdiction_link"]);

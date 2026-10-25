@@ -69,7 +69,7 @@ export interface ExamCase {
   acceptable: Decision[];
   /** Outcomes that would be wrong: the system must never give these. */
   must_not: Decision[];
-  /** Edge cases from the review's edge-case list that this case exercises. */
+  /** Edge-case tags this case exercises (for example "partial_dob", "dob_conflict"). */
   edge_cases: string[];
   note: string;
 }

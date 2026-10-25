@@ -10,9 +10,8 @@
  *   npm run prove -- --fresh         clone this commit into a temporary folder, run `npm ci` there and run the
  *                                    checks inside it (needs network for npm; takes a few minutes)
  *
- * Sample mode is forced: the review replays saved Zetaris answers and uses the labelled rules-based model, the
- * child checks get only PATH, HOME and temporary-folder variables plus SAMPLE_MODE=true, and the .env file is never
- * read. Each run is also logged as JSON lines to logs/prove-<time>.jsonl.
+ * Sample mode is forced: child checks get only PATH, HOME and temporary-folder variables plus SAMPLE_MODE=true, and
+ * the .env file is never read. Each run is also logged to logs/prove-<time>.jsonl.
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";

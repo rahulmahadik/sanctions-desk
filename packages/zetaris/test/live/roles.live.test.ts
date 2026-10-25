@@ -89,10 +89,8 @@ describe.skipIf(!ready)("runtime identities on a live Zetaris", () => {
     expect(r.rows?.[0]?.[0]).toBeTruthy();
   });
 
-  // Column Access on customer_identifier is set to HIDE id_number for the evidence role, and this edition of the
-  // platform returns the clear value anyway. The application masks it itself (adapter and interface). The test is
-  // written the way it should behave and marked as expected to fail; when the platform enforces the policy it starts
-  // failing, which is the cue to remove `fails` and to check that the identifier comparison still works for the role.
+  // Column Access HIDEs id_number for the evidence role, but this platform edition still returns it in clear, so the
+  // application masks it itself. Expected to fail until the platform enforces the policy; then remove `fails`.
   it.fails("the evidence role does not receive id_number in clear", async () => {
     const r = await run(tokens.evidence, `SELECT id_number FROM ${model}.customer_identifier LIMIT 1`);
     const value = r.rows?.[0]?.[0];

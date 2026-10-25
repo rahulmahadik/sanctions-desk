@@ -168,7 +168,6 @@ describe("the permission rules on screen", () => {
   });
 });
 
-/** The reason linked to a greyed-out button. */
 const reasonOf = (button: HTMLElement): string | null => {
   const id = button.getAttribute("aria-describedby");
   return id ? (document.getElementById(id)?.textContent ?? null) : null;

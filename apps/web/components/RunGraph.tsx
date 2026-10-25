@@ -69,7 +69,6 @@ function ModelChips({ step }: { step: StepView }) {
   );
 }
 
-/** The desk's receipt check in words. */
 function receiptWords(check?: string): string {
   if (check === "valid_pinned") return "signature valid, key pinned";
   if (check === "valid_unpinned") return "signature valid, key from the receipt";
@@ -77,7 +76,6 @@ function receiptWords(check?: string): string {
   return "receipt not checked yet";
 }
 
-/** Why a model answer has no receipt. */
 function noReceiptWords(provider?: string): string {
   if (provider === "ollama") return "Ollama backup on this machine: no receipt (not through Nightshift)";
   if (provider === "fallback-rules") return "sample mode: rules stand-in, not a model";

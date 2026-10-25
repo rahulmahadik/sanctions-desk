@@ -125,7 +125,7 @@ describe("what level 1 never does: the locks", () => {
       expect(PolicySchema.safeParse(draft).success, lock).toBe(false);
     }
     const noLocks = structuredClone(base) as Record<string, unknown>;
-    // the older locks stay too
+    // the automation locks hold as well
     (noLocks.automation as Record<string, unknown>).autoBlock = true;
     expect(PolicySchema.safeParse(noLocks).success).toBe(false);
     const messages = structuredClone(base) as Record<string, unknown>;

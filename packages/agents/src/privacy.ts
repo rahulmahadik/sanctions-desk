@@ -6,13 +6,11 @@ import { type AskJsonOptions, type AskJsonResult, askJson } from "./model-call.j
 import type { AgentDeps } from "./types.js";
 
 /**
- * Cloud privacy mode (config `privacyMode`, env PRIVACY_MODE). Off by default: the cloud steps send their prompts as
- * they are built. With "pseudonymise", before every cloud call the case's names, identifiers, dates of birth, addresses
- * and country values are replaced by stable per-case tokens (PARTY_A, LISTED_1, DOC_1, DOB_1, COUNTRY_1, ADDR_1); the
- * comparison the code worked out (name score, date-of-birth and nationality status, definitions met) stays, and each
- * country token says whether the policy watches it. The token map stays on this machine (in memory and in the sealed
- * record). The answer is mapped back before anything else reads it. If a raw name, identifier or date of birth of the
- * case is still in the outgoing prompt, the call is not made.
+ * Cloud privacy mode (config `privacyMode`, env PRIVACY_MODE; off by default). With "pseudonymise", before every cloud
+ * call the case's names, identifiers, dates of birth, addresses and country values are replaced by stable per-case
+ * tokens; the comparison code worked out stays, and each country token says whether the policy watches it. The token
+ * map never leaves this machine (memory and the sealed record). If a raw name, identifier or date of birth is still in
+ * the outgoing prompt, the call is not made.
  */
 
 export type TokenKind = "party" | "listed" | "document" | "dob" | "country" | "address";
@@ -169,8 +167,8 @@ function tokenNote(deps: AgentDeps, map: PrivacyMap): string {
 
 /**
  * One call of a cloud step (decision, critic, challenger). With privacy mode off it records the payload and asks the
- * model, exactly as the steps did before. With "pseudonymise" the prompt is tokenised, checked for raw values (the call
- * is refused if any remain), recorded, sent, and the answer is mapped back.
+ * model. With "pseudonymise" the prompt is tokenised, checked for raw values (the call is refused if any remain),
+ * recorded, sent, and the answer is mapped back.
  */
 export async function askCloud<T extends z.ZodType>(
   deps: AgentDeps,

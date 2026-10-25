@@ -1,14 +1,10 @@
 /**
- * The "Recorded runs" pages of the static site (site/runs/): a read-only replay of a few cases from the committed run
- * exports, so a reader can follow one alert step by step without running anything. Everything shown comes from the
- * committed files: the trace and the signed receipts in eval/runs/<run-id>/, the result row, the case label in
- * eval/cases/, and, where an output example was exported from the same run, the sealed decision record that keeps
- * the Zetaris statements.
+ * The "Recorded runs" pages of the static site (site/runs/): a read-only replay of a few cases, built only from the
+ * committed run exports (trace, signed receipts, result row, case label, sealed record).
  *
- * The build stops (throws) when a run file is missing, when a model call names a receipt the export does not hold,
- * when a receipt's signature does not verify, or when the trace and the receipt disagree. Free text from the
- * synthetic data (customer notes, payment references) and list remarks never reach a page, and identifier numbers
- * are masked: `scrub` runs over every string before it is written.
+ * The build throws when a run file is missing, a receipt is missing or does not verify, or the trace and the receipt
+ * disagree. Free text and list remarks never reach a page and identifier numbers are masked: `scrub` runs over every
+ * string before it is written.
  */
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -199,7 +195,6 @@ const gzLines = (path: string, what: string): string[] =>
     .filter(Boolean);
 const sha256File = (path: string) => createHash("sha256").update(readFileSync(path)).digest("hex");
 
-/** A model call and its receipt, checked. */
 export interface CheckedCall {
   seq: number;
   agent: string;
@@ -351,7 +346,6 @@ export function loadRecordedCase(spec: RecordedCase, opts: LoadOptions = {}): Lo
 
   const calls = checkCalls(events, envelopes, opts.trustedKeys ?? pinnedKeys(), where);
   if (!calls.some((c) => c.receipt)) throw new RecordedRunError(`${where}: no model call in the case has a receipt`);
-  // The whole run, through the code `npm run evidence:verify` uses.
   const run = verifyExportedRun(runDir, [...(opts.trustedKeys ?? pinnedKeys())]);
   if (problemsIn(run) > 0)
     throw new RecordedRunError(
@@ -540,7 +534,7 @@ ${rows.map((r) => `            <tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr
 const shortTable = (t: string | undefined) => (t ? (t.split(".").pop() ?? t) : "");
 const rowsFromSummary = (s: string | null | undefined) => s?.match(/^(\d+) (?:\w+ )?rows?$/)?.[1];
 
-/** The checks that stopped a proposed close, or that let a close stand, in the order they ran. */
+/** The policy guard's list item, with the checks that raised or flagged. */
 function guardItem(c: LoadedCase, e: TraceEvent, s: Scrubbed): string {
   const verdicts = Array.isArray(e.detail?.verdicts) ? (e.detail.verdicts as string[]) : [];
   const raised = verdicts.filter((v) => /:(block|flag)$/.test(v));
@@ -647,7 +641,6 @@ function stepRows(c: LoadedCase, s: Scrubbed): string[][] {
   });
 }
 
-/** One case's page. */
 export function renderCasePage(c: LoadedCase, p: Protected): string {
   const s: Scrubbed = (x) => esc(scrub(String(x ?? ""), p));
   const { label, result, spec } = c;

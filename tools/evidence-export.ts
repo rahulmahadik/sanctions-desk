@@ -1,9 +1,8 @@
 /**
  * Copy the final exam runs into eval/runs/<run-id>/ so anyone can check which model served each call without the
- * private logs. For each run: results.json, run-meta.json, trace.jsonl.gz and receipts.jsonl.gz. Tokens, local
- * paths, hostnames and addresses other than the local machine, usernames, e-mail addresses and the values of
- * secret environment variables are redacted from the results and the trace. The receipts are copied untouched
- * (their signatures cover their content); if one matches a redaction pattern the export stops.
+ * private logs. For each run: results.json, run-meta.json, trace.jsonl.gz and receipts.jsonl.gz. Results and trace
+ * are redacted; receipts are copied untouched (their signatures cover them), and one that matches a redaction pattern
+ * stops the export.
  *
  *   npm run evidence:export                   the newest complete run of every variant, and the held-out run
  *   npm run evidence:export -- --only routed,single
@@ -154,8 +153,8 @@ for (const { file, r } of chosen.values()) {
     finished_at: r.finished_at,
     policy_version: r.policy_version,
     features: r.features ?? null,
-    // How the Nightshift cockpit bound each app identity during the run (also inside features).
     nightshift_build: nightshiftBuildAt(r.started_at),
+    // How the Nightshift cockpit bound each app identity during the run (also inside features).
     app_binds: (r.features as { cockpit_binds?: Record<string, string> } | undefined)?.cockpit_binds ?? null,
     models: r.models,
     cases: r.cases.length,

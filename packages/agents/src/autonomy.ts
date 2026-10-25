@@ -10,19 +10,8 @@ import { readDecisionRecords } from "./record.js";
  * and a block always needs two different approvers. These locks are fixed in the policy schema and are not
  * conditions here, so no setting can loosen them.
  *
- * A close is automatic only when every condition holds:
- *   level_one            the policy is at level 1 and the kill switch is off
- *   outcome_is_close     the final recommendation is a close
- *   deterministic_close  code, from the structured fields alone, also concluded a close and found it settled
- *   decision_agrees      the decision agent recommended a close
- *   critic_approved      the critic re-read the cited facts and approved
- *   challenger_agrees    the challenger found no credible argument (or was not needed)
- *   evidence_standard    free text relied on meets the documentary standard (or none was relied on)
- *   no_data_quality_issue no data-quality rule fails on the records
- *   no_policy_block      the policy guard raised nothing
- *   screener_clean       the screener read all of the free text on a local route and recorded no signal at all
- *   confidence           the confidence is at least the policy's line
- * and then within the daily cap; a random share (at least 5 percent) goes to a person as a quality-assurance sample.
+ * A close is automatic only when every condition in `conditionsOf` holds and the daily cap is not reached; even then a
+ * random share goes to a person as a quality-assurance sample.
  */
 
 export type AutonomyOutcome = AutonomyRecord["outcome"];

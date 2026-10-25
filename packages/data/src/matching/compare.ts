@@ -267,7 +267,7 @@ function meetsTrueMatch(i: AssessInput): boolean {
   return i.nameHigh && i.dob.status === "exact" && (i.country.status === "match" || i.identifiers.status === "match");
 }
 
-/** false_positive (version 1 wording, unchanged in version 2, which adds the documentary evidence standard): date of birth conflicts, nationality is known and differs, and no document number matches. */
+/** false_positive@2, structured part (version 2 only adds the documentary evidence standard): date of birth conflicts, nationality is known and differs, and no document number matches. */
 function meetsFalsePositive(i: AssessInput, customerNationality: string | null): boolean {
   return (
     i.dob.status === "conflict" &&

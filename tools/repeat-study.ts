@@ -1,10 +1,8 @@
 /**
- * Small study, 12 cases x 3 runs, not part of the recorded evaluation: held-out v4 run three times by the full system
- * (privacy mode off) and three times by the "Nemotron alone" baseline (one cloud Ultra call per case on the structured
- * case facts). Per system: wrong closes, clears, acceptable outcomes, escalated share, and how often the three runs
- * agree on a case. Calibration: the Brier score of the confidence given to the chosen outcome, one-vs-rest (1 when the
- * chosen outcome is acceptable for the case, else 0), for these runs and the other labelled runs of 24 Oct 2026 that
- * recorded a confidence; baselines without a real confidence are marked n/a.
+ * Small study, not part of the recorded evaluation: held-out v4 (12 cases) run three times by the full system (privacy
+ * mode off) and three times by the "Nemotron alone" baseline. Per system: wrong closes, clears, acceptable outcomes,
+ * escalated share and run-to-run agreement. Calibration is the one-vs-rest Brier score of the confidence given to the
+ * chosen outcome (1 when it is acceptable for the case, else 0); baselines without a real confidence are marked n/a.
  *
  *   npm run study:repeat              # writes eval/repeat-study.json and the block in docs/NEMOTRON.md
  *   npm run study:repeat -- --check
@@ -126,7 +124,7 @@ function brier(label: string, cases: Case[]): Calibration {
 
 const full = read("repeat", (f) => /-heldout4-repr\d-routed\.json$/.test(f));
 const alone = read("repeat", (f) => /-heldout4-r\d-nemotron_alone\.json$/.test(f));
-// The fairer arm (25 Oct 2026): Nemotron alone given the same free text the screener reads, same prompt otherwise.
+// The fairer arm: Nemotron alone given the same free text the screener reads, same prompt otherwise.
 const aloneText = read("repeat", (f) => /-heldout4-text\d-nemotron_alone\.json$/.test(f));
 let study:
   | {
@@ -313,7 +311,6 @@ const setsTable = sets
     ].join("\n")
   : undefined;
 
-// One generated sentence, both Nemotron-alone arms beside the full system, for the README, docs and results page.
 /** "3–5" (or "3" when every run gave the same count). */
 const span = (xs: number[]) => {
   const lo = Math.min(...xs);

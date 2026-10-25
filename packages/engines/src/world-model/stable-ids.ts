@@ -27,8 +27,7 @@ export function canonicalJson(value: unknown): string {
 }
 
 /**
- * NFKD normalise, strip combining marks, strip zero-width characters, lower-case, collapse whitespace, trim.
- * "Jose Garcia" and its accented spelling normalise alike, and a non-breaking space becomes a plain space.
+ * NFKD normalise, strip combining marks and zero-width characters, lower-case, collapse whitespace.
  * It never abbreviates or stems: "Acme Corp" and "Acme Corporation" stay different names.
  */
 export function normalizeName(name: string): string {
@@ -45,11 +44,7 @@ export function entityIdFromName(type: string, name: string): string {
   return `ent_${sha256Hex(`${type}:${normalizeName(name)}`).slice(0, 16)}`;
 }
 
-/**
- * Context id. Externally keyed contexts use the literal grammar (the external id is already unique within
- * its system). Contexts keyed by attributes are hashed together with the parent, so week 14 under season
- * 145 is a different context than week 14 under season 144.
- */
+/** Attribute-keyed context id, hashed with the parent so the same attributes under different parents differ. */
 export function contextIdFromAttrs(type: string, attrs: Record<string, unknown>, parent?: string): string {
   return `ctx_${sha256Hex(`${type}:${canonicalJson(attrs)}:${parent ?? ""}`).slice(0, 16)}`;
 }

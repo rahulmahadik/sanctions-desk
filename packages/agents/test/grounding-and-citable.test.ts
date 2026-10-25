@@ -141,7 +141,7 @@ describe("span grounding", () => {
     expect(guard.decision).not.toBe("CLOSE_FALSE_POSITIVE");
     expect(guard.verdicts.find((v) => v.guard === "screener")?.verdict).toBe("block");
 
-    // The same span made grounded blocks the close, as before.
+    // The same span made grounded blocks the close too.
     const at = text.indexOf("brother");
     const groundedEvidence = { ...evidence, screener: asFacts(check(text, at, at + 7)) };
     const blocked = applyPolicyGuard({

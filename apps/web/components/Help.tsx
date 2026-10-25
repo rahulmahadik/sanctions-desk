@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { REASON_LENGTH } from "../lib/format";
 
-/** The same steps, in the same order and words, as docs/USER_GUIDE.md, in fewer words. */
+/** The steps of docs/USER_GUIDE.md, in the same order, shortened. */
 export const HELP_SECTIONS: { id: string; title: string }[] = [
   { id: "help-start", title: "Start it" },
   { id: "help-user", title: "Choose a demo user" },

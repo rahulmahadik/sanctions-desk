@@ -1,13 +1,9 @@
 /**
  * The adversarial texts of `npm run adversarial:guard`, each through a full live review instead of the guard alone.
- * Each inbound text is placed where it was written to sit (customer note, payment reference or listed-party remark)
- * in an alert whose structured data closes: the review reads that alert through Zetaris as usual, and only the text
- * values in the rows Zetaris returned are replaced, in memory. The three free-text fields are blanked and the test
- * text is put in its one field, so it is the only free text in the case. Nothing is written to Zetaris or to any
- * source. Each base alert is also reviewed once with all three fields blank, so a hold can be told apart from what
- * the alert does anyway.
- *
- * The drafts (tipping-off and clean) are not part of a review; they go to the outbound guard, as in the guard test.
+ * Each inbound text is put in its own free-text field of an alert whose structured data closes, by replacing values in
+ * the rows Zetaris returned, in memory only: nothing is written to Zetaris or any source. Each base alert is also
+ * reviewed with all free text blank, so a hold can be told apart from what the alert does anyway. Drafts go to the
+ * outbound guard, as in the guard test.
  *
  *   npm run adversarial:review -- --dry-run        list what would run, call nothing
  *   npm run adversarial:review                     every text (about two minutes a review)

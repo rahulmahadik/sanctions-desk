@@ -362,7 +362,6 @@ export function secretValues(cfg: Config): string[] {
     cfg.zetaris.tokens.evidence,
     cfg.zetaris.tokens.reviewer,
     cfg.zetaris.tokens.eval,
-    // The optional per-step identities: each is a Zetaris credential like the three above.
     cfg.zetaris.tokens.ownership,
     cfg.zetaris.tokens.critic,
     cfg.zetaris.tokens.memory,

@@ -1,6 +1,6 @@
 import type { Metrics } from "./eval.js";
 
-/** A seeded shuffle, so a random batch can be repeated exactly. */
+/** A seeded random number generator, so a random batch can be repeated exactly. */
 function seeded(seed: number): () => number {
   let s = seed >>> 0 || 1;
   return () => {
@@ -9,7 +9,7 @@ function seeded(seed: number): () => number {
   };
 }
 
-/** K cases chosen at random but repeatably from the given kinds. */
+/** K items chosen at random but repeatably. */
 export function pickBatch<T>(items: readonly T[], k: number, seed: number): T[] {
   const rand = seeded(seed);
   const copy = [...items];

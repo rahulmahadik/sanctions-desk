@@ -1,9 +1,7 @@
 /**
- * The "Nemotron alone" baseline: one Nemotron call per case, given the structured case facts the decision step reads
- * (the same rows, never the free text: no customer note, payment reference or list remark) and the approved definitions,
- * and nothing else. No safety guard, no screener, no first finding or comparison computed by code, no ownership engine,
- * no memory, no critic, no challenger, no policy guard. Whatever the model answers is the outcome. The prompt goes
- * through the same free-text check as the decision step before it is sent.
+ * The "Nemotron alone" baseline: one Nemotron call per case, given only the structured case facts the decision step
+ * reads (never the free text) and the approved definitions. None of the system's guards, engines, memory, critic or
+ * challenger run; whatever the model answers is the outcome.
  *
  *   npm run exam:alone                                  # the 70 cases
  *   npm run exam:alone -- --exam heldout4               # a held-out set (heldout, heldout2, heldout3 or heldout4)
@@ -14,9 +12,8 @@
  *       list remarks). A study arm only: it sends that text to the cloud model, which the desk itself never does, so the
  *       desk's free-text check is skipped for these calls and the result says so. Synthetic data only.
  *
- * The call is sent under the decision step's app identity (the one the cockpit binds for reasoning), so the same model
- * lane serves it and its receipt is stored like any other. Drafts (tipping-off cases) get one yes-or-no call. The result
- * is saved in the same format as `npm run exam`, as the variant "nemotron_alone".
+ * The call goes out under the decision step's app identity, so the same model lane serves it and its receipt is stored
+ * like any other. Drafts (tipping-off cases) get one yes-or-no call. Saved like `npm run exam`, variant "nemotron_alone".
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";

@@ -5,11 +5,9 @@
  *   SAMPLE_MODE=true npm run -s case -- input_examples/run-ALR-0004.json      (saved data, no services needed)
  *   SAMPLE_MODE=true npm run -s case -- input_examples/run-ALR-0004.json | jq          (the trace lines stay on stderr)
  *
- * The file holds the body POST /run accepts ({"alert_id": "ALR-0004"} and optionally run_id, alert_type, options).
- * The review goes through the same route as POST /run, inside this process: same configuration, same data path,
- * same models, same trace file and sealed record. While it runs, one short line per trace event is printed to stderr
- * (turn that off with TRACE_STDOUT_PRETTY=false); at the end one JSON object is printed to stdout, so it can be piped. A failure is a structured error
- * and a non-zero exit code, never an invented decision.
+ * The file holds the body POST /run accepts. The review goes through the same route as POST /run, in this process.
+ * Trace lines go to stderr (off with TRACE_STDOUT_PRETTY=false); one JSON object goes to stdout. A failure is a
+ * structured error and a non-zero exit code, never an invented decision.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -60,7 +58,6 @@ function fail(type: string, message: string, sampleMode = process.env.SAMPLE_MOD
   });
 }
 
-/** The request body from the file named on the command line. */
 function readRequest(): unknown {
   const file = process.argv.slice(2).find((a) => !a.startsWith("-"));
   if (!file) fail("validation", "name a request file, for example: npm run case -- input_examples/run-ALR-0004.json");

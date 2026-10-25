@@ -5,28 +5,22 @@ import { type Relationship, WorldModel } from "../world-model/index.js";
  * Ownership by listed parties: is a company owned, directly or through a chain of owners, by blocked parties?
  *
  * Two measures are computed, and the threshold is met when either one reaches it:
- *  - OFAC's 50 percent rule (a cascade): a company owned 50 percent or more, in the aggregate, by one or more
- *    blocked parties is itself blocked, and its own holdings then count in full. So if a listed party owns 60% of
- *    a holding company that owns 70% of the customer, the holding company is blocked and the customer, 70% owned
- *    by it, is blocked too. Shares held by several blocked parties are added up when aggregation is on.
- *  - effective (look-through) ownership: along a chain, percentages multiply (70% of 80% is 56%), and separate
- *    paths to the same listed party add up (25% + 25% is 50%) when aggregation is on. It is kept because it shows
- *    each listed party's economic interest, and because counting it as well can only make the result stricter.
+ *  - OFAC's 50 percent rule (a cascade): a company owned 50 percent or more by blocked parties is itself
+ *    blocked, and its own holdings then count in full.
+ *  - effective (look-through) ownership: percentages multiply along a chain, and separate paths to the same
+ *    listed party add up when aggregation is on. Counting it as well can only make the result stricter.
  *
  * Shared rules:
  *  - the threshold counts exactly: 50 reaches a 50 threshold, 49.9 does not;
- *  - a percentage that is not on the register is unknown, never zero: a path with an unknown link can
- *    neither prove nor rule out control, so the result is "needs review";
- *  - circular ownership is detected, reported, and never followed twice, so it cannot hang;
- *  - chains longer than the policy depth are cut and reported (the policy answer is to escalate).
+ *  - a percentage missing from the register is unknown, never zero, so the result is "needs review";
+ *  - circular ownership is reported and never followed twice, so it cannot hang;
+ *  - chains longer than the policy depth are cut and reported.
  *
- * Why a plain computation and not the World Model's own traversal: the arithmetic needs every separate
- * path with its own product, but the engine's traversal visits each entity once. The World Model is used
- * as the store of record instead (OwnershipWorld): every edge is written with provenance and a validity
- * date, so the ownership picture can be read as of a past date, and the review evaluates what it reads back.
+ * A plain computation, not the World Model's traversal, because the arithmetic needs every separate path while
+ * the engine visits each entity once. The World Model is the store of record instead (OwnershipWorld).
  */
 
-/** One register row. These are the columns of the beneficial_owner table; every value is a string, as Zetaris returns it. */
+/** One beneficial_owner register row; every value is a string, as Zetaris returns it. */
 export interface OwnershipRow {
   ownership_id: string;
   owned_party_id: string;
@@ -52,10 +46,7 @@ export interface OwnershipOptions {
   maxChainDepth: number;
   /** Ignore ownership rows dated after this day (YYYY-MM-DD). */
   asOf?: string;
-  /**
-   * The percentage assumed for an "owned or controlled by" link on a published list, which carries none.
-   * `null` (the default) keeps it unknown.
-   */
+  /** Percentage assumed for a published-list "owned or controlled by" link, which carries none. `null` keeps it unknown. */
   controlLinkPercent?: number | null;
   /** Extra parties known to be listed, besides the owners the register marks as listed. */
   listedIds?: Iterable<string>;
@@ -247,10 +238,9 @@ interface Cascade {
 }
 
 /**
- * OFAC's rule for one company: add up what its blocked owners hold (an owner is blocked when it is listed or, in
- * turn, owned enough by blocked parties). An owner that cannot be decided, or a blocked owner with no percentage,
- * makes the answer unknown unless the known blocked share already reaches the threshold or cannot reach it.
- * `trail` runs from the subject to `node`; its length is the number of links followed to get here plus one.
+ * OFAC's rule for one company: add up what its blocked owners (listed, or in turn owned enough by blocked parties)
+ * hold. An undecidable owner, or a blocked owner with no percentage, makes the answer unknown unless the known
+ * blocked share already reaches the threshold or cannot reach it. `trail` runs from the subject to `node`.
  */
 function blockStatus(ctx: Cascade, node: string, trail: string[]): { status: BlockStatus; percent: number } {
   const { thresholdPercent, aggregate, maxChainDepth } = ctx.options;
@@ -380,10 +370,7 @@ const dayStart = (asOf: string): string => (/^\d{4}-\d{2}-\d{2}$/.test(asOf) ? `
 const partyId = (id: string): string => `party:bank:${id}`;
 const plainId = (id: string): string => id.replace(/^party:bank:/, "");
 
-/**
- * The ownership picture kept in the World Model: one entity per party and one `owned-by` edge per register
- * row, each with provenance and a validity date. Reading it back as of a date gives the picture then.
- */
+/** The ownership picture in the World Model: one `owned-by` edge per register row, with provenance and a validity date, so it can be read as of a past date. */
 export class OwnershipWorld {
   private readonly world: WorldModel;
   private readonly owners = new Map<string, Pick<OwnershipRow, "owner_party_kind" | "owner_name">>();
@@ -476,7 +463,6 @@ export class OwnershipWorld {
     return evaluateOwnership(this.rows(options.asOf), this.links(), subject, options);
   }
 
-  /** Every write is audited by the engine. */
   auditLength(): number {
     return this.world.audit().length;
   }

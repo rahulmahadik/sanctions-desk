@@ -77,7 +77,6 @@ const stateOf = (event: RunEvent): StepState => {
   return "done";
 };
 
-/** Record one step event on its node. */
 function applyToStep(step: StepView, event: RunEvent): void {
   step.events += 1;
   step.state = stateOf(event);

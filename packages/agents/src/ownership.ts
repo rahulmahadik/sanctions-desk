@@ -13,12 +13,9 @@ import type { MatchResult } from "./matching.js";
 import { type AgentDeps, clientFor, type Row } from "./types.js";
 
 /**
- * The Ownership step: who owns the customer, how much each listed owner effectively holds, whether blocked parties
- * own it at or above the policy threshold under the 50 percent rule (counted as a cascade), and so whether the
- * threshold is reached. The register is read level by level through Zetaris and written into the World Model, with
- * provenance and a validity date per row; the rule is evaluated on what the World Model gives back. The arithmetic
- * (the cascade, chains multiply, paths add, exactly the threshold counts, a missing percentage is unknown, loops
- * end) is the ownership engine's.
+ * The Ownership step: whether listed or blocked parties own the customer at or above the policy threshold (the
+ * 50 percent rule, counted as a cascade). The register is read level by level through Zetaris into the World Model;
+ * all the arithmetic is the ownership engine's.
  */
 
 export interface OwnershipEvidence {

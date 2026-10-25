@@ -12,10 +12,10 @@ import type { Secret } from "./secret.js";
  *
  *   Nightshift (primary)  ->  Ollama (backup)  ->  fallback-rules (sample mode only)
  *
- * Nightshift is always called with a pinned mode (meterless/fast, meterless/deep, ...), never
- * meterless/auto. If a mode is dead (HTTP 410, 400 class_no_route, or a cloud "Function not found") the next configured mode is
- * tried once; after that the call fails over to Ollama. Every attempt is reported with the mode we
- * requested and the model the runtime says answered.
+ * Nightshift is always called with a pinned mode (meterless/fast, meterless/deep, ...), never meterless/auto. If a mode
+ * is dead (HTTP 410, 400 class_no_route, or a cloud "Function not found") the next configured mode is tried once; after
+ * that the call fails over to Ollama. Every attempt is reported with the mode we requested and the model the runtime
+ * says answered.
  */
 
 export type { Lane } from "./modes.js";

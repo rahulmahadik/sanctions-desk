@@ -46,7 +46,7 @@ export const AgentModelSchema = z.strictObject({
   /**
    * The identity the fast retry is sent under after a failed or unusable try. A cockpit bind replaces the mode a request
    * asks for, so a retry under the same bound identity goes back to the same lane; "guard" sends it to the local model
-   * instead. Absent means the step's own identity. Added in policy version 6.
+   * instead. Absent means the step's own identity.
    */
   retryIdentity: z.enum(["default", "reasoning", "guard"]).optional(),
 });
@@ -95,8 +95,8 @@ const regexSource = nonEmpty.refine((s) => {
  * When a screener risk signal counts. A signal is grounded only when its span points into the field, the span's own
  * text holds a term of its type, and a name from the evidence (the listed name or an alias, the customer, the
  * counterparty) is in the span or within `nameWindowChars` of it. A signal that is not grounded is kept, recorded and
- * shown, and since policy version 8 still blocks a close: grounding is context for the reviewer. Types with no terms (for
- * example "other" and "instruction_to_reviewer") are not checked. Added in policy version 7.
+ * shown, and still blocks a close: grounding is context for the reviewer. Types with no terms (for example "other" and
+ * "instruction_to_reviewer") are not checked.
  */
 export const GroundingSchema = z
   .strictObject({
@@ -197,7 +197,7 @@ const PolicyShape = z.strictObject({
 
   /**
    * What a free-text note or payment reference must carry to count as documentary evidence, and not just a claim. A
-   * close that rests on a claim goes to NEED_MORE_INFO. Added in policy version 2; version 3 moved its wording into the approved definitions (false_positive@2).
+   * close that rests on a claim goes to NEED_MORE_INFO. Defaulted: policies before version 2 do not have it.
    */
   evidenceStandard: z
     .strictObject({
@@ -219,7 +219,8 @@ const PolicyShape = z.strictObject({
   /**
    * The screener reads the free text of a case (customer notes, payment references, list remarks) on the local model
    * and returns structured facts only. Those facts, never the text, are what the cloud models see. The model it runs
-   * on is `models.screener` (identity "guard", bound to the local model in the cockpit). Added in policy version 6.
+   * on is `models.screener` (identity "guard", bound to the local model in the cockpit). Defaulted: policies before
+   * version 6 do not have it.
    */
   screener: z
     .strictObject({

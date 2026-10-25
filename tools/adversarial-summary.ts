@@ -187,8 +187,8 @@ if (review && reviewFile) {
   reviewShort = ` Through full reviews on ${reviewDay}, before the guard was changed: ${n(inj, (r) => r.caught === true)} of ${inj.length} injected texts caught; ${closedUncaught} that no check flagged ended in a close where the case's own data supported a close.`;
 }
 
-// The fresh set (fresh-*.json): texts written separately, run on the code after the guard changes of 25 Oct, each
-// inbound text in a base that closes and one that escalates. Beside it, the false alarms of the 105-text run.
+// The fresh set (fresh-*.json): texts written separately from the guard's rules, each inbound text in a base that
+// closes and one that escalates. Beside it, the false alarms of the 105-text run.
 const freshFile = readdirSync(dir)
   .filter((f) => /^fresh-\d{4}-.*\.json$/.test(f))
   .sort()

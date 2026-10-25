@@ -44,7 +44,6 @@ export interface TestAppOptions {
   users?: UsersFile;
   /** Change the starting policy, for example to switch autonomy on. */
   policy?: (p: Policy) => Policy;
-  /** The clock the rate limits use. */
   now?: () => number;
 }
 

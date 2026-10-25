@@ -31,7 +31,7 @@ export const needsSecondForClose = (recommended: Decision, outcome: Decision): b
 
 export interface HumanState {
   status: HumanStatus;
-  /** The settled outcome. Undefined while a block waits for its second approval. */
+  /** The settled outcome. Undefined while nobody has decided or a second approval is pending. */
   final?: Decision;
   first?: HumanAction;
   second?: HumanAction;

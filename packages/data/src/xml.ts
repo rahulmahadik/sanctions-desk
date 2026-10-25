@@ -22,7 +22,6 @@ export function child(node: XmlNode | undefined, name: string): XmlNode | undefi
   return node?.children.find((c) => c.name === name);
 }
 
-/** All children with this name. */
 export function children(node: XmlNode | undefined, name: string): XmlNode[] {
   return node ? node.children.filter((c) => c.name === name) : [];
 }
@@ -37,7 +36,6 @@ export interface StreamOptions {
   /** Names of elements to hand to `onRecord`. Records do not nest: the outermost match wins. */
   recordNames: ReadonlySet<string>;
   onRecord: (node: XmlNode) => void;
-  /** Called with the attributes and name of the root element. */
   onRoot?: (name: string, attrs: Record<string, string>) => void;
 }
 
@@ -54,7 +52,6 @@ export function parseXmlString(xml: string, options: StreamOptions): void {
   parser.write(xml).close();
 }
 
-/** Parse an XML file as a stream. */
 export async function parseXmlFile(path: string, options: StreamOptions): Promise<void> {
   const parser = createParser(options);
   const stream = createReadStream(path, { encoding: "utf8", highWaterMark: 1 << 20 });

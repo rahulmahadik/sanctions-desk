@@ -1,9 +1,6 @@
 /**
- * Build the static API documentation site in site/: the OpenAPI document (from the API's own code, no server), the
- * architecture diagram and charts the landing page shows, and the "Recorded runs" pages (site/runs/) replayed from the
- * committed run exports; it exits 1 if a run file or receipt is missing or a receipt does not verify. The Pages
- * workflow runs the same command and publishes the
- * folder; locally, open site/index.html after it, or serve the folder with any static file server.
+ * Build the static API documentation site in site/ (see tools/lib/site.ts). Exits 1 if a run file or receipt is
+ * missing or a receipt does not verify. The Pages workflow runs the same command and publishes the folder.
  *
  *   npm run site:build                   builds into site/
  *   npm run site:build -- --out <dir>    builds a complete copy (pages included) into another folder

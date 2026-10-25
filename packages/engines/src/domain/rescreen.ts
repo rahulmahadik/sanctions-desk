@@ -10,9 +10,8 @@ import { type ChunkConfig, Markovian, type MarkovianRun } from "../markovian/ind
  *    release candidate for a person to confirm; an earlier close has nothing left to release;
  *  - an unchanged entry: nothing to do.
  *
- * The work is cut into bounded batches. It runs on the Markovian engine as a chain of chunks with a small
- * carried state (the cursor and the running counts), so a very large portfolio is processed in steps and a
- * run that hits the chunk limit can be resumed from the cursor it returns.
+ * Runs on the Markovian engine in bounded batches with a small carried state (cursor and counts), so a run
+ * that hits the chunk limit can be resumed from the cursor it returns.
  */
 
 export type EarlierDecision = "CLOSE_FALSE_POSITIVE" | "ESCALATE_L2" | "RECOMMEND_BLOCK" | "NEED_MORE_INFO";
@@ -52,8 +51,8 @@ export interface RescreenCandidate {
   entry_id: string;
   earlier_decision: EarlierDecision;
   reason_code: ReasonCode;
-  /** The hash recorded then and the hash now (absent when the entry is gone). */
   earlier_hash: string;
+  /** Absent when the entry is gone. */
   current_hash?: string;
   current_snapshot_id?: string;
 }
@@ -77,7 +76,6 @@ export interface RescreenResult {
 const DEFAULT_BATCH = 50;
 const HOLDING: readonly EarlierDecision[] = ["ESCALATE_L2", "RECOMMEND_BLOCK"];
 
-/** Judge one disposition against the current entry. */
 export function judgeDisposition(
   d: DispositionRef,
   current: CurrentEntry | undefined,

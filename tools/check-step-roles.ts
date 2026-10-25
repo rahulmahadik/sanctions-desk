@@ -1,10 +1,9 @@
 /**
  * Check the optional per-step Zetaris identities against the platform itself: each step's token must read every
  * table its role was granted, and Zetaris must refuse it a table it was not granted. The calls go straight to the
- * Zetaris REST API, past the application's own allow-lists, so a refusal can only come from Zetaris. Every table of
- * the semantic layer a step was not granted is tried (identifier tables ask for the identifier number itself), and
- * each step tries to write to a table it was granted. The write statements touch no row even if one were allowed
- * (`INSERT ... SELECT ... WHERE 1 = 0`, `DELETE ... WHERE 1 = 0`), and the row count is read before and after.
+ * Zetaris REST API, past the application's own allow-lists, so a refusal can only come from Zetaris. Each step also
+ * tries to write to a granted table with statements that touch no row even if allowed (`WHERE 1 = 0`), and the row
+ * count is read before and after.
  *
  *   npm run check:step-roles -- --dry-run      prints every statement it would send, sends nothing
  *   npm run check:step-roles                   prints each check

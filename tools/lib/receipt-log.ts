@@ -1,12 +1,9 @@
 /**
  * The receipt log of the static site (site/receipts/): every model call of every committed run export, one page per
- * run, with the mode the desk asked for, the model the trace recorded, the model the signed receipt names, and the
- * result of checking the signature when the page was built. It reads only eval/runs/<run-id>/ (the trace and the
- * receipts) and shows ids, steps, models, timings and token counts, never prompt text.
+ * run. It reads only eval/runs/<run-id>/ and shows ids, steps, models, timings and token counts, never prompt text.
  *
- * The build stops (throws RecordedRunError) when a call names a receipt the export does not hold, when a signature
- * does not verify, when the trace and the receipt disagree, or when the run fails `npm run evidence:verify`, so the
- * published log can only show receipts that check out against the committed files.
+ * The build throws RecordedRunError when a receipt is missing, does not verify, disagrees with the trace, or the run
+ * fails `npm run evidence:verify`, so the published log only shows receipts that check out.
  */
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";

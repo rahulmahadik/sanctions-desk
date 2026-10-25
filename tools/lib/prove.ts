@@ -58,7 +58,7 @@ export async function runCheck(check: Check, now: () => number = Date.now): Prom
 
 const seconds = (ms: number): string => `${(ms / 1000).toFixed(1)} s`;
 
-/** One line per check: `PASS  Name: detail (1.2 s)`. */
+/** `PASS  Name: detail (1.2 s)` */
 export function formatLine(r: CheckResult): string {
   return `${r.status}  ${r.name}: ${r.detail} (${seconds(r.ms)})`;
 }

@@ -1,8 +1,6 @@
 /**
- * Check an exported run from its own files: every receipt's Ed25519 signature, that every model call in the trace
- * has its receipt, that the model the trace names is the model the signed receipt says served the call, which
- * model served how many calls of each step, and that every file matches the hash the run's manifest recorded at
- * export, or differs only by the documented change in eval/runs/HASH-CHANGES.json (npm run evidence:hash-changes).
+ * Check an exported run from its own files (see tools/lib/evidence.ts): receipt signatures, a receipt for every model
+ * call, matching models, and file hashes against the manifest or the documented change in eval/runs/HASH-CHANGES.json.
  *
  *   npm run evidence:verify -- eval/runs/<run-id>
  *   npm run evidence:verify                       every run in eval/runs and eval/studies/<study>/

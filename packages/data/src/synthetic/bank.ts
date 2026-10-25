@@ -343,8 +343,8 @@ export function buildBank(
   const heldout = heldoutCaseIds(hb.cases);
   const tablesWithHeldout = structuredClone(tables);
 
-  // The second held-out set: built after the first, with its own seed and marker, and without reusing a listed party
-  // that the first set used. The rows above are copied before it is added, so they do not change.
+  // Each later held-out set has its own seed and marker, reuses no listed party an earlier set used, and is added
+  // after the rows above are copied, so those rows do not change.
   const hb2 = new BankBuilder(
     createRng(`${options.seed}#heldout2`),
     `${options.seed}#heldout2`,
@@ -358,8 +358,6 @@ export function buildBank(
   const heldout2 = heldout2CaseIds(hb2.cases);
   const tablesWithHeldout2 = structuredClone(tables);
 
-  // The third held-out set: built after the second, with its own seed and marker, and without reusing a listed party
-  // that either earlier set used. The rows above are copied before it is added, so they do not change.
   const hb3 = new BankBuilder(
     createRng(`${options.seed}#heldout3`),
     `${options.seed}#heldout3`,
@@ -376,9 +374,7 @@ export function buildBank(
   const heldout3 = thirdSet ? heldout3CaseIds(hb3.cases) : [];
   const tablesWithHeldout3 = structuredClone(tables);
 
-  // The fourth held-out set: built after the third, with its own seed and marker, and without reusing a listed party
-  // that the main exam or an earlier set used. Like the third set it names its listed parties outright, so it is
-  // built for the default seed only. The rows above are copied before it is added, so they do not change.
+  // Like the third set, the fourth names its listed parties outright, so it is built for the default seed only.
   const hb4 = new BankBuilder(
     createRng(`${options.seed}#heldout4`),
     `${options.seed}#heldout4`,

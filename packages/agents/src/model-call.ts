@@ -162,7 +162,7 @@ const identityFor = (
 /**
  * Whether a try asks for schema-constrained output. Only the step's own route does: a retry sent to the local model
  * (the retry identity) and the backup get a plain JSON answer, because the local model answers schema-constrained
- * requests with an empty response (measured 24 Oct 2026). Either way the answer is checked against the schema.
+ * requests with an empty response. Either way the answer is checked against the schema.
  */
 function structuredFor<T extends z.ZodType>(
   deps: AgentDeps,
@@ -365,7 +365,7 @@ async function askRound<T extends z.ZodType>(
   return answeredRound(deps, options.agent, ctx, calls, config.thinking, tried);
 }
 
-/** Ask the agent's configured model for one JSON object that matches `schema`. Tries again once on a bad answer. */
+/** Ask the agent's configured model for one JSON object that matches `schema`, up to `maxAttempts` tries. */
 export async function askJson<T extends z.ZodType>(
   deps: AgentDeps,
   options: AskJsonOptions<T>,
@@ -389,8 +389,8 @@ export async function askJson<T extends z.ZodType>(
 
 /**
  * Why no usable answer came back. "provider": the model service failed or answered with nothing (an HTTP error, a
- * timeout, an empty answer). "parsing": the model answered but not in a form we can use. The two are reported
- * separately because only the second is ours to fix.
+ * timeout, an empty answer). "parsing": the model answered but not in a form we can use. "withheld": the call was never
+ * made. Reported separately because only "parsing" is ours to fix.
  */
 export type UnavailableCause = "provider" | "parsing" | "withheld";
 

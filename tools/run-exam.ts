@@ -278,8 +278,8 @@ function codeVersion(): string {
 
 /**
  * What this run had: the code version and the settings that change behaviour, so a report can say which runs had what.
- * `commit` is read when the run starts (runs recorded before 25 Oct 2026 read it when they ended); `commit_at_end` is
- * added only when the checkout changed during the run.
+ * `commit` is read when the run starts (older result files without `commit_read` read it at the end); `commit_at_end`
+ * is added only when the checkout changed during the run.
  */
 function runFeatures(p: Policy) {
   const atEnd = codeVersion();

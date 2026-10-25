@@ -24,7 +24,7 @@ export type ZetarisRole = (typeof ZETARIS_ROLES)[number];
 
 /**
  * Identities of single review steps, each with a Zetaris role granted only the tables that step reads. A step uses
- * its own identity only when its token is configured; otherwise its reads run as `evidence`, exactly as before.
+ * its own identity only when its token is configured; otherwise its reads run as `evidence`.
  */
 export const STEP_ROLES = [
   "ownership",
@@ -198,10 +198,7 @@ export function createZetarisClient(options: ZetarisClientOptions): ZetarisClien
     };
   }
 
-  /**
-   * A step identity without its own token reads as the evidence identity, so nothing changes until it is set up.
-   * Offline replay uses no credential at all, so it keeps the evidence identity whatever tokens are configured.
-   */
+  /** Offline replay uses no credential, so step identities read as evidence there whatever tokens are set. */
   const effective = (role: ZetarisRole): ZetarisRole =>
     (STEP_ROLES as readonly ZetarisRole[]).includes(role) && (options.offline || !z.tokens[role]) ? "evidence" : role;
 
@@ -247,9 +244,8 @@ export function createZetarisClient(options: ZetarisClientOptions): ZetarisClien
       }
       const first = await send(role, verdict, credential, signal);
       if (first.ok) return first.result;
-      // A role token the platform refuses (its permissions are not in place yet) falls back to the admin key once,
-      // visibly: the failed attempt is recorded under the role, the retry under "fallback", and the role is not
-      // tried again. The SQL guard above has already limited what the retry can read.
+      // A role token the platform refuses falls back to the admin key once, visibly: the failed attempt is recorded
+      // under the role, the retry under "fallback", and the role is not tried again. The guard above still applies.
       if (first.denied && credential.source === "role" && z.apiKey && z.fallbackOnDenied) {
         refused.add(role);
         const retry = await send(role, verdict, { token: z.apiKey.reveal(), source: "fallback" }, signal);

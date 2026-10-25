@@ -78,7 +78,6 @@ function VerifyReceipt({ receiptId, traceModel }: { receiptId: string; traceMode
   );
 }
 
-/** True when the model named in a receipt is a Nemotron model. */
 const isNemotron = (model: string | null | undefined): boolean => /nemotron/i.test(model ?? "");
 
 /** Checks every receipt of the recommendation in turn and says how many verified and how many name a Nemotron model. */

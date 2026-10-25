@@ -7,9 +7,8 @@ import { describe, expect, it } from "vitest";
 import { assessNote } from "../src/index.js";
 
 /**
- * The documentary standard was added before the held-out run, and the held-out labels were not changed. This records
- * which of the eight "clear" cases carry text that meets the standard, so the report can say how many closes are
- * reachable under it.
+ * Records which of the eight "clear" held-out cases carry text that meets the documentary standard (the labels were
+ * not changed for it), so the report can say how many closes are reachable under it.
  */
 function sampleTables(): TableRows {
   const dir = resolveProjectPath("data/sample");

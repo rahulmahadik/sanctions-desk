@@ -6,8 +6,8 @@ import { type Candidate, company, fullDobOf, isLatin, nationalityOf, otherCountr
  * The second held-out set. It has the same families as the first (risk stated only in free text, clears backed by
  * documentary evidence, notes that look documentary but are only claims) with new names, new wording and the text
  * in other places, some of it not in English. The labels apply the approved definitions and the documentary evidence
- * standard (policy version 5, `false_positive@2`) exactly as written, and were written before any system output on
- * this set was seen. The set is frozen when its file hash is recorded in `eval/cases/README.md`.
+ * standard (policy version 5, `false_positive@2`) exactly as written. The set is frozen once its file hash is
+ * recorded in `eval/cases/README.md`.
  *
  * Every row is built with its own id marker (CUST-J0001, ALR-J0001, ...) and from its own seed, so adding the set
  * leaves every other row of the synthetic bank, including those of the first held-out set, exactly as it was.
@@ -300,8 +300,8 @@ export function buildHeldout2Cases(b: BankBuilder): void {
     acceptable: [] as ExamCase["acceptable"],
     mustNot: ["RECOMMEND_BLOCK"] as ExamCase["must_not"],
   };
-  // Relabelled before the set was first run: the reference text meets the standard, but the counterparty has no
-  // usable country, which the written policy says cannot be cleared.
+  // The reference text meets the standard, but the counterparty has no usable country, which the written policy
+  // says cannot be cleared.
   const noUsableCountry = {
     expected: "NEED_MORE_INFO" as const,
     acceptable: ["ESCALATE_L2"] as ExamCase["acceptable"],
@@ -529,7 +529,7 @@ export function buildHeldout2Cases(b: BankBuilder): void {
     });
   }
 
-  // F. Added before any run: risks where the structured fields alone meet the false-positive definition (the birth
+  // F. Risks where the structured fields alone meet the false-positive definition (the birth
   // date conflicts, the nationality differs, no document matches), so plain rules would close, and the risk is stated
   // only in free text.
   const risk = {
@@ -587,7 +587,7 @@ export function buildHeldout2Cases(b: BankBuilder): void {
     });
   }
 
-  // G. Added before any run: clears the written policy allows. No birth date on record, the name matches exactly or
+  // G. Clears the written policy allows. No birth date on record, the name matches exactly or
   // matches a strong alias, the nationality differs, no document matches, and an English note meets the standard and
   // states a birth date, with its label, that conflicts with every listed date.
   {

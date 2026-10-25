@@ -22,19 +22,13 @@ import { blockingSignals, findInjection } from "./policy-guard.js";
 import type { AgentDeps } from "./types.js";
 
 /**
- * The screener. Customer notes, payment references and list remarks can carry risk that no structured field shows:
- * a customer who trades under a listed party's name, or who was introduced by a listed relative. A cloud model must
- * not be sent that text, so a local model reads it here and answers in structured form only:
+ * The screener. Free text (customer notes, payment references, list remarks) must not be sent to a cloud model, so a
+ * local model reads it here and answers in structured form only: risk signals as typed spans (never the words),
+ * documentary evidence, and whether the text tries to instruct the reviewer.
  *
- *   - risk signals: a type from a closed list, where in the text it was found (a field and a character range, never
- *     the words themselves) and how sure the model is;
- *   - documentary evidence: a check reference, a document number, a date, a date of birth, a nationality and a named
- *     party, each of which code checks against the text and against the evidence standard of the policy;
- *   - injection: whether the text tries to instruct the reviewer.
- *
- * Whatever the model says is checked by code. A value the text does not contain is dropped, a span that does not point
- * into the field is marked as such, and a document counts only if the evidence standard says it does. If the screener
- * cannot answer, the case cannot be closed.
+ * Code checks everything the model says: a value the text does not contain is dropped, a span that does not point into
+ * the field is marked, and a document counts only if the evidence standard says so. If the screener cannot answer, the
+ * case cannot be closed.
  */
 
 export const SCREENER_FIELDS = {
@@ -163,7 +157,7 @@ export interface ScreenerSignal {
   spanValid: boolean;
   /**
    * False when the span's text holds no term of the signal's type, or no name from the evidence in or near it (see
-   * grounding.ts). Such a signal is kept, recorded and shown, and still blocks a close (policy version 8).
+   * grounding.ts). Such a signal is kept, recorded and shown, and still blocks a close.
    */
   grounded: boolean;
   /** Why the signal is not grounded, in plain words; never the text. */
@@ -519,7 +513,7 @@ export async function screenFreeText(deps: AgentDeps, evidence: EvidenceBundle):
       prompt: screenerPrompt(deps, evidence, fields),
       schema: ScreenerAnswerSchema,
       // No schema-constrained output: the local model answers it with an empty response (HTTP 502 from the runtime,
-      // an empty answer from the backup), measured on 24 Oct 2026. The plain JSON answer is checked by the schema.
+      // an empty answer from the backup). The plain JSON answer is checked by the schema.
     });
     calls = asked.calls;
     const checked = validateScreenerAnswer(asked.value, {

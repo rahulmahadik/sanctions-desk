@@ -1,7 +1,6 @@
 /**
- * Take the screenshots of the main screens, from a running review desk, with headless Chrome (no extra package: it
- * talks to the browser over the DevTools protocol). Each page's text is checked first for local paths, user names,
- * e-mail addresses and tokens; a page that shows one is not saved.
+ * Take the screenshots of the main screens from a running review desk, with headless Chrome over the DevTools
+ * protocol (no extra package). A page whose text shows a local path, user name, e-mail address or token is not saved.
  *
  *   npm run screenshots -- --web http://localhost:3001 --alert ALR-0004 --out docs/media/screenshots
  *
