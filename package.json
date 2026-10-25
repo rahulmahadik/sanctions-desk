@@ -1,6 +1,6 @@
 {
   "name": "sanctions-desk",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "AI review desk for bank sanctions screening alerts. A human always makes the final call.",
   "license": "Apache-2.0",

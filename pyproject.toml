@@ -1,6 +1,6 @@
 [project]
 name = "sanctions-desk"
-version = "0.1.0"
+version = "1.0.0"
 description = "AI review desk for bank sanctions-screening alerts: setup and connection checks"
 readme = "README.md"
 authors = [

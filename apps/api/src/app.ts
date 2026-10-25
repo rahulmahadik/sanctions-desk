@@ -274,7 +274,7 @@ export async function buildApp(deps: AppDeps) {
   });
 
   if (config.server.docs) {
-    await app.register(swagger, { mode: "static", specification: { document: buildOpenApi("0.1.0") as never } });
+    await app.register(swagger, { mode: "static", specification: { document: buildOpenApi("1.0.0") as never } });
     await app.register(swaggerUi, { routePrefix: "/docs", uiConfig: { docExpansion: "list", deepLinking: false } });
   }
 
