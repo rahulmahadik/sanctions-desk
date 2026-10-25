@@ -79,11 +79,9 @@ describe("who answered the reasoning steps", () => {
     expect(f.decision_ultra_current).toBe("5 of 8");
     expect(f.decision_models_line).toContain("5 of 8 in the run of the current system.");
     expect(f.decision_lightning_note).toMatch(
-      /^Of the 3 decision calls Lightning answered .*, 2 were the desk's fast-lane retry/,
+      /^Lightning answered 3 decision calls in .*\. 2 were the desk's fast-lane retry/,
     );
-    expect(f.decision_lightning_note).toContain(
-      "1 was a deep-lane call where Nightshift's learned router predicted Ultra",
-    );
+    expect(f.decision_lightning_note).toContain("1 was a deep-lane call where Nightshift's router predicted Ultra");
   });
 });
 

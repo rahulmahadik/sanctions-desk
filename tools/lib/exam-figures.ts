@@ -260,7 +260,7 @@ export function rulesFraming(rules: ExamFigures | undefined, t: HeldoutTotals): 
   const v2 = t.hasV2
     ? ` (without v2: ${t.noV2.rulesWrong} of ${t.noV2.risk} against ${t.noV2.fullWrong} of ${t.noV2.risk})`
     : "";
-  return `**The rules on home ground.** The 70 exam cases are labelled from the same definitions the rules use, so the rules have a home advantage here (${rules.wrong} of ${rules.risk} risk cases wrongly closed, ${rules.made} of ${rules.clears} clears). On the frozen held-out rounds, written without those rules, the rules wrongly closed ${t.all.rulesWrong} of ${t.all.risk} risk cases against ${t.all.fullWrong} of ${t.all.risk} for the full system${v2}.`;
+  return `**The rules on home ground.** The 70 exam cases are labelled from the same definitions the rules use. So the rules have a home advantage here: ${rules.wrong} of ${rules.risk} risk cases wrongly closed, ${rules.made} of ${rules.clears} clears. The frozen held-out rounds were written without those rules. There the rules wrongly closed ${t.all.rulesWrong} of ${t.all.risk} risk cases against ${t.all.fullWrong} of ${t.all.risk} for the full system${v2}.`;
 }
 
 /** The held-out totals as a small table, to sit under a 70-case table. */

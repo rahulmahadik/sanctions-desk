@@ -14,6 +14,7 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } fro
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
+import { USL_ROLES, USL_STEP_ROLES, ZETARIS_ROLES } from "@sanctions-desk/zetaris";
 import { receiptFigure, receiptSentence } from "./lib/receipt-figure.js";
 import { receiptsLine } from "./lib/receipts-scan.js";
 
@@ -99,6 +100,18 @@ const backupLine = `${backup.reduce((t, b) => t + b.calls, 0)} answers in the re
   .map((b) => `${b.calls} ${b.step}`)
   .join(", ")})`;
 
+// The Zetaris roles, from the code: the three runtime roles and one read role per review step (USL_STEP_ROLES).
+const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const word = (x: number) => WORDS[x] ?? String(x);
+const shortRole = (name: string) => name.replace(/^role_/, "").replace(/_agent$/, "");
+if (USL_ROLES.length + USL_STEP_ROLES.length !== ZETARIS_ROLES.length)
+  throw new Error("the Zetaris roles in usl-spec.ts and client.ts disagree");
+const zetarisRoles = `${word(ZETARIS_ROLES.length)[0]?.toUpperCase()}${word(ZETARIS_ROLES.length).slice(1)} Zetaris roles, each with its own non-admin user and token: ${word(USL_STEP_ROLES.length)} per-step read roles (${USL_STEP_ROLES.map((r) => shortRole(r.role)).join(", ")}) plus ${USL_ROLES.map(
+  (r) => shortRole(r.name),
+)
+  .join(", ")
+  .replace(/, ([^,]*)$/, " and $1")}`;
+
 const drafts = exam.cases.filter((c) => c.group === "tipping_off").length;
 const facts: Record<string, string> = {
   exam_cases: String(exam.cases.length),
@@ -131,8 +144,9 @@ const facts: Record<string, string> = {
   who_critic: whoAnswered("Critic", false),
   who_challenger: whoAnswered("Challenger", false),
   backup_recorded: backupLine,
+  zetaris_roles: zetarisRoles,
   receipt_gate:
-    "The desk only uses a model answer whose Nightshift receipt is signed by the pinned key; otherwise it retries, then holds the case.",
+    "By design, the desk uses a model answer only when its Nightshift receipt is signed by the pinned key. Otherwise it retries, then holds the case.",
   harness_agent_files: `${harness.agent_files.naming_any_source} of ${harness.agent_files.scanned} agent files name any source, table or driver`,
   // Who answered the decision, critic and challenger calls, from the receipts of the exported runs (nemotron:scorecard).
   ...(read("eval/nemotron-scorecard.json") as { reasoning_facts: Record<string, string> }).reasoning_facts,

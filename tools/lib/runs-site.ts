@@ -32,6 +32,11 @@ export interface RecordedCase {
   shows: string;
   /** An output_examples/ folder exported from this same run and case, whose sealed record keeps the statements. */
   example?: string;
+  /**
+   * The one phrase of the case's synthetic free text this page may show, in the case description and case note in
+   * place of the withheld text, labelled "(synthetic)". It must be a part of the named field, word for word.
+   */
+  quote?: { field: string; phrase: string };
 }
 
 export const RECORDED_CASES: readonly RecordedCase[] = [
@@ -84,6 +89,7 @@ export const RECORDED_CASES: readonly RecordedCase[] = [
     caseFile: "eval/cases/heldout4.json",
     shows:
       "A held-out case (labels written before the run): the structured fields alone would close it, but the local screener found a relationship to the listed person in the customer note, and the case was escalated.",
+    quote: { field: "customer.notes", phrase: "the account is run for her uncle, Valeriy Igorevich Limarenko" },
   },
 ];
 
@@ -173,6 +179,10 @@ interface RecordQuery {
 interface SealedRecord {
   run_id: string;
   record_hash: string;
+  alert_ref?: string;
+  alert_type?: string;
+  decision?: string;
+  human?: unknown[];
   queries: RecordQuery[];
   guards: Array<{ guard: string; verdict: string; detail?: string }>;
 }
@@ -459,6 +469,23 @@ export function scrub(text: string, p: Protected): string {
   return out;
 }
 
+/**
+ * A case-file text (the case description or the case note) as HTML, scrubbed. When the case has an allowed quote, the
+ * first withheld part and the rest of its clause are replaced by that quote, labelled synthetic; nothing else is shown.
+ */
+export function quotedText(text: string, spec: RecordedCase, p: Protected): string {
+  const scrubbed = scrub(text, p);
+  if (!spec.quote || !scrubbed.includes(WITHHELD)) return esc(scrubbed);
+  const { field, phrase } = spec.quote;
+  if (!p.fields?.[field]?.includes(phrase))
+    throw new RecordedRunError(`${spec.slug}: the quote is not part of ${field} word for word`);
+  const MARK = "\u0000quote\u0000";
+  return esc(scrubbed.replace(new RegExp(`${escapeRe(WITHHELD)}[^,;.]*`), MARK)).replace(
+    MARK,
+    `<q class="case-quote">${esc(phrase)}</q> (synthetic)`,
+  );
+}
+
 // ---------------------------------------------------------------------------------------------------------------
 // Rendering
 
@@ -477,6 +504,30 @@ const OUTCOME_WORDS: Record<string, string> = {
   RECOMMEND_BLOCK: "Recommend a block (two people must confirm)",
 };
 const outcome = (code: string | undefined) => (code ? `${OUTCOME_WORDS[code] ?? code} (${code})` : "none");
+
+/** One line that explains the outcome codes and the raise-only guard, from the same words the pages use. */
+export const LEGEND = `${Object.entries(OUTCOME_WORDS)
+  .map(([code, words]) => `${code} = ${words.toLowerCase()}`)
+  .join(" · ")}. Raise-only: the policy guard can make an outcome more cautious, never less.`;
+
+/** The record a person's approval of each outcome leads to (packages/agents/src/actions.ts, planActions). */
+const NEXT_RECORD: Record<string, string> = {
+  CLOSE_FALSE_POSITIVE: "a closure note",
+  ESCALATE_L2: "an escalation ticket for a level-2 review",
+  NEED_MORE_INFO: "a request-for-information draft, which a person must approve before it is used",
+  RECOMMEND_BLOCK: "an escalation ticket that waits for a second, different approver",
+};
+
+/** "What the reviewer does next", from the sealed record: its outcome, its alert type and the human step so far. */
+export function nextStepLine(record: SealedRecord | undefined): string {
+  if (!record?.decision || !record.alert_ref) return "";
+  const decided = (record.human ?? []).length > 0;
+  const hold =
+    record.alert_type === "payment" && (record.decision === "ESCALATE_L2" || record.decision === "RECOMMEND_BLOCK")
+      ? ", and, for this payment alert, a draft hold instruction for the pending payment"
+      : "";
+  return `${decided ? "A person has acted on this record." : "The sealed record holds no human decision yet, so nothing has been prepared."} The reviewer approves ${outcome(record.decision)} or overrides it with a reason. On approval the desk prepares ${NEXT_RECORD[record.decision] ?? "the matching next-action record"} for ${record.alert_ref}${hold}. Nothing is sent.`;
+}
 
 /** How the run's outcome compares with the label in the case file today. */
 export function verdictOf(label: CaseLabel, got: string): "matches the label" | "acceptable" | "differs" {
@@ -641,7 +692,7 @@ function stepRows(c: LoadedCase, s: Scrubbed): string[][] {
     return [
       String(e.seq),
       esc(e.agent),
-      esc(e.action),
+      `<code>${esc(e.action)}</code>`,
       `<span class="st st-${esc(e.status)}">${esc(e.status)}</span>`,
       what,
       call ? esc(modelText(call)) : "",
@@ -773,7 +824,7 @@ export function renderCasePage(c: LoadedCase, p: Protected): string {
   const callRows = c.calls.map((x) => [
     String(x.seq),
     esc(x.agent),
-    esc(x.requested ?? ""),
+    x.requested ? `<code>${esc(x.requested)}</code>` : "",
     esc(modelText(x)),
     x.receipt ? `<code>${esc(x.receipt.id)}</code>` : "none",
     esc(x.receipt?.app ?? ""),
@@ -806,8 +857,9 @@ export function renderCasePage(c: LoadedCase, p: Protected): string {
 
   const runMeta = `${REPO_BLOB}eval/runs/${spec.runId}/run-meta.json`;
   const body = `      <p class="crumbs"><a href="index.html">Recorded runs</a> / ${esc(label.alert_id)}</p>
-      <h1>${esc(label.alert_id)}: ${s(label.title)}</h1>
+      <h1>${esc(label.alert_id)}: ${quotedText(label.title, spec, p)}</h1>
       <p class="what"><strong>What happened:</strong> ${s(whatHappened(c))}</p>
+      <p class="muted legend"><strong>Outcomes:</strong> ${esc(LEGEND)}</p>
 ${flaggedSection(c, p)}
       <p>${s(spec.shows)}</p>
 
@@ -821,8 +873,9 @@ ${flaggedSection(c, p)}
         <dt>Model calls</dt><dd>${c.calls.length} (${c.calls.filter((x) => modelText(x).includes("local")).length} local, ${c.calls.filter((x) => modelText(x).includes("cloud")).length} cloud); ${receipts.length} with a signed receipt, all verified</dd>
         <dt>Run</dt><dd><a href="${runMeta}">${esc(spec.runId)}</a>, policy version ${esc(c.events[0]?.policy_version ?? c.meta.policy_version ?? "?")}, ${c.events.length} steps in ${seconds} s</dd>
       </dl>
-      ${label.note ? `<p class="muted">Case note from the case file: ${s(label.note)}</p>` : ""}
+      ${label.note ? `<p class="muted">Case note from the case file: ${quotedText(label.note, spec, p)}</p>` : ""}
       ${relabelled}
+      ${nextStepLine(c.record) ? `<p class="next"><strong>What the reviewer does next:</strong> ${s(nextStepLine(c.record))}</p>` : ""}
 
 ${stoppedSection(c, s)}
 
@@ -848,7 +901,7 @@ ${table("Zetaris reads in this run", ["Agent", "Table", "Rows", "Statement", "Qu
 export function renderIndexPage(cases: Array<LoadedCase & { protect: Protected }>): string {
   const rows = cases.map((c) => [
     `<a href="${esc(c.spec.slug)}.html">${esc(c.label.alert_id)}</a>`,
-    esc(scrub(c.label.title, c.protect)),
+    quotedText(c.label.title, c.spec, c.protect),
     esc(outcome(c.result.got)),
     esc(outcome(c.label.expected)),
     esc(verdictOf(c.label, c.result.got)),
@@ -857,7 +910,15 @@ export function renderIndexPage(cases: Array<LoadedCase & { protect: Protected }
   ]);
   const body = `      <h1>Recorded runs</h1>
       <p>A few alerts from the committed run exports, shown step by step: which agent did what, which Nemotron model served each model call (local Lightning or cloud Ultra), the signed receipt for each call and whether it verifies, the Zetaris reads, and why a proposed close was stopped. The pages are built from the committed files by <code>npm run site:build</code>; the build stops if a receipt is missing or does not verify.</p>
-      <p class="muted">Customers and payments are synthetic; listed parties are public sanctions-list entries. Customer notes, payment references and list remarks are not shown, apart from the characters of a span the screener flagged, and identifier numbers are masked.</p>
+      <p class="muted">Customers and payments are synthetic; listed parties are public sanctions-list entries. Customer notes, payment references and list remarks are not shown, apart from the characters of a span the screener flagged${
+        cases.some((c) => c.spec.quote)
+          ? ` and one phrase labelled synthetic on ${cases
+              .filter((c) => c.spec.quote)
+              .map((c) => esc(c.label.alert_id))
+              .join(", ")}`
+          : ""
+      }, and identifier numbers are masked.</p>
+      <p class="muted legend"><strong>Outcomes:</strong> ${esc(LEGEND)}</p>
 ${table("The recorded cases", ["Alert", "Case", "Desk recommendation", "Label", "Compared", "Calls with a verified receipt", "Run"], rows)}
       <ul class="links">
 ${cases.map((c) => `        <li><a href="${esc(c.spec.slug)}.html">${esc(c.label.alert_id)}</a>: ${esc(scrub(c.spec.shows, c.protect))}</li>`).join("\n")}
@@ -880,6 +941,7 @@ code.sql { white-space: pre-wrap; display: block; min-width: 28ch; }
 .muted, .crumbs { color: #4b5563; }
 .note { background: #eef2ff; border-radius: 8px; padding: 8px 12px; margin: 0 0 12px; }
 .what { font-size: 1.05rem; }
+q.case-quote { background: #f1f5f9; border-radius: 4px; padding: 0 4px; }
 q.flagged-span { background: #fff7e6; border-radius: 4px; padding: 0 4px; white-space: pre-wrap; }
 .facts { display: grid; grid-template-columns: minmax(0, 14em) minmax(0, 1fr); gap: 4px 16px; background: #fff; border: 1px solid #d9dde3; border-radius: 8px; padding: 12px 14px; }
 .facts dt { font-weight: 600; }

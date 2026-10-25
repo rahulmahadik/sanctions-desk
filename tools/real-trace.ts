@@ -54,9 +54,9 @@ const rows = SEQ.map((seq) => {
   const e = events.find((x) => x.seq === seq);
   if (!e) throw new Error(`event ${seq} is not in ${EXAMPLE}/run-events.jsonl`);
   const model = e.model_used
-    ? `${e.model_requested ?? "?"} → ${e.model_used}${e.receipt ? ` (receipt \`${e.receipt.receipt_id}\`)` : ""}`
+    ? `\`${e.model_requested ?? "?"}\` → \`${e.model_used}\`${e.receipt ? ` (receipt \`${e.receipt.receipt_id}\`)` : ""}`
     : "";
-  return `| ${e.seq} | ${e.agent} | ${e.action} | ${e.target_agent ?? ""} | ${model} | ${e.status}${e.confidence !== undefined ? ` (${e.confidence})` : ""} | ${cell(clip(e.output_summary ?? "", 140))} |`;
+  return `| ${e.seq} | ${e.agent} | \`${e.action}\` | ${e.target_agent ?? ""} | ${model} | ${e.status}${e.confidence !== undefined ? ` (${e.confidence})` : ""} | ${cell(clip(e.output_summary ?? "", 140))} |`;
 });
 const blocked = record.guards.filter((g) => g.verdict === "block");
 if (blocked.length === 0) throw new Error("the example's record has no blocking guard verdict");

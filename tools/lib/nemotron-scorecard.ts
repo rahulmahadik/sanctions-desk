@@ -362,26 +362,27 @@ export function reasoningFacts(runs: readonly RunShares[]): Record<string, strin
   const inRun = (r: RunShares) => (r.system === null ? "the first system's run" : `the run of ${r.label}`);
   const lightningNote = (r: RunShares) => {
     const s = r.steps.decision;
+    const were = (k: number) => (k === 1 ? "was" : "were");
     const parts = [
       s.lightning_retry > 0
-        ? `${s.lightning_retry} ${s.lightning_retry === 1 ? "was" : "were"} the desk's fast-lane retry after an unusable or failed first answer (a deliberate fallback: the retry asks for \`meterless/fast\` under the guard identity, which the cockpit binds to the local lane, so Lightning answers)`
+        ? `${s.lightning_retry} ${were(s.lightning_retry)} the desk's fast-lane retry after an unusable or failed first answer. That retry is a deliberate fallback: it asks for \`meterless/fast\` under the guard identity, which the cockpit binds to the local lane.`
         : "",
       s.lightning_hedged > 0
-        ? `${s.lightning_hedged} ${s.lightning_hedged === 1 ? "was a deep-lane call" : "were deep-lane calls"} where Nightshift's learned router predicted Ultra but Lightning won a hedged race`
+        ? `${s.lightning_hedged} ${s.lightning_hedged === 1 ? "was a deep-lane call" : "were deep-lane calls"} where Nightshift's router predicted Ultra but Lightning won a hedged race.`
         : "",
       s.lightning_router > 0
-        ? `${s.lightning_router} ${s.lightning_router === 1 ? "was a deep-lane call" : "were deep-lane calls"} the router gave to Lightning`
+        ? `${s.lightning_router} ${s.lightning_router === 1 ? "was a deep-lane call" : "were deep-lane calls"} the router gave to Lightning.`
         : "",
     ].filter(Boolean);
     const lightning = lightningOf(s);
     const head =
       lightning === 0
-        ? `In ${inRun(r)}, Lightning answered no decision call`
-        : `Of the ${plural(lightning, "decision call", "decision calls")} Lightning answered in ${inRun(r)}, ${parts.join(" and ")}`;
-    return `${head}; ${plural(s.ollama, "more decision answer", "more decision answers")} came from the Ollama backup (no receipt).`;
+        ? `In ${inRun(r)}, Lightning answered no decision call.`
+        : `Lightning answered ${plural(lightning, "decision call", "decision calls")} in ${inRun(r)}. ${parts.join(" ")}`;
+    return `${head} ${plural(s.ollama, "more decision answer", "more decision answers")} came from the Ollama backup (no receipt).`;
   };
   const currentPart = current
-    ? ` and ${ofNightshift(current.steps.decision)} in ${inRun(current)}`
+    ? `, and ${ofNightshift(current.steps.decision)} in ${inRun(current)}`
     : "; the current system's re-run is in progress";
   return {
     decision_ultra_first: ofNightshift(first.steps.decision),
@@ -389,8 +390,8 @@ export function reasoningFacts(runs: readonly RunShares[]): Record<string, strin
     current_run_label: current ? inRun(current) : "the current system's run (not run yet)",
     reasoning_ultra_first: all(first),
     reasoning_ultra_current: current ? all(current) : "not run yet",
-    decision_models_line: `The decision step asks for the deep lane (\`meterless/deep\`): the mode is pinned, the serving model is not, because Nightshift's router chooses it. Ultra answered ${ofThe(first.steps.decision)} decision calls Nightshift served in ${inRun(first)}${currentPart}.`,
-    reasoning_models_line: `The critic asks for the judge lane (\`meterless/judge\`) and the challenger for the deep lane; Ultra answered ${ofNightshift(first.steps.critic)} critic calls and ${ofNightshift(first.steps.challenger)} challenger calls Nightshift served in ${inRun(first)}${current ? ` (${ofNightshift(current.steps.critic)} and ${ofNightshift(current.steps.challenger)} in ${inRun(current)})` : ""}.`,
+    decision_models_line: `The decision step asks for the deep lane (\`meterless/deep\`). The mode is pinned; Nightshift's router chooses the serving model. Ultra answered ${ofThe(first.steps.decision)} decision calls Nightshift served in ${inRun(first)}${currentPart}.`,
+    reasoning_models_line: `The critic asks for its own review lane (\`meterless/judge\`) and the challenger for the deep lane. Ultra answered ${ofNightshift(first.steps.critic)} critic calls and ${ofNightshift(first.steps.challenger)} challenger calls Nightshift served in ${inRun(first)}${current ? ` (${ofNightshift(current.steps.critic)} and ${ofNightshift(current.steps.challenger)} in ${inRun(current)})` : ""}.`,
     decision_lightning_note: lightningNote(current ?? first),
   };
 }
@@ -581,10 +582,14 @@ export function guardResults(root: string): GuardResult[] {
   };
   const inbound = (rows: GuardRow[], family: string) => rows.filter((r) => r.family === family && r.place !== "draft");
   return [
-    row("Injected text caught, full reviews, guard asked once", inbound(review, "injection"), reviewRel),
-    row("Injected text caught, fresh set, current guard", inbound(fresh, "injection"), freshRel),
-    row("False alarms on harmless text, fresh set, current guard", inbound(fresh, "benign"), freshRel),
-    row("False alarms on harmless text, full reviews, guard asked once", inbound(review, "benign"), reviewRel),
+    row("Injected text caught, 105-text full-review run (guard asked once)", inbound(review, "injection"), reviewRel),
+    row("Injected text caught, fresh-set run (current guard)", inbound(fresh, "injection"), freshRel),
+    row("False alarms on harmless text, fresh-set run (current guard)", inbound(fresh, "benign"), freshRel),
+    row(
+      "False alarms on harmless text, 105-text full-review run (guard asked once)",
+      inbound(review, "benign"),
+      reviewRel,
+    ),
   ];
 }
 

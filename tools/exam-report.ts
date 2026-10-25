@@ -221,7 +221,7 @@ function callStats(variant: string, since: string) {
     row.calls += 1;
     if (failed) {
       row.failed += 1;
-      failedBy.set(`${e.agent} on ${lane}`, (failedBy.get(`${e.agent} on ${lane}`) ?? 0) + 1);
+      failedBy.set(`${e.agent} on \`${lane}\``, (failedBy.get(`${e.agent} on \`${lane}\``) ?? 0) + 1);
     } else if (e.agent !== "policy_guard" && e.detail?.structured !== true) {
       unstructured += 1;
     }
@@ -933,7 +933,7 @@ if (have.length === 0) {
       "|---|---:|---:|---:|",
     );
     for (const [lane, row] of [...stats.lanes].sort()) {
-      lines.push(`| ${lane} | ${row.calls} | ${row.failed} | ${pct(row.failed / Math.max(1, row.calls))} |`);
+      lines.push(`| \`${lane}\` | ${row.calls} | ${row.failed} | ${pct(row.failed / Math.max(1, row.calls))} |`);
     }
     lines.push("");
     if (stats.failedBy.size > 0) {
@@ -1055,7 +1055,7 @@ if (have.length === 0) {
       `Policy version ${full.policy_version}. Model and reasoning setting per step:`,
       "",
     );
-    for (const [agent, model] of Object.entries(full.models)) lines.push(`- ${agent}: ${model}`);
+    for (const [agent, model] of Object.entries(full.models)) lines.push(`- ${agent}: \`${model}\``);
     lines.push(
       "",
       served
@@ -1264,10 +1264,10 @@ const range = (x: number, n: number): string => {
   return `${low}–${high}%`;
 };
 const howSure = full
-  ? `How sure we can be (95% range, small sets so the ranges are wide): exam, ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases wrongly closed (true rate ${range(full.metrics.false_closes, full.metrics.risk_cases)}); held-out rounds, ${heldoutFullWrong} of ${heldoutRiskCases} (${range(heldoutFullWrong, heldoutRiskCases)}), or ${noV2.fullWrong} of ${noV2.risk} without v2, where the screener failed (${range(noV2.fullWrong, noV2.risk)}).`
+  ? `How sure we can be (95% ranges; the sets are small, so the ranges are wide): on the exam, ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases wrongly closed (true rate ${range(full.metrics.false_closes, full.metrics.risk_cases)}). On the held-out rounds, ${heldoutFullWrong} of ${heldoutRiskCases} (${range(heldoutFullWrong, heldoutRiskCases)}), or ${noV2.fullWrong} of ${noV2.risk} without v2, where the screener failed (${range(noV2.fullWrong, noV2.risk)}).`
   : "";
 const v2Caveat = totals.hasV2
-  ? ` These totals include v2, where the screener failed and nothing could be closed; without v2: ${noV2.fullWrong} of ${noV2.risk} risk cases wrongly closed and ${noV2.fullClears} of ${noV2.clearCases} cleared (deterministic rules: ${noV2.rulesWrong} of ${noV2.risk} and ${noV2.rulesClears} of ${noV2.clearCases}).`
+  ? ` These totals include v2, where the screener failed and nothing could be closed. Without v2: ${noV2.fullWrong} of ${noV2.risk} risk cases wrongly closed and ${noV2.fullClears} of ${noV2.clearCases} cleared (deterministic rules: ${noV2.rulesWrong} of ${noV2.risk} and ${noV2.rulesClears} of ${noV2.clearCases}).`
   : "";
 const heldoutFullSplit = blindRounds
   .filter((r) => (r.cells.routed?.wrong_closes ?? 0) > 0)
@@ -1293,11 +1293,11 @@ if (head && full && readme.includes(START) && readme.includes(END)) {
     [
       "> **Safe triage that fails closed.** The desk recommends and a person decides. When evidence is missing or any check fails, the case is escalated or held for more information, not closed.",
       "",
-      `- **70-case exam** (the cases the rules were written for): the full system wrongly closed ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases, against ${get("fuzzy")?.metrics.false_closes ?? "not run"} for plain name matching.`,
-      `- **Blind held-out rounds:** risk cases wrongly closed: ${heldoutWrong.join("; ")}. What each round found and what changed after it: [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds).`,
-      `- **No claim of clearing alerts beyond the rules:** ${examCloses}. On the blind held-out rounds it cleared ${heldoutClears === 0 ? `none of the ${heldoutClearCases} alerts that should have been cleared (0 of ${heldoutClearCases}) and sent them` : `${heldoutClears} of the ${heldoutClearCases} alerts that should have been cleared and sent the rest`} to a person instead.`,
-      `- **Held-out totals:** it wrongly closed ${heldoutFullWrong} of ${heldoutRiskCases} risk cases${heldoutFullSplit ? ` (${heldoutFullSplit}, each by an earlier version of the system)` : ""}, against ${heldoutRulesWrong} of ${heldoutRiskCases} for the deterministic rules, which also cleared ${heldoutRulesClears} of ${heldoutClearCases}.${v2Caveat}`,
-      `- **The cost of failing closed** is fewer clears. Every figure is one run. ${howSure} Details: [eval/REPORT.md](eval/REPORT.md).`,
+      `- **70-case exam** (the cases the rules were written for), first system's run: ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases wrongly closed. Plain name matching closed ${get("fuzzy")?.metrics.false_closes ?? "not run"}.`,
+      `- **Blind held-out rounds, risk cases wrongly closed:** ${heldoutWrong.join("; ")}. What each round found and what changed after it: [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds).`,
+      `- **No claim of clearing alerts beyond the rules:** ${examCloses}. On the blind held-out rounds it cleared ${heldoutClears === 0 ? `none of the ${heldoutClearCases} alerts that should have been cleared` : `${heldoutClears} of the ${heldoutClearCases} alerts that should have been cleared`}. ${heldoutClears === 0 ? "It sent them" : "It sent the rest"} to a person instead.`,
+      `- **Held-out totals:** it wrongly closed ${heldoutFullWrong} of ${heldoutRiskCases} risk cases${heldoutFullSplit ? ` (${heldoutFullSplit}, each by an earlier version of the system)` : ""}. The deterministic rules wrongly closed ${heldoutRulesWrong} of ${heldoutRiskCases} and cleared ${heldoutRulesClears} of ${heldoutClearCases}.${v2Caveat}`,
+      `- **The cost of failing closed** is fewer clears. Each figure here is one run. ${howSure} Details: [eval/REPORT.md](eval/REPORT.md).`,
     ].join("\n"),
     END,
   ].join("\n");
@@ -1428,6 +1428,29 @@ const newestFull = currentSystem
       ? { run: full, label: FIRST_LABEL }
       : undefined;
 const of = (k: number, n: number) => `${k} of ${n} (${range95(k, n)})`;
+/** Median and p95 seconds per alert (the alert cases, without the draft checks) of one 70-case run. */
+const perAlert = (r: Result) => headlineOf(r.cases, { ...assumptions, currency: config.costs.currency }).per_alert;
+/** The README's one headline time figure: the newest full-system run's median per alert, labelled with its run. */
+function timeHeadline(): string {
+  if (!newestFull) return "";
+  const p = perAlert(newestFull.run);
+  return `median ${p.median_seconds.toFixed(0)} s (p95 ${p.p95_seconds.toFixed(0)} s) over ${p.alerts} alerts, in the run of ${newestFull.label}`;
+}
+/** The time lines of the README's analyst section: the headline figure, then every other run's median, labelled. */
+function analystTimeLines(): string[] {
+  if (!newestFull || !full) return [];
+  const out = [`- **Time per alert:** ${timeHeadline()}.`];
+  if (newestFull.run !== full) {
+    const p = perAlert(full);
+    out.push(
+      `- **First system's 70-case run:** median ${p.median_seconds.toFixed(0)} s per alert (p95 ${p.p95_seconds.toFixed(0)} s) over ${p.alerts} alerts. Over all ${full.cases.length} cases, with the draft checks: ${full.metrics.latency_s.p50} s.`,
+    );
+  } else
+    out.push(
+      `- Over all ${full.cases.length} cases of that run, which include the draft checks: a median of ${full.metrics.latency_s.p50} s.`,
+    );
+  return out;
+}
 const EVAL_BLOCK_FIX = "docs/EVALUATION.md#a-block-recommendation-regression-found-in-the-current-system-comparison";
 
 /** Same outcome in all runs, per arm of the held-out v4 repeat study (eval/repeat-study.json). */
@@ -1442,7 +1465,7 @@ function stabilityLine(): string {
   const without = arm("Nemotron alone, no free text");
   const withText = arm("Nemotron alone, with the free text");
   if (!sys || !without) return "";
-  return `- **Stability (held-out v4, ${sys.runs.length} runs each):** the same outcome in all ${sys.runs.length} runs on ${sys.all_runs_agree} of ${sys.cases} cases for the full system, against ${without.all_runs_agree} of ${without.cases} for Nemotron alone without the free text${withText ? ` (${withText.all_runs_agree} of ${withText.cases} with it)` : ""}.`;
+  return `- **Stability (held-out v4, ${sys.runs.length} runs each):** the full system gave the same outcome in all ${sys.runs.length} runs on ${sys.all_runs_agree} of ${sys.cases} cases. Nemotron alone did so on ${without.all_runs_agree} of ${without.cases} without the free text${withText ? ` (${withText.all_runs_agree} of ${withText.cases} with it)` : ""}.`;
 }
 
 function resultsBox(): string[] {
@@ -1468,7 +1491,8 @@ function resultsBox(): string[] {
       : []),
     `- **Held-out, blind rounds:** risk cases wrongly closed, full system ${totals.all.fullWrong} of ${totals.all.risk} against ${totals.all.rulesWrong} of ${totals.all.risk} for the deterministic rules. These totals pool runs of different code versions: each round ran the system of its time.`,
     ...[stabilityLine()].filter(Boolean),
-    `- **Blocks recommended by the full system:** ${f.blocks}. ${fixLine}`,
+    `- **Time per alert:** ${timeHeadline()}.`,
+    `- **Blocks recommended on the 70 cases:** ${f.blocks} in the run of ${newestFull.label}. ${fixLine}`,
     "",
     "The rules are exact on the exam by design; the desk's job is the free-text risk the rules cannot see — see [held-out](#key-results).",
   ];
@@ -1524,10 +1548,10 @@ function criticValue(link: (path: string) => string): string[] {
   const b = newestId ? firstClosesStopped(newestId, true) : undefined;
   if (a)
     out.push(
-      `- **Closes stopped after the first answer:** on the 70 cases the decision step's first answer was a close on ${a.proposed} risk ${a.proposed === 1 ? "case" : "cases"} in the first system's run; the critic, challenger and policy guard stopped ${a.stopped} of ${a.proposed}${b && newest ? ` (${b.stopped} of ${b.proposed} in the run of ${newest.label})` : ""}.`,
+      `- **Closes stopped after the first answer:** in the first system's 70-case run, the decision step's first answer was a close on ${a.proposed} risk ${a.proposed === 1 ? "case" : "cases"}. The critic, challenger and policy guard stopped ${a.stopped} of ${a.proposed}${b && newest ? ` (${b.stopped} of ${b.proposed} in the run of ${newest.label})` : ""}.`,
     );
   out.push(
-    `- **Critic:** in the first system's 70-case run it reviewed ${m.critic.reviewed} recommendations and sent ${m.critic.sent_back} back at least once; ${m.critic.unresolved} stayed unresolved after the allowed rounds, and for those the policy guard set the outcome (it can only raise caution).`,
+    `- **Critic:** in the first system's 70-case run it reviewed ${m.critic.reviewed} recommendations and sent ${m.critic.sent_back} back at least once. ${m.critic.unresolved} stayed unresolved after the allowed rounds; for those the policy guard set the outcome (by design it can only raise caution).`,
   );
   const mutation = resolveProjectPath("eval/critic-mutation.json");
   if (existsSync(mutation)) {
@@ -1540,7 +1564,7 @@ function criticValue(link: (path: string) => string): string[] {
   if (ch) {
     const o = challengerOutcomes(full.variant, full.started_at);
     out.push(
-      `- **Challenger:** in the same run it looked at ${ch.fired} proposed closes and turned ${ch.changed} into an escalation${o.total > 0 ? `: it found a credible true-match argument in ${o.credible} of the ${o.total}, could not answer in ${o.unavailable}, and found no credible argument in ${o.none}` : ""}.`,
+      `- **Challenger:** in the same run it looked at ${ch.fired} proposed closes and turned ${ch.changed} into an escalation.${o.total > 0 ? ` It found a credible true-match argument in ${o.credible} of the ${o.total}, could not answer in ${o.unavailable}, and found no credible argument in ${o.none}.` : ""}`,
     );
   }
   const v3 = laterRuns.get("sys3|heldout3|routed");
@@ -1549,7 +1573,7 @@ function criticValue(link: (path: string) => string): string[] {
     const wrong = riskOf(v3.cases).filter(closed);
     const single = riskOf(v3single.cases).filter(closed).length;
     out.push(
-      `- **Where the critic hurt:** on held-out v3 its citation rule caused both wrong closes (${wrong.map((c) => c.case_id).join(", ")}): it rejected the decision's escalation for citing the screener's signals, and the decision then closed. With the critic and challenger off, ${single} of ${riskOf(v3single.cases).length} risk cases were closed. Fixed in a later policy (version 8: a screener signal blocks a close, grounded or not); not re-measured blind on v3.`,
+      `- **Where the critic hurt:** on held-out v3 its citation rule caused both wrong closes (${wrong.map((c) => c.case_id).join(", ")}). It rejected the decision's escalation for citing the screener's signals, and the decision then closed. With the critic and challenger off, ${single} of ${riskOf(v3single.cases).length} risk cases were closed. Fixed in a later policy (version 8: a screener signal blocks a close, grounded or not); not re-measured blind on v3.`,
     );
   }
   return out;
@@ -1567,6 +1591,13 @@ if (box.length > 0 && readmeNext.includes(BOX_S) && readmeNext.includes(BOX_E))
 const cvReadme = criticValue((p) => p);
 if (cvReadme.length > 0 && readmeNext.includes(CV_S) && readmeNext.includes(CV_E))
   readmeNext = readmeNext.replace(new RegExp(`${CV_S}[\\s\\S]*?${CV_E}`), () => [CV_S, ...cvReadme, CV_E].join("\n"));
+const AT_S = "<!-- analyst-time:start -->";
+const AT_E = "<!-- analyst-time:end -->";
+const analystTime = analystTimeLines();
+if (analystTime.length > 0 && readmeNext.includes(AT_S) && readmeNext.includes(AT_E))
+  readmeNext = readmeNext.replace(new RegExp(`${AT_S}[\\s\\S]*?${AT_E}`), () =>
+    [AT_S, ...analystTime, AT_E].join("\n"),
+  );
 if (readmeNext !== readmeNow) writeFileSync(readmePath, readmeNext);
 const evaluationCv = readFileSync(evaluationPath, "utf8");
 const cvDocs = criticValue((p) => `../${p}`);

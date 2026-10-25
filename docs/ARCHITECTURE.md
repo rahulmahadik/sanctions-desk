@@ -14,7 +14,7 @@ Drawn from the code (sources in [docs/diagrams/](diagrams/), rendered by `npm ru
 
 ![Sequence of the live review of ALR-0073](diagrams/2-review-sequence.svg)
 
-**Every failure ends in a hold, never a close.**
+**By design, every failure ends in a hold, not a close.**
 
 ![Fail-closed paths of a review](diagrams/3-fail-closed.svg)
 
@@ -89,7 +89,7 @@ The outcomes are `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs
 - **Data-quality rules:** a customer record that fails a data-quality rule in Zetaris cannot support a close; the case goes to need-more-information. There is one exception: an individual's missing date of birth, when a note that meets the documentary standard, with its document on the customer's record, supplies the date (the failing rule stays on the record as a flag).
 - **Safety guard:** text in the data that tries to instruct the reviewer is flagged and treated as data; a flagged case is not closed. The guard model is asked twice, plus a narrow check on whether the text addresses the reviewer, and an answer from a cloud route counts as a flag.
 - **Screener:** customer notes, payment references and list remarks are read on the local model; every risk signal at or above its threshold blocks a close, grounded in the text or not.
-- **Critic re-check:** code re-reads every cited fact from Zetaris before the critic's model sees the recommendation; a fact that does not hold is never approved, and after three rounds the case goes to a person.
+- **Critic re-check:** code re-reads every cited fact from Zetaris before the critic's model sees the recommendation; by design, a fact that does not hold is not approved, and after three rounds the case goes to a person.
 - **Challenger:** takes a second look at a proposed close when one of the policy's triggers applies (confidence below 0.85, a name similarity of 0.95 or more, a failing data-quality rule, or any screener signal), and argues against it.
 - **Document-on-record check:** a document number cited in a note is counted against the customer's identifiers inside Zetaris; a note whose document is not on record does not count as evidence.
 - **Memory:** earlier decisions are checked against the listed entry as it is now; a decision whose entry changed is marked stale and not relied on.
@@ -121,7 +121,7 @@ The outcomes are `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs
 ## What is distinctive
 
 - Every recommendation can answer four questions from its sealed record: which approved definition was applied, what data it rested on, who was allowed to see what, and what it cost to produce.
-- The critic does not trust the decision: it re-reads each cited fact from the data, and a claim that does not match is never approved, whatever any model says.
+- The critic does not trust the decision: it re-reads each cited fact from the data, and by design a claim that does not match is not approved, whatever any model says.
 - Memory holds pointers, not copies, and goes stale the moment the listed entry changes.
 - The policy guard can only add caution; a block needs a strong match and an approving critic, and always needs two people.
 

@@ -34,7 +34,7 @@ The desk only accepts local answers for raw text: if a safety-guard answer or a 
 
 ## Earlier runs
 
-In four early runs, made before the screener existed (the headline 70-case run, single, no_memory and held-out v1), the cloud decision prompt held payment references and list remarks; customer notes were never in it. In every run with the screener, a check keeps all free text out of cloud prompts. The receipts of those runs show it in their previews, and they are kept as they are (see the committed run exports above). Two more points apply to the recorded runs: 7 safety-guard calls were answered in the cloud (above), and Nightshift's own answer memory was on during them, so whether text read on the laptop reached the cloud that way cannot be checked for them ([MODELS.md](MODELS.md#nightshifts-own-memory-switched-off)).
+In four early runs, made before the screener existed (the first system's 70-case run, single, no_memory and held-out v1), the cloud decision prompt held payment references and list remarks; customer notes were never in it. In every run with the screener, a check keeps all free text out of cloud prompts. The receipts of those runs show it in their previews, and they are kept as they are (see the committed run exports above). Two more points apply to the recorded runs: 7 safety-guard calls were answered in the cloud (above), and Nightshift's own answer memory was on during them, so whether text read on the laptop reached the cloud that way cannot be checked for them ([MODELS.md](MODELS.md#nightshifts-own-memory-switched-off)).
 
 ## Pseudonymise mode
 

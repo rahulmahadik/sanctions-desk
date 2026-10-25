@@ -45,7 +45,7 @@ The same 70 cases through the full system (the first system's run, and runs of t
 
 An unsupported block is a block recommendation on a case whose labels do not accept a block: an accusation the case does not support. It is counted over the cases whose labels do not accept a block (on the other cases, the true matches and some escalations, the labels accept a block as well as an escalation). The last column counts, per case, the model whose decision answer was used, from the run's exported trace.
 
-**The rules on home ground.** The 70 exam cases are labelled from the same definitions the rules use, so the rules have a home advantage here (1 of 43 risk cases wrongly closed, 25 of 25 clears). On the frozen held-out rounds, written without those rules, the rules wrongly closed 13 of 48 risk cases against 4 of 48 for the full system (without v2: 10 of 34 against 4 of 34).
+**The rules on home ground.** The 70 exam cases are labelled from the same definitions the rules use. So the rules have a home advantage here: 1 of 43 risk cases wrongly closed, 25 of 25 clears. The frozen held-out rounds were written without those rules. There the rules wrongly closed 13 of 48 risk cases against 4 of 48 for the full system (without v2: 10 of 34 against 4 of 34).
 
 **The trade-off, read plainly.** Nemotron alone (with the free text; decision answers used: Ultra 33, Lightning (fast-lane retry) 30, Ollama backup 3, none 4) clears more: 23 of 25 clear cases, against 13 of 25 for the full system. But it wrongly closes 6 of 43 risk cases (7–27%) and recommends a block on 25 cases, 1 of them unsupported by the labels (1 of 35, 1–15%). The full system (the current system before the block fix) wrongly closes 0 of 43, recommends 0 unsupported blocks (0 of 35), and leaves the final call to a person.
 
@@ -249,12 +249,12 @@ Code version: for the recorded runs, the commit checked out when the run ended (
 
 | Mode asked for | Calls | Ended before any answer (every provider failed) | Rate |
 |---|---:|---:|---:|
-| deep | 114 | 20 | 17.5% |
-| fast | 97 | 11 | 11.3% |
-| judge | 88 | 4 | 4.5% |
-| ollama | 12 | 11 | 91.7% |
+| `deep` | 114 | 20 | 17.5% |
+| `fast` | 97 | 11 | 11.3% |
+| `judge` | 88 | 4 | 4.5% |
+| `ollama` | 12 | 11 | 91.7% |
 
-Calls that ended before any answer: 17 decision on deep; 8 decision on fast; 9 decision on ollama; 3 challenger on deep; 4 critic on judge; 2 critic on fast; 1 challenger on fast; 1 challenger on ollama; 1 critic on ollama. They are provider failures, not parsing errors; the step then tried the next lane.
+Calls that ended before any answer: 17 decision on `deep`; 8 decision on `fast`; 9 decision on `ollama`; 3 challenger on `deep`; 4 critic on `judge`; 2 critic on `fast`; 1 challenger on `fast`; 1 challenger on `ollama`; 1 critic on `ollama`. They are provider failures, not parsing errors; the step then tried the next lane.
 
 Every answer that came back was schema-constrained.
 
@@ -262,11 +262,11 @@ Every answer that came back was schema-constrained.
 
 | Mode asked for | Calls | Ended before any answer (every provider failed) | Rate |
 |---|---:|---:|---:|
-| deep | 68 | 15 | 22.1% |
-| fast | 86 | 4 | 4.7% |
-| ollama | 4 | 4 | 100.0% |
+| `deep` | 68 | 15 | 22.1% |
+| `fast` | 86 | 4 | 4.7% |
+| `ollama` | 4 | 4 | 100.0% |
 
-Calls that ended before any answer: 15 decision on deep; 4 decision on fast; 4 decision on ollama. They are provider failures, not parsing errors; the step then tried the next lane.
+Calls that ended before any answer: 15 decision on `deep`; 4 decision on `fast`; 4 decision on `ollama`. They are provider failures, not parsing errors; the step then tried the next lane.
 
 Every answer that came back was schema-constrained.
 
@@ -274,12 +274,12 @@ Every answer that came back was schema-constrained.
 
 | Mode asked for | Calls | Ended before any answer (every provider failed) | Rate |
 |---|---:|---:|---:|
-| deep | 20 | 3 | 15.0% |
-| fast | 16 | 1 | 6.3% |
-| judge | 14 | 2 | 14.3% |
-| ollama | 1 | 1 | 100.0% |
+| `deep` | 20 | 3 | 15.0% |
+| `fast` | 16 | 1 | 6.3% |
+| `judge` | 14 | 2 | 14.3% |
+| `ollama` | 1 | 1 | 100.0% |
 
-Calls that ended before any answer: 3 decision on deep; 1 decision on fast; 1 decision on ollama; 2 critic on judge. They are provider failures, not parsing errors; the step then tried the next lane.
+Calls that ended before any answer: 3 decision on `deep`; 1 decision on `fast`; 1 decision on `ollama`; 2 critic on `judge`. They are provider failures, not parsing errors; the step then tried the next lane.
 
 Every answer that came back was schema-constrained.
 
@@ -388,15 +388,15 @@ Cells show cases answered acceptably out of cases run.
 
 Policy version 5. Model and reasoning setting per step:
 
-- triage: fast / off
-- evidence: fast / off
-- matching: fast / off
-- ownership: deep / reasoning 500
-- decision: deep / reasoning 500
-- critic: judge / reasoning 400
-- challenger: deep / reasoning 500
-- policy_guard: fast / off
-- reporter: fast / off
+- triage: `fast / off`
+- evidence: `fast / off`
+- matching: `fast / off`
+- ownership: `deep / reasoning 500`
+- decision: `deep / reasoning 500`
+- critic: `judge / reasoning 400`
+- challenger: `deep / reasoning 500`
+- policy_guard: `fast / off`
+- reporter: `fast / off`
 
 - **Model calls, from the signed receipts:** 187 served by the cloud model, 73 by the local model (no API cost), and 5 answers from the Ollama backup (local, no receipt); 935477 tokens in and 113822 out.
 - **Cost of the run:** 0.5778 USD under the assumed cloud rates (0.0083 per case); the local calls add nothing.

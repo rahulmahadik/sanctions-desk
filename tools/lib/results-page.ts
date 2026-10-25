@@ -67,7 +67,7 @@ export const RESULTS_SECTIONS: readonly ResultsSection[] = [
   },
   {
     title: "Safety guard against injected text",
-    lead: "The local guard model and the fixed patterns on texts written to attack the reviewer: the guard alone (asked once), the same texts through full reviews (guard asked once), and a fresh set on the current guard (asked twice, plus a narrow check). Misses are listed.",
+    lead: "The local guard model and the fixed patterns on texts written to attack the reviewer, in three labelled runs: the guard-only run (asked once), the 105-text full-review run (guard asked once) and the fresh-set run (current guard: asked twice, plus a narrow check). Every text is screened; the guard is not perfect, and misses are listed.",
     blocks: [
       { doc: "docs/EVALUATION.md", marker: "adversarial" },
       { doc: "docs/EVALUATION.md", marker: "adversarial-review" },

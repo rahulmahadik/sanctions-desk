@@ -201,7 +201,10 @@ describe("the review desk routes", () => {
     };
     if (body.headline === null) return;
     const readme = readFileSync(resolveProjectPath("README.md"), "utf8");
-    const said = /a median of (\d+) seconds \(p95 \d+ s; over the (\d+) alerts/.exec(readme);
+    // The interface shows the first system's run; the README labels that median with its run.
+    const said = /First system's 70-case run:\*\* median (\d+) s per alert \(p95 \d+ s\) over (\d+) alerts/.exec(
+      readme,
+    );
     expect(said).not.toBeNull();
     expect(body.headline.per_alert.median_seconds.toFixed(0)).toBe(said?.[1]);
     expect(String(body.headline.per_alert.alerts)).toBe(said?.[2]);

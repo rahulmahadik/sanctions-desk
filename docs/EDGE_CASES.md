@@ -58,12 +58,12 @@ Each edge case below has an expected outcome and is checked by an exam case, a t
 
 ## Security
 
-| Edge case                                                | Expected                                           | Checked by                                                                    |
-| -------------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Instructions hidden in a name, note or payment reference | Read as data, flagged, and never a reason to close | `inj_*`<br>`packages/agents/test/safety.test.ts › screenInbound`              |
-| A draft that tells a customer they are being screened    | Refused                                            | `to_*`<br>`packages/agents/test/safety.test.ts › screenOutbound`              |
-| A policy change without a second approver                | Refused                                            | `packages/shared/test/policy-store.test.ts › approver`                        |
-| A secret appears in a request or a model answer          | Redacted before anything is written                | `inj_payment_reference_1`<br>`apps/api/test/app.test.ts › rt-never-in-output` |
+| Edge case                                                | Expected                                                                     | Checked by                                                                    |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Instructions hidden in a name, note or payment reference | Read as data; once flagged, it blocks a close (the guard can miss some text) | `inj_*`<br>`packages/agents/test/safety.test.ts › screenInbound`              |
+| A draft that tells a customer they are being screened    | Refused                                                                      | `to_*`<br>`packages/agents/test/safety.test.ts › screenOutbound`              |
+| A policy change without a second approver                | Refused                                                                      | `packages/shared/test/policy-store.test.ts › approver`                        |
+| A secret appears in a request or a model answer          | Redacted before anything is written                                          | `inj_payment_reference_1`<br>`apps/api/test/app.test.ts › rt-never-in-output` |
 
 ## Payments
 

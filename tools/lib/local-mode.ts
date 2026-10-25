@@ -335,7 +335,7 @@ export function renderReadmeLine(
   choice: { ultra?: ModelChoiceArm; lightning?: ModelChoiceArm },
 ): string {
   const head =
-    "**Fully local mode** (every step on Nemotron 3.5 Lightning on the laptop; all data and models stay on the machine): an option, with its trade-off";
+    "**Fully local mode:** every step runs on Nemotron 3.5 Lightning on the laptop, so all data and models stay on the machine. It is an option with a trade-off";
   const how = "How to run it: [docs/MODELS.md](docs/MODELS.md#fully-local-mode).";
   const local = s.arms.find((a) => a.id === "local")?.pooled;
   const def = s.arms.find((a) => a.id === "default")?.pooled;
@@ -347,10 +347,10 @@ export function renderReadmeLine(
   const U = choice.ultra;
   const tradeOff =
     L && U
-      ? `: in the model-choice study (20 cases, one run per arm) Lightning doing the reasoning made ${L.clears_made} of ${L.clear_cases} clears against ${U.clears_made} of ${U.clear_cases} and took a median of ${L.median_case_s} s per case against ${U.median_case_s} s`
+      ? `. In the model-choice study (20 cases, one run per arm), Lightning doing the reasoning made ${L.clears_made} of ${L.clear_cases} clears against ${U.clears_made} of ${U.clear_cases}. It took a median of ${L.median_case_s} s per case against ${U.median_case_s} s`
       : "";
   const perAlert = L
     ? ` (about ${minutes(L.median_case_s)} minutes per alert locally, the median per case of the model-choice study's Lightning arm)`
     : "";
-  return `- ${head}${tradeOff}. A held-out v4 study of this mode, three runs per mode, is in progress (${s.runs_found} of ${s.runs_expected} runs exported). 70-case local run: not measured${perAlert}. ${how}`;
+  return `- ${head}${tradeOff}. A held-out v4 study of this mode (three runs per mode) is in progress: ${s.runs_found} of ${s.runs_expected} runs exported. 70-case local run: not measured${perAlert}. ${how}`;
 }

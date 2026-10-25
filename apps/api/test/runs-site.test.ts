@@ -74,7 +74,7 @@ describe("the recorded-run pages", () => {
       // Steps in order: each step's agent and action appear, by sequence.
       let at = page.indexOf('id="steps"');
       for (const e of c.events) {
-        const next = page.indexOf(`<td>${e.seq}</td><td>${e.agent}</td><td>${e.action}</td>`, at);
+        const next = page.indexOf(`<td>${e.seq}</td><td>${e.agent}</td><td><code>${e.action}</code></td>`, at);
         expect(next, `${spec.slug} step ${e.seq}`).toBeGreaterThan(at);
         at = next;
       }
@@ -118,8 +118,19 @@ describe("the recorded-run pages", () => {
         ...listIds.filter((r) => r.entry_id === label.entry_id).map((r) => r.id_number),
       ].filter(text);
       for (const page of [html(`${spec.slug}.html`), html("index.html")]) {
-        // A span the screener flagged is the one thing shown on purpose; it is checked on its own below.
-        const flat = normalise(page.replace(/<q class="flagged-span">[^<]*<\/q>/g, " "));
+        // A span the screener flagged is shown on purpose and checked on its own below. So is the one phrase a case
+        // may quote in its description and case note: it must be exactly that case's allowed phrase, labelled synthetic.
+        const quotes = [...page.matchAll(/<q class="case-quote">([^<]*)<\/q> \(synthetic\)/g)].map((m) =>
+          decode(m[1] as string),
+        );
+        const allowed = RECORDED_CASES.filter(
+          (r) => r.quote && (page === html(`${spec.slug}.html`) ? r === spec : true),
+        ).map((r) => r.quote?.phrase as string);
+        for (const q of quotes) expect(allowed, `${spec.slug}: quoted free text`).toContain(q);
+        expect(page.split('class="case-quote"').length - 1, `${spec.slug}: unlabelled quote`).toBe(quotes.length);
+        const flat = normalise(
+          page.replace(/<q class="flagged-span">[^<]*<\/q>/g, " ").replace(/<q class="case-quote">[^<]*<\/q>/g, " "),
+        );
         for (const v of free) {
           expect(flat, `${spec.slug}: free text`).not.toContain(v.replace(/\s+/g, " ").toLowerCase());
           for (const w of wordWindows(v))
@@ -151,6 +162,13 @@ describe("the recorded-run pages", () => {
       for (const t of shown) expect(t.length).toBeLessThanOrEqual(MAX_SPAN_CHARS);
       spans += shown.length;
     }
+    // ALR-L0001 quotes exactly one phrase of its synthetic customer note, word for word, in its description and note.
+    const l1 = RECORDED_CASES.find((r) => r.slug === "alr-l0001");
+    const note = rows("data/synthetic/customer.json").find((r) => r.customer_id === "CUST-L0001")?.notes as string;
+    expect(note).toContain(l1?.quote?.phrase as string);
+    const l1quotes = [...html("alr-l0001.html").matchAll(/<q class="case-quote">([^<]*)<\/q> \(synthetic\)/g)];
+    expect(l1quotes.map((m) => decode(m[1] as string))).toEqual([l1?.quote?.phrase, l1?.quote?.phrase]);
+    expect(RECORDED_CASES.filter((r) => r.quote).map((r) => r.slug)).toEqual(["alr-l0001"]);
     // ALR-L0001's screener flagged its customer note; that case shows its spans.
     expect(decode(html("alr-l0001.html"))).toContain("customer.notes characters");
     expect(spans).toBeGreaterThan(0);
