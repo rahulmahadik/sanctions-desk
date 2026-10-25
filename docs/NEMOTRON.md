@@ -2,6 +2,56 @@
 
 Sanctions Desk uses two NVIDIA Nemotron models, both through Meterless Nightshift: **Nemotron 3.5 Lightning 30B** on the analyst's laptop, where the raw text is, and **Nemotron 3 Ultra 550B** in the cloud, where the reasoning over structured evidence happens. Every answer from Nightshift carries a signed receipt naming the model that served it, so each statement below can be checked.
 
+<!-- nemotron-scorecard:start -->
+**Nemotron scorecard.** Computed by `npm run nemotron:scorecard` from committed files only ([eval/nemotron-scorecard.json](../eval/nemotron-scorecard.json)); each part is detailed further down this page.
+
+| Step                                 | Model                                     | Where        | Why                                                                                                                  |
+| ------------------------------------ | ----------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------- |
+| Safety guard (inbound)               | Nemotron 3.5 Lightning 30B                | Local laptop | It reads the free text of the data to flag instructions aimed at the reviewer, so the text must stay on the machine. |
+| Free-text screener                   | Nemotron 3.5 Lightning 30B                | Local laptop | It reads customer notes, payment references and list remarks and returns risk signals with the exact text span.      |
+| Decision                             | Nemotron 3 Ultra 550B                     | Cloud        | Applying the approved definitions to many fields at once and citing the rows it rests on is the hardest step.        |
+| Critic                               | Nemotron 3 Ultra 550B                     | Cloud        | It checks the recommendation against the evidence after code has re-read every cited fact from Zetaris.              |
+| Challenger                           | Nemotron 3 Ultra 550B                     | Cloud        | It argues against a close before it can stand.                                                                       |
+| Safety guard (outbound drafts)       | Nemotron 3.5 Lightning 30B                | Local laptop | It checks a draft meant for a customer for tipping-off wording, on top of fixed patterns.                            |
+| Backup when Nightshift cannot answer | Nemotron 3.5 Lightning 30B (local Ollama) | Local laptop | Keeps a step answering when Nightshift fails; the same model as the local steps.                                     |
+
+**Per model, recorded runs** (28 exported runs in eval/runs; safety guard, screener, decision, critic and challenger calls):
+
+| Model                                 | Where        | Calls | Median s | Median tokens in | Median tokens out | Cost recorded in the receipts                 |
+| ------------------------------------- | ------------ | ----: | -------: | ---------------: | ----------------: | --------------------------------------------- |
+| Nemotron 3.5 Lightning 30B            | Local laptop |   532 |      0.6 |              556 |                19 | USD 0 on all 532 receipts (`cost.actual_usd`) |
+| Nemotron 3 Ultra 550B                 | Cloud        |   960 |     24.8 |            4,429 |               505 | USD 0 on all 960 receipts (`cost.actual_usd`) |
+| Ollama backup (Lightning, no receipt) | Local laptop |    19 |     16.2 |            2,606 |             1,817 | not recorded (no receipt)                     |
+
+Answered on the laptop: 551 of 1,511 model calls (37%), Lightning through Nightshift and the Ollama backup together. The per-case `cost` in the result files is worked out from the illustrative unit costs in `config/default.json`, not recorded, so it is not shown.
+
+**Calibration** (Brier score, lower is better; indicative only with this few cases):
+
+| Arm                                                                                         | Cases with a confidence (n) | Brier score | Source                                            |
+| ------------------------------------------------------------------------------------------- | --------------------------: | ----------: | ------------------------------------------------- |
+| Full system (held-out v4, 12 cases x 3 runs)                                                |                          36 |       0.333 | [repeat-heldout4](../eval/studies/README.md)      |
+| Nemotron alone, no free text (held-out v4, 12 cases x 3 runs)                               |                          27 |       0.696 | [repeat-heldout4](../eval/studies/README.md)      |
+| Nemotron alone, with the free text (held-out v4, 12 cases x 3 runs)                         |                          24 |       0.498 | [repeat-heldout4](../eval/studies/README.md)      |
+| Full system, privacy mode off (held-out v4 and 8 exam cases, one run)                       |                          20 |       0.328 | [repeat-study.json](../eval/repeat-study.json)    |
+| Full system, privacy mode on (same 20 cases, one run)                                       |                          20 |       0.201 | [repeat-study.json](../eval/repeat-study.json)    |
+| Reasoning on Lightning (same 20 cases, one run)                                             |                          16 |       0.165 | [repeat-study.json](../eval/repeat-study.json)    |
+| Full system (held-out v3, 12 cases x 3 runs, not blind)                                     |                          36 |        0.33 | [heldout3-rerun](../eval/studies/README.md)       |
+| Nemotron alone, no free text (held-out v1, 30 cases x 1 run; held-out v3, 12 cases x 1 run) |                          32 |       0.324 | [nemotron-alone-v1-v3](../eval/studies/README.md) |
+
+Brier score: Mean of (confidence - y) squared over cases, where y is 1 when the chosen outcome is acceptable for the case (its expected or an acceptable outcome) and 0 otherwise. 0 is perfect; always answering with confidence 0.5 scores 0.25. Lower is better.
+
+**Safety guard** (95% Wilson ranges in brackets):
+
+| Test                                                          |            Result | Source                                                                      |
+| ------------------------------------------------------------- | ----------------: | --------------------------------------------------------------------------- |
+| Injected text caught, full reviews, guard asked once          | 66 of 70 (86–98%) | [full-review run](../eval/adversarial/review-2026-10-25T02-36-40-554Z.json) |
+| Injected text caught, fresh set, current guard                | 27 of 28 (82–99%) | [fresh-set run](../eval/adversarial/fresh-2026-10-25T04-37-55-312Z.json)    |
+| False alarms on harmless text, fresh set, current guard       |  7 of 16 (23–67%) | [fresh-set run](../eval/adversarial/fresh-2026-10-25T04-37-55-312Z.json)    |
+| False alarms on harmless text, full reviews, guard asked once |  5 of 15 (15–58%) | [full-review run](../eval/adversarial/review-2026-10-25T02-36-40-554Z.json) |
+
+What we tried and did not use (guard and jailbreak-detection models, embedding, document images): [What we tried and why it isn't used](#what-we-tried-and-why-it-isnt-used).
+<!-- nemotron-scorecard:end -->
+
 <!-- alone-headline:start -->
 **Measured against Nemotron alone** (small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation): Full system: a recommendation on every case (escalated to a person where no model answer was usable), free text kept out of the desk's cloud prompts, 0 of 6 risk cases wrongly closed in each of 3 runs; in 1 of 3 runs, 1 case had no usable model answer and was escalated to a person. Nemotron alone without the free text: 3, 6 and 4 wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Nemotron alone with the free text sent to the cloud: 0, 1 and 1 wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it), against 1 in each run for the full system.
 <!-- alone-headline:end -->

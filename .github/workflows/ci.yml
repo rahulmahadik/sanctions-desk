@@ -38,6 +38,8 @@ jobs:
         run: npm run adversarial:summary -- --check
       - name: The data-harness counts in docs/ZETARIS.md match the code
         run: npm run zetaris:harness -- --check
+      - name: The Nemotron scorecard in docs/NEMOTRON.md matches the committed files
+        run: npm run nemotron:scorecard -- --check
       # Every relative link, image and #anchor in the tracked Markdown files resolves.
       - run: npm run check:links
 

@@ -80,6 +80,7 @@
     "zetaris:queries": "tsx tools/zetaris-queries.ts",
     "zetaris:usl": "tsx tools/zetaris-usl.ts",
     "zetaris:harness": "tsx tools/zetaris-harness.ts",
+    "nemotron:scorecard": "tsx tools/nemotron-scorecard.ts",
     "zetaris:timing": "tsx tools/zetaris-harness-timing.ts",
     "compare:hand-coded": "sh compare/hand-coded/run.sh",
     "usl:policy": "tsx tools/usl-policy.ts",

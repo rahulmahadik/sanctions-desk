@@ -39,6 +39,11 @@ export const RESULTS_SECTIONS: readonly ResultsSection[] = [
     },
   },
   {
+    title: "Nemotron scorecard",
+    lead: "Which model does each step and where, what each model did in the recorded runs, calibration and the safety guard.",
+    blocks: [{ doc: "docs/NEMOTRON.md", marker: "nemotron-scorecard" }],
+  },
+  {
     title: "What the agents add over Nemotron alone",
     lead: "Small studies, kept apart from the recorded evaluation.",
     blocks: [

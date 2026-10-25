@@ -1,0 +1,174 @@
+{
+  "note": "Written by npm run nemotron:scorecard from committed files; do not edit by hand.",
+  "steps": [
+    {
+      "step": "Safety guard (inbound)",
+      "model": "Nemotron 3.5 Lightning 30B",
+      "where": "Local laptop",
+      "why": "It reads the free text of the data to flag instructions aimed at the reviewer, so the text must stay on the machine"
+    },
+    {
+      "step": "Free-text screener",
+      "model": "Nemotron 3.5 Lightning 30B",
+      "where": "Local laptop",
+      "why": "It reads customer notes, payment references and list remarks and returns risk signals with the exact text span"
+    },
+    {
+      "step": "Decision",
+      "model": "Nemotron 3 Ultra 550B",
+      "where": "Cloud",
+      "why": "Applying the approved definitions to many fields at once and citing the rows it rests on is the hardest step"
+    },
+    {
+      "step": "Critic",
+      "model": "Nemotron 3 Ultra 550B",
+      "where": "Cloud",
+      "why": "It checks the recommendation against the evidence after code has re-read every cited fact from Zetaris"
+    },
+    {
+      "step": "Challenger",
+      "model": "Nemotron 3 Ultra 550B",
+      "where": "Cloud",
+      "why": "It argues against a close before it can stand"
+    },
+    {
+      "step": "Safety guard (outbound drafts)",
+      "model": "Nemotron 3.5 Lightning 30B",
+      "where": "Local laptop",
+      "why": "It checks a draft meant for a customer for tipping-off wording, on top of fixed patterns"
+    },
+    {
+      "step": "Backup when Nightshift cannot answer",
+      "model": "Nemotron 3.5 Lightning 30B (local Ollama)",
+      "where": "Local laptop",
+      "why": "Keeps a step answering when Nightshift fails; the same model as the local steps"
+    }
+  ],
+  "recorded_runs": 28,
+  "models": [
+    {
+      "model": "Nemotron 3.5 Lightning 30B",
+      "where": "Local laptop",
+      "calls": 532,
+      "median_latency_s": 0.6,
+      "median_tokens_in": 556,
+      "median_tokens_out": 19,
+      "cost": {
+        "receipts": 532,
+        "actual_usd_total": 0
+      }
+    },
+    {
+      "model": "Nemotron 3 Ultra 550B",
+      "where": "Cloud",
+      "calls": 960,
+      "median_latency_s": 24.8,
+      "median_tokens_in": 4429,
+      "median_tokens_out": 505,
+      "cost": {
+        "receipts": 960,
+        "actual_usd_total": 0
+      }
+    },
+    {
+      "model": "Ollama backup (Lightning, no receipt)",
+      "where": "Local laptop",
+      "calls": 19,
+      "median_latency_s": 16.2,
+      "median_tokens_in": 2606,
+      "median_tokens_out": 1817,
+      "cost": null
+    }
+  ],
+  "local_share": {
+    "local_calls": 551,
+    "all_calls": 1511,
+    "share": 0.365
+  },
+  "calibration": [
+    {
+      "arm": "Full system (held-out v4, 12 cases x 3 runs)",
+      "cases_with_confidence": 36,
+      "brier": 0.333,
+      "source": "eval/studies/repeat-heldout4"
+    },
+    {
+      "arm": "Nemotron alone, no free text (held-out v4, 12 cases x 3 runs)",
+      "cases_with_confidence": 27,
+      "brier": 0.696,
+      "source": "eval/studies/repeat-heldout4"
+    },
+    {
+      "arm": "Nemotron alone, with the free text (held-out v4, 12 cases x 3 runs)",
+      "cases_with_confidence": 24,
+      "brier": 0.498,
+      "source": "eval/studies/repeat-heldout4"
+    },
+    {
+      "arm": "Full system, privacy mode off (held-out v4 and 8 exam cases, one run)",
+      "cases_with_confidence": 20,
+      "brier": 0.328,
+      "source": "eval/repeat-study.json"
+    },
+    {
+      "arm": "Full system, privacy mode on (same 20 cases, one run)",
+      "cases_with_confidence": 20,
+      "brier": 0.201,
+      "source": "eval/repeat-study.json"
+    },
+    {
+      "arm": "Reasoning on Lightning (same 20 cases, one run)",
+      "cases_with_confidence": 16,
+      "brier": 0.165,
+      "source": "eval/repeat-study.json"
+    },
+    {
+      "arm": "Full system (held-out v3, 12 cases x 3 runs, not blind)",
+      "cases_with_confidence": 36,
+      "brier": 0.33,
+      "source": "eval/studies/heldout3-rerun"
+    },
+    {
+      "arm": "Nemotron alone, no free text (held-out v1, 30 cases x 1 run; held-out v3, 12 cases x 1 run)",
+      "cases_with_confidence": 32,
+      "brier": 0.324,
+      "source": "eval/studies/nemotron-alone-v1-v3"
+    }
+  ],
+  "brier_definition": "Mean of (confidence - y) squared over cases, where y is 1 when the chosen outcome is acceptable for the case (its expected or an acceptable outcome) and 0 otherwise. 0 is perfect; always answering with confidence 0.5 scores 0.25. Lower is better.",
+  "guard": [
+    {
+      "test": "Injected text caught, full reviews, guard asked once",
+      "x": 66,
+      "n": 70,
+      "low": 86,
+      "high": 98,
+      "source": "eval/adversarial/review-2026-10-25T02-36-40-554Z.json"
+    },
+    {
+      "test": "Injected text caught, fresh set, current guard",
+      "x": 27,
+      "n": 28,
+      "low": 82,
+      "high": 99,
+      "source": "eval/adversarial/fresh-2026-10-25T04-37-55-312Z.json"
+    },
+    {
+      "test": "False alarms on harmless text, fresh set, current guard",
+      "x": 7,
+      "n": 16,
+      "low": 23,
+      "high": 67,
+      "source": "eval/adversarial/fresh-2026-10-25T04-37-55-312Z.json"
+    },
+    {
+      "test": "False alarms on harmless text, full reviews, guard asked once",
+      "x": 5,
+      "n": 15,
+      "low": 15,
+      "high": 58,
+      "source": "eval/adversarial/review-2026-10-25T02-36-40-554Z.json"
+    }
+  ],
+  "not_used": "docs/NEMOTRON.md#what-we-tried-and-why-it-isnt-used"
+}
