@@ -7,6 +7,7 @@ export * from "./hashing.js";
 export * from "./http.js";
 export * from "./mcp.js";
 export * from "./modes.js";
+export * from "./plain-words.js";
 export * from "./policy.js";
 export * from "./policy-store.js";
 export * from "./receipts.js";

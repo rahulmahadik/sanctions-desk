@@ -10,7 +10,15 @@ import {
   postReopen,
   postSecondApproval,
 } from "../lib/api";
-import { DECISION_ICON, DECISION_LABEL, DECISION_TONE, REASON_LENGTH, roleLabel, shortHash } from "../lib/format";
+import {
+  DECISION_ICON,
+  DECISION_LABEL,
+  DECISION_TONE,
+  plainReason,
+  REASON_LENGTH,
+  roleLabel,
+  shortHash,
+} from "../lib/format";
 import { SESSION_EVENT } from "../lib/session";
 import type { ActionCheck, ActionRecordView, Decision, HumanActionView, HumanView, MeView } from "../lib/types";
 
@@ -262,7 +270,8 @@ function NextActions({ view }: { view: HumanView }) {
         <li key={a.action_id}>
           <strong>{KIND_LABEL[a.body.kind]}</strong> <span className="badge tone-wait">{a.body.status}</span>{" "}
           <span className="muted">not sent; {CHECK_LABEL[a.check]}</span>
-          <pre className="note">{a.body.content}</pre>
+          {/* A note sealed before the notes were written in plain words still shows its codes in words. */}
+          <pre className="note">{plainReason(a.body.content, a.body.alert_type)}</pre>
         </li>
       ))}
     </ul>

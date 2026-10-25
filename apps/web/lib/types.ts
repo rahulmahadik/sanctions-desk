@@ -432,6 +432,7 @@ export interface ActionRecordView {
   action_id: string;
   body: {
     kind: "closure_note" | "escalation_ticket" | "rfi_draft" | "hold_instruction" | "block_recommendation";
+    alert_type?: "customer" | "payment";
     status: string;
     title: string;
     content: string;

@@ -36,7 +36,12 @@ const viewer: Actor = { id: "vie", role: "viewer", demo: false };
 const NOW = new Date("2026-10-23T10:00:00.000Z");
 const REASON = "The dates of birth conflict and the passport differs.";
 
-function recordFor(decision: Decision, alertType: "customer" | "payment" = "customer", id = "run-1"): DecisionRecord {
+function recordFor(
+  decision: Decision,
+  alertType: "customer" | "payment" = "customer",
+  id = "run-1",
+  rationale = "Basis of the recommendation.",
+): DecisionRecord {
   return sealDecisionRecord({
     record_id: `rec-${id}`,
     run_id: id,
@@ -46,7 +51,7 @@ function recordFor(decision: Decision, alertType: "customer" | "payment" = "cust
     as_of: "2026-10-23T09:00:00.000Z",
     decision,
     confidence: 0.9,
-    rationale: "Basis of the recommendation.",
+    rationale,
     what_would_change: ["A recent proof of address"],
     policy: { version: policy.version, hash: sha256Hex("policy") },
     definitions: [],
@@ -190,6 +195,40 @@ describe("an override that lowers caution to a close (four eyes)", () => {
     );
     expect(humanState(done)).toMatchObject({ status: "override_approved", final: "CLOSE_FALSE_POSITIVE" });
     expect(planActions(done, policy, NOW).map((a) => a.kind)).toEqual(["closure_note"]);
+  });
+
+  it("names both approvers in the closure note, rests it on their reasons and says the desk's view apart, in words", () => {
+    const r = recordFor(
+      "ESCALATE_L2",
+      "customer",
+      "run-1",
+      "Rules-based sample answer. Name is weak, date of birth is missing_customer, nationality is conflict.",
+    );
+    const pending = recordDecision(
+      r,
+      {
+        action: "override",
+        outcome: "CLOSE_FALSE_POSITIVE",
+        reason: "Different person, checked the passport.",
+        record_hash: r.record_hash,
+      },
+      officer,
+      NOW,
+    );
+    const done = secondApproval(
+      pending,
+      { approve: true, reason: "Agree, the passport rules it out.", record_hash: pending.record_hash },
+      officer2,
+      NOW,
+    );
+    const note = planActions(done, policy, NOW)[0]?.content ?? "";
+    expect(note).toContain("closed as a false positive by off, second approval by off2.");
+    expect(note).toContain(
+      "Basis: off: Different person, checked the passport.; off2: Agree, the passport rules it out.",
+    );
+    expect(note).toContain("The desk had recommended Escalate to level 2 because:");
+    expect(note).toContain("date of birth: customer has no date of birth on record, nationality: conflicts");
+    expect(note).not.toMatch(/missing_customer|\bconflict\b|ESCALATE_L2|CLOSE_FALSE_POSITIVE|_/);
   });
 
   it("escalates when the second approver declines", () => {

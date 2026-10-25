@@ -3,11 +3,13 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { join } from "node:path";
 import {
   canonicalJson,
+  DECISION_WORDS,
   type Decision,
   type DecisionRecord,
   type HumanAction,
   hashValue,
   type Policy,
+  plainReason,
   sha256Hex,
 } from "@sanctions-desk/shared";
 import { type HumanState, humanState } from "./human-state.js";
@@ -170,6 +172,25 @@ type Base = Omit<ActionBody, "kind" | "status" | "title" | "content" | "tipping_
 
 const reasonOf = (a?: HumanAction): string => (a?.reason ? ` Reason given: ${a.reason}` : "");
 
+/** The desk's own recommendation and why, in plain words. */
+const deskBasis = (record: DecisionRecord): string =>
+  `The desk had recommended ${DECISION_WORDS[record.decision]} because: ${plainReason(record.rationale, record.alert_type)}`;
+
+/**
+ * A person's close. After an override the people's reasons are the basis and the desk's recommendation is said
+ * separately; when a person approved the desk's own close, the desk's reason is the basis.
+ */
+function closureText(record: DecisionRecord, state: HumanState): string {
+  const by = state.second ? `${state.first?.actor}, second approval by ${state.second.actor}` : `${state.first?.actor}`;
+  const head = `Alert ${record.alert_ref} was ${REASON_TEXT.CLOSE_FALSE_POSITIVE} by ${by}.`;
+  if (record.decision === "CLOSE_FALSE_POSITIVE")
+    return `${head}${reasonOf(state.first)} Basis: ${plainReason(record.rationale, record.alert_type)}`;
+  const reasons = [state.first, state.second]
+    .filter((a): a is HumanAction => Boolean(a?.reason))
+    .map((a) => `${a.actor}: ${a.reason}`);
+  return `${head} Basis: ${reasons.length ? reasons.join("; ") : "no reason was given"}.\n${deskBasis(record)}`;
+}
+
 /** The record that follows a settled decision other than a block waiting for its second approval. */
 function settledAction(record: DecisionRecord, policy: Policy, state: HumanState): Omit<ActionBody, keyof Base> {
   if (state.status === "block_approved") {
@@ -185,7 +206,7 @@ function settledAction(record: DecisionRecord, policy: Policy, state: HumanState
       kind: "closure_note",
       status: "closed by a person",
       title: `Closure note: ${record.alert_ref}`,
-      content: `Alert ${record.alert_ref} was ${REASON_TEXT.CLOSE_FALSE_POSITIVE} by ${state.first?.actor}.${reasonOf(state.first)} Basis: ${record.rationale}`,
+      content: closureText(record, state),
     };
   }
   if (state.final === "NEED_MORE_INFO") {
@@ -208,7 +229,7 @@ function settledAction(record: DecisionRecord, policy: Policy, state: HumanState
     kind: "escalation_ticket",
     status: declined ? "escalated after the block was declined" : "open",
     title: `Level 2 review: ${record.alert_ref}`,
-    content: `Alert ${record.alert_ref} was ${REASON_TEXT.ESCALATE_L2}.${reasonOf(declined ? state.second : state.first)} Basis: ${record.rationale}`,
+    content: `Alert ${record.alert_ref} was ${REASON_TEXT.ESCALATE_L2}.${reasonOf(declined ? state.second : state.first)} Basis: ${plainReason(record.rationale, record.alert_type)}`,
   };
 }
 
@@ -223,7 +244,7 @@ function autoClosedAction(record: DecisionRecord, policy: Policy, now: Date): Ac
     final: "CLOSE_FALSE_POSITIVE",
     status: "closed automatically; a person can reopen it",
     title: `Closure note (automatic): ${record.alert_ref}`,
-    content: `${record.autonomy?.statement ?? "closed automatically"}. Basis: ${record.rationale}`,
+    content: `${record.autonomy?.statement ?? "closed automatically"}. Basis: ${plainReason(record.rationale, record.alert_type)}`,
     decided_by: [],
     policy: { version: policy.version, hash: record.policy.hash },
     sent: false,

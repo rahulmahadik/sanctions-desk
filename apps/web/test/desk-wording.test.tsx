@@ -3,13 +3,15 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as shared from "../../../packages/shared/src/plain-words";
 import { HumanBanner } from "../components/Banner";
 import { recordLine } from "../components/DecisionPanel";
+import { Help } from "../components/Help";
 import { SummaryStrip } from "../components/Queue";
 import { FourQuestions, modelCallsText, Outcome, Replay } from "../components/Record";
 import { RoutingPanel } from "../components/Routing";
 import { RunGraph } from "../components/RunGraph";
-import { FINAL_CALL, guardWords, plainReason, readProblem, verdictWords } from "../lib/format";
+import { DECISION_LABEL, FINAL_CALL, guardWords, plainReason, readProblem, verdictWords } from "../lib/format";
 import { graphAt } from "../lib/graph";
 import type { QueueAlert, TraceView } from "../lib/types";
 import { ANSWER, EVENTS, EVIDENCE, HUMAN, ME_APPROVER, RECORD, TRACE } from "./fixtures";
@@ -344,5 +346,19 @@ describe("signed out on a live desk", () => {
       signIn: true,
     });
     expect(readProblem(new api.ApiError("forbidden", 403), "x")).toEqual({ text: "forbidden", signIn: false });
+  });
+});
+
+describe("the case files and the screen say codes the same way", () => {
+  it("uses the same words for every code, on a customer and on a payment alert", () => {
+    const text =
+      'name 0.54 (token_set) vs primary "A B"; Name is weak, date of birth is missing_customer, nationality is conflict, country: address_only';
+    for (const type of ["customer", "payment"]) expect(shared.plainReason(text, type)).toBe(plainReason(text, type));
+    expect(shared.DECISION_WORDS).toEqual(DECISION_LABEL);
+  });
+
+  it("the help page tells an analyst they override only towards more caution", () => {
+    render(<Help />);
+    expect(document.body.textContent).toContain("to approve, or override towards more caution,");
   });
 });

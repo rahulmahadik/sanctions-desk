@@ -42,11 +42,11 @@ export function Help() {
 
       <Section id="help-user">
         <p>
-          In the top bar, under <strong>Demo user</strong>, choose <strong>analyst_demo</strong> to approve or override,{" "}
-          <strong>approver_demo</strong> or <strong>approver2_demo</strong> to give a second approval or stop autonomy,
-          or <strong>admin_demo</strong> to publish a policy change. There are two approvers so a second approval can
-          come from a different person. <strong>Visitor</strong> can read and run a review. Demo users exist only in
-          sample mode; a live deployment asks for a sign-in token.
+          In the top bar, under <strong>Demo user</strong>, choose <strong>analyst_demo</strong> to approve, or override
+          towards more caution, <strong>approver_demo</strong> or <strong>approver2_demo</strong> to give a second
+          approval or stop autonomy, or <strong>admin_demo</strong> to publish a policy change. There are two approvers
+          so a second approval can come from a different person. <strong>Visitor</strong> can read and run a review.
+          Demo users exist only in sample mode; a live deployment asks for a sign-in token.
         </p>
       </Section>
 
