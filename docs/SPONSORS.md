@@ -1,6 +1,6 @@
 # Sponsor technology: how Sanctions Desk uses Zetaris, Meterless and NVIDIA Nemotron
 
-Zetaris, Meterless and NVIDIA each do real work in Sanctions Desk. This page says what each one does, where it sits in the code, and how to see it working, with commands you can run from a clone. Figures that depend on a run live in [the exam report](../eval/REPORT.md) and in the signed evidence under `eval/runs/`, and are not copied here, so they cannot drift.
+Zetaris, Meterless and NVIDIA each do real work in Sanctions Desk. This page says what each one does, where it sits in the code, and how to see it working, with commands you can run from a clone. Figures that depend on a run live in [the exam report](../eval/REPORT.md) and in the signed evidence under `eval/runs/`; the few quoted here are written from those files (the Nemotron-alone summary by `npm run study:repeat`) or name the command that checks them.
 
 ## 1. Zetaris: the only way the desk reads data
 

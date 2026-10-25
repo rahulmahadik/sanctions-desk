@@ -4,15 +4,9 @@ The API listens on `http://localhost:8000`. An interactive description (Swagger 
 
 ## API docs online
 
-A read-only copy of the reference will be at **https://rahulmahadik.github.io/sanctions-desk/api.html**, with a short landing page at https://rahulmahadik.github.io/sanctions-desk/. It is static: Redoc renders the OpenAPI document, which is generated from the API's code on every build (`npm run site:build`; `npm run openapi:export` writes the document alone), and nothing on the page calls the API. The workflow `.github/workflows/pages.yml` publishes it on a push to `main` that touches the API, the site or its tools.
+A read-only copy of the reference is at **https://rahulmahadik.github.io/sanctions-desk/api.html**, with a short landing page at https://rahulmahadik.github.io/sanctions-desk/. It is static: Redoc renders the OpenAPI document, which is generated from the API's code on every build (`npm run site:build`; `npm run openapi:export` writes the document alone), and nothing on the page calls the API. The workflow `.github/workflows/pages.yml` publishes it on a push to `main` that touches the API, the site or its tools.
 
-It goes live once the repository is public and Pages is set to "GitHub Actions" (Settings > Pages > Source). The same setting with one command:
-
-```bash
-gh api -X POST repos/rahulmahadik/sanctions-desk/pages -f build_type=workflow
-```
-
-Until then both jobs of the workflow are skipped, so nothing fails while the repository is private. To look at the site locally, run `npm run site:build` and serve `site/` with any static file server.
+The site is built and published by the Pages workflow (Pages set to "GitHub Actions" under Settings > Pages > Source). To look at the site locally, run `npm run site:build` and serve `site/` with any static file server.
 
 ## Errors and request ids
 
@@ -182,7 +176,7 @@ A draft is published by a different person than the proposer (four-eyes); a publ
 
 | Route                                     | What it returns                                                                                                         |
 | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `GET /health`, `GET /health/dependencies` | Liveness; readiness of Nightshift, Ollama and Zetaris                                                                   |
+| `GET /health`, `GET /health/dependencies` | Liveness; readiness of Nightshift and Ollama (the status), with Zetaris reported alongside                              |
 | `GET /exam`                               | Saved exam results, the headline measure and the measured split of calls by serving model                               |
 | `GET /governance`                         | Inventory, risk materiality, oversight, testing, monitoring, change control and limits ([GOVERNANCE.md](GOVERNANCE.md)) |
 
@@ -209,7 +203,7 @@ Errors have one shape: `{ "status": "error", "request_id": "...", "error": { "ty
 
 | Method and path                                                                                    | Purpose                                                                                                                                                                                                                |
 | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /health`, `GET /health/dependencies`                                                          | Liveness; readiness of Nightshift and Ollama.                                                                                                                                                                          |
+| `GET /health`, `GET /health/dependencies`                                                          | Liveness; readiness of Nightshift and Ollama (the status), with Zetaris reported alongside.                                                                                                                            |
 | `POST /run`                                                                                        | Review one alert by `alert_id` (customer name, ownership or payment alert). Returns the recommendation, rationale, citations, `what_would_change`, agents, model ledger, guard verdicts, critic result, `record_hash`. |
 | `GET /cases/:alertId/trace`, `GET /runs/:runId/trace`                                              | The decision trace; add `?audit=true` to match queries with Zetaris's history.                                                                                                                                         |
 | `GET /runs/:runId/events`                                                                          | The recorded events of a run.                                                                                                                                                                                          |
