@@ -25,15 +25,15 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 **Review without installing:** [recorded runs, step by step with each model's receipt](https://rahulmahadik.github.io/sanctions-desk/runs/) · [receipt log of every model call](https://rahulmahadik.github.io/sanctions-desk/receipts/) · [the last one-command proof](eval/PROVE.md) · [API docs](https://rahulmahadik.github.io/sanctions-desk/api.html) · **[How NVIDIA Nemotron is used](docs/NEMOTRON.md)**
 
 <!-- results-box:start -->
-> **Results in one box.** The 70-case exam unless a line says otherwise; one run each; 95% ranges in brackets. Full system = the current system before the block fix, its newest run on the 70 cases.
+> **Results in one box.** The 70-case exam unless a line says otherwise; one run each; 95% ranges in brackets. Full system = the current system, its newest run on the 70 cases.
 
 - **Risk cases wrongly closed:** full system 0 of 43 (0–8%); Nemotron alone with the free text 6 of 43 (7–27%) (decision answers used: Ultra 33, Lightning (fast-lane retry) 30, Ollama backup 3, none 4); name matching 10 of 43 (13–38%).
-- **Clear cases closed:** full system 13 of 25 (33–70%); deterministic rules 25 of 25 (87–100%).
+- **Clear cases closed:** full system 12 of 25 (30–67%); deterministic rules 25 of 25 (87–100%).
 - **Escalate everything:** 0 of 43 wrongly closed and 0 of 25 clears. So the desk's value is the clears it makes at zero wrong closes, plus the evidence pack behind every recommendation.
 - **Held-out, blind rounds:** risk cases wrongly closed, full system 4 of 48 against 13 of 48 for the deterministic rules. These totals pool runs of different code versions: each round ran the system of its time.
 - **Stability (held-out v4, 3 runs each):** the full system gave the same outcome in all 3 runs on 10 of 12 cases. Nemotron alone did so on 4 of 12 without the free text (5 of 12 with it).
-- **Time per alert:** median 74 s (p95 188 s) over 68 alerts, in the run of the current system before the block fix.
-- **Blocks recommended on the 70 cases:** 0 in the run of the current system before the block fix. A code change stopped block recommendations on true matches; it is fixed, and the re-measurement of the fixed code is in progress ([what changed](docs/EVALUATION.md#a-block-recommendation-regression-found-in-the-current-system-comparison), [figures](eval/REPORT.md)).
+- **Time per alert:** median 81 s (p95 240 s) over 68 alerts, in the run of the current system.
+- **Blocks recommended on the 70 cases:** 13 in the run of the current system. A code change had stopped block recommendations on true matches; fixed and re-measured ([what changed](docs/EVALUATION.md#a-block-recommendation-regression-found-in-the-current-system-comparison), [figures](eval/REPORT.md)).
 
 The rules are exact on the exam by design; the desk's job is the free-text risk the rules cannot see — see [held-out](#key-results).
 <!-- results-box:end -->
@@ -49,11 +49,11 @@ The rules are exact on the exam by design; the desk's job is the free-text risk 
 | Challenger (argues against a close) | Nemotron 3 Ultra 550B in most calls (the router chooses) | cloud | the proposed close and its evidence | <!--fact:who_challenger-->Ultra 38, Ollama backup 2 of 40<!--/fact--> |
 | Backup, only when Nightshift cannot answer | Nemotron 3.5 Lightning 30B in the local Ollama (`nemotron-3.5-lightning:30b`) | the analyst's laptop | the same request the step sent | <!--fact:backup_recorded-->19 answers in the recorded evaluation runs (15 decision, 2 critic, 2 challenger)<!--/fact-->; no receipt, because the call does not go through Nightshift; labelled `ollama` in the trace; none of those cases ended in a wrong close |
 
-> **<!--fact:receipt_figure-->In the 31 exported runs the desk made 2,332 model calls. 2,092 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 41 came from the local Ollama backup, which has no receipt by design. The other 199 failed and returned no answer. The small studies add 879 more signed receipts, all verified<!--/fact-->.** The [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/) shows each call with the mode asked for and the model that served it. Each signature is checked when the site is built.
+> **<!--fact:receipt_figure-->In the 32 exported runs the desk made 2,788 model calls. 2,532 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 51 came from the local Ollama backup, which has no receipt by design. The other 205 failed and returned no answer. The small studies add 879 more signed receipts, all verified<!--/fact-->.** The [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/) shows each call with the mode asked for and the model that served it. Each signature is checked when the site is built.
 
 - **The desk pins the mode, not the model.** Nightshift's router chooses inside the lane each step is bound to. So the split is a measurement, not a guarantee.
-- <!--fact:decision_models_line-->The decision step asks for the deep lane (`meterless/deep`). The mode is pinned; Nightshift's router chooses the serving model. Ultra answered 87 of the 89 decision calls Nightshift served in the first system's run, and 83 of 96 in the run of the current system before the block fix.<!--/fact-->
-- <!--fact:decision_lightning_note-->Lightning answered 13 decision calls in the run of the current system before the block fix. 10 were the desk's fast-lane retry after an unusable or failed first answer. That retry is a deliberate fallback: it asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane. 3 were deep-lane calls where Nightshift's router predicted Ultra but Lightning won a hedged race. 7 more decision answers came from the Ollama backup (no receipt).<!--/fact-->
+- <!--fact:decision_models_line-->The decision step asks for the deep lane (`meterless/deep`). The mode is pinned; Nightshift's router chooses the serving model. Ultra answered 87 of the 89 decision calls Nightshift served in the first system's run, and 90 of 99 in the run of the current system.<!--/fact-->
+- <!--fact:decision_lightning_note-->Lightning answered 9 decision calls in the run of the current system. 8 were the desk's fast-lane retry after an unusable or failed first answer. That retry is a deliberate fallback: it asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane. 1 was a deep-lane call where Nightshift's router predicted Ultra but Lightning won a hedged race. 7 more decision answers came from the Ollama backup (no receipt).<!--/fact-->
 - A decision answered by that retry still goes through the critic and the policy guard ([docs/MODELS.md](docs/MODELS.md#how-a-call-is-routed)).
 <!-- local-mode:start -->
 - **Fully local mode:** every step runs on Nemotron 3.5 Lightning on the laptop, so all data and models stay on the machine. It is an option with a trade-off. In the model-choice study (20 cases, one run per arm), Lightning doing the reasoning made 1 of 10 clears against 3 of 10. It took a median of 385 s per case against 110 s. A held-out v4 study of this mode (three runs per mode) is in progress: 0 of 6 runs exported. 70-case local run: not measured (about 6 minutes per alert locally, the median per case of the model-choice study's Lightning arm). How to run it: [docs/MODELS.md](docs/MODELS.md#fully-local-mode).
@@ -120,7 +120,7 @@ The rules are exact on the exam by design; the desk's job is the free-text risk 
 > **It wrongly closed 0 of 43 risk cases; plain name matching closed 10.** Measured on this machine, in the first system's 70-case run.
 
 <!-- analyst-time:start -->
-- **Time per alert:** median 74 s (p95 188 s) over 68 alerts, in the run of the current system before the block fix.
+- **Time per alert:** median 81 s (p95 240 s) over 68 alerts, in the run of the current system.
 - **First system's 70-case run:** median 130 s per alert (p95 306 s) over 68 alerts. Over all 70 cases, with the draft checks: 123.79 s.
 <!-- analyst-time:end -->
 - Model cost in the first system's run was about 0.0085 USD per alert, for the recommendation only, under the illustrative unit costs in `config/default.json`. Nightshift's receipts record USD 0. A person still decides ([eval/REPORT.md](eval/REPORT.md)).
@@ -332,7 +332,7 @@ The outcomes are `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs
 <!-- critic-value:start -->
 **What the critic and challenger did, measured** (one run each; the counts are read from the result files, the run exports and the mutation test):
 
-- **Closes stopped after the first answer:** in the first system's 70-case run, the decision step's first answer was a close on 6 risk cases. The critic, challenger and policy guard stopped 6 of 6 (2 of 2 in the run of the current system before the block fix).
+- **Closes stopped after the first answer:** in the first system's 70-case run, the decision step's first answer was a close on 6 risk cases. The critic, challenger and policy guard stopped 6 of 6 (1 of 1 in the run of the current system).
 - **Critic:** in the first system's 70-case run it reviewed 59 recommendations and sent 16 back at least once. 11 stayed unresolved after the allowed rounds; for those the policy guard set the outcome (by design it can only raise caution).
 - **Critic's fact re-check, on its own:** it caught 147 of 147 changed facts over 25 decisions and approved 25 of 25 unchanged ones ([mutation test](eval/critic-mutation.json)).
 - **Challenger:** in the same run it looked at 17 proposed closes and turned 1 into an escalation. It found a credible true-match argument in 0 of the 17, could not answer in 1, and found no credible argument in 16.
@@ -389,7 +389,7 @@ The step-by-step model table and the receipt log are at the [top of this page](#
 
 ### Meterless Nightshift
 
-> **Nightshift is the primary path for every model call. The local Ollama backup answers only when Nightshift cannot.** <!--fact:receipt_figure-->In the 31 exported runs the desk made 2,332 model calls. 2,092 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 41 came from the local Ollama backup, which has no receipt by design. The other 199 failed and returned no answer. The small studies add 879 more signed receipts, all verified<!--/fact-->.
+> **Nightshift is the primary path for every model call. The local Ollama backup answers only when Nightshift cannot.** <!--fact:receipt_figure-->In the 32 exported runs the desk made 2,788 model calls. 2,532 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 51 came from the local Ollama backup, which has no receipt by design. The other 205 failed and returned no answer. The small studies add 879 more signed receipts, all verified<!--/fact-->.
 
 - The desk talks to Nightshift's OpenAI-compatible API through one injected generator.
 - It uses two app identities, with binds set in the Nightshift cockpit:
@@ -407,7 +407,7 @@ The step-by-step model table and the receipt log are at the [top of this page](#
 - **On the laptop:** Nemotron 3.5 Lightning 30B runs the safety guard and the free-text screener. So the desk does not put raw notes or payment references in a cloud prompt.
 - **Only local answers for raw text:** a cloud-served guard or screener answer holds the case. A check keeps all free text out of cloud prompts.
 - **In the cloud:** the decision, the critic and the challenger ask for cloud lanes and receive structured facts only. The desk pins the lane; Nightshift's router chooses the model within it, mostly Nemotron 3 Ultra 550B.
-- **Every receipt records the model.** In the first system's 70-case run, the safety guard was answered by Lightning in 70 of 70 calls. The decision was answered by Ultra in <!--fact:decision_ultra_first-->87 of 89<!--/fact--> of the decision calls Nightshift served (<!--fact:decision_ultra_current-->83 of 96<!--/fact--> in <!--fact:current_run_label-->the run of the current system before the block fix<!--/fact-->).
+- **Every receipt records the model.** In the first system's 70-case run, the safety guard was answered by Lightning in 70 of 70 calls. The decision was answered by Ultra in <!--fact:decision_ultra_first-->87 of 89<!--/fact--> of the decision calls Nightshift served (<!--fact:decision_ultra_current-->90 of 99<!--/fact--> in <!--fact:current_run_label-->the run of the current system<!--/fact-->).
 - **Limits:**
   - Four recorded runs were made before the screener existed (the first system's 70-case run, single, no_memory and held-out v1). In those, the cloud decision prompt held payment references and list remarks; customer notes were never in it.
   - In runs made before the local-only rule, the router sent 7 guard calls to Ultra in the cloud.

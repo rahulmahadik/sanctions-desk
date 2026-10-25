@@ -135,6 +135,12 @@
       "source": "eval/results/2026-10-25T07-45-05-768Z-sys5-routed.json"
     },
     {
+      "arm": "Full system (sys6) (exam, 70 cases, one run)",
+      "cases_with_confidence": 68,
+      "brier": 0.124,
+      "source": "eval/results/2026-10-25T11-52-00-415Z-sys6-routed.json"
+    },
+    {
       "arm": "Nemotron alone, no free text (held-out v1, 30 cases x 1 run; held-out v3, 12 cases x 1 run)",
       "cases_with_confidence": 32,
       "brier": 0.324,
@@ -485,17 +491,50 @@
           "ollama": 1
         }
       }
+    },
+    {
+      "run": "sys6-routed-20261025T115200Z",
+      "system": "sys6",
+      "set": "exam",
+      "label": "the current system",
+      "started_at": "2026-10-25T11:52:00.415Z",
+      "steps": {
+        "decision": {
+          "nightshift": 99,
+          "ultra": 90,
+          "lightning_retry": 8,
+          "lightning_hedged": 1,
+          "lightning_router": 0,
+          "ollama": 7
+        },
+        "critic": {
+          "nightshift": 90,
+          "ultra": 87,
+          "lightning_retry": 3,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 2
+        },
+        "challenger": {
+          "nightshift": 15,
+          "ultra": 12,
+          "lightning_retry": 2,
+          "lightning_hedged": 0,
+          "lightning_router": 1,
+          "ollama": 1
+        }
+      }
     }
   ],
   "reasoning_facts": {
     "decision_ultra_first": "87 of 89",
-    "decision_ultra_current": "83 of 96",
-    "current_run_label": "the run of the current system before the block fix",
+    "decision_ultra_current": "90 of 99",
+    "current_run_label": "the run of the current system",
     "reasoning_ultra_first": "187 of 190",
-    "reasoning_ultra_current": "176 of 194",
-    "decision_models_line": "The decision step asks for the deep lane (`meterless/deep`). The mode is pinned; Nightshift's router chooses the serving model. Ultra answered 87 of the 89 decision calls Nightshift served in the first system's run, and 83 of 96 in the run of the current system before the block fix.",
-    "reasoning_models_line": "The critic asks for its own review lane (`meterless/judge`) and the challenger for the deep lane. Ultra answered 85 of 86 critic calls and 15 of 15 challenger calls Nightshift served in the first system's run (82 of 84 and 11 of 14 in the run of the current system before the block fix).",
-    "decision_lightning_note": "Lightning answered 13 decision calls in the run of the current system before the block fix. 10 were the desk's fast-lane retry after an unusable or failed first answer. That retry is a deliberate fallback: it asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane. 3 were deep-lane calls where Nightshift's router predicted Ultra but Lightning won a hedged race. 7 more decision answers came from the Ollama backup (no receipt)."
+    "reasoning_ultra_current": "189 of 204",
+    "decision_models_line": "The decision step asks for the deep lane (`meterless/deep`). The mode is pinned; Nightshift's router chooses the serving model. Ultra answered 87 of the 89 decision calls Nightshift served in the first system's run, and 90 of 99 in the run of the current system.",
+    "reasoning_models_line": "The critic asks for its own review lane (`meterless/judge`) and the challenger for the deep lane. Ultra answered 85 of 86 critic calls and 15 of 15 challenger calls Nightshift served in the first system's run (87 of 90 and 12 of 15 in the run of the current system).",
+    "decision_lightning_note": "Lightning answered 9 decision calls in the run of the current system. 8 were the desk's fast-lane retry after an unusable or failed first answer. That retry is a deliberate fallback: it asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane. 1 was a deep-lane call where Nightshift's router predicted Ultra but Lightning won a hedged race. 7 more decision answers came from the Ollama backup (no receipt)."
   },
   "exam_arms": [
     {
@@ -534,8 +573,20 @@
     },
     {
       "arm": "Full system, current system",
-      "source": null,
-      "figures": null
+      "source": "eval/results/2026-10-25T11-52-00-415Z-sys6-routed.json",
+      "figures": {
+        "wrong": 0,
+        "risk": 43,
+        "wrong_range": "0–8%",
+        "clears_made": 12,
+        "clears": 25,
+        "blocks": 13,
+        "unsupported_blocks": 0,
+        "not_block_cases": 35,
+        "unsupported_range": "0–10%",
+        "unusable": 1,
+        "answer_from": "Ultra 62, Lightning (router) 1, Ollama backup 4, none 3"
+      }
     },
     {
       "arm": "Deterministic rules",
@@ -626,7 +677,7 @@
     }
   },
   "rules_framing": "**The rules on home ground.** The 70 exam cases are labelled from the same definitions the rules use. So the rules have a home advantage here: 1 of 43 risk cases wrongly closed, 25 of 25 clears. The frozen held-out rounds were written without those rules. There the rules wrongly closed 13 of 48 risk cases against 4 of 48 for the full system (without v2: 10 of 34 against 4 of 34).",
-  "receipt_figure": "In the 31 exported runs the desk made 2,332 model calls. 2,092 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 41 came from the local Ollama backup, which has no receipt by design. The other 199 failed and returned no answer. The small studies add 879 more signed receipts, all verified",
+  "receipt_figure": "In the 32 exported runs the desk made 2,788 model calls. 2,532 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 51 came from the local Ollama backup, which has no receipt by design. The other 205 failed and returned no answer. The small studies add 879 more signed receipts, all verified",
   "brier_note": "On held-out v4 (three runs each), every arm scores worse than always answering with confidence 0.5, which scores 0.25 (Full system: 0.333; Nemotron alone, no free text: 0.696; Nemotron alone, with the free text: 0.498), so on that set the stated confidences are less useful than a flat 0.5.",
   "not_used": "docs/NEMOTRON.md#what-we-tried-and-why-it-isnt-used"
 }

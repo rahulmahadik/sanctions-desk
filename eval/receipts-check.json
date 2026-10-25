@@ -2,27 +2,27 @@
   "pinned_keys": [
     "00OsSOXGbDitkESZueIJqDPdf9bXAvyrL+8cYDbY6II="
   ],
-  "files": 54,
-  "receipts": 2971,
-  "from_runs": 2092,
+  "files": 55,
+  "receipts": 3411,
+  "from_runs": 2532,
   "from_studies": 879,
   "from_elsewhere": 0,
-  "valid_pinned": 2971,
+  "valid_pinned": 3411,
   "valid_unpinned": 0,
   "invalid": 0,
   "malformed": 0,
   "groups": {
     "runs": {
-      "receipts": 2092,
-      "folders": 31,
+      "receipts": 2532,
+      "folders": 32,
       "with_added_memory": 1483,
       "cross_check": {
-        "skipped": 1400,
-        "warning": 630,
-        "passed": 62
+        "skipped": 1757,
+        "warning": 703,
+        "passed": 72
       },
       "cross_check_warnings": {
-        "citation_consistency": 630
+        "citation_consistency": 703
       }
     },
     "studies": {
@@ -283,6 +283,14 @@
       "file": "eval/runs/sys5-routed-20261025T074505Z/receipts.jsonl.gz",
       "receipts": 431,
       "valid_pinned": 431,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/runs/sys6-routed-20261025T115200Z/receipts.jsonl.gz",
+      "receipts": 440,
+      "valid_pinned": 440,
       "valid_unpinned": 0,
       "invalid": 0,
       "malformed": 0

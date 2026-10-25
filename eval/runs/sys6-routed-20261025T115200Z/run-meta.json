@@ -1,0 +1,93 @@
+{
+  "run_id": "sys6-routed-20261025T115200Z",
+  "variant": "routed",
+  "exam": "exam",
+  "started_at": "2026-10-25T11:52:00.415Z",
+  "finished_at": "2026-10-25T13:41:05.801Z",
+  "policy_version": 9,
+  "features": {
+    "commit": "f835771",
+    "commit_at_end": "c01e611",
+    "commit_read": "at start",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "screener": {
+      "enabled": true,
+      "confidence_threshold": 0.5
+    },
+    "cockpit_binds": {
+      "sanctions-desk-eval": "auto",
+      "sanctions-desk-guard": "local",
+      "sanctions-desk-reasoning": "deep"
+    },
+    "app_identities": {
+      "triage": "default",
+      "evidence": "default",
+      "screener": "guard",
+      "matching": "default",
+      "ownership": "default",
+      "decision": "reasoning",
+      "critic": "reasoning",
+      "challenger": "reasoning",
+      "policy_guard": "guard",
+      "reporter": "default"
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "retry_identities": {
+      "decision": "guard",
+      "critic": "guard",
+      "challenger": "guard"
+    },
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "nightshift_build": {
+    "version": "1.2.1",
+    "source": "the application's About screen, confirmed by the project owner; no separate runtime version is shown",
+    "known_limits": [
+      "an app bind in the cockpit replaces the mode or model id the client asks for (the receipt records both), so explicit model ids are coerced",
+      "the cloud model sometimes answers slowly or not at all: timeouts and HTTP 502 were seen in the runs"
+    ]
+  },
+  "app_binds": {
+    "sanctions-desk-eval": "auto",
+    "sanctions-desk-guard": "local",
+    "sanctions-desk-reasoning": "deep"
+  },
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "screener": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "deep / reasoning 500",
+    "critic": "judge / reasoning 400",
+    "challenger": "deep / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": 70,
+  "events": 2712,
+  "receipts": 440,
+  "files": {
+    "results.json": {
+      "bytes": 71809,
+      "sha256": "35711c8dd6750cbae968697e1ae5a6076e74b47d1b7582a62fb4b59152ebbefd"
+    },
+    "trace.jsonl.gz": {
+      "bytes": 211811,
+      "sha256": "082d4f1ca1d313ecf42638e7573d5231649697f6b4d1ebda4082ede2b4da911e"
+    },
+    "receipts.jsonl.gz": {
+      "bytes": 148537,
+      "sha256": "768ff3cf13d5e17d4962e26062103c40e5a7ad35924c0f9361b9ee3728a03a6e"
+    }
+  },
+  "redacted": "tokens, local paths, hostnames and addresses other than the local machine, usernames, e-mail addresses and secret environment values were removed from results.json and trace.jsonl.gz; receipts.jsonl.gz is untouched",
+  "verify": "npm run evidence:verify -- eval/runs/sys6-routed-20261025T115200Z"
+}
