@@ -19,8 +19,8 @@ import { ROUTES } from "../src/openapi.js";
 
 const REPO_URL = "https://github.com/rahulmahadik/sanctions-desk";
 const REPO_BLOB = `${REPO_URL}/blob/main/`;
-/** The only places a page may load anything from: the fonts, and (API page only) the pinned Redoc bundle. */
-const EXTERNAL_OK: string[] = [];
+/** Outside links a page may carry besides the repository: the demo video (a link only; nothing is loaded from it). */
+const EXTERNAL_OK: string[] = ["https://youtu.be/cF4ZXKxjpxs"];
 const out = mkdtempSync(join(tmpdir(), "desk-site-"));
 afterAll(() => rmSync(out, { recursive: true, force: true }));
 

@@ -7,7 +7,7 @@
 **Try it without keys:** sample mode replays saved real data with a labelled rules stand-in. Run `SAMPLE_MODE=true docker compose up --build`, then open http://localhost:3001 ([Quick start](#quick-start)).
 
 <!-- media-links -->
-**Video:** link to follow · **Deck:** link to follow
+**Demo video (3:51):** https://youtu.be/cF4ZXKxjpxs
 
 An AI review desk for bank sanctions-screening alerts. **It recommends; a person makes the final call.**
 
