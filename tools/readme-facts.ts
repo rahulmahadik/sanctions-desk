@@ -84,6 +84,8 @@ const facts: Record<string, string> = {
     return `${n(c.skipped ?? 0)} skipped, ${n(c.warning ?? 0)} warning (${which}, risk medium, not blocking), ${n(c.passed ?? 0)} passed`;
   })(),
   receipts_line: receiptsLine(receipts),
+  receipt_gate:
+    "The desk only uses a model answer whose Nightshift receipt is signed by the pinned key; otherwise it retries, then holds the case.",
   harness_agent_files: `${harness.agent_files.naming_any_source} of ${harness.agent_files.scanned} agent files name any source, table or driver`,
   // Who answered the decision, critic and challenger calls, from the receipts of the exported runs (nemotron:scorecard).
   ...(read("eval/nemotron-scorecard.json") as { reasoning_facts: Record<string, string> }).reasoning_facts,

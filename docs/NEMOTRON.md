@@ -17,29 +17,53 @@ Sanctions Desk uses two NVIDIA Nemotron models, both through Meterless Nightshif
 
 The decision step asks for the deep lane (`meterless/deep`): the mode is pinned, the serving model is not, because Nightshift's router chooses it. Ultra answered 87 of the 89 decision calls Nightshift served in the first system's run and 83 of 96 in the run of the current system before the block fix. Of the 13 decision calls Lightning answered in the run of the current system before the block fix, 10 were the desk's fast-lane retry after an unusable or failed first answer (a deliberate fallback: the retry asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane, so Lightning answers) and 3 were deep-lane calls where Nightshift's learned router predicted Ultra but Lightning won a hedged race; 7 more decision answers came from the Ollama backup (no receipt).
 
-**Per model, recorded runs** (29 exported runs in eval/runs; safety guard, screener, decision, critic and challenger calls):
+**The 70 cases, per arm** (one run each; 95% Wilson ranges in brackets; an unsupported block is a block recommendation on a case whose labels do not accept a block, counted over those cases; the last column counts, per case, the model whose decision answer was used, from the run's exported trace):
+
+| Arm                                                                                                                                    | Risk cases wrongly closed | Clears made | Blocks | Unsupported blocks | Unusable answers | Decision answer used came from                                                         |
+| -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------: | ----------: | -----: | -----------------: | ---------------: | -------------------------------------------------------------------------------------- |
+| Full system, first system ([result](../eval/results/2026-10-23T13-33-11-122Z-routed.json))                                             |            0 of 43 (0–8%) |    18 of 25 |      8 |    0 of 35 (0–10%) |                9 | Ultra 58, Lightning (router) 1, Ollama backup 1, none 10                               |
+| Full system, current system before the block fix ([result](../eval/results/2026-10-25T07-45-05-768Z-sys5-routed.json))                 |            0 of 43 (0–8%) |    13 of 25 |      0 |    0 of 35 (0–10%) |                2 | Ultra 59, Lightning (fast-lane retry) 3, Lightning (router) 1, Ollama backup 3, none 4 |
+| Full system, current system                                                                                                            |               not run yet |             |        |                    |                  |                                                                                        |
+| Deterministic rules ([result](../eval/results/2026-10-23T08-56-18-162Z-rules.json))                                                    |           1 of 43 (0–12%) |    25 of 25 |      0 |    0 of 35 (0–10%) |                0 | no model                                                                               |
+| Name-match rules baseline ([result](../eval/results/2026-10-23T08-56-17-916Z-fuzzy.json))                                              |         10 of 43 (13–38%) |     3 of 25 |      0 |    0 of 35 (0–10%) |                0 | no model                                                                               |
+| Nemotron alone, without the free text                                                                                                  |               not run yet |             |        |                    |                  |                                                                                        |
+| Nemotron alone, with the free text (sent to the cloud) ([result](../eval/results/2026-10-25T09-30-17-773Z-text70-nemotron_alone.json)) |           6 of 43 (7–27%) |    23 of 25 |     25 |    1 of 35 (1–15%) |                4 | Ultra 33, Lightning (fast-lane retry) 30, Ollama backup 3, none 4                      |
+
+**Blind held-out rounds, totals** (4 rounds, cases the rules were not written for; each round ran the system of its time, one run each; per round in the held-out table):
+
+| System                          | Risk cases wrongly closed | Clear cases closed |
+| ------------------------------- | ------------------------: | -----------------: |
+| Full system                     |           4 of 48 (3–20%) |    0 of 25 (0–13%) |
+| Deterministic rules             |         13 of 48 (17–41%) |   8 of 25 (17–52%) |
+| Full system, without v2         |           4 of 34 (5–27%) |    0 of 20 (0–16%) |
+| Deterministic rules, without v2 |         10 of 34 (17–46%) |    3 of 20 (5–36%) |
+
+**The rules on home ground.** The 70 exam cases are labelled from the same definitions the rules use, so the rules have a home advantage here (1 of 43 risk cases wrongly closed, 25 of 25 clears). On the frozen held-out rounds, written without those rules, the rules wrongly closed 13 of 48 risk cases against 4 of 48 for the full system (without v2: 10 of 34 against 4 of 34).
+
+**Per model, recorded runs** (30 exported runs in eval/runs; safety guard, screener, decision, critic and challenger calls):
 
 | Model                                 | Where        | Calls | Median s | Median tokens in | Median tokens out | Cost recorded in the receipts                   |
 | ------------------------------------- | ------------ | ----: | -------: | ---------------: | ----------------: | ----------------------------------------------- |
-| Nemotron 3.5 Lightning 30B            | Local laptop |   787 |      0.5 |              514 |                19 | USD 0 on all 787 receipts (`cost.actual_usd`)   |
-| Nemotron 3 Ultra 550B                 | Cloud        | 1,136 |     25.7 |            4,127 |               474 | USD 0 on all 1,136 receipts (`cost.actual_usd`) |
-| Ollama backup (Lightning, no receipt) | Local laptop |    28 |     14.9 |            2,863 |             1,470 | not recorded (no receipt)                       |
+| Nemotron 3.5 Lightning 30B            | Local laptop |   825 |      0.5 |              525 |                19 | USD 0 on all 825 receipts (`cost.actual_usd`)   |
+| Nemotron 3 Ultra 550B                 | Cloud        | 1,190 |       26 |            4,109 |               497 | USD 0 on all 1,190 receipts (`cost.actual_usd`) |
+| Ollama backup (Lightning, no receipt) | Local laptop |    35 |     12.4 |            2,584 |             1,299 | not recorded (no receipt)                       |
 
-Answered on the laptop: 815 of 1,951 model calls (42%), Lightning through Nightshift and the Ollama backup together. The per-case `cost` in the result files is worked out from the illustrative unit costs in `config/default.json`, not recorded, so it is not shown.
+Answered on the laptop: 860 of 2,050 model calls (42%), Lightning through Nightshift and the Ollama backup together. The per-case `cost` in the result files is worked out from the illustrative unit costs in `config/default.json`, not recorded, so it is not shown.
 
 **Calibration** (Brier score, lower is better; indicative only with this few cases):
 
-| Arm                                                                                         | Cases with a confidence (n) | Brier score | Source                                                                   |
-| ------------------------------------------------------------------------------------------- | --------------------------: | ----------: | ------------------------------------------------------------------------ |
-| Full system (held-out v4, 12 cases x 3 runs)                                                |                          36 |       0.333 | [repeat-heldout4](../eval/studies/README.md)                             |
-| Nemotron alone, no free text (held-out v4, 12 cases x 3 runs)                               |                          27 |       0.696 | [repeat-heldout4](../eval/studies/README.md)                             |
-| Nemotron alone, with the free text (held-out v4, 12 cases x 3 runs)                         |                          24 |       0.498 | [repeat-heldout4](../eval/studies/README.md)                             |
-| Full system, privacy mode off (held-out v4 and 8 exam cases, one run)                       |                          20 |       0.328 | [repeat-study.json](../eval/repeat-study.json)                           |
-| Full system, privacy mode on (same 20 cases, one run)                                       |                          20 |       0.201 | [repeat-study.json](../eval/repeat-study.json)                           |
-| Reasoning on Lightning (same 20 cases, one run)                                             |                          16 |       0.165 | [repeat-study.json](../eval/repeat-study.json)                           |
-| Full system (held-out v3, 12 cases x 3 runs, not blind)                                     |                          36 |        0.33 | [heldout3-rerun](../eval/studies/README.md)                              |
-| Full system (sys5) (exam, 70 cases, one run)                                                |                          68 |       0.102 | [result file](../eval/results/2026-10-25T07-45-05-768Z-sys5-routed.json) |
-| Nemotron alone, no free text (held-out v1, 30 cases x 1 run; held-out v3, 12 cases x 1 run) |                          32 |       0.324 | [nemotron-alone-v1-v3](../eval/studies/README.md)                        |
+| Arm                                                                                         | Cases with a confidence (n) | Brier score | Source                                                                             |
+| ------------------------------------------------------------------------------------------- | --------------------------: | ----------: | ---------------------------------------------------------------------------------- |
+| Full system (held-out v4, 12 cases x 3 runs)                                                |                          36 |       0.333 | [repeat-heldout4](../eval/studies/README.md)                                       |
+| Nemotron alone, no free text (held-out v4, 12 cases x 3 runs)                               |                          27 |       0.696 | [repeat-heldout4](../eval/studies/README.md)                                       |
+| Nemotron alone, with the free text (held-out v4, 12 cases x 3 runs)                         |                          24 |       0.498 | [repeat-heldout4](../eval/studies/README.md)                                       |
+| Full system, privacy mode off (held-out v4 and 8 exam cases, one run)                       |                          20 |       0.328 | [repeat-study.json](../eval/repeat-study.json)                                     |
+| Full system, privacy mode on (same 20 cases, one run)                                       |                          20 |       0.201 | [repeat-study.json](../eval/repeat-study.json)                                     |
+| Reasoning on Lightning (same 20 cases, one run)                                             |                          16 |       0.165 | [repeat-study.json](../eval/repeat-study.json)                                     |
+| Full system (held-out v3, 12 cases x 3 runs, not blind)                                     |                          36 |        0.33 | [heldout3-rerun](../eval/studies/README.md)                                        |
+| Full system (sys5) (exam, 70 cases, one run)                                                |                          68 |       0.102 | [result file](../eval/results/2026-10-25T07-45-05-768Z-sys5-routed.json)           |
+| Nemotron alone, no free text (held-out v1, 30 cases x 1 run; held-out v3, 12 cases x 1 run) |                          32 |       0.324 | [nemotron-alone-v1-v3](../eval/studies/README.md)                                  |
+| Nemotron alone, with the free text (exam, 70 cases, one run text70)                         |                          64 |       0.138 | [result file](../eval/results/2026-10-25T09-30-17-773Z-text70-nemotron_alone.json) |
 
 Brier score: Mean of (confidence - y) squared over cases, where y is 1 when the chosen outcome is acceptable for the case (its expected or an acceptable outcome) and 0 otherwise. 0 is perfect; always answering with confidence 0.5 scores 0.25. Lower is better.
 
@@ -208,7 +232,9 @@ We only claim a model when a verified receipt shows it answered.
 
 ## Check the receipts yourself
 
-<!--fact:receipts_line-->2,802 signed receipts: 1,923 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->. Two commands, no services needed:
+<!--fact:receipt_gate-->The desk only uses a model answer whose Nightshift receipt is signed by the pinned key; otherwise it retries, then holds the case.<!--/fact--> The Ollama backup has no receipt by design and is labelled "Ollama backup (no receipt)" in the trace and on screen; a rejected answer shows "answer not used: receipt …" on its step and `receipt_rejected` in the trace and the record (`receiptProblem` in [model-call.ts](../packages/agents/src/model-call.ts)).
+
+<!--fact:receipts_line-->2,894 signed receipts: 2,015 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->. Two commands, no services needed:
 
 ```bash
 npm run receipts:check        # verify every committed receipt against the pinned key; writes eval/receipts-check.json
@@ -224,15 +250,15 @@ Every model call in the recorded runs and in the labelled small runs (the privac
 ![Time per model call, by step and model](media/charts/model-latency.png)
 
 <!-- receipt-stats:start -->
-**Recorded runs (29 exported runs in eval/runs)**
+**Recorded runs (30 exported runs in eval/runs)**
 
 | Step         | Model that served it                  | Calls | Receipts verified | Median s | p95 s | Median tokens in | Median tokens out |
 | ------------ | ------------------------------------- | ----: | ----------------: | -------: | ----: | ---------------: | ----------------: |
 | Safety guard | Nemotron 3.5 Lightning 30B (local)    |   592 |               592 |      0.5 |   0.9 |              475 |                19 |
 | Screener     | Nemotron 3.5 Lightning 30B (local)    |   153 |               153 |      2.9 |     4 |             1542 |               215 |
-| Decision     | Nemotron 3 Ultra 550B (cloud)         |   587 |               587 |     26.4 |  59.9 |             4824 |               650 |
-| Decision     | Nemotron 3.5 Lightning 30B (local)    |    29 |                29 |     13.3 |  66.4 |             3773 |               485 |
-| Decision     | Ollama backup (Lightning, no receipt) |    22 |                 0 |     12.4 |  18.8 |             2935 |               666 |
+| Decision     | Nemotron 3 Ultra 550B (cloud)         |   641 |               641 |     27.1 |  60.7 |             4742 |               673 |
+| Decision     | Nemotron 3.5 Lightning 30B (local)    |    67 |                67 |     11.3 |  65.3 |             3336 |               861 |
+| Decision     | Ollama backup (Lightning, no receipt) |    29 |                 0 |     10.7 |  18.8 |             2863 |               789 |
 | Critic       | Nemotron 3 Ultra 550B (cloud)         |   500 |               500 |     23.7 |  46.4 |             3314 |               154 |
 | Critic       | Nemotron 3.5 Lightning 30B (local)    |    10 |                10 |     24.3 |  45.9 |             3533 |               460 |
 | Critic       | Ollama backup (Lightning, no receipt) |     3 |                 0 |     14.9 |  32.3 |             1741 |              1470 |
@@ -240,7 +266,7 @@ Every model call in the recorded runs and in the labelled small runs (the privac
 | Challenger   | Nemotron 3.5 Lightning 30B (local)    |     3 |                 3 |     31.1 |  40.8 |             4303 |              1310 |
 | Challenger   | Ollama backup (Lightning, no receipt) |     3 |                 0 |     20.5 |    21 |             1687 |              1957 |
 
-Fallbacks: Decision: 22 answer(s) from the Ollama backup, 8 answer(s) set aside for citing more than 8 facts; Critic: 3 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts; Challenger: 3 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts.
+Fallbacks: Decision: 29 answer(s) from the Ollama backup, 30 answer(s) set aside for citing more than 8 facts; Critic: 3 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts; Challenger: 3 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts.
 
 **Small test of an optional mode: privacy mode off (not part of the recorded evaluation)**
 

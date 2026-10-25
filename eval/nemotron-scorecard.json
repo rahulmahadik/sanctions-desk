@@ -44,46 +44,46 @@
       "why": "Keeps a step answering when Nightshift fails; the same model as the local steps"
     }
   ],
-  "recorded_runs": 29,
+  "recorded_runs": 30,
   "models": [
     {
       "model": "Nemotron 3.5 Lightning 30B",
       "where": "Local laptop",
-      "calls": 787,
+      "calls": 825,
       "median_latency_s": 0.5,
-      "median_tokens_in": 514,
+      "median_tokens_in": 525,
       "median_tokens_out": 19,
       "cost": {
-        "receipts": 787,
+        "receipts": 825,
         "actual_usd_total": 0
       }
     },
     {
       "model": "Nemotron 3 Ultra 550B",
       "where": "Cloud",
-      "calls": 1136,
-      "median_latency_s": 25.7,
-      "median_tokens_in": 4127,
-      "median_tokens_out": 474,
+      "calls": 1190,
+      "median_latency_s": 26,
+      "median_tokens_in": 4109,
+      "median_tokens_out": 497,
       "cost": {
-        "receipts": 1136,
+        "receipts": 1190,
         "actual_usd_total": 0
       }
     },
     {
       "model": "Ollama backup (Lightning, no receipt)",
       "where": "Local laptop",
-      "calls": 28,
-      "median_latency_s": 14.9,
-      "median_tokens_in": 2863,
-      "median_tokens_out": 1470,
+      "calls": 35,
+      "median_latency_s": 12.4,
+      "median_tokens_in": 2584,
+      "median_tokens_out": 1299,
       "cost": null
     }
   ],
   "local_share": {
-    "local_calls": 815,
-    "all_calls": 1951,
-    "share": 0.418
+    "local_calls": 860,
+    "all_calls": 2050,
+    "share": 0.42
   },
   "calibration": [
     {
@@ -139,6 +139,12 @@
       "cases_with_confidence": 32,
       "brier": 0.324,
       "source": "eval/studies/nemotron-alone-v1-v3"
+    },
+    {
+      "arm": "Nemotron alone, with the free text (exam, 70 cases, one run text70)",
+      "cases_with_confidence": 64,
+      "brier": 0.138,
+      "source": "eval/results/2026-10-25T09-30-17-773Z-text70-nemotron_alone.json"
     }
   ],
   "brier_definition": "Mean of (confidence - y) squared over cases, where y is 1 when the chosen outcome is acceptable for the case (its expected or an acceptable outcome) and 0 otherwise. 0 is perfect; always answering with confidence 0.5 scores 0.25. Lower is better.",
@@ -485,5 +491,122 @@
     "reasoning_models_line": "The critic asks for the judge lane (`meterless/judge`) and the challenger for the deep lane; Ultra answered 85 of 86 critic calls and 15 of 15 challenger calls Nightshift served in the first system's run (82 of 84 and 11 of 14 in the run of the current system before the block fix).",
     "decision_lightning_note": "Of the 13 decision calls Lightning answered in the run of the current system before the block fix, 10 were the desk's fast-lane retry after an unusable or failed first answer (a deliberate fallback: the retry asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane, so Lightning answers) and 3 were deep-lane calls where Nightshift's learned router predicted Ultra but Lightning won a hedged race; 7 more decision answers came from the Ollama backup (no receipt)."
   },
+  "exam_arms": [
+    {
+      "arm": "Full system, first system",
+      "source": "eval/results/2026-10-23T13-33-11-122Z-routed.json",
+      "figures": {
+        "wrong": 0,
+        "risk": 43,
+        "wrong_range": "0–8%",
+        "clears_made": 18,
+        "clears": 25,
+        "blocks": 8,
+        "unsupported_blocks": 0,
+        "not_block_cases": 35,
+        "unsupported_range": "0–10%",
+        "unusable": 9,
+        "answer_from": "Ultra 58, Lightning (router) 1, Ollama backup 1, none 10"
+      }
+    },
+    {
+      "arm": "Full system, current system before the block fix",
+      "source": "eval/results/2026-10-25T07-45-05-768Z-sys5-routed.json",
+      "figures": {
+        "wrong": 0,
+        "risk": 43,
+        "wrong_range": "0–8%",
+        "clears_made": 13,
+        "clears": 25,
+        "blocks": 0,
+        "unsupported_blocks": 0,
+        "not_block_cases": 35,
+        "unsupported_range": "0–10%",
+        "unusable": 2,
+        "answer_from": "Ultra 59, Lightning (fast-lane retry) 3, Lightning (router) 1, Ollama backup 3, none 4"
+      }
+    },
+    {
+      "arm": "Full system, current system",
+      "source": null,
+      "figures": null
+    },
+    {
+      "arm": "Deterministic rules",
+      "source": "eval/results/2026-10-23T08-56-18-162Z-rules.json",
+      "figures": {
+        "wrong": 1,
+        "risk": 43,
+        "wrong_range": "0–12%",
+        "clears_made": 25,
+        "clears": 25,
+        "blocks": 0,
+        "unsupported_blocks": 0,
+        "not_block_cases": 35,
+        "unsupported_range": "0–10%",
+        "unusable": 0,
+        "answer_from": "no model"
+      }
+    },
+    {
+      "arm": "Name-match rules baseline",
+      "source": "eval/results/2026-10-23T08-56-17-916Z-fuzzy.json",
+      "figures": {
+        "wrong": 10,
+        "risk": 43,
+        "wrong_range": "13–38%",
+        "clears_made": 3,
+        "clears": 25,
+        "blocks": 0,
+        "unsupported_blocks": 0,
+        "not_block_cases": 35,
+        "unsupported_range": "0–10%",
+        "unusable": 0,
+        "answer_from": "no model"
+      }
+    },
+    {
+      "arm": "Nemotron alone, without the free text",
+      "source": null,
+      "figures": null
+    },
+    {
+      "arm": "Nemotron alone, with the free text (sent to the cloud)",
+      "source": "eval/results/2026-10-25T09-30-17-773Z-text70-nemotron_alone.json",
+      "figures": {
+        "wrong": 6,
+        "risk": 43,
+        "wrong_range": "7–27%",
+        "clears_made": 23,
+        "clears": 25,
+        "blocks": 25,
+        "unsupported_blocks": 1,
+        "not_block_cases": 35,
+        "unsupported_range": "1–15%",
+        "unusable": 4,
+        "answer_from": "Ultra 33, Lightning (fast-lane retry) 30, Ollama backup 3, none 4"
+      }
+    }
+  ],
+  "heldout_totals": {
+    "rounds": 4,
+    "all": {
+      "risk": 48,
+      "clearCases": 25,
+      "fullWrong": 4,
+      "fullClears": 0,
+      "rulesWrong": 13,
+      "rulesClears": 8
+    },
+    "without_v2": {
+      "risk": 34,
+      "clearCases": 20,
+      "fullWrong": 4,
+      "fullClears": 0,
+      "rulesWrong": 10,
+      "rulesClears": 3
+    }
+  },
+  "rules_framing": "**The rules on home ground.** The 70 exam cases are labelled from the same definitions the rules use, so the rules have a home advantage here (1 of 43 risk cases wrongly closed, 25 of 25 clears). On the frozen held-out rounds, written without those rules, the rules wrongly closed 13 of 48 risk cases against 4 of 48 for the full system (without v2: 10 of 34 against 4 of 34).",
   "not_used": "docs/NEMOTRON.md#what-we-tried-and-why-it-isnt-used"
 }

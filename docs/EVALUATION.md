@@ -48,6 +48,19 @@ Runs that were limited to some cases (a tag, `--kinds`, `--groups` or `--limit`)
 How sure we can be (95% range, small sets so the ranges are wide): exam, 0 of 43 risk cases wrongly closed (true rate 0–8%); held-out rounds, 4 of 48 (3–20%), or 4 of 34 without v2, where the screener failed (5–27%).
 <!-- headline-intervals:end -->
 
+<!-- rules-framing:start -->
+**The rules on home ground.** The 70 exam cases are labelled from the same definitions the rules use, so the rules have a home advantage here (1 of 43 risk cases wrongly closed, 25 of 25 clears). On the frozen held-out rounds, written without those rules, the rules wrongly closed 13 of 48 risk cases against 4 of 48 for the full system (without v2: 10 of 34 against 4 of 34).
+
+**Blind held-out rounds, totals** (4 rounds, cases the rules were not written for; each round ran the system of its time, one run each; per round in the held-out table):
+
+| System                          | Risk cases wrongly closed | Clear cases closed |
+| ------------------------------- | ------------------------: | -----------------: |
+| Full system                     |           4 of 48 (3–20%) |    0 of 25 (0–13%) |
+| Deterministic rules             |         13 of 48 (17–41%) |   8 of 25 (17–52%) |
+| Full system, without v2         |           4 of 34 (5–27%) |    0 of 20 (0–16%) |
+| Deterministic rules, without v2 |         10 of 34 (17–46%) |    3 of 20 (5–36%) |
+<!-- rules-framing:end -->
+
 <!-- alone-summary:start -->
 - **Small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation (written by `npm run study:repeat` from the study files; 95% ranges in brackets):** Full system: a recommendation on every case (escalated to a person where no model answer was usable), free text kept out of the desk's cloud prompts, 0 of 6 risk cases wrongly closed in each of 3 runs (0–39% each); in 1 of 3 runs, 1 case had no usable model answer and was escalated to a person. Nemotron alone without the free text: 3 of 6 (19–81%), 6 of 6 (61–100%) and 4 of 6 (30–90%) wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Nemotron alone with the free text sent to the cloud: 0 of 6 (0–39%), 1 of 6 (3–56%) and 1 of 6 (3–56%) wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it), against 1 in each run for the full system. Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](NEMOTRON.md#what-the-agents-add-over-nemotron-alone).
 <!-- alone-summary:end -->

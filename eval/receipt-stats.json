@@ -3,8 +3,8 @@
   "groups": [
     {
       "id": "recorded",
-      "label": "Recorded runs (29 exported runs in eval/runs)",
-      "runs": 29,
+      "label": "Recorded runs (30 exported runs in eval/runs)",
+      "runs": 30,
       "rows": [
         {
           "step": "Safety guard",
@@ -33,38 +33,38 @@
         {
           "step": "Decision",
           "model": "Nemotron 3 Ultra 550B (cloud)",
-          "calls": 587,
-          "receipts_verified": 587,
+          "calls": 641,
+          "receipts_verified": 641,
           "latency_s": {
-            "median": 26.4,
-            "p95": 59.9
+            "median": 27.1,
+            "p95": 60.7
           },
-          "tokens_in_median": 4824,
-          "tokens_out_median": 650
+          "tokens_in_median": 4742,
+          "tokens_out_median": 673
         },
         {
           "step": "Decision",
           "model": "Nemotron 3.5 Lightning 30B (local)",
-          "calls": 29,
-          "receipts_verified": 29,
+          "calls": 67,
+          "receipts_verified": 67,
           "latency_s": {
-            "median": 13.3,
-            "p95": 66.4
+            "median": 11.3,
+            "p95": 65.3
           },
-          "tokens_in_median": 3773,
-          "tokens_out_median": 485
+          "tokens_in_median": 3336,
+          "tokens_out_median": 861
         },
         {
           "step": "Decision",
           "model": "Ollama backup (Lightning, no receipt)",
-          "calls": 22,
+          "calls": 29,
           "receipts_verified": 0,
           "latency_s": {
-            "median": 12.4,
+            "median": 10.7,
             "p95": 18.8
           },
-          "tokens_in_median": 2935,
-          "tokens_out_median": 666
+          "tokens_in_median": 2863,
+          "tokens_out_median": 789
         },
         {
           "step": "Critic",
@@ -149,8 +149,8 @@
           "fact_limit_rejections": 0
         },
         "Decision": {
-          "backup_answers": 22,
-          "fact_limit_rejections": 8
+          "backup_answers": 29,
+          "fact_limit_rejections": 30
         },
         "Critic": {
           "backup_answers": 3,
@@ -162,9 +162,9 @@
         }
       },
       "reasoning_latency_s": {
-        "median": 25.6,
-        "p95": 56.6,
-        "calls": 1178
+        "median": 25.7,
+        "p95": 58.2,
+        "calls": 1270
       }
     },
     {

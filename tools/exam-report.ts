@@ -27,7 +27,20 @@ import {
   summarise,
 } from "@sanctions-desk/agents";
 import { loadExam } from "@sanctions-desk/data";
-import { countWithInterval, loadConfig, resolveProjectPath, wilson95 as wilsonInterval } from "@sanctions-desk/shared";
+import { loadConfig, resolveProjectPath, wilson95 as wilsonInterval } from "@sanctions-desk/shared";
+import {
+  answerSources,
+  armRows,
+  closed,
+  examArms,
+  examFigures,
+  heldoutSummary,
+  heldoutTotals,
+  heldoutTotalsTable,
+  range95,
+  riskOf,
+  rulesFraming,
+} from "./lib/exam-figures.js";
 import { formatMarkdown } from "./lib/format-markdown.js";
 
 interface Features {
@@ -38,6 +51,7 @@ interface Features {
   provider_backoff_ms?: number;
   challenger_points?: string;
   cockpit_binds?: Record<string, string>;
+  with_free_text?: boolean;
 }
 
 interface LabelSet {
@@ -431,9 +445,6 @@ if (head && full) {
 
 // ---- the results in the order that matters ---------------------------------------------------------
 
-const riskOf = (cases: readonly ScoredCase[]) => cases.filter((c) => c.must_not.includes("CLOSE_FALSE_POSITIVE"));
-const closed = (c: ScoredCase) => c.got === "CLOSE_FALSE_POSITIVE";
-
 /** The two directions on the held-out set: risks caught, and clears correctly made. */
 function directions(cases: readonly ScoredCase[]) {
   const risk = riskOf(cases).filter((c) => c.error === undefined);
@@ -470,42 +481,34 @@ lines.push(
 );
 
 // ---- the 70 cases, five ways --------------------------------------------------------------------------------------
-// Nemotron alone runs carry a run label and are kept apart by whether the free text was in the prompt.
-const aloneRuns = new Map<boolean, Result & { file: string }>();
-for (const f of files) {
-  const r = JSON.parse(readFileSync(join(dir, f), "utf8")) as Result & {
-    run?: string;
-    features?: { with_free_text?: boolean };
-  };
-  if (r.variant === "nemotron_alone" && r.exam === undefined && !r.selection?.limit)
-    aloneRuns.set(r.features?.with_free_text === true, { ...r, metrics: summarise(r.cases), file: f });
-}
-// The current system was run twice on the 70 cases: sys5 on the code before the block fix (commit 16e0dae), and sys6
-// on the fixed code. A row whose run does not exist yet says so, and fills in from its result file once it does.
-const beforeBlockFix = laterRuns.get("sys5|exam|routed");
-const currentSystem = laterRuns.get("sys6|exam|routed");
-const noAnswer = (c: ScoredCase) => c.got === "ERROR" || c.decision_unavailable !== undefined;
-const range95 = (k: number, n: number) => {
-  const { low, high } = wilsonInterval(k, n);
-  return `${low}–${high}%`;
-};
-/** The figures of one 70-case run that the five-ways table and the block-fix comparison quote. */
-function examFigures(r: Result) {
-  const risk = riskOf(r.cases);
-  const clears = r.cases.filter((c) => c.expected === "CLOSE_FALSE_POSITIVE");
-  const count = (o: string) => r.cases.filter((c) => c.got === o).length;
-  return {
-    wrong: risk.filter(closed).length,
-    risk: risk.length,
-    made: clears.filter(closed).length,
-    clears: clears.length,
-    escalated: count("ESCALATE_L2"),
-    blocks: count("RECOMMEND_BLOCK"),
-    moreInfo: count("NEED_MORE_INFO"),
-    unusable: r.cases.filter(noAnswer).length,
-    median: r.metrics.latency_s.p50,
-    cases: r.cases.length,
-  };
+// The arms and their figures come from tools/lib/exam-figures.ts, which the Nemotron scorecard uses too. The current
+// system was run twice on the 70 cases: sys5 on the code before the block fix (commit 16e0dae), and sys6 on the fixed
+// code. A row whose run does not exist yet says so, and fills in from its result file once it does.
+const arms = examArms(
+  files.map((f) => ({ ...(JSON.parse(readFileSync(join(dir, f), "utf8")) as Result), file: f })),
+  labels,
+);
+const beforeBlockFix = arms.beforeBlockFix;
+const currentSystem = arms.current;
+const runsDir = resolveProjectPath("eval/runs");
+const runDirs = existsSync(runsDir) ? readdirSync(runsDir).map((d) => join(runsDir, d)) : [];
+// Every held-out round, from heldoutRounds, the same function the review desk's test-scores screen uses.
+const rounds = heldoutRounds(
+  files.map((f) => ({ file: f, ...(JSON.parse(readFileSync(join(dir, f), "utf8")) as SavedResult) })),
+);
+const totals = heldoutTotals(rounds);
+const framing = rulesFraming(arms.rules ? examFigures(arms.rules) : undefined, totals);
+/** The trade-off between the full system and Nemotron alone, in words, from the result files. */
+function tradeOffLines(): string[] {
+  const sys = currentSystem ?? beforeBlockFix ?? full;
+  const alone = arms.aloneWith ?? arms.aloneWithout;
+  if (!sys || !alone) return [];
+  const a = examFigures(alone);
+  const f = examFigures(sys);
+  const which = alone === arms.aloneWith ? "with the free text" : "without the free text";
+  return [
+    `**The trade-off, read plainly.** Nemotron alone (${which}) clears more: ${a.made} of ${a.clears} clear cases, against ${f.made} of ${f.clears} for the full system. But it wrongly closes ${a.wrong} of ${a.risk} risk cases (${range95(a.wrong, a.risk)}) and recommends a block on ${a.blocks} cases, ${a.unsupportedBlocks} of them unsupported by the labels (${a.unsupportedBlocks} of ${a.notBlockCases}, ${range95(a.unsupportedBlocks, a.notBlockCases)}). The full system (${sys === currentSystem ? CURRENT_LABEL : sys === beforeBlockFix ? BEFORE_LABEL : FIRST_LABEL}) wrongly closes ${f.wrong} of ${f.risk}, recommends ${f.unsupportedBlocks} unsupported blocks (${f.unsupportedBlocks} of ${f.notBlockCases}), and leaves the final call to a person.`,
+  ];
 }
 const FIRST_LABEL = "the first system";
 const BEFORE_LABEL = "the current system before the block fix";
@@ -555,26 +558,28 @@ function blockFixLines(link: (file: string) => string, withStory = true): string
       : `**Blocks recommended: ${a.blocks} in the first system's run, ${b.blocks} in the run of ${BEFORE_LABEL}** (cases ${changed.map((c) => c.case_id).join(", ")} came out as ${gotThen.join(" or ")}). ${reRun}`,
   ];
 }
-if (full || beforeBlockFix || currentSystem || aloneRuns.size > 0) {
+if (armRows(arms).some((a) => a.run !== undefined)) {
   const fiveRow = (label: string, r: (Result & { file: string }) | undefined) => {
-    if (!r) return `| ${label} | not run yet | | | | | |`;
+    if (!r) return `| ${label} | not run yet | | | | | | | |`;
     const f = examFigures(r);
-    return `| ${label} | ${f.wrong} of ${f.risk} (${range95(f.wrong, f.risk)}) | ${f.made} of ${f.clears} (${range95(f.made, f.clears)}) | ${f.escalated} of ${f.cases} | ${f.blocks} | ${f.unusable} | [result](results/${r.file}) |`;
+    return `| ${label} | ${f.wrong} of ${f.risk} (${range95(f.wrong, f.risk)}) | ${f.made} of ${f.clears} (${range95(f.made, f.clears)}) | ${f.escalated} of ${f.cases} | ${f.blocks} | ${f.unsupportedBlocks} of ${f.notBlockCases} (${range95(f.unsupportedBlocks, f.notBlockCases)}) | ${f.unusable} | ${answerSources(r, runDirs)} | [result](results/${r.file}) |`;
   };
   lines.push(
     "### (a2) The 70 cases, five ways",
     "",
     "The same 70 cases through the full system (the first system's run, and runs of the current system before and after the block fix), the deterministic rules, plain name matching, and Nemotron alone: one call per case on the structured case facts, asking for the deep lane, once without and once with the free text the screener reads. The arm with the free text sends that (synthetic) text to the cloud model, which the desk itself never does; it is a study arm only. An unusable answer is a case where no model answer could be used (the full system then escalates it to a person; for Nemotron alone it is left without an outcome). Ranges are 95% Wilson score intervals.",
     "",
-    "| System | Risk cases wrongly closed | Clear cases closed | Escalated | Blocks recommended | Unusable answers | File |",
-    "|---|---:|---:|---:|---:|---:|---|",
-    fiveRow("Full system, first system", full),
-    fiveRow("Full system, current system before the block fix", beforeBlockFix),
-    fiveRow("Full system, current system", currentSystem),
-    fiveRow("Deterministic rules", get("rules")),
-    fiveRow(`${NAME_MATCH}`, get("fuzzy")),
-    fiveRow("Nemotron alone, without the free text", aloneRuns.get(false)),
-    fiveRow("Nemotron alone, with the free text (sent to the cloud)", aloneRuns.get(true)),
+    "| System | Risk cases wrongly closed | Clear cases closed | Escalated | Blocks recommended | Unsupported blocks | Unusable answers | Decision answer used came from | File |",
+    "|---|---:|---:|---:|---:|---:|---:|---|---|",
+    ...armRows(arms).map((a) => fiveRow(a.label, a.run)),
+    "",
+    ...heldoutTotalsTable(heldoutSummary(totals)),
+    "",
+    "An unsupported block is a block recommendation on a case whose labels do not accept a block: an accusation the case does not support. It is counted over the cases whose labels do not accept a block (on the other cases, the true matches and some escalations, the labels accept a block as well as an escalation). The last column counts, per case, the model whose decision answer was used, from the run's exported trace.",
+    "",
+    framing,
+    "",
+    ...tradeOffLines(),
     "",
     ...blockFixLines((file) => `results/${file}`),
     "",
@@ -1172,9 +1177,6 @@ const ROUND_STORY: Record<string, { found: string; changed: string }> = {
     changed: "nothing; this was the last held-out round",
   },
 };
-const rounds = heldoutRounds(
-  files.map((f) => ({ file: f, ...(JSON.parse(readFileSync(join(dir, f), "utf8")) as SavedResult) })),
-);
 const bold = (cell: RoundCell | null) =>
   cell && cell.wrong_closes > 0 ? `**${cell.text}**` : (cell?.text ?? "not part of this round");
 const roundRows = rounds.map(
@@ -1199,25 +1201,15 @@ const storyRows = rounds.map(
   (r) =>
     `| ${r.label} | ${r.system}${r.cells.routed ? ` ([result](../eval/results/${r.cells.routed.file}))` : ""} | ${ROUND_STORY[r.id]?.found ?? ""} | ${ROUND_STORY[r.id]?.changed ?? ""} |`,
 );
-const blindRounds = rounds.filter((r) => r.blind && r.cells.routed);
-const heldoutClears = blindRounds.reduce((n, r) => n + (r.cells.routed?.clears_made ?? 0), 0);
-const heldoutRulesClears = blindRounds.reduce((n, r) => n + (r.cells.rules?.clears_made ?? 0), 0);
-const heldoutClearCases = blindRounds.reduce((n, r) => n + (r.cells.routed?.clears ?? 0), 0);
-const heldoutRiskCases = blindRounds.reduce((n, r) => n + (r.cells.rules?.risk ?? r.cells.routed?.risk ?? 0), 0);
-const heldoutRulesWrong = blindRounds.reduce((n, r) => n + (r.cells.rules?.wrong_closes ?? 0), 0);
-const heldoutFullWrong = blindRounds.reduce((n, r) => n + (r.cells.routed?.wrong_closes ?? 0), 0);
+const blindRounds = totals.blind;
+const heldoutClears = totals.all.fullClears;
+const heldoutRulesClears = totals.all.rulesClears;
+const heldoutClearCases = totals.all.clearCases;
+const heldoutRiskCases = totals.all.risk;
+const heldoutRulesWrong = totals.all.rulesWrong;
+const heldoutFullWrong = totals.all.fullWrong;
 // v2 tested a screener that failed on every case, so nothing could be closed there; the totals are also given without it.
-const withoutV2 = blindRounds.filter((r) => r.id !== "v2");
-const sumOf = (rs: typeof blindRounds, pick: (r: (typeof blindRounds)[number]) => number) =>
-  rs.reduce((n, r) => n + pick(r), 0);
-const noV2 = {
-  risk: sumOf(withoutV2, (r) => r.cells.rules?.risk ?? r.cells.routed?.risk ?? 0),
-  clearCases: sumOf(withoutV2, (r) => r.cells.routed?.clears ?? 0),
-  fullWrong: sumOf(withoutV2, (r) => r.cells.routed?.wrong_closes ?? 0),
-  fullClears: sumOf(withoutV2, (r) => r.cells.routed?.clears_made ?? 0),
-  rulesWrong: sumOf(withoutV2, (r) => r.cells.rules?.wrong_closes ?? 0),
-  rulesClears: sumOf(withoutV2, (r) => r.cells.rules?.clears_made ?? 0),
-};
+const noV2 = totals.noV2;
 /** "0–8%": a 95% Wilson interval in the plain style of the headline-intervals block. */
 const range = (x: number, n: number): string => {
   const { low, high } = wilsonInterval(x, n);
@@ -1226,10 +1218,9 @@ const range = (x: number, n: number): string => {
 const howSure = full
   ? `How sure we can be (95% range, small sets so the ranges are wide): exam, ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases wrongly closed (true rate ${range(full.metrics.false_closes, full.metrics.risk_cases)}); held-out rounds, ${heldoutFullWrong} of ${heldoutRiskCases} (${range(heldoutFullWrong, heldoutRiskCases)}), or ${noV2.fullWrong} of ${noV2.risk} without v2, where the screener failed (${range(noV2.fullWrong, noV2.risk)}).`
   : "";
-const v2Caveat =
-  withoutV2.length < blindRounds.length
-    ? ` These totals include v2, where the screener failed and nothing could be closed; without v2: ${noV2.fullWrong} of ${noV2.risk} risk cases wrongly closed and ${noV2.fullClears} of ${noV2.clearCases} cleared (deterministic rules: ${noV2.rulesWrong} of ${noV2.risk} and ${noV2.rulesClears} of ${noV2.clearCases}).`
-    : "";
+const v2Caveat = totals.hasV2
+  ? ` These totals include v2, where the screener failed and nothing could be closed; without v2: ${noV2.fullWrong} of ${noV2.risk} risk cases wrongly closed and ${noV2.fullClears} of ${noV2.clearCases} cleared (deterministic rules: ${noV2.rulesWrong} of ${noV2.risk} and ${noV2.rulesClears} of ${noV2.clearCases}).`
+  : "";
 const heldoutFullSplit = blindRounds
   .filter((r) => (r.cells.routed?.wrong_closes ?? 0) > 0)
   .map((r) => `${r.cells.routed?.wrong_closes} in ${(r.label.split(" (")[0] ?? r.label).replace("Held-out ", "")}`)
@@ -1295,6 +1286,7 @@ if (full && readmeRounds.includes(JS) && readmeRounds.includes(JE)) {
   const fuzzy = get("fuzzy");
   const rows = [
     `- **Wrongly closed on the ${full.metrics.risk_cases} risk cases of the exam:** full system **${full.metrics.false_closes}**${fuzzy ? `, plain name matching ${fuzzy.metrics.false_closes}` : ""}.`,
+    ...(framing ? [`- ${framing}`] : []),
     "- **Every held-out round, as run**, with the baselines on the same frozen cases (cases the rules were not written for; one run each). The same table, from the same result files, is on the review desk's test-scores screen. Wrong closes are in bold and stay in this table:",
     "",
     `| Round | ${ROUND_COLUMNS.map((c) => ROUND_COLUMN_LABEL[c]).join(" | ")} |`,
@@ -1353,6 +1345,29 @@ if (fixLines.length > 0 && evaluationLast.includes(FS) && evaluationLast.include
       evaluationPath,
     ),
   );
+}
+// The rules-versus-full-system framing and the held-out totals, in docs/EVALUATION.md between their own markers.
+const RS = "<!-- rules-framing:start -->";
+const RE = "<!-- rules-framing:end -->";
+const evaluationFraming = readFileSync(evaluationPath, "utf8");
+if (framing && evaluationFraming.includes(RS) && evaluationFraming.includes(RE)) {
+  writeFileSync(
+    evaluationPath,
+    formatMarkdown(
+      evaluationFraming.replace(
+        new RegExp(`${RS}[\\s\\S]*?${RE}`),
+        [RS, framing, "", ...heldoutTotalsTable(heldoutSummary(totals)), RE].join("\n"),
+      ),
+      evaluationPath,
+    ),
+  );
+}
+// The deck outline, which is not part of the repository, quotes the same framing on one line when it is present.
+const deckOutline = join(resolveProjectPath("."), "internal", "DECK-OUTLINE.md");
+if (framing && existsSync(deckOutline)) {
+  const outline = readFileSync(deckOutline, "utf8");
+  if (outline.includes(RS) && outline.includes(RE))
+    writeFileSync(deckOutline, outline.replace(new RegExp(`${RS}[\\s\\S]*?${RE}`), `${RS}${framing}${RE}`));
 }
 console.log(
   `wrote eval/REPORT.md from ${have.length} variant(s)${notRun.length ? `; not run: ${notRun.join(", ")}` : ""}`,

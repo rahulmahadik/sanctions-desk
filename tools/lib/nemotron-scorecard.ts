@@ -11,7 +11,23 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
+import { heldoutRounds, type SavedResult } from "@sanctions-desk/agents";
 import { countWithInterval, median, wilson95 } from "@sanctions-desk/shared";
+import {
+  answerSources,
+  armRows,
+  type ExamRun,
+  examArms,
+  examFigures,
+  type HeldoutSummary,
+  type HeldoutTotals,
+  heldoutSummary,
+  heldoutTotals,
+  heldoutTotalsTable,
+  type LabelSet,
+  range95,
+  rulesFraming,
+} from "./exam-figures.js";
 
 // ---- the steps (the why text is the start of the "Why this model" cell in docs/NEMOTRON.md; checked on build) ----
 
@@ -533,6 +549,77 @@ export function guardResults(root: string): GuardResult[] {
   ];
 }
 
+// ---- the 70 cases, per arm -----------------------------------------------------------------------------------------
+
+/** One arm of the 70-case comparison; the figures are null until the arm's result file is committed. */
+export interface ExamArmRow {
+  arm: string;
+  source: string | null;
+  figures: {
+    wrong: number;
+    risk: number;
+    wrong_range: string;
+    clears_made: number;
+    clears: number;
+    blocks: number;
+    unsupported_blocks: number;
+    not_block_cases: number;
+    unsupported_range: string;
+    unusable: number;
+    answer_from: string;
+  } | null;
+}
+
+/**
+ * The 70-case arms (the same computation as the five-ways table of eval/REPORT.md, tools/lib/exam-figures.ts) from the
+ * tracked result files, scored against the committed exam labels, with the tracked run exports for the answer sources;
+ * and the blind held-out totals with the rules-versus-full-system framing.
+ */
+export function examComparison(root: string): { arms: ExamArmRow[]; heldout: HeldoutTotals; framing: string } {
+  const results = tracked(root, "eval/results").filter((f) => /\.json$/.test(f) && !/\/bench-/.test(f));
+  const runs = results.map((rel) => ({ ...readJson<ExamRun>(root, rel), file: rel }));
+  const labels = new Map<string, LabelSet>(
+    readJson<{ cases: Array<LabelSet & { case_id: string }> }>(root, "eval/cases/exam.json").cases.map((c) => [
+      c.case_id,
+      c,
+    ]),
+  );
+  const runFiles = tracked(root, "eval/runs");
+  const runDirs = runFiles
+    .filter((f) => f.endsWith("/run-meta.json"))
+    .map((f) => f.slice(0, -"/run-meta.json".length))
+    .filter((d) => runFiles.includes(`${d}/trace.jsonl.gz`))
+    .map((d) => join(root, d));
+  const a = examArms(runs, labels);
+  const arms = armRows(a).map(({ label, run }): ExamArmRow => {
+    if (!run) return { arm: label, source: null, figures: null };
+    const f = examFigures(run);
+    return {
+      arm: label,
+      source: run.file,
+      figures: {
+        wrong: f.wrong,
+        risk: f.risk,
+        wrong_range: range95(f.wrong, f.risk),
+        clears_made: f.made,
+        clears: f.clears,
+        blocks: f.blocks,
+        unsupported_blocks: f.unsupportedBlocks,
+        not_block_cases: f.notBlockCases,
+        unsupported_range: range95(f.unsupportedBlocks, f.notBlockCases),
+        unusable: f.unusable,
+        answer_from: answerSources(run, runDirs),
+      },
+    };
+  });
+  const heldout = heldoutTotals(
+    heldoutRounds(
+      results.map((rel) => ({ ...readJson<SavedResult>(root, rel), file: rel.split("/").at(-1) as string })),
+    ),
+  );
+  return { arms, heldout, framing: rulesFraming(a.rules ? examFigures(a.rules) : undefined, heldout) };
+}
+
 // ---- the scorecard ---------------------------------------------------------------------------------------------
 
 export interface Scorecard {
@@ -548,6 +635,12 @@ export interface Scorecard {
   reasoning_models: RunShares[];
   /** The sentences README.md and docs/*.md quote from reasoning_models (npm run readme:refresh). */
   reasoning_facts: Record<string, string>;
+  /** The 70 cases per arm: risk cases wrongly closed, clears, blocks, unsupported blocks, unusable answers. */
+  exam_arms: ExamArmRow[];
+  /** Totals over the blind held-out rounds, and the same without v2. */
+  heldout_totals: HeldoutSummary;
+  /** Why the rules look exact on the 70 cases, against what they did on the held-out rounds. */
+  rules_framing: string;
   not_used: string;
 }
 
@@ -571,6 +664,7 @@ export function buildScorecard(root: string): Scorecard {
   }
   const cal = calibration(root);
   const shares = reasoningShares(root);
+  const exam = examComparison(root);
   return {
     note: "Written by npm run nemotron:scorecard from committed files; do not edit by hand.",
     steps: STEPS,
@@ -582,6 +676,9 @@ export function buildScorecard(root: string): Scorecard {
     guard: guardResults(root),
     reasoning_models: shares,
     reasoning_facts: reasoningFacts(shares),
+    exam_arms: exam.arms,
+    heldout_totals: heldoutSummary(exam.heldout),
+    rules_framing: exam.framing,
     not_used: NOT_USED_LINK,
   };
 }
@@ -615,6 +712,20 @@ export function renderScorecard(s: Scorecard): string {
     ),
     "",
     `${s.reasoning_facts.decision_models_line ?? ""} ${s.reasoning_facts.decision_lightning_note ?? ""}`,
+    "",
+    "**The 70 cases, per arm** (one run each; 95% Wilson ranges in brackets; an unsupported block is a block recommendation on a case whose labels do not accept a block, counted over those cases; the last column counts, per case, the model whose decision answer was used, from the run's exported trace):",
+    "",
+    "| Arm | Risk cases wrongly closed | Clears made | Blocks | Unsupported blocks | Unusable answers | Decision answer used came from |",
+    "| --- | ---: | ---: | ---: | ---: | ---: | --- |",
+    ...s.exam_arms.map((a) => {
+      const f = a.figures;
+      if (!f || !a.source) return `| ${a.arm} | not run yet | | | | | |`;
+      return `| ${a.arm} ([result](../${a.source})) | ${f.wrong} of ${f.risk} (${f.wrong_range}) | ${f.clears_made} of ${f.clears} | ${f.blocks} | ${f.unsupported_blocks} of ${f.not_block_cases} (${f.unsupported_range}) | ${f.unusable} | ${f.answer_from} |`;
+    }),
+    "",
+    ...heldoutTotalsTable(s.heldout_totals),
+    "",
+    s.rules_framing,
     "",
     `**Per model, recorded runs** (${s.recorded_runs} exported runs in eval/runs; safety guard, screener, decision, critic and challenger calls):`,
     "",

@@ -6,7 +6,7 @@
  *
  *   npm run evidence:export                   the newest complete run of every variant, and the held-out run
  *   npm run evidence:export -- --only routed,single
- *   npm run evidence:export -- --system sys5      only the runs of that system version (leaves the other exports as they are)
+ *   npm run evidence:export -- --system sys5      only the runs of that system version or run label (leaves the other exports as they are)
  *
  * It fails when anything it wrote still matches a redaction pattern, and reports the size.
  */
@@ -68,6 +68,8 @@ interface Result {
   exam?: string;
   /** The system version a later run was made with (its run ids carry it). */
   system?: string;
+  /** A labelled study run (for example the Nemotron-alone arms); its traces and run id carry the label. */
+  run?: string;
   selection?: { groups?: unknown; kinds?: unknown; limit?: unknown };
   started_at: string;
   finished_at: string;
@@ -90,18 +92,18 @@ const chosen = new Map<string, { file: string; r: Result }>();
 const PROBES = new Set(["smoke", "zdown", "probe"]);
 for (const run of complete) {
   if (run.r.system && PROBES.has(run.r.system)) continue;
-  chosen.set(`${run.r.exam ?? "exam"}:${run.r.system ?? ""}:${run.r.variant}`, run);
+  chosen.set(`${run.r.exam ?? "exam"}:${run.r.system ?? ""}:${run.r.run ?? ""}:${run.r.variant}`, run);
 }
 
 const sha = (data: Buffer | string) => createHash("sha256").update(data).digest("hex");
 const idOf = (r: Result) =>
-  `${r.exam && r.exam !== "exam" ? `${r.exam}-` : ""}${r.system ? `${r.system}-` : ""}${r.variant}-${r.started_at.replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z")}`;
+  `${r.exam && r.exam !== "exam" ? `${r.exam}-` : ""}${r.system ? `${r.system}-` : ""}${r.run ? `${r.run}-` : ""}${r.variant}-${r.started_at.replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z")}`;
 const problems: string[] = [];
 const summary: Array<{ id: string; bytes: number; receipts: number; events: number }> = [];
 
 for (const { file, r } of chosen.values()) {
   if (only && !only.includes(r.variant)) continue;
-  if (onlySystem && r.system !== onlySystem) continue;
+  if (onlySystem && r.system !== onlySystem && r.run !== onlySystem) continue;
   const id = idOf(r);
   const dir = join(outRoot, id);
   rmSync(dir, { recursive: true, force: true });
@@ -112,7 +114,7 @@ for (const { file, r } of chosen.values()) {
   const lines: string[] = [];
   const receiptIds = new Set<string>();
   for (const c of r.cases) {
-    const prefix = `${r.exam && r.exam !== "exam" ? `eval-${r.exam}` : "eval"}${r.system ? `-${r.system}` : ""}`;
+    const prefix = `${r.exam && r.exam !== "exam" ? `eval-${r.exam}` : "eval"}${r.system ? `-${r.system}` : ""}${r.run ? `-${r.run}` : ""}`;
     const name = join(logs, `trace-${prefix}-${r.variant}-${c.case_id}.jsonl`);
     if (!existsSync(name)) continue;
     const events = readFileSync(name, "utf8")

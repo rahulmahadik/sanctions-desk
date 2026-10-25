@@ -104,6 +104,7 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
 - **Evidence is missing or Zetaris is unreachable:** the case is held for a person with the reason, never closed.
   - **Limits:** the recorded test ran a build in which the review stopped with an error before any recommendation. The code in this repository holds the case with the reason ([recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened), [changes](docs/EVALUATION.md#changes-after-the-evaluation)).
+- **A model answer's receipt is missing or not signed by the pinned key:** <!--fact:receipt_gate-->The desk only uses a model answer whose Nightshift receipt is signed by the pinned key; otherwise it retries, then holds the case.<!--/fact--> The Ollama backup has no receipt by design and is labelled as such.
 - **A Zetaris data-quality rule fails on the record:** the failed rule forces a hold, so the case cannot be closed. Example: the [replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html) has no birth date on record, so "need more information".
 - **A model call fails:** the step retries, then the local Ollama backup answers, else the case is escalated. In the recorded runs: 19 backup answers, 20 escalations, 0 wrong closes ([recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened)).
 - **A cited fact does not match the source, or cannot be checked:** code re-reads every cited fact from Zetaris before the critic's model sees it. A fact that does not hold sends the recommendation back.
@@ -218,6 +219,7 @@ Reproduce with `npm ci && npm run prove`, or `npm run prove -- --fresh` to clone
 
 <!-- rounds:start -->
 - **Wrongly closed on the 43 risk cases of the exam:** full system **0**, plain name matching 10.
+- **The rules on home ground.** The 70 exam cases are labelled from the same definitions the rules use, so the rules have a home advantage here (1 of 43 risk cases wrongly closed, 25 of 25 clears). On the frozen held-out rounds, written without those rules, the rules wrongly closed 13 of 48 risk cases against 4 of 48 for the full system (without v2: 10 of 34 against 4 of 34).
 - **Every held-out round, as run**, with the baselines on the same frozen cases (cases the rules were not written for; one run each). The same table, from the same result files, is on the review desk's test-scores screen. Wrong closes are in bold and stay in this table:
 
 | Round | Full system | Single (no critic, no challenger) | Deterministic rules | Name match | Escalate everything |
@@ -345,7 +347,7 @@ The step-by-step model table and the receipt log are at the [top of this page](#
 
 ### Meterless Nightshift
 
-> **<!--fact:receipts_line-->2,802 signed receipts: 1,923 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->.** Nightshift serves every model call; Ollama is a backup only.
+> **<!--fact:receipts_line-->2,894 signed receipts: 2,015 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->.** Nightshift serves every model call; Ollama is a backup only.
 
 - The desk talks to Nightshift's OpenAI-compatible API through one injected generator.
 - It uses two app identities, with binds set in the Nightshift cockpit:

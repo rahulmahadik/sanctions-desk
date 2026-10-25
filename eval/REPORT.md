@@ -24,15 +24,30 @@ Name matching is typical screening: it sees a name score and nothing else. The r
 
 The same 70 cases through the full system (the first system's run, and runs of the current system before and after the block fix), the deterministic rules, plain name matching, and Nemotron alone: one call per case on the structured case facts, asking for the deep lane, once without and once with the free text the screener reads. The arm with the free text sends that (synthetic) text to the cloud model, which the desk itself never does; it is a study arm only. An unusable answer is a case where no model answer could be used (the full system then escalates it to a person; for Nemotron alone it is left without an outcome). Ranges are 95% Wilson score intervals.
 
-| System | Risk cases wrongly closed | Clear cases closed | Escalated | Blocks recommended | Unusable answers | File |
-|---|---:|---:|---:|---:|---:|---|
-| Full system, first system | 0 of 43 (0–8%) | 18 of 25 (52–86%) | 41 of 70 | 8 | 9 | [result](results/2026-10-23T13-33-11-122Z-routed.json) |
-| Full system, current system before the block fix | 0 of 43 (0–8%) | 13 of 25 (33–70%) | 46 of 70 | 0 | 2 | [result](results/2026-10-25T07-45-05-768Z-sys5-routed.json) |
-| Full system, current system | not run yet | | | | | |
-| Deterministic rules | 1 of 43 (0–12%) | 25 of 25 (87–100%) | 36 of 70 | 0 | 0 | [result](results/2026-10-23T08-56-18-162Z-rules.json) |
-| Name-match rules baseline | 10 of 43 (13–38%) | 3 of 25 (4–30%) | 55 of 70 | 0 | 0 | [result](results/2026-10-23T08-56-17-916Z-fuzzy.json) |
-| Nemotron alone, without the free text | not run yet | | | | | |
-| Nemotron alone, with the free text (sent to the cloud) | not run yet | | | | | |
+| System | Risk cases wrongly closed | Clear cases closed | Escalated | Blocks recommended | Unsupported blocks | Unusable answers | Decision answer used came from | File |
+|---|---:|---:|---:|---:|---:|---:|---|---|
+| Full system, first system | 0 of 43 (0–8%) | 18 of 25 (52–86%) | 41 of 70 | 8 | 0 of 35 (0–10%) | 9 | Ultra 58, Lightning (router) 1, Ollama backup 1, none 10 | [result](results/2026-10-23T13-33-11-122Z-routed.json) |
+| Full system, current system before the block fix | 0 of 43 (0–8%) | 13 of 25 (33–70%) | 46 of 70 | 0 | 0 of 35 (0–10%) | 2 | Ultra 59, Lightning (fast-lane retry) 3, Lightning (router) 1, Ollama backup 3, none 4 | [result](results/2026-10-25T07-45-05-768Z-sys5-routed.json) |
+| Full system, current system | not run yet | | | | | | | |
+| Deterministic rules | 1 of 43 (0–12%) | 25 of 25 (87–100%) | 36 of 70 | 0 | 0 of 35 (0–10%) | 0 | no model | [result](results/2026-10-23T08-56-18-162Z-rules.json) |
+| Name-match rules baseline | 10 of 43 (13–38%) | 3 of 25 (4–30%) | 55 of 70 | 0 | 0 of 35 (0–10%) | 0 | no model | [result](results/2026-10-23T08-56-17-916Z-fuzzy.json) |
+| Nemotron alone, without the free text | not run yet | | | | | | | |
+| Nemotron alone, with the free text (sent to the cloud) | 6 of 43 (7–27%) | 23 of 25 (75–98%) | 2 of 70 | 25 | 1 of 35 (1–15%) | 4 | Ultra 33, Lightning (fast-lane retry) 30, Ollama backup 3, none 4 | [result](results/2026-10-25T09-30-17-773Z-text70-nemotron_alone.json) |
+
+**Blind held-out rounds, totals** (4 rounds, cases the rules were not written for; each round ran the system of its time, one run each; per round in the held-out table):
+
+| System | Risk cases wrongly closed | Clear cases closed |
+|---|---:|---:|
+| Full system | 4 of 48 (3–20%) | 0 of 25 (0–13%) |
+| Deterministic rules | 13 of 48 (17–41%) | 8 of 25 (17–52%) |
+| Full system, without v2 | 4 of 34 (5–27%) | 0 of 20 (0–16%) |
+| Deterministic rules, without v2 | 10 of 34 (17–46%) | 3 of 20 (5–36%) |
+
+An unsupported block is a block recommendation on a case whose labels do not accept a block: an accusation the case does not support. It is counted over the cases whose labels do not accept a block (on the other cases, the true matches and some escalations, the labels accept a block as well as an escalation). The last column counts, per case, the model whose decision answer was used, from the run's exported trace.
+
+**The rules on home ground.** The 70 exam cases are labelled from the same definitions the rules use, so the rules have a home advantage here (1 of 43 risk cases wrongly closed, 25 of 25 clears). On the frozen held-out rounds, written without those rules, the rules wrongly closed 13 of 48 risk cases against 4 of 48 for the full system (without v2: 10 of 34 against 4 of 34).
+
+**The trade-off, read plainly.** Nemotron alone (with the free text) clears more: 23 of 25 clear cases, against 13 of 25 for the full system. But it wrongly closes 6 of 43 risk cases (7–27%) and recommends a block on 25 cases, 1 of them unsupported by the labels (1 of 35, 1–15%). The full system (the current system before the block fix) wrongly closes 0 of 43, recommends 0 unsupported blocks (0 of 35), and leaves the final call to a person.
 
 **The full system's runs on the 70 cases, from the result files.** The first system ([result](results/2026-10-23T13-33-11-122Z-routed.json)): 0 of 43 risk cases wrongly closed (0–8%), 18 of 25 clears made (52–86%), median 124 s per case, 9 unusable answers, 8 blocks recommended, 1 need-more-information outcome. The current system before the block fix ([result](results/2026-10-25T07-45-05-768Z-sys5-routed.json)): 0 of 43 risk cases wrongly closed (0–8%), 13 of 25 clears made (33–70%), median 73 s per case, 2 unusable answers, 0 blocks recommended, 9 need-more-information outcomes. The current system: not run yet. Every figure is one run, and the ranges are 95% Wilson score intervals: the ranges of clears made overlap, so one run each cannot show whether clears really differ.
 

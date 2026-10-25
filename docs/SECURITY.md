@@ -29,6 +29,8 @@ What the desk protects, how, what was tested, and what is not covered. Scans wer
 
 **Upgrading an existing live setup:** when upgrading from a version that issued tokens in another form, a users file that still holds such a token stops a live start with sign-in on until each of those users is rotated: `npm run users:rotate -- --file <users file> --id <name> --by <your name>` (sample mode needs no users file and no sign-in).
 
+**Model answers.** <!--fact:receipt_gate-->The desk only uses a model answer whose Nightshift receipt is signed by the pinned key; otherwise it retries, then holds the case.<!--/fact--> The Ollama backup has no receipt by design and is labelled. Tests: `packages/agents/test/receipt-gate.test.ts` (each receipt status, the backup, and a case held when no answer is signed by the pinned key), `apps/web/test/receipt-gate.test.tsx`.
+
 ## Sign-in and roles against the live stack
 
 `npm run check:auth-live` builds the API as in live mode (real Zetaris and Nightshift clients, sign-in on) on 127.0.0.1 with throwaway users, and checks it over HTTP without starting a review: `/health` public; no token, a token not in the issued form and an unknown token refused with 401; a viewer refused with 403 when starting a review or deciding; an analyst refused with 403 when overriding towards a close; an approver's override of an escalation to a close waits for a second approver; the same approver's second approval refused with 403, and a different approver's answer (declining the close) accepted with 201; a fourth write in a window of three refused with 429; a revoked token refused on the next request. 17 of 17 passed: [eval/security/live-auth-2026-10-25.json](../eval/security/live-auth-2026-10-25.json) (no tokens in it).
