@@ -110,8 +110,8 @@
       </p>
       <p>
         Built on Zetaris, the only data path (one semantic layer over the sanctions lists, a bank database and a
-        payments service); Meterless Nightshift, through which every model call goes to local and cloud Nemotron models,
-        each with a signed receipt (a local Ollama backup answers only if it fails); and three Meterless engines, each in a working feature: H-MEM (memory of earlier
+        payments service); Meterless Nightshift, the primary path for every model call to local and cloud Nemotron models,
+        where every answer carries a signed receipt (a local Ollama backup answers only if Nightshift fails, and has no receipt by design); and three Meterless engines, each in a working feature: H-MEM (memory of earlier
         decisions), the World Model (the ownership register the 50 percent rule is evaluated on) and Markovian
         (re-screening earlier decisions after a list change).
       </p>
@@ -135,7 +135,7 @@
           <a href="runs/index.html">Recorded runs</a><span class="muted">: a read-only replay of six alerts from the committed runs, step by step, with the model that served each call, its verified receipt, the Zetaris reads and why a close was stopped</span>
         </li>
         <li>
-          <a href="receipts/index.html">Receipt log</a><span class="muted">: every model call in the committed runs, with the Nemotron model that served it and its signed receipt, each signature checked when the site was built</span>
+          <a href="receipts/index.html">Receipt log</a><span class="muted">: every model call in the committed runs, with the Nemotron model that served it; every Nightshift answer has its signed receipt, each signature checked when the site was built, and answers from the local Ollama backup have none by design</span>
         </li>
         <li>
           <a href="api.html">API reference</a><span class="muted">: every route, its parameters and its responses, from the API's own OpenAPI document</span>

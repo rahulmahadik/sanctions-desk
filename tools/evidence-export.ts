@@ -218,7 +218,7 @@ if (intoCommitted && doc.includes(RS) && doc.includes(RE) && summary.length > 0)
     "| --- | ---: | --- | --- |",
     ...rows.values(),
     "",
-    "`npm run evidence:verify` with no argument checks every run: each signature, that every model call has a receipt, and that the model in the trace equals the model in the receipt.",
+    "`npm run evidence:verify` with no argument checks every run: each signature, that every Nightshift answer in the trace has its receipt (answers from the Ollama backup have none by design), and that the model in the trace equals the model in the receipt.",
     RE,
   ].join("\n");
   writeFileSync(docPath, formatMarkdown(doc.replace(new RegExp(`${RS}[\\s\\S]*?${RE}`), block), docPath));

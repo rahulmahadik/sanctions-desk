@@ -17,6 +17,7 @@ import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
 import { loadConfig, median, percentile, projectRoot, resolveProjectPath, verifyReceipt } from "@sanctions-desk/shared";
 import { formatMarkdown } from "./lib/format-markdown.js";
+import { type ReceiptCheck, receiptFigureFrom, receiptSentence } from "./lib/receipt-figure.js";
 import { RUN_GROUP_ORDER, type RunGroupId, runGroup, runGroupLabel } from "./lib/run-groups.js";
 
 interface Event {
@@ -256,7 +257,12 @@ const table = (g: Group): string =>
         .join("; ") || "none"
     }.`,
   ].join("\n");
-const block = groups.map(table).join("\n\n");
+// The one receipt figure (tools/lib/receipt-figure.ts) leads the block, from these groups and eval/receipts-check.json.
+const figure = receiptFigureFrom(
+  JSON.parse(readFileSync(resolveProjectPath("eval/receipts-check.json"), "utf8")) as ReceiptCheck,
+  groups,
+);
+const block = [`**${receiptSentence(figure)}.**`, ...groups.map(table)].join("\n\n");
 const docFile = resolveProjectPath("docs/NEMOTRON.md");
 let changed = false;
 if (!existsSync(outFile) || readFileSync(outFile, "utf8") !== json) {

@@ -46,7 +46,7 @@ Three engines run in the review. A fourth, Scout Intent, is optional and off by 
 
 **Scout Intent (optional, off by default; on the action step, not the review decision).** Set `actions.scoutIntent` (or `DESK_SCOUT_INTENT=true`). After a person decides, the desk prepares next-action records; with the flag on, Scout Intent (`packages/engines/src/scout-intent/`, our implementation of the Meterless specification, Stage 1: a deterministic trigger scan, no model call) reads each record's title and first sentence against a registry of the desk's five action kinds (`packages/agents/src/action-intent.ts`), checks it for injected instructions, and issues an HMAC-signed execution contract that is sealed into the record. A record is refused, not written, and audited when its text reads as a different action than its kind, when the person's decision does not allow that kind (for example a closure note after an escalation), or when it carries instructions aimed at the desk. Tests: `packages/agents/test/action-intent.test.ts` (every approved sample decision, overrides, a full block, each refusal, a changed or expired contract, and the records unchanged with the flag off). The official eval harness (32 examples: intents, injections, composed requests, edge cases) passes every metric; its intent prompts also appear as examples in its own registry, so passing it shows the implementation meets the specified API and thresholds rather than measuring classification on new wording. The two deliberately vague prompts fall back to the safe general intent instead of asking for clarification.
 
-## 3. Nightshift: every model call goes through it
+## 3. Nightshift: the primary path for every model call
 
 **How the app connects.** Nightshift runs on the analyst's laptop and exposes an OpenAI-compatible API. The desk calls `POST {METERLESS_BASE_URL}/chat/completions` with a bearer token (`METERLESS_RUNTIME_TOKEN`, from the environment, never logged) and the `meterless-app` header naming the app identity; the answer carries the signed receipt in its `meterless` block. One injected `generator` function asks Nightshift first, the Ollama backup only if Nightshift cannot answer, and a labelled rules stand-in in sample mode only. Nothing else in the code names a provider. The calls carry a pinned mode (`meterless/fast`, `meterless/deep`, `meterless/judge`; `meterless/auto` is rejected; the mode is pinned, the serving model is chosen by Nightshift's router), a token limit of our own, and a strict JSON schema so the answer cannot be cut off in reasoning text.
 
@@ -59,8 +59,8 @@ Every call records the mode asked for, the model that answered, the app identity
 <!-- alone-headline:start -->
 **Measured against Nemotron alone** (small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation):
 - Full system: a recommendation on every case (escalated to a person where no model answer was usable), free text kept out of the desk's cloud prompts, 0 of 6 risk cases wrongly closed in each of 3 runs; in 1 of 3 runs, 1 case had no usable model answer and was escalated to a person.
-- Nemotron alone without the free text: 3, 6 and 4 wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases.
-- Nemotron alone with the free text sent to the cloud: 0, 1 and 1 wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases.
+- Nemotron alone without the free text: 3, 6 and 4 wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Decision answers used: Ultra 8, Lightning (fast-lane retry) 17, Ollama backup 2, none 9, over 36 cases of 3 runs.
+- Nemotron alone with the free text sent to the cloud: 0, 1 and 1 wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Decision answers used: Ultra 13, Lightning (fast-lane retry) 9, Lightning (router) 1, Ollama backup 1, none 12, over 36 cases of 3 runs.
 - Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it), against 1 in each run for the full system.
 <!-- alone-headline:end -->
 
@@ -79,7 +79,7 @@ The decision, the critic and the challenger are Ultra answers for the most part;
 
 ```bash
 npm ci
-npm run evidence:verify                       # every signature, every call has a receipt, trace model = receipt model, the split per step
+npm run evidence:verify                       # every signature, every Nightshift answer has its receipt, trace model = receipt model, the split per step
 gunzip -c eval/runs/<run-id>/receipts.jsonl.gz | head -1     # one signed receipt: winning_route.model is the serving model
 ```
 

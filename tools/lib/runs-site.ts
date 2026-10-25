@@ -4,7 +4,8 @@
  *
  * The build throws when a run file is missing, a receipt is missing or does not verify, or the trace and the receipt
  * disagree. Free text and list remarks never reach a page and identifier numbers are masked: `scrub` runs over every
- * string before it is written.
+ * string before it is written. The one exception is a span the screener flagged: only the characters at that signal's
+ * recorded position are shown (the data is synthetic), never the rest of the text.
  */
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -368,6 +369,8 @@ export interface Protected {
    * when the free text also mentions it; a run of free-text words around it is still withheld.
    */
   names?: string[];
+  /** The raw free-text fields the screener reads, by the name its trace uses, for showing a flagged span only. */
+  fields?: Record<string, string>;
 }
 
 type Row = Record<string, unknown>;
@@ -401,6 +404,13 @@ export function protectedValuesFor(label: CaseLabel, root = resolveProjectPath("
       ...strings(listIds, "note"),
     ],
     idNumbers: [...strings(custIds, "id_number"), ...strings(listIds, "id_number")].filter((v) => v.length >= 5),
+    fields: Object.fromEntries(
+      [
+        ["customer.notes", customers.length === 1 ? strings(customers, "notes")[0] : undefined],
+        ["payment.payment_reference", payments.length === 1 ? strings(payments, "payment_reference")[0] : undefined],
+        ["list_entry.remarks", entries.length === 1 ? strings(entries, "remarks")[0] : undefined],
+      ].filter((x): x is [string, string] => typeof x[1] === "string"),
+    ),
     names: [
       ...strings(customers, "full_name"),
       ...strings(entries, "primary_name"),
@@ -641,6 +651,110 @@ function stepRows(c: LoadedCase, s: Scrubbed): string[][] {
   });
 }
 
+/** A risk signal as the screener's trace line records it: type, confidence, field, character span, grounding. */
+export interface FlaggedSignal {
+  type: string;
+  confidence: number;
+  field: string;
+  start: number;
+  end: number;
+  grounded: boolean;
+}
+/** The longest span shown on a page; a longer one is not shown at all. */
+export const MAX_SPAN_CHARS = 120;
+
+/** The located signals of the screener's verdicts in a case's trace (signals without a location are left out). */
+export function flaggedSignals(events: readonly TraceEvent[]): FlaggedSignal[] {
+  const out: FlaggedSignal[] = [];
+  for (const e of events.filter((x) => x.agent === "screener" && x.action === "screen_text")) {
+    for (const m of (e.output_summary ?? "").matchAll(/(\w+) ([\d.]+) at ([\w.]+):(\d+)-(\d+)( \(not grounded\))?/g))
+      out.push({
+        type: m[1] as string,
+        confidence: Number(m[2]),
+        field: m[3] as string,
+        start: Number(m[4]),
+        end: Number(m[5]),
+        grounded: m[6] === undefined,
+      });
+  }
+  return out;
+}
+
+/** The exact characters of a signal's span in the raw field, or undefined when the field or span cannot be shown. */
+export function spanText(sig: FlaggedSignal, p: Protected): string | undefined {
+  const raw = p.fields?.[sig.field];
+  if (raw === undefined || sig.end <= sig.start || sig.end > raw.length || sig.end - sig.start > MAX_SPAN_CHARS)
+    return undefined;
+  return raw.slice(sig.start, sig.end);
+}
+
+const sentenceCase = (t: string) => `${t[0]?.toUpperCase() ?? ""}${t.slice(1)}`;
+const codeOf = (summary: string | null | undefined) => summary?.match(/^([A-Z0-9_]+)\b/)?.[1];
+
+/** One line, from the trace and the result row: what the checks did and what the run ended at. No free text. */
+export function whatHappened(c: LoadedCase): string {
+  const parts: string[] = [];
+  const signals = c.events
+    .filter((e) => e.agent === "screener" && e.action === "screen_text" && e.status === "blocked")
+    .flatMap((e) => [...(e.output_summary ?? "").matchAll(/(\w+) ([\d.]+) at ([\w.]+):/g)])
+    .map((m) => ({ type: m[1] as string, conf: m[2] as string, field: m[3] as string }));
+  if (signals.length > 0)
+    parts.push(
+      `the local screener flagged ${signals.length} risk ${signals.length === 1 ? "signal" : "signals"} in ${[...new Set(signals.map((x) => x.field))].join(" and ")} (${signals.map((x) => `${x.type.replaceAll("_", " ")} ${x.conf}`).join(", ")}), which blocks a close`,
+    );
+  const recs = c.events.filter((e) => e.agent === "decision" && e.action === "recommend");
+  const closes = recs.filter((e) => codeOf(e.output_summary) === "CLOSE_FALSE_POSITIVE").length;
+  const last = codeOf(recs.at(-1)?.output_summary);
+  if (closes > 0) parts.push(`the decision step proposed a close ${closes === 1 ? "once" : `${closes} times`}`);
+  else if (last) parts.push(`the decision step recommended ${last}`);
+  const judged = c.events.filter((e) => e.agent === "critic" && e.action === "judge");
+  const sentBack = judged.filter((e) => e.status === "blocked").length;
+  if (judged.length > 0)
+    parts.push(
+      sentBack === 0
+        ? `the critic approved it`
+        : `the critic sent it back ${sentBack === 1 ? "once" : `${sentBack} times`}${sentBack < judged.length ? " and then approved it" : ""}`,
+    );
+  const guard = c.events.filter((e) => e.agent === "policy_guard" && e.action === "apply_policy").at(-1);
+  if (guard) {
+    const verdicts = Array.isArray(guard.detail?.verdicts) ? (guard.detail.verdicts as string[]) : [];
+    const raised = verdicts.filter((v) => /:block$/.test(v)).map((v) => v.split(":")[0]);
+    const raisedTo = guard.output_summary?.match(/raised to ([A-Z0-9_]+)/)?.[1];
+    parts.push(
+      raisedTo
+        ? `the policy guard raised it to ${raisedTo}${raised.length > 0 ? ` (rule: ${raised.join(", ")})` : ""}`
+        : "the policy guard let it stand",
+    );
+  }
+  const v = verdictOf(c.label, c.result.got);
+  const against =
+    v === "matches the label"
+      ? "as the label expects"
+      : v === "acceptable"
+        ? "an outcome the label accepts"
+        : "not what the label expects";
+  return `${sentenceCase(parts.join("; "))}. Outcome: ${outcome(c.result.got)}, ${against}.`;
+}
+
+/** The flagged spans of a case, as a short section; empty when the screener located none that can be shown. */
+function flaggedSection(c: LoadedCase, p: Protected): string {
+  const rows = flaggedSignals(c.events).flatMap((sig) => {
+    const text = spanText(sig, p);
+    return text === undefined
+      ? []
+      : [
+          `        <li>${esc(sig.type.replaceAll("_", " "))}, confidence ${esc(sig.confidence)}, ${esc(sig.field)} characters ${sig.start}–${sig.end}${sig.grounded ? "" : ", marked not grounded"}: <q class="flagged-span">${esc(text)}</q></li>`,
+        ];
+  });
+  if (rows.length === 0) return "";
+  return `      <div class="note">
+      <p><strong>The free text the screener flagged</strong> (synthetic data). Only the characters at each signal's recorded position are shown; the rest of the text stays withheld. A signal marked not grounded is still shown to the reviewer and still blocks a close (policy version 8).</p>
+      <ul class="checks">
+${rows.join("\n")}
+      </ul>
+      </div>`;
+}
+
 export function renderCasePage(c: LoadedCase, p: Protected): string {
   const s: Scrubbed = (x) => esc(scrub(String(x ?? ""), p));
   const { label, result, spec } = c;
@@ -693,6 +807,8 @@ export function renderCasePage(c: LoadedCase, p: Protected): string {
   const runMeta = `${REPO_BLOB}eval/runs/${spec.runId}/run-meta.json`;
   const body = `      <p class="crumbs"><a href="index.html">Recorded runs</a> / ${esc(label.alert_id)}</p>
       <h1>${esc(label.alert_id)}: ${s(label.title)}</h1>
+      <p class="what"><strong>What happened:</strong> ${s(whatHappened(c))}</p>
+${flaggedSection(c, p)}
       <p>${s(spec.shows)}</p>
 
       <h2 id="outcome">Outcome</h2>
@@ -741,7 +857,7 @@ export function renderIndexPage(cases: Array<LoadedCase & { protect: Protected }
   ]);
   const body = `      <h1>Recorded runs</h1>
       <p>A few alerts from the committed run exports, shown step by step: which agent did what, which Nemotron model served each model call (local Lightning or cloud Ultra), the signed receipt for each call and whether it verifies, the Zetaris reads, and why a proposed close was stopped. The pages are built from the committed files by <code>npm run site:build</code>; the build stops if a receipt is missing or does not verify.</p>
-      <p class="muted">Customers and payments are synthetic; listed parties are public sanctions-list entries. Customer notes, payment references and list remarks are not shown, and identifier numbers are masked.</p>
+      <p class="muted">Customers and payments are synthetic; listed parties are public sanctions-list entries. Customer notes, payment references and list remarks are not shown, apart from the characters of a span the screener flagged, and identifier numbers are masked.</p>
 ${table("The recorded cases", ["Alert", "Case", "Desk recommendation", "Label", "Compared", "Calls with a verified receipt", "Run"], rows)}
       <ul class="links">
 ${cases.map((c) => `        <li><a href="${esc(c.spec.slug)}.html">${esc(c.label.alert_id)}</a>: ${esc(scrub(c.spec.shows, c.protect))}</li>`).join("\n")}
@@ -762,7 +878,9 @@ code { font: 0.85em/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
 code.sql { white-space: pre-wrap; display: block; min-width: 28ch; }
 .banner { background: #fff7e6; border: 1px solid #f0c36d; border-radius: 8px; padding: 10px 14px; }
 .muted, .crumbs { color: #4b5563; }
-.note { background: #eef2ff; border-radius: 8px; padding: 8px 12px; }
+.note { background: #eef2ff; border-radius: 8px; padding: 8px 12px; margin: 0 0 12px; }
+.what { font-size: 1.05rem; }
+q.flagged-span { background: #fff7e6; border-radius: 4px; padding: 0 4px; white-space: pre-wrap; }
 .facts { display: grid; grid-template-columns: minmax(0, 14em) minmax(0, 1fr); gap: 4px 16px; background: #fff; border: 1px solid #d9dde3; border-radius: 8px; padding: 12px 14px; }
 .facts dt { font-weight: 600; }
 .facts dd { margin: 0; overflow-wrap: anywhere; }

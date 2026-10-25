@@ -4,6 +4,9 @@
 [![CI](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml) [![TypeScript 7](https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white)](package.json) [![Node >=24](https://img.shields.io/badge/node-%3E%3D24-339933?logo=nodedotjs&logoColor=white)](package.json) [![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 <!-- badges:end -->
 
+<!-- media-links -->
+**Video:** link to follow · **Deck:** link to follow
+
 An AI review desk for bank sanctions-screening alerts. For every alert, it reads the evidence from the bank's data. It compares the customer (or payment party, or owner) with the listed party under approved definitions. It asks Nemotron models for a recommendation, has a second step re-read every cited fact, and applies a written policy. Then it hands a **recommendation with its evidence** to a person. **Automatic closing is off by default and was off in every recorded run; a person makes the final call.** The desk never blocks, never writes to a source system and never messages a customer.
 
 Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
@@ -11,6 +14,19 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 **Review without installing:** [recorded runs, step by step with each model's receipt](https://rahulmahadik.github.io/sanctions-desk/runs/) · [receipt log of every model call](https://rahulmahadik.github.io/sanctions-desk/receipts/) · [the last one-command proof](eval/PROVE.md) · [API docs](https://rahulmahadik.github.io/sanctions-desk/api.html) · **[How NVIDIA Nemotron is used](docs/NEMOTRON.md)**
 
 **Run it without keys:** `SAMPLE_MODE=true docker compose up --build`, then open http://localhost:3001. Sample mode runs without keys: real agent logic on saved Zetaris answers, with a labelled rules stand-in for the models ([Quick start](#quick-start)).
+
+<!-- results-box:start -->
+> **Results in one box.** The 70-case exam unless a line says otherwise; one run each; 95% ranges in brackets. Full system = the current system before the block fix, its newest run on the 70 cases.
+
+- **Risk cases wrongly closed:** full system 0 of 43 (0–8%); Nemotron alone with the free text 6 of 43 (7–27%) (decision answers used: Ultra 33, Lightning (fast-lane retry) 30, Ollama backup 3, none 4); name matching 10 of 43 (13–38%).
+- **Clear cases closed:** full system 13 of 25 (33–70%); deterministic rules 25 of 25 (87–100%).
+- **Escalate everything:** 0 of 43 wrongly closed and 0 of 25 clears. So the desk's value is the clears it makes at zero wrong closes, plus the evidence pack behind every recommendation.
+- **Held-out, blind rounds:** risk cases wrongly closed, full system 4 of 48 against 13 of 48 for the deterministic rules. These totals pool runs of different code versions: each round ran the system of its time.
+- **Stability (held-out v4, 3 runs each):** the same outcome in all 3 runs on 10 of 12 cases for the full system, against 4 of 12 for Nemotron alone without the free text (5 of 12 with it).
+- **Blocks recommended by the full system:** 0. A code change stopped block recommendations on true matches; it is fixed, and the re-measurement of the fixed code is in progress ([what changed](docs/EVALUATION.md#a-block-recommendation-regression-found-in-the-current-system-comparison), [figures](eval/REPORT.md)).
+
+The rules are exact on the exam by design; the desk's job is the free-text risk the rules cannot see — see [held-out](#key-results).
+<!-- results-box:end -->
 
 ### Which Nemotron model does each step
 
@@ -23,7 +39,7 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 | Challenger (argues against a close) | Nemotron 3 Ultra 550B in most calls (the router chooses) | cloud | the proposed close and its evidence | <!--fact:who_challenger-->Ultra 38, Ollama backup 2 of 40<!--/fact--> |
 | Backup, only when Nightshift cannot answer | Nemotron 3.5 Lightning 30B in the local Ollama (`nemotron-3.5-lightning:30b`) | the analyst's laptop | the same request the step sent | <!--fact:backup_recorded-->19 answers in the recorded evaluation runs (15 decision, 2 critic, 2 challenger)<!--/fact-->; no receipt, because the call does not go through Nightshift; labelled `ollama` in the trace; none of those cases ended in a wrong close |
 
-> **Every one of these calls has its signed receipt in the [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/).** It shows the mode asked for and the model that served it; each signature is checked when the site is built.
+> **<!--fact:receipt_figure-->Every Nightshift answer has a signed receipt: in the 31 exported runs, 2,092 of 2,133 model answers came from Nightshift, all verified against the pinned key; the other 41 came from the local Ollama backup, which has no receipt by design. The small studies add 879 more signed receipts, all verified<!--/fact-->.** The [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/) shows each call with the mode asked for and the model that served it; each signature is checked when the site is built.
 
 - **The desk pins the mode, not the model.** Nightshift's router chooses inside the lane each step is bound to, so the split is a measurement, not a guarantee.
 - <!--fact:decision_models_line-->The decision step asks for the deep lane (`meterless/deep`): the mode is pinned, the serving model is not, because Nightshift's router chooses it. Ultra answered 87 of the 89 decision calls Nightshift served in the first system's run and 83 of 96 in the run of the current system before the block fix.<!--/fact-->
@@ -83,8 +99,8 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 <!-- alone-headline:start -->
 - **Measured against Nemotron alone** (small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation):
   - Full system: a recommendation on every case (escalated to a person where no model answer was usable), free text kept out of the desk's cloud prompts, 0 of 6 risk cases wrongly closed in each of 3 runs; in 1 of 3 runs, 1 case had no usable model answer and was escalated to a person.
-  - Nemotron alone without the free text: 3, 6 and 4 wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases.
-  - Nemotron alone with the free text sent to the cloud: 0, 1 and 1 wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases.
+  - Nemotron alone without the free text: 3, 6 and 4 wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Decision answers used: Ultra 8, Lightning (fast-lane retry) 17, Ollama backup 2, none 9, over 36 cases of 3 runs.
+  - Nemotron alone with the free text sent to the cloud: 0, 1 and 1 wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Decision answers used: Ultra 13, Lightning (fast-lane retry) 9, Lightning (router) 1, Ollama backup 1, none 12, over 36 cases of 3 runs.
   - Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it), against 1 in each run for the full system.
 <!-- alone-headline:end -->
 
@@ -203,13 +219,13 @@ The request files are in [input_examples/README.md](input_examples/README.md); t
 **One-command proof** (`npm run prove`, no credentials or services; the machine, time and commit of the last run are in [eval/PROVE.md](eval/PROVE.md)):
 
 ```text
-PASS  Sample-mode review: POST /run ALR-0004 -> CLOSE_FALSE_POSITIVE, sealed record ae42daf9429c… verifies, sample notice shown, human review required (0.1 s)
-PASS  Engine conformance: H-MEM 13/13, World Model 8/8, Markovian 8/8 (1.2 s)
-PASS  Critic mutation test: 147 of 147 changed facts caught over 25 decisions; 25 cited facts could not be checked in sample mode; 25/25 unchanged decisions approved (no false alarm); evidence standard: 5 of 5 pass; grounding and document-on-record: 3 of 3 pass (0.5 s)
-PASS  Signed evidence: 28 runs: 1492/1492 receipts verified (signing key pinned); 1492/1492 receipts named in the traces are present (answers from the Ollama backup and failed calls carry none); 0 trace/receipt model mismatches; run files: 28 verified, commit field remapped (documented), 0 other differences (0.2 s)
-PASS  Roles and four-eyes: 82/82 tests passed (pentest-access 56/56, people 26/26), 0 failed (1.1 s)
-PASS  Preregistration: heldout.json cases 1-18 match; heldout.json cases 1-22 match; heldout2.json file hash matches; held-out v2 freeze commit 8f6976c is in the history; heldout3.json file hash matches; held-out v3 frozen in commit 02d0a2e, the same file; heldout4.json file hash matches; held-out v4 frozen in commit fc64537, the same file (0.0 s)
-PASS  No secrets in the tree: 680 tracked text files scanned: 0 credential-bearing URLs, private keys or tokens; no .env file tracked (0.1 s)
+PASS  Sample-mode review: POST /run ALR-0004 -> CLOSE_FALSE_POSITIVE, sealed record c65d87fb2185… verifies, sample notice shown, human review required (0.2 s)
+PASS  Engine conformance: H-MEM 13/13, World Model 8/8, Markovian 8/8 (1.8 s)
+PASS  Critic mutation test: 147 of 147 changed facts caught over 25 decisions; 25 cited facts could not be checked in sample mode; 25/25 unchanged decisions approved (no false alarm); evidence standard: 5 of 5 pass; grounding and document-on-record: 3 of 3 pass (0.8 s)
+PASS  Signed evidence: 2,971 signed receipts: 2,092 from exported runs, 879 from studies, all verified against the pinned key. In the 31 exported runs: 2092/2092 receipts verified (signing key pinned); 2092/2092 receipts named in the traces are present (answers from the Ollama backup and failed calls carry none); 0 trace/receipt model mismatches; run files: 28 verified, commit field remapped (documented), 0 other differences (1.0 s)
+PASS  Roles and four-eyes: 88/88 tests passed (pentest-access 56/56, people 32/32), 0 failed (2.4 s)
+PASS  Preregistration: heldout.json cases 1-18 match; heldout.json cases 1-22 match; heldout2.json file hash matches; held-out v2 freeze commit 8f6976c is in the history; heldout3.json file hash matches; held-out v3 frozen in commit 02d0a2e, the same file; heldout4.json file hash matches; held-out v4 frozen in commit fc64537, the same file (0.1 s)
+PASS  No secrets in the tree: 713 tracked text files scanned: 0 credential-bearing URLs, private keys or tokens; no .env file tracked (0.2 s)
 PASS: 7 of 7 checks passed
 ```
 
@@ -260,7 +276,7 @@ Ranges use the Wilson score method.
 Counts in this README (<!--fact:exam_cases-->70<!--/fact--> exam cases in <!--fact:exam_groups-->12<!--/fact--> groups, <!--fact:heldout_cases-->30<!--/fact--> cases in the first held-out set (73 across the four held-out sets), <!--fact:edge_cases-->43<!--/fact--> edge cases) are written by `npm run readme:refresh` from the committed data.
 
 <!-- alone-summary:start -->
-- **Small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation (written by `npm run study:repeat` from the study files; 95% ranges in brackets):** Full system: a recommendation on every case (escalated to a person where no model answer was usable), free text kept out of the desk's cloud prompts, 0 of 6 risk cases wrongly closed in each of 3 runs (0–39% each); in 1 of 3 runs, 1 case had no usable model answer and was escalated to a person. Nemotron alone without the free text: 3 of 6 (19–81%), 6 of 6 (61–100%) and 4 of 6 (30–90%) wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Nemotron alone with the free text sent to the cloud: 0 of 6 (0–39%), 1 of 6 (3–56%) and 1 of 6 (3–56%) wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it), against 1 in each run for the full system. Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](docs/NEMOTRON.md#what-the-agents-add-over-nemotron-alone).
+- **Small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation (written by `npm run study:repeat` from the study files; 95% ranges in brackets):** Full system: a recommendation on every case (escalated to a person where no model answer was usable), free text kept out of the desk's cloud prompts, 0 of 6 risk cases wrongly closed in each of 3 runs (0–39% each); in 1 of 3 runs, 1 case had no usable model answer and was escalated to a person. Nemotron alone without the free text: 3 of 6 (19–81%), 6 of 6 (61–100%) and 4 of 6 (30–90%) wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Decision answers used: Ultra 8, Lightning (fast-lane retry) 17, Ollama backup 2, none 9, over 36 cases of 3 runs. Nemotron alone with the free text sent to the cloud: 0 of 6 (0–39%), 1 of 6 (3–56%) and 1 of 6 (3–56%) wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Decision answers used: Ultra 13, Lightning (fast-lane retry) 9, Lightning (router) 1, Ollama backup 1, none 12, over 36 cases of 3 runs. Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it), against 1 in each run for the full system. Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](docs/NEMOTRON.md#what-the-agents-add-over-nemotron-alone).
 <!-- alone-summary:end -->
 <!-- adversarial:start -->
 - **Safety guard against injected text (one run, policy 7, guard asked once):** Lightning flagged 70 of 70 injected instructions, against 24 for the fixed patterns alone, and 12 of 12 tipping-off drafts (patterns: 1); it wrongly flagged 1 of 23 harmless texts. It tests the safety guard only, not a full review. Through full reviews with the guard asked once: 66 of 70 injected texts caught; 2 that no check flagged ended in a close where the case's own data supported a close. With the current guard (asked twice, plus a narrow check), a fresh set written separately: 27 of 28 reviews of injected text caught; false alarms on harmless text 7 of 16. Details: [docs/EVALUATION.md](docs/EVALUATION.md#safety-guard-against-injected-text).
@@ -299,6 +315,16 @@ flowchart LR
 ```
 
 The outcomes are `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs two human approvals) and `NEED_MORE_INFO`.
+
+<!-- critic-value:start -->
+**What the critic and challenger did, measured** (one run each; the counts are read from the result files, the run exports and the mutation test):
+
+- **Closes stopped after the first answer:** on the 70 cases the decision step's first answer was a close on 6 risk cases in the first system's run; the critic, challenger and policy guard stopped 6 of 6 (2 of 2 in the run of the current system before the block fix).
+- **Critic:** in the first system's 70-case run it reviewed 59 recommendations and sent 16 back at least once; 11 stayed unresolved after the allowed rounds, and for those the policy guard set the outcome (it can only raise caution).
+- **Critic's fact re-check, on its own:** it caught 147 of 147 changed facts over 25 decisions and approved 25 of 25 unchanged ones ([mutation test](eval/critic-mutation.json)).
+- **Challenger:** in the same run it looked at 17 proposed closes and turned 1 into an escalation: it found a credible true-match argument in 0 of the 17, could not answer in 1, and found no credible argument in 16.
+- **Where the critic hurt:** on held-out v3 its citation rule caused both wrong closes (HO3-001, HO3-003): it rejected the decision's escalation for citing the screener's signals, and the decision then closed. With the critic and challenger off, 0 of 6 risk cases were closed. Fixed in a later policy (version 8: a screener signal blocks a close, grounded or not); not re-measured blind on v3.
+<!-- critic-value:end -->
 
 Each step, what it may and may not do, the guardrails and the failure handling: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Memory, reasoning and tools: [docs/MEMORY.md](docs/MEMORY.md).
 
@@ -350,7 +376,7 @@ The step-by-step model table and the receipt log are at the [top of this page](#
 
 ### Meterless Nightshift
 
-> **<!--fact:receipts_line-->2,971 signed receipts: 2,092 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->.** Nightshift serves every model call; Ollama is a backup only.
+> **Nightshift is the primary path for every model call; the local Ollama backup answers only when Nightshift cannot.** <!--fact:receipt_figure-->Every Nightshift answer has a signed receipt: in the 31 exported runs, 2,092 of 2,133 model answers came from Nightshift, all verified against the pinned key; the other 41 came from the local Ollama backup, which has no receipt by design. The small studies add 879 more signed receipts, all verified<!--/fact-->.
 
 - The desk talks to Nightshift's OpenAI-compatible API through one injected generator.
 - It uses two app identities, with binds set in the Nightshift cockpit:

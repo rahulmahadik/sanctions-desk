@@ -14,6 +14,7 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } fro
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
+import { receiptFigure, receiptSentence } from "./lib/receipt-figure.js";
 import { receiptsLine } from "./lib/receipts-scan.js";
 
 const read = (p: string) => JSON.parse(readFileSync(resolveProjectPath(p), "utf8"));
@@ -121,6 +122,8 @@ const facts: Record<string, string> = {
     return `${n(c.skipped ?? 0)} skipped, ${n(c.warning ?? 0)} warning (${which}, risk medium, not blocking), ${n(c.passed ?? 0)} passed`;
   })(),
   receipts_line: receiptsLine(receipts),
+  // The one receipt figure (tools/lib/receipt-figure.ts): runs, answers, Nightshift answers verified, Ollama backup answers.
+  receipt_figure: receiptSentence(receiptFigure(resolveProjectPath("."))),
   recorded_runs: String(recordedStats.runs),
   who_guard: whoAnswered("Safety guard", false),
   who_screener: whoAnswered("Screener", false),
@@ -164,6 +167,9 @@ const files = [
     .filter((f) => f.endsWith(".md"))
     .map((f) => `docs/${f}`),
 ];
+// Documents kept on this machine only (not in the repository): refreshed when present, never checked in CI.
+const LOCAL_ONLY = ["SUBMISSION-DESCRIPTION.md", "DECK-OUTLINE.md"].map((f) => join("internal", f));
+if (!process.argv.includes("--check")) files.push(...LOCAL_ONLY.filter((f) => existsSync(resolveProjectPath(f))));
 const pattern = /<!--fact:(\w+)-->(.*?)<!--\/fact-->/g;
 let stale = 0;
 for (const file of files) {

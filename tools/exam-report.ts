@@ -507,7 +507,7 @@ function tradeOffLines(): string[] {
   const f = examFigures(sys);
   const which = alone === arms.aloneWith ? "with the free text" : "without the free text";
   return [
-    `**The trade-off, read plainly.** Nemotron alone (${which}) clears more: ${a.made} of ${a.clears} clear cases, against ${f.made} of ${f.clears} for the full system. But it wrongly closes ${a.wrong} of ${a.risk} risk cases (${range95(a.wrong, a.risk)}) and recommends a block on ${a.blocks} cases, ${a.unsupportedBlocks} of them unsupported by the labels (${a.unsupportedBlocks} of ${a.notBlockCases}, ${range95(a.unsupportedBlocks, a.notBlockCases)}). The full system (${sys === currentSystem ? CURRENT_LABEL : sys === beforeBlockFix ? BEFORE_LABEL : FIRST_LABEL}) wrongly closes ${f.wrong} of ${f.risk}, recommends ${f.unsupportedBlocks} unsupported blocks (${f.unsupportedBlocks} of ${f.notBlockCases}), and leaves the final call to a person.`,
+    `**The trade-off, read plainly.** Nemotron alone (${which}; decision answers used: ${answerSources(alone, runDirs)}) clears more: ${a.made} of ${a.clears} clear cases, against ${f.made} of ${f.clears} for the full system. But it wrongly closes ${a.wrong} of ${a.risk} risk cases (${range95(a.wrong, a.risk)}) and recommends a block on ${a.blocks} cases, ${a.unsupportedBlocks} of them unsupported by the labels (${a.unsupportedBlocks} of ${a.notBlockCases}, ${range95(a.unsupportedBlocks, a.notBlockCases)}). The full system (${sys === currentSystem ? CURRENT_LABEL : sys === beforeBlockFix ? BEFORE_LABEL : FIRST_LABEL}) wrongly closes ${f.wrong} of ${f.risk}, recommends ${f.unsupportedBlocks} unsupported blocks (${f.unsupportedBlocks} of ${f.notBlockCases}), and leaves the final call to a person.`,
   ];
 }
 const FIRST_LABEL = "the first system";
@@ -629,6 +629,23 @@ if (heldoutNewest.size > 0) {
   }
 }
 
+/** Why a set's path rows add up to fewer cases than the set: the cases that took no review path, by group. */
+function pathGapNote(set: string, r: Result | undefined): string[] {
+  if (!r) return [];
+  const counted = byPath(r.cases).reduce((t, p) => t + p.cases, 0);
+  if (counted === r.cases.length) return [];
+  const missing = r.cases.filter((c) => c.error !== undefined || (c.path !== "confirm" && c.path !== "reason"));
+  const drafts = missing.filter((c) => c.group === "tipping_off");
+  const why =
+    drafts.length === missing.length
+      ? `${drafts.length === 1 ? "is the tipping-off draft check" : "are the tipping-off draft checks"} (${missing.map((c) => c.case_id).join(", ")}): a draft goes to the outbound safety guard, not through a review, so it takes no path`
+      : `are ${missing.map((c) => `${c.case_id} (${c.group}${c.error ? ", error" : ", no path recorded"})`).join(", ")}`;
+  return [
+    `The rows for the ${set} add up to ${counted}, not ${r.cases.length}: the other ${r.cases.length - counted} ${why}.`,
+    "",
+  ];
+}
+
 if (full || hoFull) {
   const pathRow = (label: string, p: ReturnType<typeof byPath>[number]) =>
     `| ${label} | ${p.path === "confirm" ? "confirm (structured evidence settles it)" : "reason (free text or missing data)"} | ${p.cases} | ${p.acceptable} | ${p.false_closes} of ${p.risk_cases} | ${p.first_finding_acceptable} | ${p.median_s.toFixed(0)} | ${p.mean_cost.toFixed(4)} ${config.costs.currency} |`;
@@ -642,7 +659,24 @@ if (full || hoFull) {
     ...(full ? byPath(full.cases).map((p) => pathRow("70 cases", p)) : []),
     ...(hoFull ? byPath(hoFull.cases).map((p) => pathRow("held-out", p)) : []),
     "",
+    ...[
+      ["70 cases", full],
+      ["held-out", hoFull],
+    ].flatMap(([set, r]) => pathGapNote(set as string, r as Result | undefined)),
   );
+}
+
+/** What "acceptable" counts on held-out v3, from the result file: which risk cases not closed still miss the labels. */
+function v3AcceptableNote(r: Result | undefined): string {
+  if (!r) return "";
+  const risk = riskOf(r.cases);
+  const clears = r.cases.filter((c) => c.expected === "CLOSE_FALSE_POSITIVE");
+  const ok = (c: ScoredCase) => summariseOne(c);
+  const notClosed = risk.filter((c) => !closed(c));
+  const offLabel = notClosed.filter((c) => !ok(c));
+  const okRisk = risk.filter(ok).length;
+  const okClears = clears.filter(ok).length;
+  return `**What "${okRisk + okClears} of ${r.cases.length} acceptable" measures on held-out v3.** A case counts as acceptable only when its outcome is the expected one or an alternative its labels list; a risk case that is not closed but gets an outcome the labels do not list is not acceptable. Of the ${risk.length} risk cases, ${notClosed.length} were not closed and ${okRisk} got an acceptable outcome${offLabel.length > 0 ? ` (${offLabel.map((c) => `${c.case_id}: ${c.got}, where the labels allow ${[c.expected, ...c.acceptable].join(" or ")}`).join("; ")})` : ""}; ${okClears} of the ${clears.length} clears got an acceptable outcome. So the figure is ${okRisk} + ${okClears}: it measures agreement with the frozen labels, not only whether a risk case was closed.`;
 }
 
 // ---- before and after the free-text screener ----------------------------------------------------------
@@ -751,6 +785,8 @@ if ([...laterRuns.keys()].some((k) => k.startsWith("sys2"))) {
   if (laterRuns.has("sys3|heldout3|routed")) {
     lines.push(
       "**Held-out v3: a new held-out set, frozen before the fix.** After held-out v2 showed the screener over-flagging and the critic deadlocking, a third set of 12 cases (6 risks, including relationship notes where plain rules would close, and 6 clears, including notes that mention a listed name in a harmless way) was written by a separate AI agent session that saw no results, traces or fixes, and no review code except the evidence-standard rule its labels apply; labels fixed before the run (it worked from the definitions only); its instructions came from the build session, which named the case families to test, and frozen in commit `02d0a2e` at 04:04:03 SGT on 24 Oct 2026. The fixes (span grounding of screener signals, the document-number check against the customer record, exact source spans for the check reference and date, and setting aside citations the critic cannot check) were committed afterwards, in `8f4c660` at 05:20:14 SGT. The v3 file was checked against its freeze commit before the run (same sha256). v3 was run once on the fixed system; its run note gives the payments cache check time as about 07:50, but the check was at about 07:16 SGT.",
+      "",
+      v3AcceptableNote(laterRuns.get("sys3|heldout3|routed")),
       "",
       "Note on the v3 clears: under the document-on-record rule (a document number in a note must match the customer's identifier on record before it can support a clear), HO3-007 to HO3-010 would be NEED_MORE_INFO by design, because their notes cite a document that is not on the customer record. The rule is kept and the v3 labels are not changed; the v3 numbers above are scored against the labels as frozen.",
       "",
@@ -964,7 +1000,19 @@ if (have.length === 0) {
 
   lines.push("## Accuracy by group", "");
   const groups = [...new Set(have.flatMap((v) => Object.keys((get(v) as Result).metrics.by_group)))];
-  lines.push(`| Group | ${have.join(" | ")} |`, `|---|${have.map(() => "---:").join("|")}|`);
+  const GROUP_COLUMN: Record<string, string> = {
+    routed: "Full system",
+    single: "Single",
+    no_memory: "Memory off",
+    local: "Fast mode only",
+    rules: "Deterministic rules",
+    fuzzy: "Name match",
+    escalate_all: "Escalate everything",
+  };
+  lines.push(
+    `| Group | ${have.map((v) => GROUP_COLUMN[v] ?? v).join(" | ")} |`,
+    `|---|${have.map(() => "---:").join("|")}|`,
+  );
   for (const g of groups) {
     lines.push(
       `| ${g} | ${have
@@ -1369,6 +1417,168 @@ if (framing && existsSync(deckOutline)) {
   if (outline.includes(RS) && outline.includes(RE))
     writeFileSync(deckOutline, outline.replace(new RegExp(`${RS}[\\s\\S]*?${RE}`), `${RS}${framing}${RE}`));
 }
+// ---- the results box at the top of the README and the measured value of the critic and challenger ------------------
+
+/** The newest full-system run on the 70 cases (the current system once its result exists), with its plain label. */
+const newestFull = currentSystem
+  ? { run: currentSystem, label: CURRENT_LABEL }
+  : beforeBlockFix
+    ? { run: beforeBlockFix, label: BEFORE_LABEL }
+    : full
+      ? { run: full, label: FIRST_LABEL }
+      : undefined;
+const of = (k: number, n: number) => `${k} of ${n} (${range95(k, n)})`;
+const EVAL_BLOCK_FIX = "docs/EVALUATION.md#a-block-recommendation-regression-found-in-the-current-system-comparison";
+
+/** Same outcome in all runs, per arm of the held-out v4 repeat study (eval/repeat-study.json). */
+function stabilityLine(): string {
+  const file = resolveProjectPath("eval/repeat-study.json");
+  if (!existsSync(file)) return "";
+  const study = JSON.parse(readFileSync(file, "utf8")) as {
+    systems: Array<{ system: string; runs: unknown[]; all_runs_agree: number; cases: number }>;
+  };
+  const arm = (name: string) => study.systems.find((x) => x.system === name);
+  const sys = arm("Full system");
+  const without = arm("Nemotron alone, no free text");
+  const withText = arm("Nemotron alone, with the free text");
+  if (!sys || !without) return "";
+  return `- **Stability (held-out v4, ${sys.runs.length} runs each):** the same outcome in all ${sys.runs.length} runs on ${sys.all_runs_agree} of ${sys.cases} cases for the full system, against ${without.all_runs_agree} of ${without.cases} for Nemotron alone without the free text${withText ? ` (${withText.all_runs_agree} of ${withText.cases} with it)` : ""}.`;
+}
+
+function resultsBox(): string[] {
+  if (!newestFull) return [];
+  const f = examFigures(newestFull.run);
+  const fuzzy = arms.fuzzy ? examFigures(arms.fuzzy) : undefined;
+  const rules = arms.rules ? examFigures(arms.rules) : undefined;
+  const esc = get("escalate_all") ? examFigures(get("escalate_all") as Result) : undefined;
+  const aloneRun = arms.aloneWith;
+  const alone = aloneRun ? examFigures(aloneRun) : undefined;
+  const fixLine = currentSystem
+    ? `A code change had stopped block recommendations on true matches; fixed and re-measured ([what changed](${EVAL_BLOCK_FIX}), [figures](eval/REPORT.md)).`
+    : `A code change stopped block recommendations on true matches; it is fixed, and the re-measurement of the fixed code is in progress ([what changed](${EVAL_BLOCK_FIX}), [figures](eval/REPORT.md)).`;
+  return [
+    `> **Results in one box.** The 70-case exam unless a line says otherwise; one run each; 95% ranges in brackets. Full system = ${newestFull.label}, its newest run on the 70 cases.`,
+    "",
+    `- **Risk cases wrongly closed:** full system ${of(f.wrong, f.risk)}${alone && aloneRun ? `; Nemotron alone with the free text ${of(alone.wrong, alone.risk)} (decision answers used: ${answerSources(aloneRun, runDirs)})` : ""}${fuzzy ? `; name matching ${of(fuzzy.wrong, fuzzy.risk)}` : ""}.`,
+    `- **Clear cases closed:** full system ${of(f.made, f.clears)}${rules ? `; deterministic rules ${of(rules.made, rules.clears)}` : ""}.`,
+    ...(esc
+      ? [
+          `- **Escalate everything:** ${esc.wrong} of ${esc.risk} wrongly closed and ${esc.made} of ${esc.clears} clears. So the desk's value is the clears it makes at zero wrong closes, plus the evidence pack behind every recommendation.`,
+        ]
+      : []),
+    `- **Held-out, blind rounds:** risk cases wrongly closed, full system ${totals.all.fullWrong} of ${totals.all.risk} against ${totals.all.rulesWrong} of ${totals.all.risk} for the deterministic rules. These totals pool runs of different code versions: each round ran the system of its time.`,
+    ...[stabilityLine()].filter(Boolean),
+    `- **Blocks recommended by the full system:** ${f.blocks}. ${fixLine}`,
+    "",
+    "The rules are exact on the exam by design; the desk's job is the free-text risk the rules cannot see — see [held-out](#key-results).",
+  ];
+}
+
+/** Of the risk cases whose first decision was a close, how many the later checks stopped; from an exported run. */
+function firstClosesStopped(runId: string, relabelExam: boolean) {
+  const runDir = join(runsDir, runId);
+  if (!existsSync(join(runDir, "trace.jsonl.gz")) || !existsSync(join(runDir, "results.json"))) return undefined;
+  const res = JSON.parse(readFileSync(join(runDir, "results.json"), "utf8")) as { cases: ScoredCase[] };
+  const cases = relabelExam ? rescore({ ...(res as unknown as Result), cases: res.cases }).cases : res.cases;
+  const risky = new Map(riskOf(cases).map((c) => [c.case_id, c]));
+  const first = new Map<string, string>();
+  for (const l of gunzipSync(readFileSync(join(runDir, "trace.jsonl.gz")))
+    .toString("utf8")
+    .split("\n")
+    .filter(Boolean)) {
+    const e = JSON.parse(l) as { case_id?: string; agent: string; action: string; output_summary?: string };
+    if (e.agent === "decision" && e.action === "recommend" && e.case_id && !first.has(e.case_id))
+      first.set(e.case_id, e.output_summary ?? "");
+  }
+  const proposed = [...risky.keys()].filter((id) => first.get(id)?.startsWith("CLOSE_FALSE_POSITIVE"));
+  const stopped = proposed.filter((id) => !closed(risky.get(id) as ScoredCase));
+  return { proposed: proposed.length, stopped: stopped.length };
+}
+
+/** The run folder in eval/runs of a saved result, matched by its start time. */
+const runIdOf = (r: Result | undefined) =>
+  r
+    ? runDirs
+        .find((d) => {
+          const meta = join(d, "run-meta.json");
+          return (
+            existsSync(meta) &&
+            (JSON.parse(readFileSync(meta, "utf8")) as { started_at?: string }).started_at === r.started_at
+          );
+        })
+        ?.split("/")
+        .at(-1)
+    : undefined;
+
+function criticValue(link: (path: string) => string): string[] {
+  if (!full) return [];
+  const m = full.metrics;
+  const out: string[] = [
+    "**What the critic and challenger did, measured** (one run each; the counts are read from the result files, the run exports and the mutation test):",
+    "",
+  ];
+  const firstId = runIdOf(full);
+  const a = firstId ? firstClosesStopped(firstId, true) : undefined;
+  const newest = newestFull && newestFull.run !== full ? newestFull : undefined;
+  const newestId = newest ? runIdOf(newest.run) : undefined;
+  const b = newestId ? firstClosesStopped(newestId, true) : undefined;
+  if (a)
+    out.push(
+      `- **Closes stopped after the first answer:** on the 70 cases the decision step's first answer was a close on ${a.proposed} risk ${a.proposed === 1 ? "case" : "cases"} in the first system's run; the critic, challenger and policy guard stopped ${a.stopped} of ${a.proposed}${b && newest ? ` (${b.stopped} of ${b.proposed} in the run of ${newest.label})` : ""}.`,
+    );
+  out.push(
+    `- **Critic:** in the first system's 70-case run it reviewed ${m.critic.reviewed} recommendations and sent ${m.critic.sent_back} back at least once; ${m.critic.unresolved} stayed unresolved after the allowed rounds, and for those the policy guard set the outcome (it can only raise caution).`,
+  );
+  const mutation = resolveProjectPath("eval/critic-mutation.json");
+  if (existsSync(mutation)) {
+    const x = (JSON.parse(readFileSync(mutation, "utf8")) as { summary: Record<string, number> }).summary;
+    out.push(
+      `- **Critic's fact re-check, on its own:** it caught ${x.mutations_caught} of ${x.mutations} changed facts over ${x.decisions} decisions and approved ${x.unchanged_decisions_approved} of ${x.unchanged_decisions} unchanged ones ([mutation test](${link("eval/critic-mutation.json")})).`,
+    );
+  }
+  const ch = m.challenger;
+  if (ch) {
+    const o = challengerOutcomes(full.variant, full.started_at);
+    out.push(
+      `- **Challenger:** in the same run it looked at ${ch.fired} proposed closes and turned ${ch.changed} into an escalation${o.total > 0 ? `: it found a credible true-match argument in ${o.credible} of the ${o.total}, could not answer in ${o.unavailable}, and found no credible argument in ${o.none}` : ""}.`,
+    );
+  }
+  const v3 = laterRuns.get("sys3|heldout3|routed");
+  const v3single = laterRuns.get("sys3|heldout3|single");
+  if (v3 && v3single) {
+    const wrong = riskOf(v3.cases).filter(closed);
+    const single = riskOf(v3single.cases).filter(closed).length;
+    out.push(
+      `- **Where the critic hurt:** on held-out v3 its citation rule caused both wrong closes (${wrong.map((c) => c.case_id).join(", ")}): it rejected the decision's escalation for citing the screener's signals, and the decision then closed. With the critic and challenger off, ${single} of ${riskOf(v3single.cases).length} risk cases were closed. Fixed in a later policy (version 8: a screener signal blocks a close, grounded or not); not re-measured blind on v3.`,
+    );
+  }
+  return out;
+}
+
+const readmeNow = readFileSync(readmePath, "utf8");
+const BOX_S = "<!-- results-box:start -->";
+const BOX_E = "<!-- results-box:end -->";
+const CV_S = "<!-- critic-value:start -->";
+const CV_E = "<!-- critic-value:end -->";
+let readmeNext = readmeNow;
+const box = resultsBox();
+if (box.length > 0 && readmeNext.includes(BOX_S) && readmeNext.includes(BOX_E))
+  readmeNext = readmeNext.replace(new RegExp(`${BOX_S}[\\s\\S]*?${BOX_E}`), () => [BOX_S, ...box, BOX_E].join("\n"));
+const cvReadme = criticValue((p) => p);
+if (cvReadme.length > 0 && readmeNext.includes(CV_S) && readmeNext.includes(CV_E))
+  readmeNext = readmeNext.replace(new RegExp(`${CV_S}[\\s\\S]*?${CV_E}`), () => [CV_S, ...cvReadme, CV_E].join("\n"));
+if (readmeNext !== readmeNow) writeFileSync(readmePath, readmeNext);
+const evaluationCv = readFileSync(evaluationPath, "utf8");
+const cvDocs = criticValue((p) => `../${p}`);
+if (cvDocs.length > 0 && evaluationCv.includes(CV_S) && evaluationCv.includes(CV_E))
+  writeFileSync(
+    evaluationPath,
+    formatMarkdown(
+      evaluationCv.replace(new RegExp(`${CV_S}[\\s\\S]*?${CV_E}`), () => [CV_S, ...cvDocs, CV_E].join("\n")),
+      evaluationPath,
+    ),
+  );
+
 console.log(
   `wrote eval/REPORT.md from ${have.length} variant(s)${notRun.length ? `; not run: ${notRun.join(", ")}` : ""}`,
 );

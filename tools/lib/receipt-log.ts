@@ -9,6 +9,7 @@ import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
 import { problemsIn, verifyExportedRun } from "./evidence.js";
+import { receiptFigure, receiptSentence } from "./receipt-figure.js";
 import {
   BANNER,
   type CheckedCall,
@@ -181,20 +182,39 @@ ${table(
   return page(`Receipt log: ${log.runId}`, body, "../index.html");
 }
 
-export function renderLogIndex(logs: RunLog[]): string {
+/** Which Nemotron model answered a call: Lightning or Ultra through Nightshift, the Ollama backup, or none. */
+export function modelKind(c: LoggedCall): "lightning" | "ultra" | "ollama" | "none" {
+  if (c.provider === "ollama" && c.traceModel) return "ollama";
+  const m = c.receipt?.route.model ?? (c.receipt ? c.traceModel : undefined) ?? "";
+  if (/ultra/i.test(m)) return "ultra";
+  if (/lightning/i.test(m)) return "lightning";
+  return "none";
+}
+
+/** One line on Nightshift and Nemotron, for the top of the log. */
+export const NIGHTSHIFT_LINE =
+  "Meterless Nightshift routes each model call the desk makes: Nemotron 3.5 Lightning answers on the analyst's laptop and Nemotron 3 Ultra in the cloud. Every answer Nightshift serves is signed, and the desk pins the key it must be signed with.";
+
+/** The index page. `figure` is the canonical receipt sentence (tools/lib/receipt-figure.ts), when the log is the committed one. */
+export function renderLogIndex(logs: RunLog[], figure?: string): string {
   const total = logs.reduce((t, l) => t + l.calls.length, 0);
   const verified = logs.reduce((t, l) => t + l.verified, 0);
+  const count = (l: RunLog, k: ReturnType<typeof modelKind>) => l.calls.filter((c) => modelKind(c) === k).length;
   const rows = logs.map((l) => [
     `<a href="${esc(l.runId)}.html"><code>${esc(l.runId)}</code></a>`,
     l.calls.length === 0 ? "none (a baseline without a model)" : String(l.calls.length),
     String(l.verified),
-    String(l.calls.filter((c) => c.provider === "ollama").length),
+    String(count(l, "lightning")),
+    String(count(l, "ultra")),
+    String(count(l, "ollama")),
     String(l.calls.filter((c) => !c.receipt && c.provider !== "ollama").length),
   ]);
   const body = `      <h1>Receipt log</h1>
+      <p><strong>${esc(NIGHTSHIFT_LINE)}</strong></p>
+      ${figure ? `<p>${esc(figure)}.</p>` : ""}
       <p>Every model call in the ${logs.length} committed run exports: the step, the mode the desk asked Nightshift for, the Nemotron model that served it, and its signed receipt. ${verified.toLocaleString("en-US")} receipts verified when these pages were built, across ${total.toLocaleString("en-US")} model calls; a call without a receipt is either an answer from the Ollama backup or a call that failed before any answer.</p>
       ${HOW}
-${table("The committed runs", ["Run", "Model calls", "Receipts verified", "Ollama backup answers (no receipt)", "Failed calls (no answer)"], rows)}`;
+${table("The committed runs", ["Run", "Model calls", "Receipts verified", "Lightning, laptop (receipt)", "Ultra, cloud (receipt)", "Ollama backup (no receipt)", "Failed calls (no answer)"], rows)}`;
   return page("Receipt log", body, "../index.html");
 }
 
@@ -207,7 +227,20 @@ export function buildReceiptLog(outDir: string, opts: ReceiptLogOptions = {}): s
     writeFileSync(join(outDir, `${log.runId}.html`), renderRunLog(log));
     written.push(`${log.runId}.html`);
   }
-  writeFileSync(join(outDir, "index.html"), renderLogIndex(logs));
+  // The committed log quotes the one receipt figure, and must agree with it.
+  let figure: string | undefined;
+  if (!opts.runsDir) {
+    const f = receiptFigure(resolveProjectPath("."));
+    const kinds = logs.flatMap((l) => l.calls.map(modelKind));
+    const signed = logs.reduce((t, l) => t + l.verified, 0);
+    const ollama = kinds.filter((k) => k === "ollama").length;
+    if (logs.length !== f.runs || signed !== f.verified || ollama !== f.ollama)
+      throw new RecordedRunError(
+        `the receipt log (${logs.length} runs, ${signed} receipts, ${ollama} backup answers) disagrees with eval/receipt-stats.json and eval/receipts-check.json (${f.runs}, ${f.verified}, ${f.ollama}): run npm run receipts:check and npm run receipt:stats`,
+      );
+    figure = receiptSentence(f);
+  }
+  writeFileSync(join(outDir, "index.html"), renderLogIndex(logs, figure));
   writeFileSync(join(outDir, "receipts.css"), RUNS_CSS);
   written.push("index.html", "receipts.css");
   return written;

@@ -196,7 +196,7 @@ What the screener may return, and what happens to it:
 
 **What was sent is on record.** For every step that calls a model, the trace has a `cloud_payload` event and the sealed record has `cloud_payloads`: the names of the blocks and evidence fields with how many items each held, the length, a SHA-256 hash of the whole prompt, and `raw_free_text_present`. The text itself is not kept in either. The screener's own result (status, signals with their span ids, documentary checks, the model, whether a cloud route served it, truncated fields and the signed receipt) is in the record under `screener`, and its calls are in the model ledger like any other step. Each review result also names the model and route of the recommendation used, whether a fallback made it, the decision model's own last recommendation and whether the critic was left unresolved.
 
-## Meterless power: Nightshift runs every model call
+## Meterless power: Nightshift is the primary path for every model call
 
 Nightshift, an OpenAI-compatible runtime, is the AI provider for all model calls. Nothing in the code names a model provider: one injected `generator` function asks Nightshift for a **pinned mode** (`meterless/fast`, `meterless/deep`, `meterless/judge`; `meterless/auto` is rejected; the mode is pinned, the serving model is Nightshift's choice), falls back to the Ollama backup only if Nightshift cannot answer, and a labelled rules stand-in exists for sample mode only.
 
@@ -284,7 +284,7 @@ Which agent runs on which Nemotron model, and what it does:
 | `text70-nemotron_alone-20261025T093017Z`         |       92 | [eval/runs/text70-nemotron_alone-20261025T093017Z/receipts.jsonl.gz](../eval/runs/text70-nemotron_alone-20261025T093017Z/receipts.jsonl.gz)                 | `npm run evidence:verify -- eval/runs/text70-nemotron_alone-20261025T093017Z`         |
 | `notext70-nemotron_alone-20261025T104135Z`       |       77 | [eval/runs/notext70-nemotron_alone-20261025T104135Z/receipts.jsonl.gz](../eval/runs/notext70-nemotron_alone-20261025T104135Z/receipts.jsonl.gz)             | `npm run evidence:verify -- eval/runs/notext70-nemotron_alone-20261025T104135Z`       |
 
-`npm run evidence:verify` with no argument checks every run: each signature, that every model call has a receipt, and that the model in the trace equals the model in the receipt.
+`npm run evidence:verify` with no argument checks every run: each signature, that every Nightshift answer in the trace has its receipt (answers from the Ollama backup have none by design), and that the model in the trace equals the model in the receipt.
 <!-- receipts:end -->
 
 The **model ledger** of every recommendation lists, per step, the mode asked for, the model that answered, reasoning budget, tokens, latency and the signed receipt with its verification status (`GET /cases/:alertId/trace`, `npm run ledger -- --case <alert id>`, the routing panel of the review desk, and the saved decision records in `output_examples/`).
@@ -304,7 +304,7 @@ The final runs are exported to `eval/runs/<run-id>/`: `results.json`, `run-meta.
 
 ```bash
 npm ci
-npm run evidence:verify                      # every signature, every call has a receipt, trace model = receipt model
+npm run evidence:verify                      # every signature, every Nightshift answer has its receipt, trace model = receipt model
 npm run evidence:verify -- eval/runs/<run-id>   # one run: the share of calls each model served, per step
 ```
 

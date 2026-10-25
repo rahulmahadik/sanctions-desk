@@ -626,5 +626,7 @@
     }
   },
   "rules_framing": "**The rules on home ground.** The 70 exam cases are labelled from the same definitions the rules use, so the rules have a home advantage here (1 of 43 risk cases wrongly closed, 25 of 25 clears). On the frozen held-out rounds, written without those rules, the rules wrongly closed 13 of 48 risk cases against 4 of 48 for the full system (without v2: 10 of 34 against 4 of 34).",
+  "receipt_figure": "Every Nightshift answer has a signed receipt: in the 31 exported runs, 2,092 of 2,133 model answers came from Nightshift, all verified against the pinned key; the other 41 came from the local Ollama backup, which has no receipt by design. The small studies add 879 more signed receipts, all verified",
+  "brier_note": "On held-out v4 (three runs each), every arm scores worse than always answering with confidence 0.5, which scores 0.25 (Full system: 0.333; Nemotron alone, no free text: 0.696; Nemotron alone, with the free text: 0.498), so on that set the stated confidences are less useful than a flat 0.5.",
   "not_used": "docs/NEMOTRON.md#what-we-tried-and-why-it-isnt-used"
 }

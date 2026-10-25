@@ -88,6 +88,37 @@ export type ExamFigures = ReturnType<typeof examFigures>;
  * start time.
  */
 export function answerSources(r: Pick<ExamRun, "variant" | "started_at" | "cases">, runDirs: readonly string[]) {
+  const n = answerSourceCounts(r, runDirs);
+  return typeof n === "string" ? n : formatSources(n);
+}
+
+/** Per case, who served the decision answer that was used (see answerSources). */
+export interface SourceCounts {
+  ultra: number;
+  retry: number;
+  router: number;
+  ollama: number;
+  none: number;
+}
+
+/** "Ultra 33, Lightning (fast-lane retry) 30, Ollama backup 3, none 4": the parts that are not zero, Ultra always. */
+export function formatSources(n: SourceCounts): string {
+  return [
+    `Ultra ${n.ultra}`,
+    n.retry ? `Lightning (fast-lane retry) ${n.retry}` : "",
+    n.router ? `Lightning (router) ${n.router}` : "",
+    n.ollama ? `Ollama backup ${n.ollama}` : "",
+    n.none ? `none ${n.none}` : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
+/** The counts behind answerSources, or the reason there are none ("no model", "trace not exported"). */
+export function answerSourceCounts(
+  r: Pick<ExamRun, "variant" | "started_at" | "cases">,
+  runDirs: readonly string[],
+): SourceCounts | string {
   if (!["routed", "single", "no_memory", "nemotron_alone"].includes(r.variant)) return "no model";
   const dir = runDirs.find((d) => {
     const meta = join(d, "run-meta.json");
@@ -114,7 +145,7 @@ export function answerSources(r: Pick<ExamRun, "variant" | "started_at" | "cases
     if (e.agent === "decision" && e.action === "model_answer" && e.status === "ok")
       used.set(e.case_id, { model: e.model_used, retry: e.retry_count, requested: e.model_requested });
   }
-  const n = { ultra: 0, retry: 0, router: 0, ollama: 0, none: 0 };
+  const n: SourceCounts = { ultra: 0, retry: 0, router: 0, ollama: 0, none: 0 };
   for (const c of r.cases) {
     const u = used.get(c.case_id);
     if (!u?.model) n.none += 1;
@@ -123,15 +154,23 @@ export function answerSources(r: Pick<ExamRun, "variant" | "started_at" | "cases
     else if ((u.retry ?? 0) > 0 || u.requested === "meterless/fast") n.retry += 1;
     else n.router += 1;
   }
-  return [
-    `Ultra ${n.ultra}`,
-    n.retry ? `Lightning (fast-lane retry) ${n.retry}` : "",
-    n.router ? `Lightning (router) ${n.router}` : "",
-    n.ollama ? `Ollama backup ${n.ollama}` : "",
-    n.none ? `none ${n.none}` : "",
-  ]
-    .filter(Boolean)
-    .join(", ");
+  return n;
+}
+
+/** The counts of several runs added up (the runs of one study arm); a run without counts makes the whole a string. */
+export function addSources(parts: ReadonlyArray<SourceCounts | string>): SourceCounts | string {
+  const bad = parts.find((p) => typeof p === "string");
+  if (bad !== undefined) return bad as string;
+  return (parts as SourceCounts[]).reduce(
+    (t, p) => ({
+      ultra: t.ultra + p.ultra,
+      retry: t.retry + p.retry,
+      router: t.router + p.router,
+      ollama: t.ollama + p.ollama,
+      none: t.none + p.none,
+    }),
+    { ultra: 0, retry: 0, router: 0, ollama: 0, none: 0 },
+  );
 }
 
 // ---- the arms of the 70-case comparison ---------------------------------------------------------------------------

@@ -15,6 +15,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { countWithInterval, resolveProjectPath, wilson95 } from "@sanctions-desk/shared";
+import { addSources, answerSourceCounts, formatSources, type SourceCounts } from "./lib/exam-figures.js";
 import { formatMarkdown } from "./lib/format-markdown.js";
 
 interface Case {
@@ -201,14 +202,70 @@ const range = (xs: number[]) => {
   return lo === hi ? `${lo}` : `${lo} to ${hi}`;
 };
 const pct = (x: number) => Math.round(x * 100);
+// ---- who served the decision answer that was used, from the committed study exports (eval/studies) -----------------
+
+const studiesDir = resolveProjectPath("eval/studies");
+const runsDir = resolveProjectPath("eval/runs");
+/** The export folders of one study whose folder name matches `re`. */
+const studyDirs = (study: string, re: RegExp): string[] => {
+  const d = join(studiesDir, study);
+  return existsSync(d)
+    ? readdirSync(d)
+        .filter((f) => re.test(f) && existsSync(join(d, f, "results.json")))
+        .sort()
+        .map((f) => join(d, f))
+    : [];
+};
+const countsOf = (dir: string): SourceCounts | string =>
+  answerSourceCounts(JSON.parse(readFileSync(join(dir, "results.json"), "utf8")) as never, [dir]);
+/** "Ultra 8, Lightning (fast-lane retry) 17, ... over 36 cases", added over the runs of one arm; or "not recorded". */
+function servedBy(dirs: string[]): string {
+  if (dirs.length === 0) return "not recorded";
+  const n = addSources(dirs.map(countsOf));
+  if (typeof n === "string") return "not recorded";
+  const cases = n.ultra + n.retry + n.router + n.ollama + n.none;
+  return dirs.length > 1 ? `${formatSources(n)}, over ${cases} cases of ${dirs.length} runs` : formatSources(n);
+}
+/** The served-by text of a recorded result file, from its export in eval/runs (matched by start time). */
+function servedByRecorded(file: string): string {
+  const r = JSON.parse(readFileSync(resolveProjectPath(`eval/results/${file}`), "utf8")) as Parameters<
+    typeof answerSourceCounts
+  >[0];
+  const dirs = existsSync(runsDir) ? readdirSync(runsDir).map((d) => join(runsDir, d)) : [];
+  const n = answerSourceCounts(r, dirs);
+  return n === "no model" ? n : typeof n === "string" ? "not recorded" : formatSources(n);
+}
+const ARM_DIRS: Record<string, RegExp> = {
+  "Full system": /^heldout4-repr\d-routed-/,
+  "Nemotron alone, no free text": /^heldout4-r\d-nemotron_alone-/,
+  "Nemotron alone, with the free text": /^heldout4-text\d-nemotron_alone-/,
+};
+/** Per arm of the v4 study: who served the decision answers used, over its three runs. */
+const armServed = (system: string) => servedBy(studyDirs("repeat-heldout4", ARM_DIRS[system] ?? /^$/));
+const SERVED_NOTE =
+  "decision answers used, from the run exports: Ultra, Lightning on the desk's fast-lane retry or chosen by the router, the Ollama backup, or none";
+
 // The notes in the committed summaries record when each study was run; the docs describe what was run instead.
 /** A study label without the day it was run ("(24 Oct, same 20 cases" -> "(same 20 cases"). */
 const docLabel = (label: string) => label.replace(/\(\d{1,2} Oct, /, "(");
-const studyNote = `Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one cloud Ultra call per case on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), after a warm-up and without restarting Nightshift.${study.systems.length > 2 ? " A further arm: Nemotron alone given the same free text the screener reads (customer note, payment reference, list remarks), with the same prompt otherwise, three runs; the first Nemotron-alone arm is kept as it was." : ""} Result file: [eval/repeat-study.json](../eval/repeat-study.json).`;
+const studyNote = `Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one Nemotron call per case, asking Nightshift for the deep lane, on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), after a warm-up and without restarting Nightshift.${study.systems.length > 2 ? " A further arm: Nemotron alone given the same free text the screener reads (customer note, payment reference, list remarks), with the same prompt otherwise, three runs; the first Nemotron-alone arm is kept as it was." : ""} Result file: [eval/repeat-study.json](../eval/repeat-study.json).`;
+/** Whether the three study arms score worse than a constant 0.5 guess (Brier 0.25), from the summary. */
+function brierNote(): string {
+  const rows = (study?.calibration ?? []).filter((c) => /\(3 runs above\)/.test(c.label) && c.brier !== null);
+  if (rows.length === 0) return "";
+  const worse = rows.filter((c) => (c.brier as number) > 0.25);
+  const cell = (c: Calibration) => `${c.label.replace(" (3 runs above)", "")}: ${c.brier}`;
+  if (worse.length === rows.length)
+    return ` In this study every arm scores worse than always answering 0.5 (${rows.map(cell).join("; ")}), so on this set the stated confidences are less useful than a flat 0.5.`;
+  if (worse.length === 0) return "";
+  return ` In this study ${worse.length === 1 ? "one arm scores" : "these arms score"} worse than always answering 0.5: ${worse.map(cell).join("; ")}.`;
+}
 const table = [
   `**${study.label}.** ${studyNote}`,
   "",
   `**1. Agreement between runs.** Same outcome in all ${study.systems[0]?.runs.length ?? 3} runs: ${study.systems.map((s) => `${s.system} on ${s.all_runs_agree} of ${s.cases} cases`).join("; ")}.`,
+  "",
+  `**Who served the decision answers used** (${SERVED_NOTE}): ${study.systems.map((s) => `${s.system}: ${armServed(s.system)}`).join("; ")}.`,
   "",
   "**2. Ranges across the runs** (lowest to highest of the three):",
   "",
@@ -242,7 +299,7 @@ const table = [
     (c) => `| ${docLabel(c.label)} | ${c.cases_with_confidence} | ${c.brier === null ? "n/a" : c.brier} |`,
   ),
   "",
-  `Brier score: ${study.brier_definition}`,
+  `Brier score: ${study.brier_definition}${brierNote()}`,
 ].join("\n");
 
 // Nemotron alone, once, on held-out v1 and v3 (the rounds where the full system closed risk cases), beside the
@@ -307,15 +364,21 @@ if (aloneSets.every(({ r }) => r)) {
 }
 /** A link from docs/NEMOTRON.md to a result file: recorded runs in eval/results, the Nemotron-alone runs in the study exports. */
 const resultLink = (source: string) => (source.startsWith("eval/") ? `../${source}` : "../eval/studies/README.md");
+/** Who served a row's decision answers: a Nemotron-alone run from its study export, a recorded run from eval/runs. */
+function rowServed(set: string, source: string): string {
+  if (source.startsWith("eval/results/")) return servedByRecorded(source.slice("eval/results/".length));
+  const exam = set.startsWith("Held-out v3") ? "heldout3" : set.startsWith("Held-out v1") ? "heldout" : "";
+  return servedBy(studyDirs("nemotron-alone-v1-v3", new RegExp(`^${exam}-once-nemotron_alone-`)));
+}
 const setsTable = sets
   ? [
-      `**${sets.label}.** Nemotron alone (one cloud Ultra call per case on the structured case facts, as above) once on held-out v1 and v3, the two rounds where the full system wrongly closed risk cases, after a warm-up and without restarting Nightshift; beside the recorded runs of the same frozen sets (one run each). Result file: [eval/nemotron-alone-sets.json](../eval/nemotron-alone-sets.json).`,
+      `**${sets.label}.** Nemotron alone (one Nemotron call per case on the structured case facts, asking for the deep lane, as above) once on held-out v1 and v3, the two rounds where the full system wrongly closed risk cases, after a warm-up and without restarting Nightshift; beside the recorded runs of the same frozen sets (one run each). Result file: [eval/nemotron-alone-sets.json](../eval/nemotron-alone-sets.json).`,
       "",
-      "| Set | System | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors | Result file |",
-      "| --- | --- | ---: | ---: | ---: | ---: | --- |",
+      "| Set | System | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors | Decision answer used came from | Result file |",
+      "| --- | --- | ---: | ---: | ---: | ---: | --- | --- |",
       ...sets.rows.map(
         (r) =>
-          `| ${r.set} | ${r.system} | ${r.summary.wrong_closes} of ${r.summary.risk_cases} | ${r.summary.clears_made} of ${r.summary.clear_cases} | ${r.summary.acceptable} of ${r.summary.cases} | ${r.summary.errors} | [${r.source.split("/").at(-1)}](${resultLink(r.source)}) |`,
+          `| ${r.set} | ${r.system} | ${r.summary.wrong_closes} of ${r.summary.risk_cases} | ${r.summary.clears_made} of ${r.summary.clear_cases} | ${r.summary.acceptable} of ${r.summary.cases} | ${r.summary.errors} | ${rowServed(r.set, r.source)} | [${r.source.split("/").at(-1)}](${resultLink(r.source)}) |`,
       ),
     ].join("\n")
   : undefined;
@@ -344,9 +407,10 @@ function aloneHeadline(ranges: boolean): string {
   const fullMissing = fullSys.runs.filter((r) => (r.no_usable_answer ?? 0) > 0);
   const allZero = fullSys.runs.every((r) => r.wrong_closes === 0);
   const full = `Full system: a recommendation on every case (escalated to a person where no model answer was usable), free text kept out of the desk's cloud prompts, ${allZero ? `0 of ${fullSys.runs[0]?.risk_cases ?? 0} risk cases wrongly closed in each of ${n} runs${ranges ? ` (0–${wilsonHigh(0, fullSys.runs[0]?.risk_cases ?? 0)}% each)` : ""}` : `${closes(fullSys, ranges)} risk cases wrongly closed in its ${n} runs`}${fullMissing.length > 0 ? `; in ${fullMissing.length} of ${n} runs, ${listOf(fullMissing.map((r) => `${r.no_usable_answer}`))} case${fullMissing.length === 1 && fullMissing[0]?.no_usable_answer === 1 ? "" : "s"} had no usable model answer and ${fullMissing.length === 1 && fullMissing[0]?.no_usable_answer === 1 ? "was" : "were"} escalated to a person` : ""}.`;
-  const alone = `Nemotron alone without the free text: ${closes(aloneSys, ranges)} wrongly closed, with no usable answer on ${missing(aloneSys)}.`;
+  const served = (sys: SystemSummary) => ` Decision answers used: ${armServed(sys.system)}.`;
+  const alone = `Nemotron alone without the free text: ${closes(aloneSys, ranges)} wrongly closed, with no usable answer on ${missing(aloneSys)}.${served(aloneSys)}`;
   const text = aloneTextSys
-    ? ` Nemotron alone with the free text sent to the cloud: ${closes(aloneTextSys, ranges)} wrongly closed, but no usable answer on ${missing(aloneTextSys)}. Nemotron alone cleared more: ${clears(aloneTextSys)} of ${aloneTextSys.runs[0]?.clear_cases ?? 0} clear cases with the free text (${clears(aloneSys)} without it), against ${clears(fullSys)} for the full system.`
+    ? ` Nemotron alone with the free text sent to the cloud: ${closes(aloneTextSys, ranges)} wrongly closed, but no usable answer on ${missing(aloneTextSys)}.${served(aloneTextSys)} Nemotron alone cleared more: ${clears(aloneTextSys)} of ${aloneTextSys.runs[0]?.clear_cases ?? 0} clear cases with the free text (${clears(aloneSys)} without it), against ${clears(fullSys)} for the full system.`
     : "";
   return `${full} ${alone}${text}`;
 }
@@ -463,16 +527,22 @@ const V3_SYSTEM: Record<string, string> = {
     "The system with span grounding, as recorded (one run, the headline)",
   "Today's system, re-run after the fail-closed fix, not blind": "The fail-closed system (policy 8), not blind",
 };
+/** Who served a held-out v3 row: Nemotron alone and the re-runs from their study exports, the recorded run from eval/runs. */
+function v3Served(source: string, run: string): string {
+  if (source.startsWith("eval/results/")) return servedByRecorded(source.slice("eval/results/".length));
+  if (source.startsWith("logs/alone-v1v3")) return rowServed("Held-out v3", source);
+  return servedBy(studyDirs("heldout3-rerun", new RegExp(`^heldout3-today${run}-routed-`)));
+}
 const v3Table = v3
   ? [
       `**${v3.label}.** Held-out v3 (12 cases, 6 risks, 6 clears) three ways. The recorded result of the system with span grounding stays the headline; the fail-closed system (policy 8) was run three times on the same set after the fail-closed fix, which held-out v3 led to, so those runs are not blind. The runs were made after a warm-up and without restarting Nightshift. Result file: [eval/v3-today.json](../eval/v3-today.json).`,
       "",
-      "| Held-out v3 | Run | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors |",
-      "| --- | --- | ---: | ---: | ---: | ---: |",
+      "| Held-out v3 | Run | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors | Decision answer used came from |",
+      "| --- | --- | ---: | ---: | ---: | ---: | --- |",
       ...v3.columns.flatMap((c) =>
         c.runs.map(
           (r) =>
-            `| ${V3_SYSTEM[c.system] ?? c.system} | ${r.run} | ${r.wrong_closes} of ${r.risk_cases} | ${r.clears_made} of ${r.clear_cases} | ${r.acceptable} of ${r.cases} | ${r.errors} |`,
+            `| ${V3_SYSTEM[c.system] ?? c.system} | ${r.run} | ${r.wrong_closes} of ${r.risk_cases} | ${r.clears_made} of ${r.clear_cases} | ${r.acceptable} of ${r.cases} | ${r.errors} | ${v3Served(c.source, r.run)} |`,
         ),
       ),
     ].join("\n")

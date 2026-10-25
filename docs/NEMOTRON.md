@@ -21,13 +21,13 @@ The decision step asks for the deep lane (`meterless/deep`): the mode is pinned,
 
 | Arm                                                                                                                                    | Risk cases wrongly closed | Clears made | Blocks | Unsupported blocks | Unusable answers | Decision answer used came from                                                         |
 | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------: | ----------: | -----: | -----------------: | ---------------: | -------------------------------------------------------------------------------------- |
-| Full system, first system ([result](../eval/results/2026-10-23T13-33-11-122Z-routed.json))                                             |            0 of 43 (0–8%) |    18 of 25 |      8 |    0 of 35 (0–10%) |                9 | Ultra 58, Lightning (router) 1, Ollama backup 1, none 10                               |
 | Full system, current system before the block fix ([result](../eval/results/2026-10-25T07-45-05-768Z-sys5-routed.json))                 |            0 of 43 (0–8%) |    13 of 25 |      0 |    0 of 35 (0–10%) |                2 | Ultra 59, Lightning (fast-lane retry) 3, Lightning (router) 1, Ollama backup 3, none 4 |
-| Full system, current system                                                                                                            |               not run yet |             |        |                    |                  |                                                                                        |
 | Deterministic rules ([result](../eval/results/2026-10-23T08-56-18-162Z-rules.json))                                                    |           1 of 43 (0–12%) |    25 of 25 |      0 |    0 of 35 (0–10%) |                0 | no model                                                                               |
 | Name-match rules baseline ([result](../eval/results/2026-10-23T08-56-17-916Z-fuzzy.json))                                              |         10 of 43 (13–38%) |     3 of 25 |      0 |    0 of 35 (0–10%) |                0 | no model                                                                               |
 | Nemotron alone, without the free text ([result](../eval/results/2026-10-25T10-41-35-156Z-notext70-nemotron_alone.json))                |           3 of 43 (2–19%) |    23 of 25 |     32 |    5 of 35 (6–29%) |                4 | Ultra 50, Lightning (fast-lane retry) 14, Ollama backup 2, none 4                      |
 | Nemotron alone, with the free text (sent to the cloud) ([result](../eval/results/2026-10-25T09-30-17-773Z-text70-nemotron_alone.json)) |           6 of 43 (7–27%) |    23 of 25 |     25 |    1 of 35 (1–15%) |                4 | Ultra 33, Lightning (fast-lane retry) 30, Ollama backup 3, none 4                      |
+
+The full system's row is its newest run on the 70 cases. Its earlier runs, and the fix for block recommendations on true matches made between them: [EVALUATION.md](EVALUATION.md#a-block-recommendation-regression-found-in-the-current-system-comparison).
 
 **Blind held-out rounds, totals** (4 rounds, cases the rules were not written for; each round ran the system of its time, one run each; per round in the held-out table):
 
@@ -50,6 +50,17 @@ The decision step asks for the deep lane (`meterless/deep`): the mode is pinned,
 
 Answered on the laptop: 551 of 1,511 model calls (37%), Lightning through Nightshift and the Ollama backup together. The per-case `cost` in the result files is worked out from the illustrative unit costs in `config/default.json`, not recorded, so it is not shown.
 
+**Receipts.** Every Nightshift answer has a signed receipt: in the 31 exported runs, 2,092 of 2,133 model answers came from Nightshift, all verified against the pinned key; the other 41 came from the local Ollama backup, which has no receipt by design. The small studies add 879 more signed receipts, all verified.
+
+**Safety guard** (95% Wilson ranges in brackets):
+
+| Test                                                          |            Result | Source                                                                      |
+| ------------------------------------------------------------- | ----------------: | --------------------------------------------------------------------------- |
+| Injected text caught, full reviews, guard asked once          | 66 of 70 (86–98%) | [full-review run](../eval/adversarial/review-2026-10-25T02-36-40-554Z.json) |
+| Injected text caught, fresh set, current guard                | 27 of 28 (82–99%) | [fresh-set run](../eval/adversarial/fresh-2026-10-25T04-37-55-312Z.json)    |
+| False alarms on harmless text, fresh set, current guard       |  7 of 16 (23–67%) | [fresh-set run](../eval/adversarial/fresh-2026-10-25T04-37-55-312Z.json)    |
+| False alarms on harmless text, full reviews, guard asked once |  5 of 15 (15–58%) | [full-review run](../eval/adversarial/review-2026-10-25T02-36-40-554Z.json) |
+
 **Calibration** (Brier score, lower is better; indicative only with this few cases):
 
 | Arm                                                                                         | Cases with a confidence (n) | Brier score | Source                                                                               |
@@ -66,16 +77,7 @@ Answered on the laptop: 551 of 1,511 model calls (37%), Lightning through Nights
 | Nemotron alone, no free text (exam, 70 cases, one run notext70)                             |                          64 |       0.107 | [result file](../eval/results/2026-10-25T10-41-35-156Z-notext70-nemotron_alone.json) |
 | Nemotron alone, with the free text (exam, 70 cases, one run text70)                         |                          64 |       0.138 | [result file](../eval/results/2026-10-25T09-30-17-773Z-text70-nemotron_alone.json)   |
 
-Brier score: Mean of (confidence - y) squared over cases, where y is 1 when the chosen outcome is acceptable for the case (its expected or an acceptable outcome) and 0 otherwise. 0 is perfect; always answering with confidence 0.5 scores 0.25. Lower is better.
-
-**Safety guard** (95% Wilson ranges in brackets):
-
-| Test                                                          |            Result | Source                                                                      |
-| ------------------------------------------------------------- | ----------------: | --------------------------------------------------------------------------- |
-| Injected text caught, full reviews, guard asked once          | 66 of 70 (86–98%) | [full-review run](../eval/adversarial/review-2026-10-25T02-36-40-554Z.json) |
-| Injected text caught, fresh set, current guard                | 27 of 28 (82–99%) | [fresh-set run](../eval/adversarial/fresh-2026-10-25T04-37-55-312Z.json)    |
-| False alarms on harmless text, fresh set, current guard       |  7 of 16 (23–67%) | [fresh-set run](../eval/adversarial/fresh-2026-10-25T04-37-55-312Z.json)    |
-| False alarms on harmless text, full reviews, guard asked once |  5 of 15 (15–58%) | [full-review run](../eval/adversarial/review-2026-10-25T02-36-40-554Z.json) |
+Brier score: Mean of (confidence - y) squared over cases, where y is 1 when the chosen outcome is acceptable for the case (its expected or an acceptable outcome) and 0 otherwise. 0 is perfect; always answering with confidence 0.5 scores 0.25. Lower is better. On held-out v4 (three runs each), every arm scores worse than always answering with confidence 0.5, which scores 0.25 (Full system: 0.333; Nemotron alone, no free text: 0.696; Nemotron alone, with the free text: 0.498), so on that set the stated confidences are less useful than a flat 0.5.
 
 What we tried and did not use (guard and jailbreak-detection models, embedding, document images): [What we tried and why it isn't used](#what-we-tried-and-why-it-isnt-used).
 <!-- nemotron-scorecard:end -->
@@ -83,8 +85,8 @@ What we tried and did not use (guard and jailbreak-detection models, embedding, 
 <!-- alone-headline:start -->
 **Measured against Nemotron alone** (small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation):
 - Full system: a recommendation on every case (escalated to a person where no model answer was usable), free text kept out of the desk's cloud prompts, 0 of 6 risk cases wrongly closed in each of 3 runs; in 1 of 3 runs, 1 case had no usable model answer and was escalated to a person.
-- Nemotron alone without the free text: 3, 6 and 4 wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases.
-- Nemotron alone with the free text sent to the cloud: 0, 1 and 1 wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases.
+- Nemotron alone without the free text: 3, 6 and 4 wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Decision answers used: Ultra 8, Lightning (fast-lane retry) 17, Ollama backup 2, none 9, over 36 cases of 3 runs.
+- Nemotron alone with the free text sent to the cloud: 0, 1 and 1 wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Decision answers used: Ultra 13, Lightning (fast-lane retry) 9, Lightning (router) 1, Ollama backup 1, none 12, over 36 cases of 3 runs.
 - Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it), against 1 in each run for the full system.
 <!-- alone-headline:end -->
 
@@ -145,14 +147,16 @@ Read plainly: neither arm closed a risk case. With Lightning doing the reasoning
 
 ## What the agents add over Nemotron alone
 
-The same 12 held-out cases, three runs each: the full system, and Nemotron alone (one Ultra call per case on the structured case facts the decision step gets, with no free text, no critic, no challenger, no policy guard and no memory, through the same Nightshift path with receipts). It is reported as measured, including where Nemotron alone does as well or better. A second Nemotron-alone arm gets the same free text the screener reads (customer note, payment reference, list remarks) with the same prompt otherwise, so the comparison does not rest on Nemotron alone being denied the text; the first arm is kept beside it. This arm sends the (synthetic) free text to the cloud model, which the desk itself does not do (see [the privacy design](#the-privacy-design)); it is a study tool only (`tools/nemotron-alone.ts --with-text`).
+The same 12 held-out cases, three runs each: the full system, and Nemotron alone (one Nemotron call per case, asking Nightshift for the deep lane, on the structured case facts the decision step gets, with no free text, no critic, no challenger, no policy guard and no memory, through the same Nightshift path with receipts). It is reported as measured, including where Nemotron alone does as well or better. A second Nemotron-alone arm gets the same free text the screener reads (customer note, payment reference, list remarks) with the same prompt otherwise, so the comparison does not rest on Nemotron alone being denied the text; the first arm is kept beside it. This arm sends the (synthetic) free text to the cloud model, which the desk itself does not do (see [the privacy design](#the-privacy-design)); it is a study tool only (`tools/nemotron-alone.ts --with-text`).
 
 ![Held-out v4, three runs each: the full system, Nemotron alone without and with the free text](media/charts/repeat-study.png)
 
 <!-- repeat-study:start -->
-**Small study, 12 cases x 3 runs, not part of the recorded evaluation.** Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one cloud Ultra call per case on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), after a warm-up and without restarting Nightshift. A further arm: Nemotron alone given the same free text the screener reads (customer note, payment reference, list remarks), with the same prompt otherwise, three runs; the first Nemotron-alone arm is kept as it was. Result file: [eval/repeat-study.json](../eval/repeat-study.json).
+**Small study, 12 cases x 3 runs, not part of the recorded evaluation.** Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one Nemotron call per case, asking Nightshift for the deep lane, on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), after a warm-up and without restarting Nightshift. A further arm: Nemotron alone given the same free text the screener reads (customer note, payment reference, list remarks), with the same prompt otherwise, three runs; the first Nemotron-alone arm is kept as it was. Result file: [eval/repeat-study.json](../eval/repeat-study.json).
 
 **1. Agreement between runs.** Same outcome in all 3 runs: Full system on 10 of 12 cases; Nemotron alone, no free text on 4 of 12 cases; Nemotron alone, with the free text on 5 of 12 cases.
+
+**Who served the decision answers used** (decision answers used, from the run exports: Ultra, Lightning on the desk's fast-lane retry or chosen by the router, the Ollama backup, or none): Full system: Ultra 33, Ollama backup 2, none 1, over 36 cases of 3 runs; Nemotron alone, no free text: Ultra 8, Lightning (fast-lane retry) 17, Ollama backup 2, none 9, over 36 cases of 3 runs; Nemotron alone, with the free text: Ultra 13, Lightning (fast-lane retry) 9, Lightning (router) 1, Ollama backup 1, none 12, over 36 cases of 3 runs.
 
 **2. Ranges across the runs** (lowest to highest of the three):
 
@@ -190,7 +194,7 @@ Ranges use the Wilson score method.
 | Reasoning on Lightning (same 20 cases, one run)                           |                          16 |       0.165 |
 | Deterministic rules, name match, escalate everything (no real confidence) |                           0 |         n/a |
 
-Brier score: Mean of (confidence - y) squared over cases, where y is 1 when the chosen outcome is acceptable for the case (its expected or an acceptable outcome) and 0 otherwise. 0 is perfect; always answering with confidence 0.5 scores 0.25. Lower is better.
+Brier score: Mean of (confidence - y) squared over cases, where y is 1 when the chosen outcome is acceptable for the case (its expected or an acceptable outcome) and 0 otherwise. 0 is perfect; always answering with confidence 0.5 scores 0.25. Lower is better. In this study every arm scores worse than always answering 0.5 (Full system: 0.333; Nemotron alone, no free text: 0.696; Nemotron alone, with the free text: 0.498), so on this set the stated confidences are less useful than a flat 0.5.
 <!-- repeat-study:end -->
 
 Read plainly (every figure is in the summary at the top of this page and in the tables above, all written from the study files): without the free text, Nemotron alone closes the cases whose risk is stated only in free text. HO4-001 to HO4-003 (an uncle who is the listed person, a German nominee note, a former name) meet the false-positive definition on their structured fields alone, and Nemotron alone closed them in every run; in the full system the local screener reads that text on the laptop and passes a risk signal that blocks the close. Given the free text (sent to the cloud for this arm only), Nemotron alone closes far fewer risk cases, but not none (HO4-003, the former name, in two runs), and it often gives no usable answer (an answer the decision schema rejects: no JSON, more than 8 cited facts, missing fields), which a desk would have to send to a person. Nemotron alone also clears more of the clear cases than the full system, which escalates most of them: that is the full system's cost. With this few cases the Brier scores are indicative only; the full system's score is worse than always answering 0.5 would be, because it gives high confidence to escalations of clear cases.
@@ -198,17 +202,17 @@ Read plainly (every figure is in the summary at the top of this page and in the 
 **Nemotron alone on held-out v1 and v3.** The two rounds where the full system wrongly closed risk cases, run once each:
 
 <!-- alone-sets:start -->
-**Small study, one run per set, not part of the recorded evaluation.** Nemotron alone (one cloud Ultra call per case on the structured case facts, as above) once on held-out v1 and v3, the two rounds where the full system wrongly closed risk cases, after a warm-up and without restarting Nightshift; beside the recorded runs of the same frozen sets (one run each). Result file: [eval/nemotron-alone-sets.json](../eval/nemotron-alone-sets.json).
+**Small study, one run per set, not part of the recorded evaluation.** Nemotron alone (one Nemotron call per case on the structured case facts, asking for the deep lane, as above) once on held-out v1 and v3, the two rounds where the full system wrongly closed risk cases, after a warm-up and without restarting Nightshift; beside the recorded runs of the same frozen sets (one run each). Result file: [eval/nemotron-alone-sets.json](../eval/nemotron-alone-sets.json).
 
-| Set                    | System                                                       | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors | Result file                                                                                                              |
-| ---------------------- | ------------------------------------------------------------ | ------------------------: | ----------: | ------------------: | -----: | ------------------------------------------------------------------------------------------------------------------------ |
-| Held-out v1 (30 cases) | Nemotron alone                                               |                   2 of 22 |      3 of 8 |            16 of 30 |      7 | [2026-10-24T17-11-05-604Z-heldout-once-nemotron_alone.json](../eval/studies/README.md)                                   |
-| Held-out v1 (30 cases) | Full system, first system (no screener)                      |                   2 of 22 |      0 of 8 |            20 of 30 |      0 | [2026-10-23T12-11-40-825Z-heldout-routed.json](../eval/results/2026-10-23T12-11-40-825Z-heldout-routed.json)             |
-| Held-out v1 (30 cases) | Full system after the screener was added (re-run, not blind) |                   0 of 22 |      0 of 8 |            22 of 30 |      0 | [2026-10-23T21-45-15-877Z-heldout-sys2b-routed.json](../eval/results/2026-10-23T21-45-15-877Z-heldout-sys2b-routed.json) |
-| Held-out v1 (30 cases) | Deterministic rules                                          |                   6 of 22 |      0 of 8 |            16 of 30 |      0 | [2026-10-23T08-13-08-222Z-heldout-rules.json](../eval/results/2026-10-23T08-13-08-222Z-heldout-rules.json)               |
-| Held-out v3 (12 cases) | Nemotron alone                                               |                    4 of 6 |      2 of 6 |             2 of 12 |      3 | [2026-10-24T17-54-48-801Z-heldout3-once-nemotron_alone.json](../eval/studies/README.md)                                  |
-| Held-out v3 (12 cases) | Full system (span grounding)                                 |                    2 of 6 |      0 of 6 |             3 of 12 |      0 | [2026-10-23T23-19-01-303Z-heldout3-sys3-routed.json](../eval/results/2026-10-23T23-19-01-303Z-heldout3-sys3-routed.json) |
-| Held-out v3 (12 cases) | Deterministic rules                                          |                    1 of 6 |      1 of 6 |             6 of 12 |      0 | [2026-10-23T23-41-47-213Z-heldout3-rules.json](../eval/results/2026-10-23T23-41-47-213Z-heldout3-rules.json)             |
+| Set                    | System                                                       | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors | Decision answer used came from                                   | Result file                                                                                                              |
+| ---------------------- | ------------------------------------------------------------ | ------------------------: | ----------: | ------------------: | -----: | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Held-out v1 (30 cases) | Nemotron alone                                               |                   2 of 22 |      3 of 8 |            16 of 30 |      7 | Ultra 7, Lightning (fast-lane retry) 15, Ollama backup 1, none 7 | [2026-10-24T17-11-05-604Z-heldout-once-nemotron_alone.json](../eval/studies/README.md)                                   |
+| Held-out v1 (30 cases) | Full system, first system (no screener)                      |                   2 of 22 |      0 of 8 |            20 of 30 |      0 | Ultra 26, none 4                                                 | [2026-10-23T12-11-40-825Z-heldout-routed.json](../eval/results/2026-10-23T12-11-40-825Z-heldout-routed.json)             |
+| Held-out v1 (30 cases) | Full system after the screener was added (re-run, not blind) |                   0 of 22 |      0 of 8 |            22 of 30 |      0 | Ultra 30                                                         | [2026-10-23T21-45-15-877Z-heldout-sys2b-routed.json](../eval/results/2026-10-23T21-45-15-877Z-heldout-sys2b-routed.json) |
+| Held-out v1 (30 cases) | Deterministic rules                                          |                   6 of 22 |      0 of 8 |            16 of 30 |      0 | no model                                                         | [2026-10-23T08-13-08-222Z-heldout-rules.json](../eval/results/2026-10-23T08-13-08-222Z-heldout-rules.json)               |
+| Held-out v3 (12 cases) | Nemotron alone                                               |                    4 of 6 |      2 of 6 |             2 of 12 |      3 | Ultra 4, Lightning (fast-lane retry) 3, Ollama backup 2, none 3  | [2026-10-24T17-54-48-801Z-heldout3-once-nemotron_alone.json](../eval/studies/README.md)                                  |
+| Held-out v3 (12 cases) | Full system (span grounding)                                 |                    2 of 6 |      0 of 6 |             3 of 12 |      0 | Ultra 12                                                         | [2026-10-23T23-19-01-303Z-heldout3-sys3-routed.json](../eval/results/2026-10-23T23-19-01-303Z-heldout3-sys3-routed.json) |
+| Held-out v3 (12 cases) | Deterministic rules                                          |                    1 of 6 |      1 of 6 |             6 of 12 |      0 | no model                                                         | [2026-10-23T23-41-47-213Z-heldout3-rules.json](../eval/results/2026-10-23T23-41-47-213Z-heldout3-rules.json)             |
 <!-- alone-sets:end -->
 
 Read plainly: v1 is not a like-for-like comparison, because the first system had no free-text screener; on v1, Nemotron alone and the first system each closed 2 of 22 risk cases (HO-002 and HO-006 for Nemotron alone; HO-005 and HO-006 for the first system), Nemotron alone made 3 of 8 clears where the first system made none, and it gave no usable answer on 7 cases. On v3, Nemotron alone closed 4 of 6 risk cases against 2 for the full system. The main result stays the three runs on v4 above: the full system closed none of the 6 risk cases in any run; Nemotron alone closed 3, 6 and 4.
@@ -218,13 +222,13 @@ Read plainly: v1 is not a like-for-like comparison, because the first system had
 <!-- v3-today:start -->
 **Small study, not part of the recorded evaluation.** Held-out v3 (12 cases, 6 risks, 6 clears) three ways. The recorded result of the system with span grounding stays the headline; the fail-closed system (policy 8) was run three times on the same set after the fail-closed fix, which held-out v3 led to, so those runs are not blind. The runs were made after a warm-up and without restarting Nightshift. Result file: [eval/v3-today.json](../eval/v3-today.json).
 
-| Held-out v3                                                         | Run      | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors |
-| ------------------------------------------------------------------- | -------- | ------------------------: | ----------: | ------------------: | -----: |
-| Nemotron alone (one run)                                            | once     |                    4 of 6 |      2 of 6 |             2 of 12 |      3 |
-| The system with span grounding, as recorded (one run, the headline) | recorded |                    2 of 6 |      0 of 6 |             3 of 12 |      0 |
-| The fail-closed system (policy 8), not blind                        | t1       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 |
-| The fail-closed system (policy 8), not blind                        | t2       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 |
-| The fail-closed system (policy 8), not blind                        | t3       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 |
+| Held-out v3                                                         | Run      | Risk cases wrongly closed | Clears made | Acceptable outcomes | Errors | Decision answer used came from                                  |
+| ------------------------------------------------------------------- | -------- | ------------------------: | ----------: | ------------------: | -----: | --------------------------------------------------------------- |
+| Nemotron alone (one run)                                            | once     |                    4 of 6 |      2 of 6 |             2 of 12 |      3 | Ultra 4, Lightning (fast-lane retry) 3, Ollama backup 2, none 3 |
+| The system with span grounding, as recorded (one run, the headline) | recorded |                    2 of 6 |      0 of 6 |             3 of 12 |      0 | Ultra 12                                                        |
+| The fail-closed system (policy 8), not blind                        | t1       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 | Ultra 9, Lightning (fast-lane retry) 1, Ollama backup 2         |
+| The fail-closed system (policy 8), not blind                        | t2       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 | Ultra 11, Lightning (fast-lane retry) 1                         |
+| The fail-closed system (policy 8), not blind                        | t3       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 | Ultra 11, none 1                                                |
 <!-- v3-today:end -->
 
 Read plainly: the fail-closed system closed none of the 6 v3 risk cases in any of its three runs and made none of the 6 clears; it gave the same outcome in all three runs on 11 of 12 cases (HO3-009 was escalated once and held for more information twice). These runs are not blind: the fail-closed change was made after v3 showed its two wrong closes, which stay in the headline.
@@ -241,7 +245,7 @@ We only claim a model when a verified receipt shows it answered.
 
 <!--fact:receipt_gate-->The desk only uses a model answer whose Nightshift receipt is signed by the pinned key; otherwise it retries, then holds the case.<!--/fact--> The Ollama backup has no receipt by design and is labelled "Ollama backup (no receipt)" in the trace and on screen; a rejected answer shows "answer not used: receipt …" on its step and `receipt_rejected` in the trace and the record (`receiptProblem` in [model-call.ts](../packages/agents/src/model-call.ts)).
 
-<!--fact:receipts_line-->2,971 signed receipts: 2,092 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->. Two commands, no services needed:
+<!--fact:receipt_figure-->Every Nightshift answer has a signed receipt: in the 31 exported runs, 2,092 of 2,133 model answers came from Nightshift, all verified against the pinned key; the other 41 came from the local Ollama backup, which has no receipt by design. The small studies add 879 more signed receipts, all verified<!--/fact-->. Two commands, no services needed:
 
 ```bash
 npm run receipts:check        # verify every committed receipt against the pinned key; writes eval/receipts-check.json
@@ -257,6 +261,8 @@ Every model call in the exported runs and in the labelled small runs (the privac
 ![Time per model call, by step and model](media/charts/model-latency.png)
 
 <!-- receipt-stats:start -->
+**Every Nightshift answer has a signed receipt: in the 31 exported runs, 2,092 of 2,133 model answers came from Nightshift, all verified against the pinned key; the other 41 came from the local Ollama backup, which has no receipt by design. The small studies add 879 more signed receipts, all verified.**
+
 **Recorded evaluation runs (28 exported runs in eval/runs: the first system's runs, the baselines and the held-out rounds, systems up to sys4)**
 
 | Step         | Model that served it                  | Calls | Receipts verified | Median s | p95 s | Median tokens in | Median tokens out |

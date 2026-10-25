@@ -24,7 +24,10 @@ export const RESULTS_SECTIONS: readonly ResultsSection[] = [
   {
     title: "Headline",
     lead: "The summary at the top of the README.",
-    blocks: [{ doc: "README.md", marker: "headline" }],
+    blocks: [
+      { doc: "README.md", marker: "results-box" },
+      { doc: "README.md", marker: "headline" },
+    ],
   },
   {
     title: "Every held-out round, as run",
@@ -149,6 +152,9 @@ export function renderBlock(doc: string, md: string): string {
       const rows: string[] = [];
       while (i < lines.length && (lines[i] as string).trim().startsWith("|")) rows.push(lines[i++] as string);
       out.push(renderTable(doc, rows));
+    } else if (/^> /.test(line)) {
+      out.push(`<p class="quote">${inline(doc, line.slice(2))}</p>`);
+      i += 1;
     } else if (/^- /.test(line)) {
       const items: string[] = [];
       while (i < lines.length && /^- /.test(lines[i] as string)) items.push((lines[i++] as string).slice(2));
@@ -173,6 +179,7 @@ p, ul { margin: 0 0 12px; }
 a { color: #1d4ed8; }
 a:focus-visible, .wrap:focus-visible { outline: 3px solid #d97706; outline-offset: 2px; }
 code { font: 0.85em/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+.quote { border-left: 4px solid #1d4ed8; padding: 4px 12px; background: #fff; }
 .banner { background: #fff7e6; border: 1px solid #f0c36d; border-radius: 8px; padding: 10px 14px; }
 .lead, .muted { color: #4b5563; }
 .wrap { max-width: 100%; overflow-x: auto; background: #fff; border: 1px solid #d9dde3; border-radius: 8px; margin: 0 0 12px; }

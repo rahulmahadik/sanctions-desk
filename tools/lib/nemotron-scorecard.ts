@@ -28,6 +28,7 @@ import {
   range95,
   rulesFraming,
 } from "./exam-figures.js";
+import { receiptFigure, receiptSentence } from "./receipt-figure.js";
 import { RUN_GROUP_ORDER, type RunGroupId, runGroup } from "./run-groups.js";
 
 // ---- the steps (the why text is the start of the "Why this model" cell in docs/NEMOTRON.md; checked on build) ----
@@ -524,6 +525,28 @@ export function calibration(root: string): { rows: CalibrationRow[]; definition:
   return { rows: rows.sort((a, b) => rank(a) - rank(b)), definition: study.brier_definition };
 }
 
+/** Brier score of always answering with confidence 0.5. */
+export const CONSTANT_GUESS_BRIER = 0.25;
+
+/**
+ * The plain note on the main study's arms (held-out v4, three runs each): which score worse than a constant 0.5 guess
+ * and which better. Empty when the study has no rows.
+ */
+export function brierNote(rows: readonly CalibrationRow[]): string {
+  const study = rows.filter((r) => r.source === "eval/studies/repeat-heldout4" && r.brier !== null);
+  if (study.length === 0) return "";
+  const name = (r: CalibrationRow) => r.arm.replace(/ \(held-out v4.*$/, "");
+  const cell = (r: CalibrationRow) => `${name(r)}: ${r.brier}`;
+  const worse = study.filter((r) => (r.brier as number) > CONSTANT_GUESS_BRIER);
+  const better = study.filter((r) => (r.brier as number) <= CONSTANT_GUESS_BRIER);
+  const guess = `always answering with confidence 0.5, which scores ${CONSTANT_GUESS_BRIER}`;
+  if (better.length === 0)
+    return `On held-out v4 (three runs each), every arm scores worse than ${guess} (${study.map(cell).join("; ")}), so on that set the stated confidences are less useful than a flat 0.5.`;
+  if (worse.length === 0)
+    return `On held-out v4 (three runs each), every arm scores at or better than ${guess} (${study.map(cell).join("; ")}).`;
+  return `On held-out v4 (three runs each), worse than ${guess}: ${worse.map(cell).join("; ")}; at or better than it: ${better.map(cell).join("; ")}.`;
+}
+
 // ---- safety guard ----------------------------------------------------------------------------------------------
 
 interface GuardRow {
@@ -657,6 +680,10 @@ export interface Scorecard {
   heldout_totals: HeldoutSummary;
   /** Why the rules look exact on the 70 cases, against what they did on the held-out rounds. */
   rules_framing: string;
+  /** The one receipt figure (tools/lib/receipt-figure.ts), as the README and the site quote it. */
+  receipt_figure: string;
+  /** Whether the arms of the held-out v4 study score worse than a constant 0.5 guess (Brier 0.25), in words. */
+  brier_note: string;
   not_used: string;
 }
 
@@ -719,6 +746,8 @@ export function buildScorecard(root: string): Scorecard {
     exam_arms: exam.arms,
     heldout_totals: heldoutSummary(exam.heldout),
     rules_framing: exam.framing,
+    receipt_figure: receiptSentence(receiptFigure(root)),
+    brier_note: brierNote(cal.rows),
     not_used: NOT_USED_LINK,
   };
 }
@@ -739,6 +768,13 @@ const costCell = (m: ModelRow) =>
     ? "not recorded (no receipt)"
     : `USD ${m.cost.actual_usd_total} on all ${n(m.cost.receipts)} receipts (\`cost.actual_usd\`)`;
 
+/** The arms the scorecard table shows: the newest full-system run that exists, then every other arm. */
+export function shownArms(arms: readonly ExamArmRow[]): ExamArmRow[] {
+  const full = arms.filter((a) => a.arm.startsWith("Full system"));
+  const newest = full.filter((a) => a.figures !== null).at(-1) ?? full[0];
+  return arms.filter((a) => !a.arm.startsWith("Full system") || a === newest);
+}
+
 /** The Markdown block written between the nemotron-scorecard markers of docs/NEMOTRON.md. */
 export function renderScorecard(s: Scorecard): string {
   const pct = Math.round(s.local_share.share * 100);
@@ -757,11 +793,13 @@ export function renderScorecard(s: Scorecard): string {
     "",
     "| Arm | Risk cases wrongly closed | Clears made | Blocks | Unsupported blocks | Unusable answers | Decision answer used came from |",
     "| --- | ---: | ---: | ---: | ---: | ---: | --- |",
-    ...s.exam_arms.map((a) => {
+    ...shownArms(s.exam_arms).map((a) => {
       const f = a.figures;
       if (!f || !a.source) return `| ${a.arm} | not run yet | | | | | |`;
       return `| ${a.arm} ([result](../${a.source})) | ${f.wrong} of ${f.risk} (${f.wrong_range}) | ${f.clears_made} of ${f.clears} | ${f.blocks} | ${f.unsupported_blocks} of ${f.not_block_cases} (${f.unsupported_range}) | ${f.unusable} | ${f.answer_from} |`;
     }),
+    "",
+    `The full system's row is its newest run on the 70 cases. Its earlier runs, and the fix for block recommendations on true matches made between them: [EVALUATION.md](EVALUATION.md#a-block-recommendation-regression-found-in-the-current-system-comparison).`,
     "",
     ...heldoutTotalsTable(s.heldout_totals),
     "",
@@ -778,6 +816,14 @@ export function renderScorecard(s: Scorecard): string {
     "",
     `Answered on the laptop: ${n(s.local_share.local_calls)} of ${n(s.local_share.all_calls)} model calls (${pct}%), Lightning through Nightshift and the Ollama backup together. The per-case \`cost\` in the result files is worked out from the illustrative unit costs in \`config/default.json\`, not recorded, so it is not shown.`,
     "",
+    `**Receipts.** ${s.receipt_figure}.`,
+    "",
+    "**Safety guard** (95% Wilson ranges in brackets):",
+    "",
+    "| Test | Result | Source |",
+    "| --- | ---: | --- |",
+    ...s.guard.map((g) => `| ${g.test} | ${countWithInterval(g.x, g.n)} | ${sourceLink(g.source)} |`),
+    "",
     "**Calibration** (Brier score, lower is better; indicative only with this few cases):",
     "",
     "| Arm | Cases with a confidence (n) | Brier score | Source |",
@@ -787,13 +833,7 @@ export function renderScorecard(s: Scorecard): string {
         `| ${c.arm} | ${c.cases_with_confidence} | ${c.brier === null ? "n/a" : c.brier} | ${sourceLink(c.source)} |`,
     ),
     "",
-    `Brier score: ${s.brier_definition}`,
-    "",
-    "**Safety guard** (95% Wilson ranges in brackets):",
-    "",
-    "| Test | Result | Source |",
-    "| --- | ---: | --- |",
-    ...s.guard.map((g) => `| ${g.test} | ${countWithInterval(g.x, g.n)} | ${sourceLink(g.source)} |`),
+    `Brier score: ${s.brier_definition}${s.brier_note ? ` ${s.brier_note}` : ""}`,
     "",
     `What we tried and did not use (guard and jailbreak-detection models, embedding, document images): [What we tried and why it isn't used](#what-we-tried-and-why-it-isnt-used).`,
   ].join("\n");

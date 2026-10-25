@@ -9,11 +9,15 @@ import { afterAll, describe, expect, it } from "vitest";
 import {
   BANNER,
   buildRunPages,
+  flaggedSignals,
   loadRecordedCase,
+  MAX_SPAN_CHARS,
+  protectedValuesFor,
   RECORDED_CASES,
   REPO_URL,
   RecordedRunError,
   scrub,
+  spanText,
   WINDOW_WORDS,
   wordWindows,
 } from "../../../tools/lib/runs-site.js";
@@ -114,7 +118,8 @@ describe("the recorded-run pages", () => {
         ...listIds.filter((r) => r.entry_id === label.entry_id).map((r) => r.id_number),
       ].filter(text);
       for (const page of [html(`${spec.slug}.html`), html("index.html")]) {
-        const flat = normalise(page);
+        // A span the screener flagged is the one thing shown on purpose; it is checked on its own below.
+        const flat = normalise(page.replace(/<q class="flagged-span">[^<]*<\/q>/g, " "));
         for (const v of free) {
           expect(flat, `${spec.slug}: free text`).not.toContain(v.replace(/\s+/g, " ").toLowerCase());
           for (const w of wordWindows(v))
@@ -129,6 +134,26 @@ describe("the recorded-run pages", () => {
     }
     // The chosen cases do carry free text (a payment reference, list remarks, a customer note) and identifiers.
     expect(checked).toBeGreaterThan(10);
+  });
+
+  it("show only the exact characters of a flagged span, and a line on what happened", () => {
+    let spans = 0;
+    for (const spec of RECORDED_CASES) {
+      const c = loadRecordedCase(spec);
+      const page = html(`${spec.slug}.html`);
+      expect(page).toContain("What happened:");
+      const shown = [...page.matchAll(/<q class="flagged-span">([^<]*)<\/q>/g)].map((m) => decode(m[1] as string));
+      const p = protectedValuesFor(c.label);
+      const expected = flaggedSignals(c.events)
+        .map((sig) => spanText(sig, p))
+        .filter((t): t is string => t !== undefined);
+      expect(shown, spec.slug).toEqual(expected);
+      for (const t of shown) expect(t.length).toBeLessThanOrEqual(MAX_SPAN_CHARS);
+      spans += shown.length;
+    }
+    // ALR-L0001's screener flagged its customer note; that case shows its spans.
+    expect(decode(html("alr-l0001.html"))).toContain("customer.notes characters");
+    expect(spans).toBeGreaterThan(0);
   });
 
   it("have only links that resolve, call nothing and load nothing from outside", () => {

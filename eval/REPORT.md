@@ -47,7 +47,7 @@ An unsupported block is a block recommendation on a case whose labels do not acc
 
 **The rules on home ground.** The 70 exam cases are labelled from the same definitions the rules use, so the rules have a home advantage here (1 of 43 risk cases wrongly closed, 25 of 25 clears). On the frozen held-out rounds, written without those rules, the rules wrongly closed 13 of 48 risk cases against 4 of 48 for the full system (without v2: 10 of 34 against 4 of 34).
 
-**The trade-off, read plainly.** Nemotron alone (with the free text) clears more: 23 of 25 clear cases, against 13 of 25 for the full system. But it wrongly closes 6 of 43 risk cases (7–27%) and recommends a block on 25 cases, 1 of them unsupported by the labels (1 of 35, 1–15%). The full system (the current system before the block fix) wrongly closes 0 of 43, recommends 0 unsupported blocks (0 of 35), and leaves the final call to a person.
+**The trade-off, read plainly.** Nemotron alone (with the free text; decision answers used: Ultra 33, Lightning (fast-lane retry) 30, Ollama backup 3, none 4) clears more: 23 of 25 clear cases, against 13 of 25 for the full system. But it wrongly closes 6 of 43 risk cases (7–27%) and recommends a block on 25 cases, 1 of them unsupported by the labels (1 of 35, 1–15%). The full system (the current system before the block fix) wrongly closes 0 of 43, recommends 0 unsupported blocks (0 of 35), and leaves the final call to a person.
 
 **The full system's runs on the 70 cases, from the result files.** The first system ([result](results/2026-10-23T13-33-11-122Z-routed.json)): 0 of 43 risk cases wrongly closed (0–8%), 18 of 25 clears made (52–86%), median 124 s per case, 9 unusable answers, 8 blocks recommended, 1 need-more-information outcome. The current system before the block fix ([result](results/2026-10-25T07-45-05-768Z-sys5-routed.json)): 0 of 43 risk cases wrongly closed (0–8%), 13 of 25 clears made (33–70%), median 73 s per case, 2 unusable answers, 0 blocks recommended, 9 need-more-information outcomes. The current system: not run yet. Every figure is one run, and the ranges are 95% Wilson score intervals: the ranges of clears made overlap, so one run each cannot show whether clears really differ.
 
@@ -93,6 +93,8 @@ Code gives a first finding from the structured fields. When that settles the cas
 | 70 cases | reason (free text or missing data) | 17 | 17 | 0 of 14 | 12 | 161 | 0.0100 USD |
 | held-out | confirm (structured evidence settles it) | 6 | 6 | 0 of 6 | 6 | 185 | 0.0056 USD |
 | held-out | reason (free text or missing data) | 24 | 14 | 2 of 16 | 9 | 164 | 0.0119 USD |
+
+The rows for the 70 cases add up to 68, not 70: the other 2 are the tipping-off draft checks (EX-059, EX-060): a draft goes to the outbound safety guard, not through a review, so it takes no path.
 
 ### (e) Before and after the free-text screener
 
@@ -140,6 +142,8 @@ Provider failures by the runtime's thermal posture when the case began (the lapt
 | Held-out v2 (re-run after an infrastructure fix) | 0 of 16 | 0 of 3 |
 
 **Held-out v3: a new held-out set, frozen before the fix.** After held-out v2 showed the screener over-flagging and the critic deadlocking, a third set of 12 cases (6 risks, including relationship notes where plain rules would close, and 6 clears, including notes that mention a listed name in a harmless way) was written by a separate AI agent session that saw no results, traces or fixes, and no review code except the evidence-standard rule its labels apply; labels fixed before the run (it worked from the definitions only); its instructions came from the build session, which named the case families to test, and frozen in commit `02d0a2e` at 04:04:03 SGT on 24 Oct 2026. The fixes (span grounding of screener signals, the document-number check against the customer record, exact source spans for the check reference and date, and setting aside citations the critic cannot check) were committed afterwards, in `8f4c660` at 05:20:14 SGT. The v3 file was checked against its freeze commit before the run (same sha256). v3 was run once on the fixed system; its run note gives the payments cache check time as about 07:50, but the check was at about 07:16 SGT.
+
+**What "3 of 12 acceptable" measures on held-out v3.** A case counts as acceptable only when its outcome is the expected one or an alternative its labels list; a risk case that is not closed but gets an outcome the labels do not list is not acceptable. Of the 6 risk cases, 4 were not closed and 3 got an acceptable outcome (HO3-004: NEED_MORE_INFO, where the labels allow ESCALATE_L2); 0 of the 6 clears got an acceptable outcome. So the figure is 3 + 0: it measures agreement with the frozen labels, not only whether a risk case was closed.
 
 Note on the v3 clears: under the document-on-record rule (a document number in a note must match the customer's identifier on record before it can support a clear), HO3-007 to HO3-010 would be NEED_MORE_INFO by design, because their notes cite a document that is not on the customer record. The rule is kept and the v3 labels are not changed; the v3 numbers above are scored against the labels as frozen.
 
@@ -338,7 +342,7 @@ Moving the line changes how many alerts go to a person, and the false closes are
 
 ## Accuracy by group
 
-| Group | routed | single | no_memory | rules | fuzzy | escalate_all |
+| Group | Full system | Single | Memory off | Deterministic rules | Name match | Escalate everything |
 |---|---:|---:|---:|---:|---:|---:|
 | false_positive | 12/15 | 15/15 | - | 15/15 | 5/15 | 3/15 |
 | true_match | 8/8 | 7/8 | - | 8/8 | 6/8 | 8/8 |
