@@ -14,14 +14,12 @@ import {
   BANNER,
   type CheckedCall,
   checkCalls,
-  esc,
   pinnedKeys,
-  REPO_URL,
   RecordedRunError,
-  RUNS_CSS,
   readRunFiles,
   type TraceEvent,
 } from "./runs-site.js";
+import { esc, pageOf, REPO_URL, tableOf } from "./site-chrome.js";
 
 /** The step names the log shows; the safety guard's calls are recorded under `policy_guard`. */
 export const STEP_NAMES: Record<string, string> = {
@@ -105,42 +103,19 @@ const checkText = (c: LoggedCall) => {
 };
 const secs = (ms?: number) => (typeof ms === "number" ? (ms / 1000).toFixed(1) : "");
 
-const page = (title: string, body: string, home: string) => `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light" />
-    <title>${esc(title)}</title>
-    <link rel="stylesheet" href="receipts.css" />
-  </head>
-  <body>
-    <main>
-      <p class="banner" role="note"><strong>${esc(BANNER)}</strong> Every row below is read from files committed in the
+const page = (title: string, description: string, body: string) =>
+  pageOf(
+    { title, description, depth: 1, current: "receipts/index.html", bodyClass: "page-receipts" },
+    `      <p class="banner" role="note"><strong>${esc(BANNER)}</strong> Every row below is read from files committed in the
       <a href="${REPO_URL}">repository</a> (<code>eval/runs/</code>), and every signature was checked when this page was built.</p>
-${body}
-      <footer>
-        <a href="${home}">Site home</a> · <a href="index.html">Receipt log</a> · <a href="../runs/index.html">Recorded runs</a> ·
-        <a href="${REPO_URL}">Source on GitHub</a> (Apache-2.0)
-      </footer>
-    </main>
-  </body>
-</html>
-`;
+${body}`,
+  );
 
-const table = (
-  caption: string,
-  head: string[],
-  rows: string[][],
-) => `      <div class="wrap" role="region" aria-label="${esc(caption)}" tabindex="0">
-        <table>
-          <caption>${esc(caption)}</caption>
-          <thead><tr>${head.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead>
-          <tbody>
-${rows.map((r) => `            <tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("\n")}
-          </tbody>
-        </table>
-      </div>`;
+const table = tableOf;
+
+/** A model's name as text, coloured by the Nemotron model that answered (the same colours as the diagrams). */
+const modelCell = (c: LoggedCall, text: string) =>
+  text ? `<code class="model-${modelKind(c)}">${esc(text)}</code>` : "";
 
 const HOW = `<p>Each signature is Ed25519 over the receipt body in <code>receipts.jsonl.gz</code>, checked with the same code as <code>npm run evidence:verify</code>. The receipt key of the Nightshift runtime is pinned in <code>config/default.json</code>: a receipt counts only if it is signed by that key, so it shows both that the receipt was not changed and that this runtime signed it. The build stops if a receipt is signed by another key, if a receipt is missing, does not verify, or names a different model from the trace.</p>`;
 
@@ -153,14 +128,23 @@ function summary(log: RunLog): string {
     ["Answered by", "Calls", "Receipt"],
     [
       [
-        "Nemotron 3.5 Lightning through Nightshift (laptop)",
+        `<span class="model-lightning">Nemotron 3.5 Lightning through Nightshift (laptop)</span>`,
         String(n.lightning),
         "signed, checked against the pinned key",
       ],
-      ["Nemotron 3 Ultra through Nightshift (cloud)", String(n.ultra), "signed, checked against the pinned key"],
-      ["Local Ollama backup (Lightning)", String(n.ollama), "none, by design: it does not go through Nightshift"],
+      [
+        `<span class="model-ultra">Nemotron 3 Ultra through Nightshift (cloud)</span>`,
+        String(n.ultra),
+        "signed, checked against the pinned key",
+      ],
+      [
+        `<span class="model-ollama">Local Ollama backup (Lightning)</span>`,
+        String(n.ollama),
+        "none, by design: it does not go through Nightshift",
+      ],
       ["No answer (the call failed)", String(n.none), "none"],
     ],
+    { num: [1] },
   )}
       <p>In the full list below, a row without a receipt id is an answer from the local Ollama backup or a call that ended without an answer; its last column says which.</p>`;
 }
@@ -171,16 +155,19 @@ export function renderRunLog(log: RunLog): string {
     String(c.seq),
     esc(STEP_NAMES[c.agent] ?? c.agent),
     `<code>${esc(c.requested ?? "")}</code>`,
-    `<code>${esc(c.traceModel ?? "")}</code>`,
-    `<code>${esc(served(c))}</code>`,
+    modelCell(c, c.traceModel ?? ""),
+    modelCell(c, served(c)),
     c.receipt ? `<code>${esc(c.receipt.id)}</code>` : "",
     esc(c.receipt?.app ?? ""),
     secs(c.latencyMs),
     c.tokensIn === undefined ? "" : `${c.tokensIn} / ${c.tokensOut ?? ""}`,
     esc(checkText(c)),
   ]);
-  const body = `      <h1>Receipt log: <code>${esc(log.runId)}</code></h1>
+  const body = `      <div class="page-head">
+      <p class="crumbs"><a href="index.html">Receipt log</a> / <code>${esc(log.runId)}</code></p>
+      <h1>Receipt log: <code>${esc(log.runId)}</code></h1>
       <p>${log.calls.length} model calls; ${log.verified} with a receipt that verified when this page was built.${log.policyVersion === undefined ? "" : ` Policy version ${log.policyVersion}.`}${log.startedAt ? ` Started ${esc(log.startedAt)}.` : ""}</p>
+      </div>
       ${HOW}
 ${summary(log)}
       <h2>Full list</h2>
@@ -200,9 +187,14 @@ ${table(
     "Check",
   ],
   rows,
+  { num: [1, 8, 9], id: [6] },
 )}
       <p>Check it yourself: clone the repository and run <code>npm run evidence:verify -- eval/runs/${esc(log.runId)}</code>.</p>`;
-  return page(`Receipt log: ${log.runId}`, body, "../index.html");
+  return page(
+    `Receipt log: ${log.runId}`,
+    `Every model call of the recorded run ${log.runId}, with the mode asked for, the Nemotron model that served it and its signed receipt.`,
+    body,
+  );
 }
 
 /** Which Nemotron model answered a call: Lightning or Ultra through Nightshift, the Ollama backup, or none. */
@@ -218,27 +210,54 @@ export function modelKind(c: LoggedCall): "lightning" | "ultra" | "ollama" | "no
 export const NIGHTSHIFT_LINE =
   "Meterless Nightshift routes each model call the desk makes: Nemotron 3.5 Lightning answers on the analyst's laptop and Nemotron 3 Ultra in the cloud. Every answer Nightshift serves is signed, and the desk pins the key it must be signed with.";
 
+/** The one line under the table for the runs that made no model call (the baselines: rules, name matching, escalate everything). */
+export const baselinesLine = (n: number) =>
+  `Baselines without a model (rules, name matching, escalate everything): no model calls, so no receipts — ${n} ${n === 1 ? "run" : "runs"}.`;
+
 /** The index page. `figure` is the canonical receipt sentence (tools/lib/receipt-figure.ts), when the log is the committed one. */
 export function renderLogIndex(logs: RunLog[], figure?: string): string {
   const total = logs.reduce((t, l) => t + l.calls.length, 0);
   const verified = logs.reduce((t, l) => t + l.verified, 0);
   const count = (l: RunLog, k: ReturnType<typeof modelKind>) => l.calls.filter((c) => modelKind(c) === k).length;
-  const rows = logs.map((l) => [
+  // The baselines made no model call, so their rows would be all zero; they are counted in one line instead.
+  const withCalls = logs.filter((l) => l.calls.length > 0);
+  const rows = withCalls.map((l) => [
     `<a href="${esc(l.runId)}.html"><code>${esc(l.runId)}</code></a>`,
-    l.calls.length === 0 ? "none (a baseline without a model)" : String(l.calls.length),
+    String(l.calls.length),
     String(l.verified),
     String(count(l, "lightning")),
     String(count(l, "ultra")),
     String(count(l, "ollama")),
     String(l.calls.filter((c) => !c.receipt && c.provider !== "ollama").length),
   ]);
-  const body = `      <h1>Receipt log</h1>
-      <p><strong>${esc(NIGHTSHIFT_LINE)}</strong></p>
-      ${figure ? `<p>${esc(figure)}.</p>` : ""}
-      <p>Every model call in the ${logs.length} committed run exports: the step, the mode the desk asked Nightshift for, the Nemotron model that served it, and its signed receipt. ${verified.toLocaleString("en-US")} receipts verified when these pages were built, across ${total.toLocaleString("en-US")} model calls; a call without a receipt is either an answer from the Ollama backup or a call that failed before any answer.</p>
+  const body = `      <div class="page-head">
+      <p class="crumbs"><a href="../index.html">Sanctions Desk</a> / Receipt log</p>
+      <h1>Receipt log</h1>
+      <p class="lead"><strong>${esc(NIGHTSHIFT_LINE)}</strong></p>
+      </div>
+      ${figure ? `<p class="measure">${esc(figure)}.</p>` : ""}
+      <p class="measure">Every model call in the ${logs.length} committed run exports: the step, the mode the desk asked Nightshift for, the Nemotron model that served it, and its signed receipt. ${verified.toLocaleString("en-US")} receipts verified when these pages were built, across ${total.toLocaleString("en-US")} model calls; a call without a receipt is either an answer from the Ollama backup or a call that failed before any answer.</p>
       ${HOW}
-${table("The committed runs", ["Run", "Model calls", "Receipts verified", "Lightning, laptop (receipt)", "Ultra, cloud (receipt)", "Ollama backup (no receipt)", "Failed calls (no answer)"], rows)}`;
-  return page("Receipt log", body, "../index.html");
+${table(
+  "The committed runs",
+  [
+    "Run",
+    "Model calls",
+    "Receipts verified",
+    "Lightning, laptop (receipt)",
+    "Ultra, cloud (receipt)",
+    "Ollama backup (no receipt)",
+    "Failed calls (no answer)",
+  ],
+  rows,
+  { num: [1, 2, 3, 4, 5, 6], id: [0] },
+)}
+      <p class="summary-line">${esc(baselinesLine(logs.length - withCalls.length))}</p>`;
+  return page(
+    "Receipt log",
+    "Every model call in the committed Sanctions Desk runs, with the Nemotron model that served it and its signed receipt, each signature checked when the site was built.",
+    body,
+  );
 }
 
 /** Build the receipt log into `outDir` (site/receipts/ in the built site). Returns the files written. */
@@ -264,7 +283,6 @@ export function buildReceiptLog(outDir: string, opts: ReceiptLogOptions = {}): s
     figure = receiptSentence(f);
   }
   writeFileSync(join(outDir, "index.html"), renderLogIndex(logs, figure));
-  writeFileSync(join(outDir, "receipts.css"), RUNS_CSS);
-  written.push("index.html", "receipts.css");
+  written.push("index.html");
   return written;
 }

@@ -1,8 +1,9 @@
 /**
  * The static API documentation site (site/): the OpenAPI document (built without starting a server), the landing
  * page images, the recorded runs (runs-site.ts), the receipt log (receipt-log.ts) and the results page
- * (results-page.ts). The landing and API pages are committed; everything generated here is git-ignored and rebuilt
- * by `npm run site:build`, so it never goes stale.
+ * (results-page.ts). The landing, architecture and API pages and the stylesheet are committed; the landing page's
+ * figures are filled in from the committed data on every build (site-facts.ts). Everything else generated here is
+ * git-ignored and rebuilt by `npm run site:build`, so it never goes stale.
  */
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -11,9 +12,12 @@ import { buildOpenApi } from "../../apps/api/src/openapi.js";
 import { buildReceiptLog } from "./receipt-log.js";
 import { buildResultsPage } from "./results-page.js";
 import { buildRunPages } from "./runs-site.js";
+import { fillIndex, siteFacts } from "./site-facts.js";
 
 /** The committed pages of the site, copied when the site is built somewhere other than site/. */
 export const SITE_PAGES = ["index.html", "api.html", "architecture.html"] as const;
+/** The committed assets every page loads. */
+export const SITE_ASSETS = ["site.css"] as const;
 
 /** Each image the landing page shows: its path in the built site and the repository file it is copied from. */
 export const SITE_IMAGES: Record<string, string> = {
@@ -53,19 +57,28 @@ export function writeOpenApi(file: string): string {
   return path;
 }
 
+/** The landing page with its figures filled in from the committed data under `root`. */
+export function renderIndex(root = resolveProjectPath(".")): string {
+  return fillIndex(readFileSync(join(root, "site", "index.html"), "utf8"), siteFacts(root));
+}
+
 /**
- * Build the site into `outDir` (site/ by default): the OpenAPI document and the images, plus the pages when the
- * folder is not site/ itself. Returns the files written, relative to `outDir`.
+ * Build the site into `outDir` (site/ by default): the OpenAPI document and the images, the landing page with its
+ * figures filled in, plus the other committed pages and the stylesheet when the folder is not site/ itself. Returns
+ * the files written, relative to `outDir`.
  */
 export function buildSite(outDir = resolveProjectPath("site")): string[] {
   const out = resolve(outDir);
   const source = resolveProjectPath("site");
   const written: string[] = [];
+  mkdirSync(out, { recursive: true });
+  // Filled in place when building site/ itself: the markers stay, so the committed page carries the current figures.
+  writeFileSync(join(out, "index.html"), renderIndex());
+  written.push("index.html");
   if (out !== resolve(source)) {
-    mkdirSync(out, { recursive: true });
-    for (const page of SITE_PAGES) {
-      copyFileSync(join(source, page), join(out, page));
-      written.push(page);
+    for (const f of [...SITE_PAGES.filter((p) => p !== "index.html"), ...SITE_ASSETS]) {
+      copyFileSync(join(source, f), join(out, f));
+      written.push(f);
     }
   }
   writeOpenApi(join(out, "openapi.json"));

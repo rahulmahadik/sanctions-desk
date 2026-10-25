@@ -32,6 +32,15 @@ export function parseSpan(spanId: string): { field: string; start?: number; end?
   return range ? { field, start: Number(range[1]), end: Number(range[2]) } : { field };
 }
 
+/** The span widened to whole words, so a highlight never cuts a word in half ("close th" → "close the"). */
+export function wholeWords(text: string, start: number, end: number): { start: number; end: number } {
+  let s = Math.max(0, Math.min(start, text.length));
+  let e = Math.max(s, Math.min(end, text.length));
+  while (s > 0 && /\w/.test(text[s - 1] ?? "")) s -= 1;
+  while (e < text.length && /\w/.test(text[e] ?? "")) e += 1;
+  return { start: s, end: e };
+}
+
 /** What the signal does to a close, in the words the reviewer sees. */
 export function signalStatus(s: ScreenerSignalView, t: SignalThresholds | undefined): string {
   const line = s.type === "other" ? t?.other : t?.normal;
@@ -62,6 +71,11 @@ function SignalItem({
   const located = s.span_valid && span.start !== undefined && span.end !== undefined;
   const full = fieldText(evidence, span.field);
   const text = located ? full?.slice(span.start, span.end) : undefined;
+  // Only a grounded span is highlighted: an ungrounded one's positions do not point at the words of the signal.
+  const mark =
+    located && full !== undefined && s.grounded !== false
+      ? wholeWords(full, span.start as number, span.end as number)
+      : undefined;
   const status = signalStatus(s, thresholds);
   const tone = s.grounded === false || /blocks a close/.test(status) ? "block" : "pending";
   return (
@@ -75,13 +89,20 @@ function SignalItem({
       ) : (
         ", no location in the text (the span the model named does not point into the field)"
       )}
-      {located && full !== undefined && text !== undefined ? (
+      {located && full !== undefined && mark ? (
         <div className="field-text" data-testid="signal-field">
-          {full.slice(0, span.start)}
+          {full.slice(0, mark.start)}
           <mark className="span" data-testid="signal-span">
-            {text}
+            {full.slice(mark.start, mark.end)}
           </mark>
-          {full.slice(span.end)}
+          {full.slice(mark.end)}
+        </div>
+      ) : located && full !== undefined ? (
+        <div className="field-text" data-testid="signal-field">
+          {full}
+          <div className="muted" data-testid="signal-unmarked">
+            Nothing is highlighted: the positions the screener reported do not point at the words of this signal.
+          </div>
         </div>
       ) : null}
       <span className="pill" data-tone={tone} data-testid="signal-status">

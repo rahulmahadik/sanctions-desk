@@ -13,8 +13,10 @@ import { join, resolve } from "node:path";
 import { gunzipSync } from "node:zlib";
 import { loadConfig, resolveProjectPath, verifyReceipt } from "@sanctions-desk/shared";
 import { problemsIn, type RunVerification, verifyExportedRun } from "./evidence.js";
+import { esc, pageOf, REPO_URL, tableOf } from "./site-chrome.js";
 
-export const REPO_URL = "https://github.com/rahulmahadik/sanctions-desk";
+export { esc, REPO_URL };
+
 const REPO_BLOB = `${REPO_URL}/blob/main/`;
 const QUICK_START = `${REPO_BLOB}README.md#quick-start`;
 export const BANNER = "Replay of recorded runs. Nothing runs live here.";
@@ -489,14 +491,6 @@ export function quotedText(text: string, spec: RecordedCase, p: Protected): stri
 // ---------------------------------------------------------------------------------------------------------------
 // Rendering
 
-export const esc = (s: unknown) =>
-  String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-
 const OUTCOME_WORDS: Record<string, string> = {
   CLOSE_FALSE_POSITIVE: "Close as a false positive",
   ESCALATE_L2: "Escalate to level 2",
@@ -554,43 +548,27 @@ const checkedText = (call: CheckedCall) => {
     : "signature valid, key from the receipt";
 };
 
-const page = (title: string, body: string) => `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light" />
-    <title>${esc(title)}</title>
-    <link rel="stylesheet" href="runs.css" />
-  </head>
-  <body>
-    <main>
-      <p class="banner" role="note"><strong>${esc(BANNER)}</strong> Every value below is read from files committed in the
+/** Which model answered: for the colour of the model's name on the page (the same colours as the diagrams). */
+export function modelKindOf(call: Pick<CheckedCall, "provider" | "traceModel" | "receipt">) {
+  if (call.provider === "ollama" && call.traceModel) return "ollama";
+  const m = call.receipt?.route.model ?? (call.receipt ? call.traceModel : undefined) ?? call.traceModel ?? "";
+  if (/ultra/i.test(m)) return "ultra";
+  if (/lightning/i.test(m)) return "lightning";
+  return "none";
+}
+/** The model's description as text, coloured by the model that answered. */
+const modelCell = (call: CheckedCall) => `<span class="model-${modelKindOf(call)}">${esc(modelText(call))}</span>`;
+
+const page = (title: string, description: string, body: string) =>
+  pageOf(
+    { title, description, depth: 1, current: "runs/index.html", bodyClass: "page-runs" },
+    `      <p class="banner" role="note"><strong>${esc(BANNER)}</strong> Every value below is read from files committed in the
       <a href="${REPO_URL}">repository</a>. To run the desk yourself, follow the
       <a href="${QUICK_START}">README quick start</a>.</p>
-${body}
-      <footer>
-        <a href="../index.html">Site home</a> · <a href="index.html">All recorded runs</a> ·
-        <a href="${REPO_URL}">Source on GitHub</a> (Apache-2.0)
-      </footer>
-    </main>
-  </body>
-</html>
-`;
+${body}`,
+  );
 
-const table = (
-  caption: string,
-  head: string[],
-  rows: string[][],
-) => `      <div class="wrap" role="region" aria-label="${esc(caption)}" tabindex="0">
-        <table>
-          <caption>${esc(caption)}</caption>
-          <thead><tr>${head.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead>
-          <tbody>
-${rows.map((r) => `            <tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("\n")}
-          </tbody>
-        </table>
-      </div>`;
+const table = tableOf;
 
 const shortTable = (t: string | undefined) => (t ? (t.split(".").pop() ?? t) : "");
 const rowsFromSummary = (s: string | null | undefined) => s?.match(/^(\d+) (?:\w+ )?rows?$/)?.[1];
@@ -695,7 +673,7 @@ function stepRows(c: LoadedCase, s: Scrubbed): string[][] {
       `<code>${esc(e.action)}</code>`,
       `<span class="st st-${esc(e.status)}">${esc(e.status)}</span>`,
       what,
-      call ? esc(modelText(call)) : "",
+      call ? modelCell(call) : "",
       receiptCell(call),
       queryCell(e),
     ];
@@ -787,19 +765,29 @@ export function whatHappened(c: LoadedCase): string {
   return `${sentenceCase(parts.join("; "))}. Outcome: ${outcome(c.result.got)}, ${against}.`;
 }
 
+/**
+ * The label directly above the recorded spans when every shown signal is marked not grounded: the screener's offsets
+ * missed the words, the desk marked the signals accordingly, and they still block a close.
+ */
+export const UNGROUNDED_SPANS_LABEL =
+  "Spans as recorded by the local screener. Their offsets are off, so the desk marked these signals not grounded; ungrounded signals still block a close by design.";
+
 /** The flagged spans of a case, as a short section; empty when the screener located none that can be shown. */
 function flaggedSection(c: LoadedCase, p: Protected): string {
-  const rows = flaggedSignals(c.events).flatMap((sig) => {
+  const shown = flaggedSignals(c.events).flatMap((sig) => {
     const text = spanText(sig, p);
-    return text === undefined
-      ? []
-      : [
-          `        <li>${esc(sig.type.replaceAll("_", " "))}, confidence ${esc(sig.confidence)}, ${esc(sig.field)} characters ${sig.start}–${sig.end}${sig.grounded ? "" : ", marked not grounded"}: <q class="flagged-span">${esc(text)}</q></li>`,
-        ];
+    return text === undefined ? [] : [{ sig, text }];
   });
+  const rows = shown.map(
+    ({ sig, text }) =>
+      `        <li>${esc(sig.type.replaceAll("_", " "))}, confidence ${esc(sig.confidence)}, ${esc(sig.field)} characters ${sig.start}–${sig.end}${sig.grounded ? "" : ", marked not grounded"}: <q class="flagged-span">${esc(text)}</q></li>`,
+  );
   if (rows.length === 0) return "";
+  const label = shown.every(({ sig }) => !sig.grounded)
+    ? `\n      <p class="spans-label"><strong>${esc(UNGROUNDED_SPANS_LABEL)}</strong></p>`
+    : "";
   return `      <div class="note">
-      <p><strong>The free text the screener flagged</strong> (synthetic data). Only the characters at each signal's recorded position are shown; the rest of the text stays withheld. A signal marked not grounded is still shown to the reviewer and still blocks a close (policy version 8).</p>
+      <p><strong>The free text the screener flagged</strong> (synthetic data). Only the characters at each signal's recorded position are shown; the rest of the text stays withheld. A signal marked not grounded is still shown to the reviewer and still blocks a close (policy version 8).</p>${label}
       <ul class="checks">
 ${rows.join("\n")}
       </ul>
@@ -825,7 +813,7 @@ export function renderCasePage(c: LoadedCase, p: Protected): string {
     String(x.seq),
     esc(x.agent),
     x.requested ? `<code>${esc(x.requested)}</code>` : "",
-    esc(modelText(x)),
+    modelCell(x),
     x.receipt ? `<code>${esc(x.receipt.id)}</code>` : "none",
     esc(x.receipt?.app ?? ""),
     esc(checkedText(x)),
@@ -856,12 +844,14 @@ export function renderCasePage(c: LoadedCase, p: Protected): string {
     : "This run's export keeps the table, the row count and the Zetaris query id of each read, not the statement text; the statements are not reconstructed here.";
 
   const runMeta = `${REPO_BLOB}eval/runs/${spec.runId}/run-meta.json`;
-  const body = `      <p class="crumbs"><a href="index.html">Recorded runs</a> / ${esc(label.alert_id)}</p>
+  const body = `      <div class="page-head">
+      <p class="crumbs"><a href="index.html">Recorded runs</a> / ${esc(label.alert_id)}</p>
       <h1>${esc(label.alert_id)}: ${quotedText(label.title, spec, p)}</h1>
+      </div>
       <p class="what"><strong>What happened:</strong> ${s(whatHappened(c))}</p>
       <p class="muted legend"><strong>Outcomes:</strong> ${esc(LEGEND)}</p>
 ${flaggedSection(c, p)}
-      <p>${s(spec.shows)}</p>
+      <p class="measure">${s(spec.shows)}</p>
 
       <h2 id="outcome">Outcome</h2>
       <dl class="facts">
@@ -881,21 +871,25 @@ ${stoppedSection(c, s)}
 
       <h2 id="steps">Steps in order</h2>
       <p class="muted">Each line is one event from the run's trace (<code>trace.jsonl.gz</code>). The model is the one that served the call, as the signed receipt records it.</p>
-${table("Every step of the run, in order", ["#", "Agent", "Action", "Status", "What happened", "Model", "Receipt", "Zetaris read"], steps)}
+${table("Every step of the run, in order", ["#", "Agent", "Action", "Status", "What happened", "Model", "Receipt", "Zetaris read"], steps, { num: [0] })}
 
       <h2 id="receipts">Model calls and receipts</h2>
       <p>Each signature was checked when this page was built, with the same code as <code>npm run evidence:verify</code> (Ed25519 over the receipt body in <code>receipts.jsonl.gz</code>); the build stops if one does not verify, is missing, or names a different model from the trace.${unpinned ? " No key is pinned for the site build, so the check uses the key carried in each receipt: <strong>signature valid, key from the receipt</strong> shows the receipt was not changed after signing, not who signed it. The column “at run time” is what the desk recorded when it checked the receipt against its pinned key during the run." : " The Nightshift runtime's receipt key is pinned in <code>config/default.json</code>, so <strong>signature valid, key pinned</strong> shows the receipt was not changed and that this runtime signed it; a receipt signed by any other key stops the build."}</p>
-${table("Model calls and their receipts", ["#", "Step", "Mode asked for", "Model that served it", "Receipt", "App", "Checked now", "At run time", "Time", "Tokens in / out"], callRows)}
+${table("Model calls and their receipts", ["#", "Step", "Mode asked for", "Model that served it", "Receipt", "App", "Checked now", "At run time", "Time", "Tokens in / out"], callRows, { num: [0, 8, 9], id: [4] })}
       <p>The whole run passes the same check: ${c.run.receipts} receipts with valid signatures, ${c.run.calls} model calls in the trace that name a receipt, none missing and none naming a different model from its receipt.</p>
       <p class="muted">Signing key fingerprint (first 16 hex of SHA-256): ${[...new Set(receipts.map((x) => x.receipt?.keyFingerprint))].map((k) => `<code>${esc(k)}</code>`).join(", ")}.</p>
 
       <h2 id="queries">Zetaris queries</h2>
       <p>${querySource}</p>
-${table("Zetaris reads in this run", ["Agent", "Table", "Rows", "Statement", "Query id"], queryRows)}
+${table("Zetaris reads in this run", ["Agent", "Table", "Rows", "Statement", "Query id"], queryRows, { num: [2], id: [4] })}
 
       <h2 id="check">Check it yourself</h2>
       <p>Clone the repository and run <code>npm run evidence:verify -- eval/runs/${esc(spec.runId)}</code>. ${c.meta.redacted ? `What the export left out: ${s(c.meta.redacted)}.` : ""}</p>`;
-  return page(`${label.alert_id}: recorded run`, body);
+  return page(
+    `${label.alert_id}: recorded run`,
+    `Replay of the recorded run of alert ${label.alert_id}: every step, the model and receipt of each call, and the Zetaris reads.`,
+    body,
+  );
 }
 
 export function renderIndexPage(cases: Array<LoadedCase & { protect: Protected }>): string {
@@ -908,9 +902,12 @@ export function renderIndexPage(cases: Array<LoadedCase & { protect: Protected }
     `${c.calls.filter((x) => x.receipt).length} of ${c.calls.length}`,
     `<code>${esc(c.spec.runId)}</code>`,
   ]);
-  const body = `      <h1>Recorded runs</h1>
-      <p>A few alerts from the committed run exports, shown step by step: which agent did what, which Nemotron model served each model call (local Lightning or cloud Ultra), the signed receipt for each call and whether it verifies, the Zetaris reads, and why a proposed close was stopped. The pages are built from the committed files by <code>npm run site:build</code>; the build stops if a receipt is missing or does not verify.</p>
-      <p class="muted">Customers and payments are synthetic; listed parties are public sanctions-list entries. Customer notes, payment references and list remarks are not shown, apart from the characters of a span the screener flagged${
+  const body = `      <div class="page-head">
+      <p class="crumbs"><a href="../index.html">Sanctions Desk</a> / Recorded runs</p>
+      <h1>Recorded runs</h1>
+      </div>
+      <p class="measure">A few alerts from the committed run exports, shown step by step: which agent did what, which Nemotron model served each model call (local Lightning or cloud Ultra), the signed receipt for each call and whether it verifies, the Zetaris reads, and why a proposed close was stopped. The pages are built from the committed files by <code>npm run site:build</code>; the build stops if a receipt is missing or does not verify.</p>
+      <p class="muted measure">Customers and payments are synthetic; listed parties are public sanctions-list entries. Customer notes, payment references and list remarks are not shown, apart from the characters of a span the screener flagged${
         cases.some((c) => c.spec.quote)
           ? ` and one phrase labelled synthetic on ${cases
               .filter((c) => c.spec.quote)
@@ -919,48 +916,16 @@ export function renderIndexPage(cases: Array<LoadedCase & { protect: Protected }
           : ""
       }, and identifier numbers are masked.</p>
       <p class="muted legend"><strong>Outcomes:</strong> ${esc(LEGEND)}</p>
-${table("The recorded cases", ["Alert", "Case", "Desk recommendation", "Label", "Compared", "Calls with a verified receipt", "Run"], rows)}
+${table("The recorded cases", ["Alert", "Case", "Desk recommendation", "Label", "Compared", "Calls with a verified receipt", "Run"], rows, { num: [5], id: [6] })}
       <ul class="links">
 ${cases.map((c) => `        <li><a href="${esc(c.spec.slug)}.html">${esc(c.label.alert_id)}</a>: ${esc(scrub(c.spec.shows, c.protect))}</li>`).join("\n")}
       </ul>`;
-  return page("Recorded runs", body);
+  return page(
+    "Recorded runs",
+    "Read-only replays of recorded Sanctions Desk runs: each step, the model that served each call, its verified receipt and the Zetaris reads.",
+    body,
+  );
 }
-
-export const RUNS_CSS = `* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: #f6f7f9; color: #16181d; font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; }
-h1 { font-size: 1.6rem; margin: 8px 0 8px; overflow-wrap: anywhere; }
-h2 { font-size: 1.2rem; margin: 32px 0 10px; }
-p { margin: 0 0 12px; }
-a { color: #1d4ed8; }
-a:focus-visible, .wrap:focus-visible { outline: 3px solid #d97706; outline-offset: 2px; }
-code { font: 0.85em/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
-code.sql { white-space: pre-wrap; display: block; min-width: 28ch; }
-.banner { background: #fff7e6; border: 1px solid #f0c36d; border-radius: 8px; padding: 10px 14px; }
-.muted, .crumbs { color: #4b5563; }
-.note { background: #eef2ff; border-radius: 8px; padding: 8px 12px; margin: 0 0 12px; }
-.what { font-size: 1.05rem; }
-q.case-quote { background: #f1f5f9; border-radius: 4px; padding: 0 4px; }
-q.flagged-span { background: #fff7e6; border-radius: 4px; padding: 0 4px; white-space: pre-wrap; }
-.facts { display: grid; grid-template-columns: minmax(0, 14em) minmax(0, 1fr); gap: 4px 16px; background: #fff; border: 1px solid #d9dde3; border-radius: 8px; padding: 12px 14px; }
-.facts dt { font-weight: 600; }
-.facts dd { margin: 0; overflow-wrap: anywhere; }
-@media (max-width: 560px) { .facts { grid-template-columns: minmax(0, 1fr); } .facts dd { margin-bottom: 8px; } }
-.checks li, .links li { margin-bottom: 6px; overflow-wrap: anywhere; }
-.wrap { max-width: 100%; overflow-x: auto; background: #fff; border: 1px solid #d9dde3; border-radius: 8px; margin: 0 0 12px; }
-table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
-caption { text-align: left; font-weight: 600; padding: 8px 10px; }
-th, td { text-align: left; vertical-align: top; padding: 6px 10px; border-top: 1px solid #e5e7eb; }
-th { background: #f3f4f6; white-space: nowrap; }
-td { min-width: 10ch; }
-td:first-child { min-width: 0; white-space: nowrap; }
-.st { font-weight: 600; }
-.st-blocked, .st-error { color: #b42318; }
-.st-retry { color: #b54708; }
-.st-ok { color: #067647; }
-footer { margin-top: 40px; color: #4b5563; font-size: 0.9rem; }
-`;
 
 /**
  * Build the recorded-run pages into `outDir` (site/runs/ in the built site). Returns the files written, relative to
@@ -980,7 +945,6 @@ export function buildRunPages(outDir: string, opts: LoadOptions & { cases?: read
     written.push(`${c.spec.slug}.html`);
   }
   writeFileSync(join(outDir, "index.html"), renderIndexPage(loaded));
-  writeFileSync(join(outDir, "runs.css"), RUNS_CSS);
-  written.push("index.html", "runs.css");
+  written.push("index.html");
   return written;
 }

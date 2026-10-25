@@ -6,7 +6,7 @@ import { gunzipSync, gzipSync } from "node:zlib";
 import { resolveProjectPath } from "@sanctions-desk/shared";
 import { afterAll, describe, expect, it } from "vitest";
 import { verifyExportedRun } from "../../../tools/lib/evidence.js";
-import { buildReceiptLog, loadRunLog, runDirs } from "../../../tools/lib/receipt-log.js";
+import { baselinesLine, buildReceiptLog, loadRunLog, runDirs } from "../../../tools/lib/receipt-log.js";
 import { RecordedRunError } from "../../../tools/lib/runs-site.js";
 
 const out = mkdtempSync(join(tmpdir(), "desk-receipts-"));
@@ -34,15 +34,30 @@ const previewStarts = (dir: string): string[] =>
     .map((p) => p.slice(0, 20));
 
 describe("the receipt log", () => {
-  it("has a page for every committed run and an index", () => {
+  it("has a page for every committed run, and an index that lists the runs with model calls", () => {
     const dirs = runDirs();
     expect(dirs.length).toBeGreaterThan(0);
+    const index = html("index.html");
+    let baselines = 0;
     for (const d of dirs) {
       const runId = d.split("/").at(-1) as string;
       expect(written).toContain(`${runId}.html`);
-      expect(html("index.html")).toContain(`href="${runId}.html"`);
+      if (loadRunLog(d).calls.length > 0) {
+        expect(index).toContain(`href="${runId}.html"`);
+      } else {
+        // A baseline without a model: its row would be all zero, so it is counted in one line under the table.
+        expect(runId, "a run with no model call").toMatch(/^(heldout\d?-)?(rules|fuzzy|escalate_all)-/);
+        expect(index).not.toContain(`href="${runId}.html"`);
+        baselines += 1;
+      }
     }
-    expect(written).toContain("receipts.css");
+    expect(baselines).toBeGreaterThan(0);
+    expect(index).toContain(baselinesLine(baselines));
+    expect(baselinesLine(15)).toBe(
+      "Baselines without a model (rules, name matching, escalate everything): no model calls, so no receipts — 15 runs.",
+    );
+    expect(index).toContain('href="../site.css"');
+    expect(written).not.toContain("receipts.css");
   });
 
   it("says who answered before the full list, and labels the Ollama backup as having no receipt by design", () => {

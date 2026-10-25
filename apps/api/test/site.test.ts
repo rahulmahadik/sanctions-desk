@@ -1,13 +1,29 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
 import { afterAll, describe, expect, it } from "vitest";
-import { buildSite, openApiDocument, SITE_IMAGES, SITE_PAGES } from "../../../tools/lib/site.js";
+import {
+  buildSite,
+  openApiDocument,
+  renderIndex,
+  SITE_ASSETS,
+  SITE_IMAGES,
+  SITE_PAGES,
+} from "../../../tools/lib/site.js";
+import { FONTS_URL, NAV_LINKS } from "../../../tools/lib/site-chrome.js";
+import { fillIndex, SiteFactsError, siteFacts } from "../../../tools/lib/site-facts.js";
 import { ROUTES } from "../src/openapi.js";
 
-const REPO_BLOB = "https://github.com/rahulmahadik/sanctions-desk/blob/main/";
+const REPO_URL = "https://github.com/rahulmahadik/sanctions-desk";
+const REPO_BLOB = `${REPO_URL}/blob/main/`;
+/** The only places a page may load anything from: the fonts, and (API page only) the pinned Redoc bundle. */
+const EXTERNAL_OK = [
+  "https://fonts.googleapis.com",
+  "https://fonts.gstatic.com",
+  "https://cdn.jsdelivr.net/npm/redoc@",
+];
 const out = mkdtempSync(join(tmpdir(), "desk-site-"));
 afterAll(() => rmSync(out, { recursive: true, force: true }));
 
@@ -27,6 +43,14 @@ const linksOf = (html: string) => [...html.matchAll(/\b(?:href|src)="([^"]+)"/g)
 const tracked = new Set(
   execFileSync("git", ["ls-files", "-z"], { cwd: resolveProjectPath("."), encoding: "utf8" }).split("\0"),
 );
+/** Every .html file under `dir`, relative to it. */
+function htmlFiles(dir: string, base = dir): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((d) => {
+    const p = join(dir, d.name);
+    if (d.isDirectory()) return htmlFiles(p, base);
+    return d.name.endsWith(".html") ? [relative(base, p)] : [];
+  });
+}
 
 describe("the exported OpenAPI document", () => {
   it("is an OpenAPI 3.1 document with a title, a version and every documented route", () => {
@@ -57,36 +81,93 @@ describe("the exported OpenAPI document", () => {
 
 describe("the documentation site", () => {
   const written = buildSite(out);
+  const pages = htmlFiles(out);
+  const html = (f: string) => readFileSync(join(out, f), "utf8");
 
-  it("builds the pages, the OpenAPI document and the images", () => {
-    for (const f of [...SITE_PAGES, "openapi.json", ...Object.keys(SITE_IMAGES)]) {
+  it("builds the pages, the stylesheet, the OpenAPI document and the images", () => {
+    for (const f of [...SITE_PAGES, ...SITE_ASSETS, "openapi.json", ...Object.keys(SITE_IMAGES)]) {
       expect(written).toContain(f);
       expect(existsSync(join(out, f)), f).toBe(true);
     }
+    for (const l of NAV_LINKS) expect(existsSync(join(out, l.path)), l.path).toBe(true);
     expect(JSON.parse(readFileSync(join(out, "openapi.json"), "utf8"))).toEqual(doc);
+    expect(pages.length).toBeGreaterThan(10);
   });
 
-  it("has only links that resolve: relative ones in the built site, repository ones to tracked files", () => {
-    for (const page of SITE_PAGES) {
-      for (const link of linksOf(readFileSync(join(out, page), "utf8"))) {
-        if (link.startsWith(REPO_BLOB)) {
-          expect(tracked.has(link.slice(REPO_BLOB.length).split("#")[0] ?? ""), `${page}: ${link}`).toBe(true);
-        } else if (!/^[a-z]+:/i.test(link)) {
-          expect(existsSync(join(out, link.split("#")[0] as string)), `${page}: ${link}`).toBe(true);
-        }
-      }
+  it("gives every page the one stylesheet, the top bar with every section, the footer and the theme colour", () => {
+    for (const page of pages) {
+      const text = html(page);
+      const up = page.includes("/") ? "../" : "";
+      expect(text, page).toContain(`href="${up}site.css"`);
+      expect(text, page).toContain(`href="${FONTS_URL}"`);
+      expect(text, page).toContain('<meta name="theme-color" content="#0b1a2e" />');
+      expect(text, page).toContain('<meta name="color-scheme" content="light dark" />');
+      expect(text, page).toContain('class="topbar"');
+      expect(text, page).toContain('class="site-footer"');
+      for (const l of NAV_LINKS) expect(text, `${page}: ${l.label}`).toContain(`href="${up}${l.path}"`);
+      expect(text, page).toContain(`href="${REPO_URL}"`);
+      expect(text, page).not.toMatch(/<style[\s>]/);
     }
   });
 
-  it("loads only a pinned, hash-checked script from outside and calls no API", () => {
-    const api = readFileSync(join(out, "api.html"), "utf8");
+  it("has only links that resolve: relative ones in the built site, repository ones to tracked files", () => {
+    let checked = 0;
+    for (const page of pages) {
+      const text = html(page);
+      for (const link of linksOf(text)) {
+        checked += 1;
+        if (link.startsWith(REPO_BLOB)) {
+          expect(tracked.has(link.slice(REPO_BLOB.length).split("#")[0] ?? ""), `${page}: ${link}`).toBe(true);
+        } else if (/^[a-z]+:/i.test(link)) {
+          expect(
+            link === REPO_URL || EXTERNAL_OK.some((p) => link.startsWith(p)),
+            `${page}: ${link} is loaded from outside`,
+          ).toBe(true);
+        } else if (link.startsWith("#")) {
+          expect(text, `${page}: ${link}`).toContain(`id="${link.slice(1)}"`);
+        } else {
+          const target = resolve(join(out, dirname(page)), link.split("#")[0] as string);
+          expect(existsSync(target), `${page}: ${link}`).toBe(true);
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(100);
+  });
+
+  it("loads only a pinned, hash-checked script from outside, the fonts, and calls no API", () => {
+    const api = html("api.html");
     const scripts = [...api.matchAll(/<script\s[^>]*src="([^"]+)"[^>]*>/g)];
     expect(scripts).toHaveLength(1);
     expect(scripts[0]?.[1]).toMatch(/^https:\/\/cdn\.jsdelivr\.net\/npm\/redoc@\d+\.\d+\.\d+\//);
     expect(scripts[0]?.[0]).toMatch(/integrity="sha384-/);
-    for (const page of SITE_PAGES) {
-      const html = readFileSync(join(out, page), "utf8");
-      expect(html, page).not.toMatch(/localhost|127\.0\.0\.1|fetch\(|fonts\.googleapis/);
+    for (const page of pages) {
+      const text = html(page);
+      expect(text, page).not.toMatch(/localhost|127\.0\.0\.1|fetch\(/);
+      if (page !== "api.html") expect(text, page).not.toMatch(/<script|<iframe/);
+      for (const m of text.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g))
+        expect(m[1] === FONTS_URL || /^(\.\.\/)?site\.css$/.test(m[1] as string), `${page}: ${m[1]}`).toBe(true);
     }
+  });
+
+  it("fills the landing page's figures from the committed data, and the committed page carries them", () => {
+    const facts = siteFacts(resolveProjectPath("."));
+    expect(facts.full_wrong).toMatch(/^\d+ of \d+$/);
+    expect(facts.alone_wrong).toMatch(/^\d+ of \d+$/);
+    expect(facts.receipts).toMatch(/^\d{1,3}(,\d{3})*$/);
+    expect(Number(facts.step_roles)).toBeGreaterThan(0);
+    const built = html("index.html");
+    for (const [name, value] of Object.entries(facts))
+      expect(built, name).toContain(`<!--fact:${name}-->${value}<!--/fact-->`);
+    // The step-to-model card names each step with the badge of the model that serves it.
+    expect(built).toContain('<span class="badge badge-local">Nemotron 3.5 Lightning · local</span>');
+    expect(built).toContain('<span class="badge badge-cloud">Nemotron 3 Ultra · cloud</span>');
+    expect(built).toContain('<span class="badge badge-backup">Ollama · backup, no receipt</span>');
+    // The committed site/index.html is the filled page, so a reader of the repository sees the same figures.
+    expect(renderIndex()).toBe(readFileSync(resolveProjectPath("site/index.html"), "utf8"));
+    // An unknown marker, or a page without markers, stops the build.
+    expect(() => fillIndex("<!-- steps:start --><!-- steps:end --><!--fact:nope-->1<!--/fact-->", facts)).toThrow(
+      SiteFactsError,
+    );
+    expect(() => fillIndex("<!-- steps:start --><!-- steps:end -->", facts)).toThrow(/no <!--fact/);
   });
 });

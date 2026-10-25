@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fetchMe } from "../lib/api";
+import { SESSION_EVENT } from "../lib/session";
 
 const KEY = "desk.tourSeen";
 
@@ -28,11 +29,16 @@ export function FirstRun() {
     } catch {
       setShow(true);
     }
-    fetchMe()
-      .then((me) => setStart(me.demo_users.length > 0 ? "demo" : "signed-in"))
-      .catch((err: unknown) =>
-        setStart((err as { status?: unknown } | null)?.status === 401 ? "sign-in" : "signed-in"),
-      );
+    // Asked again when someone signs in or out, so the sign-in prompt goes once a token is accepted.
+    const read = () =>
+      fetchMe()
+        .then((me) => setStart(me.demo_users.length > 0 ? "demo" : "signed-in"))
+        .catch((err: unknown) =>
+          setStart((err as { status?: unknown } | null)?.status === 401 ? "sign-in" : "signed-in"),
+        );
+    read();
+    window.addEventListener(SESSION_EVENT, read);
+    return () => window.removeEventListener(SESSION_EVENT, read);
   }, []);
   if (!show || start === undefined) return null;
   const dismiss = () => {

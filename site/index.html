@@ -3,244 +3,253 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#0b1a2e" />
     <meta
       name="description"
       content="Sanctions Desk: a review desk for sanctions-screening alerts. The desk recommends; a person makes the final call (automatic closing is off by default)."
     />
     <title>Sanctions Desk</title>
-    <style>
-      :root {
-        --bg: #f6f7f9;
-        --panel: #ffffff;
-        --text: #16181d;
-        --muted: #4b5563;
-        --line: #d9dde3;
-        --link: #1d4ed8;
-        --focus: #d97706;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      }
-      main {
-        max-width: 960px;
-        margin: 0 auto;
-        padding: 32px 16px 48px;
-      }
-      h1 {
-        font-size: 2rem;
-        margin: 0 0 8px;
-      }
-      h2 {
-        font-size: 1.25rem;
-        margin: 32px 0 12px;
-      }
-      p {
-        margin: 0 0 12px;
-      }
-      .muted {
-        color: var(--muted);
-      }
-      a {
-        color: var(--link);
-      }
-      a:focus-visible {
-        outline: 3px solid var(--focus);
-        outline-offset: 2px;
-        border-radius: 3px;
-      }
-      ul.links {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: grid;
-        gap: 8px;
-      }
-      ul.links li {
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 12px 14px;
-      }
-      ul.links a {
-        font-weight: 600;
-      }
-      figure {
-        margin: 0 0 16px;
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 12px;
-      }
-      figure img {
-        display: block;
-        width: 100%;
-        height: auto;
-        border-radius: 4px;
-      }
-      figcaption {
-        margin-top: 8px;
-        color: var(--muted);
-        font-size: 0.95rem;
-      }
-      .charts {
-        display: grid;
-        gap: 16px;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
-      }
-      footer {
-        margin-top: 40px;
-        color: var(--muted);
-        font-size: 0.9rem;
-      }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="site.css" />
   </head>
-  <body>
-    <main>
-      <h1>Sanctions Desk</h1>
-      <p>
-        A review desk for sanctions-screening alerts. The desk recommends; a person makes the final call (automatic closing is off by default). Nothing in it blocks an
-        account, writes to a source system or contacts a customer.
-      </p>
-      <p>
-        Built on Zetaris, the only data path (one semantic layer over the sanctions lists, a bank database and a
-        payments service); Meterless Nightshift, the primary path for every model call to local and cloud Nemotron models,
-        where every answer carries a signed receipt (a local Ollama backup answers only if Nightshift fails, and has no receipt by design); and three Meterless engines, each in a working feature: H-MEM (memory of earlier
-        decisions), the World Model (the ownership register the 50 percent rule is evaluated on) and Markovian
-        (re-screening earlier decisions after a list change).
-      </p>
-      <p class="muted">
-        This site is documentation only. It is static and makes no call to the desk, its API or any other service; to
-        try the desk, run it in sample mode as the README describes.
-      </p>
-
-      <h2>Read</h2>
-      <ul class="links">
-        <li>
-          <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/README.md">README</a><span class="muted">: what the desk does, how it was tested, and the quick start</span>
-        </li>
-        <li>
-          <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/USER_GUIDE.md">User guide</a><span class="muted">: the screens in the order you meet them, with short clips</span>
-        </li>
-        <li>
-          <a href="results.html">Results</a><span class="muted">: the held-out rounds as run, the small studies of Nemotron alone and of model choice, the safety guard against injected text and the receipt statistics, copied from the generated blocks of the README and the docs</span>
-        </li>
-        <li>
-          <a href="runs/index.html">Recorded runs</a><span class="muted">: a read-only replay of six alerts from the committed runs, step by step, with the model that served each call, its verified receipt, the Zetaris reads and why a close was stopped</span>
-        </li>
-        <li>
-          <a href="receipts/index.html">Receipt log</a><span class="muted">: every model call in the committed runs, with the Nemotron model that served it; every Nightshift answer has its signed receipt, each signature checked when the site was built, and answers from the local Ollama backup have none by design</span>
-        </li>
-        <li>
-          <a href="api.html">API reference</a><span class="muted">: every route, its parameters and its responses, from the API's own OpenAPI document</span>
-        </li>
-        <li>
-          <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/API.md">API notes</a><span class="muted">: errors, sign-in, demo users and worked examples</span>
-        </li>
-        <li>
-          <a href="architecture.html">Architecture diagrams</a><span class="muted">: six diagrams of how a review runs, its fail-closed paths, the life of an alert, where data goes and who may read what</span>
-        </li>
-        <li>
-          <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/ARCHITECTURE.md">Architecture</a><span class="muted">: the agents, the data path and the checks around the decision</span>
-        </li>
-        <li>
-          <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/media/README.md">Screenshots, clips and charts</a><span class="muted">: what each picture shows and how it was made</span>
-        </li>
-      </ul>
-
-      <h2>Architecture</h2>
-      <figure>
-        <a href="architecture.html">
-          <img
-            src="media/diagrams/1-architecture.svg"
-            alt="Architecture: the review desk, the desk agents reading through Zetaris, the safety guard and screener on local Lightning, the decision and critic on cloud Ultra, the policy guard, the person and the sealed record."
-            style="width: 100%; height: auto"
-          />
-        </a>
-        <figcaption>
-          How a review runs. Five more diagrams (one live review step by step, the fail-closed paths, the life of an
-          alert, where customer data goes, and who may read what in Zetaris) are on the <a href="architecture.html">architecture page</a>.
-        </figcaption>
-      </figure>
-
-      <h2>Charts</h2>
-      <p class="muted">Drawn from the committed evaluation files; the README explains each run.</p>
-      <div class="charts">
-        <figure>
-          <a href="media/charts/heldout-wrong-closes.png">
-            <img
-              src="media/charts/heldout-wrong-closes.png"
-              width="1920"
-              height="1080"
-              alt="Bar chart: risk cases wrongly closed in each held-out round, for the full system and three simpler baselines."
-            />
-          </a>
-          <figcaption>
-            Risk cases wrongly closed in each held-out round: full system, deterministic rules, name match and escalate
-            everything.
-          </figcaption>
-        </figure>
-        <figure>
-          <a href="media/charts/first-recommendation-closes.png">
-            <img
-              src="media/charts/first-recommendation-closes.png"
-              width="1920"
-              height="1080"
-              alt="Chart: per run, how often the decision step first proposed closing a risk case, and how many of those the checks stopped."
-            />
-          </a>
-          <figcaption>
-            Per run, how often the decision step first proposed closing a risk case, and how many of those the checks
-            stopped.
-          </figcaption>
-        </figure>
-        <figure>
-          <a href="media/charts/critic-mutation.png">
-            <img
-              src="media/charts/critic-mutation.png"
-              width="1920"
-              height="1080"
-              alt="Chart: the critic's fact re-check, changed facts caught (25 cited facts could not be checked in sample mode) and unchanged decisions approved."
-            />
-          </a>
-          <figcaption>The critic's fact re-check: changed facts caught (25 cited facts could not be checked in sample mode), unchanged decisions approved.</figcaption>
-        </figure>
-        <figure>
-          <a href="media/charts/model-calls.png">
-            <img
-              src="media/charts/model-calls.png"
-              width="1920"
-              height="1080"
-              alt="Chart: which model served each step in the headline run, local or cloud, and the signed receipts verified."
-            />
-          </a>
-          <figcaption>
-            Which model served each step in the headline run (local or cloud), and the signed receipts verified.
-          </figcaption>
-        </figure>
-        <figure>
-          <a href="media/charts/model-latency.png">
-            <img
-              src="media/charts/model-latency.png"
-              width="1920"
-              height="1080"
-              alt="Chart: median and 95th-percentile time per model call, by step and by the Nemotron model that served it."
-            />
-          </a>
-          <figcaption>Time per model call, by step and model, from the recorded runs' receipts.</figcaption>
-        </figure>
+  <body class="page-home">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="topbar">
+      <div class="container">
+        <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">SD</span>Sanctions Desk</a>
+        <nav aria-label="Site">
+          <ul>
+            <li><a href="index.html" aria-current="page">Home</a></li>
+            <li><a href="results.html">Results</a></li>
+            <li><a href="architecture.html">Architecture</a></li>
+            <li><a href="runs/index.html">Replays</a></li>
+            <li><a href="receipts/index.html">Receipts</a></li>
+            <li><a href="api.html">API</a></li>
+            <li><a class="external" href="https://github.com/rahulmahadik/sanctions-desk" rel="noopener">GitHub</a></li>
+          </ul>
+        </nav>
       </div>
+    </header>
 
-      <footer>
-        Source and licence:
-        <a href="https://github.com/rahulmahadik/sanctions-desk">github.com/rahulmahadik/sanctions-desk</a> (Apache-2.0).
-      </footer>
+    <!-- The figures between the fact markers are written by npm run site:build from the committed data (tools/lib/site-facts.ts). -->
+    <section class="hero" aria-labelledby="title">
+      <div class="container">
+        <p class="eyebrow">A review desk for sanctions-screening alerts</p>
+        <h1 id="title">Sanctions Desk</h1>
+        <p class="moment">
+          <strong>The desk recommends; a person decides.</strong> Every review leaves a sealed record, signed receipts
+          and a step-by-step replay.
+        </p>
+        <p class="actions">
+          <a class="btn btn-primary" href="results.html">See the results</a>
+          <a class="btn btn-ghost" href="runs/index.html">Replay a recorded run</a>
+          <a class="btn btn-ghost" href="receipts/index.html">Open the receipt log</a>
+        </p>
+        <ul class="stats">
+          <li class="stat stat-good">
+            <span class="value"><!--fact:full_wrong-->0 of 43<!--/fact--></span>
+            <span class="label">risk cases wrongly closed by the full system on the 70-case exam, newest run</span>
+          </li>
+          <li class="stat stat-cloud">
+            <span class="value"><!--fact:alone_wrong-->6 of 43<!--/fact--><span class="vs">vs <!--fact:full_wrong-->0 of 43<!--/fact--></span></span>
+            <span class="label">wrongly closed by Nemotron alone with the free text, against the full system</span>
+          </li>
+          <li class="stat stat-good">
+            <span class="value"><!--fact:receipts-->2,971<!--/fact--></span>
+            <span class="label">signed receipts, all verified against the pinned key: one for every Nightshift answer</span>
+          </li>
+          <li class="stat stat-neutral">
+            <span class="value"><!--fact:step_roles-->5<!--/fact--></span>
+            <span class="label">read-only Zetaris roles, one per review step that reads data</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <main id="main" class="container">
+      <section class="section two-col" aria-label="What the desk is">
+        <div class="measure">
+          <p>
+            A review desk for sanctions-screening alerts. The desk recommends; a person makes the final call (automatic closing is off by default). Nothing in it blocks an
+            account, writes to a source system or contacts a customer.
+          </p>
+          <p>
+            Built on Zetaris, the only data path (one semantic layer over the sanctions lists, a bank database and a
+            payments service); Meterless Nightshift, the primary path for every model call to local and cloud Nemotron models,
+            where every answer carries a signed receipt (a local Ollama backup answers only if Nightshift fails, and has no receipt by design); and three Meterless engines, each in a working feature: H-MEM (memory of earlier
+            decisions), the World Model (the ownership register the 50 percent rule is evaluated on) and Markovian
+            (re-screening earlier decisions after a list change).
+          </p>
+          <p class="muted">
+            This site is documentation only. It is static and makes no call to the desk, its API or any other service; to
+            try the desk, run it in sample mode as the README describes.
+          </p>
+        </div>
+        <div class="card">
+          <p class="card-kicker">Which model does each step</p>
+          <ul class="steps">
+            <!-- steps:start -->
+            <li><span class="step-name">Safety guard (inbound)</span><span class="badge badge-local">Nemotron 3.5 Lightning · local</span></li>
+            <li><span class="step-name">Free-text screener</span><span class="badge badge-local">Nemotron 3.5 Lightning · local</span></li>
+            <li><span class="step-name">Decision</span><span class="badge badge-cloud">Nemotron 3 Ultra · cloud</span></li>
+            <li><span class="step-name">Critic</span><span class="badge badge-cloud">Nemotron 3 Ultra · cloud</span></li>
+            <li><span class="step-name">Challenger</span><span class="badge badge-cloud">Nemotron 3 Ultra · cloud</span></li>
+            <li><span class="step-name">Safety guard (outbound drafts)</span><span class="badge badge-local">Nemotron 3.5 Lightning · local</span></li>
+            <li><span class="step-name">Backup when Nightshift cannot answer</span><span class="badge badge-backup">Ollama · backup, no receipt</span></li>
+            <!-- steps:end -->
+          </ul>
+          <p class="muted summary-line" style="margin-top: 12px">
+            The desk pins the mode it asks for, not the model that serves it. Details on the <a href="results.html#nemotron-scorecard">Nemotron scorecard</a>.
+          </p>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="read">
+        <h2 id="read">Read</h2>
+        <div class="cards">
+          <a class="card card-link" href="results.html">
+            <span class="title">Results</span>
+            <span class="desc">the held-out rounds as run, the small studies of Nemotron alone and of model choice, the safety guard against injected text and the receipt statistics, copied from the generated blocks of the README and the docs</span>
+          </a>
+          <a class="card card-link" href="architecture.html">
+            <span class="title">Architecture diagrams</span>
+            <span class="desc">six diagrams of how a review runs, its fail-closed paths, the life of an alert, where data goes and who may read what</span>
+          </a>
+          <a class="card card-link" href="runs/index.html">
+            <span class="title">Recorded runs</span>
+            <span class="desc">a read-only replay of six alerts from the committed runs, step by step, with the model that served each call, its verified receipt, the Zetaris reads and why a close was stopped</span>
+          </a>
+          <a class="card card-link" href="receipts/index.html">
+            <span class="title">Receipt log</span>
+            <span class="desc">every model call in the committed runs, with the Nemotron model that served it; every Nightshift answer has its signed receipt, each signature checked when the site was built, and answers from the local Ollama backup have none by design</span>
+          </a>
+          <a class="card card-link" href="api.html">
+            <span class="title">API reference</span>
+            <span class="desc">every route, its parameters and its responses, from the API's own OpenAPI document</span>
+          </a>
+          <a class="card card-link" href="https://github.com/rahulmahadik/sanctions-desk">
+            <span class="title">Repository</span>
+            <span class="desc">the source, the committed runs and receipts, and the README with the quick start (Apache-2.0)</span>
+          </a>
+        </div>
+        <ul class="links" style="margin-top: 18px">
+          <li>
+            <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/README.md">README</a><span class="muted">: what the desk does, how it was tested, and the quick start</span>
+          </li>
+          <li>
+            <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/USER_GUIDE.md">User guide</a><span class="muted">: the screens in the order you meet them, with short clips</span>
+          </li>
+          <li>
+            <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/API.md">API notes</a><span class="muted">: errors, sign-in, demo users and worked examples</span>
+          </li>
+          <li>
+            <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/ARCHITECTURE.md">Architecture</a><span class="muted">: the agents, the data path and the checks around the decision</span>
+          </li>
+          <li>
+            <a href="https://github.com/rahulmahadik/sanctions-desk/blob/main/docs/media/README.md">Screenshots, clips and charts</a><span class="muted">: what each picture shows and how it was made</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="section" aria-labelledby="architecture">
+        <h2 id="architecture">Architecture</h2>
+        <figure class="diagram">
+          <a href="architecture.html">
+            <img
+              src="media/diagrams/1-architecture.svg"
+              alt="Architecture: the review desk, the desk agents reading through Zetaris, the safety guard and screener on local Lightning, the decision and critic on cloud Ultra, the policy guard, the person and the sealed record."
+              style="width: 100%; height: auto"
+            />
+          </a>
+          <figcaption>
+            How a review runs. Five more diagrams (one live review step by step, the fail-closed paths, the life of an
+            alert, where customer data goes, and who may read what in Zetaris) are on the <a href="architecture.html">architecture page</a>.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="section" aria-labelledby="charts">
+        <h2 id="charts">Charts</h2>
+        <p class="lead">Drawn from the committed evaluation files; the README explains each run.</p>
+        <div class="charts">
+          <figure>
+            <a href="media/charts/heldout-wrong-closes.png">
+              <img
+                src="media/charts/heldout-wrong-closes.png"
+                width="1920"
+                height="1080"
+                alt="Bar chart: risk cases wrongly closed in each held-out round, for the full system and three simpler baselines."
+              />
+            </a>
+            <figcaption>
+              Risk cases wrongly closed in each held-out round: full system, deterministic rules, name match and escalate
+              everything.
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="media/charts/first-recommendation-closes.png">
+              <img
+                src="media/charts/first-recommendation-closes.png"
+                width="1920"
+                height="1080"
+                alt="Chart: per run, how often the decision step first proposed closing a risk case, and how many of those the checks stopped."
+              />
+            </a>
+            <figcaption>
+              Per run, how often the decision step first proposed closing a risk case, and how many of those the checks
+              stopped.
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="media/charts/critic-mutation.png">
+              <img
+                src="media/charts/critic-mutation.png"
+                width="1920"
+                height="1080"
+                alt="Chart: the critic's fact re-check, changed facts caught (25 cited facts could not be checked in sample mode) and unchanged decisions approved."
+              />
+            </a>
+            <figcaption>The critic's fact re-check: changed facts caught (25 cited facts could not be checked in sample mode), unchanged decisions approved.</figcaption>
+          </figure>
+          <figure>
+            <a href="media/charts/model-calls.png">
+              <img
+                src="media/charts/model-calls.png"
+                width="1920"
+                height="1080"
+                alt="Chart: which model served each step in the headline run, local or cloud, and the signed receipts verified."
+              />
+            </a>
+            <figcaption>
+              Which model served each step in the headline run (local or cloud), and the signed receipts verified.
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="media/charts/model-latency.png">
+              <img
+                src="media/charts/model-latency.png"
+                width="1920"
+                height="1080"
+                alt="Chart: median and 95th-percentile time per model call, by step and by the Nemotron model that served it."
+              />
+            </a>
+            <figcaption>Time per model call, by step and model, from the recorded runs' receipts.</figcaption>
+          </figure>
+        </div>
+      </section>
     </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>Sanctions Desk. The desk recommends; a person decides.</p>
+        <p>Source and licence: <a href="https://github.com/rahulmahadik/sanctions-desk">github.com/rahulmahadik/sanctions-desk</a> (Apache-2.0).</p>
+      </div>
+    </footer>
   </body>
 </html>

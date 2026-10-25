@@ -8,7 +8,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, posix } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
-import { esc, REPO_URL } from "./runs-site.js";
+import { esc, pageOf, REPO_URL } from "./site-chrome.js";
 
 export class ResultsPageError extends Error {}
 
@@ -169,28 +169,8 @@ export function renderBlock(doc: string, md: string): string {
   return out.join("\n");
 }
 
-const CSS = `* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: #f6f7f9; color: #16181d; font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; }
-h1 { font-size: 1.8rem; margin: 8px 0; }
-h2 { font-size: 1.25rem; margin: 36px 0 8px; }
-p, ul { margin: 0 0 12px; }
-a { color: #1d4ed8; }
-a:focus-visible, .wrap:focus-visible { outline: 3px solid #d97706; outline-offset: 2px; }
-code { font: 0.85em/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
-.quote { border-left: 4px solid #1d4ed8; padding: 4px 12px; background: #fff; }
-.banner { background: #fff7e6; border: 1px solid #f0c36d; border-radius: 8px; padding: 10px 14px; }
-.lead, .muted { color: #4b5563; }
-.wrap { max-width: 100%; overflow-x: auto; background: #fff; border: 1px solid #d9dde3; border-radius: 8px; margin: 0 0 12px; }
-table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
-th, td { text-align: left; vertical-align: top; padding: 6px 10px; border-top: 1px solid #e5e7eb; }
-th { background: #f3f4f6; }
-.num { text-align: right; white-space: nowrap; }
-figure { margin: 0 0 16px; background: #fff; border: 1px solid #d9dde3; border-radius: 8px; padding: 12px; }
-figure img { display: block; width: 100%; height: auto; }
-footer { margin-top: 40px; color: #4b5563; font-size: 0.9rem; }
-`;
+/** The id of a section's heading, from its title. */
+export const sectionId = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
 export function renderResultsPage(root = resolveProjectPath(".")): string {
   const sections = RESULTS_SECTIONS.map((s) => {
@@ -198,33 +178,33 @@ export function renderResultsPage(root = resolveProjectPath(".")): string {
     const img = s.image
       ? `<figure><img src="${esc(s.image.src)}" alt="${esc(s.image.alt)}" loading="lazy" /></figure>`
       : "";
-    const id = s.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    return `<section aria-labelledby="${id}"><h2 id="${id}">${esc(s.title)}</h2><p class="lead">${esc(s.lead)}</p>\n${blocks}\n${img}</section>`;
+    const id = sectionId(s.title);
+    return `<section class="section" aria-labelledby="${id}"><h2 id="${id}">${esc(s.title)}</h2><p class="lead">${esc(s.lead)}</p>\n${blocks}\n${img}</section>`;
   });
-  return `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light" />
-    <title>Sanctions Desk results</title>
-    <style>${CSS}</style>
-  </head>
-  <body>
-    <main>
-      <p class="banner" role="note"><strong>Results as recorded.</strong> Every table on this page is copied from a block
+  const toc = RESULTS_SECTIONS.map((s) => `<li><a href="#${sectionId(s.title)}">${esc(s.title)}</a></li>`).join("");
+  const body = `      <p class="banner" role="note"><strong>Results as recorded.</strong> Every table on this page is copied from a block
       that a script writes into the <a href="${REPO_URL}">repository</a>'s README and docs from the committed result
       files; nothing here is typed in by hand. Every figure is one run unless it says otherwise.</p>
+      <div class="page-head">
+      <p class="crumbs"><a href="index.html">Sanctions Desk</a> / Results</p>
       <h1>Results</h1>
-      <p class="muted">Customers and payments are synthetic; listed parties are public sanctions-list entries. Recorded
+      <p class="muted measure">Customers and payments are synthetic; listed parties are public sanctions-list entries. Recorded
       runs step by step: <a href="runs/index.html">recorded runs</a>; every model call and its receipt:
       <a href="receipts/index.html">receipt log</a>.</p>
-${sections.join("\n")}
-      <footer><a href="index.html">Site home</a> · <a href="${REPO_URL}">Source on GitHub</a> (Apache-2.0)</footer>
-    </main>
-  </body>
-</html>
-`;
+      </div>
+      <nav class="toc" aria-label="On this page"><ul>${toc}</ul></nav>
+${sections.join("\n")}`;
+  return pageOf(
+    {
+      title: "Sanctions Desk results",
+      description:
+        "Sanctions Desk results as recorded: the held-out rounds, the Nemotron scorecard, the studies of Nemotron alone and of model choice, the safety guard and the receipt statistics.",
+      depth: 0,
+      current: "results.html",
+      bodyClass: "page-results",
+    },
+    body,
+  );
 }
 
 /** Write site/results.html (or `<outDir>/results.html`). Returns the file written, relative to `outDir`. */

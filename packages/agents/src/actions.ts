@@ -188,7 +188,8 @@ function settledBy(state: HumanState): string {
 const basisOf = (state: HumanState): string =>
   [state.first, state.second]
     .filter((a): a is HumanAction => Boolean(a?.reason))
-    .map((a) => `${a.actor}: ${a.reason}`)
+    // The sentence adds its own full stop, so a reason's own is dropped ("officer.." otherwise).
+    .map((a) => `${a.actor}: ${a.reason?.replace(/[.\s]+$/, "")}`)
     .join("; ") || "no reason was given";
 
 /**

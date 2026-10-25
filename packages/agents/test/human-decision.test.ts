@@ -224,7 +224,7 @@ describe("an override that lowers caution to a close (four eyes)", () => {
     const note = planActions(done, policy, NOW)[0]?.content ?? "";
     expect(note).toContain("closed as a false positive by off, second approval by off2.");
     expect(note).toContain(
-      "Basis: off: Different person, checked the passport.; off2: Agree, the passport rules it out.",
+      "Basis: off: Different person, checked the passport; off2: Agree, the passport rules it out.",
     );
     expect(note).toContain("The desk had recommended Escalate to level 2 because:");
     expect(note).toContain("date of birth: customer has no date of birth on record, nationality: conflicts");
@@ -260,7 +260,7 @@ describe("an override that lowers caution to a close (four eyes)", () => {
       "was escalated to level 2: off overrode it to a close, and off2, the second approver, declined the close.",
     );
     expect(ticket?.content).toContain(
-      "Basis: off: Looks like a different person.; off2: The passport is not checked yet.",
+      "Basis: off: Looks like a different person; off2: The passport is not checked yet.",
     );
     expect(ticket?.content).toContain("The desk had recommended Escalate to level 2 because:");
     noCodes(ticket?.content ?? "");
@@ -558,5 +558,20 @@ describe("committing a decision", () => {
     expect(last).toMatchObject({ user: "ana", action: "second_approval", result: "refused" });
     expect(last?.reason).toMatch(/approver|different/);
     expect(readActions(stores.outboxDir, "ALR-0001")).toHaveLength(1);
+  });
+});
+
+describe("a note's basis", () => {
+  it("never doubles the full stop after a person's reason", () => {
+    const r = recordFor("ESCALATE_L2");
+    const done = recordDecision(
+      r,
+      { action: "approve", reason: "Passed to the sanctions officer.", record_hash: r.record_hash },
+      analyst,
+      NOW,
+    );
+    const note = planActions(done, policy, NOW)[0]?.content ?? "";
+    expect(note).toContain("ana: Passed to the sanctions officer.");
+    expect(note).not.toContain("..");
   });
 });

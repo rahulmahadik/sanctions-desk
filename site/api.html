@@ -3,40 +3,52 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#0b1a2e" />
     <meta name="description" content="Sanctions Desk API reference, from the API's own OpenAPI document." />
     <title>Sanctions Desk API</title>
-    <style>
-      body {
-        margin: 0;
-        background: #ffffff;
-        color: #16181d;
-        font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      }
-      .top {
-        padding: 10px 16px;
-        border-bottom: 1px solid #d9dde3;
-        background: #f6f7f9;
-        font-size: 0.95rem;
-      }
-      .top a {
-        color: #1d4ed8;
-      }
-      noscript p {
-        padding: 16px;
-      }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="site.css" />
   </head>
-  <body>
-    <nav class="top" aria-label="Site">
-      <a href="index.html">Sanctions Desk</a> · API reference ·
-      <a href="openapi.json">openapi.json</a>
-      <span>· Reference only: this page makes no call to the API.</span>
-    </nav>
-    <main id="api"></main>
+  <body class="page-api">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="topbar">
+      <div class="container">
+        <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">SD</span>Sanctions Desk</a>
+        <nav aria-label="Site">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="results.html">Results</a></li>
+            <li><a href="architecture.html">Architecture</a></li>
+            <li><a href="runs/index.html">Replays</a></li>
+            <li><a href="receipts/index.html">Receipts</a></li>
+            <li><a href="api.html" aria-current="page">API</a></li>
+            <li><a class="external" href="https://github.com/rahulmahadik/sanctions-desk" rel="noopener">GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <div class="api-note">
+      <div class="container">
+        <span>API reference · <a href="openapi.json">openapi.json</a></span>
+        <span>Reference only: this page makes no call to the API.</span>
+      </div>
+    </div>
+    <main id="main"><div id="api"></div></main>
     <noscript>
       <p>The reference needs JavaScript. The raw document is <a href="openapi.json">openapi.json</a>.</p>
     </noscript>
+    <footer class="site-footer">
+      <div class="container">
+        <p>Sanctions Desk. The desk recommends; a person decides.</p>
+        <p>Source and licence: <a href="https://github.com/rahulmahadik/sanctions-desk">github.com/rahulmahadik/sanctions-desk</a> (Apache-2.0).</p>
+      </div>
+    </footer>
     <!-- Redoc renders the document; it has no "try it out", so nothing here calls the API. Pinned with a hash. -->
     <script
       src="https://cdn.jsdelivr.net/npm/redoc@2.5.4/bundles/redoc.standalone.js"
@@ -44,21 +56,44 @@
       crossorigin="anonymous"
     ></script>
     <script>
+      // The same tokens as site.css, chosen once from the system's light or dark setting.
+      var dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var text = '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+      var mono = '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
       Redoc.init(
         "openapi.json",
         {
           expandResponses: "200",
           hideHostname: false,
           theme: {
-            typography: {
-              fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-              headings: { fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' },
-              code: { fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' },
+            colors: {
+              primary: { main: dark ? "#8ab4ff" : "#1a56c4" },
+              text: { primary: dark ? "#e8eef7" : "#152238", secondary: dark ? "#9fb0c6" : "#51607a" },
+              success: { main: "#76b900" },
+              warning: { main: "#f5a524" },
+              error: { main: dark ? "#ff8a80" : "#b42318" },
+              http: { get: "#76b900", post: "#4f8cff", put: "#f5a524", delete: dark ? "#ff8a80" : "#b42318" },
             },
+            typography: {
+              fontFamily: text,
+              fontSize: "15px",
+              headings: { fontFamily: text, fontWeight: "650" },
+              code: { fontFamily: mono, backgroundColor: dark ? "#15304f" : "#f0f3f8", color: dark ? "#e8eef7" : "#152238" },
+              links: { color: dark ? "#8ab4ff" : "#1a56c4" },
+            },
+            sidebar: {
+              backgroundColor: dark ? "#102540" : "#f6f8fb",
+              textColor: dark ? "#e8eef7" : "#152238",
+              activeTextColor: dark ? "#9fd33a" : "#1a56c4",
+            },
+            rightPanel: { backgroundColor: "#0b1a2e", textColor: "#e8eef7" },
+            codeBlock: { backgroundColor: "#102540" },
+            schema: { nestedBackground: dark ? "#15304f" : "#f6f8fb" },
           },
         },
         document.getElementById("api"),
       );
+      if (dark) document.getElementById("api").style.background = "#0b1a2e";
     </script>
   </body>
 </html>
