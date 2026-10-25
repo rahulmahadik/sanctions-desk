@@ -45,6 +45,15 @@ describe("the receipt log", () => {
     expect(written).toContain("receipts.css");
   });
 
+  it("says who answered before the full list, and labels the Ollama backup as having no receipt by design", () => {
+    const run = runDirs().find((d) => d.endsWith("routed-20261023T133311Z")) as string;
+    const page = html(`${run.split("/").at(-1)}.html`);
+    expect(page.indexOf("Who answered, in this run")).toBeGreaterThan(-1);
+    expect(page.indexOf("Who answered, in this run")).toBeLessThan(page.indexOf("Every model call of the run"));
+    expect(page).toContain("Local Ollama backup (Lightning)");
+    expect(page).toContain("no receipt by design: the local Ollama backup answered");
+  });
+
   it("counts the same verified receipts as npm run evidence:verify", () => {
     let fromVerify = 0;
     let fromLog = 0;

@@ -100,7 +100,7 @@ const checkText = (c: LoggedCall) => {
     return c.receipt.checked === "valid_pinned"
       ? "signature valid, key pinned"
       : "signature valid, key from the receipt";
-  if (c.provider === "ollama") return "no receipt: the Ollama backup answered";
+  if (c.provider === "ollama") return "no receipt by design: the local Ollama backup answered";
   return c.status === "ok" ? "no receipt recorded" : `no receipt: the call ended with status ${c.status}`;
 };
 const secs = (ms?: number) => (typeof ms === "number" ? (ms / 1000).toFixed(1) : "");
@@ -144,6 +144,27 @@ ${rows.map((r) => `            <tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr
 
 const HOW = `<p>Each signature is Ed25519 over the receipt body in <code>receipts.jsonl.gz</code>, checked with the same code as <code>npm run evidence:verify</code>. The receipt key of the Nightshift runtime is pinned in <code>config/default.json</code>: a receipt counts only if it is signed by that key, so it shows both that the receipt was not changed and that this runtime signed it. The build stops if a receipt is signed by another key, if a receipt is missing, does not verify, or names a different model from the trace.</p>`;
 
+/** Who answered the run's calls, before the full list: a blank receipt id is the Ollama backup or a call with no answer. */
+function summary(log: RunLog): string {
+  const n = { lightning: 0, ultra: 0, ollama: 0, none: 0 };
+  for (const c of log.calls) n[modelKind(c)] += 1;
+  return `${table(
+    "Who answered, in this run",
+    ["Answered by", "Calls", "Receipt"],
+    [
+      [
+        "Nemotron 3.5 Lightning through Nightshift (laptop)",
+        String(n.lightning),
+        "signed, checked against the pinned key",
+      ],
+      ["Nemotron 3 Ultra through Nightshift (cloud)", String(n.ultra), "signed, checked against the pinned key"],
+      ["Local Ollama backup (Lightning)", String(n.ollama), "none, by design: it does not go through Nightshift"],
+      ["No answer (the call failed)", String(n.none), "none"],
+    ],
+  )}
+      <p>In the full list below, a row without a receipt id is an answer from the local Ollama backup or a call that ended without an answer; its last column says which.</p>`;
+}
+
 export function renderRunLog(log: RunLog): string {
   const rows = log.calls.map((c) => [
     esc(c.caseId),
@@ -161,6 +182,8 @@ export function renderRunLog(log: RunLog): string {
   const body = `      <h1>Receipt log: <code>${esc(log.runId)}</code></h1>
       <p>${log.calls.length} model calls; ${log.verified} with a receipt that verified when this page was built.${log.policyVersion === undefined ? "" : ` Policy version ${log.policyVersion}.`}${log.startedAt ? ` Started ${esc(log.startedAt)}.` : ""}</p>
       ${HOW}
+${summary(log)}
+      <h2>Full list</h2>
 ${table(
   "Every model call of the run, in case and step order",
   [
