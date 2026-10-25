@@ -4,41 +4,79 @@
 [![CI](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml) [![TypeScript 7](https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white)](package.json) [![Node >=24](https://img.shields.io/badge/node-%3E%3D24-339933?logo=nodedotjs&logoColor=white)](package.json) [![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 <!-- badges:end -->
 
-### In 30 seconds
+> **The desk gathers and checks the evidence for every sanctions-screening alert and recommends an outcome. A person with the right entitlement approves it.**
 
-- **What it is:** an AI review desk for bank sanctions-screening alerts. Nemotron models answer through Meterless Nightshift, every fact is read through Zetaris, and every Nightshift answer carries a signed receipt; local backup answers are labelled.
-- **Who it is for:** sanctions-screening analysts and their senior reviewers.
-- **What it is for:** a checked evidence pack for every alert and zero wrong closes, with a person deciding.
-- **Headline results:** on the 70-case exam the desk wrongly closed **0 of 43** risk cases, against **3 and 6** for Nemotron alone (without and with the free text; one run each). The critic caught **147 of 147** changed facts in the mutation test.
-- **Watch and read:** [demo video (3:51)](https://youtu.be/cF4ZXKxjpxs) · [deck (PDF, 15 slides)](docs/sanctions-desk-deck.pdf)
+[Demo video (3:51)](https://youtu.be/cF4ZXKxjpxs) · [Deck (PDF, 15 slides)](docs/sanctions-desk-deck.pdf) · [Try it without keys](#quick-start) · [Results](#headline-results) · [Technical depth](#technical-depth)
+
+## The problem
+
+- **Too many alerts.** A bank's name screening raises far more alerts than there are real matches: thousands of name-screening alerts, each worked by hand, field by field.
+- **One mistake is costly.** Most alerts are false positives. The costly mistake is closing the one that is real.
+- **The work is evidence work.** The analyst gathers the customer, the payment, the owners and the listed party from several systems, compares them and writes down why.
+
+> **Public enforcement cases (external sources)**
+>
+> These are public facts from official enforcement releases. They are **not results of this project**. They show the kinds of gaps that have cost banks; they do not show that this desk would have prevented any of them.
+>
+> | Year | Firm | Authority and outcome | What the official release describes | Source |
+> | --- | --- | --- | --- | --- |
+> | 2016 | Barclays Bank Plc | OFAC: $2,485,890 settlement | 159 transactions (July 2008 to September 2013) for corporate customers of its Zimbabwe subsidiary that were owned 50 percent or more by a person on the SDN List; the owners were not in the electronic customer records used for screening | [OFAC release, 8 Feb 2016](https://ofac.treasury.gov/media/11661/download) |
+> | 2021 | Payoneer Inc. | OFAC: $1,385,901.40 settlement | 2,220 apparent violations (2013 to 2018); among the control breakdowns, weak algorithms that let close matches to SDN List entries pass its filter without a flag | [OFAC release, 23 Jul 2021](https://ofac.treasury.gov/media/911571/download) |
+> | 2021 | Mashreqbank | NYDFS: $100 million penalty | Payments related to Sudan processed through financial institutions in New York State, including its own New York branch, between 2005 and 2014; employees were told to avoid populating certain fields in the payment messages sent between banks, bypassing other banks' sanction filters; prohibited payments of over $4 billion between 2005 and 2009 | [NYDFS press release, 9 Nov 2021](https://www.dfs.ny.gov/reports_and_publications/press_releases/pr202111091) |
+> | 2022 | MidFirst Bank | OFAC: Finding of Violation, in place of a civil monetary penalty | Kept accounts for two newly listed persons and processed 34 payments for them for 14 days after their designation: its vendor screened the whole existing customer base against the SDN List only once a month | [OFAC release, 21 Jul 2022](https://ofac.treasury.gov/media/924506/download) |
+> | 2024 | EFG International AG | OFAC: $3,740,442 settlement | A private banking group whose subsidiaries processed securities transactions for sanctioned clients (2014 to 2018, and five dividend payments in 2023) through omnibus accounts at U.S. custodians, in EFG's name, so the U.S. firms did not know the underlying clients | [OFAC release, 14 Mar 2024](https://ofac.treasury.gov/media/932766/download) |
+
+## What the desk does for each alert
+
+| Step | What the analyst gets |
+| --- | --- |
+| Evidence pack | The customer (or payment party, or owner) and the listed party, read from the bank's data through one governed data layer |
+| Every fact re-checked | A second step re-reads every fact the recommendation cites before it is accepted |
+| Risk signals from notes | Signals found in customer notes and payment references, each shown with the exact text it rests on |
+| A recommendation | One of four outcomes with its reasons and a sealed record, for a person to approve or override |
+
+| Outcome | What the desk recommends | Who can approve it |
+| --- | --- | --- |
+| `CLOSE_FALSE_POSITIVE` | Close the alert as a false positive | An analyst or an approver, with a reason |
+| `NEED_MORE_INFO` | Hold the alert and ask for more information | An analyst or an approver, with a reason |
+| `ESCALATE_L2` | Send the alert to a senior reviewer | An analyst or an approver, with a reason |
+| `RECOMMEND_BLOCK` | Recommend a block to the sanctions officer | Two different people; the second must be an approver. It stays a recommendation: the desk blocks nothing |
+
+- **It never closes on its own.** Automatic closing is off by default and was off in every recorded run.
+- **It fails closed.** When evidence is missing or a check fails, the case is escalated or held for more information; by design it is not closed.
+- **It never writes to a source system.** By design, it does not block an account, write to a source system or message a customer.
+- **Lowering caution needs an approver.** An override towards a less cautious outcome needs an approver; an override to a close also needs a second, different approver.
+
+## One alert, start to finish
+
+Alert **ALR-0073** (exam case EX-064): a payment whose counterparty name equals a listed bank's, with the onward city named only in the payment reference, "Machine parts, onward delivery to Tehran". Closing it is a must-not.
+
+- **Nemotron alone** (one model call, no agents) recommended closing it as a false positive, at confidence 0.85, both with and without the free text (one run each: [with](eval/results/2026-10-25T09-30-17-773Z-text70-nemotron_alone.json), [without](eval/results/2026-10-25T10-41-35-156Z-notext70-nemotron_alone.json)).
+- **The desk did not close it.** In the first system's run the decision step first proposed a close at 0.95 and the critic approved it; the policy guard stopped the close on "Tehran" in the payment reference and escalated it ([the trace](docs/EVALUATION.md#one-real-trace)). In the run of the current system, the local screener flagged the reference and the desk asked for more information ([result](eval/results/2026-10-25T11-52-00-415Z-sys6-routed.json)).
+
+![A review of alert ALR-0073 in sample mode: the steps light up, the Tehran signal in the payment reference, and the checks that keep the case open](docs/media/gifs/case-review.gif)
+
+*A review in sample mode (saved real data, a labelled rules stand-in for the models). More: [screenshots and clips](docs/media/README.md), live views with Nemotron receipts in [docs/NEMOTRON.md](docs/NEMOTRON.md).*
+
+## Who it is for
+
+| Role | Entitlement in the desk | What they get |
+| --- | --- | --- |
+| Sanctions-screening analyst | `analyst` | A checked evidence pack and a recommendation for every alert; approves or overrides it towards more caution, always with a reason |
+| Senior reviewer or sanctions officer | `approver` | Everything the analyst has, plus the second approval of a block and the right to override towards a less cautious outcome (an override to a close needs a second, different approver) |
+| Auditor or second line | `viewer` (read-only) | The sealed record of every review, the step-by-step replay and the signed receipt of every model call; cannot decide |
+
+A `policy_admin` role publishes policy changes; a change needs a second, different person. Roles and the four-eyes rules: [docs/GOVERNANCE.md](docs/GOVERNANCE.md#people-roles-and-the-decision-step).
+
+## Headline results
+
+- **On the 70-case exam** the desk wrongly closed **0 of 43** risk cases, against **3 and 6** for Nemotron alone (without and with the free text; one run each).
+- **The critic** caught **147 of 147** changed facts in the mutation test.
+- **Caveats:** each figure is one run, on synthetic data; the desk cleared fewer alerts than Nemotron alone; the exam labels follow the same definitions as the rules. The box below gives the ranges and the held-out rounds.
 
 <a href="https://youtu.be/cF4ZXKxjpxs"><img src="docs/media/video-thumbnail.png" width="320" alt="Demo video (3:51) on YouTube: the model alone said clear; the desk held the case for a person"></a>
 
-**Try it without keys:** sample mode replays saved real data with a labelled rules stand-in. Run `SAMPLE_MODE=true docker compose up --build`, then open http://localhost:3001 ([Quick start](#quick-start)).
-
-An AI review desk for bank sanctions-screening alerts. **It recommends; a person makes the final call.**
-
-- For every alert, it reads the evidence from the bank's data through one data layer.
-- It compares the customer (or payment party, or owner) with the listed party under approved definitions.
-- It asks Nemotron models for a recommendation. A second step re-reads every cited fact, and a written policy is applied.
-- It hands a **recommendation with its evidence** to a person.
-- **Automatic closing is off by default and was off in every recorded run.**
-- By design, the desk does not block, write to a source system or message a customer.
-
-**Terms:**
-
-| Term | Meaning |
-| --- | --- |
-| semantic layer | Zetaris's governed tables over the bank's sources |
-| held-out | test cases written apart from the rules and frozen before the run |
-| Nightshift | the Meterless model runtime that routes each call and signs a receipt |
-| H-MEM | the memory engine for earlier decisions |
-| World Model | the engine that holds ownership registers |
-| critic | the step that re-checks the decision's cited facts |
-| challenger | the step that argues against a proposed close |
-| sealed record | the hash-sealed file of a review's evidence, model calls and checks |
-
-Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
+[Demo video (3:51)](https://youtu.be/cF4ZXKxjpxs) · [Deck (PDF, 15 slides)](docs/sanctions-desk-deck.pdf)
 
 **Review without installing:** [recorded runs, step by step with each model's receipt](https://rahulmahadik.github.io/sanctions-desk/runs/) · [receipt log of every model call](https://rahulmahadik.github.io/sanctions-desk/receipts/) · [the last one-command proof](eval/PROVE.md) · [API docs](https://rahulmahadik.github.io/sanctions-desk/api.html) · **[How NVIDIA Nemotron is used](docs/NEMOTRON.md)**
 
@@ -55,6 +93,64 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
 The rules are exact on the exam by design; the desk's job is the free-text risk the rules cannot see — see [held-out](#key-results).
 <!-- results-box:end -->
+
+## Scope: today and not yet
+
+| In scope today | Not yet |
+| --- | --- |
+| The customer's name against the listed party | Cover payments |
+| The payment party (counterparty) | Live list feeds (the lists are a fixed snapshot of public OFAC and UN entries) |
+| Ownership: OFAC's 50 percent rule, counted as a cascade | Real bank volumes |
+| The payment route: the counterparty's country, the beneficiary's bank and an intermediary bank's country, and place names in the payment reference | Real customer data (all customers and payments are synthetic) |
+
+Open issues, measurement limits and next steps: [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md). Every edge case with its expected outcome: [docs/EDGE_CASES.md](docs/EDGE_CASES.md).
+
+## How it fits a bank
+
+**Pilot-stage, audit-ready by design.** It is a prototype on synthetic data, not in production.
+
+- **Read-only.** Data access is read-only, fixed in the policy schema; a policy change cannot lift it.
+- **One governed data layer.** Every fact comes through one Zetaris semantic layer, with one read-only role per data-reading step.
+- **Versioned policy.** A policy change is a draft, then a publish by a different person; every sealed record names the policy version it used.
+- **Packaged.** It runs with Docker (`docker compose`).
+- **Sample mode without keys.** Sample mode replays saved real data with a labelled rules stand-in: `SAMPLE_MODE=true docker compose up --build`, then open http://localhost:3001 ([Quick start](#quick-start)).
+
+## Tech stack
+
+| Part | What is used |
+| --- | --- |
+| Data layer | Zetaris Unified Semantic Layer (14 tables over list files, a Postgres bank database and a payments service), read-only SQL over REST |
+| Models | NVIDIA Nemotron 3.5 Lightning 30B (local) and Nemotron 3 Ultra 550B (cloud) |
+| Model provider | Meterless Nightshift (OpenAI-compatible, a signed receipt per answer); Ollama as the local backup |
+| Engines | Meterless H-MEM, World Model and Markovian (Scout Intent optional) |
+| Language and runtime | TypeScript on Node.js 24 or newer; Fastify API; Next.js and React review desk; Docker |
+| Tests | Vitest, Biome and `npm run prove` |
+
+## Technical depth
+
+Everything below is for engineers and reviewers who want the detail: terms, models, receipts, privacy, results, limits and how to run it. Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
+
+**What it is:** an AI review desk for bank sanctions-screening alerts. Nemotron models answer through Meterless Nightshift, every fact is read through Zetaris, and every Nightshift answer carries a signed receipt; local backup answers are labelled.
+
+- For every alert, it reads the evidence from the bank's data through one data layer.
+- It compares the customer (or payment party, or owner) with the listed party under approved definitions.
+- It asks Nemotron models for a recommendation. A second step re-reads every cited fact, and a written policy is applied.
+- It hands a **recommendation with its evidence** to a person.
+- **Automatic closing is off by default and was off in every recorded run.**
+- By design, the desk does not block, write to a source system or message a customer.
+
+### Terms
+
+| Term | Meaning |
+| --- | --- |
+| semantic layer | Zetaris's governed tables over the bank's sources |
+| held-out | test cases written apart from the rules and frozen before the run |
+| Nightshift | the Meterless model runtime that routes each call and signs a receipt |
+| H-MEM | the memory engine for earlier decisions |
+| World Model | the engine that holds ownership registers |
+| critic | the step that re-checks the decision's cited facts |
+| challenger | the step that argues against a proposed close |
+| sealed record | the hash-sealed file of a review's evidence, model calls and checks |
 
 ### Which Nemotron model does each step
 
@@ -79,40 +175,35 @@ The rules are exact on the exam by design; the desk's job is the free-text risk 
 <!-- local-mode:end -->
 - Why each model, the privacy design and the studies of model choice: [docs/NEMOTRON.md](docs/NEMOTRON.md).
 
-## At a glance
+### Privacy and proof
 
-- **Who it is for:** sanctions screening analysts and their senior reviewers at a bank.
-- **What goes wrong:** name screening raises far more alerts than there are real matches. Each one is worked by hand, field by field. The costly mistake is closing the one that is real.
-- **What it gives them**, for every alert:
-  - the evidence, gathered through one data layer;
-  - every cited fact, re-checked;
-  - risk signals from notes, shown with the exact text they rest on;
-  - a recommendation with its reasons.
-- **How it stays safe:** it fails closed. When evidence is missing or a check fails, the case is escalated or held for more information; by design it is not closed. A person makes the final call: automatic closing is off by default and was off in every recorded run.
-- **Privacy and proof:** raw notes are read by a model on the analyst's machine.
-  - The desk only accepts local answers for raw text. A safety-guard or screener answer that comes from a cloud route is not accepted, and the case is held.
-  - Raw notes are kept out of the cloud prompts the desk builds. Those prompts hold the structured fields and risk signals.
-  - In every run with the screener, a check keeps all free text out of cloud prompts.
-  - Every Nightshift answer in the exported runs has a signed receipt.
-  - **Limits:** in runs made before cloud answers were refused, 7 safety-guard calls were answered by Nemotron 3 Ultra in the cloud, because Nightshift's router chose it.
-  - **Limits:** Nightshift's own answer memory was on during the recorded runs. So for those runs the claim about cloud prompts cannot be checked. The desk's configuration keeps that memory off.
-  - **Limits:** four early runs were made before the screener existed (the first system's 70-case run, single, no_memory and held-out v1). In them, the cloud decision prompt held payment references and list remarks. Customer notes were never in it.
-  - Where each kind of data goes: [docs/PRIVACY.md](docs/PRIVACY.md). Oversight, guardrails and fairness: [docs/RESPONSIBLE_AI.md](docs/RESPONSIBLE_AI.md).
-- **How it fits Track 03:** data + knowledge + memory + reasoning → reliable decisions and actions.
-  - Data: the Zetaris semantic layer.
-  - Knowledge: the public sanctions lists and the versioned policy.
-  - Memory: H-MEM for earlier decisions, the World Model for ownership.
-  - Reasoning: decision, critic, challenger.
-  - Reliable decisions: it fails closed, and a person makes the final call.
-  - Actions: hold, escalate, a sealed record.
+Raw notes are read by a model on the analyst's machine.
+
+- The desk only accepts local answers for raw text. A safety-guard or screener answer that comes from a cloud route is not accepted, and the case is held.
+- Raw notes are kept out of the cloud prompts the desk builds. Those prompts hold the structured fields and risk signals.
+- In every run with the screener, a check keeps all free text out of cloud prompts.
+- Every Nightshift answer in the exported runs has a signed receipt.
+- **Limits:** in runs made before cloud answers were refused, 7 safety-guard calls were answered by Nemotron 3 Ultra in the cloud, because Nightshift's router chose it.
+- **Limits:** Nightshift's own answer memory was on during the recorded runs. So for those runs the claim about cloud prompts cannot be checked. The desk's configuration keeps that memory off.
+- **Limits:** four early runs were made before the screener existed (the first system's 70-case run, single, no_memory and held-out v1). In them, the cloud decision prompt held payment references and list remarks. Customer notes were never in it.
+- Where each kind of data goes: [docs/PRIVACY.md](docs/PRIVACY.md). Oversight, guardrails and fairness: [docs/RESPONSIBLE_AI.md](docs/RESPONSIBLE_AI.md).
+
+### How it fits Track 03
+
+Data + knowledge + memory + reasoning → reliable decisions and actions.
+
+- Data: the Zetaris semantic layer.
+- Knowledge: the public sanctions lists and the versioned policy.
+- Memory: H-MEM for earlier decisions, the World Model for ownership.
+- Reasoning: decision, critic, challenger.
+- Reliable decisions: it fails closed, and a person makes the final call.
+- Actions: hold, escalate, a sealed record.
+
+### Architecture
 
 ![Architecture: the desk agents read only through Zetaris; the safety guard and screener read the raw text on local Nemotron 3.5 Lightning; the decision and critic send only structured facts to the cloud, where Nightshift's router mostly chooses Nemotron 3 Ultra; a raise-only policy guard and a person who decides; flags, missing answers and cloud-served answers for raw text hold the case](docs/diagrams/1-architecture.svg)
 
 *Five more diagrams: one live review step by step, the fail-closed paths, the life of an alert, where customer data goes, and who may read what in Zetaris. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#diagrams) and the [architecture page](https://rahulmahadik.github.io/sanctions-desk/architecture.html).*
-
-![A review of alert ALR-0073 in sample mode: the steps light up, the Tehran signal in the payment reference, and the checks that keep the case open](docs/media/gifs/case-review.gif)
-
-*A review in sample mode (saved real data, a labelled rules stand-in for the models). More: [screenshots and clips](docs/media/README.md), live views with Nemotron receipts in [docs/NEMOTRON.md](docs/NEMOTRON.md).*
 
 ## Results in brief
 
