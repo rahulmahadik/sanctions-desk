@@ -101,20 +101,20 @@ The request files are in [input_examples/README.md](input_examples/README.md); t
 **Check the claims without Docker.** With Node 24 or newer (CI runs 24 and 26; `.node-version` says 26) and a full clone (not `--depth 1`: the preregistration check looks for the freeze commits in the history), `npm ci && npm run prove` runs seven checks in a few seconds once installed and prints one PASS or FAIL line each, then a summary; it exits with 1 if any check fails. It needs no credentials and no services, forces sample mode and never reads `.env`. What each check does: [docs/EVALUATION.md](docs/EVALUATION.md#one-command-proof).
 
 <!-- prove:start -->
-**One-command proof** (`npm run prove`, no credentials or services; last run 2026-10-24T19:55:38.153Z on commit 8354825):
+**One-command proof** (`npm run prove`, no credentials or services; last run 2026-10-25T04:22:22.414Z on commit ab50026):
 
 ```text
-PASS  Sample-mode review: POST /run ALR-0004 -> CLOSE_FALSE_POSITIVE, sealed record 35ceaa9c14bb… verifies, sample notice shown, human review required (0.1 s)
-PASS  Engine conformance: H-MEM 13/13, World Model 8/8, Markovian 8/8 (1.2 s)
-PASS  Critic mutation test: 147/147 false cited facts caught over 25 decisions; 25/25 unchanged decisions approved (no false alarm); evidence standard: 5 of 5 pass; grounding and document-on-record: 3 of 3 pass (0.5 s)
-PASS  Signed evidence: 28 runs: 1492/1492 receipts verified (signing key taken from each receipt, not pinned); 1492/1492 receipts named in the traces are present (answers from the Ollama backup and failed calls carry none); 0 trace/receipt model mismatches; run files: 28 verified, commit field remapped (documented), 0 other differences (0.2 s)
-PASS  Roles and four-eyes: 82/82 tests passed (pentest-access 56/56, people 26/26), 0 failed (1.0 s)
+PASS  Sample-mode review: POST /run ALR-0004 -> CLOSE_FALSE_POSITIVE, sealed record b970dfe2ece2… verifies, sample notice shown, human review required (0.2 s)
+PASS  Engine conformance: H-MEM 13/13, World Model 8/8, Markovian 8/8 (1.6 s)
+PASS  Critic mutation test: 147 of 147 checked cases caught over 25 decisions; 25 could not be checked in sample mode; 25/25 unchanged decisions approved (no false alarm); evidence standard: 5 of 5 pass; grounding and document-on-record: 3 of 3 pass (0.5 s)
+PASS  Signed evidence: 28 runs: 1492/1492 receipts verified (signing key pinned); 1492/1492 receipts named in the traces are present (answers from the Ollama backup and failed calls carry none); 0 trace/receipt model mismatches; run files: 28 verified, commit field remapped (documented), 0 other differences (0.2 s)
+PASS  Roles and four-eyes: 82/82 tests passed (pentest-access 56/56, people 26/26), 0 failed (1.1 s)
 PASS  Preregistration: heldout.json cases 1-18 match; heldout.json cases 1-22 match; heldout2.json file hash matches; held-out v2 freeze commit 8f6976c is in the history; heldout3.json file hash matches; held-out v3 frozen in commit 02d0a2e, the same file; heldout4.json file hash matches; held-out v4 frozen in commit fc64537, the same file (0.0 s)
-PASS  No secrets in the tree: 616 tracked text files scanned: 0 credential-bearing URLs, private keys or tokens; no .env file tracked (0.1 s)
+PASS  No secrets in the tree: 667 tracked text files scanned: 0 credential-bearing URLs, private keys or tokens; no .env file tracked (0.1 s)
 PASS: 7 of 7 checks passed
 ```
 
-Reproduce with `npm ci && npm run prove`, or `npm run prove -- --fresh` to clone this commit into a temporary folder, install and run the same checks there. Details: [eval/PROVE.md](eval/PROVE.md).
+Reproduce with `npm ci && npm run prove`, or `npm run prove -- --fresh` to clone this commit into a temporary folder, install and run the same checks there. The sealed-record hash in the first line changes on every run (the record holds its own run id and time); the other figures do not. Details: [eval/PROVE.md](eval/PROVE.md).
 <!-- prove:end -->
 
 ## Key results
