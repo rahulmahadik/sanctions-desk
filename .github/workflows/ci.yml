@@ -36,6 +36,8 @@ jobs:
       - run: npm run readme:refresh -- --check
       - name: The safety guard result in the docs matches its committed result file
         run: npm run adversarial:summary -- --check
+      - name: The data-harness counts in docs/ZETARIS.md match the code
+        run: npm run zetaris:harness -- --check
       # Every relative link, image and #anchor in the tracked Markdown files resolves.
       - run: npm run check:links
 
