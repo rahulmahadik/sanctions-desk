@@ -295,9 +295,9 @@ export function renderDocBlock(
   if (s.status !== "complete") {
     const earlier =
       choice.ultra && choice.lightning
-        ? ` Until then, the only measurement of Lightning doing the reasoning is the model-choice study above: a median of ${choice.lightning.median_case_s} s per case against ${choice.ultra.median_case_s} s, ${choice.lightning.clears_made} of ${choice.lightning.clear_cases} clears made against ${choice.ultra.clears_made} of ${choice.ultra.clear_cases}, ${choice.lightning.wrong_closes} of ${choice.lightning.risk_cases} risk cases wrongly closed in both arms${choice.ultra.wrong_closes === choice.lightning.wrong_closes ? "" : ` (default: ${choice.ultra.wrong_closes} of ${choice.ultra.risk_cases})`}.`
+        ? ` Until it is measured, the only measurement of Lightning doing the reasoning is the model-choice study above: a median of ${choice.lightning.median_case_s} s per case against ${choice.ultra.median_case_s} s, ${choice.lightning.clears_made} of ${choice.lightning.clear_cases} clears made against ${choice.ultra.clears_made} of ${choice.ultra.clear_cases}, ${choice.lightning.wrong_closes} of ${choice.lightning.risk_cases} risk cases wrongly closed in both arms${choice.ultra.wrong_closes === choice.lightning.wrong_closes ? "" : ` (default: ${choice.ultra.wrong_closes} of ${choice.ultra.risk_cases})`}.`
         : "";
-    return `**${s.label}: in progress.** ${lead} Held-out v4 (12 cases) is being run three times in this mode and three times in the default mode; this block is written from their result files, traces and receipts by \`npm run study:local-mode\` once all ${s.runs_expected} runs are exported (${s.runs_found} of ${s.runs_expected} so far).${earlier}`;
+    return `**${s.label}: not measured yet.** ${lead} The planned study runs held-out v4 (12 cases) three times in this mode and three times in the default mode; this block is written from their result files, traces and receipts by \`npm run study:local-mode\` once all ${s.runs_expected} runs are exported.${earlier}`;
   }
   const rows = s.arms.flatMap((a) => (a.pooled ? [{ a, p: a.pooled }] : []));
   const local = s.arms.find((a) => a.id === "local")?.pooled;
@@ -352,5 +352,5 @@ export function renderReadmeLine(
   const perAlert = L
     ? ` (about ${minutes(L.median_case_s)} minutes per alert locally, the median per case of the model-choice study's Lightning arm)`
     : "";
-  return `- ${head}${tradeOff}. A held-out v4 study of this mode (three runs per mode) is in progress: ${s.runs_found} of ${s.runs_expected} runs exported. 70-case local run: not measured${perAlert}. ${how}`;
+  return `- ${head}${tradeOff}. A held-out v4 study of this mode (three runs per mode): not measured yet. 70-case local run: not measured${perAlert}. ${how}`;
 }

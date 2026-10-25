@@ -4,10 +4,18 @@
 [![CI](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml) [![TypeScript 7](https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white)](package.json) [![Node >=24](https://img.shields.io/badge/node-%3E%3D24-339933?logo=nodedotjs&logoColor=white)](package.json) [![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 <!-- badges:end -->
 
+### In 30 seconds
+
+- **What it is:** an AI review desk for bank sanctions-screening alerts. Nemotron models answer through Meterless Nightshift, every fact is read through Zetaris, and every answer carries a signed receipt.
+- **Who it is for:** sanctions-screening analysts and their senior reviewers.
+- **What it is for:** a checked evidence pack for every alert and zero wrong closes, with a person deciding.
+- **Headline results:** on the 70-case exam the desk wrongly closed **0 of 43** risk cases, against **3 and 6** for Nemotron alone (without and with the free text; one run each). The critic caught **147 of 147** changed facts in the mutation test.
+- **Watch and read:** [demo video (3:51)](https://youtu.be/cF4ZXKxjpxs) · [deck (PDF, 15 slides)](docs/sanctions-desk-deck.pdf)
+
 **Try it without keys:** sample mode replays saved real data with a labelled rules stand-in. Run `SAMPLE_MODE=true docker compose up --build`, then open http://localhost:3001 ([Quick start](#quick-start)).
 
 <!-- media-links -->
-**Demo video (3:51):** https://youtu.be/cF4ZXKxjpxs
+**Demo video (3:51):** https://youtu.be/cF4ZXKxjpxs · **Deck (PDF):** [docs/sanctions-desk-deck.pdf](docs/sanctions-desk-deck.pdf)
 
 An AI review desk for bank sanctions-screening alerts. **It recommends; a person makes the final call.**
 
@@ -57,7 +65,7 @@ The rules are exact on the exam by design; the desk's job is the free-text risk 
 - <!--fact:decision_lightning_note-->Lightning answered 9 decision calls in the run of the current system. 8 were the desk's fast-lane retry after an unusable or failed first answer. That retry is a deliberate fallback: it asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane. 1 was a deep-lane call where Nightshift's router predicted Ultra but Lightning won a hedged race. 7 more decision answers came from the Ollama backup (no receipt).<!--/fact-->
 - A decision answered by that retry still goes through the critic and the policy guard ([docs/MODELS.md](docs/MODELS.md#how-a-call-is-routed)).
 <!-- local-mode:start -->
-- **Fully local mode:** every step runs on Nemotron 3.5 Lightning on the laptop, so all data and models stay on the machine. It is an option with a trade-off. In the model-choice study (20 cases, one run per arm), Lightning doing the reasoning made 1 of 10 clears against 3 of 10. It took a median of 385 s per case against 110 s. A held-out v4 study of this mode (three runs per mode) is in progress: 0 of 6 runs exported. 70-case local run: not measured (about 6 minutes per alert locally, the median per case of the model-choice study's Lightning arm). How to run it: [docs/MODELS.md](docs/MODELS.md#fully-local-mode).
+- **Fully local mode:** every step runs on Nemotron 3.5 Lightning on the laptop, so all data and models stay on the machine. It is an option with a trade-off. In the model-choice study (20 cases, one run per arm), Lightning doing the reasoning made 1 of 10 clears against 3 of 10. It took a median of 385 s per case against 110 s. A held-out v4 study of this mode (three runs per mode): not measured yet. 70-case local run: not measured (about 6 minutes per alert locally, the median per case of the model-choice study's Lightning arm). How to run it: [docs/MODELS.md](docs/MODELS.md#fully-local-mode).
 <!-- local-mode:end -->
 - Why each model, the privacy design and the studies of model choice: [docs/NEMOTRON.md](docs/NEMOTRON.md).
 
@@ -98,6 +106,24 @@ The rules are exact on the exam by design; the desk's job is the free-text risk 
 
 ## Results in brief
 
+### Against Nemotron alone
+
+- **On the 70-case exam** (one run each): the full system wrongly closed 0 of 43 risk cases; Nemotron alone, one model call per case through Nightshift with no agents, wrongly closed 3 of 43 without the free text and 6 of 43 with it. Nemotron alone cleared more. Full table, with clears, blocks and unusable answers: [docs/NEMOTRON.md](docs/NEMOTRON.md#what-the-agents-add-over-nemotron-alone).
+
+<!-- alone-headline:start -->
+- **Measured against Nemotron alone** (small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation):
+  - Full system: 0 of 6 risk cases wrongly closed in each of 3 runs. It gave a recommendation on every case, escalated to a person where no model answer was usable. Free text stayed out of the desk's cloud prompts. In 1 of 3 runs, 1 case had no usable model answer and was escalated to a person.
+  - Nemotron alone without the free text: 3, 6 and 4 wrongly closed. No usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Decision answers used: Ultra 8, Lightning (fast-lane retry) 17, Ollama backup 2, none 9, over 36 cases of 3 runs.
+  - Nemotron alone with the free text sent to the cloud: 0, 1 and 1 wrongly closed. But no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Decision answers used: Ultra 13, Lightning (fast-lane retry) 9, Lightning (router) 1, Ollama backup 1, none 12, over 36 cases of 3 runs.
+  - Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it). The full system cleared 1 in each run.
+<!-- alone-headline:end -->
+
+### The critic's fact re-check
+
+- In the mutation test the critic caught 147 of 147 changed facts over 25 decisions and approved 25 of 25 unchanged ones ([eval/critic-mutation.json](eval/critic-mutation.json)). What the critic and challenger did in the runs, and where the critic hurt: [How it works](#how-it-works).
+
+### The 70-case exam and the held-out rounds
+
 <!-- headline:start -->
 > **Safe triage that fails closed.** The desk recommends and a person decides. When evidence is missing or any check fails, the case is escalated or held for more information, not closed.
 
@@ -107,14 +133,6 @@ The rules are exact on the exam by design; the desk's job is the free-text risk 
 - **Held-out totals:** it wrongly closed 4 of 48 risk cases (2 in v1, 2 in v3, each by an earlier version of the system). The deterministic rules wrongly closed 13 of 48 and cleared 8 of 25. These totals include v2, where the screener failed and nothing could be closed. Without v2: 4 of 34 risk cases wrongly closed and 0 of 20 cleared (deterministic rules: 10 of 34 and 3 of 20).
 - **The cost of failing closed** is fewer clears. Each figure here is one run. How sure we can be (95% ranges; the sets are small, so the ranges are wide): on the exam, 0 of 43 risk cases wrongly closed (true rate 0–8%). On the held-out rounds, 4 of 48 (3–20%), or 4 of 34 without v2, where the screener failed (5–27%). Details: [eval/REPORT.md](eval/REPORT.md).
 <!-- headline:end -->
-
-<!-- alone-headline:start -->
-- **Measured against Nemotron alone** (small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation):
-  - Full system: 0 of 6 risk cases wrongly closed in each of 3 runs. It gave a recommendation on every case, escalated to a person where no model answer was usable. Free text stayed out of the desk's cloud prompts. In 1 of 3 runs, 1 case had no usable model answer and was escalated to a person.
-  - Nemotron alone without the free text: 3, 6 and 4 wrongly closed. No usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Decision answers used: Ultra 8, Lightning (fast-lane retry) 17, Ollama backup 2, none 9, over 36 cases of 3 runs.
-  - Nemotron alone with the free text sent to the cloud: 0, 1 and 1 wrongly closed. But no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Decision answers used: Ultra 13, Lightning (fast-lane retry) 9, Lightning (router) 1, Ollama backup 1, none 12, over 36 cases of 3 runs.
-  - Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it). The full system cleared 1 in each run.
-<!-- alone-headline:end -->
 
 ### What changes for the analyst
 
@@ -248,6 +266,13 @@ Reproduce with `npm ci && npm run prove`, or `npm run prove -- --fresh` to clone
 
 ## Key results
 
+**Against Nemotron alone, and the critic** (the 70-case comparison is in [Results in brief](#against-nemotron-alone)):
+
+<!-- alone-summary:start -->
+- **Small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation (written by `npm run study:repeat` from the study files; 95% ranges in brackets):** Full system: 0 of 6 risk cases wrongly closed in each of 3 runs (0–39% each). It gave a recommendation on every case, escalated to a person where no model answer was usable. Free text stayed out of the desk's cloud prompts. In 1 of 3 runs, 1 case had no usable model answer and was escalated to a person. Nemotron alone without the free text: 3 of 6 (19–81%), 6 of 6 (61–100%) and 4 of 6 (30–90%) wrongly closed. No usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Decision answers used: Ultra 8, Lightning (fast-lane retry) 17, Ollama backup 2, none 9, over 36 cases of 3 runs. Nemotron alone with the free text sent to the cloud: 0 of 6 (0–39%), 1 of 6 (3–56%) and 1 of 6 (3–56%) wrongly closed. But no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Decision answers used: Ultra 13, Lightning (fast-lane retry) 9, Lightning (router) 1, Ollama backup 1, none 12, over 36 cases of 3 runs. Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it). The full system cleared 1 in each run. Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](docs/NEMOTRON.md#what-the-agents-add-over-nemotron-alone).
+<!-- alone-summary:end -->
+- **Critic's fact re-check:** 147 of 147 changed facts caught in the mutation test ([details](#how-it-works)).
+
 **Headline numbers** (from the saved runs; refreshed by `npm run exam:report`):
 
 <!-- rounds:start -->
@@ -289,9 +314,6 @@ Ranges use the Wilson score method.
 
 `npm run readme:refresh` writes the counts in this README from the committed data: <!--fact:exam_cases-->70<!--/fact--> exam cases in <!--fact:exam_groups-->12<!--/fact--> groups, <!--fact:heldout_cases-->30<!--/fact--> cases in the first held-out set (73 across the four held-out sets) and <!--fact:edge_cases-->43<!--/fact--> edge cases.
 
-<!-- alone-summary:start -->
-- **Small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation (written by `npm run study:repeat` from the study files; 95% ranges in brackets):** Full system: 0 of 6 risk cases wrongly closed in each of 3 runs (0–39% each). It gave a recommendation on every case, escalated to a person where no model answer was usable. Free text stayed out of the desk's cloud prompts. In 1 of 3 runs, 1 case had no usable model answer and was escalated to a person. Nemotron alone without the free text: 3 of 6 (19–81%), 6 of 6 (61–100%) and 4 of 6 (30–90%) wrongly closed. No usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Decision answers used: Ultra 8, Lightning (fast-lane retry) 17, Ollama backup 2, none 9, over 36 cases of 3 runs. Nemotron alone with the free text sent to the cloud: 0 of 6 (0–39%), 1 of 6 (3–56%) and 1 of 6 (3–56%) wrongly closed. But no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Decision answers used: Ultra 13, Lightning (fast-lane retry) 9, Lightning (router) 1, Ollama backup 1, none 12, over 36 cases of 3 runs. Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it). The full system cleared 1 in each run. Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](docs/NEMOTRON.md#what-the-agents-add-over-nemotron-alone).
-<!-- alone-summary:end -->
 <!-- adversarial:start -->
 - **Safety guard against injected text** (every text is screened; the guard is not perfect, see [Known issues](docs/KNOWN_ISSUES.md#open-issues)). **Guard-only run** (policy 7, guard asked once): Lightning flagged 70 of 70 injected instructions, against 24 for the fixed patterns alone, and 12 of 12 tipping-off drafts (patterns: 1); it wrongly flagged 1 of 23 harmless texts. It tests the safety guard only, not a full review. **105-text full-review run** (policy 8, guard asked once): 66 of 70 injected texts caught; 2 that no check flagged ended in a close where the case's own data supported a close. **Fresh-set run** (current guard: asked twice, plus a narrow check; texts written separately): 27 of 28 reviews of injected text caught; false alarms on harmless text 7 of 16. Details: [docs/EVALUATION.md](docs/EVALUATION.md#safety-guard-against-injected-text).
 <!-- adversarial:end -->

@@ -62,7 +62,7 @@ These are about the editions and the access we had (Zetaris 2.4.x local over RES
   - the held-out v4 run (sys4): 45 s per case;
   - the run of the current system before the block fix: 74 s per alert over the 68 alerts (73 s per case).
 - **Cost.** Cost figures use illustrative unit costs; Nightshift's receipts record USD 0. Analyst time saved was not measured; the report's minutes-saved figure is an estimate on stated assumptions and is not claimed here.
-- **Not measured:** a run without Zetaris other than the unreachable-endpoint test, the policy guard switched off, the challenger alone, and a pinned-model run. A "Nemotron alone" baseline and the Lightning-versus-Ultra comparison were run only as small labelled studies ([NEMOTRON.md](NEMOTRON.md)).
+- **Not measured:** a run without Zetaris other than the unreachable-endpoint test, the policy guard switched off, the challenger alone, a pinned-model run, and the fully local mode on held-out v4 (every step on Lightning on the laptop: not measured yet; how to run it: [MODELS.md](MODELS.md#fully-local-mode)). A "Nemotron alone" baseline and the Lightning-versus-Ultra comparison were run only as small labelled studies ([NEMOTRON.md](NEMOTRON.md)).
 - **Law changes.** Sanctions law and list programmes change; the jurisdiction list is an example.
 
 ## Next steps

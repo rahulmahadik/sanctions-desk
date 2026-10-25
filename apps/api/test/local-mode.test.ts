@@ -117,8 +117,8 @@ describe("the local-mode study", () => {
     const partial = buildStudy(some, units);
     expect(partial.status).toBe("in_progress");
     expect(partial.arms.every((a) => a.pooled === null)).toBe(true);
-    expect(renderDocBlock(partial, {})).toContain("in progress");
-    expect(renderReadmeLine(partial, {})).toContain("4 of 6 runs exported");
+    expect(renderDocBlock(partial, {})).toContain("not measured yet");
+    expect(renderReadmeLine(partial, {})).toContain("not measured yet");
     const full = buildStudy([...some, one("a3-default-r2"), one("a3-default-r3")], units);
     expect(full.status).toBe("complete");
     expect(full.arms.map((a) => a.pooled?.runs)).toEqual([3, 3]);

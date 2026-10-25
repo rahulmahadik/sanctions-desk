@@ -2,6 +2,22 @@
 
 Sanctions Desk uses two NVIDIA Nemotron models, both through Meterless Nightshift: **Nemotron 3.5 Lightning 30B** on the analyst's laptop, where the raw text is, and **Nemotron 3 Ultra 550B** in the cloud, where the reasoning over structured evidence happens. Every answer from Nightshift carries a signed receipt naming the model that served it, so each statement below can be checked.
 
+## Nemotron at a glance
+
+- **Who answered each step**, from the signed receipts of the <!--fact:recorded_runs-->28<!--/fact--> recorded evaluation runs:
+  - safety guard: <!--fact:who_guard-->Lightning 386 of 386<!--/fact-->;
+  - free-text screener: <!--fact:who_screener-->Lightning 122 of 122<!--/fact-->;
+  - decision: <!--fact:who_decision-->Ultra 504, Lightning 16, Ollama backup 15 (no receipt) of 535<!--/fact-->;
+  - critic: <!--fact:who_critic-->Ultra 418, Lightning 8, Ollama backup 2 of 428<!--/fact-->;
+  - challenger: <!--fact:who_challenger-->Ultra 38, Ollama backup 2 of 40<!--/fact-->;
+  - Ollama backup, no receipt: <!--fact:backup_recorded-->19 answers in the recorded evaluation runs (15 decision, 2 critic, 2 challenger)<!--/fact-->.
+- **See every call:** the [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/) lists each model call with the mode asked for and the model that served it.
+- **Check it yourself:** `npm run evidence:verify` checks every signature against the pinned key, that every named receipt is present, and that the model in the trace is the model in the receipt.
+- **Caveats, together:**
+  - The desk pins the mode it asks for, not the model: Nightshift's router chooses the serving model inside each lane, so the split above is a measurement, not a guarantee.
+  - In runs made before cloud answers were refused, 7 safety-guard calls were answered by Nemotron 3 Ultra in the cloud, because the router chose it; the desk now holds the case instead ([Honest limits](#honest-limits)).
+  - The two cloud lanes are still named `nemotron-3-super-120b-a1`; the name is cosmetic. They serve Ultra 550B, and every receipt names the model that answered ([MODELS.md](MODELS.md#why-the-cloud-lane-names-say-super-120b)).
+
 <!-- nemotron-scorecard:start -->
 **Nemotron scorecard.** Computed by `npm run nemotron:scorecard` from committed files only ([eval/nemotron-scorecard.json](../eval/nemotron-scorecard.json)); each part is detailed further down this page.
 
@@ -145,7 +161,7 @@ Read plainly: neither arm closed a risk case. With Lightning doing the reasoning
 ## Fully local mode: every step on the laptop
 
 <!-- local-mode:start -->
-**Small study of the fully local mode, held-out v4, three runs per arm, not part of the recorded evaluation: in progress.** Every model step (safety guard, screener, decision, critic and challenger) on Nemotron 3.5 Lightning on the laptop: the decision, critic and challenger are sent under the guard identity, which the cockpit binds to the local lane, and the Ollama backup is the same model on the same machine, so all data and models stay on the machine. How to run it: [MODELS.md](MODELS.md#fully-local-mode). Held-out v4 (12 cases) is being run three times in this mode and three times in the default mode; this block is written from their result files, traces and receipts by `npm run study:local-mode` once all 6 runs are exported (0 of 6 so far). Until then, the only measurement of Lightning doing the reasoning is the model-choice study above: a median of 385 s per case against 110 s, 1 of 10 clears made against 3 of 10, 0 of 10 risk cases wrongly closed in both arms.
+**Small study of the fully local mode, held-out v4, three runs per arm, not part of the recorded evaluation: not measured yet.** Every model step (safety guard, screener, decision, critic and challenger) on Nemotron 3.5 Lightning on the laptop: the decision, critic and challenger are sent under the guard identity, which the cockpit binds to the local lane, and the Ollama backup is the same model on the same machine, so all data and models stay on the machine. How to run it: [MODELS.md](MODELS.md#fully-local-mode). The planned study runs held-out v4 (12 cases) three times in this mode and three times in the default mode; this block is written from their result files, traces and receipts by `npm run study:local-mode` once all 6 runs are exported. Until it is measured, the only measurement of Lightning doing the reasoning is the model-choice study above: a median of 385 s per case against 110 s, 1 of 10 clears made against 3 of 10, 0 of 10 risk cases wrongly closed in both arms.
 <!-- local-mode:end -->
 
 ## What the agents add over Nemotron alone
