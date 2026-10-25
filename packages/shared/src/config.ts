@@ -43,6 +43,11 @@ const ConfigSchema = z.strictObject({
     /** File with the users, their roles and the SHA-256 of each token. Kept outside the repository. */
     usersFile: nonEmpty.optional(),
     /**
+     * HTTPS: with both files set the server serves HTTPS only. Without them it serves HTTP, and should stay on
+     * 127.0.0.1 (a warning is logged at start-up otherwise); put a TLS-terminating proxy in front for a deployment.
+     */
+    tls: z.strictObject({ certFile: nonEmpty, keyFile: nonEmpty }).optional(),
+    /**
      * How often one caller may change things or start a review. A caller is the signed-in user when sign-in is on,
      * otherwise the remote address. Reads and /health are never limited. Above a limit the answer is 429 with
      * Retry-After; nothing is queued.
@@ -226,6 +231,8 @@ const ENV_BINDINGS: readonly EnvBinding[] = [
   { env: "DOCS_ENABLED", path: ["server", "docs"], kind: "boolean" },
   { env: "AUTH_MODE", path: ["server", "auth"], kind: "string" },
   { env: "DESK_USERS_FILE", path: ["server", "usersFile"], kind: "string" },
+  { env: "DESK_TLS_CERT_FILE", path: ["server", "tls", "certFile"], kind: "string" },
+  { env: "DESK_TLS_KEY_FILE", path: ["server", "tls", "keyFile"], kind: "string" },
   { env: "RATE_LIMIT_ENABLED", path: ["server", "rateLimit", "enabled"], kind: "boolean" },
   { env: "RATE_LIMIT_WINDOW_MS", path: ["server", "rateLimit", "windowMs"], kind: "number" },
   { env: "RATE_LIMIT_WRITES", path: ["server", "rateLimit", "writesPerWindow"], kind: "number" },

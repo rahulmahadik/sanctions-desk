@@ -1,7 +1,11 @@
+import { createHash } from "node:crypto";
 import { hashToken, loadConfig, type UsersFile } from "@sanctions-desk/shared";
 import { createZetarisClient } from "@sanctions-desk/zetaris";
 import { describe, expect, it } from "vitest";
 import { makeApp } from "./helpers.js";
+
+/** A token in the issued form (sd_ and 32 base64url characters), made from a seed so the test is repeatable. */
+const tok = (seed: string): string => `sd_${createHash("sha256").update(seed).digest("base64url").slice(0, 32)}`;
 
 /**
  * Rate limits: a fixed window per caller for anything that is not a read, a lower one for the routes that start a
@@ -42,6 +46,14 @@ function expectLimited(res: Awaited<ReturnType<typeof write>>) {
 }
 
 describe("rate limits on writes", () => {
+  it("lets exactly the limit through in a burst of simultaneous requests, and refuses the rest", async () => {
+    const { app } = await makeApp({ overrides: limits() });
+    const answers = await Promise.all(Array.from({ length: 20 }, () => write(app)));
+    const codes = answers.map((r) => r.statusCode);
+    expect(codes.filter((c) => c !== 429)).toHaveLength(3);
+    expect(codes.filter((c) => c === 429)).toHaveLength(17);
+  });
+
   it("refuses the request after the limit with 429 and Retry-After", async () => {
     const c = clock();
     const { app } = await makeApp({ overrides: limits(), now: c.now });
@@ -116,17 +128,27 @@ describe("rate limits on reviews", () => {
 describe("rate limits per signed-in user", () => {
   const users: UsersFile = {
     users: [
-      { id: "ann", role: "analyst", token_sha256: hashToken("rl-ann-0123456789abcdef") },
-      { id: "abe", role: "analyst", token_sha256: hashToken("rl-abe-0123456789abcdef") },
+      {
+        id: "ann",
+        role: "analyst",
+        token_format: "sd_192" as const,
+        token_sha256: hashToken(tok("rl-ann-0123456789abcdef")),
+      },
+      {
+        id: "abe",
+        role: "analyst",
+        token_format: "sd_192" as const,
+        token_sha256: hashToken(tok("rl-abe-0123456789abcdef")),
+      },
     ],
   };
   const as = (token: string) => ({ authorization: `Bearer ${token}` });
 
   it("counts each user on their own, wherever they connect from", async () => {
     const { app } = await makeApp({ overrides: limits(), now: clock().now, authMode: "on", users });
-    for (let i = 0; i < 3; i++) await write(app, `10.0.0.${i + 1}`, as("rl-ann-0123456789abcdef"));
-    expectLimited(await write(app, "10.0.0.9", as("rl-ann-0123456789abcdef")));
-    expect((await write(app, "10.0.0.1", as("rl-abe-0123456789abcdef"))).statusCode).toBe(400);
+    for (let i = 0; i < 3; i++) await write(app, `10.0.0.${i + 1}`, as(tok("rl-ann-0123456789abcdef")));
+    expectLimited(await write(app, "10.0.0.9", as(tok("rl-ann-0123456789abcdef"))));
+    expect((await write(app, "10.0.0.1", as(tok("rl-abe-0123456789abcdef")))).statusCode).toBe(400);
   });
 
   it("counts by address in demo mode, so changing the demo user does not reset the count", async () => {

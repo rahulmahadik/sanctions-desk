@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 import helmet from "@fastify/helmet";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
@@ -9,6 +10,7 @@ import {
   AppError,
   type Authenticator,
   type AuthMode,
+  assertStrongTokens,
   type Config,
   can,
   createAuthenticator,
@@ -17,11 +19,13 @@ import {
   type PolicyStore,
   type RunEventBus,
   resolveAuthMode,
+  resolveProjectPath,
   type UsersFile,
 } from "@sanctions-desk/shared";
 import type { ZetarisClient } from "@sanctions-desk/zetaris";
 import fastify, { type FastifyReply } from "fastify";
 import type { Logger } from "pino";
+import { permissionFor } from "./access.js";
 import { mapError } from "./errors.js";
 import { buildOpenApi } from "./openapi.js";
 import { createDependencyProber, type DependencyProber } from "./probes.js";
@@ -52,8 +56,11 @@ export interface AppDeps {
   policies: PolicyStore;
   /** Replaceable in tests. Defaults to probing the configured runtimes. */
   prober?: DependencyProber;
-  /** The people allowed in, from the users file. Absent in sample mode, where only the demo users exist. */
-  users?: UsersFile;
+  /**
+   * The people allowed in, from the users file: fixed, or read again whenever the file changes (so a revoke or a
+   * rotation takes effect on the next request). Absent in sample mode, where only the demo users exist.
+   */
+  users?: UsersFile | (() => UsersFile | undefined);
   /** Overrides the configured auth mode. Only tests set it; the server reads it from the configuration. */
   authMode?: AuthMode;
   /** Signs the records written after an approval. Absent: they are hash-sealed. */
@@ -68,22 +75,6 @@ declare module "fastify" {
   }
 }
 
-/**
- * What a route needs. Reading needs only a signed-in user; these are the exceptions. `path` is the pattern of the
- * route that matched (for example `/policy/drafts/:version/publish`), never the text the caller sent: the router
- * decodes percent escapes, so `/policy/drafts/%32/publish` reaches the same handler as `/policy/drafts/2/publish`.
- */
-function permissionFor(method: string, path: string): Permission | undefined {
-  if (method === "GET" || method === "HEAD") return undefined;
-  if (path === "/run" || path === "/list-change/replay" || path === "/guard/outbound" || path === "/policy/whatif")
-    return "run";
-  if (/^\/cases\/[^/]+\/(decision|second-approval|reopen)$/.test(path)) return "decide";
-  if (path === "/autonomy/kill-switch") return "stopAutonomy";
-  if (/^\/policy\/drafts\/[^/]+\/publish$/.test(path)) return "publishPolicy";
-  if (path.startsWith("/policy/")) return "proposePolicy";
-  return undefined;
-}
-
 const REQUEST_ID_PATTERN = /^[A-Za-z0-9._-]{1,64}$/;
 
 /** Accept a caller-supplied request id only if it is safe to put in logs and headers. */
@@ -95,7 +86,17 @@ function requestIdFrom(header: string | string[] | undefined): string {
 export async function buildApp(deps: AppDeps) {
   const { config, logger } = deps;
 
+  const tls = config.server.tls;
   const app = fastify({
+    // HTTPS only when a certificate and key are configured; otherwise HTTP on the configured host.
+    ...(tls
+      ? {
+          https: {
+            cert: readFileSync(resolveProjectPath(tls.certFile)),
+            key: readFileSync(resolveProjectPath(tls.keyFile)),
+          },
+        }
+      : {}),
     loggerInstance: logger,
     bodyLimit: config.server.bodyLimitBytes,
     requestIdHeader: false,
@@ -143,6 +144,11 @@ export async function buildApp(deps: AppDeps) {
     throw new Error(
       "auth is on but no users file is configured (DESK_USERS_FILE); set SAMPLE_MODE=true to run on saved data without services, or configure DESK_USERS_FILE",
     );
+  // With sign-in on, every active token must be one users:add made (192 random bits); otherwise refuse to start.
+  if (mode === "on") {
+    const current = typeof deps.users === "function" ? deps.users() : deps.users;
+    if (current) assertStrongTokens(current);
+  }
   const authenticator: Authenticator = createAuthenticator({ mode, sampleMode: config.sampleMode, users: deps.users });
   app.decorateRequest("actor");
 

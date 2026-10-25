@@ -101,7 +101,9 @@
     "data:gleif": "tsx data/scripts/gleif.ts",
     "data:sample": "tsx data/scripts/sample.ts",
     "data:synthetic": "tsx data/scripts/synthetic.ts",
-    "adversarial:review": "tsx tools/adversarial-review.ts"
+    "adversarial:review": "tsx tools/adversarial-review.ts",
+    "users:rotate": "tsx tools/users-add.ts --action rotate",
+    "users:revoke": "tsx tools/users-add.ts --action revoke"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.2",

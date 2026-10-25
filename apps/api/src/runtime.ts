@@ -9,6 +9,7 @@ import {
   PolicyStore,
   RunEventBus,
   resolveProjectPath,
+  usersFileSource,
 } from "@sanctions-desk/shared";
 import { createZetarisClient, type ZetarisClient } from "@sanctions-desk/zetaris";
 import type { Logger } from "pino";
@@ -79,7 +80,10 @@ export function buildRuntime(config: Config, logger: Logger): Omit<AppDeps, "con
 
   // The people allowed in (tokens are stored as hashes, in a file outside the repository) and the key that signs
   // the records written after an approval. Without a key those records are hash-sealed, and say so.
-  const users = config.server.usersFile ? loadUsersFile(config.server.usersFile) : undefined;
+  // Read now, so a missing or broken file stops the start; then read again whenever it changes.
+  const users = config.server.usersFile
+    ? (loadUsersFile(config.server.usersFile), usersFileSource(config.server.usersFile))
+    : undefined;
   const signer = loadSigner(config.actions.signingKeyFile);
   return { generator, zetaris, sampleNotice, bus, policies, users, signer };
 }

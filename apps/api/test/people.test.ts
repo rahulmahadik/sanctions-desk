@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { sampleRules } from "@sanctions-desk/agents";
@@ -12,6 +13,9 @@ import {
 import { createZetarisClient, loadQueryCache, replayFetch } from "@sanctions-desk/zetaris";
 import { describe, expect, it } from "vitest";
 import { makeApp } from "./helpers.js";
+
+/** A token in the issued form (sd_ and 32 base64url characters), made from a seed so the test is repeatable. */
+const tok = (seed: string): string => `sd_${createHash("sha256").update(seed).digest("base64url").slice(0, 32)}`;
 
 const exam = loadExam();
 const alertOf = (kind: string): string => examCase(exam, kind).alert_id ?? "";
@@ -318,17 +322,17 @@ describe("policy changes", () => {
 
 describe("with auth on", () => {
   const TOKENS = {
-    analyst: "tok-analyst-1234567890",
-    viewer: "tok-viewer-1234567890",
-    approver: "tok-approver-1234567890",
-    admin: "tok-admin-1234567890",
+    analyst: tok("tok-analyst-1234567890"),
+    viewer: tok("tok-viewer-1234567890"),
+    approver: tok("tok-approver-1234567890"),
+    admin: tok("tok-admin-1234567890"),
   };
   const users: UsersFile = {
     users: [
-      { id: "ann", role: "analyst", token_sha256: hashToken(TOKENS.analyst) },
-      { id: "vic", role: "viewer", token_sha256: hashToken(TOKENS.viewer) },
-      { id: "olga", role: "approver", token_sha256: hashToken(TOKENS.approver) },
-      { id: "pat", role: "policy_admin", token_sha256: hashToken(TOKENS.admin) },
+      { id: "ann", role: "analyst", token_format: "sd_192" as const, token_sha256: hashToken(TOKENS.analyst) },
+      { id: "vic", role: "viewer", token_format: "sd_192" as const, token_sha256: hashToken(TOKENS.viewer) },
+      { id: "olga", role: "approver", token_format: "sd_192" as const, token_sha256: hashToken(TOKENS.approver) },
+      { id: "pat", role: "policy_admin", token_format: "sd_192" as const, token_sha256: hashToken(TOKENS.admin) },
     ],
   };
   const bearer = (t: string) => ({ authorization: `Bearer ${t}` });

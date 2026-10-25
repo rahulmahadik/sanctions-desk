@@ -75,3 +75,44 @@ describe("the API description", () => {
     expect((await app.inject({ method: "GET", url: "/docs/" })).statusCode).toBe(404);
   });
 });
+
+describe("authentication in the API description", () => {
+  it("declares a bearer scheme, marks /health public, and names each route's roles from the same rules the API enforces", async () => {
+    const { buildOpenApi } = await import("../src/openapi.js");
+    const doc = buildOpenApi("test") as {
+      components: { securitySchemes: { bearerAuth: { scheme: string } } };
+      paths: Record<
+        string,
+        Record<
+          string,
+          { "x-required-roles": unknown; security?: unknown[]; responses: Record<string, unknown>; description: string }
+        >
+      >;
+    };
+    expect(doc.components.securitySchemes.bearerAuth.scheme).toBe("bearer");
+    expect(doc.paths["/health"]?.get?.["x-required-roles"]).toBe("public");
+    expect(doc.paths["/health"]?.get?.security).toEqual([]);
+    expect(doc.paths["/run"]?.post?.["x-required-roles"]).toEqual(["analyst", "approver", "policy_admin"]);
+    expect(doc.paths["/policy/drafts/{version}/publish"]?.post?.["x-required-roles"]).toEqual(["policy_admin"]);
+    expect(doc.paths["/cases/{alertId}/decision"]?.post?.description).toMatch(/Four-eyes/);
+    expect(doc.paths["/alerts"]?.get?.["x-required-roles"]).toBe("any");
+    expect(Object.keys(doc.paths["/run"]?.post?.responses ?? {})).toEqual(
+      expect.arrayContaining(["401", "403", "429"]),
+    );
+  });
+});
+
+describe("the authentication section", () => {
+  it("is the same text in docs/API.md and in the API description, with a placeholder token only", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { resolveProjectPath } = await import("@sanctions-desk/shared");
+    const { AUTH_GUIDE } = await import("../src/auth-guide.js");
+    const { buildOpenApi } = await import("../src/openapi.js");
+    // The Markdown formatter aligns the table, so compare with runs of spaces and dashes collapsed.
+    const flat = (s: string) => s.replace(/ +/g, " ").replace(/-{3,}/g, "---");
+    expect(flat(readFileSync(resolveProjectPath("docs/API.md"), "utf8"))).toContain(flat(AUTH_GUIDE));
+    expect((buildOpenApi("t") as { info: { description: string } }).info.description).toContain(AUTH_GUIDE);
+    expect(AUTH_GUIDE).toContain("Bearer $DESK_TOKEN");
+    expect(AUTH_GUIDE).not.toMatch(/sd_[A-Za-z0-9_-]{32}(?![A-Z_])/);
+  });
+});

@@ -6,6 +6,7 @@ import { createLogger } from "./logger.js";
 import { buildRuntime } from "./runtime.js";
 
 const ENV_FILE = ".env";
+const LOOPBACK = new Set(["127.0.0.1", "localhost", "::1"]);
 
 async function main(): Promise<void> {
   // Local development convenience: load the project's .env if present, wherever the process was started
@@ -28,6 +29,12 @@ async function main(): Promise<void> {
     }
     logger.info({ roles: access.map((r) => `${r.role}:${r.state}`) }, "role access to the semantic layer verified");
   }
+  // Plain HTTP beyond this machine would send bearer tokens in the clear.
+  if (!config.server.tls && !LOOPBACK.has(config.server.host))
+    logger.warn(
+      { host: config.server.host },
+      "serving plain HTTP on an address other than 127.0.0.1: set DESK_TLS_CERT_FILE and DESK_TLS_KEY_FILE, or put a TLS-terminating proxy in front (docs/API.md)",
+    );
   const runtime = buildRuntime(config, logger);
   const app = await buildApp({ config, logger, ...runtime });
   logger.info(

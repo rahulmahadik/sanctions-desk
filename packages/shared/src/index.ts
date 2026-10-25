@@ -16,3 +16,4 @@ export * from "./schemas.js";
 export * from "./secret.js";
 export * from "./stats.js";
 export * from "./trace.js";
+export * from "./users-file.js";

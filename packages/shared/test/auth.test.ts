@@ -1,18 +1,27 @@
+import { createHash } from "node:crypto";
+import { mkdtempSync, rmSync, utimesSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   ANONYMOUS,
+  assertStrongTokens,
   can,
   createAuthenticator,
   DEMO_USERS,
   hashToken,
   resolveAuthMode,
   type UsersFile,
+  usersFileSource,
 } from "../src/index.js";
+
+/** A token in the issued form (sd_ and 32 base64url characters), made from a seed so the test is repeatable. */
+const tok = (seed: string): string => `sd_${createHash("sha256").update(seed).digest("base64url").slice(0, 32)}`;
 
 const users: UsersFile = {
   users: [
-    { id: "ann", role: "analyst", token_sha256: hashToken("t-ann") },
-    { id: "olga", role: "approver", token_sha256: hashToken("t-olga") },
+    { id: "ann", role: "analyst", token_format: "sd_192" as const, token_sha256: hashToken(tok("t-ann")) },
+    { id: "olga", role: "approver", token_format: "sd_192" as const, token_sha256: hashToken(tok("t-olga")) },
   ],
 };
 const headers = (h: Record<string, string | undefined>) => h;
@@ -33,12 +42,12 @@ describe("recognising a person", () => {
   const live = createAuthenticator({ mode: "on", sampleMode: false, users });
 
   it("finds a user by token, comparing hashes", () => {
-    expect(live.actorFor(headers({ authorization: "Bearer t-ann" }))).toEqual({
+    expect(live.actorFor(headers({ authorization: `Bearer ${tok("t-ann")}` }))).toEqual({
       id: "ann",
       role: "analyst",
       demo: false,
     });
-    expect(live.actorFor(headers({ authorization: "bearer t-olga" }))?.role).toBe("approver");
+    expect(live.actorFor(headers({ authorization: `bearer ${tok("t-olga")}` }))?.role).toBe("approver");
   });
 
   it("returns nobody for a missing, wrong or malformed token", () => {
@@ -57,7 +66,11 @@ describe("recognising a person", () => {
     const liveDemoNamed = createAuthenticator({
       mode: "on",
       sampleMode: false,
-      users: { users: [{ id: "analyst_demo", role: "viewer", token_sha256: hashToken("x") }] },
+      users: {
+        users: [
+          { id: "analyst_demo", role: "viewer", token_format: "sd_192" as const, token_sha256: hashToken(tok("x")) },
+        ],
+      },
     });
     expect(liveDemoNamed.actorFor(headers({ "x-demo-user": "analyst_demo" }))).toBeUndefined();
   });
@@ -102,5 +115,58 @@ describe("what each role may do", () => {
     expect(can(actor("approver"), "publishPolicy")).toBe(false);
     expect(can(actor("approver"), "proposePolicy")).toBe(true);
     expect(can(actor("analyst"), "proposePolicy")).toBe(false);
+  });
+});
+
+describe("token strength, expiry and revocation", () => {
+  const strong = tok("strong");
+  const entry = (over: Partial<UsersFile["users"][number]> = {}) => ({
+    id: "ann",
+    role: "analyst" as const,
+    token_format: "sd_192" as const,
+    token_sha256: hashToken(strong),
+    ...over,
+  });
+  const auth = (u: UsersFile["users"][number], now = new Date("2026-10-25T12:00:00Z")) =>
+    createAuthenticator({ mode: "on", sampleMode: false, users: { users: [u] }, now: () => now });
+
+  it("refuses a token that is not in the issued form, even if its hash is in the file", () => {
+    for (const weak of ["short", "sd_tooShort", "a".repeat(40), `${strong}x`]) {
+      const a = auth(entry({ token_sha256: hashToken(weak) }));
+      expect(a.actorFor(headers({ authorization: `Bearer ${weak}` }))).toBeUndefined();
+    }
+  });
+
+  it("refuses an expired token and accepts it before its expiry", () => {
+    const u = entry({ expires_at: "2026-10-25T13:00:00Z" });
+    expect(auth(u).actorFor(headers({ authorization: `Bearer ${strong}` }))?.id).toBe("ann");
+    expect(
+      auth(u, new Date("2026-10-25T13:00:01Z")).actorFor(headers({ authorization: `Bearer ${strong}` })),
+    ).toBeUndefined();
+  });
+
+  it("refuses a revoked token", () => {
+    const a = auth(entry({ revoked_at: "2026-10-25T11:00:00Z" }));
+    expect(a.actorFor(headers({ authorization: `Bearer ${strong}` }))).toBeUndefined();
+  });
+
+  it("refuses to start with a token that users:add did not make, and names the user", () => {
+    expect(() => assertStrongTokens({ users: [entry({ token_format: undefined })] })).toThrow(/ann.*users:rotate/);
+    expect(() =>
+      assertStrongTokens({ users: [entry({ token_format: undefined, revoked_at: "2026-10-25T11:00:00Z" })] }),
+    ).not.toThrow();
+    expect(() => assertStrongTokens({ users: [entry()] })).not.toThrow();
+  });
+
+  it("reads the users file again when it changes, so a revoke takes effect on the next request", () => {
+    const dir = mkdtempSync(join(tmpdir(), "desk-users-"));
+    const file = join(dir, "users.json");
+    writeFileSync(file, JSON.stringify({ users: [entry()] }));
+    const a = createAuthenticator({ mode: "on", sampleMode: false, users: usersFileSource(file) });
+    expect(a.actorFor(headers({ authorization: `Bearer ${strong}` }))?.id).toBe("ann");
+    writeFileSync(file, JSON.stringify({ users: [entry({ revoked_at: "2026-10-25T11:00:00Z" })] }));
+    utimesSync(file, new Date(), new Date(Date.now() + 5000));
+    expect(a.actorFor(headers({ authorization: `Bearer ${strong}` }))).toBeUndefined();
+    rmSync(dir, { recursive: true, force: true });
   });
 });

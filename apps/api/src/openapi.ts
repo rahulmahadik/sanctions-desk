@@ -1,6 +1,8 @@
 import { MAX_REASON_LENGTH, MIN_REASON_LENGTH } from "@sanctions-desk/agents";
-import { PolicySchema, ReviewResponseSchema, RunIdSchema, RunRequestSchema } from "@sanctions-desk/shared";
+import { PERMISSIONS, PolicySchema, ReviewResponseSchema, RunIdSchema, RunRequestSchema } from "@sanctions-desk/shared";
 import { z } from "zod";
+import { permissionFor } from "./access.js";
+import { AUTH_GUIDE } from "./auth-guide.js";
 import { SAFE_ID_PATTERN } from "./ids.js";
 
 /**
@@ -361,15 +363,56 @@ export const ROUTES: RouteDoc[] = [
   },
 ];
 
+/** Routes anyone may call, signed in or not. */
+const PUBLIC = new Set(["/health"]);
+
+/**
+ * Rules a route's handler adds on top of the role it needs (the routes and human-decision.ts enforce these). The
+ * four-eyes rules are here: a second, different person must confirm.
+ */
+const ACCESS_RULES: Record<string, string> = {
+  "post /cases/{alertId}/decision":
+    "An analyst or approver decides. Only an approver may override towards a less cautious outcome. Four-eyes: a block, and an override that lowers caution (a block or an escalation changed to a close), wait for a second, different approver.",
+  "post /cases/{alertId}/second-approval":
+    "Four-eyes: the second approval must come from an approver who is not the person who made the first decision.",
+  "post /autonomy/kill-switch":
+    "An approver or a policy admin can stop automatic closing; only a policy admin can switch it back on.",
+  "post /policy/drafts/{version}/publish":
+    "Four-eyes: the policy admin who publishes must not be the person who proposed the draft.",
+};
+
+/** Who may call a route, as the API enforces it (app.ts with access.ts), in words for the document. */
+function accessOf(r: RouteDoc): { roles: string[] | "public" | "any"; text: string } {
+  if (PUBLIC.has(r.path)) return { roles: "public", text: "Public: no token needed." };
+  const need = permissionFor(r.method.toUpperCase(), r.path.replace(/\{(\w+)\}/g, ":$1"));
+  const rule = ACCESS_RULES[`${r.method} ${r.path}`];
+  if (need === undefined)
+    return {
+      roles: "any",
+      text: `Any signed-in role (viewer, analyst, approver, policy_admin).${rule ? ` ${rule}` : ""}`,
+    };
+  const roles = [...PERMISSIONS[need]];
+  return { roles, text: `Roles: ${roles.join(", ")}.${rule ? ` ${rule}` : ""}` };
+}
+
+const errorExample = (type: string, message: string) => ({
+  status: "error",
+  request_id: "3f1c2a9e-5d7b-4c1e-9a2f-0b6d8e4c7a11",
+  error: { type, message, recoverable: type === "rate_limited" },
+});
+
 /** The OpenAPI 3.1 document. */
 export function buildOpenApi(version: string, extra: RouteDoc[] = []): Json {
   const paths: Record<string, Record<string, Json>> = {};
   for (const r of [...ROUTES, ...extra]) {
     paths[r.path] = paths[r.path] ?? {};
+    const access = accessOf(r);
     (paths[r.path] as Record<string, Json>)[r.method] = {
       tags: [r.tag],
       summary: r.summary,
-      ...(r.description ? { description: r.description } : {}),
+      description: [access.text, r.description].filter(Boolean).join("\n\n"),
+      "x-required-roles": access.roles,
+      ...(access.roles === "public" ? { security: [] } : {}),
       parameters: [...(r.params ?? []), ...(r.query ?? [])],
       ...(r.body ? { requestBody: { required: true, content: { "application/json": { schema: r.body } } } } : {}),
       responses: {
@@ -381,12 +424,43 @@ export function buildOpenApi(version: string, extra: RouteDoc[] = []): Json {
           : { description: "OK", content: { "application/json": { schema: r.response ?? { type: "object" } } } },
         "400": { description: "The request is not valid", content: { "application/json": { schema: ErrorBody } } },
         "404": { description: "Not found", content: { "application/json": { schema: ErrorBody } } },
+        ...(access.roles === "public"
+          ? {}
+          : {
+              "401": {
+                description: "No token, or a token that is unknown, malformed, expired or revoked",
+                content: {
+                  "application/json": {
+                    schema: ErrorBody,
+                    example: errorExample("unauthorized", "a valid token is required"),
+                  },
+                },
+              },
+              ...(access.roles === "any"
+                ? {}
+                : {
+                    "403": {
+                      description: "Signed in, but this role may not do this",
+                      content: {
+                        "application/json": {
+                          schema: ErrorBody,
+                          example: errorExample("forbidden", "viewer may not do this"),
+                        },
+                      },
+                    },
+                  }),
+            }),
         ...(r.method === "post"
           ? {
               "429": {
                 description: "Too many requests from this caller, or too many reviews running; see Retry-After",
                 headers: { "Retry-After": { schema: { type: "integer", minimum: 1 } } },
-                content: { "application/json": { schema: ErrorBody } },
+                content: {
+                  "application/json": {
+                    schema: ErrorBody,
+                    example: errorExample("rate_limited", "too many requests (writes); try again in 42 s"),
+                  },
+                },
               },
             }
           : {}),
@@ -398,11 +472,21 @@ export function buildOpenApi(version: string, extra: RouteDoc[] = []): Json {
     info: {
       title: "Sanctions Desk API",
       version,
-      description:
-        "A review desk for sanctions-screening alerts. The desk recommends; a person makes the final call (automatic closing is off by default). Nothing here blocks an account, writes to a source system or contacts a customer.",
+      description: `A review desk for sanctions-screening alerts. The desk recommends; a person makes the final call (automatic closing is off by default). Nothing here blocks an account, writes to a source system or contacts a customer.\n\n${AUTH_GUIDE}`,
       license: { name: "Apache-2.0" },
     },
     servers: [{ url: "http://localhost:8000" }],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          description:
+            "A token issued with `npm run users:add` (sd_ and 32 characters, 192 random bits). Send it as `Authorization: Bearer <token>`. Every route except /health needs one when sign-in is on.",
+        },
+      },
+    },
+    security: [{ bearerAuth: [] }],
     paths,
   };
 }
