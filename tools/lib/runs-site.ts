@@ -534,7 +534,7 @@ const modelText = (call: CheckedCall) => {
   const r = call.receipt?.route;
   const id = r?.model ?? call.traceModel;
   if (!id) return "none (no model answered)";
-  if (call.provider === "ollama") return `${id} (local, Lightning, the Ollama backup on this machine)`;
+  if (call.provider === "ollama") return `${id} (Ollama backup, no receipt: local Lightning on this machine)`;
   const kind = r?.kind ?? (id.includes("lightning") ? "local" : "cloud");
   const suffix = call.receipt ? "" : "; named by the trace only";
   return `${r?.label ?? id} (${kind === "local" ? "local, Lightning" : "cloud, Ultra"}${suffix})`;

@@ -146,7 +146,7 @@ const facts: Record<string, string> = {
   backup_recorded: backupLine,
   zetaris_roles: zetarisRoles,
   receipt_gate:
-    "By design, the desk uses a model answer only when its Nightshift receipt is signed by the pinned key. Otherwise it retries, then holds the case.",
+    "By design, the desk never uses a Nightshift answer without a valid signature from the pinned key: it retries, then holds the case. Local backup answers carry no receipt and are labelled 'Ollama backup, no receipt'.",
   harness_agent_files: `${harness.agent_files.naming_any_source} of ${harness.agent_files.scanned} agent files name any source, table or driver`,
   // Who answered the decision, critic and challenger calls, from the receipts of the exported runs (nemotron:scorecard).
   ...(read("eval/nemotron-scorecard.json") as { reasoning_facts: Record<string, string> }).reasoning_facts,

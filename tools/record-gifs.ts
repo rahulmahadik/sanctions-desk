@@ -184,8 +184,8 @@ const scenes: Record<string, Scene> = {
     await page.waitForTimeout(1500);
     // What keeps a close from happening: the screener's flag and the watched jurisdiction.
     const checks = await tagText(page, "h2", "^Checks$", "checks");
-    await tagText(page, "li", "^screener: flag", "screener-check");
-    await tagText(page, "li", "^jurisdiction:", "jurisdiction-check");
+    await tagText(page, "li", "^free-text screener: flag", "screener-check");
+    await tagText(page, "li", "^watched jurisdiction:", "jurisdiction-check");
     await page.addStyleTag({
       content: '[data-gif="screener-check"],[data-gif="jurisdiction-check"]{background:#fef3c7}',
     });

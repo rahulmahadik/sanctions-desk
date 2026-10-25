@@ -81,7 +81,7 @@ function receiptWords(check?: string): string {
 }
 
 function noReceiptWords(provider?: string): string {
-  if (provider === "ollama") return "Ollama backup on this machine: no receipt (not through Nightshift)";
+  if (provider === "ollama") return "Ollama backup, no receipt (on this machine, not through Nightshift)";
   if (provider === "fallback-rules") return "sample mode: rules stand-in, not a model";
   return "no receipt";
 }

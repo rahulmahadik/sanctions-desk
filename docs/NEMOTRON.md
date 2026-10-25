@@ -244,7 +244,7 @@ We only claim a model when a verified receipt shows it answered.
 
 ## Check the receipts yourself
 
-<!--fact:receipt_gate-->By design, the desk uses a model answer only when its Nightshift receipt is signed by the pinned key. Otherwise it retries, then holds the case.<!--/fact--> The Ollama backup has no receipt by design and is labelled "Ollama backup (no receipt)" in the trace and on screen; a rejected answer shows "answer not used: receipt …" on its step and `receipt_rejected` in the trace and the record (`receiptProblem` in [model-call.ts](../packages/agents/src/model-call.ts)).
+<!--fact:receipt_gate-->By design, the desk never uses a Nightshift answer without a valid signature from the pinned key: it retries, then holds the case. Local backup answers carry no receipt and are labelled 'Ollama backup, no receipt'.<!--/fact--> The Ollama backup has no receipt by design and is labelled "Ollama backup (no receipt)" in the trace and on screen; a rejected answer shows "answer not used: receipt …" on its step and `receipt_rejected` in the trace and the record (`receiptProblem` in [model-call.ts](../packages/agents/src/model-call.ts)).
 
 <!--fact:receipt_figure-->In the 32 exported runs the desk made 2,788 model calls. 2,532 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 51 came from the local Ollama backup, which has no receipt by design. The other 205 failed and returned no answer. The small studies add 879 more signed receipts, all verified<!--/fact-->. Two commands, no services needed:
 

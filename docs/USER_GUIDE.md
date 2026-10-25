@@ -62,7 +62,7 @@ Press **Review this alert**. The steps light up from the real events, not a time
 
 ![Reviewing ALR-0073 in sample mode](media/gifs/case-review.gif)
 
-_Sample mode, ALR-0073: the review runs, the replay slider lights the steps from the recorded events, the screener's signal marks "Tehran" in the payment reference, and the screener flag and watched-jurisdiction checks keep the case from closing. Sample mode proposed no close here, so the banner says no close was stopped._
+_Sample mode, ALR-0073: the review runs, the replay slider lights the steps from the recorded events, the screener's signal marks "Tehran" in the payment reference, and the Checks list marks the screener flag and the watched jurisdiction ("Tehran"), each noted as not closing. Sample mode proposed no close here, so the banner says no close was stopped._
 
 ![The ownership step on ALR-0043 in sample mode](media/gifs/ownership-cascade.gif)
 

@@ -204,9 +204,9 @@ th {
   padding: 1px 10px;
   font-size: 12px;
   border: 1px solid currentColor;
-  /* A long badge (a model name) wraps instead of widening the page. */
+  /* A long badge (a model name) wraps instead of widening the page; break-word (not anywhere) keeps short words whole. */
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   max-width: 100%;
 }
 
@@ -425,14 +425,20 @@ textarea {
   padding: 1px 9px;
   font-size: 12.5px;
   font-weight: 600;
-  /* A long pill (an outcome with its approval note) wraps instead of widening the page. */
+  /* A long pill (an outcome with its approval note) wraps instead of widening the page; short words stay whole. */
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   max-width: 100%;
-  flex-wrap: wrap;
+  /* The icon stays beside its words; the words themselves may wrap. */
+  flex-wrap: nowrap;
   border: 1px solid currentColor;
   line-height: 1.6;
 }
+/* In a table a short pill keeps to one line, so a narrow column does not split "waiting for a person". */
+td .pill {
+  white-space: nowrap;
+}
+
 .pill .icon {
   font-size: 11px;
   line-height: 1;

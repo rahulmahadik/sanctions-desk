@@ -220,11 +220,14 @@ describe("phone width", () => {
     expect(box.querySelector("table")).toBeTruthy();
   });
 
-  it("lets long pills and badges wrap, and lets grid children shrink", () => {
+  it("lets long pills and badges wrap without breaking short words, and lets grid children shrink", () => {
     const css = readFileSync(join(__dirname, "../app/globals.css"), "utf8");
-    expect(css).toMatch(/\.pill\s*\{[^}]*white-space: normal;[^}]*overflow-wrap: anywhere/);
-    expect(css).toMatch(/\.badge\s*\{[^}]*white-space: normal;[^}]*overflow-wrap: anywhere/);
-    expect(css).not.toMatch(/\.pill\s*\{[^}]*white-space: nowrap/);
+    expect(css).toMatch(/\.pill\s*\{[^}]*white-space: normal;[^}]*overflow-wrap: break-word/);
+    expect(css).toMatch(/\.badge\s*\{[^}]*white-space: normal;[^}]*overflow-wrap: break-word/);
+    expect(css).not.toMatch(/^\.pill\s*\{[^}]*white-space: nowrap/m);
+    // The icon never drops below its words, and a pill in a table keeps to one line.
+    expect(css).toMatch(/^\.pill\s*\{[^}]*flex-wrap: nowrap/m);
+    expect(css).toMatch(/td \.pill\s*\{[^}]*white-space: nowrap/);
     expect(css).toMatch(/\.grid > \*,\s*\.flow > \*\s*\{[^}]*min-width: 0/);
   });
 });
