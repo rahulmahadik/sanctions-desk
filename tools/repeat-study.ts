@@ -15,7 +15,7 @@
  */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { countWithInterval, resolveProjectPath } from "@sanctions-desk/shared";
+import { countWithInterval, resolveProjectPath, wilson95 } from "@sanctions-desk/shared";
 import { formatMarkdown } from "./lib/format-markdown.js";
 
 interface Case {
@@ -25,6 +25,8 @@ interface Case {
   must_not: string[];
   got: string;
   confidence?: number;
+  /** Full system: why no model decision was usable, when none was (the case is then escalated to a person). */
+  decision_unavailable?: string;
 }
 interface Result {
   variant: string;
@@ -43,6 +45,10 @@ interface RunSummary {
   cases: number;
   escalated_share: number;
   errors: number;
+  /** Cases without a usable model answer: an error, or (full system) escalated because no model decision was usable. */
+  no_usable_answer?: number;
+  /** Risk cases among them. */
+  risk_without_answer?: number;
 }
 interface SystemSummary {
   system: string;
@@ -69,6 +75,7 @@ const read = (dir: string, match: (f: string) => boolean): Array<Result & { file
     .map((f) => ({ file: f, ...(JSON.parse(readFileSync(join(d, f), "utf8")) as Result) }))
     .filter((r) => Array.isArray(r.cases));
 };
+const noAnswer = (c: Case) => c.got === "ERROR" || c.decision_unavailable !== undefined;
 const ok = (c: Case) => c.got === c.expected || c.acceptable.includes(c.got);
 const round3 = (n: number) => Math.round(n * 1000) / 1000;
 
@@ -85,6 +92,8 @@ function runSummary(run: string, r: Result): RunSummary {
     cases: r.cases.length,
     escalated_share: round3(r.cases.filter((c) => c.got === "ESCALATE_L2").length / Math.max(r.cases.length, 1)),
     errors: r.cases.filter((c) => c.got === "ERROR").length,
+    no_usable_answer: r.cases.filter(noAnswer).length,
+    risk_without_answer: risk.filter(noAnswer).length,
   };
 }
 
@@ -304,15 +313,39 @@ const setsTable = sets
     ].join("\n")
   : undefined;
 
-// One generated sentence for the README and docs/EVALUATION.md, each count with its 95% Wilson interval.
-const closedIn = (s: SystemSummary | undefined) => {
-  const counts = (s?.runs ?? []).map((r) => countWithInterval(r.wrong_closes, r.risk_cases));
-  return counts.length > 1 ? `${counts.slice(0, -1).join(", ")} and ${counts.at(-1)}` : (counts[0] ?? "not run");
+// One generated sentence, both Nemotron-alone arms beside the full system, for the README, docs and results page.
+/** "3–5" (or "3" when every run gave the same count). */
+const span = (xs: number[]) => {
+  const lo = Math.min(...xs);
+  const hi = Math.max(...xs);
+  return lo === hi ? `${lo}` : `${lo}–${hi}`;
 };
+const wilsonHigh = (x: number, n: number) => wilson95(x, n).high;
 const [fullSys, aloneSys, aloneTextSys] = study.systems;
-const noAnswer = (s: SystemSummary | undefined) =>
-  s ? ` (no usable answer on ${range(s.runs.map((r) => r.errors))} of ${s.runs[0]?.cases ?? 0} cases a run)` : "";
-const aloneSummary = `- **Small study, Nemotron alone against the full system (held-out v4, 12 cases, three runs each, not part of the recorded evaluation; risk cases wrongly closed in each run, with the 95% range, written by \`npm run study:repeat\`):** the full system ${closedIn(fullSys)}; Nemotron alone, given the same structured facts with no free text and no checks, ${closedIn(aloneSys)}${noAnswer(aloneSys)}${aloneTextSys ? `; Nemotron alone given the same free text the screener reads, with the same prompt otherwise, ${closedIn(aloneTextSys)}${noAnswer(aloneTextSys)}` : ""}. Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](${"DOCS"}NEMOTRON.md#what-the-agents-add-over-nemotron-alone).`;
+/** "3, 6 and 4" (or with the 95% range after each). */
+const listOf = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}` : (xs[0] ?? ""));
+const closes = (s: SystemSummary | undefined, ranges: boolean) =>
+  listOf((s?.runs ?? []).map((r) => (ranges ? countWithInterval(r.wrong_closes, r.risk_cases) : `${r.wrong_closes}`)));
+const clears = (s: SystemSummary | undefined) => {
+  const xs = (s?.runs ?? []).map((r) => r.clears_made);
+  return xs.length > 1 && xs.every((x) => x === xs[0]) ? `${xs[0]} in each run` : listOf(xs.map(String));
+};
+const missing = (s: SystemSummary | undefined) =>
+  `${span((s?.runs ?? []).map((r) => r.no_usable_answer ?? r.errors))} of ${s?.runs[0]?.cases ?? 0} cases per run, ${span((s?.runs ?? []).map((r) => r.risk_without_answer ?? 0))} of them among the ${s?.runs[0]?.risk_cases ?? 0} risk cases`;
+function aloneHeadline(ranges: boolean): string {
+  if (!fullSys || !aloneSys) return "";
+  const n = fullSys.runs.length;
+  const fullMissing = fullSys.runs.filter((r) => (r.no_usable_answer ?? 0) > 0);
+  const allZero = fullSys.runs.every((r) => r.wrong_closes === 0);
+  const full = `Full system: a checked recommendation on every case, raw text kept local, ${allZero ? `0 of ${fullSys.runs[0]?.risk_cases ?? 0} risk cases wrongly closed in each of ${n} runs${ranges ? ` (0–${wilsonHigh(0, fullSys.runs[0]?.risk_cases ?? 0)}% each)` : ""}` : `${closes(fullSys, ranges)} risk cases wrongly closed in its ${n} runs`}${fullMissing.length > 0 ? `; in ${fullMissing.length} of ${n} runs, ${listOf(fullMissing.map((r) => `${r.no_usable_answer}`))} case${fullMissing.length === 1 && fullMissing[0]?.no_usable_answer === 1 ? "" : "s"} had no usable model answer and ${fullMissing.length === 1 && fullMissing[0]?.no_usable_answer === 1 ? "was" : "were"} escalated to a person` : ""}.`;
+  const alone = `Nemotron alone without the free text: ${closes(aloneSys, ranges)} wrongly closed, with no usable answer on ${missing(aloneSys)}.`;
+  const text = aloneTextSys
+    ? ` Nemotron alone with the free text sent to the cloud: ${closes(aloneTextSys, ranges)} wrongly closed, but no usable answer on ${missing(aloneTextSys)}. Nemotron alone cleared more: ${clears(aloneTextSys)} of ${aloneTextSys.runs[0]?.clear_cases ?? 0} clear cases with the free text (${clears(aloneSys)} without it), against ${clears(fullSys)} for the full system.`
+    : "";
+  return `${full} ${alone}${text}`;
+}
+const aloneSummary = `- **Small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation (written by \`npm run study:repeat\` from the study files; 95% ranges in brackets):** ${aloneHeadline(true)} Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](${"DOCS"}NEMOTRON.md#what-the-agents-add-over-nemotron-alone).`;
+const aloneHeadlineBlock = `**Measured against Nemotron alone** (small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation): ${aloneHeadline(false)}`;
 
 const json = `${JSON.stringify(study, null, 2)}\n`;
 let changed = !existsSync(outFile) || readFileSync(outFile, "utf8") !== json;
@@ -322,6 +355,21 @@ if (sets) {
   if (!existsSync(setsFile) || readFileSync(setsFile, "utf8") !== setsJson) {
     changed = true;
     if (!check) writeFileSync(setsFile, setsJson);
+  }
+}
+for (const path of ["README.md", "docs/NEMOTRON.md", "docs/SPONSORS.md"]) {
+  const target = resolveProjectPath(path);
+  const doc = readFileSync(target, "utf8");
+  const reHeadline = /<!-- alone-headline:start -->[\s\S]*?<!-- alone-headline:end -->/;
+  if (!reHeadline.test(doc)) continue;
+  const lead = path === "README.md" ? "- " : "";
+  const next = doc.replace(
+    reHeadline,
+    () => `<!-- alone-headline:start -->\n${lead}${aloneHeadlineBlock}\n<!-- alone-headline:end -->`,
+  );
+  if (next !== doc) {
+    changed = true;
+    if (!check) writeFileSync(target, next);
   }
 }
 for (const [path, docs] of [

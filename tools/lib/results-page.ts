@@ -43,6 +43,7 @@ export const RESULTS_SECTIONS: readonly ResultsSection[] = [
     title: "What the agents add over Nemotron alone",
     lead: "Small studies, kept apart from the recorded evaluation.",
     blocks: [
+      { doc: "docs/NEMOTRON.md", marker: "alone-headline" },
       { doc: "docs/NEMOTRON.md", marker: "repeat-study" },
       { doc: "docs/NEMOTRON.md", marker: "alone-sets" },
       { doc: "docs/NEMOTRON.md", marker: "v3-today" },

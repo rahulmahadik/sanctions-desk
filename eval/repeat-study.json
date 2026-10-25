@@ -14,7 +14,9 @@
           "acceptable": 7,
           "cases": 12,
           "escalated_share": 0.917,
-          "errors": 0
+          "errors": 0,
+          "no_usable_answer": 0,
+          "risk_without_answer": 0
         },
         {
           "run": "r2",
@@ -25,7 +27,9 @@
           "acceptable": 7,
           "cases": 12,
           "escalated_share": 0.917,
-          "errors": 0
+          "errors": 0,
+          "no_usable_answer": 1,
+          "risk_without_answer": 0
         },
         {
           "run": "r3",
@@ -36,7 +40,9 @@
           "acceptable": 5,
           "cases": 12,
           "escalated_share": 0.75,
-          "errors": 0
+          "errors": 0,
+          "no_usable_answer": 0,
+          "risk_without_answer": 0
         }
       ],
       "all_runs_agree": 10,
@@ -54,7 +60,9 @@
           "acceptable": 0,
           "cases": 12,
           "escalated_share": 0,
-          "errors": 4
+          "errors": 4,
+          "no_usable_answer": 4,
+          "risk_without_answer": 3
         },
         {
           "run": "r2",
@@ -65,7 +73,9 @@
           "acceptable": 1,
           "cases": 12,
           "escalated_share": 0.083,
-          "errors": 2
+          "errors": 2,
+          "no_usable_answer": 2,
+          "risk_without_answer": 0
         },
         {
           "run": "r3",
@@ -76,7 +86,9 @@
           "acceptable": 1,
           "cases": 12,
           "escalated_share": 0,
-          "errors": 3
+          "errors": 3,
+          "no_usable_answer": 3,
+          "risk_without_answer": 2
         }
       ],
       "all_runs_agree": 4,
@@ -94,7 +106,9 @@
           "acceptable": 3,
           "cases": 12,
           "escalated_share": 0.083,
-          "errors": 3
+          "errors": 3,
+          "no_usable_answer": 3,
+          "risk_without_answer": 2
         },
         {
           "run": "text2",
@@ -105,7 +119,9 @@
           "acceptable": 3,
           "cases": 12,
           "escalated_share": 0,
-          "errors": 4
+          "errors": 4,
+          "no_usable_answer": 4,
+          "risk_without_answer": 3
         },
         {
           "run": "text3",
@@ -116,7 +132,9 @@
           "acceptable": 1,
           "cases": 12,
           "escalated_share": 0,
-          "errors": 5
+          "errors": 5,
+          "no_usable_answer": 5,
+          "risk_without_answer": 3
         }
       ],
       "all_runs_agree": 5,

@@ -49,7 +49,7 @@ How sure we can be (95% range, small sets so the ranges are wide): exam, 0 of 43
 <!-- headline-intervals:end -->
 
 <!-- alone-summary:start -->
-- **Small study, Nemotron alone against the full system (held-out v4, 12 cases, three runs each, not part of the recorded evaluation; risk cases wrongly closed in each run, with the 95% range, written by `npm run study:repeat`):** the full system 0 of 6 (0–39%), 0 of 6 (0–39%) and 0 of 6 (0–39%); Nemotron alone, given the same structured facts with no free text and no checks, 3 of 6 (19–81%), 6 of 6 (61–100%) and 4 of 6 (30–90%) (no usable answer on 2 to 4 of 12 cases a run); Nemotron alone given the same free text the screener reads, with the same prompt otherwise, 0 of 6 (0–39%), 1 of 6 (3–56%) and 1 of 6 (3–56%) (no usable answer on 3 to 5 of 12 cases a run). Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](NEMOTRON.md#what-the-agents-add-over-nemotron-alone).
+- **Small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation (written by `npm run study:repeat` from the study files; 95% ranges in brackets):** Full system: a checked recommendation on every case, raw text kept local, 0 of 6 risk cases wrongly closed in each of 3 runs (0–39% each); in 1 of 3 runs, 1 case had no usable model answer and was escalated to a person. Nemotron alone without the free text: 3 of 6 (19–81%), 6 of 6 (61–100%) and 4 of 6 (30–90%) wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Nemotron alone with the free text sent to the cloud: 0 of 6 (0–39%), 1 of 6 (3–56%) and 1 of 6 (3–56%) wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it), against 1 in each run for the full system. Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](NEMOTRON.md#what-the-agents-add-over-nemotron-alone).
 <!-- alone-summary:end -->
 
 - Each variant in the report is **one run**. Model answers vary between runs.
@@ -220,6 +220,10 @@ Of the 82 texts that must be flagged, the guard flagged 82; 57 of them only Ligh
 
 Limits: it tests the safety guard only (not the decision, critic or challenger, and not a full review), under policy version 7, in one run on 2026-10-23; the texts were written for this test, and a different wording can behave differently.
 <!-- adversarial:end -->
+
+<!-- adversarial-review:start -->
+**PLACEHOLDER (to be filled from the result file): the same 105 texts through full live reviews, 25 Oct 2026, run in progress.**
+<!-- adversarial-review:end -->
 
 ## One-command proof
 
