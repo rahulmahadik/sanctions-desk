@@ -426,7 +426,7 @@ Details: [docs/MODELS.md](docs/MODELS.md#privacy-mode).
   - The optional privacy mode sends tokens instead, and has been tested only on a small live sample.
 - **Future work:** For deployments that require it, make privacy mode the default once a full evaluation run confirms it, or keep the decision step local.
 
-More: [Guardrails](docs/ARCHITECTURE.md#guardrails), [Failure handling](docs/ARCHITECTURE.md#failure-handling), [Edge cases](docs/EDGE_CASES.md), [Responsible AI](docs/GOVERNANCE.md#responsible-ai), and [Limits](docs/KNOWN_ISSUES.md#limits), [Not built / not verified](docs/KNOWN_ISSUES.md#not-built--not-verified) and [Future work](docs/KNOWN_ISSUES.md#future-work) in [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md).
+More: [Guardrails](docs/ARCHITECTURE.md#guardrails), [Failure handling](docs/ARCHITECTURE.md#failure-handling), [Edge cases](docs/EDGE_CASES.md), [Responsible AI](docs/GOVERNANCE.md#responsible-ai), and [Open issues](docs/KNOWN_ISSUES.md#open-issues), [Measurement limits](docs/KNOWN_ISSUES.md#measurement-limits) and [Next steps](docs/KNOWN_ISSUES.md#next-steps) in [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md).
 
 ## Documentation
 
@@ -455,7 +455,7 @@ More: [Guardrails](docs/ARCHITECTURE.md#guardrails), [Failure handling](docs/ARC
 | [docs/RESPONSIBLE_AI.md](docs/RESPONSIBLE_AI.md) | Human oversight, guardrails, audit, fairness of the matching, and the known limits, each with its code, test or result |
 | [docs/PRIVACY.md](docs/PRIVACY.md) | Where each kind of customer data goes, what is masked, and what the committed run files contain |
 | [docs/SECURITY.md](docs/SECURITY.md) and [docs/SECURITY-QUEUE.md](docs/SECURITY-QUEUE.md) | What is protected and tested, and the open findings |
-| [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Open problems, limits, what is not built or not verified, future work |
+| [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Open issues, platform limits and how we handled them, design choices, measurement limits, next steps |
 | [docs/RESOLVED_ISSUES.md](docs/RESOLVED_ISSUES.md) | Problems met while building and how each was fixed |
 | [docs/SAMPLE_MODE.md](docs/SAMPLE_MODE.md) | How sample mode works |
 | [docs/media/README.md](docs/media/README.md) | The screenshots and how they were made |
