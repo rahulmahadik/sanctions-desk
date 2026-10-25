@@ -12,7 +12,7 @@
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { resolveProjectPath } from "@sanctions-desk/shared";
+import { median, resolveProjectPath } from "@sanctions-desk/shared";
 import { formatMarkdown } from "./lib/format-markdown.js";
 
 interface Case {
@@ -82,13 +82,7 @@ function arm(label: string, short: string, results: Result[], statsId: string, b
   const served: Record<string, number> = {};
   for (const r of rows) served[r.model] = (served[r.model] ?? 0) + r.calls;
   const times = cases.flatMap((c) => (typeof c.latency_s === "number" ? [c.latency_s] : [])).sort((a, b) => a - b);
-  const mid = Math.floor(times.length / 2);
-  const medianCase =
-    times.length === 0
-      ? 0
-      : times.length % 2
-        ? (times[mid] as number)
-        : ((times[mid - 1] as number) + (times[mid] as number)) / 2;
+  const medianCase = median(times);
   return {
     label,
     short,

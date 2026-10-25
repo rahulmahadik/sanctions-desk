@@ -1,3 +1,4 @@
+import { percentile } from "@sanctions-desk/shared";
 import type { ScoredCase } from "./eval.js";
 
 /**
@@ -65,9 +66,6 @@ export interface Headline {
 const isAlert = (c: ScoredCase): boolean => c.got !== "DRAFT_BLOCKED" && c.got !== "DRAFT_ALLOWED";
 const round = (n: number, d = 4): number => Math.round(n * 10 ** d) / 10 ** d;
 const ratio = (a: number, b: number): number => (b === 0 ? 0 : round(a / b));
-
-const percentile = (sorted: readonly number[], p: number): number =>
-  sorted.length === 0 ? 0 : (sorted[Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1)] ?? 0);
 
 const MANUAL_ESTIMATE_NOTE =
   "The desk's time and cost are measured on this machine and cover the recommendation only; a person still decides. The manual time is an industry estimate (a range, no vendor source verified), not a measurement.";

@@ -5,7 +5,7 @@
     {
       "label": "Decision, critic and challenger on Nemotron 3 Ultra (cloud), the default",
       "short": "Ultra arm (default)",
-      "median_case_s": 113,
+      "median_case_s": 110,
       "errors": 0,
       "cases": 20,
       "risk_cases": 10,
@@ -26,7 +26,7 @@
     {
       "label": "Decision, critic and challenger on Nemotron 3.5 Lightning (local)",
       "short": "Lightning arm",
-      "median_case_s": 387,
+      "median_case_s": 385,
       "errors": 4,
       "cases": 20,
       "risk_cases": 10,

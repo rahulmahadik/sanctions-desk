@@ -9,6 +9,7 @@
  */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { gunzipSync } from "node:zlib";
 import {
   byPath,
   type Headline,
@@ -31,6 +32,7 @@ import { formatMarkdown } from "./lib/format-markdown.js";
 
 interface Features {
   commit?: string;
+  commit_at_end?: string;
   structured_output?: boolean;
   challenger?: { enabled: boolean };
   provider_backoff_ms?: number;
@@ -371,6 +373,36 @@ const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
 const pct0 = (n: number) => `${(n * 100).toFixed(0)}%`;
 const get = (v: string) => newest.get(v);
 
+/**
+ * Calls per serving model of a run, counted from its exported signed receipts (the model each receipt says won the
+ * route), plus the Ollama backup answers from its trace, which carry no receipt. Undefined when the run is not exported.
+ */
+function receiptCounts(startedAt: string): { cloud: number; local: number; backup: number } | undefined {
+  const runs = resolveProjectPath("eval/runs");
+  const dir = readdirSync(runs).find((d) => {
+    const meta = join(runs, d, "run-meta.json");
+    return (
+      existsSync(meta) && (JSON.parse(readFileSync(meta, "utf8")) as { started_at?: string }).started_at === startedAt
+    );
+  });
+  if (!dir || !existsSync(join(runs, dir, "receipts.jsonl.gz"))) return undefined;
+  const jsonl = (file: string) =>
+    gunzipSync(readFileSync(join(runs, dir, file)))
+      .toString("utf8")
+      .split("\n")
+      .filter((l) => l.trim() !== "")
+      .map((l) => JSON.parse(l));
+  const counts = { cloud: 0, local: 0, backup: 0 };
+  for (const env of jsonl("receipts.jsonl.gz")) {
+    const model = String(env.body?.receipt?.winning_route?.model ?? "");
+    if (/^local-runtime\/|lightning/i.test(model)) counts.local += 1;
+    else counts.cloud += 1;
+  }
+  for (const e of jsonl("trace.jsonl.gz"))
+    if (e.action === "model_answer" && e.provider === "ollama") counts.backup += 1;
+  return counts;
+}
+
 const lines: string[] = [];
 const full = get("routed");
 const head: Headline | undefined = full
@@ -386,7 +418,7 @@ if (head && full) {
     `- **Closed with cited evidence:** ${head.closed_with_evidence} of ${head.alerts} alerts (${pct0(head.closed_share)}); ${head.closed_correctly} of them rightly. A person still confirms each close, from the evidence the desk cites.`,
     `- **Escalated:** ${head.escalated} of ${head.alerts} alerts (${pct0(head.escalated_share)}), including ${head.decision_unavailable} escalated only because no model decision was usable.`,
     `- **False closes on cases that carry real risk:** ${head.false_closes} of ${head.risk_cases} (${pct(head.false_close_rate)}); on the ${head.true_match_cases} true matches: ${head.true_match_false_closes}. The target is 0.`,
-    `- **Time and cost per alert:** the desk took a median of ${head.per_alert.median_seconds.toFixed(0)} seconds (p95 ${head.per_alert.p95_seconds.toFixed(0)} s) and ${head.per_alert.mean_cost.toFixed(4)} ${config.costs.currency} in model cost per alert, measured on this machine, for the recommendation only; a person still decides.`,
+    `- **Time and cost per alert:** the desk took a median of ${head.per_alert.median_seconds.toFixed(0)} seconds (p95 ${head.per_alert.p95_seconds.toFixed(0)} s) over the ${head.per_alert.alerts} alerts that got an answer (the tables below give ${full.metrics.latency_s.p50} s over all ${full.cases.length} cases, which include the draft checks; every median here is the middle measured value, the lower one for an even count) and ${head.per_alert.mean_cost.toFixed(4)} ${config.costs.currency} in model cost per alert, measured on this machine, for the recommendation only; a person still decides.`,
     "- **Analyst time saved: not measured, and not claimed.** What the desk removes is the gathering and cross-checking of the evidence; how many minutes that saves a team was not measured.",
     "",
   );
@@ -696,7 +728,12 @@ if (have.length === 0) {
           .map(([app, mode]) => `${app.replace(/^sanctions-desk-?/, "") || "default"}: ${mode}`)
           .join(", ")
       : "none (no model call)";
-  lines.push("### What each run had", "");
+  lines.push(
+    "### What each run had",
+    "",
+    "Code version: for the recorded runs, the commit checked out when the run ended (they read it then); runs since 25 Oct 2026 read it when they start and also note a different commit at the end.",
+    "",
+  );
   lines.push(
     "| Run | Set | Started | Code version | App binds used | Payments read | Screener | Retry after a failed try | Schema-constrained output | Challenger |",
     "|---|---|---|---|---|---|---|---|---|---|",
@@ -719,7 +756,7 @@ if (have.length === 0) {
       f?.retry_identities && Object.keys(f.retry_identities).length > 0 ? "local (guard identity)" : "same identity";
     lines.push(
       f
-        ? `| ${v} | ${r.exam ?? "exam"} | ${r.started_at} | ${f.commit ?? "?"} | ${bindsText(f.cockpit_binds)} | ${payments} | ${screener} | ${retry} | ${f.structured_output ? "yes" : "no"} | ${f.challenger?.enabled ? "on" : "off"} |`
+        ? `| ${v} | ${r.exam ?? "exam"} | ${r.started_at} | ${f.commit ?? "?"}${f.commit_at_end ? ` (at end: ${f.commit_at_end})` : ""} | ${bindsText(f.cockpit_binds)} | ${payments} | ${screener} | ${retry} | ${f.structured_output ? "yes" : "no"} | ${f.challenger?.enabled ? "on" : "off"} |`
         : `| ${v} | ${r.exam ?? "exam"} | ${r.started_at} | not recorded | not recorded | ${payments} | not part of this system | same identity | see the run's traces | see the run's traces |`,
     );
   }
@@ -841,6 +878,7 @@ if (have.length === 0) {
 
   if (full) {
     const m = full.metrics;
+    const served = receiptCounts(full.started_at);
     lines.push(
       "## The full system in detail",
       "",
@@ -850,9 +888,11 @@ if (have.length === 0) {
     for (const [agent, model] of Object.entries(full.models)) lines.push(`- ${agent}: ${model}`);
     lines.push(
       "",
-      `- **Model calls:** ${m.model_calls.local} served by the local model (no API cost), ${m.model_calls.cloud} served by the cloud model; ${m.tokens.in} tokens in and ${m.tokens.out} out.`,
+      served
+        ? `- **Model calls, from the signed receipts:** ${served.cloud} served by the cloud model, ${served.local} by the local model (no API cost), and ${served.backup} answers from the Ollama backup (local, no receipt); ${m.tokens.in} tokens in and ${m.tokens.out} out.`
+        : `- **Model calls, from the trace (no exported receipts for this run):** ${m.model_calls.local} served by the local model (no API cost), ${m.model_calls.cloud} served by the cloud model; ${m.tokens.in} tokens in and ${m.tokens.out} out.`,
       `- **Cost of the run:** ${m.cost.total.toFixed(4)} ${config.costs.currency} under the assumed cloud rates (${m.cost.per_case.toFixed(4)} per case); the local calls add nothing.`,
-      `- **Time:** median ${m.latency_s.p50} s and p95 ${m.latency_s.p95} s per case, mean ${m.latency_s.mean} s.`,
+      `- **Time:** median ${m.latency_s.p50} s and p95 ${m.latency_s.p95} s per case over all ${full.cases.length} cases, including the draft checks (the headline's ${head?.per_alert.median_seconds.toFixed(0) ?? ""} s is over the alerts only), mean ${m.latency_s.mean} s.`,
       `- **Critic:** ${m.critic.reviewed} reviews, ${m.critic.sent_back} sent back at least once, ${m.critic.unresolved} unresolved after the allowed rounds (mean ${m.critic.mean_rounds} rounds).`,
       `- **Forbidden answers:** ${m.forbidden_answers}.`,
       "",

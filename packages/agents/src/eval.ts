@@ -1,4 +1,4 @@
-import type { Decision } from "@sanctions-desk/shared";
+import { type Decision, percentile as sharedPercentile } from "@sanctions-desk/shared";
 
 /**
  * Scoring for the review exam. A case has one right answer, some acceptable alternatives, and answers that must
@@ -113,11 +113,7 @@ export interface Metrics {
 const round = (n: number, digits = 4): number => Math.round(n * 10 ** digits) / 10 ** digits;
 const ratio = (a: number, b: number): number => (b === 0 ? 0 : round(a / b));
 
-function percentile(sorted: readonly number[], p: number): number {
-  if (sorted.length === 0) return 0;
-  const index = Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1);
-  return round(sorted[Math.max(0, index)] as number, 2);
-}
+const percentile = (values: readonly number[], p: number): number => round(sharedPercentile(values, p), 2);
 
 export function summarise(cases: readonly ScoredCase[]): Metrics {
   const answered = cases.filter((c) => c.error === undefined);

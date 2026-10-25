@@ -27,8 +27,8 @@
             "median": 3,
             "p95": 4
           },
-          "tokens_in_median": 1571,
-          "tokens_out_median": 223
+          "tokens_in_median": 1570,
+          "tokens_out_median": 221
         },
         {
           "step": "Decision",
@@ -39,7 +39,7 @@
             "median": 25.8,
             "p95": 61.9
           },
-          "tokens_in_median": 4943,
+          "tokens_in_median": 4938,
           "tokens_out_median": 673
         },
         {
@@ -51,8 +51,8 @@
             "median": 13.3,
             "p95": 70.8
           },
-          "tokens_in_median": 4232,
-          "tokens_out_median": 531
+          "tokens_in_median": 4127,
+          "tokens_out_median": 453
         },
         {
           "step": "Decision",
@@ -75,8 +75,8 @@
             "median": 23.2,
             "p95": 45.7
           },
-          "tokens_in_median": 3381,
-          "tokens_out_median": 158
+          "tokens_in_median": 3379,
+          "tokens_out_median": 157
         },
         {
           "step": "Critic",
@@ -84,11 +84,11 @@
           "calls": 8,
           "receipts_verified": 8,
           "latency_s": {
-            "median": 19.1,
+            "median": 13.9,
             "p95": 45.9
           },
-          "tokens_in_median": 3258,
-          "tokens_out_median": 672
+          "tokens_in_median": 2983,
+          "tokens_out_median": 277
         },
         {
           "step": "Critic",
@@ -96,11 +96,11 @@
           "calls": 2,
           "receipts_verified": 0,
           "latency_s": {
-            "median": 13,
+            "median": 11.1,
             "p95": 14.9
           },
-          "tokens_in_median": 1703,
-          "tokens_out_median": 1688
+          "tokens_in_median": 1664,
+          "tokens_out_median": 1299
         },
         {
           "step": "Challenger",
@@ -108,11 +108,11 @@
           "calls": 38,
           "receipts_verified": 38,
           "latency_s": {
-            "median": 26.9,
+            "median": 26.8,
             "p95": 63.9
           },
-          "tokens_in_median": 3203,
-          "tokens_out_median": 406
+          "tokens_in_median": 3177,
+          "tokens_out_median": 405
         },
         {
           "step": "Challenger",
@@ -120,11 +120,11 @@
           "calls": 2,
           "receipts_verified": 0,
           "latency_s": {
-            "median": 20.2,
+            "median": 20,
             "p95": 20.5
           },
-          "tokens_in_median": 1663,
-          "tokens_out_median": 2068
+          "tokens_in_median": 1638,
+          "tokens_out_median": 1957
         }
       ],
       "fallbacks": {
@@ -202,11 +202,11 @@
           "calls": 8,
           "receipts_verified": 8,
           "latency_s": {
-            "median": 8.4,
+            "median": 8.3,
             "p95": 15.3
           },
-          "tokens_in_median": 3962,
-          "tokens_out_median": 422
+          "tokens_in_median": 3958,
+          "tokens_out_median": 394
         },
         {
           "step": "Decision",
@@ -226,11 +226,11 @@
           "calls": 28,
           "receipts_verified": 28,
           "latency_s": {
-            "median": 26.9,
+            "median": 26.8,
             "p95": 40.2
           },
-          "tokens_in_median": 2169,
-          "tokens_out_median": 165
+          "tokens_in_median": 2158,
+          "tokens_out_median": 164
         },
         {
           "step": "Critic",
@@ -238,11 +238,11 @@
           "calls": 2,
           "receipts_verified": 2,
           "latency_s": {
-            "median": 28.4,
+            "median": 4.1,
             "p95": 52.6
           },
-          "tokens_in_median": 1925,
-          "tokens_out_median": 796
+          "tokens_in_median": 1908,
+          "tokens_out_median": 92
         },
         {
           "step": "Critic",
@@ -356,11 +356,11 @@
           "calls": 4,
           "receipts_verified": 4,
           "latency_s": {
-            "median": 8.2,
+            "median": 8,
             "p95": 10.5
           },
-          "tokens_in_median": 4074,
-          "tokens_out_median": 464
+          "tokens_in_median": 4064,
+          "tokens_out_median": 457
         },
         {
           "step": "Decision",
@@ -380,10 +380,10 @@
           "calls": 28,
           "receipts_verified": 28,
           "latency_s": {
-            "median": 18.9,
+            "median": 16.5,
             "p95": 32.9
           },
-          "tokens_in_median": 2220,
+          "tokens_in_median": 2211,
           "tokens_out_median": 156
         },
         {
@@ -474,11 +474,11 @@
           "calls": 46,
           "receipts_verified": 46,
           "latency_s": {
-            "median": 8.9,
+            "median": 8.8,
             "p95": 58.1
           },
-          "tokens_in_median": 3803,
-          "tokens_out_median": 443
+          "tokens_in_median": 3794,
+          "tokens_out_median": 441
         },
         {
           "step": "Decision",
@@ -486,11 +486,11 @@
           "calls": 18,
           "receipts_verified": 0,
           "latency_s": {
-            "median": 11,
+            "median": 10.7,
             "p95": 44.5
           },
-          "tokens_in_median": 3841,
-          "tokens_out_median": 518
+          "tokens_in_median": 3835,
+          "tokens_out_median": 517
         },
         {
           "step": "Critic",
@@ -510,11 +510,11 @@
           "calls": 12,
           "receipts_verified": 0,
           "latency_s": {
-            "median": 23.8,
+            "median": 23.6,
             "p95": 37.2
           },
-          "tokens_in_median": 2053,
-          "tokens_out_median": 1395
+          "tokens_in_median": 2050,
+          "tokens_out_median": 1244
         },
         {
           "step": "Challenger",
@@ -522,11 +522,11 @@
           "calls": 2,
           "receipts_verified": 2,
           "latency_s": {
-            "median": 58,
+            "median": 34,
             "p95": 82
           },
-          "tokens_in_median": 3081,
-          "tokens_out_median": 400
+          "tokens_in_median": 1977,
+          "tokens_out_median": 291
         },
         {
           "step": "Challenger",
@@ -534,10 +534,10 @@
           "calls": 2,
           "receipts_verified": 0,
           "latency_s": {
-            "median": 36.2,
+            "median": 21.1,
             "p95": 51.4
           },
-          "tokens_in_median": 1927,
+          "tokens_in_median": 1925,
           "tokens_out_median": 1500
         }
       ],

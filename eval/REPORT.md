@@ -7,7 +7,7 @@ Measured on the full system (routed, 68 alert cases, run started 2026-10-23T13:3
 - **Closed with cited evidence:** 18 of 68 alerts (26%); 18 of them rightly. A person still confirms each close, from the evidence the desk cites.
 - **Escalated:** 50 of 68 alerts (74%), including 9 escalated only because no model decision was usable.
 - **False closes on cases that carry real risk:** 0 of 43 (0.0%); on the 8 true matches: 0. The target is 0.
-- **Time and cost per alert:** the desk took a median of 130 seconds (p95 306 s) and 0.0085 USD in model cost per alert, measured on this machine, for the recommendation only; a person still decides.
+- **Time and cost per alert:** the desk took a median of 130 seconds (p95 306 s) over the 68 alerts that got an answer (the tables below give 123.79 s over all 70 cases, which include the draft checks; every median here is the middle measured value, the lower one for an even count) and 0.0085 USD in model cost per alert, measured on this machine, for the recommendation only; a person still decides.
 - **Analyst time saved: not measured, and not claimed.** What the desk removes is the gathering and cross-checking of the evidence; how many minutes that saves a team was not measured.
 
 ### (a) Against plain name matching, on the 70 cases
@@ -163,6 +163,8 @@ The exam has 70 cases built from real public list entries and synthetic customer
 - Model cost uses the illustrative unit costs in `config/default.json` (`costs`, currency USD); they are assumptions, not prices. Calls served by the local model run on this machine and cost nothing per call; only tokens served by the cloud model are priced.
 
 ### What each run had
+
+Code version: for the recorded runs, the commit checked out when the run ended (they read it then); runs since 25 Oct 2026 read it when they start and also note a different commit at the end.
 
 | Run | Set | Started | Code version | App binds used | Payments read | Screener | Retry after a failed try | Schema-constrained output | Challenger |
 |---|---|---|---|---|---|---|---|---|---|
@@ -356,9 +358,9 @@ Policy version 5. Model and reasoning setting per step:
 - policy_guard: fast / off
 - reporter: fast / off
 
-- **Model calls:** 77 served by the local model (no API cost), 185 served by the cloud model; 935477 tokens in and 113822 out.
+- **Model calls, from the signed receipts:** 187 served by the cloud model, 73 by the local model (no API cost), and 5 answers from the Ollama backup (local, no receipt); 935477 tokens in and 113822 out.
 - **Cost of the run:** 0.5778 USD under the assumed cloud rates (0.0083 per case); the local calls add nothing.
-- **Time:** median 123.79 s and p95 305.62 s per case, mean 140.86 s.
+- **Time:** median 123.79 s and p95 305.62 s per case over all 70 cases, including the draft checks (the headline's 130 s is over the alerts only), mean 140.86 s.
 - **Critic:** 59 reviews, 16 sent back at least once, 11 unresolved after the allowed rounds (mean 1.47 rounds).
 - **Forbidden answers:** 0.
 

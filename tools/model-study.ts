@@ -19,7 +19,7 @@ import {
   type ScoredCase,
   scoreCase,
 } from "@sanctions-desk/agents";
-import { loadConfig, projectRoot, resolveProjectPath } from "@sanctions-desk/shared";
+import { loadConfig, median, projectRoot, resolveProjectPath } from "@sanctions-desk/shared";
 
 const config = loadConfig();
 const logDir = resolveProjectPath(config.logging.dir);
@@ -44,10 +44,6 @@ const newest = (variant: string, exam: string) =>
 
 const kindOf = (model: string): "ultra" | "lightning" | "other" =>
   /ultra/i.test(model) ? "ultra" : /lightning/i.test(model) ? "lightning" : "other";
-const median = (xs: number[]): number => {
-  const s = [...xs].sort((a, b) => a - b);
-  return s.length === 0 ? 0 : (s[Math.floor((s.length - 1) / 2)] as number);
-};
 const mean = (xs: number[]): number => (xs.length === 0 ? 0 : xs.reduce((t, x) => t + x, 0) / xs.length);
 
 interface Row {

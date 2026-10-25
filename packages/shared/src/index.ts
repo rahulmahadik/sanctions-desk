@@ -14,4 +14,5 @@ export * from "./records.js";
 export * from "./redact.js";
 export * from "./schemas.js";
 export * from "./secret.js";
+export * from "./stats.js";
 export * from "./trace.js";

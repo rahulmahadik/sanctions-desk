@@ -12,7 +12,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
-import { loadConfig, resolveProjectPath, verifyReceipt } from "@sanctions-desk/shared";
+import { loadConfig, median, percentile, resolveProjectPath, verifyReceipt } from "@sanctions-desk/shared";
 import { formatMarkdown } from "./lib/format-markdown.js";
 
 interface Event {
@@ -69,17 +69,7 @@ const MODEL = (m: string, provider?: string): string =>
         ? "Nemotron 3.5 Lightning 30B (local)"
         : m;
 const num = (v: unknown): number => (typeof v === "number" ? v : Number(v ?? Number.NaN));
-const quantile = (xs: number[], q: number): number => {
-  if (xs.length === 0) return 0;
-  const s = [...xs].sort((a, b) => a - b);
-  return s[Math.min(s.length - 1, Math.ceil(q * s.length) - 1)] as number;
-};
-const median = (xs: number[]): number => {
-  if (xs.length === 0) return 0;
-  const s = [...xs].sort((a, b) => a - b);
-  const m = Math.floor(s.length / 2);
-  return s.length % 2 ? (s[m] as number) : ((s[m - 1] as number) + (s[m] as number)) / 2;
-};
+const quantile = (xs: number[], q: number): number => percentile(xs, q * 100);
 const round1 = (n: number) => Math.round(n * 10) / 10;
 
 /** One group's statistics from its model-answer events and a lookup of verified receipt ids. */

@@ -265,18 +265,28 @@ function cockpitBinds(p: Policy): Record<string, string> | undefined {
   }
 }
 
-/** What this run had: the code version and the settings that change behaviour, so a report can say which runs had what. */
-function runFeatures(p: Policy) {
-  let commit = "unknown";
+/** The checked-out commit, marked when tracked files have changes that are not committed. */
+function codeVersion(): string {
   try {
-    commit = execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim();
+    const commit = execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim();
     const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], { encoding: "utf8" }).trim();
-    if (dirty) commit += "+local changes";
+    return dirty ? `${commit}+local changes` : commit;
   } catch {
-    // not a git checkout
+    return "unknown"; // not a git checkout
   }
+}
+
+/**
+ * What this run had: the code version and the settings that change behaviour, so a report can say which runs had what.
+ * `commit` is read when the run starts (runs recorded before 25 Oct 2026 read it when they ended); `commit_at_end` is
+ * added only when the checkout changed during the run.
+ */
+function runFeatures(p: Policy) {
+  const atEnd = codeVersion();
   return {
-    commit,
+    commit: commitAtStart,
+    ...(atEnd !== commitAtStart ? { commit_at_end: atEnd } : {}),
+    commit_read: "at start",
     structured_output: p.structuredOutput,
     challenger: p.challenger,
     screener: { enabled: p.screener.enabled, confidence_threshold: p.screener.confidenceThreshold },
@@ -302,6 +312,7 @@ const withTimeout = <T>(p: Promise<T>, ms: number): Promise<T> =>
   ]);
 
 const startedAt = new Date().toISOString();
+const commitAtStart = codeVersion();
 const outcomes: ScoredCase[] = [];
 console.log(`exam variant ${variant}: ${cases.length} cases`);
 // --thermal-gate <file>: a marker file that exists while the model runtime reports a serious thermal state. Before each

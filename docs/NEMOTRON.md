@@ -37,8 +37,8 @@ The same 20 cases were run with the decision, critic and challenger on Ultra in 
 
 | Arm                                                                      | Risk cases wrongly closed | Clears made | Outcomes identical to the default | Errors | Reasoning calls (receipts verified) | Median s per reasoning call | Median s per case | Answers set aside for more than 8 facts | Backup answers (no receipt) |
 | ------------------------------------------------------------------------ | ------------------------: | ----------: | --------------------------------: | -----: | ----------------------------------: | --------------------------: | ----------------: | --------------------------------------: | --------------------------: |
-| Decision, critic and challenger on Nemotron 3 Ultra (cloud), the default |                   0 of 10 |     3 of 10 |                          20 of 20 |      0 |                             75 (75) |                        27.4 |               113 |                                       6 |                           6 |
-| Decision, critic and challenger on Nemotron 3.5 Lightning (local)        |                   0 of 10 |     1 of 10 |                          10 of 20 |      4 |                             81 (81) |                         8.3 |               387 |                                       0 |                          32 |
+| Decision, critic and challenger on Nemotron 3 Ultra (cloud), the default |                   0 of 10 |     3 of 10 |                          20 of 20 |      0 |                             75 (75) |                        27.4 |               110 |                                       6 |                           6 |
+| Decision, critic and challenger on Nemotron 3.5 Lightning (local)        |                   0 of 10 |     1 of 10 |                          10 of 20 |      4 |                             81 (81) |                         8.3 |               385 |                                       0 |                          32 |
 
 Which model served the reasoning calls (receipts): Ultra arm (default): Nemotron 3 Ultra 550B (cloud) 62, Nemotron 3.5 Lightning 30B (local) 13; Lightning arm: Nemotron 3.5 Lightning 30B (local) 81.
 <!-- model-choice:end -->
@@ -146,15 +146,15 @@ Every model call in the recorded runs and in the labelled small runs of 24 Oct 2
 | Step         | Model that served it                  | Calls | Receipts verified | Median s | p95 s | Median tokens in | Median tokens out |
 | ------------ | ------------------------------------- | ----: | ----------------: | -------: | ----: | ---------------: | ----------------: |
 | Safety guard | Nemotron 3.5 Lightning 30B (local)    |   386 |               386 |      0.5 |     1 |              513 |                19 |
-| Screener     | Nemotron 3.5 Lightning 30B (local)    |   122 |               122 |        3 |     4 |             1571 |               223 |
-| Decision     | Nemotron 3 Ultra 550B (cloud)         |   504 |               504 |     25.8 |  61.9 |             4943 |               673 |
-| Decision     | Nemotron 3.5 Lightning 30B (local)    |    16 |                16 |     13.3 |  70.8 |             4232 |               531 |
+| Screener     | Nemotron 3.5 Lightning 30B (local)    |   122 |               122 |        3 |     4 |             1570 |               221 |
+| Decision     | Nemotron 3 Ultra 550B (cloud)         |   504 |               504 |     25.8 |  61.9 |             4938 |               673 |
+| Decision     | Nemotron 3.5 Lightning 30B (local)    |    16 |                16 |     13.3 |  70.8 |             4127 |               453 |
 | Decision     | Ollama backup (Lightning, no receipt) |    15 |                 0 |     16.2 |  20.6 |             2863 |              1603 |
-| Critic       | Nemotron 3 Ultra 550B (cloud)         |   418 |               418 |     23.2 |  45.7 |             3381 |               158 |
-| Critic       | Nemotron 3.5 Lightning 30B (local)    |     8 |                 8 |     19.1 |  45.9 |             3258 |               672 |
-| Critic       | Ollama backup (Lightning, no receipt) |     2 |                 0 |       13 |  14.9 |             1703 |              1688 |
-| Challenger   | Nemotron 3 Ultra 550B (cloud)         |    38 |                38 |     26.9 |  63.9 |             3203 |               406 |
-| Challenger   | Ollama backup (Lightning, no receipt) |     2 |                 0 |     20.2 |  20.5 |             1663 |              2068 |
+| Critic       | Nemotron 3 Ultra 550B (cloud)         |   418 |               418 |     23.2 |  45.7 |             3379 |               157 |
+| Critic       | Nemotron 3.5 Lightning 30B (local)    |     8 |                 8 |     13.9 |  45.9 |             2983 |               277 |
+| Critic       | Ollama backup (Lightning, no receipt) |     2 |                 0 |     11.1 |  14.9 |             1664 |              1299 |
+| Challenger   | Nemotron 3 Ultra 550B (cloud)         |    38 |                38 |     26.8 |  63.9 |             3177 |               405 |
+| Challenger   | Ollama backup (Lightning, no receipt) |     2 |                 0 |       20 |  20.5 |             1638 |              1957 |
 
 Fallbacks: Decision: 15 answer(s) from the Ollama backup, 3 answer(s) set aside for citing more than 8 facts; Critic: 2 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts; Challenger: 2 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts.
 
@@ -165,10 +165,10 @@ Fallbacks: Decision: 15 answer(s) from the Ollama backup, 3 answer(s) set aside 
 | Safety guard | Nemotron 3.5 Lightning 30B (local)    |    20 |                20 |      0.3 |   0.3 |              351 |                19 |
 | Screener     | Nemotron 3.5 Lightning 30B (local)    |    15 |                15 |      2.3 |   4.9 |              830 |               188 |
 | Decision     | Nemotron 3 Ultra 550B (cloud)         |    31 |                31 |     31.1 |  44.7 |             3716 |               690 |
-| Decision     | Nemotron 3.5 Lightning 30B (local)    |     8 |                 8 |      8.4 |  15.3 |             3962 |               422 |
+| Decision     | Nemotron 3.5 Lightning 30B (local)    |     8 |                 8 |      8.3 |  15.3 |             3958 |               394 |
 | Decision     | Ollama backup (Lightning, no receipt) |     5 |                 0 |      9.4 |  16.8 |             3929 |               493 |
-| Critic       | Nemotron 3 Ultra 550B (cloud)         |    28 |                28 |     26.9 |  40.2 |             2169 |               165 |
-| Critic       | Nemotron 3.5 Lightning 30B (local)    |     2 |                 2 |     28.4 |  52.6 |             1925 |               796 |
+| Critic       | Nemotron 3 Ultra 550B (cloud)         |    28 |                28 |     26.8 |  40.2 |             2158 |               164 |
+| Critic       | Nemotron 3.5 Lightning 30B (local)    |     2 |                 2 |      4.1 |  52.6 |             1908 |                92 |
 | Critic       | Ollama backup (Lightning, no receipt) |     1 |                 0 |      3.3 |   3.3 |             1886 |               236 |
 | Challenger   | Nemotron 3 Ultra 550B (cloud)         |     3 |                 3 |     32.4 |  53.2 |             2123 |               382 |
 | Challenger   | Nemotron 3.5 Lightning 30B (local)    |     3 |                 3 |     11.3 |  74.9 |             1962 |               391 |
@@ -182,9 +182,9 @@ Fallbacks: Decision: 5 answer(s) from the Ollama backup, 6 answer(s) set aside f
 | Safety guard | Nemotron 3.5 Lightning 30B (local)    |    20 |                20 |      0.3 |   0.3 |              351 |                19 |
 | Screener     | Nemotron 3.5 Lightning 30B (local)    |    15 |                15 |      2.1 |   4.5 |              830 |               188 |
 | Decision     | Nemotron 3 Ultra 550B (cloud)         |    31 |                31 |       30 |  37.4 |             3878 |               709 |
-| Decision     | Nemotron 3.5 Lightning 30B (local)    |     4 |                 4 |      8.2 |  10.5 |             4074 |               464 |
+| Decision     | Nemotron 3.5 Lightning 30B (local)    |     4 |                 4 |        8 |  10.5 |             4064 |               457 |
 | Decision     | Ollama backup (Lightning, no receipt) |     3 |                 0 |     16.5 |    23 |             4048 |              1500 |
-| Critic       | Nemotron 3 Ultra 550B (cloud)         |    28 |                28 |     18.9 |  32.9 |             2220 |               156 |
+| Critic       | Nemotron 3 Ultra 550B (cloud)         |    28 |                28 |     16.5 |  32.9 |             2211 |               156 |
 | Critic       | Nemotron 3.5 Lightning 30B (local)    |     1 |                 1 |      3.6 |   3.6 |             2922 |               215 |
 | Challenger   | Nemotron 3 Ultra 550B (cloud)         |     5 |                 5 |     29.5 |  46.5 |             2143 |               322 |
 
@@ -196,12 +196,12 @@ Fallbacks: Decision: 3 answer(s) from the Ollama backup, 4 answer(s) set aside f
 | ------------ | ------------------------------------- | ----: | ----------------: | -------: | ----: | ---------------: | ----------------: |
 | Safety guard | Nemotron 3.5 Lightning 30B (local)    |    20 |                20 |      0.3 |  29.1 |              351 |                19 |
 | Screener     | Nemotron 3.5 Lightning 30B (local)    |    15 |                15 |      2.4 |   6.7 |              830 |               188 |
-| Decision     | Nemotron 3.5 Lightning 30B (local)    |    46 |                46 |      8.9 |  58.1 |             3803 |               443 |
-| Decision     | Ollama backup (Lightning, no receipt) |    18 |                 0 |       11 |  44.5 |             3841 |               518 |
+| Decision     | Nemotron 3.5 Lightning 30B (local)    |    46 |                46 |      8.8 |  58.1 |             3794 |               441 |
+| Decision     | Ollama backup (Lightning, no receipt) |    18 |                 0 |     10.7 |  44.5 |             3835 |               517 |
 | Critic       | Nemotron 3.5 Lightning 30B (local)    |    33 |                33 |      4.8 |  46.9 |             2173 |               275 |
-| Critic       | Ollama backup (Lightning, no receipt) |    12 |                 0 |     23.8 |  37.2 |             2053 |              1395 |
-| Challenger   | Nemotron 3.5 Lightning 30B (local)    |     2 |                 2 |       58 |    82 |             3081 |               400 |
-| Challenger   | Ollama backup (Lightning, no receipt) |     2 |                 0 |     36.2 |  51.4 |             1927 |              1500 |
+| Critic       | Ollama backup (Lightning, no receipt) |    12 |                 0 |     23.6 |  37.2 |             2050 |              1244 |
+| Challenger   | Nemotron 3.5 Lightning 30B (local)    |     2 |                 2 |       34 |    82 |             1977 |               291 |
+| Challenger   | Ollama backup (Lightning, no receipt) |     2 |                 0 |     21.1 |  51.4 |             1925 |              1500 |
 
 Fallbacks: Decision: 18 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts; Critic: 12 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts; Challenger: 2 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts.
 <!-- receipt-stats:end -->

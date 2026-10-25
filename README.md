@@ -27,7 +27,7 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 <!-- headline:end -->
 
 **What changes for the analyst** (measured on this machine, recorded 70-case run):
-- The desk prepares each alert in a median of 130 seconds (p95 306 s), at about 0.0085 USD of model cost, for the recommendation only; a person still decides ([eval/REPORT.md](eval/REPORT.md)).
+- The desk prepares each alert in a median of 130 seconds (p95 306 s; over the 68 alerts, while the per-case tables give 124 s over all 70 cases, which include the draft checks), at about 0.0085 USD of model cost, for the recommendation only; a person still decides ([eval/REPORT.md](eval/REPORT.md)).
 - Every alert in that run got a sealed record with its evidence, cited facts and checks (70 of 70, no errors); the analyst starts from the gathered evidence instead of an empty screen.
 - It wrongly closed 0 of 43 risk cases; plain name matching closed 10. Analyst time saved was not measured and is not claimed.
 
