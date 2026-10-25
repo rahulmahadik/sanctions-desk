@@ -5,38 +5,41 @@ Sanctions Desk uses two NVIDIA Nemotron models, both through Meterless Nightshif
 <!-- nemotron-scorecard:start -->
 **Nemotron scorecard.** Computed by `npm run nemotron:scorecard` from committed files only ([eval/nemotron-scorecard.json](../eval/nemotron-scorecard.json)); each part is detailed further down this page.
 
-| Step                                 | Model                                     | Where        | Why                                                                                                                  |
-| ------------------------------------ | ----------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------- |
-| Safety guard (inbound)               | Nemotron 3.5 Lightning 30B                | Local laptop | It reads the free text of the data to flag instructions aimed at the reviewer, so the text must stay on the machine. |
-| Free-text screener                   | Nemotron 3.5 Lightning 30B                | Local laptop | It reads customer notes, payment references and list remarks and returns risk signals with the exact text span.      |
-| Decision                             | Nemotron 3 Ultra 550B                     | Cloud        | Applying the approved definitions to many fields at once and citing the rows it rests on is the hardest step.        |
-| Critic                               | Nemotron 3 Ultra 550B                     | Cloud        | It checks the recommendation against the evidence after code has re-read every cited fact from Zetaris.              |
-| Challenger                           | Nemotron 3 Ultra 550B                     | Cloud        | It argues against a close before it can stand.                                                                       |
-| Safety guard (outbound drafts)       | Nemotron 3.5 Lightning 30B                | Local laptop | It checks a draft meant for a customer for tipping-off wording, on top of fixed patterns.                            |
-| Backup when Nightshift cannot answer | Nemotron 3.5 Lightning 30B (local Ollama) | Local laptop | Keeps a step answering when Nightshift fails; the same model as the local steps.                                     |
+| Step                                 | Model                                                    | Where        | Why                                                                                                                  |
+| ------------------------------------ | -------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------- |
+| Safety guard (inbound)               | Nemotron 3.5 Lightning 30B                               | Local laptop | It reads the free text of the data to flag instructions aimed at the reviewer, so the text must stay on the machine. |
+| Free-text screener                   | Nemotron 3.5 Lightning 30B                               | Local laptop | It reads customer notes, payment references and list remarks and returns risk signals with the exact text span.      |
+| Decision                             | Nemotron 3 Ultra 550B in most calls (the router chooses) | Cloud        | Applying the approved definitions to many fields at once and citing the rows it rests on is the hardest step.        |
+| Critic                               | Nemotron 3 Ultra 550B in most calls (the router chooses) | Cloud        | It checks the recommendation against the evidence after code has re-read every cited fact from Zetaris.              |
+| Challenger                           | Nemotron 3 Ultra 550B in most calls (the router chooses) | Cloud        | It argues against a close before it can stand.                                                                       |
+| Safety guard (outbound drafts)       | Nemotron 3.5 Lightning 30B                               | Local laptop | It checks a draft meant for a customer for tipping-off wording, on top of fixed patterns.                            |
+| Backup when Nightshift cannot answer | Nemotron 3.5 Lightning 30B (local Ollama)                | Local laptop | Keeps a step answering when Nightshift fails; the same model as the local steps.                                     |
 
-**Per model, recorded runs** (28 exported runs in eval/runs; safety guard, screener, decision, critic and challenger calls):
+The decision step asks for the deep lane (`meterless/deep`): the mode is pinned, the serving model is not, because Nightshift's router chooses it. Ultra answered 87 of the 89 decision calls Nightshift served in the first system's run and 83 of 96 in the run of the current system before the block fix. Of the 13 decision calls Lightning answered in the run of the current system before the block fix, 10 were the desk's fast-lane retry after an unusable or failed first answer (a deliberate fallback: the retry asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane, so Lightning answers) and 3 were deep-lane calls where Nightshift's learned router predicted Ultra but Lightning won a hedged race; 7 more decision answers came from the Ollama backup (no receipt).
 
-| Model                                 | Where        | Calls | Median s | Median tokens in | Median tokens out | Cost recorded in the receipts                 |
-| ------------------------------------- | ------------ | ----: | -------: | ---------------: | ----------------: | --------------------------------------------- |
-| Nemotron 3.5 Lightning 30B            | Local laptop |   532 |      0.6 |              556 |                19 | USD 0 on all 532 receipts (`cost.actual_usd`) |
-| Nemotron 3 Ultra 550B                 | Cloud        |   960 |     24.8 |            4,429 |               505 | USD 0 on all 960 receipts (`cost.actual_usd`) |
-| Ollama backup (Lightning, no receipt) | Local laptop |    19 |     16.2 |            2,606 |             1,817 | not recorded (no receipt)                     |
+**Per model, recorded runs** (29 exported runs in eval/runs; safety guard, screener, decision, critic and challenger calls):
 
-Answered on the laptop: 551 of 1,511 model calls (37%), Lightning through Nightshift and the Ollama backup together. The per-case `cost` in the result files is worked out from the illustrative unit costs in `config/default.json`, not recorded, so it is not shown.
+| Model                                 | Where        | Calls | Median s | Median tokens in | Median tokens out | Cost recorded in the receipts                   |
+| ------------------------------------- | ------------ | ----: | -------: | ---------------: | ----------------: | ----------------------------------------------- |
+| Nemotron 3.5 Lightning 30B            | Local laptop |   787 |      0.5 |              514 |                19 | USD 0 on all 787 receipts (`cost.actual_usd`)   |
+| Nemotron 3 Ultra 550B                 | Cloud        | 1,136 |     25.7 |            4,127 |               474 | USD 0 on all 1,136 receipts (`cost.actual_usd`) |
+| Ollama backup (Lightning, no receipt) | Local laptop |    28 |     14.9 |            2,863 |             1,470 | not recorded (no receipt)                       |
+
+Answered on the laptop: 815 of 1,951 model calls (42%), Lightning through Nightshift and the Ollama backup together. The per-case `cost` in the result files is worked out from the illustrative unit costs in `config/default.json`, not recorded, so it is not shown.
 
 **Calibration** (Brier score, lower is better; indicative only with this few cases):
 
-| Arm                                                                                         | Cases with a confidence (n) | Brier score | Source                                            |
-| ------------------------------------------------------------------------------------------- | --------------------------: | ----------: | ------------------------------------------------- |
-| Full system (held-out v4, 12 cases x 3 runs)                                                |                          36 |       0.333 | [repeat-heldout4](../eval/studies/README.md)      |
-| Nemotron alone, no free text (held-out v4, 12 cases x 3 runs)                               |                          27 |       0.696 | [repeat-heldout4](../eval/studies/README.md)      |
-| Nemotron alone, with the free text (held-out v4, 12 cases x 3 runs)                         |                          24 |       0.498 | [repeat-heldout4](../eval/studies/README.md)      |
-| Full system, privacy mode off (held-out v4 and 8 exam cases, one run)                       |                          20 |       0.328 | [repeat-study.json](../eval/repeat-study.json)    |
-| Full system, privacy mode on (same 20 cases, one run)                                       |                          20 |       0.201 | [repeat-study.json](../eval/repeat-study.json)    |
-| Reasoning on Lightning (same 20 cases, one run)                                             |                          16 |       0.165 | [repeat-study.json](../eval/repeat-study.json)    |
-| Full system (held-out v3, 12 cases x 3 runs, not blind)                                     |                          36 |        0.33 | [heldout3-rerun](../eval/studies/README.md)       |
-| Nemotron alone, no free text (held-out v1, 30 cases x 1 run; held-out v3, 12 cases x 1 run) |                          32 |       0.324 | [nemotron-alone-v1-v3](../eval/studies/README.md) |
+| Arm                                                                                         | Cases with a confidence (n) | Brier score | Source                                                                   |
+| ------------------------------------------------------------------------------------------- | --------------------------: | ----------: | ------------------------------------------------------------------------ |
+| Full system (held-out v4, 12 cases x 3 runs)                                                |                          36 |       0.333 | [repeat-heldout4](../eval/studies/README.md)                             |
+| Nemotron alone, no free text (held-out v4, 12 cases x 3 runs)                               |                          27 |       0.696 | [repeat-heldout4](../eval/studies/README.md)                             |
+| Nemotron alone, with the free text (held-out v4, 12 cases x 3 runs)                         |                          24 |       0.498 | [repeat-heldout4](../eval/studies/README.md)                             |
+| Full system, privacy mode off (held-out v4 and 8 exam cases, one run)                       |                          20 |       0.328 | [repeat-study.json](../eval/repeat-study.json)                           |
+| Full system, privacy mode on (same 20 cases, one run)                                       |                          20 |       0.201 | [repeat-study.json](../eval/repeat-study.json)                           |
+| Reasoning on Lightning (same 20 cases, one run)                                             |                          16 |       0.165 | [repeat-study.json](../eval/repeat-study.json)                           |
+| Full system (held-out v3, 12 cases x 3 runs, not blind)                                     |                          36 |        0.33 | [heldout3-rerun](../eval/studies/README.md)                              |
+| Full system (sys5) (exam, 70 cases, one run)                                                |                          68 |       0.102 | [result file](../eval/results/2026-10-25T07-45-05-768Z-sys5-routed.json) |
+| Nemotron alone, no free text (held-out v1, 30 cases x 1 run; held-out v3, 12 cases x 1 run) |                          32 |       0.324 | [nemotron-alone-v1-v3](../eval/studies/README.md)                        |
 
 Brier score: Mean of (confidence - y) squared over cases, where y is 1 when the chosen outcome is acceptable for the case (its expected or an acceptable outcome) and 0 otherwise. 0 is perfect; always answering with confidence 0.5 scores 0.25. Lower is better.
 
@@ -66,15 +69,15 @@ What we tried and did not use (guard and jailbreak-detection models, embedding, 
 | ------------------------------------ | ----------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Safety guard (inbound)               | Nemotron 3.5 Lightning 30B                                              | Laptop (`sanctions-desk-guard`, bound to the local lane)   | It reads the free text of the data to flag instructions aimed at the reviewer, so the text must stay on the machine; a short yes/no answer, about half a second.                                                                                                                           |
 | Free-text screener                   | Nemotron 3.5 Lightning 30B                                              | Laptop (same identity)                                     | It reads customer notes, payment references and list remarks and returns risk signals with the exact text span; only those structured signals go further.                                                                                                                                  |
-| Decision                             | Nemotron 3 Ultra 550B                                                   | Cloud (`sanctions-desk-reasoning`, bound to the deep lane) | Applying the approved definitions to many fields at once and citing the rows it rests on is the hardest step; it receives structured fields and signals, no free text (in every run with the screener; see the privacy design below).                                                      |
-| Critic                               | Nemotron 3 Ultra 550B                                                   | Cloud (same identity, `judge` mode)                        | It checks the recommendation against the evidence after code has re-read every cited fact from Zetaris.                                                                                                                                                                                    |
-| Challenger                           | Nemotron 3 Ultra 550B                                                   | Cloud (same identity)                                      | It argues against a close before it can stand.                                                                                                                                                                                                                                             |
+| Decision                             | Nemotron 3 Ultra 550B in most calls (the router chooses)                | Cloud (`sanctions-desk-reasoning`, bound to the deep lane) | Applying the approved definitions to many fields at once and citing the rows it rests on is the hardest step; it receives structured fields and signals, no free text (in every run with the screener; see the privacy design below).                                                      |
+| Critic                               | Nemotron 3 Ultra 550B in most calls (the router chooses)                | Cloud (same identity, `judge` mode)                        | It checks the recommendation against the evidence after code has re-read every cited fact from Zetaris.                                                                                                                                                                                    |
+| Challenger                           | Nemotron 3 Ultra 550B in most calls (the router chooses)                | Cloud (same identity)                                      | It argues against a close before it can stand.                                                                                                                                                                                                                                             |
 | Safety guard (outbound drafts)       | Nemotron 3.5 Lightning 30B                                              | Laptop                                                     | It checks a draft meant for a customer for tipping-off wording, on top of fixed patterns.                                                                                                                                                                                                  |
-| Backup when Nightshift cannot answer | Nemotron 3.5 Lightning 30B (local Ollama, `nemotron-3.5-lightning:30b`) | Laptop                                                     | Keeps a step answering when Nightshift fails; the same model as the local steps. 19 calls in the recorded runs (15 decision, 2 critic, 2 challenger), none in a case that ended in a wrong close. No receipt, since the call does not go through Nightshift; the trace labels it `ollama`. |
+| Backup when Nightshift cannot answer | Nemotron 3.5 Lightning 30B (local Ollama, `nemotron-3.5-lightning:30b`) | Laptop                                                     | Keeps a step answering when Nightshift fails; the same model as the local steps. 28 calls in the recorded runs (22 decision, 3 critic, 3 challenger), none in a case that ended in a wrong close. No receipt, since the call does not go through Nightshift; the trace labels it `ollama`. |
 
 ![A live review of ALR-0073: the safety guard and screener answered by Lightning on the laptop, the decision and critic by Ultra in the cloud, each with its receipt id and the receipt check](media/screenshots/16-live-model-per-step.png)
 
-Nightshift's learned router chooses the model inside the lane each app identity is bound to. In the headline run the receipts show the safety guard on Lightning in 70 of 70 calls and the decision, critic and challenger on Ultra in 187 of 190 (3 answered by Lightning). The desk asks for a pinned mode per step (`meterless/fast`, `meterless/deep`, `meterless/judge`) and records both the mode asked for and the model that answered. Details: [MODELS.md](MODELS.md).
+What is pinned is the mode the desk asks for per step (`meterless/fast`, `meterless/deep`, `meterless/judge`). The serving model is not pinned: Nightshift's learned router chooses it inside the lane each app identity is bound to, and the desk records both the mode asked for and the model that answered. In the headline run the receipts show the safety guard on Lightning in 70 of 70 calls and the decision, critic and challenger on Ultra in <!--fact:reasoning_ultra_first-->187 of 190<!--/fact--> of their calls Nightshift served. <!--fact:decision_models_line-->The decision step asks for the deep lane (`meterless/deep`): the mode is pinned, the serving model is not, because Nightshift's router chooses it. Ultra answered 87 of the 89 decision calls Nightshift served in the first system's run and 83 of 96 in the run of the current system before the block fix.<!--/fact--> <!--fact:reasoning_models_line-->The critic asks for the judge lane (`meterless/judge`) and the challenger for the deep lane; Ultra answered 85 of 86 critic calls and 15 of 15 challenger calls Nightshift served in the first system's run (82 of 84 and 11 of 14 in the run of the current system before the block fix).<!--/fact--> <!--fact:decision_lightning_note-->Of the 13 decision calls Lightning answered in the run of the current system before the block fix, 10 were the desk's fast-lane retry after an unusable or failed first answer (a deliberate fallback: the retry asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane, so Lightning answers) and 3 were deep-lane calls where Nightshift's learned router predicted Ultra but Lightning won a hedged race; 7 more decision answers came from the Ollama backup (no receipt).<!--/fact--> Details: [MODELS.md](MODELS.md).
 
 <!-- adversarial:start -->
 **Safety guard against injected text (one run, policy 7, guard asked once):** Lightning flagged 70 of 70 injected instructions, against 24 for the fixed patterns alone, and 12 of 12 tipping-off drafts (patterns: 1); it wrongly flagged 1 of 23 harmless texts. It tests the safety guard only, not a full review. Through full reviews with the guard asked once: 66 of 70 injected texts caught; 2 that no check flagged ended in a close where the case's own data supported a close. With the current guard (asked twice, plus a narrow check), a fresh set written separately: 27 of 28 reviews of injected text caught; false alarms on harmless text 7 of 16. Details: [EVALUATION.md](EVALUATION.md#safety-guard-against-injected-text).
@@ -201,7 +204,7 @@ We only claim a model when a verified receipt shows it answered.
 
 ## Check the receipts yourself
 
-<!--fact:receipts_line-->2,371 signed receipts: 1,492 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->. Two commands, no services needed:
+<!--fact:receipts_line-->2,802 signed receipts: 1,923 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->. Two commands, no services needed:
 
 ```bash
 npm run receipts:check        # verify every committed receipt against the pinned key; writes eval/receipts-check.json
@@ -217,22 +220,23 @@ Every model call in the recorded runs and in the labelled small runs (the privac
 ![Time per model call, by step and model](media/charts/model-latency.png)
 
 <!-- receipt-stats:start -->
-**Recorded runs (28 exported runs in eval/runs)**
+**Recorded runs (29 exported runs in eval/runs)**
 
 | Step         | Model that served it                  | Calls | Receipts verified | Median s | p95 s | Median tokens in | Median tokens out |
 | ------------ | ------------------------------------- | ----: | ----------------: | -------: | ----: | ---------------: | ----------------: |
-| Safety guard | Nemotron 3.5 Lightning 30B (local)    |   386 |               386 |      0.5 |     1 |              513 |                19 |
-| Screener     | Nemotron 3.5 Lightning 30B (local)    |   122 |               122 |        3 |     4 |             1570 |               221 |
-| Decision     | Nemotron 3 Ultra 550B (cloud)         |   504 |               504 |     25.8 |  61.9 |             4938 |               673 |
-| Decision     | Nemotron 3.5 Lightning 30B (local)    |    16 |                16 |     13.3 |  70.8 |             4127 |               453 |
-| Decision     | Ollama backup (Lightning, no receipt) |    15 |                 0 |     16.2 |  20.6 |             2863 |              1603 |
-| Critic       | Nemotron 3 Ultra 550B (cloud)         |   418 |               418 |     23.2 |  45.7 |             3379 |               157 |
-| Critic       | Nemotron 3.5 Lightning 30B (local)    |     8 |                 8 |     13.9 |  45.9 |             2983 |               277 |
-| Critic       | Ollama backup (Lightning, no receipt) |     2 |                 0 |     11.1 |  14.9 |             1664 |              1299 |
-| Challenger   | Nemotron 3 Ultra 550B (cloud)         |    38 |                38 |     26.8 |  63.9 |             3177 |               405 |
-| Challenger   | Ollama backup (Lightning, no receipt) |     2 |                 0 |       20 |  20.5 |             1638 |              1957 |
+| Safety guard | Nemotron 3.5 Lightning 30B (local)    |   592 |               592 |      0.5 |   0.9 |              475 |                19 |
+| Screener     | Nemotron 3.5 Lightning 30B (local)    |   153 |               153 |      2.9 |     4 |             1542 |               215 |
+| Decision     | Nemotron 3 Ultra 550B (cloud)         |   587 |               587 |     26.4 |  59.9 |             4824 |               650 |
+| Decision     | Nemotron 3.5 Lightning 30B (local)    |    29 |                29 |     13.3 |  66.4 |             3773 |               485 |
+| Decision     | Ollama backup (Lightning, no receipt) |    22 |                 0 |     12.4 |  18.8 |             2935 |               666 |
+| Critic       | Nemotron 3 Ultra 550B (cloud)         |   500 |               500 |     23.7 |  46.4 |             3314 |               154 |
+| Critic       | Nemotron 3.5 Lightning 30B (local)    |    10 |                10 |     24.3 |  45.9 |             3533 |               460 |
+| Critic       | Ollama backup (Lightning, no receipt) |     3 |                 0 |     14.9 |  32.3 |             1741 |              1470 |
+| Challenger   | Nemotron 3 Ultra 550B (cloud)         |    49 |                49 |     29.4 |  63.9 |             3155 |               407 |
+| Challenger   | Nemotron 3.5 Lightning 30B (local)    |     3 |                 3 |     31.1 |  40.8 |             4303 |              1310 |
+| Challenger   | Ollama backup (Lightning, no receipt) |     3 |                 0 |     20.5 |    21 |             1687 |              1957 |
 
-Fallbacks: Decision: 15 answer(s) from the Ollama backup, 3 answer(s) set aside for citing more than 8 facts; Critic: 2 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts; Challenger: 2 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts.
+Fallbacks: Decision: 22 answer(s) from the Ollama backup, 8 answer(s) set aside for citing more than 8 facts; Critic: 3 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts; Challenger: 3 answer(s) from the Ollama backup, 0 answer(s) set aside for citing more than 8 facts.
 
 **Small test of an optional mode: privacy mode off (not part of the recorded evaluation)**
 

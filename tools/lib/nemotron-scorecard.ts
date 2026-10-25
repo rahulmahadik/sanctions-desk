@@ -18,6 +18,8 @@ import { countWithInterval, median, wilson95 } from "@sanctions-desk/shared";
 export const LIGHTNING = "Nemotron 3.5 Lightning 30B";
 export const ULTRA = "Nemotron 3 Ultra 550B";
 export const OLLAMA = "Ollama backup (Lightning, no receipt)";
+/** What the step tables add to Ultra: the desk pins the mode it asks for, not the model that serves it. */
+export const ROUTER_NOTE = "in most calls (the router chooses)";
 const LAPTOP = "Local laptop";
 const CLOUD = "Cloud";
 
@@ -190,6 +192,173 @@ export function modelStats(root: string): ModelStats {
     runs: traces.length,
     models,
     local_share: { local_calls: local, all_calls: all, share: all ? round3(local / all) : 0 },
+  };
+}
+
+// ---- which model answered the reasoning steps, per run ------------------------------------------------------------
+
+/** The reasoning steps and the lane each asks for (the mode the desk pins; the serving model is Nightshift's choice). */
+export const REASONING_LANES = { decision: "deep", critic: "judge", challenger: "deep" } as const;
+export type ReasoningStep = keyof typeof REASONING_LANES;
+
+/**
+ * Who answered one step's calls in one run. `nightshift` is every answer Nightshift served (each has a signed receipt);
+ * it splits into `ultra` and the three Lightning kinds. `ollama` answers come from the backup and have no receipt.
+ */
+export interface StepShare {
+  nightshift: number;
+  ultra: number;
+  /** Lightning on the desk's fast-lane retry after an unusable or failed first try (retry_count >= 1, meterless/fast). */
+  lightning_retry: number;
+  /** Lightning on the step's own lane where Nightshift's router predicted Ultra but Lightning won a hedged race. */
+  lightning_hedged: number;
+  /** Lightning on the step's own lane for any other routing reason (for example the router predicted Lightning). */
+  lightning_router: number;
+  ollama: number;
+}
+
+export interface RunShares {
+  run: string;
+  system: string | null;
+  set: string;
+  label: string;
+  started_at: string;
+  steps: Record<ReasoningStep, StepShare>;
+}
+
+/** Plain names of the system versions the documents talk about; any other version is named by its id. */
+const SYSTEM_LABEL: Record<string, string> = {
+  sys5: "the current system before the block fix",
+  sys6: "the current system",
+};
+export const systemLabel = (system: string | null | undefined): string =>
+  !system ? "the first system" : (SYSTEM_LABEL[system] ?? `system ${system}`);
+
+interface ShareEvent extends TraceEvent {
+  retry_count?: number | string;
+  model_requested?: string;
+  receipt?: { decision_id?: string };
+}
+interface RoutingReceipt {
+  decision_id?: string;
+  routing?: { predicted?: string; winner?: string; hedge?: unknown };
+}
+const emptyShare = (): StepShare => ({
+  nightshift: 0,
+  ultra: 0,
+  lightning_retry: 0,
+  lightning_hedged: 0,
+  lightning_router: 0,
+  ollama: 0,
+});
+
+/**
+ * For the first system's 70-case routed run and every routed run of a later system version (`system` sysN), who answered
+ * the decision, critic and challenger calls, read from the exported trace and the signed receipts in eval/runs.
+ */
+export function reasoningShares(root: string): RunShares[] {
+  const files = tracked(root, "eval/runs");
+  const out: RunShares[] = [];
+  for (const rel of files.filter((f) => f.endsWith("/results.json"))) {
+    const folder = rel.slice(0, -"/results.json".length);
+    const r = readJson<{ variant: string; system?: string; exam?: string; started_at: string }>(root, rel);
+    if (r.variant !== "routed") continue;
+    const first = r.system === undefined && (r.exam ?? "exam") === "exam";
+    if (!first && !/^sys\d/.test(r.system ?? "")) continue;
+    if (!files.includes(`${folder}/trace.jsonl.gz`) || !files.includes(`${folder}/receipts.jsonl.gz`)) continue;
+    const receipts = new Map<string, RoutingReceipt>();
+    for (const env of jsonl(root, `${folder}/receipts.jsonl.gz`) as Array<{ body?: { receipt?: RoutingReceipt } }>) {
+      const rc = env.body?.receipt;
+      if (rc?.decision_id) receipts.set(rc.decision_id, rc);
+    }
+    const steps = { decision: emptyShare(), critic: emptyShare(), challenger: emptyShare() };
+    for (const e of jsonl(root, `${folder}/trace.jsonl.gz`) as ShareEvent[]) {
+      if (e.action !== "model_answer" || !(e.agent in REASONING_LANES)) continue;
+      if (!e.provider || !e.model_used || e.provider === "fallback-rules") continue;
+      const s = steps[e.agent as ReasoningStep];
+      if (e.provider === "ollama") {
+        s.ollama += 1;
+        continue;
+      }
+      s.nightshift += 1;
+      const m = modelOf(e.model_used, e.provider);
+      if (m === ULTRA) s.ultra += 1;
+      else if (num(e.retry_count) >= 1 && e.model_requested === "meterless/fast") s.lightning_retry += 1;
+      else {
+        const routing = receipts.get(e.receipt?.decision_id ?? "")?.routing;
+        const hedged =
+          routing?.hedge != null &&
+          modelOf(routing.predicted ?? "") === ULTRA &&
+          modelOf(routing.winner ?? "") === LIGHTNING;
+        if (hedged) s.lightning_hedged += 1;
+        else s.lightning_router += 1;
+      }
+    }
+    out.push({
+      run: folder.split("/").at(-1) as string,
+      system: r.system ?? null,
+      set: setName(r.exam === "exam" ? undefined : r.exam),
+      label: systemLabel(r.system),
+      started_at: r.started_at,
+      steps,
+    });
+  }
+  return out.sort((a, b) => a.started_at.localeCompare(b.started_at));
+}
+
+/** The first system's 70-case run and the newest 70-case run of a later system version (undefined until there is one). */
+export function firstAndCurrent(runs: readonly RunShares[]): { first?: RunShares; current?: RunShares } {
+  return {
+    first: runs.find((r) => r.system === null),
+    current: runs.filter((r) => r.system !== null && r.set === "exam").at(-1),
+  };
+}
+
+const lightningOf = (s: StepShare) => s.lightning_retry + s.lightning_hedged + s.lightning_router;
+const ofNightshift = (s: StepShare) => `${s.ultra} of ${s.nightshift}`;
+const ofThe = (s: StepShare) => `${s.ultra} of the ${s.nightshift}`;
+const plural = (k: number, one: string, many: string) => `${k} ${k === 1 ? one : many}`;
+
+/** The generated sentences the documents quote (README.md and docs/*.md, as facts). */
+export function reasoningFacts(runs: readonly RunShares[]): Record<string, string> {
+  const { first, current } = firstAndCurrent(runs);
+  if (!first) throw new Error("eval/runs has no exported routed run of the first system");
+  const sum = (r: RunShares, pick: (s: StepShare) => number) =>
+    (Object.keys(REASONING_LANES) as ReasoningStep[]).reduce((t, k) => t + pick(r.steps[k]), 0);
+  const all = (r: RunShares) => `${sum(r, (s) => s.ultra)} of ${sum(r, (s) => s.nightshift)}`;
+  const inRun = (r: RunShares) => (r.system === null ? "the first system's run" : `the run of ${r.label}`);
+  const lightningNote = (r: RunShares) => {
+    const s = r.steps.decision;
+    const parts = [
+      s.lightning_retry > 0
+        ? `${s.lightning_retry} ${s.lightning_retry === 1 ? "was" : "were"} the desk's fast-lane retry after an unusable or failed first answer (a deliberate fallback: the retry asks for \`meterless/fast\` under the guard identity, which the cockpit binds to the local lane, so Lightning answers)`
+        : "",
+      s.lightning_hedged > 0
+        ? `${s.lightning_hedged} ${s.lightning_hedged === 1 ? "was a deep-lane call" : "were deep-lane calls"} where Nightshift's learned router predicted Ultra but Lightning won a hedged race`
+        : "",
+      s.lightning_router > 0
+        ? `${s.lightning_router} ${s.lightning_router === 1 ? "was a deep-lane call" : "were deep-lane calls"} the router gave to Lightning`
+        : "",
+    ].filter(Boolean);
+    const lightning = lightningOf(s);
+    const head =
+      lightning === 0
+        ? `In ${inRun(r)}, Lightning answered no decision call`
+        : `Of the ${plural(lightning, "decision call", "decision calls")} Lightning answered in ${inRun(r)}, ${parts.join(" and ")}`;
+    return `${head}; ${plural(s.ollama, "more decision answer", "more decision answers")} came from the Ollama backup (no receipt).`;
+  };
+  const currentPart = current
+    ? ` and ${ofNightshift(current.steps.decision)} in ${inRun(current)}`
+    : "; the current system's re-run is in progress";
+  return {
+    decision_ultra_first: ofNightshift(first.steps.decision),
+    decision_ultra_current: current ? ofNightshift(current.steps.decision) : "not run yet",
+    current_run_label: current ? inRun(current) : "the current system's run (not run yet)",
+    reasoning_ultra_first: all(first),
+    reasoning_ultra_current: current ? all(current) : "not run yet",
+    decision_models_line: `The decision step asks for the deep lane (\`meterless/deep\`): the mode is pinned, the serving model is not, because Nightshift's router chooses it. Ultra answered ${ofThe(first.steps.decision)} decision calls Nightshift served in ${inRun(first)}${currentPart}.`,
+    reasoning_models_line: `The critic asks for the judge lane (\`meterless/judge\`) and the challenger for the deep lane; Ultra answered ${ofNightshift(first.steps.critic)} critic calls and ${ofNightshift(first.steps.challenger)} challenger calls Nightshift served in ${inRun(first)}${current ? ` (${ofNightshift(current.steps.critic)} and ${ofNightshift(current.steps.challenger)} in ${inRun(current)})` : ""}.`,
+    decision_lightning_note: lightningNote(current ?? first),
   };
 }
 
@@ -375,6 +544,10 @@ export interface Scorecard {
   calibration: CalibrationRow[];
   brier_definition: string;
   guard: GuardResult[];
+  /** Who answered the decision, critic and challenger calls in the first system's run and every later system's run. */
+  reasoning_models: RunShares[];
+  /** The sentences README.md and docs/*.md quote from reasoning_models (npm run readme:refresh). */
+  reasoning_facts: Record<string, string>;
   not_used: string;
 }
 
@@ -397,6 +570,7 @@ export function buildScorecard(root: string): Scorecard {
       );
   }
   const cal = calibration(root);
+  const shares = reasoningShares(root);
   return {
     note: "Written by npm run nemotron:scorecard from committed files; do not edit by hand.",
     steps: STEPS,
@@ -406,6 +580,8 @@ export function buildScorecard(root: string): Scorecard {
     calibration: cal.rows,
     brier_definition: cal.definition,
     guard: guardResults(root),
+    reasoning_models: shares,
+    reasoning_facts: reasoningFacts(shares),
     not_used: NOT_USED_LINK,
   };
 }
@@ -434,7 +610,11 @@ export function renderScorecard(s: Scorecard): string {
     "",
     "| Step | Model | Where | Why |",
     "| --- | --- | --- | --- |",
-    ...s.steps.map((r) => `| ${r.step} | ${r.model} | ${r.where} | ${r.why}. |`),
+    ...s.steps.map(
+      (r) => `| ${r.step} | ${r.model === ULTRA ? `${ULTRA} ${ROUTER_NOTE}` : r.model} | ${r.where} | ${r.why}. |`,
+    ),
+    "",
+    `${s.reasoning_facts.decision_models_line ?? ""} ${s.reasoning_facts.decision_lightning_note ?? ""}`,
     "",
     `**Per model, recorded runs** (${s.recorded_runs} exported runs in eval/runs; safety guard, screener, decision, critic and challenger calls):`,
     "",

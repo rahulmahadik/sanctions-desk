@@ -44,46 +44,46 @@
       "why": "Keeps a step answering when Nightshift fails; the same model as the local steps"
     }
   ],
-  "recorded_runs": 28,
+  "recorded_runs": 29,
   "models": [
     {
       "model": "Nemotron 3.5 Lightning 30B",
       "where": "Local laptop",
-      "calls": 532,
-      "median_latency_s": 0.6,
-      "median_tokens_in": 556,
+      "calls": 787,
+      "median_latency_s": 0.5,
+      "median_tokens_in": 514,
       "median_tokens_out": 19,
       "cost": {
-        "receipts": 532,
+        "receipts": 787,
         "actual_usd_total": 0
       }
     },
     {
       "model": "Nemotron 3 Ultra 550B",
       "where": "Cloud",
-      "calls": 960,
-      "median_latency_s": 24.8,
-      "median_tokens_in": 4429,
-      "median_tokens_out": 505,
+      "calls": 1136,
+      "median_latency_s": 25.7,
+      "median_tokens_in": 4127,
+      "median_tokens_out": 474,
       "cost": {
-        "receipts": 960,
+        "receipts": 1136,
         "actual_usd_total": 0
       }
     },
     {
       "model": "Ollama backup (Lightning, no receipt)",
       "where": "Local laptop",
-      "calls": 19,
-      "median_latency_s": 16.2,
-      "median_tokens_in": 2606,
-      "median_tokens_out": 1817,
+      "calls": 28,
+      "median_latency_s": 14.9,
+      "median_tokens_in": 2863,
+      "median_tokens_out": 1470,
       "cost": null
     }
   ],
   "local_share": {
-    "local_calls": 551,
-    "all_calls": 1511,
-    "share": 0.365
+    "local_calls": 815,
+    "all_calls": 1951,
+    "share": 0.418
   },
   "calibration": [
     {
@@ -129,6 +129,12 @@
       "source": "eval/studies/heldout3-rerun"
     },
     {
+      "arm": "Full system (sys5) (exam, 70 cases, one run)",
+      "cases_with_confidence": 68,
+      "brier": 0.102,
+      "source": "eval/results/2026-10-25T07-45-05-768Z-sys5-routed.json"
+    },
+    {
       "arm": "Nemotron alone, no free text (held-out v1, 30 cases x 1 run; held-out v3, 12 cases x 1 run)",
       "cases_with_confidence": 32,
       "brier": 0.324,
@@ -170,5 +176,314 @@
       "source": "eval/adversarial/review-2026-10-25T02-36-40-554Z.json"
     }
   ],
+  "reasoning_models": [
+    {
+      "run": "routed-20261023T133311Z",
+      "system": null,
+      "set": "exam",
+      "label": "the first system",
+      "started_at": "2026-10-23T13:33:11.122Z",
+      "steps": {
+        "decision": {
+          "nightshift": 89,
+          "ultra": 87,
+          "lightning_retry": 0,
+          "lightning_hedged": 2,
+          "lightning_router": 0,
+          "ollama": 3
+        },
+        "critic": {
+          "nightshift": 86,
+          "ultra": 85,
+          "lightning_retry": 0,
+          "lightning_hedged": 1,
+          "lightning_router": 0,
+          "ollama": 1
+        },
+        "challenger": {
+          "nightshift": 15,
+          "ultra": 15,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 1
+        }
+      }
+    },
+    {
+      "run": "heldout2-sys2-routed-20261023T180732Z",
+      "system": "sys2",
+      "set": "held-out v2",
+      "label": "system sys2",
+      "started_at": "2026-10-23T18:07:32.336Z",
+      "steps": {
+        "decision": {
+          "nightshift": 31,
+          "ultra": 31,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        },
+        "critic": {
+          "nightshift": 31,
+          "ultra": 31,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        },
+        "challenger": {
+          "nightshift": 0,
+          "ultra": 0,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        }
+      }
+    },
+    {
+      "run": "heldout2-sys2b-routed-20261023T193436Z",
+      "system": "sys2b",
+      "set": "held-out v2",
+      "label": "system sys2b",
+      "started_at": "2026-10-23T19:34:36.325Z",
+      "steps": {
+        "decision": {
+          "nightshift": 30,
+          "ultra": 28,
+          "lightning_retry": 2,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        },
+        "critic": {
+          "nightshift": 30,
+          "ultra": 28,
+          "lightning_retry": 2,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        },
+        "challenger": {
+          "nightshift": 0,
+          "ultra": 0,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        }
+      }
+    },
+    {
+      "run": "sys2b-routed-20261023T195504Z",
+      "system": "sys2b",
+      "set": "exam",
+      "label": "system sys2b",
+      "started_at": "2026-10-23T19:55:04.690Z",
+      "steps": {
+        "decision": {
+          "nightshift": 97,
+          "ultra": 90,
+          "lightning_retry": 6,
+          "lightning_hedged": 1,
+          "lightning_router": 0,
+          "ollama": 6
+        },
+        "critic": {
+          "nightshift": 97,
+          "ultra": 94,
+          "lightning_retry": 1,
+          "lightning_hedged": 2,
+          "lightning_router": 0,
+          "ollama": 0
+        },
+        "challenger": {
+          "nightshift": 12,
+          "ultra": 12,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        }
+      }
+    },
+    {
+      "run": "heldout-sys2b-routed-20261023T214515Z",
+      "system": "sys2b",
+      "set": "held-out v1",
+      "label": "system sys2b",
+      "started_at": "2026-10-23T21:45:15.877Z",
+      "steps": {
+        "decision": {
+          "nightshift": 41,
+          "ultra": 41,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        },
+        "critic": {
+          "nightshift": 38,
+          "ultra": 37,
+          "lightning_retry": 1,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        },
+        "challenger": {
+          "nightshift": 0,
+          "ultra": 0,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        }
+      }
+    },
+    {
+      "run": "heldout2-sys2bnoscreen-routed-20261023T222222Z",
+      "system": "sys2bnoscreen",
+      "set": "held-out v2",
+      "label": "system sys2bnoscreen",
+      "started_at": "2026-10-23T22:22:22.853Z",
+      "steps": {
+        "decision": {
+          "nightshift": 39,
+          "ultra": 38,
+          "lightning_retry": 1,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 1
+        },
+        "critic": {
+          "nightshift": 39,
+          "ultra": 38,
+          "lightning_retry": 0,
+          "lightning_hedged": 1,
+          "lightning_router": 0,
+          "ollama": 0
+        },
+        "challenger": {
+          "nightshift": 5,
+          "ultra": 5,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        }
+      }
+    },
+    {
+      "run": "heldout3-sys3-routed-20261023T231901Z",
+      "system": "sys3",
+      "set": "held-out v3",
+      "label": "system sys3",
+      "started_at": "2026-10-23T23:19:01.303Z",
+      "steps": {
+        "decision": {
+          "nightshift": 21,
+          "ultra": 20,
+          "lightning_retry": 1,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 1
+        },
+        "critic": {
+          "nightshift": 20,
+          "ultra": 20,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        },
+        "challenger": {
+          "nightshift": 2,
+          "ultra": 2,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        }
+      }
+    },
+    {
+      "run": "heldout4-sys4-routed-20261024T024523Z",
+      "system": "sys4",
+      "set": "held-out v4",
+      "label": "system sys4",
+      "started_at": "2026-10-24T02:45:23.713Z",
+      "steps": {
+        "decision": {
+          "nightshift": 16,
+          "ultra": 16,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        },
+        "critic": {
+          "nightshift": 16,
+          "ultra": 16,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        },
+        "challenger": {
+          "nightshift": 0,
+          "ultra": 0,
+          "lightning_retry": 0,
+          "lightning_hedged": 0,
+          "lightning_router": 0,
+          "ollama": 0
+        }
+      }
+    },
+    {
+      "run": "sys5-routed-20261025T074505Z",
+      "system": "sys5",
+      "set": "exam",
+      "label": "the current system before the block fix",
+      "started_at": "2026-10-25T07:45:05.768Z",
+      "steps": {
+        "decision": {
+          "nightshift": 96,
+          "ultra": 83,
+          "lightning_retry": 10,
+          "lightning_hedged": 3,
+          "lightning_router": 0,
+          "ollama": 7
+        },
+        "critic": {
+          "nightshift": 84,
+          "ultra": 82,
+          "lightning_retry": 1,
+          "lightning_hedged": 0,
+          "lightning_router": 1,
+          "ollama": 1
+        },
+        "challenger": {
+          "nightshift": 14,
+          "ultra": 11,
+          "lightning_retry": 2,
+          "lightning_hedged": 0,
+          "lightning_router": 1,
+          "ollama": 1
+        }
+      }
+    }
+  ],
+  "reasoning_facts": {
+    "decision_ultra_first": "87 of 89",
+    "decision_ultra_current": "83 of 96",
+    "current_run_label": "the run of the current system before the block fix",
+    "reasoning_ultra_first": "187 of 190",
+    "reasoning_ultra_current": "176 of 194",
+    "decision_models_line": "The decision step asks for the deep lane (`meterless/deep`): the mode is pinned, the serving model is not, because Nightshift's router chooses it. Ultra answered 87 of the 89 decision calls Nightshift served in the first system's run and 83 of 96 in the run of the current system before the block fix.",
+    "reasoning_models_line": "The critic asks for the judge lane (`meterless/judge`) and the challenger for the deep lane; Ultra answered 85 of 86 critic calls and 15 of 15 challenger calls Nightshift served in the first system's run (82 of 84 and 11 of 14 in the run of the current system before the block fix).",
+    "decision_lightning_note": "Of the 13 decision calls Lightning answered in the run of the current system before the block fix, 10 were the desk's fast-lane retry after an unusable or failed first answer (a deliberate fallback: the retry asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane, so Lightning answers) and 3 were deep-lane calls where Nightshift's learned router predicted Ultra but Lightning won a hedged race; 7 more decision answers came from the Ollama backup (no receipt)."
+  },
   "not_used": "docs/NEMOTRON.md#what-we-tried-and-why-it-isnt-used"
 }

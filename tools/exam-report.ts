@@ -480,35 +480,103 @@ for (const f of files) {
   if (r.variant === "nemotron_alone" && r.exam === undefined && !r.selection?.limit)
     aloneRuns.set(r.features?.with_free_text === true, { ...r, metrics: summarise(r.cases), file: f });
 }
-const currentSystem = laterRuns.get("sys5|exam|routed");
-if (currentSystem || aloneRuns.size > 0) {
-  const noAnswer = (c: ScoredCase) => c.got === "ERROR" || c.decision_unavailable !== undefined;
-  const range = (k: number, n: number) => {
-    const { low, high } = wilsonInterval(k, n);
-    return `${low}–${high}%`;
+// The current system was run twice on the 70 cases: sys5 on the code before the block fix (commit 16e0dae), and sys6
+// on the fixed code. A row whose run does not exist yet says so, and fills in from its result file once it does.
+const beforeBlockFix = laterRuns.get("sys5|exam|routed");
+const currentSystem = laterRuns.get("sys6|exam|routed");
+const noAnswer = (c: ScoredCase) => c.got === "ERROR" || c.decision_unavailable !== undefined;
+const range95 = (k: number, n: number) => {
+  const { low, high } = wilsonInterval(k, n);
+  return `${low}–${high}%`;
+};
+/** The figures of one 70-case run that the five-ways table and the block-fix comparison quote. */
+function examFigures(r: Result) {
+  const risk = riskOf(r.cases);
+  const clears = r.cases.filter((c) => c.expected === "CLOSE_FALSE_POSITIVE");
+  const count = (o: string) => r.cases.filter((c) => c.got === o).length;
+  return {
+    wrong: risk.filter(closed).length,
+    risk: risk.length,
+    made: clears.filter(closed).length,
+    clears: clears.length,
+    escalated: count("ESCALATE_L2"),
+    blocks: count("RECOMMEND_BLOCK"),
+    moreInfo: count("NEED_MORE_INFO"),
+    unusable: r.cases.filter(noAnswer).length,
+    median: r.metrics.latency_s.p50,
+    cases: r.cases.length,
   };
+}
+const FIRST_LABEL = "the first system";
+const BEFORE_LABEL = "the current system before the block fix";
+const CURRENT_LABEL = "the current system";
+/** The comparison of the full-system runs on the 70 cases, and why blocks went from some to none and back. */
+function blockFixLines(link: (file: string) => string, withStory = true): string[] {
+  if (!full || !beforeBlockFix) return [];
+  const one = (label: string, r: Result & { file: string }) => {
+    const f = examFigures(r);
+    return `${label} ([result](${link(r.file)})): ${f.wrong} of ${f.risk} risk cases wrongly closed (${range95(f.wrong, f.risk)}), ${f.made} of ${f.clears} clears made (${range95(f.made, f.clears)}), median ${Math.round(f.median)} s per case, ${f.unusable} unusable answers, ${f.blocks} blocks recommended, ${f.moreInfo} need-more-information ${f.moreInfo === 1 ? "outcome" : "outcomes"}`;
+  };
+  const a = examFigures(full);
+  const b = examFigures(beforeBlockFix);
+  const shown = [full, beforeBlockFix, currentSystem].filter((r): r is Result & { file: string } => r !== undefined);
+  const overlaps = (pick: (f: ReturnType<typeof examFigures>) => [number, number]) => {
+    const iv = shown.map((r) => {
+      const [k, n] = pick(examFigures(r));
+      return wilsonInterval(k, n);
+    });
+    return Math.max(...iv.map((x) => x.low)) <= Math.min(...iv.map((x) => x.high));
+  };
+  const clearsOverlap = overlaps((f) => [f.made, f.clears]);
+  const overlap = clearsOverlap
+    ? "the ranges of clears made overlap, so one run each cannot show whether clears really differ"
+    : "the ranges of clears made do not all overlap";
+  const blockedFirst = full.cases.filter((c) => c.got === "RECOMMEND_BLOCK");
+  const after = new Map(beforeBlockFix.cases.map((c) => [c.case_id, c]));
+  const changed = blockedFirst.filter((c) => after.get(c.case_id)?.got !== "RECOMMEND_BLOCK");
+  const gotThen = [...new Set(changed.map((c) => after.get(c.case_id)?.got ?? "not run"))];
+  const allAcceptable = changed.every((c) => {
+    const x = after.get(c.case_id);
+    return x !== undefined && (x.got === x.expected || x.acceptable.includes(x.got));
+  });
+  const reRun = currentSystem
+    ? (() => {
+        const c = examFigures(currentSystem);
+        const blocked = currentSystem.cases.filter((x) => x.got === "RECOMMEND_BLOCK").map((x) => x.case_id);
+        const back = changed.filter((x) => blocked.includes(x.case_id)).map((x) => x.case_id);
+        return `Re-measured on the fixed code: ${one(CURRENT_LABEL, currentSystem)}. It recommended ${c.blocks} ${c.blocks === 1 ? "block" : "blocks"}${blocked.length > 0 ? ` (${blocked.join(", ")})` : ""}; ${back.length} of the ${changed.length} cases the first system blocked are blocks again.`;
+      })()
+    : `Re-measured on the fixed code: the re-run of the current system is in progress; ${withStory ? "its row in the table above and this sentence fill in" : "its figures fill in here"} from its result file when it is saved.`;
+  return [
+    `**The full system's runs on the 70 cases, from the result files.** ${one(`${FIRST_LABEL[0]?.toUpperCase()}${FIRST_LABEL.slice(1)}`, full)}. ${one(`${BEFORE_LABEL[0]?.toUpperCase()}${BEFORE_LABEL.slice(1)}`, beforeBlockFix)}. ${currentSystem ? one(`${CURRENT_LABEL[0]?.toUpperCase()}${CURRENT_LABEL.slice(1)}`, currentSystem) : "The current system: not run yet"}. Every figure is one run, and the ranges are 95% Wilson score intervals: ${overlap}.`,
+    "",
+    withStory
+      ? `**Blocks recommended: ${a.blocks} in the first system's run, ${b.blocks} in the run of ${BEFORE_LABEL}.** A code change made after the first system's run caused it. Commit \`adffcd8\` (a first finding from code, and a confirm or reason path for every review) gave the decision step code's first finding; \`chooseDecision\` in \`packages/agents/src/sample-rules.ts\` mapped a met true-match definition to ESCALATE_L2 on the confirm path, and the decision prompt says to confirm a settled finding, so the decision step stopped proposing RECOMMEND_BLOCK. It was found by comparing the run of the current system before the block fix with the first system's run: ${changed.length} cases the first system blocked (${changed.map((c) => c.case_id).join(", ")}) came out as ${gotThen.join(" or ")} instead${allAcceptable ? `; ${gotThen.join(" or ")} is acceptable for each of them, so none was wrongly closed` : ""}. Fixed in commit \`16e0dae\`: a met true-match definition is RECOMMEND_BLOCK (still approved by two different people), checked first so nothing turns it into a close; a counterparty match, a document-number match and a strong assessment stay ESCALATE_L2. ${reRun}`
+      : `**Blocks recommended: ${a.blocks} in the first system's run, ${b.blocks} in the run of ${BEFORE_LABEL}** (cases ${changed.map((c) => c.case_id).join(", ")} came out as ${gotThen.join(" or ")}). ${reRun}`,
+  ];
+}
+if (full || beforeBlockFix || currentSystem || aloneRuns.size > 0) {
   const fiveRow = (label: string, r: (Result & { file: string }) | undefined) => {
-    if (!r) return `| ${label} | not run | | | | |`;
-    const risk = riskOf(r.cases);
-    const clears = r.cases.filter((c) => c.expected === "CLOSE_FALSE_POSITIVE");
-    const wrong = risk.filter(closed).length;
-    const made = clears.filter(closed).length;
-    const escalated = r.cases.filter((c) => c.got === "ESCALATE_L2").length;
-    return `| ${label} | ${wrong} of ${risk.length} (${range(wrong, risk.length)}) | ${made} of ${clears.length} (${range(made, clears.length)}) | ${escalated} of ${r.cases.length} | ${r.cases.filter(noAnswer).length} | [result](results/${r.file}) |`;
+    if (!r) return `| ${label} | not run yet | | | | | |`;
+    const f = examFigures(r);
+    return `| ${label} | ${f.wrong} of ${f.risk} (${range95(f.wrong, f.risk)}) | ${f.made} of ${f.clears} (${range95(f.made, f.clears)}) | ${f.escalated} of ${f.cases} | ${f.blocks} | ${f.unusable} | [result](results/${r.file}) |`;
   };
   lines.push(
     "### (a2) The 70 cases, five ways",
     "",
-    "The same 70 cases through the full system (the first system's run and a run of the current system), the deterministic rules, plain name matching, and Nemotron alone: one Ultra call per case on the structured case facts, once without and once with the free text the screener reads. The arm with the free text sends that (synthetic) text to the cloud model, which the desk itself never does; it is a study arm only. An unusable answer is a case where no model answer could be used (the full system then escalates it to a person; for Nemotron alone it is left without an outcome). Ranges are 95% Wilson score intervals.",
+    "The same 70 cases through the full system (the first system's run, and runs of the current system before and after the block fix), the deterministic rules, plain name matching, and Nemotron alone: one call per case on the structured case facts, asking for the deep lane, once without and once with the free text the screener reads. The arm with the free text sends that (synthetic) text to the cloud model, which the desk itself never does; it is a study arm only. An unusable answer is a case where no model answer could be used (the full system then escalates it to a person; for Nemotron alone it is left without an outcome). Ranges are 95% Wilson score intervals.",
     "",
-    "| System | Risk cases wrongly closed | Clear cases closed | Escalated | Unusable answers | File |",
-    "|---|---:|---:|---:|---:|---|",
+    "| System | Risk cases wrongly closed | Clear cases closed | Escalated | Blocks recommended | Unusable answers | File |",
+    "|---|---:|---:|---:|---:|---:|---|",
     fiveRow("Full system, first system", full),
+    fiveRow("Full system, current system before the block fix", beforeBlockFix),
     fiveRow("Full system, current system", currentSystem),
     fiveRow("Deterministic rules", get("rules")),
     fiveRow(`${NAME_MATCH}`, get("fuzzy")),
     fiveRow("Nemotron alone, without the free text", aloneRuns.get(false)),
     fiveRow("Nemotron alone, with the free text (sent to the cloud)", aloneRuns.get(true)),
+    "",
+    ...blockFixLines((file) => `results/${file}`),
     "",
   );
 }
@@ -1260,6 +1328,20 @@ if (full && evaluationDoc.includes(SS) && evaluationDoc.includes(SE)) {
     evaluationPath,
     formatMarkdown(
       readFileSync(evaluationPath, "utf8").replace(new RegExp(`${SS}[\\s\\S]*?${SE}`), block),
+      evaluationPath,
+    ),
+  );
+}
+// The block-recommendation regression and its re-measurement, in docs/EVALUATION.md between its own pair of markers.
+const FS = "<!-- block-fix:start -->";
+const FE = "<!-- block-fix:end -->";
+const evaluationLast = readFileSync(evaluationPath, "utf8");
+const fixLines = blockFixLines((file) => `../eval/results/${file}`, false);
+if (fixLines.length > 0 && evaluationLast.includes(FS) && evaluationLast.includes(FE)) {
+  writeFileSync(
+    evaluationPath,
+    formatMarkdown(
+      evaluationLast.replace(new RegExp(`${FS}[\\s\\S]*?${FE}`), [FS, ...fixLines, FE].join("\n")),
       evaluationPath,
     ),
   );

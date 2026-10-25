@@ -85,6 +85,8 @@ const facts: Record<string, string> = {
   })(),
   receipts_line: receiptsLine(receipts),
   harness_agent_files: `${harness.agent_files.naming_any_source} of ${harness.agent_files.scanned} agent files name any source, table or driver`,
+  // Who answered the decision, critic and challenger calls, from the receipts of the exported runs (nemotron:scorecard).
+  ...(read("eval/nemotron-scorecard.json") as { reasoning_facts: Record<string, string> }).reasoning_facts,
   ...(saved.tests ? { tests: saved.tests.toLocaleString("en-US") } : {}),
 };
 

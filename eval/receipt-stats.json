@@ -3,127 +3,139 @@
   "groups": [
     {
       "id": "recorded",
-      "label": "Recorded runs (28 exported runs in eval/runs)",
-      "runs": 28,
+      "label": "Recorded runs (29 exported runs in eval/runs)",
+      "runs": 29,
       "rows": [
         {
           "step": "Safety guard",
           "model": "Nemotron 3.5 Lightning 30B (local)",
-          "calls": 386,
-          "receipts_verified": 386,
+          "calls": 592,
+          "receipts_verified": 592,
           "latency_s": {
             "median": 0.5,
-            "p95": 1
+            "p95": 0.9
           },
-          "tokens_in_median": 513,
+          "tokens_in_median": 475,
           "tokens_out_median": 19
         },
         {
           "step": "Screener",
           "model": "Nemotron 3.5 Lightning 30B (local)",
-          "calls": 122,
-          "receipts_verified": 122,
+          "calls": 153,
+          "receipts_verified": 153,
           "latency_s": {
-            "median": 3,
+            "median": 2.9,
             "p95": 4
           },
-          "tokens_in_median": 1570,
-          "tokens_out_median": 221
+          "tokens_in_median": 1542,
+          "tokens_out_median": 215
         },
         {
           "step": "Decision",
           "model": "Nemotron 3 Ultra 550B (cloud)",
-          "calls": 504,
-          "receipts_verified": 504,
+          "calls": 587,
+          "receipts_verified": 587,
           "latency_s": {
-            "median": 25.8,
-            "p95": 61.9
+            "median": 26.4,
+            "p95": 59.9
           },
-          "tokens_in_median": 4938,
-          "tokens_out_median": 673
+          "tokens_in_median": 4824,
+          "tokens_out_median": 650
         },
         {
           "step": "Decision",
           "model": "Nemotron 3.5 Lightning 30B (local)",
-          "calls": 16,
-          "receipts_verified": 16,
+          "calls": 29,
+          "receipts_verified": 29,
           "latency_s": {
             "median": 13.3,
-            "p95": 70.8
+            "p95": 66.4
           },
-          "tokens_in_median": 4127,
-          "tokens_out_median": 453
+          "tokens_in_median": 3773,
+          "tokens_out_median": 485
         },
         {
           "step": "Decision",
           "model": "Ollama backup (Lightning, no receipt)",
-          "calls": 15,
+          "calls": 22,
           "receipts_verified": 0,
           "latency_s": {
-            "median": 16.2,
-            "p95": 20.6
+            "median": 12.4,
+            "p95": 18.8
           },
-          "tokens_in_median": 2863,
-          "tokens_out_median": 1603
+          "tokens_in_median": 2935,
+          "tokens_out_median": 666
         },
         {
           "step": "Critic",
           "model": "Nemotron 3 Ultra 550B (cloud)",
-          "calls": 418,
-          "receipts_verified": 418,
+          "calls": 500,
+          "receipts_verified": 500,
           "latency_s": {
-            "median": 23.2,
-            "p95": 45.7
+            "median": 23.7,
+            "p95": 46.4
           },
-          "tokens_in_median": 3379,
-          "tokens_out_median": 157
+          "tokens_in_median": 3314,
+          "tokens_out_median": 154
         },
         {
           "step": "Critic",
           "model": "Nemotron 3.5 Lightning 30B (local)",
-          "calls": 8,
-          "receipts_verified": 8,
+          "calls": 10,
+          "receipts_verified": 10,
           "latency_s": {
-            "median": 13.9,
+            "median": 24.3,
             "p95": 45.9
           },
-          "tokens_in_median": 2983,
-          "tokens_out_median": 277
+          "tokens_in_median": 3533,
+          "tokens_out_median": 460
         },
         {
           "step": "Critic",
           "model": "Ollama backup (Lightning, no receipt)",
-          "calls": 2,
+          "calls": 3,
           "receipts_verified": 0,
           "latency_s": {
-            "median": 11.1,
-            "p95": 14.9
+            "median": 14.9,
+            "p95": 32.3
           },
-          "tokens_in_median": 1664,
-          "tokens_out_median": 1299
+          "tokens_in_median": 1741,
+          "tokens_out_median": 1470
         },
         {
           "step": "Challenger",
           "model": "Nemotron 3 Ultra 550B (cloud)",
-          "calls": 38,
-          "receipts_verified": 38,
+          "calls": 49,
+          "receipts_verified": 49,
           "latency_s": {
-            "median": 26.8,
+            "median": 29.4,
             "p95": 63.9
           },
-          "tokens_in_median": 3177,
-          "tokens_out_median": 405
+          "tokens_in_median": 3155,
+          "tokens_out_median": 407
+        },
+        {
+          "step": "Challenger",
+          "model": "Nemotron 3.5 Lightning 30B (local)",
+          "calls": 3,
+          "receipts_verified": 3,
+          "latency_s": {
+            "median": 31.1,
+            "p95": 40.8
+          },
+          "tokens_in_median": 4303,
+          "tokens_out_median": 1310
         },
         {
           "step": "Challenger",
           "model": "Ollama backup (Lightning, no receipt)",
-          "calls": 2,
+          "calls": 3,
           "receipts_verified": 0,
           "latency_s": {
-            "median": 20,
-            "p95": 20.5
+            "median": 20.5,
+            "p95": 21
           },
-          "tokens_in_median": 1638,
+          "tokens_in_median": 1687,
           "tokens_out_median": 1957
         }
       ],
@@ -137,22 +149,22 @@
           "fact_limit_rejections": 0
         },
         "Decision": {
-          "backup_answers": 15,
-          "fact_limit_rejections": 3
+          "backup_answers": 22,
+          "fact_limit_rejections": 8
         },
         "Critic": {
-          "backup_answers": 2,
+          "backup_answers": 3,
           "fact_limit_rejections": 0
         },
         "Challenger": {
-          "backup_answers": 2,
+          "backup_answers": 3,
           "fact_limit_rejections": 0
         }
       },
       "reasoning_latency_s": {
-        "median": 24.8,
-        "p95": 58.5,
-        "calls": 984
+        "median": 25.6,
+        "p95": 56.6,
+        "calls": 1178
       }
     },
     {

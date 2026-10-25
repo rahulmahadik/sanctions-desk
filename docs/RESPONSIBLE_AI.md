@@ -25,7 +25,7 @@ How the desk keeps people in charge, what checks it puts around the models, how 
 
 ## Transparency and audit
 
-- **Model and receipt per step.** Every model call records the mode asked for, the model that answered, the route (local or cloud) and the id of Nightshift's signed receipt; the receipt is checked against a pinned public key. Code: [model-call.ts](../packages/agents/src/model-call.ts), [receipts.ts](../packages/shared/src/receipts.ts). Check: `npm run receipts:check` (<!--fact:receipts_line-->2,371 signed receipts: 1,492 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->; [eval/PROVE.md](../eval/PROVE.md)).
+- **Model and receipt per step.** Every model call records the mode asked for, the model that answered, the route (local or cloud) and the id of Nightshift's signed receipt; the receipt is checked against a pinned public key. Code: [model-call.ts](../packages/agents/src/model-call.ts), [receipts.ts](../packages/shared/src/receipts.ts). Check: `npm run receipts:check` (<!--fact:receipts_line-->2,802 signed receipts: 1,923 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->; [eval/PROVE.md](../eval/PROVE.md)).
 - **Sealed records.** Each recommendation is sealed with a hash over its evidence, queries, checks and models; a changed record no longer verifies. Code: [record.ts](../packages/agents/src/record.ts). Test: [trace.test.ts](../apps/api/test/trace.test.ts).
 - **Replay.** Six recorded alerts can be replayed step by step on the site ([runs](https://rahulmahadik.github.io/sanctions-desk/runs/)), with each call's model and receipt ([receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/)).
 

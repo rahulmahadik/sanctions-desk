@@ -7,8 +7,11 @@ import {
   brier,
   buildScorecard,
   checkStepsAgainstDoc,
+  type RunShares,
+  reasoningFacts,
   renderScorecard,
   resultRow,
+  type StepShare,
 } from "../../../tools/lib/nemotron-scorecard.js";
 
 describe("the Brier score of the Nemotron scorecard", () => {
@@ -35,6 +38,52 @@ describe("the Brier score of the Nemotron scorecard", () => {
     const alone = resultRow("eval/results/x-nemotron_alone.json", { variant: "nemotron_alone", cases });
     expect(alone?.arm).toBe("Nemotron alone, no free text (exam, 1 cases, one run)");
     expect(resultRow("r.json", { variant: "routed", cases: [{ expected: "A", got: "A" }] })).toBeNull();
+  });
+});
+
+describe("who answered the reasoning steps", () => {
+  const share = (x: Partial<StepShare>): StepShare => ({
+    nightshift: 0,
+    ultra: 0,
+    lightning_retry: 0,
+    lightning_hedged: 0,
+    lightning_router: 0,
+    ollama: 0,
+    ...x,
+  });
+  const run = (system: string | null, label: string, decision: Partial<StepShare>): RunShares => ({
+    run: `r-${system}`,
+    system,
+    set: "exam",
+    label,
+    started_at: system ?? "0",
+    steps: { decision: share(decision), critic: share({}), challenger: share({}) },
+  });
+  const first = run(null, "the first system", { nightshift: 10, ultra: 9, lightning_hedged: 1, ollama: 1 });
+
+  it("says the current system's run is not there yet until one exists", () => {
+    const f = reasoningFacts([first]);
+    expect(f.decision_ultra_first).toBe("9 of 10");
+    expect(f.decision_ultra_current).toBe("not run yet");
+    expect(f.decision_models_line).toContain("the current system's re-run is in progress");
+  });
+
+  it("takes the newest later system as current and splits its Lightning calls by why", () => {
+    const sys6 = run("sys6", "the current system", {
+      nightshift: 8,
+      ultra: 5,
+      lightning_retry: 2,
+      lightning_hedged: 1,
+    });
+    const f = reasoningFacts([first, sys6]);
+    expect(f.decision_ultra_current).toBe("5 of 8");
+    expect(f.decision_models_line).toContain("5 of 8 in the run of the current system.");
+    expect(f.decision_lightning_note).toMatch(
+      /^Of the 3 decision calls Lightning answered .*, 2 were the desk's fast-lane retry/,
+    );
+    expect(f.decision_lightning_note).toContain(
+      "1 was a deep-lane call where Nightshift's learned router predicted Ultra",
+    );
   });
 });
 
