@@ -45,7 +45,7 @@ Runs that were limited to some cases (a tag, `--kinds`, `--groups` or `--limit`)
 ## Reading the numbers
 
 <!-- headline-intervals:start -->
-How sure we can be (95% Wilson intervals, small sets so the ranges are wide): exam, 0 of 43 risk cases wrongly closed (true rate 0–8%); held-out rounds, 4 of 48 (3–20%), or 4 of 34 without v2, where the screener failed (5–27%).
+How sure we can be (95% range, small sets so the ranges are wide): exam, 0 of 43 risk cases wrongly closed (true rate 0–8%); held-out rounds, 4 of 48 (3–20%), or 4 of 34 without v2, where the screener failed (5–27%).
 <!-- headline-intervals:end -->
 
 <!-- alone-summary:start -->

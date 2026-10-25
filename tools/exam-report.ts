@@ -1109,7 +1109,7 @@ const range = (x: number, n: number): string => {
   return `${low}–${high}%`;
 };
 const howSure = full
-  ? `How sure we can be (95% Wilson intervals, small sets so the ranges are wide): exam, ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases wrongly closed (true rate ${range(full.metrics.false_closes, full.metrics.risk_cases)}); held-out rounds, ${heldoutFullWrong} of ${heldoutRiskCases} (${range(heldoutFullWrong, heldoutRiskCases)}), or ${noV2.fullWrong} of ${noV2.risk} without v2, where the screener failed (${range(noV2.fullWrong, noV2.risk)}).`
+  ? `How sure we can be (95% range, small sets so the ranges are wide): exam, ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases wrongly closed (true rate ${range(full.metrics.false_closes, full.metrics.risk_cases)}); held-out rounds, ${heldoutFullWrong} of ${heldoutRiskCases} (${range(heldoutFullWrong, heldoutRiskCases)}), or ${noV2.fullWrong} of ${noV2.risk} without v2, where the screener failed (${range(noV2.fullWrong, noV2.risk)}).`
   : "";
 const v2Caveat =
   withoutV2.length < blindRounds.length
@@ -1177,6 +1177,8 @@ if (full && readmeRounds.includes(JS) && readmeRounds.includes(JE)) {
     `| Round | ${ROUND_COLUMNS.map((c) => ROUND_COLUMN_LABEL[c]).join(" | ")} |`,
     `|---|${ROUND_COLUMNS.map(() => "---").join("|")}|`,
     ...roundRows,
+    "",
+    "Ranges use the Wilson score method.",
     "",
     intervalLine,
   ];
