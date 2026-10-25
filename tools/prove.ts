@@ -183,7 +183,7 @@ async function criticMutation(): Promise<CheckOutcome> {
     const unread = s.untestable_citations ?? 0;
     return {
       ok: r.code === 0 && s.mutations > 0 && s.mutations_caught === s.mutations,
-      detail: `${s.mutations_caught} of ${s.mutations} checked cases caught over ${s.decisions} decisions${unread > 0 ? `; ${unread} could not be checked in sample mode` : ""}; ${s.unchanged_decisions_approved}/${s.unchanged_decisions} unchanged decisions approved (no false alarm); evidence standard: ${s.evidence_standard_cases}${s.grounding_and_document_cases ? `; grounding and document-on-record: ${s.grounding_and_document_cases}` : ""}`,
+      detail: `${s.mutations_caught} of ${s.mutations} changed facts caught over ${s.decisions} decisions${unread > 0 ? `; ${unread} cited facts could not be checked in sample mode` : ""}; ${s.unchanged_decisions_approved}/${s.unchanged_decisions} unchanged decisions approved (no false alarm); evidence standard: ${s.evidence_standard_cases}${s.grounding_and_document_cases ? `; grounding and document-on-record: ${s.grounding_and_document_cases}` : ""}`,
       output: r.output,
     };
   } catch {

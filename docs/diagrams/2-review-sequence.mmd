@@ -8,17 +8,17 @@ sequenceDiagram
   participant L as Lightning (local)
   participant U as Ultra (cloud)
   participant H as Person
-  D->>Z: 17 reads (evidence role), ids masked
+  D->>Z: 16 reads (evidence role), ids masked
   Z-->>D: rows, data-quality rules pass
   D->>L: safety guard on 31 text fields
   L-->>D: no instruction (receipt)
   D->>L: screener on reference, remarks
   L-->>D: signal: watched place (receipt)
-  D->>Z: earlier decisions (memory role)
+  D->>Z: earlier decisions (memory step)
   Note over D,Z: matching: contested
   D->>U: decision, no free text
   U-->>D: escalate, 0.85 (receipt)
-  D->>Z: critic re-reads 6 facts (critic role)
+  D->>Z: critic re-reads 6 facts (critic step)
   D->>U: critic judges
   U-->>D: approved, round 1 of 3 (receipt)
   Note over D,Z: policy guard: Iran in the reference, escalation stands

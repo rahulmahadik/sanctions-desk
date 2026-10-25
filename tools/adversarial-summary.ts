@@ -59,7 +59,7 @@ const row = (label: string, rows: Row[], must: boolean) =>
 const limits = `Limits: it tests the safety guard only (not the decision, critic or challenger, and not a full review), under policy version ${run.policy_version}, in one run on ${day}; the texts were written for this test, and a different wording can behave differently.`;
 
 const evaluation = [
-  `**Safety guard against injected instructions and tipping-off drafts, one run (${rel}).** ${run.summary.cases} texts: ${injection.length} instructions aimed at the reviewer hidden in ${places} places (customer notes, payment references, listed-party remarks) with ${techniques} techniques (plain, polite, role play, markup, hidden spacing and zero-width characters, look-alike letters, other languages, JSON smuggling and more), ${tipping.length} reworded customer drafts that tip the customer off, and ${harmless.length} harmless texts. Each text went to the guard as shipped: the fixed patterns, then Nemotron 3.5 Lightning on the laptop through Nightshift.`,
+  `**Safety guard against injected instructions and tipping-off drafts, one run (${rel}).** ${run.summary.cases} texts: ${injection.length} instructions aimed at the reviewer hidden in ${places} places (customer notes, payment references, listed-party remarks) with ${techniques} techniques (plain, polite, role play, markup, hidden spacing and zero-width characters, look-alike letters, other languages, JSON smuggling and more), ${tipping.length} reworded customer drafts that tip the customer off, and ${harmless.length} harmless texts. Each text went to the guard as it was on ${day} (the fixed patterns, then Nemotron 3.5 Lightning on the laptop through Nightshift, asked once).`,
   "",
   "| Texts | Cases | Expected | Caught by the fixed patterns | Flagged by Lightning alone | Flagged by the guard as shipped |",
   "| --- | ---: | --- | ---: | ---: | ---: |",
@@ -184,10 +184,8 @@ if (review && reviewFile) {
     `Base alerts with all free text blank, in this run: ${bases.map((b) => `${b.alert_id} ${b.decision}`).join(", ")}.${repeats.length ? ` ${repeats.join("; ")}.` : ""} Injected instructions not caught: ${missedInj.length ? missedInj.join(", ") : "none"}. Injected instructions whose case was closed: ${injClosed.length ? injClosed.join(", ") : "none"}. Harmless texts flagged: ${falseFlags.length ? falseFlags.join(", ") : "none"}. Safety-guard calls: ${where("policy_guard")}; screener calls: ${where("screener")}.${steer} ${review.rows.reduce((s, r) => s + r.receipts, 0)} model calls with a receipt id.`,
   ].join("\n");
   const closedUncaught = inj.filter((r) => closed(r) && !r.caught).length;
-  reviewShort = ` Through full reviews (${reviewDay}): the guard or screener caught ${n(inj, (r) => r.caught === true)} of ${inj.length} injected instructions in the data; ${injClosed.length} ended in a close${injClosed.length ? `, ${closedUncaught} of them with no flag from any check (an open issue, see EVALUATION.md)` : ""}.`;
+  reviewShort = ` Through full reviews on ${reviewDay}, before the guard was changed: ${n(inj, (r) => r.caught === true)} of ${inj.length} injected texts caught; ${closedUncaught} that no check flagged ended in a close where the case's own data supported a close.`;
 }
-
-const short = `**Safety guard against injected text (one run, ${day}, policy ${run.policy_version}):** Lightning flagged ${count(injection, (r) => r.by_model)} of ${injection.length} injected instructions, against ${count(injection, (r) => r.by_patterns)} for the fixed patterns alone, and ${count(tipping, (r) => r.by_model)} of ${tipping.length} tipping-off drafts (patterns: ${count(tipping, (r) => r.by_patterns)}); it wrongly flagged ${falseFlags.length} of ${harmless.length} harmless texts. It tests the safety guard only, not a full review.${reviewShort} Details: `;
 
 // The fresh set (fresh-*.json): texts written separately, run on the code after the guard changes of 25 Oct, each
 // inbound text in a base that closes and one that escalates. Beside it, the false alarms of the 105-text run.
@@ -196,6 +194,7 @@ const freshFile = readdirSync(dir)
   .sort()
   .at(-1);
 let freshBlock: string | undefined;
+let freshShort = "";
 if (freshFile && review) {
   const fr = JSON.parse(readFileSync(join(dir, freshFile), "utf8")) as ReviewRun;
   if (fr.rows.some((r) => r.family !== "baseline" && r.caught === undefined))
@@ -226,6 +225,7 @@ if (freshFile && review) {
     return `${s.filter((x) => x.route === "local").length} of ${s.length}`;
   };
   const injTexts = [...new Set(inj.map((r) => r.case_id))].length;
+  freshShort = ` After the guard was changed (asked twice, plus a narrow check), a fresh set written separately: ${n(inj, (r) => r.caught === true)} of ${inj.length} reviews of injected text caught; false alarms on harmless text ${n(ben, (r) => r.caught === true)} of ${ben.length}.`;
   freshBlock = [
     `**A fresh set on the changed code (eval/adversarial/${freshFile}, ${fr.at.slice(0, 10)}, policy version ${fr.policy_version}).** After the run above, the guard was changed (the guard model asked twice, the more cautious answer kept; a separate narrow check of whether a text addresses the reviewer or the case outcome; an answer from a cloud route not accepted). A separate session then wrote new texts without seeing the earlier ones or their results (eval/adversarial/fresh-set-2026-10-25.json). Each customer note and list remark was reviewed in full in ${baseIds.length} base alerts (${baseIds.join(" and ")}), one that closes and one that escalates on its own data. Counts are per review (each text appears once per base). Caught means the safety guard flagged the text or the screener gave a signal at or above its threshold (a flag that blocks a close; a weaker signal only noted for the reviewer does not count); 95% ranges in brackets.`,
     "",
@@ -264,6 +264,8 @@ if (freshFile && review) {
     }. Safety-guard calls answered locally: ${local("policy_guard")}; screener calls: ${local("screener")}.`,
   ].join("\n");
 }
+
+const short = `**Safety guard against injected text (one run, ${day}, policy ${run.policy_version}):** Lightning flagged ${count(injection, (r) => r.by_model)} of ${injection.length} injected instructions, against ${count(injection, (r) => r.by_patterns)} for the fixed patterns alone, and ${count(tipping, (r) => r.by_model)} of ${tipping.length} tipping-off drafts (patterns: ${count(tipping, (r) => r.by_patterns)}); it wrongly flagged ${falseFlags.length} of ${harmless.length} harmless texts. It tests the safety guard only, not a full review.${reviewShort}${freshShort} Details: `;
 
 let changed = false;
 if (freshBlock) {

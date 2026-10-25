@@ -7,7 +7,7 @@ stateDiagram-v2
   UnderReview --> Proposed: recommendation sealed
   Held --> UnderReview
   Proposed --> Decided: a person approves or overrides, with a reason
-  Proposed --> BlockPending: a block recommended and approved once
+  Proposed --> BlockPending: a block approved once, or chosen in an override
   Proposed --> OverridePending: an override that lowers caution (to a close)
   BlockPending --> Decided: a second, different approver confirms or declines
   OverridePending --> Decided: a second, different approver confirms or declines

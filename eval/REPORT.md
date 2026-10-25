@@ -7,7 +7,7 @@ Measured on the full system (routed, 68 alert cases, run started 2026-10-23T13:3
 - **Closed with cited evidence:** 18 of 68 alerts (26%); 18 of them rightly. A person still confirms each close, from the evidence the desk cites.
 - **Escalated:** 50 of 68 alerts (74%), including 9 escalated only because no model decision was usable.
 - **False closes on cases that carry real risk:** 0 of 43 (0.0%); on the 8 true matches: 0. The target is 0.
-- **Time and cost per alert:** the desk took a median of 130 seconds (p95 306 s) over the 68 alerts that got an answer (the tables below give 123.79 s over all 70 cases, which include the draft checks; every median here is the middle measured value, the lower one for an even count) and 0.0085 USD in model cost per alert, measured on this machine, for the recommendation only; a person still decides.
+- **Time and cost per alert:** the desk took a median of 130 seconds (p95 306 s) over the 68 alerts (the tables below give 123.79 s over all 70 cases, which include the draft checks; every median here is the middle measured value, the lower one for an even count) and 0.0085 USD in model cost per alert, measured on this machine, for the recommendation only; a person still decides.
 - **Analyst time saved: not measured, and not claimed.** What the desk removes is the gathering and cross-checking of the evidence; how many minutes that saves a team was not measured.
 
 ### (a) Against plain name matching, on the 70 cases
@@ -70,7 +70,7 @@ The first held-out run showed that risk stated only in free text (a customer not
 | Set and system | Risk cases wrongly closed | Risks caught | Correct clears made | Acceptable |
 |---|---:|---:|---:|---:|
 | 70 cases, first system | 0 of 43 | 43 of 43 | 18 of 25 | 66 of 70 |
-| 70 cases, changed system | 0 of 42 | 42 of 42 | 14 of 26 | 64 of 70 |
+| 70 cases, changed system | 0 of 43 | 43 of 43 | 14 of 25 | 64 of 70 |
 | Held-out v1, first system (blind) | 2 of 22 | 20 of 22 | 0 of 8 | 20 of 30 |
 | Held-out v1, changed system (after the fix, not blind) | 0 of 22 | 22 of 22 | 0 of 8 | 22 of 30 |
 | Held-out v2, changed system (blind; the screener failed on every case) | 0 of 14 | 14 of 14 | 0 of 5 | 14 of 19 |
@@ -92,7 +92,7 @@ How the changed system's outcomes came about. *No model answer* counts cases whe
 
 | Set | No model answer | Guard after a deadlock | Fallback route | Risk cases wrongly closed (answered cases) | Correct clears (answered cases) |
 |---|---:|---:|---:|---:|---:|
-| 70 cases | 0 | 9 | 3 | 0 of 42 | 14 of 26 |
+| 70 cases | 0 | 9 | 3 | 0 of 43 | 14 of 25 |
 | Held-out v1 (after the fix, not blind) | 0 | 3 | 0 | 0 of 22 | 0 of 8 |
 | Held-out v2 (blind; screener failed) | 1 | 1 | 1 | 0 of 13 | 0 of 5 |
 | Held-out v2 (re-run after an infrastructure fix, not blind) | 0 | 3 | 1 | 0 of 14 | 0 of 5 |
@@ -178,8 +178,8 @@ Code version: for the recorded runs, the commit checked out when the run ended (
 | fuzzy (earlier code version) | exam | 2026-10-23T04:29:14.024Z | not recorded | not recorded | live, REST service | not part of this system | same identity | see the run's traces | see the run's traces |
 | rules (earlier code version) | exam | 2026-10-23T04:16:21.497Z | not recorded | not recorded | live, REST service | not part of this system | same identity | see the run's traces | see the run's traces |
 | routed (earlier code version) | exam | 2026-10-23T04:52:42.248Z | not recorded | not recorded | live, REST service | not part of this system | same identity | see the run's traces | see the run's traces |
-| single (earlier code version) | exam | 2026-10-23T06:10:44.390Z | 74859ff | none (no model call) | live, REST service | not part of this system | same identity | yes | on |
-| no_memory (earlier code version) | exam | 2026-10-23T06:39:11.480Z | 74859ff | none (no model call) | live, REST service | not part of this system | same identity | yes | on |
+| single (earlier code version) | exam | 2026-10-23T06:10:44.390Z | 74859ff | not recorded | live, REST service | not part of this system | same identity | yes | on |
+| no_memory (earlier code version) | exam | 2026-10-23T06:39:11.480Z | 74859ff | not recorded | live, REST service | not part of this system | same identity | yes | on |
 | rules | heldout | 2026-10-23T08:13:08.222Z | 5716bb5+local changes | none (no model call) | live, REST service | not part of this system | same identity | yes | on |
 | fuzzy | heldout | 2026-10-23T08:24:32.964Z | 5716bb5+local changes | none (no model call) | live, REST service | not part of this system | same identity | yes | on |
 | escalate_all | heldout | 2026-10-23T08:32:48.372Z | 480c701 | none (no model call) | live, REST service | not part of this system | same identity | yes | on |
@@ -276,7 +276,7 @@ Exact 71.4%, acceptable 94.3%: the difference is the cases below.
 | escalate | 1 |  | 36 |  | 37 |
 | draft blocked |  |  |  | 2 | 2 |
 
-The deterministic pipeline's perfect score says that the exam's labels and its code follow the same approved definitions, which is how both were written. It cannot tell whether the definitions are right, and it never recommends a block.
+The deterministic pipeline's near-perfect score (69 of 70 acceptable under the current labels; its one miss, EX-043, was relabelled after the run) says that the exam's labels and its code follow the same approved definitions, which is how both were written. It cannot tell whether the definitions are right, and it never recommends a block.
 
 #### Expected against given: Name-match rules baseline (name score at or above 0.90 escalates, below closes)
 

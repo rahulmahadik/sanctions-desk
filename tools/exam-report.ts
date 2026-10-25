@@ -126,8 +126,12 @@ for (const f of files) {
   if (r.exam === "heldout" && r.system === undefined && whole)
     heldoutNewest.set(r.variant, { ...r, metrics: summarise(r.cases), file: f });
   // Runs of a later system version, kept apart so they never replace the first system's numbers.
+  // Exam runs are scored against the current labels, like the first system's runs (the held-out labels never changed).
   if (r.system !== undefined && whole)
-    laterRuns.set(`${r.system}|${r.exam ?? "exam"}|${r.variant}`, { ...r, metrics: summarise(r.cases), file: f });
+    laterRuns.set(`${r.system}|${r.exam ?? "exam"}|${r.variant}`, {
+      ...(r.exam === undefined ? rescore(r) : { ...r, metrics: summarise(r.cases) }),
+      file: f,
+    });
   if (["heldout2", "heldout3", "heldout4"].includes(r.exam ?? "") && r.system === undefined && whole)
     laterRuns.set(`baseline|${r.exam}|${r.variant}`, { ...r, metrics: summarise(r.cases), file: f });
 }
@@ -418,7 +422,7 @@ if (head && full) {
     `- **Closed with cited evidence:** ${head.closed_with_evidence} of ${head.alerts} alerts (${pct0(head.closed_share)}); ${head.closed_correctly} of them rightly. A person still confirms each close, from the evidence the desk cites.`,
     `- **Escalated:** ${head.escalated} of ${head.alerts} alerts (${pct0(head.escalated_share)}), including ${head.decision_unavailable} escalated only because no model decision was usable.`,
     `- **False closes on cases that carry real risk:** ${head.false_closes} of ${head.risk_cases} (${pct(head.false_close_rate)}); on the ${head.true_match_cases} true matches: ${head.true_match_false_closes}. The target is 0.`,
-    `- **Time and cost per alert:** the desk took a median of ${head.per_alert.median_seconds.toFixed(0)} seconds (p95 ${head.per_alert.p95_seconds.toFixed(0)} s) over the ${head.per_alert.alerts} alerts that got an answer (the tables below give ${full.metrics.latency_s.p50} s over all ${full.cases.length} cases, which include the draft checks; every median here is the middle measured value, the lower one for an even count) and ${head.per_alert.mean_cost.toFixed(4)} ${config.costs.currency} in model cost per alert, measured on this machine, for the recommendation only; a person still decides.`,
+    `- **Time and cost per alert:** the desk took a median of ${head.per_alert.median_seconds.toFixed(0)} seconds (p95 ${head.per_alert.p95_seconds.toFixed(0)} s) over the ${head.per_alert.alerts} alerts (the tables below give ${full.metrics.latency_s.p50} s over all ${full.cases.length} cases, which include the draft checks; every median here is the middle measured value, the lower one for an even count) and ${head.per_alert.mean_cost.toFixed(4)} ${config.costs.currency} in model cost per alert, measured on this machine, for the recommendation only; a person still decides.`,
     "- **Analyst time saved: not measured, and not claimed.** What the desk removes is the gathering and cross-checking of the evidence; how many minutes that saves a team was not measured.",
     "",
   );
@@ -721,13 +725,15 @@ if (have.length === 0) {
     "",
   );
 
-  /** "guard: local, reasoning: deep"; runs of variants that call no model have nothing to show. */
-  const bindsText = (b?: Record<string, string>): string =>
+  /** "guard: local, reasoning: deep"; a variant that calls no model has nothing to show, and older runs did not record it. */
+  const bindsText = (b: Record<string, string> | undefined, variant: string): string =>
     b && Object.keys(b).length > 0
       ? Object.entries(b)
           .map(([app, mode]) => `${app.replace(/^sanctions-desk-?/, "") || "default"}: ${mode}`)
           .join(", ")
-      : "none (no model call)";
+      : ["rules", "fuzzy", "escalate_all"].includes(variant)
+        ? "none (no model call)"
+        : "not recorded";
   lines.push(
     "### What each run had",
     "",
@@ -756,7 +762,7 @@ if (have.length === 0) {
       f?.retry_identities && Object.keys(f.retry_identities).length > 0 ? "local (guard identity)" : "same identity";
     lines.push(
       f
-        ? `| ${v} | ${r.exam ?? "exam"} | ${r.started_at} | ${f.commit ?? "?"}${f.commit_at_end ? ` (at end: ${f.commit_at_end})` : ""} | ${bindsText(f.cockpit_binds)} | ${payments} | ${screener} | ${retry} | ${f.structured_output ? "yes" : "no"} | ${f.challenger?.enabled ? "on" : "off"} |`
+        ? `| ${v} | ${r.exam ?? "exam"} | ${r.started_at} | ${f.commit ?? "?"}${f.commit_at_end ? ` (at end: ${f.commit_at_end})` : ""} | ${bindsText(f.cockpit_binds, r.variant)} | ${payments} | ${screener} | ${retry} | ${f.structured_output ? "yes" : "no"} | ${f.challenger?.enabled ? "on" : "off"} |`
         : `| ${v} | ${r.exam ?? "exam"} | ${r.started_at} | not recorded | not recorded | ${payments} | not part of this system | same identity | see the run's traces | see the run's traces |`,
     );
   }
@@ -804,7 +810,7 @@ if (have.length === 0) {
     lines.push(`#### Expected against given: ${LABEL[v] ?? v}`, "", ...confusionMatrix(r.cases), "");
     if (v === "rules") {
       lines.push(
-        "The deterministic pipeline's perfect score says that the exam's labels and its code follow the same approved definitions, which is how both were written. It cannot tell whether the definitions are right, and it never recommends a block.",
+        `The deterministic pipeline's near-perfect score (${get("rules") ? `${directions(get("rules")?.cases ?? []).acceptable} of ${get("rules")?.cases.length}` : "not run"} acceptable under the current labels; its one miss, EX-043, was relabelled after the run) says that the exam's labels and its code follow the same approved definitions, which is how both were written. It cannot tell whether the definitions are right, and it never recommends a block.`,
         "",
       );
     }

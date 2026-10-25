@@ -1,5 +1,6 @@
-%% How a review ends: every failure leads to a hold or an escalation, never a close. From packages/agents/src/pipeline.ts,
-%% safety.ts, screener.ts, model-call.ts, critic.ts, challenger.ts, policy-guard.ts, human-state.ts.
+%% How a review ends: every failure leads to a hold or an escalation, never a close. From packages/agents/src/pipeline.ts
+%% (prepare, deliberate, settle), safety.ts, screener.ts, model-call.ts, critic.ts, challenger.ts, policy-guard.ts,
+%% human-state.ts.
 flowchart TB
   classDef hold fill:#78350f,stroke:#f59e0b,color:#ffffff
   classDef ok fill:#14532d,stroke:#22c55e,color:#ffffff
@@ -7,10 +8,11 @@ flowchart TB
   START["Review starts"] --> Z{"Zetaris answers?"}
   Z -- "no: unreachable,<br/>time-out, server error" --> H0["Held: escalate, confidence 0,<br/>no record sealed"]:::hold
   Z -- yes --> DQ{"Data-quality rules pass,<br/>and the list is complete?"}
-  DQ -- "no, or cut off" --> H1["Need more information"]:::hold
-  DQ -- yes --> G{"Safety guard: patterns, model twice,<br/>'addresses the reviewer?'"}
+  DQ -- "no, or cut off" --> NM["At least need more information:<br/>no close possible"]:::hold
+  DQ -- yes --> G
+  NM --> G{"Safety guard: patterns, model twice,<br/>'addresses the reviewer?'"}
   G -- "a flag, no answer,<br/>or answered from the cloud" --> NC["No close possible"]:::hold
-  G -- clean --> S{"Screener read all the text<br/>locally, no signal?"}
+  G -- clean --> S{"Screener read all the text<br/>locally, no blocking signal?"}
   S -- "a signal, failed, part read,<br/>or answered from the cloud" --> NC
   S -- yes --> M{"Decision model answers?"}
   NC --> M
@@ -19,13 +21,13 @@ flowchart TB
   M2 -- no --> CR
   M -- yes --> CR{"Critic approves?<br/>(cited facts re-read first)"}
   CR -- "no: sent back, up to 3 rounds" --> H3["Escalate: critic unresolved"]:::hold
-  CR -- yes --> CL{"A close proposed?"}
+  CR -- yes --> PG{"Policy guard rules:<br/>can only raise"}
+  PG --> CL{"A close still stands<br/>after the policy guard?"}
   CL -- yes --> CH{"Challenger finds a credible<br/>argument, or cannot answer?"}
   CH -- yes --> H4["Escalate"]:::hold
-  CH -- no --> PG
-  CL -- no --> PG{"Policy guard rules:<br/>can only raise"}
-  PG --> HU["A person decides"]:::ok
-  H0 & H1 & H2 & H3 & H4 --> HU
+  CH -- no --> HU
+  CL -- no --> HU["A person decides"]:::ok
+  H0 & H2 & H3 & H4 --> HU
   HU --> FE{"A block, or an override<br/>to a close?"}
   FE -- yes --> FE2["Waits for a second,<br/>different approver"]:::hold
   FE -- no --> DONE["Decision sealed"]:::ok
