@@ -218,6 +218,14 @@ function safetyAnswer(prompt: string): string {
 }
 
 export function sampleRules(req: GenerateRequest): string {
+  if (req.prompt.startsWith("TASK: safety_addressing")) {
+    const text = /<text>([\s\S]*?)<\/text>/.exec(req.prompt)?.[1] ?? "";
+    const hit = INJECTION.exec(text)?.[0];
+    return JSON.stringify({
+      addresses_reviewer: hit !== undefined,
+      reason: hit === undefined ? "" : `rules-based sample check matched "${hit}"`,
+    });
+  }
   if (req.prompt.startsWith("TASK: safety_")) return safetyAnswer(req.prompt);
   if (req.prompt.startsWith("TASK: screener")) return screenerAnswer(req.prompt);
   const evidence = evidenceOf(req.prompt);

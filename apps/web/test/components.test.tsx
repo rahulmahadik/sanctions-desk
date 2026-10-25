@@ -469,6 +469,26 @@ describe("Outcome", () => {
     expect(screen.getByTestId("not-citable").textContent).toContain("customer.notes as not citable (round 2)");
   });
 
+  it("shows that the safety guard ran in the cloud and its answer was not accepted", () => {
+    render(
+      <Outcome
+        answer={{
+          ...ANSWER,
+          decision: "ESCALATE_L2",
+          guards: [
+            {
+              guard: "guard_locality",
+              verdict: "block",
+              detail:
+                "guard ran in the cloud: the free text left the machine and the guard's answer is not accepted; no close",
+            },
+          ],
+        }}
+      />,
+    );
+    expect(screen.getByText(/guard locality: block — guard ran in the cloud/)).toBeTruthy();
+  });
+
   it("puts the deciding evidence and any confidence cap with its reason right under the recommendation", () => {
     render(
       <Outcome

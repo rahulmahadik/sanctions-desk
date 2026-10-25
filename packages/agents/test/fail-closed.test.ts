@@ -145,3 +145,19 @@ describe("Zetaris unreachable: the case is held with a reason", () => {
     expect(r.record_hash).toBeUndefined();
   });
 });
+
+describe("a safety guard answered from the cloud", () => {
+  it("holds the case: the close is blocked and the record says the guard ran in the cloud", () => {
+    const out = guard(evidence({ servedByCloud: true, unchecked: true }));
+    expect(out.decision).toBe("ESCALATE_L2");
+    const locality = out.verdicts.find((v) => v.guard === "guard_locality");
+    expect(locality).toMatchObject({ verdict: "block" });
+    expect(locality?.detail).toContain("guard ran in the cloud");
+  });
+
+  it("blocks a close in closeBlockers with its own reason", () => {
+    expect(closeBlockers(policy, evidence({ servedByCloud: true, unchecked: true }), false)).toContain(
+      "the safety guard ran in the cloud, so its answer is not accepted",
+    );
+  });
+});

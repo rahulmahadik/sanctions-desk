@@ -116,7 +116,10 @@ describe("POST /run on the sample", () => {
     expect(body.citations.length).toBeGreaterThan(5);
     expect(body.citations.every((c) => c.source === "zetaris" && c.query_id.length > 0)).toBe(true);
     expect(body.what_would_change.length).toBeGreaterThan(0);
+    // The safety guard asks its model twice and runs its narrow check once: three guard calls.
     expect(body.models.map((m) => [m.agent, m.provider])).toEqual([
+      ["policy_guard", "fallback-rules"],
+      ["policy_guard", "fallback-rules"],
       ["policy_guard", "fallback-rules"],
       ["screener", "fallback-rules"],
       ["decision", "fallback-rules"],

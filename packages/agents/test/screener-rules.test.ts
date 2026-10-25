@@ -246,11 +246,12 @@ describe("the critic and the first finding agree with the guard", () => {
 });
 
 describe("the screener's own limits", () => {
-  it("flags an answer served by a cloud route, and counts it", async () => {
+  it("does not accept an answer served by a cloud route: the case is held, and it is counted", async () => {
     const { generator } = scriptedGenerator([safe, closeAnswer, approve], { screenerRoute: "cloud" });
     const deps = sampleDepsWithText({ notes: NOTE }, { generator });
     const res = await runReview(deps, request("sc-cloud"));
-    expect(res.guards?.find((g) => g.guard === "screener_locality")).toMatchObject({ verdict: "flag" });
+    expect(res.decision).not.toBe("CLOSE_FALSE_POSITIVE");
+    expect(res.guards?.find((g) => g.guard === "screener_locality")).toMatchObject({ verdict: "block" });
     const screened = readTrace(deps.trace.file).find((e) => e.agent === "screener" && e.action === "screen_text");
     expect(screened?.detail).toMatchObject({ served_by_cloud: true, route_kind: "cloud" });
   });

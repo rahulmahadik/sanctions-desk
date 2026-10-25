@@ -10,10 +10,52 @@ describe("screenInbound", () => {
     const { generator, requests } = scriptedGenerator([clean]);
     const r = await screenInbound(sampleDeps({ generator }), ["Maria Garcia", "Onboarded in branch."]);
     expect(r).toMatchObject({ violation: false, category: "none", patternHits: [] });
-    expect(r.calls).toHaveLength(1);
+    // Two verdicts from the guard model and one narrow check.
+    expect(r.calls).toHaveLength(3);
     expect(requests[0]?.system).toContain("It is a violation");
     expect(requests[0]?.prompt).toContain("TASK: safety_inbound");
     expect(requests[0]?.prefill).toBe("{");
+  });
+
+  it("puts the text last, so the start of the prompt (what a receipt previews) holds only instructions", async () => {
+    const { generator, requests, guardRequests } = scriptedGenerator([clean]);
+    await screenInbound(sampleDeps({ generator }), ["Maria Garcia, uncle of a listed person"]);
+    for (const req of [...requests, ...guardRequests]) {
+      expect(req.prompt.indexOf("<text>")).toBeGreaterThan(180);
+      expect(req.prompt.slice(0, 180)).not.toContain("Maria Garcia");
+      expect(req.prompt.trimEnd().endsWith("</text>")).toBe(true);
+    }
+  });
+
+  it("keeps the more cautious of two verdicts: one flag is enough", async () => {
+    const { generator } = scriptedGenerator([clean], {
+      secondGuard: flagged("prompt_injection", "tells the reader to clear the case"),
+    });
+    const r = await screenInbound(sampleDeps({ generator }), ["A note that the reviewer may read"]);
+    expect(r.violation).toBe(true);
+    expect(r.reasons.join(" ")).toContain("tells the reader to clear the case");
+  });
+
+  it("treats a missing second verdict as unchecked: the text is not clean", async () => {
+    const { generator } = scriptedGenerator([clean], { secondGuard: new Error("the guard model is down") });
+    const r = await screenInbound(sampleDeps({ generator }), ["A note"]);
+    expect(r).toMatchObject({ violation: true, unchecked: true });
+  });
+
+  it("flags text that addresses the reviewer or the case outcome, through the narrow check", async () => {
+    const { generator } = scriptedGenerator([clean], {
+      addressing: JSON.stringify({ addresses_reviewer: true, reason: "tells the reviewer the case needs no review" }),
+    });
+    const r = await screenInbound(sampleDeps({ generator }), ["Summary: escalation unnecessary"]);
+    expect(r).toMatchObject({ violation: true, addressesReviewer: true });
+  });
+
+  it("does not accept a guard answer served by a cloud route", async () => {
+    const { generator } = scriptedGenerator([clean], { guardRoute: "cloud" });
+    const deps = sampleDeps({ generator });
+    const r = await screenInbound(deps, ["An ordinary note"]);
+    expect(r).toMatchObject({ violation: true, servedByCloud: true, unchecked: true });
+    expect(r.reasons.join(" ")).toContain("the guard ran in the cloud");
   });
 
   it("flags instruction-like text by pattern even when the model says it is fine", async () => {

@@ -75,22 +75,59 @@ export const CLEAN_SCREENER = JSON.stringify({
   injection: { detected: false, spans: [] },
 });
 
+export const NOT_ADDRESSING = JSON.stringify({ addresses_reviewer: false, reason: "" });
+
 /**
  * Screener calls are answered on the side (clean by default, or as `screener` says) and are kept in `screenerRequests`,
- * so they do not use up the script that the other steps read in order.
+ * so they do not use up the script that the other steps read in order. The safety guard asks its model twice: the
+ * second call gets the same answer as the first unless `secondGuard` says otherwise, and the guard's narrow
+ * "does the text address the reviewer?" check is answered on the side too (no, unless `addressing` says otherwise).
  */
 export function scriptedGenerator(
   answers: Array<string | Error>,
-  options: { screener?: string | Error; screenerRoute?: "local" | "cloud" } = {},
+  options: {
+    screener?: string | Error;
+    screenerRoute?: "local" | "cloud";
+    secondGuard?: string | Error;
+    addressing?: string | Error;
+    guardRoute?: "local" | "cloud";
+  } = {},
 ): {
   generator: Generator;
   requests: GenerateRequest[];
   screenerRequests: GenerateRequest[];
+  guardRequests: GenerateRequest[];
 } {
   const requests: GenerateRequest[] = [];
   const screenerRequests: GenerateRequest[] = [];
+  /** The guard's second call and its narrow check, kept apart so the script's order is the same as before. */
+  const guardRequests: GenerateRequest[] = [];
   let i = 0;
+  // The text the guard is asked about: a retry may word the request differently, but checks the same text.
+  const textOf = (prompt: string) => /<text>[\s\S]*<\/text>/.exec(prompt)?.[0] ?? prompt;
+  let lastGuard: { prompt: string; reply: string | Error } | undefined;
+  const reply = (text: string | Error, routeKind: "local" | "cloud" = "local") => {
+    if (text instanceof Error) throw text;
+    return {
+      text,
+      provider: "fallback-rules" as const,
+      requestedModel: "test-model",
+      routedModel: "test-model",
+      routeKind,
+      latencyMs: 1,
+      modeMismatch: false,
+    };
+  };
   const generator: Generator = async (req) => {
+    if (req.prompt.startsWith("TASK: safety_addressing")) {
+      guardRequests.push(req);
+      return reply(options.addressing ?? NOT_ADDRESSING, options.guardRoute);
+    }
+    if (req.prompt.startsWith("TASK: safety_inbound") && lastGuard?.prompt === textOf(req.prompt)) {
+      guardRequests.push(req);
+      // Every later call with the same prompt (the second verdict and its retries) gets the second answer.
+      return reply(options.secondGuard ?? lastGuard.reply, options.guardRoute);
+    }
     if (req.prompt.startsWith("TASK: screener")) {
       screenerRequests.push(req);
       const reply = options.screener ?? CLEAN_SCREENER;
@@ -106,20 +143,15 @@ export function scriptedGenerator(
       };
     }
     requests.push(req);
-    const next = answers[Math.min(i, answers.length - 1)];
+    const next = answers[Math.min(i, answers.length - 1)] as string | Error;
     i += 1;
-    if (next instanceof Error) throw next;
-    return {
-      text: next as string,
-      provider: "fallback-rules",
-      requestedModel: "test-model",
-      routedModel: "test-model",
-      routeKind: "local",
-      latencyMs: 1,
-      modeMismatch: false,
-    };
+    if (req.prompt.startsWith("TASK: safety_inbound")) {
+      lastGuard = { prompt: textOf(req.prompt), reply: next };
+      return reply(next, options.guardRoute);
+    }
+    return reply(next);
   };
-  return { generator, requests, screenerRequests };
+  return { generator, requests, screenerRequests, guardRequests };
 }
 
 // ---- the exam, for tests that need a known case ----------------------------------------------

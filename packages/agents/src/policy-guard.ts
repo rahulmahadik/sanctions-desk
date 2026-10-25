@@ -84,9 +84,13 @@ export function closeBlockers(policy: Policy, evidence: EvidenceBundle, document
   if (findInjection(policy, evidence.freeText).length > 0) reasons.push("instruction-like text in the data");
   else if (evidence.safety?.violation)
     reasons.push(
-      evidence.safety.unchecked
-        ? "the safety guard could not check the free text"
-        : "the safety guard flagged instruction-like text in the data",
+      evidence.safety.servedByCloud
+        ? "the safety guard ran in the cloud, so its answer is not accepted"
+        : evidence.safety.unchecked
+          ? "the safety guard could not check the free text"
+          : evidence.safety.addressesReviewer
+            ? "the free text addresses the reviewer or the case outcome"
+            : "the safety guard flagged instruction-like text in the data",
     );
   const dq = blockingDataQuality(evidence, documentaryDob);
   if (dq.length > 0) reasons.push(`a failing data-quality rule (${dq.join(", ")})`);
@@ -367,17 +371,19 @@ function quietScreener(policy: Policy, facts: ScreenerFacts | undefined): string
  * The screener read the free text on a local model. A risk signal at or above the policy's threshold ("other" has a
  * higher one) means the case cannot be closed. A screener that is missing, could not answer, or did not read all of the
  * text cannot support a close either. A signal below the threshold is recorded and changes nothing. If the answer came
- * from a cloud route, that is shown as a flag of its own.
+ * from a cloud route, the text left the machine and the answer is not accepted: the case cannot be closed.
  */
 const screenerRule: Rule = ({ closing, policy, evidence }) => {
   const facts = evidence.screener;
   const out: Finding[] = [];
   if (facts?.servedByCloud) {
-    out.push({
-      guard: "screener_locality",
-      detail: "the screener's answer came from a cloud route, so the free text left the machine",
-      flag: true,
-    });
+    out.push(
+      blockOrFlag(
+        closing,
+        "screener_locality",
+        "the screener ran in the cloud, so the free text left the machine and its answer is not accepted",
+      ),
+    );
   }
   const state = screenerState(facts);
   if (typeof state === "object") return [...out, state];
@@ -448,14 +454,30 @@ const injectionRule: Rule = ({ closing, policy, evidence }) => {
   if (!patterns && !model) return passes("injection", "no instruction-like text in the data");
   const what = patterns
     ? "instruction-like text in the data"
-    : evidence.safety?.unchecked
-      ? "the safety guard could not check the free text"
-      : "the safety guard flagged instruction-like text in the data";
+    : evidence.safety?.servedByCloud
+      ? "the safety guard ran in the cloud, so its answer is not accepted"
+      : evidence.safety?.unchecked
+        ? "the safety guard could not check the free text"
+        : evidence.safety?.addressesReviewer
+          ? "the free text addresses the reviewer or the case outcome"
+          : "the safety guard flagged instruction-like text in the data";
   // The wording for a pattern hit is the one sealed records already carry.
   const seen = patterns ? "instruction-like text found in the data" : what;
   const detail = closing ? `${what}; no automatic close` : `${seen}; ignored as data`;
   return closing ? fails("injection", "ESCALATE_L2", detail) : { guard: "injection", detail, flag: true };
 };
+
+/** The safety guard reads raw text and must run on this machine; an answer from a cloud route holds the case. */
+const guardLocalityRule: Rule = ({ closing, evidence }) =>
+  evidence.safety?.servedByCloud
+    ? [
+        blockOrFlag(
+          closing,
+          "guard_locality",
+          "guard ran in the cloud: the free text left the machine and the guard's answer is not accepted",
+        ),
+      ]
+    : [];
 
 const blockRules: Rule = ({ decision, match, criticUnresolved }) => {
   const out: Finding[] = [];
@@ -486,6 +508,7 @@ const RULES: readonly Rule[] = [
   ownershipRule,
   jurisdictionRule,
   injectionRule,
+  guardLocalityRule,
   blockRules,
 ];
 
