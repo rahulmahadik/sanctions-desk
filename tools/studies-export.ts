@@ -43,6 +43,13 @@ const STUDIES: Array<{ name: string; runs: string[]; extra?: string[] }> = [
       "repeat/2026-10-24T16-19-36-310Z-heldout4-r2-nemotron_alone.json",
       "repeat/2026-10-24T16-37-52-619Z-heldout4-repr3-routed.json",
       "repeat/2026-10-24T16-51-21-563Z-heldout4-r3-nemotron_alone.json",
+      // The fairer arm of 25 Oct 2026: Nemotron alone given the free text the screener reads (text1 to text3).
+      ...(existsSync(join(logs, "repeat"))
+        ? readdirSync(join(logs, "repeat"))
+            .filter((f) => /-heldout4-text\d-nemotron_alone\.json$/.test(f))
+            .sort()
+            .map((f) => `repeat/${f}`)
+        : []),
     ],
   },
   {

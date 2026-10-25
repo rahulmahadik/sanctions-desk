@@ -1,0 +1,266 @@
+{
+  "variant": "nemotron_alone",
+  "exam": "heldout4",
+  "run": "text3",
+  "features": {
+    "cockpit_binds": {
+      "sanctions-desk-reasoning": "deep"
+    },
+    "what": "one Nemotron call per case on the structured case facts plus the free text the screener reads (customer note, payment reference, list remarks), sent to the cloud model for this study arm only; no guard, screener, rules, engines, memory, critic, challenger or policy guard",
+    "with_free_text": true
+  },
+  "selection": {},
+  "started_at": "2026-10-25T02:16:54.792Z",
+  "finished_at": "2026-10-25T02:30:40.032Z",
+  "policy_version": 8,
+  "models": {
+    "decision": "deep"
+  },
+  "cases": [
+    {
+      "case_id": "HO4-001",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_rules_close_note_uncle",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: the model answer has no JSON object"
+    },
+    {
+      "case_id": "HO4-002",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_rules_close_note_nominee_german",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.85,
+      "latency_s": 40.14,
+      "tokens_in": 7450,
+      "tokens_out": 3125,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO4-003",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_rules_close_note_former_name",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.92,
+      "latency_s": 36.52,
+      "tokens_in": 7938,
+      "tokens_out": 3429,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO4-004",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_note_director_since",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.92,
+      "latency_s": 53.55,
+      "tokens_in": 7863,
+      "tokens_out": 4175,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO4-005",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_ref_company_controlled_french",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: decision: Invalid option: expected one of \"CLOSE_FALSE_POSITIVE\"|\"ESCALATE_L2\"|\"RECOMMEND_BLOCK\"|\"NEED_MORE_INFO\"; confidence: Invalid input: expected number, received undefined; rationale: Invalid input: expected string, received undefined"
+    },
+    {
+      "case_id": "HO4-006",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_note_signatory_proxy",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: facts: Too big: expected array to have <=8 items"
+    },
+    {
+      "case_id": "HO4-007",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_fathers_name_printed",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.7,
+      "latency_s": 32.68,
+      "tokens_in": 5112,
+      "tokens_out": 2934,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO4-008",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_director_of_studies",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: facts.0.column: Invalid input: expected string, received undefined; facts.1.column: Invalid input: expected string, received undefined; facts.2.column: Invalid input: expected string, received undefined"
+    },
+    {
+      "case_id": "HO4-009",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_award_nominee",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.85,
+      "latency_s": 106.36,
+      "tokens_in": 3230,
+      "tokens_out": 1144,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO4-010",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_sister_branch",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.9,
+      "latency_s": 57.66,
+      "tokens_in": 4304,
+      "tokens_out": 2122,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO4-011",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_name_checked_no_match",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.92,
+      "latency_s": 45.33,
+      "tokens_in": 4877,
+      "tokens_out": 2873,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO4-012",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_own_company",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: the model answer has no JSON object"
+    }
+  ],
+  "metrics": {
+    "cases": 12,
+    "errors": 5,
+    "exact_accuracy": 0.0833,
+    "acceptable_accuracy": 0.0833,
+    "risk_cases": 6,
+    "false_closes": 1,
+    "false_close_rate": 0.1667,
+    "forbidden_answers": 1,
+    "abstain_rate": 0.7143,
+    "decision_unavailable": 0,
+    "decision_unavailable_by_cause": {
+      "provider": 0,
+      "parsing": 0,
+      "withheld": 0
+    },
+    "excluding_unavailable": {
+      "cases": 12,
+      "exact_accuracy": 0.0833,
+      "acceptable_accuracy": 0.0833
+    },
+    "by_group": {
+      "beyond_rules_v4": {
+        "cases": 12,
+        "exact": 1,
+        "acceptable": 1
+      }
+    },
+    "latency_s": {
+      "mean": 53.18,
+      "p50": 45.33,
+      "p95": 106.36
+    },
+    "tokens": {
+      "in": 40774,
+      "out": 19802
+    },
+    "model_calls": {
+      "local": 4,
+      "cloud": 6,
+      "cloud_share": 0.6
+    },
+    "cost": {
+      "total": 0.06,
+      "per_case": 0.008571
+    },
+    "challenger": {
+      "fired": 0,
+      "changed": 0,
+      "added_seconds": 0,
+      "added_cost": 0
+    },
+    "critic": {
+      "reviewed": 0,
+      "sent_back": 0,
+      "unresolved": 0,
+      "mean_rounds": 0
+    }
+  }
+}

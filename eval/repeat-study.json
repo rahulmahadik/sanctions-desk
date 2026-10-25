@@ -1,6 +1,6 @@
 {
   "label": "Small study, 12 cases x 3 runs, not part of the recorded evaluation",
-  "note": "Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one cloud Ultra call per case on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), 24-25 Oct 2026, after a warm-up and without restarting Nightshift.",
+  "note": "Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one cloud Ultra call per case on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), 24-25 Oct 2026, after a warm-up and without restarting Nightshift. Added on 25 Oct 2026, a fairer arm: Nemotron alone given the same free text the screener reads (customer note, payment reference, list remarks), with the same prompt otherwise, three runs; the first Nemotron-alone arm is kept as it was.",
   "systems": [
     {
       "system": "Full system",
@@ -43,7 +43,7 @@
       "cases": 12
     },
     {
-      "system": "Nemotron alone",
+      "system": "Nemotron alone, no free text",
       "runs": [
         {
           "run": "r1",
@@ -81,6 +81,46 @@
       ],
       "all_runs_agree": 4,
       "cases": 12
+    },
+    {
+      "system": "Nemotron alone, with the free text",
+      "runs": [
+        {
+          "run": "text1",
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 3,
+          "clear_cases": 6,
+          "acceptable": 3,
+          "cases": 12,
+          "escalated_share": 0.083,
+          "errors": 3
+        },
+        {
+          "run": "text2",
+          "wrong_closes": 1,
+          "risk_cases": 6,
+          "clears_made": 3,
+          "clear_cases": 6,
+          "acceptable": 3,
+          "cases": 12,
+          "escalated_share": 0,
+          "errors": 4
+        },
+        {
+          "run": "text3",
+          "wrong_closes": 1,
+          "risk_cases": 6,
+          "clears_made": 1,
+          "clear_cases": 6,
+          "acceptable": 1,
+          "cases": 12,
+          "escalated_share": 0,
+          "errors": 5
+        }
+      ],
+      "all_runs_agree": 5,
+      "cases": 12
     }
   ],
   "calibration": [
@@ -90,9 +130,14 @@
       "brier": 0.333
     },
     {
-      "label": "Nemotron alone (3 runs above)",
+      "label": "Nemotron alone, no free text (3 runs above)",
       "cases_with_confidence": 27,
       "brier": 0.696
+    },
+    {
+      "label": "Nemotron alone, with the free text (3 runs above)",
+      "cases_with_confidence": 24,
+      "brier": 0.498
     },
     {
       "label": "Full system, privacy mode off (24 Oct, held-out v4 and 8 exam cases, one run)",

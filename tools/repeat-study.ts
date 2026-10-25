@@ -15,7 +15,7 @@
  */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { resolveProjectPath } from "@sanctions-desk/shared";
+import { countWithInterval, resolveProjectPath } from "@sanctions-desk/shared";
 import { formatMarkdown } from "./lib/format-markdown.js";
 
 interface Case {
@@ -117,6 +117,8 @@ function brier(label: string, cases: Case[]): Calibration {
 
 const full = read("repeat", (f) => /-heldout4-repr\d-routed\.json$/.test(f));
 const alone = read("repeat", (f) => /-heldout4-r\d-nemotron_alone\.json$/.test(f));
+// The fairer arm (25 Oct 2026): Nemotron alone given the same free text the screener reads, same prompt otherwise.
+const aloneText = read("repeat", (f) => /-heldout4-text\d-nemotron_alone\.json$/.test(f));
 let study:
   | {
       label: string;
@@ -132,6 +134,7 @@ if (full.length > 0 && alone.length > 0) {
     (r) => [runName(r), { ...r, cases: withConfidence(r, `eval-heldout4-${r.system}`) }] as [string, Result],
   );
   const aloneRuns = alone.map((r) => [r.run ?? r.file, r] as [string, Result]);
+  const aloneTextRuns = aloneText.map((r) => [r.run ?? r.file, r] as [string, Result]);
   const labelled: Calibration[] = [];
   for (const [dir, system, label] of [
     ["privacy-test", "privoff", "Full system, privacy mode off (24 Oct, held-out v4 and 8 exam cases, one run)"],
@@ -144,17 +147,29 @@ if (full.length > 0 && alone.length > 0) {
   }
   study = {
     label: "Small study, 12 cases x 3 runs, not part of the recorded evaluation",
-    note: "Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one cloud Ultra call per case on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), 24-25 Oct 2026, after a warm-up and without restarting Nightshift.",
-    systems: [systemSummary("Full system", fullRuns), systemSummary("Nemotron alone", aloneRuns)],
+    note: `Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one cloud Ultra call per case on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), 24-25 Oct 2026, after a warm-up and without restarting Nightshift.${aloneTextRuns.length > 0 ? " Added on 25 Oct 2026, a fairer arm: Nemotron alone given the same free text the screener reads (customer note, payment reference, list remarks), with the same prompt otherwise, three runs; the first Nemotron-alone arm is kept as it was." : ""}`,
+    systems: [
+      systemSummary("Full system", fullRuns),
+      systemSummary("Nemotron alone, no free text", aloneRuns),
+      ...(aloneTextRuns.length > 0 ? [systemSummary("Nemotron alone, with the free text", aloneTextRuns)] : []),
+    ],
     calibration: [
       brier(
         "Full system (3 runs above)",
         fullRuns.flatMap(([, r]) => r.cases),
       ),
       brier(
-        "Nemotron alone (3 runs above)",
+        "Nemotron alone, no free text (3 runs above)",
         aloneRuns.flatMap(([, r]) => r.cases),
       ),
+      ...(aloneTextRuns.length > 0
+        ? [
+            brier(
+              "Nemotron alone, with the free text (3 runs above)",
+              aloneTextRuns.flatMap(([, r]) => r.cases),
+            ),
+          ]
+        : []),
       ...labelled,
       {
         label: "Deterministic rules, name match, escalate everything (no real confidence)",
@@ -194,14 +209,16 @@ const table = [
   "",
   "Each run:",
   "",
-  "| System | Run | Risk cases wrongly closed | Clears made | Acceptable outcomes | Escalated share | Errors |",
+  "| System | Run | Risk cases wrongly closed (95% range) | Clears made | Acceptable outcomes | Escalated share | Errors |",
   "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
   ...study.systems.flatMap((s) =>
     s.runs.map(
       (r) =>
-        `| ${s.system} | ${r.run} | ${r.wrong_closes} of ${r.risk_cases} | ${r.clears_made} of ${r.clear_cases} | ${r.acceptable} of ${r.cases} | ${pct(r.escalated_share)}% | ${r.errors} |`,
+        `| ${s.system} | ${r.run} | ${countWithInterval(r.wrong_closes, r.risk_cases)} | ${r.clears_made} of ${r.clear_cases} | ${r.acceptable} of ${r.cases} | ${pct(r.escalated_share)}% | ${r.errors} |`,
     ),
   ),
+  "",
+  "Ranges use the Wilson score method.",
   "",
   "**3. Calibration** (Brier score, lower is better; with this few cases it is indicative only, and a difference of a few hundredths is not read as one system being better calibrated):",
   "",
@@ -287,6 +304,16 @@ const setsTable = sets
     ].join("\n")
   : undefined;
 
+// One generated sentence for the README and docs/EVALUATION.md, each count with its 95% Wilson interval.
+const closedIn = (s: SystemSummary | undefined) => {
+  const counts = (s?.runs ?? []).map((r) => countWithInterval(r.wrong_closes, r.risk_cases));
+  return counts.length > 1 ? `${counts.slice(0, -1).join(", ")} and ${counts.at(-1)}` : (counts[0] ?? "not run");
+};
+const [fullSys, aloneSys, aloneTextSys] = study.systems;
+const noAnswer = (s: SystemSummary | undefined) =>
+  s ? ` (no usable answer on ${range(s.runs.map((r) => r.errors))} of ${s.runs[0]?.cases ?? 0} cases a run)` : "";
+const aloneSummary = `- **Small study, Nemotron alone against the full system (held-out v4, 12 cases, three runs each, not part of the recorded evaluation; risk cases wrongly closed in each run, with the 95% range, written by \`npm run study:repeat\`):** the full system ${closedIn(fullSys)}; Nemotron alone, given the same structured facts with no free text and no checks, ${closedIn(aloneSys)}${noAnswer(aloneSys)}${aloneTextSys ? `; Nemotron alone given the same free text the screener reads, with the same prompt otherwise, ${closedIn(aloneTextSys)}${noAnswer(aloneTextSys)}` : ""}. Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](${"DOCS"}NEMOTRON.md#what-the-agents-add-over-nemotron-alone).`;
+
 const json = `${JSON.stringify(study, null, 2)}\n`;
 let changed = !existsSync(outFile) || readFileSync(outFile, "utf8") !== json;
 if (changed && !check) writeFileSync(outFile, json);
@@ -295,6 +322,23 @@ if (sets) {
   if (!existsSync(setsFile) || readFileSync(setsFile, "utf8") !== setsJson) {
     changed = true;
     if (!check) writeFileSync(setsFile, setsJson);
+  }
+}
+for (const [path, docs] of [
+  ["README.md", "docs/"],
+  ["docs/EVALUATION.md", ""],
+] as const) {
+  const target = resolveProjectPath(path);
+  const doc = readFileSync(target, "utf8");
+  const reSummary = /<!-- alone-summary:start -->[\s\S]*?<!-- alone-summary:end -->/;
+  if (!reSummary.test(doc)) continue;
+  const next = doc.replace(
+    reSummary,
+    () => `<!-- alone-summary:start -->\n${aloneSummary.replace("DOCS", docs)}\n<!-- alone-summary:end -->`,
+  );
+  if (next !== doc) {
+    changed = true;
+    if (!check) writeFileSync(target, next);
   }
 }
 const docFile = resolveProjectPath("docs/NEMOTRON.md");

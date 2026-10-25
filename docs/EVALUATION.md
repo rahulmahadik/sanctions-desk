@@ -49,6 +49,7 @@ How sure we can be (95% range, small sets so the ranges are wide): exam, 0 of 43
 <!-- headline-intervals:end -->
 
 <!-- alone-summary:start -->
+- **Small study, Nemotron alone against the full system (held-out v4, 12 cases, three runs each, not part of the recorded evaluation; risk cases wrongly closed in each run, with the 95% range, written by `npm run study:repeat`):** the full system 0 of 6 (0–39%), 0 of 6 (0–39%) and 0 of 6 (0–39%); Nemotron alone, given the same structured facts with no free text and no checks, 3 of 6 (19–81%), 6 of 6 (61–100%) and 4 of 6 (30–90%) (no usable answer on 2 to 4 of 12 cases a run); Nemotron alone given the same free text the screener reads, with the same prompt otherwise, 0 of 6 (0–39%), 1 of 6 (3–56%) and 1 of 6 (3–56%) (no usable answer on 3 to 5 of 12 cases a run). Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](NEMOTRON.md#what-the-agents-add-over-nemotron-alone).
 <!-- alone-summary:end -->
 
 - Each variant in the report is **one run**. Model answers vary between runs.

@@ -1,0 +1,278 @@
+{
+  "variant": "nemotron_alone",
+  "exam": "heldout4",
+  "run": "text1",
+  "features": {
+    "cockpit_binds": {
+      "sanctions-desk-reasoning": "deep"
+    },
+    "what": "one Nemotron call per case on the structured case facts plus the free text the screener reads (customer note, payment reference, list remarks), sent to the cloud model for this study arm only; no guard, screener, rules, engines, memory, critic, challenger or policy guard",
+    "with_free_text": true
+  },
+  "selection": {},
+  "started_at": "2026-10-25T01:50:53.889Z",
+  "finished_at": "2026-10-25T02:03:33.097Z",
+  "policy_version": 8,
+  "models": {
+    "decision": "deep"
+  },
+  "cases": [
+    {
+      "case_id": "HO4-001",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_rules_close_note_uncle",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.9,
+      "latency_s": 68.04,
+      "tokens_in": 4665,
+      "tokens_out": 2600,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO4-002",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_rules_close_note_nominee_german",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.9,
+      "latency_s": 37.86,
+      "tokens_in": 4080,
+      "tokens_out": 1957,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0
+    },
+    {
+      "case_id": "HO4-003",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_rules_close_note_former_name",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.75,
+      "latency_s": 51.15,
+      "tokens_in": 5044,
+      "tokens_out": 2809,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO4-004",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_note_director_since",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.92,
+      "latency_s": 59.62,
+      "tokens_in": 7863,
+      "tokens_out": 4244,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO4-005",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_ref_company_controlled_french",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: facts: Too big: expected array to have <=8 items"
+    },
+    {
+      "case_id": "HO4-006",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_note_signatory_proxy",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: facts.0.column: Invalid input: expected string, received undefined; facts.1.column: Invalid input: expected string, received undefined; facts.2.column: Invalid input: expected string, received undefined"
+    },
+    {
+      "case_id": "HO4-007",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_fathers_name_printed",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.95,
+      "latency_s": 55.55,
+      "tokens_in": 5112,
+      "tokens_out": 3943,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO4-008",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_director_of_studies",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.9,
+      "latency_s": 45.88,
+      "tokens_in": 4815,
+      "tokens_out": 2895,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO4-009",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_award_nominee",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.7,
+      "latency_s": 52.09,
+      "tokens_in": 4868,
+      "tokens_out": 2921,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO4-010",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_sister_branch",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.9,
+      "latency_s": 43.04,
+      "tokens_in": 5035,
+      "tokens_out": 2758,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO4-011",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_name_checked_no_match",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "ESCALATE_L2",
+      "confidence": 0.75,
+      "latency_s": 130.71,
+      "tokens_in": 4853,
+      "tokens_out": 2393,
+      "local_calls": 2,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO4-012",
+      "group": "beyond_rules_v4",
+      "kind": "ho4_clear_own_company",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: facts.0.column: Invalid input: expected string, received undefined; facts.1.column: Invalid input: expected string, received undefined; facts.2.column: Invalid input: expected string, received undefined"
+    }
+  ],
+  "metrics": {
+    "cases": 12,
+    "errors": 3,
+    "exact_accuracy": 0.25,
+    "acceptable_accuracy": 0.25,
+    "risk_cases": 6,
+    "false_closes": 0,
+    "false_close_rate": 0,
+    "forbidden_answers": 0,
+    "abstain_rate": 0.5556,
+    "decision_unavailable": 0,
+    "decision_unavailable_by_cause": {
+      "provider": 0,
+      "parsing": 0,
+      "withheld": 0
+    },
+    "excluding_unavailable": {
+      "cases": 12,
+      "exact_accuracy": 0.25,
+      "acceptable_accuracy": 0.25
+    },
+    "by_group": {
+      "beyond_rules_v4": {
+        "cases": 12,
+        "exact": 3,
+        "acceptable": 3
+      }
+    },
+    "latency_s": {
+      "mean": 60.44,
+      "p50": 52.09,
+      "p95": 130.71
+    },
+    "tokens": {
+      "in": 46335,
+      "out": 26520
+    },
+    "model_calls": {
+      "local": 4,
+      "cloud": 7,
+      "cloud_share": 0.6364
+    },
+    "cost": {
+      "total": 0.06,
+      "per_case": 0.006667
+    },
+    "challenger": {
+      "fired": 0,
+      "changed": 0,
+      "added_seconds": 0,
+      "added_cost": 0
+    },
+    "critic": {
+      "reviewed": 0,
+      "sent_back": 0,
+      "unresolved": 0,
+      "mean_rounds": 0
+    }
+  }
+}

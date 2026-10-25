@@ -1,0 +1,48 @@
+{
+  "run_id": "heldout4-text1-nemotron_alone-20261025T015053Z",
+  "study": "repeat-heldout4",
+  "source": "logs/repeat/2026-10-25T01-50-53-889Z-heldout4-text1-nemotron_alone.json",
+  "variant": "nemotron_alone",
+  "exam": "heldout4",
+  "system": null,
+  "started_at": "2026-10-25T01:50:53.889Z",
+  "finished_at": "2026-10-25T02:03:33.097Z",
+  "policy_version": 8,
+  "features": {
+    "cockpit_binds": {
+      "sanctions-desk-reasoning": "deep"
+    },
+    "what": "one Nemotron call per case on the structured case facts plus the free text the screener reads (customer note, payment reference, list remarks), sent to the cloud model for this study arm only; no guard, screener, rules, engines, memory, critic, challenger or policy guard",
+    "with_free_text": true
+  },
+  "nightshift_build": {
+    "version": "1.2.1",
+    "source": "the application's About screen, confirmed by the project owner; no separate runtime version is shown",
+    "known_limits": [
+      "an app bind in the cockpit replaces the mode or model id the client asks for (the receipt records both), so explicit model ids are coerced",
+      "the cloud model sometimes answers slowly or not at all: timeouts and HTTP 502 were seen in the runs"
+    ]
+  },
+  "models": {
+    "decision": "deep"
+  },
+  "cases": 12,
+  "events": 193,
+  "receipts": 16,
+  "files": {
+    "results.json": {
+      "bytes": 7266,
+      "sha256": "75ca25e8c0bcf177e65fd3bb1329858966dcee4e2eb0322c4e1a197a8fcf6154"
+    },
+    "trace.jsonl.gz": {
+      "bytes": 14172,
+      "sha256": "cd8200b6e8b274fa9cdcda2f45a8eb5d3b312e01e5e8ff323f1580b1bcbbb062"
+    },
+    "receipts.jsonl.gz": {
+      "bytes": 7716,
+      "sha256": "59dd40291c1a8cccb7ec26c73111d6f404a1cecb5991485f6bf4c4b697c8553c"
+    }
+  },
+  "redacted": "tokens, local paths, hostnames and addresses other than the local machine, usernames, e-mail addresses and secret environment values were removed from results.json and trace.jsonl.gz; receipts.jsonl.gz is untouched",
+  "verify": "npm run evidence:verify -- eval/studies/repeat-heldout4/heldout4-text1-nemotron_alone-20261025T015053Z"
+}

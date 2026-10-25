@@ -430,7 +430,7 @@ if (existsSync(resolveProjectPath("eval/repeat-study.json"))) {
   save(
     "repeat-study",
     page(
-      "Held-out v4, three runs each: full system and Nemotron alone",
+      "Held-out v4, three runs each: full system and Nemotron alone, without and with the free text",
       `Small study, ${cases} cases x 3 runs, not part of the recorded evaluation. ${study.systems[0]?.runs[0]?.risk_cases ?? 6} risk cases per run.`,
       body,
       "eval/repeat-study.json (npm run study:repeat)",

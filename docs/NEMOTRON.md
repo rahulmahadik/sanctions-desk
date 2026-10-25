@@ -49,39 +49,46 @@ Read plainly: neither arm closed a risk case. With Lightning doing the reasoning
 
 ## What the agents add over Nemotron alone
 
-The same 12 held-out cases, three runs each: the full system, and Nemotron alone (one Ultra call per case on the structured case facts the decision step gets, with no free text, no critic, no challenger, no policy guard and no memory, through the same Nightshift path with receipts). It is reported as measured, including where Nemotron alone does as well or better.
+The same 12 held-out cases, three runs each: the full system, and Nemotron alone (one Ultra call per case on the structured case facts the decision step gets, with no free text, no critic, no challenger, no policy guard and no memory, through the same Nightshift path with receipts). It is reported as measured, including where Nemotron alone does as well or better. A second Nemotron-alone arm, added on 25 Oct 2026, gets the same free text the screener reads (customer note, payment reference, list remarks) with the same prompt otherwise, so the comparison does not rest on Nemotron alone being denied the text; the first arm is kept beside it. This arm sends the (synthetic) free text to the cloud model, which the desk itself never does; it is a study tool only (`tools/nemotron-alone.ts --with-text`).
 
-![Held-out v4, three runs each: the full system and Nemotron alone](media/charts/repeat-study.png)
+![Held-out v4, three runs each: the full system, Nemotron alone without and with the free text](media/charts/repeat-study.png)
 
 <!-- repeat-study:start -->
-**Small study, 12 cases x 3 runs, not part of the recorded evaluation.** Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one cloud Ultra call per case on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), 24-25 Oct 2026, after a warm-up and without restarting Nightshift.
+**Small study, 12 cases x 3 runs, not part of the recorded evaluation.** Held-out v4 run three times by the full system (privacy mode off) and three times by Nemotron alone (one cloud Ultra call per case on the structured case facts the decision step gets: no free text, critic, challenger, policy guard or memory), 24-25 Oct 2026, after a warm-up and without restarting Nightshift. Added on 25 Oct 2026, a fairer arm: Nemotron alone given the same free text the screener reads (customer note, payment reference, list remarks), with the same prompt otherwise, three runs; the first Nemotron-alone arm is kept as it was.
 
-**1. Agreement between runs.** Same outcome in all 3 runs: Full system on 10 of 12 cases; Nemotron alone on 4 of 12 cases.
+**1. Agreement between runs.** Same outcome in all 3 runs: Full system on 10 of 12 cases; Nemotron alone, no free text on 4 of 12 cases; Nemotron alone, with the free text on 5 of 12 cases.
 
 **2. Ranges across the runs** (lowest to highest of the three):
 
-| System         | Risk cases wrongly closed | Clears made | Acceptable outcomes | Escalated share | Errors |
-| -------------- | ------------------------: | ----------: | ------------------: | --------------: | -----: |
-| Full system    |                    0 of 6 |      1 of 6 |        5 to 7 of 12 |       75 to 92% |      0 |
-| Nemotron alone |               3 to 6 of 6 | 0 to 1 of 6 |        0 to 1 of 12 |         0 to 8% | 2 to 4 |
+| System                             | Risk cases wrongly closed | Clears made | Acceptable outcomes | Escalated share | Errors |
+| ---------------------------------- | ------------------------: | ----------: | ------------------: | --------------: | -----: |
+| Full system                        |                    0 of 6 |      1 of 6 |        5 to 7 of 12 |       75 to 92% |      0 |
+| Nemotron alone, no free text       |               3 to 6 of 6 | 0 to 1 of 6 |        0 to 1 of 12 |         0 to 8% | 2 to 4 |
+| Nemotron alone, with the free text |               0 to 1 of 6 | 1 to 3 of 6 |        1 to 3 of 12 |         0 to 8% | 3 to 5 |
 
 Each run:
 
-| System         | Run | Risk cases wrongly closed | Clears made | Acceptable outcomes | Escalated share | Errors |
-| -------------- | --- | ------------------------: | ----------: | ------------------: | --------------: | -----: |
-| Full system    | r1  |                    0 of 6 |      1 of 6 |             7 of 12 |             92% |      0 |
-| Full system    | r2  |                    0 of 6 |      1 of 6 |             7 of 12 |             92% |      0 |
-| Full system    | r3  |                    0 of 6 |      1 of 6 |             5 of 12 |             75% |      0 |
-| Nemotron alone | r1  |                    3 of 6 |      0 of 6 |             0 of 12 |              0% |      4 |
-| Nemotron alone | r2  |                    6 of 6 |      1 of 6 |             1 of 12 |              8% |      2 |
-| Nemotron alone | r3  |                    4 of 6 |      1 of 6 |             1 of 12 |              0% |      3 |
+| System                             | Run   | Risk cases wrongly closed (95% range) | Clears made | Acceptable outcomes | Escalated share | Errors |
+| ---------------------------------- | ----- | ------------------------------------: | ----------: | ------------------: | --------------: | -----: |
+| Full system                        | r1    |                        0 of 6 (0–39%) |      1 of 6 |             7 of 12 |             92% |      0 |
+| Full system                        | r2    |                        0 of 6 (0–39%) |      1 of 6 |             7 of 12 |             92% |      0 |
+| Full system                        | r3    |                        0 of 6 (0–39%) |      1 of 6 |             5 of 12 |             75% |      0 |
+| Nemotron alone, no free text       | r1    |                       3 of 6 (19–81%) |      0 of 6 |             0 of 12 |              0% |      4 |
+| Nemotron alone, no free text       | r2    |                      6 of 6 (61–100%) |      1 of 6 |             1 of 12 |              8% |      2 |
+| Nemotron alone, no free text       | r3    |                       4 of 6 (30–90%) |      1 of 6 |             1 of 12 |              0% |      3 |
+| Nemotron alone, with the free text | text1 |                        0 of 6 (0–39%) |      3 of 6 |             3 of 12 |              8% |      3 |
+| Nemotron alone, with the free text | text2 |                        1 of 6 (3–56%) |      3 of 6 |             3 of 12 |              0% |      4 |
+| Nemotron alone, with the free text | text3 |                        1 of 6 (3–56%) |      1 of 6 |             1 of 12 |              0% |      5 |
+
+Ranges use the Wilson score method.
 
 **3. Calibration** (Brier score, lower is better; with this few cases it is indicative only, and a difference of a few hundredths is not read as one system being better calibrated):
 
 | Runs                                                                          | Cases with a confidence (n) | Brier score |
 | ----------------------------------------------------------------------------- | --------------------------: | ----------: |
 | Full system (3 runs above)                                                    |                          36 |       0.333 |
-| Nemotron alone (3 runs above)                                                 |                          27 |       0.696 |
+| Nemotron alone, no free text (3 runs above)                                   |                          27 |       0.696 |
+| Nemotron alone, with the free text (3 runs above)                             |                          24 |       0.498 |
 | Full system, privacy mode off (24 Oct, held-out v4 and 8 exam cases, one run) |                          20 |       0.328 |
 | Full system, privacy mode on (24 Oct, same 20 cases, one run)                 |                          20 |       0.201 |
 | Reasoning on Lightning (24 Oct, same 20 cases, one run)                       |                          16 |       0.165 |
@@ -90,7 +97,7 @@ Each run:
 Brier score: Mean of (confidence - y) squared over cases, where y is 1 when the chosen outcome is acceptable for the case (its expected or an acceptable outcome) and 0 otherwise. 0 is perfect; always answering with confidence 0.5 scores 0.25. Lower is better.
 <!-- repeat-study:end -->
 
-Read plainly: in each of its three runs Nemotron alone closed risk cases (3, 6 and 4 of 6); the full system closed none in any run. HO4-001 to HO4-003 carry their risk only in free text (an uncle who is the listed person, a German nominee note, a former name), and their structured fields alone meet the false-positive definition, so a model given only those fields closes them; Nemotron alone did in all three runs. In the full system the local screener reads that text on the laptop and passes a risk signal that blocks the close. Nemotron alone also closed HO4-004 to HO4-006 in some runs, gave an answer the decision schema rejects on 2 to 4 cases per run (the full system retries those), and agreed with itself on 4 of 12 cases against 10 of 12 for the full system. The full system's cost is the other side: it made 1 of 6 clears in each run and escalated the rest. With this few cases the Brier scores are indicative only; the full system's 0.333 is worse than always answering 0.5 would score, because it gives high confidence to escalations of clear cases.
+Read plainly: in each of its three runs Nemotron alone closed risk cases (3, 6 and 4 of 6); the full system closed none in any run. HO4-001 to HO4-003 carry their risk only in free text (an uncle who is the listed person, a German nominee note, a former name), and their structured fields alone meet the false-positive definition, so a model given only those fields closes them; Nemotron alone did in all three runs. In the full system the local screener reads that text on the laptop and passes a risk signal that blocks the close. Nemotron alone also closed HO4-004 to HO4-006 in some runs, gave an answer the decision schema rejects on 2 to 4 cases per run (the full system retries those), and agreed with itself on 4 of 12 cases against 10 of 12 for the full system. The full system's cost is the other side: it made 1 of 6 clears in each run and escalated the rest. **With the free text** (the fairer arm, 25 Oct 2026), Nemotron alone wrongly closed 0, 1 and 1 of 6 risk cases (HO4-003, the former name, in two runs) and made 3, 3 and 1 of 6 clears, more than the full system's 1 of 6. It gave no usable answer on 3 to 5 of 12 cases a run (an answer the decision schema rejects: no JSON, more than 8 cited facts, missing fields), which left 3 or 4 of the 6 risk cases without an answer in each run; a desk would have to send those to a person. So given the text, Nemotron alone closes far fewer risks than without it, but not none, and it fails to answer often; the full system closed none and answered every case, at the cost of clears. With this few cases the Brier scores are indicative only; the full system's 0.333 is worse than always answering 0.5 would score, because it gives high confidence to escalations of clear cases.
 
 **Nemotron alone on held-out v1 and v3.** The two rounds where the full system wrongly closed risk cases, run once each:
 

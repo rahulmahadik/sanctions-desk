@@ -89,6 +89,39 @@
       "bytes": 29373
     },
     {
+      "study": "repeat-heldout4",
+      "run_id": "heldout4-text1-nemotron_alone-20261025T015053Z",
+      "path": "eval/studies/repeat-heldout4/heldout4-text1-nemotron_alone-20261025T015053Z",
+      "source": "logs/repeat/2026-10-25T01-50-53-889Z-heldout4-text1-nemotron_alone.json",
+      "started_at": "2026-10-25T01:50:53.889Z",
+      "cases": 12,
+      "events": 193,
+      "receipts": 16,
+      "bytes": 31246
+    },
+    {
+      "study": "repeat-heldout4",
+      "run_id": "heldout4-text2-nemotron_alone-20261025T020333Z",
+      "path": "eval/studies/repeat-heldout4/heldout4-text2-nemotron_alone-20261025T020333Z",
+      "source": "logs/repeat/2026-10-25T02-03-33-450Z-heldout4-text2-nemotron_alone.json",
+      "started_at": "2026-10-25T02:03:33.450Z",
+      "cases": 12,
+      "events": 196,
+      "receipts": 19,
+      "bytes": 33531
+    },
+    {
+      "study": "repeat-heldout4",
+      "run_id": "heldout4-text3-nemotron_alone-20261025T021654Z",
+      "path": "eval/studies/repeat-heldout4/heldout4-text3-nemotron_alone-20261025T021654Z",
+      "source": "logs/repeat/2026-10-25T02-16-54-792Z-heldout4-text3-nemotron_alone.json",
+      "started_at": "2026-10-25T02:16:54.792Z",
+      "cases": 12,
+      "events": 198,
+      "receipts": 19,
+      "bytes": 33893
+    },
+    {
       "study": "heldout3-rerun",
       "run_id": "heldout3-todayt1-routed-20261024T183703Z",
       "path": "eval/studies/heldout3-rerun/heldout3-todayt1-routed-20261024T183703Z",
