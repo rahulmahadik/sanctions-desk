@@ -19,6 +19,10 @@ npm run users:add -- --file ~/.sanctions-desk/users.json --id olga --role approv
 
 The token (`sd_` and 32 characters, 192 random bits) is printed once; the file keeps only its SHA-256. `npm run users:rotate` issues a new token and the old one stops working; `npm run users:revoke` stops a token at once; `--expires` (for example `90d` or an ISO time) makes a token stop working at that time. A running server reads the file again when it changes, so these take effect on the next request. Every change is logged in `users-audit.jsonl` beside the file (who, when, what; never a token). A token in any other form is refused, and with sign-in on the server will not start while the file holds a token that `users:add` did not make.
 
+**When sign-in is on.** The setting is the environment variable `AUTH_MODE` (`server.auth` in the configuration files), and it defaults to `auto`. `auto` means sign-in is on in live mode and demo users in sample mode. `on` works in both modes. `demo` and `off` are refused in live mode, and in live mode without a users file (`DESK_USERS_FILE`) the server refuses to start, so the API never runs live with sign-in off.
+
+**Runs without the API.** Two things do not go through the API's sign-in, because they open no port and whoever runs them already controls the process: `npm run case` (one review, in-process) and the evaluation tools (`npm run exam` and the study and guard tools), which call the review pipeline directly.
+
 **Send it.** `Authorization: Bearer <token>` on every request. Every route except `/health` needs it when sign-in is on (the default outside sample mode). No token, or an unknown, malformed, expired or revoked one: `401`. A role that may not do this: `403`.
 
 ```bash
@@ -28,12 +32,12 @@ curl -s https://desk.example.com/run -H "Authorization: Bearer $DESK_TOKEN" -H '
 
 **Roles.**
 
-| Role           | What it may do                                                                                                                                                                                                                                                                                                                                                                                                              |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `analyst`      | read everything; start a review, replay a list change, check a draft for a customer, compare a policy draft; approve or override a recommendation, give a second approval, reopen an automatic close                                                                                                                                                                                                                        |
-| `approver`     | read everything; start a review, replay a list change, check a draft for a customer, compare a policy draft; approve or override a recommendation, give a second approval, reopen an automatic close; give the second approval of a block or of an override to a close; override towards a less cautious outcome (it then waits for a second approver); propose, reload or roll back a policy draft; stop automatic closing |
-| `policy_admin` | read everything; start a review, replay a list change, check a draft for a customer, compare a policy draft; propose, reload or roll back a policy draft; publish a policy draft; stop automatic closing; switch automatic closing back on                                                                                                                                                                                  |
-| `viewer`       | read everything (read only)                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Role | What it may do |
+| --- | --- |
+| `analyst` | read everything; start a review, replay a list change, check a draft for a customer, compare a policy draft; approve or override a recommendation, give a second approval, reopen an automatic close |
+| `approver` | read everything; start a review, replay a list change, check a draft for a customer, compare a policy draft; approve or override a recommendation, give a second approval, reopen an automatic close; give the second approval of a block or of an override to a close; override towards a less cautious outcome (it then waits for a second approver); propose, reload or roll back a policy draft; stop automatic closing |
+| `policy_admin` | read everything; start a review, replay a list change, check a draft for a customer, compare a policy draft; propose, reload or roll back a policy draft; publish a policy draft; stop automatic closing; switch automatic closing back on |
+| `viewer` | read everything (read only) |
 
 **Four-eyes.** A block, and an override that lowers caution (a block or an escalation changed to a close), wait for a second, different approver. A policy draft must be published by a different person from the one who proposed it.
 

@@ -12,6 +12,7 @@
       "!eval/runs",
       "!eval/studies",
       "!docs/diagrams/*.svg",
+      "!docs/API.md",
       "!eval/results",
       "!eval/adversarial",
       "!eval/REPORT.md",
