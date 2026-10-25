@@ -68,7 +68,7 @@ A 70-case exam, written from the approved definitions, with the system compared 
 
 ## Limits
 
-- Synthetic data only; not tested on a bank's real alerts.
+- Synthetic customer, account, ownership, alert and payment data (the list entries are real public entries); not tested on a bank's real alerts.
 - Most decision and critic calls are answered by a cloud model. With real customer data, what may leave the machine would need an explicit decision.
 - Fairness across name origins and languages is only partly measured (see [Responsible AI](#responsible-ai)).
 - The exam's labels and the rules share the same definitions.
@@ -104,7 +104,7 @@ A change is a draft, then a publish by a different person (four-eyes). A publish
 
 - **A person decides.** The desk recommends. Automatic closing is off by default and was off in every recorded run; a person makes the final call. It never blocks an account, never writes to a source system and never contacts a customer; those limits are fixed in the policy schema and cannot be lifted by a policy change. A recommended block needs two approvals.
 - **Evidence you can check.** Every cited fact is re-read from the data by code before the critic's model sees it; a claim that does not match is never approved. Each recommendation has a sealed decision record and a trace that answers four questions: which approved definition applied, what data it rested on, who could see what, and what it cost.
-- **Synthetic data only.** Customers, accounts, owners and payments are generated; only the listed parties are real public entries.
+- **Synthetic bank data.** Customers, accounts, owners, alerts and payments are generated; the listed parties are real public entries, 6 of them edited by a labelled synthetic list update.
 - **Memory without personal data.** Earlier decisions are remembered as an outcome, reason codes and a pointer to the row (table, key, content hash). The pointer is re-checked each time and goes stale when the listed entry changes; a memory can inform a decision but cannot close an alert on its own.
 - **Least privilege.** Each agent can read only its own tables and columns; identifier numbers are masked by the application (see below); the model service receives only the masked form, never the clear number. Zetaris's HIDE policy for `customer_identifier.id_number` is configured for the evidence role, but this local edition does not enforce it. The application enforces it instead: the SQL guard stops every agent except the evidence step from naming the column, the evidence step's masking returns only the last two characters, and a customer identifier is compared with a listed one by a join inside Zetaris so the number is never read into the application. Tests prove each part (`packages/zetaris/test/guard.test.ts`, `client.test.ts`, `tools.test.ts`).
 - **Fairness in name matching across languages.** What was measured: six transliteration cases across Cyrillic, Arabic and Han scripts, look-alike letters, accents, name order and spelling variants, and every one of those that carried real risk was escalated, none closed. What was not measured: other scripts and naming conventions, and how often common names in any one culture are escalated without cause. Name matching tends to raise more alerts for people whose names are common or transliterated in many ways, and the cost of that falls on those customers as extra review. Before any real use, measure the escalation rate by name origin and set the thresholds with that in mind.
