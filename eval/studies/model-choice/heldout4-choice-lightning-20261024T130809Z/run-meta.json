@@ -1,0 +1,88 @@
+{
+  "run_id": "heldout4-choice-lightning-20261024T130809Z",
+  "study": "model-choice",
+  "source": "logs/model-choice/2026-10-24T13-08-09-951Z-heldout4-choice-lightning.json",
+  "variant": "lightning",
+  "exam": "heldout4",
+  "system": "choice",
+  "started_at": "2026-10-24T13:08:09.951Z",
+  "finished_at": "2026-10-24T14:29:11.742Z",
+  "policy_version": 8,
+  "features": {
+    "commit": "3132a81+local changes",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "screener": {
+      "enabled": true,
+      "confidence_threshold": 0.5
+    },
+    "cockpit_binds": {
+      "sanctions-desk-eval": "auto",
+      "sanctions-desk-guard": "local"
+    },
+    "app_identities": {
+      "triage": "default",
+      "evidence": "default",
+      "screener": "guard",
+      "matching": "default",
+      "ownership": "default",
+      "decision": "guard",
+      "critic": "guard",
+      "challenger": "guard",
+      "policy_guard": "guard",
+      "reporter": "default"
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "retry_identities": {
+      "decision": "guard",
+      "critic": "guard",
+      "challenger": "guard"
+    },
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "nightshift_build": {
+    "version": "1.2.1",
+    "source": "the application's About screen, confirmed by the project owner; no separate runtime version is shown",
+    "known_limits": [
+      "an app bind in the cockpit replaces the mode or model id the client asks for (the receipt records both), so explicit model ids are coerced",
+      "the cloud model sometimes answers slowly or not at all: timeouts and HTTP 502 were seen in the runs"
+    ]
+  },
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "screener": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "fast / reasoning 500",
+    "critic": "fast / reasoning 400",
+    "challenger": "fast / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": 12,
+  "events": 620,
+  "receipts": 82,
+  "files": {
+    "results.json": {
+      "bytes": 13166,
+      "sha256": "48b6a3e4e04360d25a16e4ec9d76df567a09acd90ec6dc6d2e6a96f34bc361a0"
+    },
+    "trace.jsonl.gz": {
+      "bytes": 60514,
+      "sha256": "e6e97072337c17e280ab7dd8c3980411d50f37d06fbf999acf024f96bcace0e1"
+    },
+    "receipts.jsonl.gz": {
+      "bytes": 31427,
+      "sha256": "58e5a6852e23c93adf2b15d35d18c67dabaabc3d19530feacf411d14518ae7e9"
+    }
+  },
+  "redacted": "tokens, local paths, hostnames and addresses other than the local machine, usernames, e-mail addresses and secret environment values were removed from results.json and trace.jsonl.gz; receipts.jsonl.gz is untouched",
+  "verify": "npm run evidence:verify -- eval/studies/model-choice/heldout4-choice-lightning-20261024T130809Z"
+}

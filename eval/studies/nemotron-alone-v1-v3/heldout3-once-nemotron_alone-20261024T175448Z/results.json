@@ -1,0 +1,279 @@
+{
+  "variant": "nemotron_alone",
+  "exam": "heldout3",
+  "run": "once",
+  "features": {
+    "cockpit_binds": {
+      "sanctions-desk-reasoning": "deep"
+    },
+    "what": "one Nemotron call per case on the structured case facts (no free text); no guard, screener, rules, engines, memory, critic, challenger or policy guard"
+  },
+  "selection": {},
+  "started_at": "2026-10-24T17:54:48.801Z",
+  "finished_at": "2026-10-24T18:10:56.758Z",
+  "policy_version": 8,
+  "models": {
+    "decision": "deep"
+  },
+  "cases": [
+    {
+      "case_id": "HO3-001",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_rules_close_note_son",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.95,
+      "latency_s": 51.58,
+      "tokens_in": 4420,
+      "tokens_out": 2420,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO3-002",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_note_director_portuguese",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.85,
+      "latency_s": 98.48,
+      "tokens_in": 3126,
+      "tokens_out": 1026,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO3-003",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_rules_close_note_nominee",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.95,
+      "latency_s": 33.09,
+      "tokens_in": 3625,
+      "tokens_out": 1732,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0
+    },
+    {
+      "case_id": "HO3-004",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_ref_company_owned_by_listed",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: the model answer has no JSON object"
+    },
+    {
+      "case_id": "HO3-005",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_rules_close_note_partner_italian",
+      "expected": "ESCALATE_L2",
+      "acceptable": [],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.95,
+      "latency_s": 29.24,
+      "tokens_in": 3792,
+      "tokens_out": 1639,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0
+    },
+    {
+      "case_id": "HO3-006",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_note_trustee_dutch",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: facts: Too big: expected array to have <=8 items"
+    },
+    {
+      "case_id": "HO3-007",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_name_check_note",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: facts: Too big: expected array to have <=8 items"
+    },
+    {
+      "case_id": "HO3-008",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_fathers_name",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.75,
+      "latency_s": 106.01,
+      "tokens_in": 5855,
+      "tokens_out": 3516,
+      "local_calls": 3,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO3-009",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_director_of_studies",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.75,
+      "latency_s": 102.5,
+      "tokens_in": 2951,
+      "tokens_out": 937,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO3-010",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_award_nominee",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.85,
+      "latency_s": 77.16,
+      "tokens_in": 8671,
+      "tokens_out": 4619,
+      "local_calls": 2,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO3-011",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_sister_company",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.9,
+      "latency_s": 49.36,
+      "tokens_in": 4966,
+      "tokens_out": 2613,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO3-012",
+      "group": "beyond_rules_v3",
+      "kind": "ho3_clear_payee_name_check",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.95,
+      "latency_s": 104.48,
+      "tokens_in": 3572,
+      "tokens_out": 1531,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    }
+  ],
+  "metrics": {
+    "cases": 12,
+    "errors": 3,
+    "exact_accuracy": 0.1667,
+    "acceptable_accuracy": 0.1667,
+    "risk_cases": 6,
+    "false_closes": 4,
+    "false_close_rate": 0.6667,
+    "forbidden_answers": 4,
+    "abstain_rate": 0.3333,
+    "decision_unavailable": 0,
+    "decision_unavailable_by_cause": {
+      "provider": 0,
+      "parsing": 0,
+      "withheld": 0
+    },
+    "excluding_unavailable": {
+      "cases": 12,
+      "exact_accuracy": 0.1667,
+      "acceptable_accuracy": 0.1667
+    },
+    "by_group": {
+      "beyond_rules_v3": {
+        "cases": 12,
+        "exact": 2,
+        "acceptable": 2
+      }
+    },
+    "latency_s": {
+      "mean": 72.43,
+      "p50": 77.16,
+      "p95": 106.01
+    },
+    "tokens": {
+      "in": 40978,
+      "out": 20033
+    },
+    "model_calls": {
+      "local": 8,
+      "cloud": 5,
+      "cloud_share": 0.3846
+    },
+    "cost": {
+      "total": 0.03,
+      "per_case": 0.003333
+    },
+    "challenger": {
+      "fired": 0,
+      "changed": 0,
+      "added_seconds": 0,
+      "added_cost": 0
+    },
+    "critic": {
+      "reviewed": 0,
+      "sent_back": 0,
+      "unresolved": 0,
+      "mean_rounds": 0
+    }
+  }
+}

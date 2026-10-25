@@ -1,0 +1,838 @@
+{
+  "checked_at": "2026-10-25T02:09:54.139Z",
+  "method": "The document-on-record check is kept in the record under the evidence step (agent evidence, redacted: true) and runs as the document identity. GET /sql-editor/sqls/history read with each step identity's own token; a statement counts when it is in the history of exactly the identity its step should use, and its text hash matches",
+  "reviews": [
+    {
+      "alert": "ALR-0073",
+      "record_id": "rec-d9a141c4-be37-4bad-ba29-9e5f045e9df2",
+      "run_id": "d9a141c4-be37-4bad-ba29-9e5f045e9df2",
+      "decided_at": "2026-10-24T18:29:44.721Z",
+      "record_hash": "b82b9fbbc303d1136f5be607e22cdf160b38bacaab71e73112d280168d5ee2f2",
+      "queries": 23,
+      "ok": 23
+    },
+    {
+      "alert": "ALR-0043",
+      "record_id": "rec-10e67f58-0873-4a8b-b022-c3d6b52a5dc6",
+      "run_id": "10e67f58-0873-4a8b-b022-c3d6b52a5dc6",
+      "decided_at": "2026-10-24T18:31:08.936Z",
+      "record_hash": "3346834f7ee8206a7fb9622fe9bf0f14fcf7fdf99cf621d44ddbd077501ec4e2",
+      "queries": 21,
+      "ok": 21
+    },
+    {
+      "alert": "ALR-L0007",
+      "record_id": "rec-83fe47de-3193-4fad-b204-6b299344a771",
+      "run_id": "83fe47de-3193-4fad-b204-6b299344a771",
+      "decided_at": "2026-10-24T18:32:32.818Z",
+      "record_hash": "124c98e97b48929994388043a2eb04b64f175b00776345ef3eb1b30ac769edbc",
+      "queries": 20,
+      "ok": 20
+    }
+  ],
+  "total": 64,
+  "ok": 64,
+  "details": [
+    {
+      "alert": "ALR-0073",
+      "record_id": "rec-d9a141c4-be37-4bad-ba29-9e5f045e9df2",
+      "run_id": "d9a141c4-be37-4bad-ba29-9e5f045e9df2",
+      "decided_at": "2026-10-24T18:29:44.721Z",
+      "record_hash": "b82b9fbbc303d1136f5be607e22cdf160b38bacaab71e73112d280168d5ee2f2",
+      "queries": 23,
+      "ok": 23,
+      "rows": [
+        {
+          "agent": "evidence",
+          "query_id": "de68e2d6-180c-47e7-9dc1-ac8047e42abe",
+          "table": "lightning.metastore.sanctions.screening_usl.alert",
+          "sql_hash": "1c1ca82ce21ecfc437790a99fe2b0fd0e9ef510bb7a04e13c645b473666557c1",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "dc97565c-cd9f-4a55-b52a-f2ebdd7813e9",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "ab5e39985f667f0dc73219e435dcf62dac42c606b36bacf02a55f8912131732e",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "f891bcfd-7f3d-477c-b41a-79346c1e6f6e",
+          "table": "lightning.metastore.sanctions.screening_usl.payment",
+          "sql_hash": "64e04a4cd2d1e41423007c96c19500b7ce117165f5edea039bc7219fadf821fd",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "83ec5f2a-241e-42e6-bab2-f4fef53b07e6",
+          "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
+          "sql_hash": "8b951effde3c58bd4bf77bc4411d79444e1315b758cad797ed18470b12c67032",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "a4d03ba7-4920-48c8-9267-c6799d957535",
+          "table": "lightning.metastore.sanctions.screening_usl.list_entry",
+          "sql_hash": "23169cda137d258df3d19568c4b87c108eec7dc02575072103c2a99c178723d2",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "2feb870d-a7c0-470f-9981-694e18a9640b",
+          "table": "lightning.metastore.sanctions.screening_usl.list_alias",
+          "sql_hash": "268894d58e628d83eea9d0c44844564c1743201ceeb75926ddd72c25924eccba",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "112a62b2-41c2-418e-83e3-651694737836",
+          "table": "lightning.metastore.sanctions.screening_usl.list_dob",
+          "sql_hash": "cda67e82544e996b1eb2ece2255c8b8c25a5891c9ee62a99330a099c62e440a1",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "ac6d0e97-03fb-4139-b134-e19a4bda4cd6",
+          "table": "lightning.metastore.sanctions.screening_usl.list_country",
+          "sql_hash": "29ea32fe35fb55e2a18177c61392cbf9a971ff7136db4590dc3e099105aadca0",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "9254a267-3688-465b-8e81-a9648ffce581",
+          "table": "lightning.metastore.sanctions.screening_usl.list_identifier",
+          "sql_hash": "7ae6d55bb0bc04999dc9945d8c3c31d44d37e3419dbac01d5c08e08739f47b33",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "46010282-9d9d-49a1-b538-f0fbc8c9dc18",
+          "table": "lightning.metastore.sanctions.screening_usl.business_definition",
+          "sql_hash": "ef48444a6a3c79b3f0444ad0c0939bd1b855287641f227d501bb8d6c898980b1",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "c586d79d-5f40-417e-8e91-8b516bbdb2c9",
+          "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
+          "sql_hash": "6475a889b10815bd4c78edb18f6ca81755b9d5e4c1e51055501347d9769c7eb3",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "22259e80-5713-4908-a33f-77df7edca4ba",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "cf2158a81993bc70162591b146d4bc97515be9c3433328365216349b0fcc69cb",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "1a38a183-b5cc-4e25-8202-41cafac8d1a7",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "ef1fc4c1293df5e241b55d27d8573a089299f9530347030efaa3790879c983f9",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "c1254500-c2aa-4961-8213-8f1eae9f36a5",
+          "table": "lightning.metastore.sanctions.screening_usl.payment",
+          "sql_hash": "4af4c2cd3b089c8a31431a3a0ef840613c13a5243fd49f76f57c5ccf56c7b7a5",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "5933b234-0690-4fd7-88c5-397fb790b6a2",
+          "table": "lightning.metastore.sanctions.screening_usl.payment",
+          "sql_hash": "6a3ea733cacfb9c8ac5ffa5452df1b87fe487d243730faa6997c201737150488",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "753555d4-a389-479f-9423-96d496f00cbc",
+          "table": "lightning.metastore.sanctions.screening_usl.payment",
+          "sql_hash": "c93aa78a67a2a37db94419021dd571f2dbc620dfd8184a44815a392b9f831d71",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "memory",
+          "query_id": "1185e10e-bde0-4bc6-aab9-e97c82152729",
+          "table": "lightning.metastore.sanctions.screening_usl.disposition",
+          "sql_hash": "675947c65b0850770e945e8a1be43b4b361e7ddff5ab314130fe27f0937a61d9",
+          "expected_identity": "memory",
+          "found_in": [
+            "memory"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "76cf3bb5-14a9-4c0a-ab08-a75d665b0286",
+          "table": "lightning.metastore.sanctions.screening_usl.alert",
+          "sql_hash": "1c1ca82ce21ecfc437790a99fe2b0fd0e9ef510bb7a04e13c645b473666557c1",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "6f09eadd-51e8-443e-9365-da4f2ddd43e1",
+          "table": "lightning.metastore.sanctions.screening_usl.alert",
+          "sql_hash": "1c1ca82ce21ecfc437790a99fe2b0fd0e9ef510bb7a04e13c645b473666557c1",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "3f246b68-2d9a-4fab-b136-b1dc1e53c506",
+          "table": "lightning.metastore.sanctions.screening_usl.payment",
+          "sql_hash": "64e04a4cd2d1e41423007c96c19500b7ce117165f5edea039bc7219fadf821fd",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "e0e2ff71-1290-4b37-bbad-46f7a4d7f0ad",
+          "table": "lightning.metastore.sanctions.screening_usl.payment",
+          "sql_hash": "64e04a4cd2d1e41423007c96c19500b7ce117165f5edea039bc7219fadf821fd",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "8e61108b-bb54-43e5-a16f-c4d82ef37ed1",
+          "table": "lightning.metastore.sanctions.screening_usl.list_entry",
+          "sql_hash": "23169cda137d258df3d19568c4b87c108eec7dc02575072103c2a99c178723d2",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "9468cd55-5005-4276-be04-40c2a70c728e",
+          "table": "lightning.metastore.sanctions.screening_usl.list_country",
+          "sql_hash": "c3f352ca390ae2095e62468add4f4e65d08621616eb2f3b5a9d92c6466deecde",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "alert": "ALR-0043",
+      "record_id": "rec-10e67f58-0873-4a8b-b022-c3d6b52a5dc6",
+      "run_id": "10e67f58-0873-4a8b-b022-c3d6b52a5dc6",
+      "decided_at": "2026-10-24T18:31:08.936Z",
+      "record_hash": "3346834f7ee8206a7fb9622fe9bf0f14fcf7fdf99cf621d44ddbd077501ec4e2",
+      "queries": 21,
+      "ok": 21,
+      "rows": [
+        {
+          "agent": "evidence",
+          "query_id": "c7689dee-4ed6-4208-8a3d-5d825e1d99e6",
+          "table": "lightning.metastore.sanctions.screening_usl.alert",
+          "sql_hash": "8a0ac58d2336ea9c50522223aaecf08b30c80e503216bf0ea350daf9c0439b4b",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "5b546c91-67c8-4004-b77b-8e5308276a7c",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "88ed7eb2e14340bef21d53e8f5f359e270cf8e87bcf6f7befed17fa84f789659",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "2113046a-e498-4a0d-8355-945ad569448c",
+          "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
+          "sql_hash": "7693c793d4f73b70b6f3234aebea1ef2af8115b01ee7990f66b27f349c418a23",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "6959783f-be16-4388-94a0-f9ba91f084c6",
+          "table": "lightning.metastore.sanctions.screening_usl.list_entry",
+          "sql_hash": "1930d576562e08349b9f0043eaa027d5d4c302ed27470baf9b80c30b97bc7c54",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "b4fcc005-4b5f-47df-be3d-3a3cc7938b88",
+          "table": "lightning.metastore.sanctions.screening_usl.list_alias",
+          "sql_hash": "e5d6704a1603bda5038c88e76bf0205c943733175eb55fb9c79567cf0425f5b2",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "86eddfec-da42-433e-8852-f54d18b6f582",
+          "table": "lightning.metastore.sanctions.screening_usl.list_dob",
+          "sql_hash": "8285c16ab69f84c0426e5caf52fba9cdbb4cfd95c8a560b31d569e63fc3b698f",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "8fec6505-b5d2-4e1d-ba18-9f7ee7aee5a2",
+          "table": "lightning.metastore.sanctions.screening_usl.list_country",
+          "sql_hash": "b79ac148aa3032baa49c7f5835dd2d7579d12ef9be1fa99ab8bb4bdcf1e7e701",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "61cb0de7-f68c-450c-a0ec-7322f1f54355",
+          "table": "lightning.metastore.sanctions.screening_usl.list_identifier",
+          "sql_hash": "6332751c21972ac20a35f116ba1b00c16b0a9f09a8a5c00c7633885f57dbc6b0",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "e6e26b83-cce8-4e3d-8706-a7299d97176f",
+          "table": "lightning.metastore.sanctions.screening_usl.business_definition",
+          "sql_hash": "ef48444a6a3c79b3f0444ad0c0939bd1b855287641f227d501bb8d6c898980b1",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "f6b07167-cf59-4023-9d08-f740084df531",
+          "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
+          "sql_hash": "6fc4c54d034f356df025d4195fcd11a5d9b681ee3cb65e7fc364b0392fdbb200",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "69415893-b077-4e75-a290-a019fb76e059",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "cf2158a81993bc70162591b146d4bc97515be9c3433328365216349b0fcc69cb",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "6b749e33-dabd-45b2-80c6-465b848846e8",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "ef1fc4c1293df5e241b55d27d8573a089299f9530347030efaa3790879c983f9",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "ownership",
+          "query_id": "e8ca46af-0c65-4b4a-86fc-7d941421f8eb",
+          "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+          "sql_hash": "8e9245cbe2f6877a27cf2a63f19ac262b267a02a714b140adf797683c33bec4f",
+          "expected_identity": "ownership",
+          "found_in": [
+            "ownership"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "ownership",
+          "query_id": "ff426885-0549-4d76-8fff-d4fcd872b6d2",
+          "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+          "sql_hash": "4998bcd34168287ca383f5ae6d9dfe0ea7e5f960f27a720ce8fc0789aa7e8dae",
+          "expected_identity": "ownership",
+          "found_in": [
+            "ownership"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "ownership",
+          "query_id": "e7887124-17fd-4c66-8fc0-a8aed8edd215",
+          "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+          "sql_hash": "73c6999410e1155c43b1a79bea453a16a6bece35405e653d019867f74a2e3412",
+          "expected_identity": "ownership",
+          "found_in": [
+            "ownership"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "ownership",
+          "query_id": "dc8ecb93-4063-4f39-8925-a6497d5aac91",
+          "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+          "sql_hash": "0742d9fab87d6a3e3dc1ca5e22a95b92e1d65b84b0bc3e6c85bda3149c8d778c",
+          "expected_identity": "ownership",
+          "found_in": [
+            "ownership"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "memory",
+          "query_id": "013f4abf-aaa3-4300-a7a8-0ee54af3308d",
+          "table": "lightning.metastore.sanctions.screening_usl.disposition",
+          "sql_hash": "51eaf35444af21bd756a8c8be451aacbb3db738d7d05f7669573ea7db11c921c",
+          "expected_identity": "memory",
+          "found_in": [
+            "memory"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "5b521e7d-8d42-4e3b-ab3b-891ba4c13b03",
+          "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+          "sql_hash": "26029a55e3d0fd249cb94174f94951d53e5b669ab1ad050241c75e5c1fc1146d",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "aee99721-091f-41e6-9aa1-3cf9b341f15d",
+          "table": "lightning.metastore.sanctions.screening_usl.beneficial_owner",
+          "sql_hash": "690ab6af0738dbbfbc424e08306241463c9c6b0b3e19692d123dfbc9e188e279",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "4cf72c16-7927-4e91-80ea-4eb9674630a5",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "88ed7eb2e14340bef21d53e8f5f359e270cf8e87bcf6f7befed17fa84f789659",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "439a6d44-f3da-4ec4-b5fa-eae81712eb2c",
+          "table": "lightning.metastore.sanctions.screening_usl.list_entry",
+          "sql_hash": "1930d576562e08349b9f0043eaa027d5d4c302ed27470baf9b80c30b97bc7c54",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "alert": "ALR-L0007",
+      "record_id": "rec-83fe47de-3193-4fad-b204-6b299344a771",
+      "run_id": "83fe47de-3193-4fad-b204-6b299344a771",
+      "decided_at": "2026-10-24T18:32:32.818Z",
+      "record_hash": "124c98e97b48929994388043a2eb04b64f175b00776345ef3eb1b30ac769edbc",
+      "queries": 20,
+      "ok": 20,
+      "rows": [
+        {
+          "agent": "evidence",
+          "query_id": "f8f5e6bc-680f-4a71-b77d-c7d90d77418e",
+          "table": "lightning.metastore.sanctions.screening_usl.alert",
+          "sql_hash": "e703dc02c12ca42c49c313422d1e6dee6a4ac0d5edf339109d772359b53e8252",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "cdc82e69-c623-4f07-9033-71aa5848dc31",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "844412177024b6e0c48907fe046692e5265906a960342848ab1aeaee85e5ccac",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "79442096-42b2-4669-92e9-0c631c3f1859",
+          "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
+          "sql_hash": "bb98cbb5f099eb487c7ab9fda5d1d080abdbef202bc3488c5c594496fc2e9c7f",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "96ea3788-6251-4b16-9a3e-42cc912856ab",
+          "table": "lightning.metastore.sanctions.screening_usl.list_entry",
+          "sql_hash": "5d7bbc0ab6c828912a317bf3311c8ebf9dee6cd5fc0b3366d72cbc654ed03dac",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "da418fad-cfe9-4da8-9fb8-d1d67c98d6ce",
+          "table": "lightning.metastore.sanctions.screening_usl.list_alias",
+          "sql_hash": "15d69bf355471c3200978f835096add55b2d7a4ee55dffab5d11de336e38e47c",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "b33cb5f7-7d1a-46cd-b2cf-13a624ea08f3",
+          "table": "lightning.metastore.sanctions.screening_usl.list_dob",
+          "sql_hash": "a625408d975eeccff52cf24a3f37fdb70b06a3d90d6af93d3d9593bdd2fa974d",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "27683ac7-26ac-4ea6-aa90-f4871b30f2a6",
+          "table": "lightning.metastore.sanctions.screening_usl.list_country",
+          "sql_hash": "4cf9397ce6f79184af6212f989bd768f527cd0f3f51c7db8a704ca9bee6b0573",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "cf81f995-79f5-46ea-a917-76d53e1bba04",
+          "table": "lightning.metastore.sanctions.screening_usl.list_identifier",
+          "sql_hash": "eb4f517ee4e9781ddbc6bf7bb95d59ffd06aae0ceaf1e7954bd2c80fc2c11586",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "f014a51a-2cab-49b7-bd18-df452dce6945",
+          "table": "lightning.metastore.sanctions.screening_usl.business_definition",
+          "sql_hash": "ef48444a6a3c79b3f0444ad0c0939bd1b855287641f227d501bb8d6c898980b1",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "81229d52-db66-4c4f-af84-07576c91b919",
+          "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
+          "sql_hash": "26361bbe94043ad33247407cf4fc3576e2a0885a197aa7b3d97429e8e34207f3",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "73e5002c-14cf-45b0-bbb3-bdb1d067ffff",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "cf2158a81993bc70162591b146d4bc97515be9c3433328365216349b0fcc69cb",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "9746ba17-14ee-4a19-862d-957a77b7d9a6",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "ef1fc4c1293df5e241b55d27d8573a089299f9530347030efaa3790879c983f9",
+          "expected_identity": "evidence",
+          "found_in": [
+            "evidence"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "evidence",
+          "query_id": "d25501f8-c833-4bdd-a092-375ff74a140b",
+          "table": "lightning.metastore.sanctions.screening_usl.customer_identifier",
+          "sql_hash": "01565ebeb4c7ed49904fec7303f31e4afa328d7327d2afe12f5fabbad74740a1",
+          "expected_identity": "document",
+          "found_in": [
+            "document"
+          ],
+          "statement": "matched_redacted",
+          "ok": true
+        },
+        {
+          "agent": "memory",
+          "query_id": "cb6f28a5-8b3f-462c-ba35-2e8fc378ac41",
+          "table": "lightning.metastore.sanctions.screening_usl.disposition",
+          "sql_hash": "d128550b4cf1b3982709f7beea610f8477c731e0c268d00b0b45ac4029197088",
+          "expected_identity": "memory",
+          "found_in": [
+            "memory"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "9fde3ba6-1768-4e2f-b044-7238391c2b74",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "844412177024b6e0c48907fe046692e5265906a960342848ab1aeaee85e5ccac",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "638c0c66-4a31-4d5e-ae75-d6d20b0f7dec",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "844412177024b6e0c48907fe046692e5265906a960342848ab1aeaee85e5ccac",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "376ef1bb-467f-4e34-998e-8c1d058c8722",
+          "table": "lightning.metastore.sanctions.screening_usl.customer",
+          "sql_hash": "844412177024b6e0c48907fe046692e5265906a960342848ab1aeaee85e5ccac",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "f95d6222-cb83-42d5-a389-781118d6d08d",
+          "table": "lightning.metastore.sanctions.screening_usl.list_entry",
+          "sql_hash": "5d7bbc0ab6c828912a317bf3311c8ebf9dee6cd5fc0b3366d72cbc654ed03dac",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "ff4eab4d-165c-4811-9a92-0c71be015183",
+          "table": "lightning.metastore.sanctions.screening_usl.list_dob",
+          "sql_hash": "0c9bebcf9bbd4594c18cb0bb476565db6a8b41ac247f16faad8d1dfae734ac69",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        },
+        {
+          "agent": "critic",
+          "query_id": "fc6b0528-170a-41ea-b192-0da2787d70ec",
+          "table": "lightning.metastore.sanctions.screening_usl.list_country",
+          "sql_hash": "ca4d664997f1f94fda89bdd5ca52a79e738bb629e6bb6b725f751f78391a206e",
+          "expected_identity": "critic",
+          "found_in": [
+            "critic"
+          ],
+          "statement": "matched",
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

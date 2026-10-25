@@ -1,0 +1,636 @@
+{
+  "variant": "nemotron_alone",
+  "exam": "heldout",
+  "run": "once",
+  "features": {
+    "cockpit_binds": {
+      "sanctions-desk-reasoning": "deep"
+    },
+    "what": "one Nemotron call per case on the structured case facts (no free text); no guard, screener, rules, engines, memory, critic, challenger or policy guard"
+  },
+  "selection": {},
+  "started_at": "2026-10-24T17:11:05.604Z",
+  "finished_at": "2026-10-24T17:54:48.497Z",
+  "policy_version": 8,
+  "models": {
+    "decision": "deep"
+  },
+  "cases": [
+    {
+      "case_id": "HO-001",
+      "group": "beyond_rules",
+      "kind": "ho_ref_on_behalf",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: facts: Too big: expected array to have <=8 items"
+    },
+    {
+      "case_id": "HO-002",
+      "group": "beyond_rules",
+      "kind": "ho_ref_care_of",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.92,
+      "latency_s": 104.98,
+      "tokens_in": 3240,
+      "tokens_out": 969,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-003",
+      "group": "beyond_rules",
+      "kind": "ho_ref_shipped_for",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: facts: Too big: expected array to have <=8 items"
+    },
+    {
+      "case_id": "HO-004",
+      "group": "beyond_rules",
+      "kind": "ho_ref_variant",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: decision: Invalid option: expected one of \"CLOSE_FALSE_POSITIVE\"|\"ESCALATE_L2\"|\"RECOMMEND_BLOCK\"|\"NEED_MORE_INFO\"; confidence: Invalid input: expected number, received undefined; rationale: Invalid input: expected string, received undefined"
+    },
+    {
+      "case_id": "HO-005",
+      "group": "beyond_rules",
+      "kind": "ho_note_trading_name",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "confidence": 0.85,
+      "latency_s": 97.68,
+      "tokens_in": 2820,
+      "tokens_out": 733,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-006",
+      "group": "beyond_rules",
+      "kind": "ho_note_family_link",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.95,
+      "latency_s": 98.82,
+      "tokens_in": 2843,
+      "tokens_out": 880,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-007",
+      "group": "beyond_rules",
+      "kind": "ho_note_unverified_dob",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.75,
+      "latency_s": 98.81,
+      "tokens_in": 3068,
+      "tokens_out": 922,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-008",
+      "group": "beyond_rules",
+      "kind": "ho_note_says_close",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.65,
+      "latency_s": 105.73,
+      "tokens_in": 4182,
+      "tokens_out": 1724,
+      "local_calls": 2,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-009",
+      "group": "beyond_rules",
+      "kind": "ho_remarks_registered_name",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "confidence": 0.85,
+      "latency_s": 75.45,
+      "tokens_in": 4388,
+      "tokens_out": 1807,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-010",
+      "group": "beyond_rules",
+      "kind": "ho_remarks_parents",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ESCALATE_L2",
+      "confidence": 0.65,
+      "latency_s": 100.09,
+      "tokens_in": 3151,
+      "tokens_out": 1072,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-011",
+      "group": "beyond_rules",
+      "kind": "ho_remarks_vessel",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: facts.0.column: Invalid input: expected string, received undefined; facts.1.column: Invalid input: expected string, received undefined; facts.2.column: Invalid input: expected string, received undefined"
+    },
+    {
+      "case_id": "HO-012",
+      "group": "beyond_rules",
+      "kind": "ho_alias_chain_dropped",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "confidence": 0.95,
+      "latency_s": 40.97,
+      "tokens_in": 3699,
+      "tokens_out": 1686,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-013",
+      "group": "beyond_rules",
+      "kind": "ho_alias_russian_scheme",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "confidence": 0.95,
+      "latency_s": 37.68,
+      "tokens_in": 3879,
+      "tokens_out": 1777,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-014",
+      "group": "beyond_rules",
+      "kind": "ho_alias_korean_scheme",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "confidence": 0.95,
+      "latency_s": 41.07,
+      "tokens_in": 3608,
+      "tokens_out": 1715,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-015",
+      "group": "beyond_rules",
+      "kind": "ho_alias_merged_tokens",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "confidence": 0.95,
+      "latency_s": 40.11,
+      "tokens_in": 4080,
+      "tokens_out": 1735,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-016",
+      "group": "beyond_rules",
+      "kind": "ho_docs_dob_transposed",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.85,
+      "latency_s": 101.37,
+      "tokens_in": 3145,
+      "tokens_out": 1232,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-017",
+      "group": "beyond_rules",
+      "kind": "ho_docs_two_ids",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: facts: Too big: expected array to have <=8 items"
+    },
+    {
+      "case_id": "HO-018",
+      "group": "beyond_rules",
+      "kind": "ho_docs_typo_id",
+      "expected": "ESCALATE_L2",
+      "acceptable": [
+        "NEED_MORE_INFO",
+        "RECOMMEND_BLOCK"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "RECOMMEND_BLOCK",
+      "confidence": 1,
+      "latency_s": 100.43,
+      "tokens_in": 2851,
+      "tokens_out": 772,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-019",
+      "group": "beyond_rules",
+      "kind": "ho_clear_verified_passport",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: the model answer has no JSON object"
+    },
+    {
+      "case_id": "HO-020",
+      "group": "beyond_rules",
+      "kind": "ho_clear_verified_id_age",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.95,
+      "latency_s": 108.6,
+      "tokens_in": 3108,
+      "tokens_out": 1196,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-021",
+      "group": "beyond_rules",
+      "kind": "ho_clear_namesake_registered",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.95,
+      "latency_s": 103.78,
+      "tokens_in": 2960,
+      "tokens_out": 1110,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-022",
+      "group": "beyond_rules",
+      "kind": "ho_clear_alias_other_person",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.65,
+      "latency_s": 101.18,
+      "tokens_in": 3032,
+      "tokens_out": 1118,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-023",
+      "group": "beyond_rules",
+      "kind": "ho_clear_remarks_parents_differ",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.65,
+      "latency_s": 103.52,
+      "tokens_in": 3074,
+      "tokens_out": 914,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-024",
+      "group": "beyond_rules",
+      "kind": "ho_clear_remarks_mother_differs",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.78,
+      "latency_s": 62.91,
+      "tokens_in": 7809,
+      "tokens_out": 3767,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO-025",
+      "group": "beyond_rules",
+      "kind": "ho_clear_ref_other_company",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "ERROR",
+      "error": "AppError: the decision model did not return a valid answer: facts.0.column: Invalid input: expected string, received undefined; facts.1.column: Invalid input: expected string, received undefined; facts.2.column: Invalid input: expected string, received undefined"
+    },
+    {
+      "case_id": "HO-026",
+      "group": "beyond_rules",
+      "kind": "ho_clear_ref_other_individual",
+      "expected": "NEED_MORE_INFO",
+      "acceptable": [
+        "ESCALATE_L2"
+      ],
+      "must_not": [
+        "CLOSE_FALSE_POSITIVE"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.75,
+      "latency_s": 64.21,
+      "tokens_in": 5014,
+      "tokens_out": 2757,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO-027",
+      "group": "beyond_rules",
+      "kind": "ho_clear_remarks_parents_documented",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.45,
+      "latency_s": 100.88,
+      "tokens_in": 3201,
+      "tokens_out": 1172,
+      "local_calls": 1,
+      "cloud_calls": 0,
+      "cost": 0
+    },
+    {
+      "case_id": "HO-028",
+      "group": "beyond_rules",
+      "kind": "ho_clear_alias_documented",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "CLOSE_FALSE_POSITIVE",
+      "confidence": 0.85,
+      "latency_s": 71.09,
+      "tokens_in": 7702,
+      "tokens_out": 4077,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO-029",
+      "group": "beyond_rules",
+      "kind": "ho_clear_variant_documented",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.85,
+      "latency_s": 47.27,
+      "tokens_in": 7611,
+      "tokens_out": 3706,
+      "local_calls": 1,
+      "cloud_calls": 1,
+      "cost": 0.01
+    },
+    {
+      "case_id": "HO-030",
+      "group": "beyond_rules",
+      "kind": "ho_clear_ref_documented",
+      "expected": "CLOSE_FALSE_POSITIVE",
+      "acceptable": [],
+      "must_not": [
+        "RECOMMEND_BLOCK"
+      ],
+      "got": "NEED_MORE_INFO",
+      "confidence": 0.8,
+      "latency_s": 47.1,
+      "tokens_in": 5178,
+      "tokens_out": 2766,
+      "local_calls": 0,
+      "cloud_calls": 1,
+      "cost": 0.01
+    }
+  ],
+  "metrics": {
+    "cases": 30,
+    "errors": 7,
+    "exact_accuracy": 0.3,
+    "acceptable_accuracy": 0.5333,
+    "risk_cases": 22,
+    "false_closes": 2,
+    "false_close_rate": 0.0909,
+    "forbidden_answers": 2,
+    "abstain_rate": 0.4348,
+    "decision_unavailable": 0,
+    "decision_unavailable_by_cause": {
+      "provider": 0,
+      "parsing": 0,
+      "withheld": 0
+    },
+    "excluding_unavailable": {
+      "cases": 30,
+      "exact_accuracy": 0.3,
+      "acceptable_accuracy": 0.5333
+    },
+    "by_group": {
+      "beyond_rules": {
+        "cases": 30,
+        "exact": 9,
+        "acceptable": 16
+      }
+    },
+    "latency_s": {
+      "mean": 80.6,
+      "p50": 98.81,
+      "p95": 105.73
+    },
+    "tokens": {
+      "in": 93643,
+      "out": 39607
+    },
+    "model_calls": {
+      "local": 17,
+      "cloud": 10,
+      "cloud_share": 0.3704
+    },
+    "cost": {
+      "total": 0.05,
+      "per_case": 0.002174
+    },
+    "challenger": {
+      "fired": 0,
+      "changed": 0,
+      "added_seconds": 0,
+      "added_cost": 0
+    },
+    "critic": {
+      "reviewed": 0,
+      "sent_back": 0,
+      "unresolved": 0,
+      "mean_rounds": 0
+    }
+  }
+}

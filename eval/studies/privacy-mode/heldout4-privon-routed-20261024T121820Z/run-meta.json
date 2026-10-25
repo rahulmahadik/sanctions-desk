@@ -1,0 +1,89 @@
+{
+  "run_id": "heldout4-privon-routed-20261024T121820Z",
+  "study": "privacy-mode",
+  "source": "logs/privacy-test/2026-10-24T12-18-20-249Z-heldout4-privon-routed.json",
+  "variant": "routed",
+  "exam": "heldout4",
+  "system": "privon",
+  "started_at": "2026-10-24T12:18:20.249Z",
+  "finished_at": "2026-10-24T12:32:12.131Z",
+  "policy_version": 8,
+  "features": {
+    "commit": "4a30af1",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "screener": {
+      "enabled": true,
+      "confidence_threshold": 0.5
+    },
+    "cockpit_binds": {
+      "sanctions-desk-eval": "auto",
+      "sanctions-desk-guard": "local",
+      "sanctions-desk-reasoning": "deep"
+    },
+    "app_identities": {
+      "triage": "default",
+      "evidence": "default",
+      "screener": "guard",
+      "matching": "default",
+      "ownership": "default",
+      "decision": "reasoning",
+      "critic": "reasoning",
+      "challenger": "reasoning",
+      "policy_guard": "guard",
+      "reporter": "default"
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "retry_identities": {
+      "decision": "guard",
+      "critic": "guard",
+      "challenger": "guard"
+    },
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "nightshift_build": {
+    "version": "1.2.1",
+    "source": "the application's About screen, confirmed by the project owner; no separate runtime version is shown",
+    "known_limits": [
+      "an app bind in the cockpit replaces the mode or model id the client asks for (the receipt records both), so explicit model ids are coerced",
+      "the cloud model sometimes answers slowly or not at all: timeouts and HTTP 502 were seen in the runs"
+    ]
+  },
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "screener": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "deep / reasoning 500",
+    "critic": "judge / reasoning 400",
+    "challenger": "deep / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": 12,
+  "events": 474,
+  "receipts": 59,
+  "files": {
+    "results.json": {
+      "bytes": 14080,
+      "sha256": "01ca5898189604971ffa186aff23f04f5d9501d9906c5f581b72f4b69b86707f"
+    },
+    "trace.jsonl.gz": {
+      "bytes": 34751,
+      "sha256": "f6b20c694c75c424140e8ef45c0675436ca791f398f215ce9978eab78b9b0bb1"
+    },
+    "receipts.jsonl.gz": {
+      "bytes": 23070,
+      "sha256": "7ea394fceeec7416dacdb9af9fe8c615c8d2d3e4caa059df12d620f46b7359b0"
+    }
+  },
+  "redacted": "tokens, local paths, hostnames and addresses other than the local machine, usernames, e-mail addresses and secret environment values were removed from results.json and trace.jsonl.gz; receipts.jsonl.gz is untouched",
+  "verify": "npm run evidence:verify -- eval/studies/privacy-mode/heldout4-privon-routed-20261024T121820Z"
+}

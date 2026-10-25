@@ -1,0 +1,191 @@
+{
+  "runs": [
+    {
+      "study": "nemotron-alone-v1-v3",
+      "run_id": "heldout-once-nemotron_alone-20261024T171105Z",
+      "path": "eval/studies/nemotron-alone-v1-v3/heldout-once-nemotron_alone-20261024T171105Z",
+      "source": "logs/alone-v1v3/2026-10-24T17-11-05-604Z-heldout-once-nemotron_alone.json",
+      "started_at": "2026-10-24T17:11:05.604Z",
+      "cases": 30,
+      "events": 543,
+      "receipts": 33,
+      "bytes": 65930
+    },
+    {
+      "study": "nemotron-alone-v1-v3",
+      "run_id": "heldout3-once-nemotron_alone-20261024T175448Z",
+      "path": "eval/studies/nemotron-alone-v1-v3/heldout3-once-nemotron_alone-20261024T175448Z",
+      "source": "logs/alone-v1v3/2026-10-24T17-54-48-801Z-heldout3-once-nemotron_alone.json",
+      "started_at": "2026-10-24T17:54:48.801Z",
+      "cases": 12,
+      "events": 217,
+      "receipts": 14,
+      "bytes": 31645
+    },
+    {
+      "study": "repeat-heldout4",
+      "run_id": "heldout4-repr1-routed-20261024T152716Z",
+      "path": "eval/studies/repeat-heldout4/heldout4-repr1-routed-20261024T152716Z",
+      "source": "logs/repeat/2026-10-24T15-27-16-844Z-heldout4-repr1-routed.json",
+      "started_at": "2026-10-24T15:27:16.844Z",
+      "cases": 12,
+      "events": 464,
+      "receipts": 65,
+      "bytes": 80895
+    },
+    {
+      "study": "repeat-heldout4",
+      "run_id": "heldout4-r1-nemotron_alone-20261024T154302Z",
+      "path": "eval/studies/repeat-heldout4/heldout4-r1-nemotron_alone-20261024T154302Z",
+      "source": "logs/repeat/2026-10-24T15-43-02-237Z-heldout4-r1-nemotron_alone.json",
+      "started_at": "2026-10-24T15:43:02.237Z",
+      "cases": 12,
+      "events": 212,
+      "receipts": 13,
+      "bytes": 30634
+    },
+    {
+      "study": "repeat-heldout4",
+      "run_id": "heldout4-repr2-routed-20261024T160401Z",
+      "path": "eval/studies/repeat-heldout4/heldout4-repr2-routed-20261024T160401Z",
+      "source": "logs/repeat/2026-10-24T16-04-01-935Z-heldout4-repr2-routed.json",
+      "started_at": "2026-10-24T16:04:01.935Z",
+      "cases": 12,
+      "events": 465,
+      "receipts": 65,
+      "bytes": 81173
+    },
+    {
+      "study": "repeat-heldout4",
+      "run_id": "heldout4-r2-nemotron_alone-20261024T161936Z",
+      "path": "eval/studies/repeat-heldout4/heldout4-r2-nemotron_alone-20261024T161936Z",
+      "source": "logs/repeat/2026-10-24T16-19-36-310Z-heldout4-r2-nemotron_alone.json",
+      "started_at": "2026-10-24T16:19:36.310Z",
+      "cases": 12,
+      "events": 208,
+      "receipts": 13,
+      "bytes": 30281
+    },
+    {
+      "study": "repeat-heldout4",
+      "run_id": "heldout4-repr3-routed-20261024T163752Z",
+      "path": "eval/studies/repeat-heldout4/heldout4-repr3-routed-20261024T163752Z",
+      "source": "logs/repeat/2026-10-24T16-37-52-619Z-heldout4-repr3-routed.json",
+      "started_at": "2026-10-24T16:37:52.619Z",
+      "cases": 12,
+      "events": 446,
+      "receipts": 58,
+      "bytes": 75574
+    },
+    {
+      "study": "repeat-heldout4",
+      "run_id": "heldout4-r3-nemotron_alone-20261024T165121Z",
+      "path": "eval/studies/repeat-heldout4/heldout4-r3-nemotron_alone-20261024T165121Z",
+      "source": "logs/repeat/2026-10-24T16-51-21-563Z-heldout4-r3-nemotron_alone.json",
+      "started_at": "2026-10-24T16:51:21.563Z",
+      "cases": 12,
+      "events": 207,
+      "receipts": 12,
+      "bytes": 29373
+    },
+    {
+      "study": "heldout3-rerun",
+      "run_id": "heldout3-todayt1-routed-20261024T183703Z",
+      "path": "eval/studies/heldout3-rerun/heldout3-todayt1-routed-20261024T183703Z",
+      "source": "logs/v3today/2026-10-24T18-37-03-690Z-heldout3-todayt1-routed.json",
+      "started_at": "2026-10-24T18:37:03.690Z",
+      "cases": 12,
+      "events": 511,
+      "receipts": 73,
+      "bytes": 93199
+    },
+    {
+      "study": "heldout3-rerun",
+      "run_id": "heldout3-todayt2-routed-20261024T190237Z",
+      "path": "eval/studies/heldout3-rerun/heldout3-todayt2-routed-20261024T190237Z",
+      "source": "logs/v3today/2026-10-24T19-02-37-626Z-heldout3-todayt2-routed.json",
+      "started_at": "2026-10-24T19:02:37.626Z",
+      "cases": 12,
+      "events": 488,
+      "receipts": 69,
+      "bytes": 83756
+    },
+    {
+      "study": "heldout3-rerun",
+      "run_id": "heldout3-todayt3-routed-20261024T191720Z",
+      "path": "eval/studies/heldout3-rerun/heldout3-todayt3-routed-20261024T191720Z",
+      "source": "logs/v3today/2026-10-24T19-17-20-752Z-heldout3-todayt3-routed.json",
+      "started_at": "2026-10-24T19:17:20.752Z",
+      "cases": 12,
+      "events": 483,
+      "receipts": 66,
+      "bytes": 80431
+    },
+    {
+      "study": "model-choice",
+      "run_id": "heldout4-choice-lightning-20261024T130809Z",
+      "path": "eval/studies/model-choice/heldout4-choice-lightning-20261024T130809Z",
+      "source": "logs/model-choice/2026-10-24T13-08-09-951Z-heldout4-choice-lightning.json",
+      "started_at": "2026-10-24T13:08:09.951Z",
+      "cases": 12,
+      "events": 620,
+      "receipts": 82,
+      "bytes": 108150
+    },
+    {
+      "study": "model-choice",
+      "run_id": "choice-lightning-20261024T142912Z",
+      "path": "eval/studies/model-choice/choice-lightning-20261024T142912Z",
+      "source": "logs/model-choice/2026-10-24T14-29-12-021Z-choice-lightning.json",
+      "started_at": "2026-10-24T14:29:12.021Z",
+      "cases": 8,
+      "events": 356,
+      "receipts": 34,
+      "bytes": 55447
+    },
+    {
+      "study": "privacy-mode",
+      "run_id": "heldout4-privoff-routed-20261024T113700Z",
+      "path": "eval/studies/privacy-mode/heldout4-privoff-routed-20261024T113700Z",
+      "source": "logs/privacy-test/2026-10-24T11-37-00-143Z-heldout4-privoff-routed.json",
+      "started_at": "2026-10-24T11:37:00.143Z",
+      "cases": 12,
+      "events": 461,
+      "receipts": 64,
+      "bytes": 80491
+    },
+    {
+      "study": "privacy-mode",
+      "run_id": "privoff-routed-20261024T115611Z",
+      "path": "eval/studies/privacy-mode/privoff-routed-20261024T115611Z",
+      "source": "logs/privacy-test/2026-10-24T11-56-11-228Z-privoff-routed.json",
+      "started_at": "2026-10-24T11:56:11.228Z",
+      "cases": 8,
+      "events": 343,
+      "receipts": 46,
+      "bytes": 64355
+    },
+    {
+      "study": "privacy-mode",
+      "run_id": "heldout4-privon-routed-20261024T121820Z",
+      "path": "eval/studies/privacy-mode/heldout4-privon-routed-20261024T121820Z",
+      "source": "logs/privacy-test/2026-10-24T12-18-20-249Z-heldout4-privon-routed.json",
+      "started_at": "2026-10-24T12:18:20.249Z",
+      "cases": 12,
+      "events": 474,
+      "receipts": 59,
+      "bytes": 74973
+    },
+    {
+      "study": "privacy-mode",
+      "run_id": "privon-routed-20261024T123212Z",
+      "path": "eval/studies/privacy-mode/privon-routed-20261024T123212Z",
+      "source": "logs/privacy-test/2026-10-24T12-32-12-488Z-privon-routed.json",
+      "started_at": "2026-10-24T12:32:12.488Z",
+      "cases": 8,
+      "events": 374,
+      "receipts": 45,
+      "bytes": 63312
+    }
+  ]
+}

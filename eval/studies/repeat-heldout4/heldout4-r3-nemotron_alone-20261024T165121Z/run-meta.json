@@ -1,0 +1,47 @@
+{
+  "run_id": "heldout4-r3-nemotron_alone-20261024T165121Z",
+  "study": "repeat-heldout4",
+  "source": "logs/repeat/2026-10-24T16-51-21-563Z-heldout4-r3-nemotron_alone.json",
+  "variant": "nemotron_alone",
+  "exam": "heldout4",
+  "system": null,
+  "started_at": "2026-10-24T16:51:21.563Z",
+  "finished_at": "2026-10-24T17:09:10.863Z",
+  "policy_version": 8,
+  "features": {
+    "cockpit_binds": {
+      "sanctions-desk-reasoning": "deep"
+    },
+    "what": "one Nemotron call per case on the structured case facts (no free text); no guard, screener, rules, engines, memory, critic, challenger or policy guard"
+  },
+  "nightshift_build": {
+    "version": "1.2.1",
+    "source": "the application's About screen, confirmed by the project owner; no separate runtime version is shown",
+    "known_limits": [
+      "an app bind in the cockpit replaces the mode or model id the client asks for (the receipt records both), so explicit model ids are coerced",
+      "the cloud model sometimes answers slowly or not at all: timeouts and HTTP 502 were seen in the runs"
+    ]
+  },
+  "models": {
+    "decision": "deep"
+  },
+  "cases": 12,
+  "events": 207,
+  "receipts": 12,
+  "files": {
+    "results.json": {
+      "bytes": 7166,
+      "sha256": "a21c0dc31f0d518cdc98c77a7830ef7300632ea298e801221afd36a4c8d6297f"
+    },
+    "trace.jsonl.gz": {
+      "bytes": 13919,
+      "sha256": "6fe76bd28cecb3951d032a00db59bc20f3dab4b140bd808ae9681ffc048a420e"
+    },
+    "receipts.jsonl.gz": {
+      "bytes": 6354,
+      "sha256": "2edcc49e0daa4f22d4814c57ed53f688f0076c6e03cb45dbf0e7c385b245ee9e"
+    }
+  },
+  "redacted": "tokens, local paths, hostnames and addresses other than the local machine, usernames, e-mail addresses and secret environment values were removed from results.json and trace.jsonl.gz; receipts.jsonl.gz is untouched",
+  "verify": "npm run evidence:verify -- eval/studies/repeat-heldout4/heldout4-r3-nemotron_alone-20261024T165121Z"
+}

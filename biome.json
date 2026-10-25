@@ -10,6 +10,7 @@
       "**",
       "!**/node_modules",
       "!eval/runs",
+      "!eval/studies",
       "!eval/results",
       "!eval/adversarial",
       "!eval/REPORT.md",

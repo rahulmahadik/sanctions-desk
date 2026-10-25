@@ -5,7 +5,7 @@
  * export, or differs only by the documented change in eval/runs/HASH-CHANGES.json (npm run evidence:hash-changes).
  *
  *   npm run evidence:verify -- eval/runs/<run-id>
- *   npm run evidence:verify                       every run in eval/runs
+ *   npm run evidence:verify                       every run in eval/runs and eval/studies/<study>/
  *
  * The signing key is the one inside each receipt unless METERLESS_RECEIPT_PUBLIC_KEY (or config/local.json) pins
  * one; pinning shows who signed, an unpinned key only shows the receipt was not altered.
@@ -21,14 +21,25 @@ const trusted = [...loadConfig().nightshift.receiptPublicKeys];
 
 const given = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const base = resolveProjectPath("eval/runs");
+const runsIn = (dir: string): string[] =>
+  existsSync(dir)
+    ? readdirSync(dir)
+        .filter((n) => existsSync(join(dir, n, "run-meta.json")))
+        .map((n) => join(dir, n))
+    : [];
+// The small studies (npm run studies:export) sit one level deeper: eval/studies/<study>/<run-id>/.
+const studies = resolveProjectPath("eval/studies");
 const runs =
   given.length > 0
     ? given.map((g) => resolveProjectPath(g))
-    : existsSync(base)
-      ? readdirSync(base)
-          .filter((n) => existsSync(join(base, n, "run-meta.json")))
-          .map((n) => join(base, n))
-      : [];
+    : [
+        ...runsIn(base),
+        ...(existsSync(studies)
+          ? readdirSync(studies, { withFileTypes: true })
+              .filter((e) => e.isDirectory())
+              .flatMap((e) => runsIn(join(studies, e.name)))
+          : []),
+      ];
 if (runs.length === 0) {
   console.error("no exported runs found; run `npm run evidence:export` first");
   process.exit(2);

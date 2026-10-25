@@ -125,6 +125,10 @@ Who wrote the sets: held-out v2, v3 and v4 were each written by a separate AI ag
 | Today's system, re-run after the fail-closed fix, not blind | t3       |                    0 of 6 |      0 of 6 |             6 of 12 |      0 |
 <!-- v3-today:end -->
 
+## Small studies, published
+
+The small live studies of 24 and 25 Oct 2026, which are not part of the recorded evaluation, are published in [eval/studies](../eval/studies/README.md) with the same redaction as the run exports: Nemotron alone on held-out v1, v3 and v4, the v4 and v3 re-runs, the model-choice study, the privacy-mode test, and the three live reviews with per-step Zetaris identities with their statement-history check. `npm run evidence:verify` checks them with the recorded runs.
+
 ## Which code the numbers came from
 
 First system: review code at commit `8fe6205` (all four first-system runs). Changed system: held-out v2 blind at `8f6976c`; the re-run of v2 after the infrastructure fix, the 70-case re-run, held-out v1 after the fix and the screener-off ablation at `d44ee04`. The SQL guard fix came after all of those, in merge `d49b726`; held-out v3 and its single-mode run used the code after it (`e56b204`, with the grounding and document-number fixes). Held-out v4 and its single-mode run used the fail-closed change (`80902ea`, policy version 8), committed after v4 was frozen in `fc64537`. Each result file records the commit it was saved at.

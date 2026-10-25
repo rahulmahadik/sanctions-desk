@@ -92,7 +92,7 @@ for (const file of tracked) {
 }
 
 // 1b. Exported run evidence is compressed; look inside it with the same patterns the export used.
-for (const file of tracked.filter((f) => /^eval\/runs\/.+\.gz$/.test(f))) {
+for (const file of tracked.filter((f) => /^eval\/(runs|studies)\/.+\.gz$/.test(f))) {
   gunzipSync(readFileSync(file))
     .toString("utf8")
     .split("\n")
