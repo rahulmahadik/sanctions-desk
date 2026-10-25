@@ -7,7 +7,7 @@ Screenshots 01 to 12 were made from the running desk in sample mode (saved real 
 | `architecture.svg`, `architecture.png`             | The agents, Zetaris as the only data path, local and cloud Nemotron through Nightshift, the raise-only policy guard and the human decision                                             |
 | `screenshots/01-alert-queue.png`                   | Home: the summary strip (open alerts, recommendations waiting for a person, closes stopped by a check, models used), the list-change panel, the alert list sorted by severity          |
 | `screenshots/02-case-evidence.png`                 | A case (ALR-0073): the recommendation banner, the decision panel, the decision trace, the risk signals and the evidence                                                                |
-| `screenshots/03-decision-panel.png`                | The decision panel: approve or override with a reason (taken before 25 Oct, when Approve was pre-selected; now nothing is)                                                             |
+| `screenshots/03-decision-panel.png`                | The decision panel: approve or override with a reason; nothing is pre-selected, and the button reads Decide until a choice is made                                                     |
 | `screenshots/04-routing-and-receipts.png`          | Requested model, routed model and receipt id per call (in sample mode the stand-in makes no model call, so no receipt)                                                                 |
 | `screenshots/05-policy-studio.png`                 | Policy studio and the autonomy card                                                                                                                                                    |
 | `screenshots/06-governance.png`                    | Governance view                                                                                                                                                                        |
@@ -21,7 +21,7 @@ Screenshots 01 to 12 were made from the running desk in sample mode (saved real 
 | `screenshots/14-live-risk-signal-not-grounded.png` | The same live review: the screener's span missed the word, so the signal is marked not grounded, and it still blocks a close                                                           |
 | `screenshots/15-live-routing-and-receipts.png`     | The same live review's routing panel: requested model, routed model, receipt id and a verified receipt                                                                                 |
 | `screenshots/16-live-model-per-step.png`           | A live review of ALR-0073 (25 Oct): every model step with the model that answered (local Lightning or cloud Ultra), its receipt id and the receipt check (signature valid, key pinned) |
-| `screenshots/17-live-decision-panel.png`           | The same live review: the person's decision, approve or override with a reason; nothing is sent or executed (taken when Approve was still pre-selected)                                |
+| `screenshots/17-live-decision-panel.png`           | The decision panel on the sealed record of the live ALR-0073 review, shown by the current build on 25 Oct: approve or override with a reason; nothing is sent or executed              |
 
 Re-take them with the desk running in sample mode (`SAMPLE_MODE=true docker compose up --build`, then review ALR-0004, ALR-0073 and ALR-0058 once):
 

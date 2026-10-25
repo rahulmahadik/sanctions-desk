@@ -85,8 +85,6 @@ _Sample mode, ALR-0073: each model step shows where it ran and the model that se
 
 ![The decision panel](media/screenshots/03-decision-panel.png)
 
-_Taken before 25 Oct 2026, when **Approve the recommendation** was pre-selected; today nothing is pre-selected._
-
 In **Decision**:
 1. Choose **Approve the recommendation**, or **Override with** another outcome. Nothing is chosen for you; the button reads **Decide** until you choose.
 2. Write a **reason** of at least 10 characters. It goes in the record.
