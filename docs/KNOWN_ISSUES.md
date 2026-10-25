@@ -3,7 +3,7 @@
 > **What is still true, and what protects against it.** A person makes every final call; each problem below either holds a case for that person or is disclosed here.
 - Versions used during development: Zetaris 2.4.x local, Nightshift runtime 1.2.1, Ollama with `nemotron-3.5-lightning:30b`.
 - Problems met while building and since fixed, and platform limits the desk now works around: [RESOLVED_ISSUES.md](RESOLVED_ISSUES.md).
-- Sections: [Open issues](#open-issues) · [Open platform limits](#open-platform-limits) · [Design choices](#deliberate-design-choices) · [Measurement limits](#measurement-limits) · [Next steps](#next-steps).
+- Sections: [Open issues](#open-issues) · [Open platform limits](#open-platform-limits) · [Design choices](#deliberate-design-choices) · [Measurement limits](#measurement-limits) · [Not yet in scope](#not-yet-in-scope) · [Next steps](#next-steps).
 
 ## Open issues
 
@@ -64,6 +64,14 @@ These are about the editions and the access we had (Zetaris 2.4.x local over RES
 - **Cost.** Cost figures use illustrative unit costs; Nightshift's receipts record USD 0. Analyst time saved was not measured; the report's minutes-saved figure is an estimate on stated assumptions and is not claimed here.
 - **Not measured:** a run without Zetaris other than the unreachable-endpoint test, the policy guard switched off, the challenger alone, a pinned-model run, and the fully local mode on held-out v4 (every step on Lightning on the laptop: not measured yet; how to run it: [MODELS.md](MODELS.md#fully-local-mode)). A "Nemotron alone" baseline and the Lightning-versus-Ultra comparison were run only as small labelled studies ([NEMOTRON.md](NEMOTRON.md)).
 - **Law changes.** Sanctions law and list programmes change; the jurisdiction list is an example.
+
+## Not yet in scope
+
+The same list as the README's [scope table](../README.md#scope-today-and-not-yet):
+- **Cover payments.** The desk screens the payment party, the beneficiary's bank, an intermediary bank's country and the payment reference; it has no handling for cover payments.
+- **Live list feeds.** The lists are a fixed snapshot of public OFAC and UN entries, with a labelled synthetic update to 6 of them for the list-change feature; nothing is read from a live feed.
+- **Real bank volumes.** Every run used the exam and held-out sets (tens of alerts), not a bank's daily alert volume.
+- **Real customer data.** All customers, accounts, owners and payments are synthetic; only the listed parties are real public entries.
 
 ## Next steps
 

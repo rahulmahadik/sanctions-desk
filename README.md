@@ -10,21 +10,24 @@
 
 ## The problem
 
-- **Too many alerts.** A bank's name screening raises far more alerts than there are real matches: thousands of name-screening alerts, each worked by hand, field by field.
+- **Too many alerts.** A bank's name screening raises far more alerts than there are real matches, and each one is worked by hand, field by field.
 - **One mistake is costly.** Most alerts are false positives. The costly mistake is closing the one that is real.
 - **The work is evidence work.** The analyst gathers the customer, the payment, the owners and the listed party from several systems, compares them and writes down why.
 
-> **Public enforcement cases (external sources)**
->
-> These are public facts from official enforcement releases. They are **not results of this project**. They show the kinds of gaps that have cost banks; they do not show that this desk would have prevented any of them.
->
-> | Year | Firm | Authority and outcome | What the official release describes | Source |
-> | --- | --- | --- | --- | --- |
-> | 2016 | Barclays Bank Plc | OFAC: $2,485,890 settlement | 159 transactions (July 2008 to September 2013) for corporate customers of Barclays Bank of Zimbabwe Limited that were owned 50 percent or more by a person on the SDN List; the owners were not in the electronic customer records used for screening | [OFAC release, 8 Feb 2016](https://ofac.treasury.gov/media/11661/download) |
-> | 2021 | Payoneer Inc. | OFAC: $1,385,901.40 settlement | 2,220 apparent violations (2013 to 2018); among the control breakdowns, weak algorithms that let close matches to SDN List entries pass its filter without a flag | [OFAC release, 23 Jul 2021](https://ofac.treasury.gov/media/911571/download) |
-> | 2021 | Mashreqbank | NYDFS: $100 million penalty | Payments related to Sudan processed through financial institutions in New York State, including its own New York branch, between 2005 and 2014; employees were told to avoid populating certain fields in the payment messages sent between banks, bypassing other banks' sanction filters; prohibited payments of over $4 billion between 2005 and 2009 | [NYDFS press release, 9 Nov 2021](https://www.dfs.ny.gov/reports_and_publications/press_releases/pr202111091) |
-> | 2022 | MidFirst Bank | OFAC: Finding of Violation, in place of a civil monetary penalty | Kept accounts for two newly listed persons and processed 34 payments for them for 14 days after their designation: its vendor screened the whole existing customer base against the SDN List only once a month | [OFAC release, 21 Jul 2022](https://ofac.treasury.gov/media/924506/download) |
-> | 2024 | EFG International AG | OFAC: $3,740,442 settlement | A private banking group whose subsidiaries processed securities transactions for sanctioned clients (2014 to 2018, and five dividend payments in 2023) through omnibus accounts at U.S. custodians, in EFG's name, so the U.S. firms did not know the underlying clients | [OFAC release, 14 Mar 2024](https://ofac.treasury.gov/media/932766/download) |
+**Public enforcement cases (external sources).** These are public facts from official enforcement releases. They are **not results of this project**. They show the kinds of gaps that have cost banks; they do not show that this desk would have prevented any of them.
+
+<details>
+<summary>Five public enforcement cases from OFAC and NYDFS releases, 2016–2024: ownership, name matching, payment messages, late re-screening, private banking</summary>
+
+| Year | Firm | Authority and outcome | What the official release describes | Source |
+| --- | --- | --- | --- | --- |
+| 2016 | Barclays Bank Plc | OFAC: $2,485,890 settlement | 159 transactions (July 2008 to September 2013) for corporate customers of Barclays Bank of Zimbabwe Limited that were owned 50 percent or more by a person on the SDN List; the owners were not in the electronic customer records used for screening | [OFAC release, 8 Feb 2016](https://ofac.treasury.gov/media/11661/download) |
+| 2021 | Payoneer Inc. | OFAC: $1,385,901.40 settlement | 2,220 apparent violations (2013 to 2018); among the control breakdowns, weak algorithms that let close matches to SDN List entries pass its filter without a flag | [OFAC release, 23 Jul 2021](https://ofac.treasury.gov/media/911571/download) |
+| 2021 | Mashreqbank | NYDFS: $100 million penalty | Payments related to Sudan processed through financial institutions in New York State, including its own New York branch, between 2005 and 2014; employees were told to avoid populating certain fields in the payment messages sent between banks, bypassing other banks' sanction filters; prohibited payments of over $4 billion between 2005 and 2009 | [NYDFS press release, 9 Nov 2021](https://www.dfs.ny.gov/reports_and_publications/press_releases/pr202111091) |
+| 2022 | MidFirst Bank | OFAC: Finding of Violation, in place of a civil monetary penalty | Kept accounts for two newly listed persons and processed 34 payments for them for 14 days after their designation: its vendor screened the whole existing customer base against the SDN List only once a month | [OFAC release, 21 Jul 2022](https://ofac.treasury.gov/media/924506/download) |
+| 2024 | EFG International AG | OFAC: $3,740,442 settlement | A private banking group whose subsidiaries processed securities transactions for sanctioned clients (2014 to 2018, and five dividend payments in 2023) through omnibus accounts at U.S. custodians, in EFG's name, so the U.S. firms did not know the underlying clients | [OFAC release, 14 Mar 2024](https://ofac.treasury.gov/media/932766/download) |
+
+</details>
 
 ## What the desk does for each alert
 
