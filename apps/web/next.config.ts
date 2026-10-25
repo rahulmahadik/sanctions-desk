@@ -8,6 +8,9 @@ const config: NextConfig = {
   // A self-contained server for the container image. The trace is taken from the repository root.
   output: "standalone",
   outputFileTracingRoot: join(here, "../.."),
+  // The build checks the app only; the tests (some read files outside apps/web, which the image does not hold) are
+  // type-checked by `npm run typecheck` with tsconfig.json.
+  typescript: { tsconfigPath: "tsconfig.build.json" },
   reactStrictMode: true,
   poweredByHeader: false,
   // Headers that stop the desk being framed by another site (a decision button under a hidden page), guessed at as
