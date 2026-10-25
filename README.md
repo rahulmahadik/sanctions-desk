@@ -32,7 +32,7 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 - It wrongly closed 0 of 43 risk cases; plain name matching closed 10. Analyst time saved was not measured and is not claimed.
 
 **When something goes wrong:**
-- Evidence is missing or Zetaris is unreachable: the case is held for a person, never closed ([recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened)).
+- Evidence is missing or Zetaris is unreachable: the case is held for a person with the reason, never closed (in the recorded test the review stopped with an error before any recommendation; holding it with the reason was changed after the recorded runs: [recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened), [changes](docs/EVALUATION.md#changes-after-the-evaluation)).
 - A Zetaris data-quality rule fails on the record: the failed rule forces a hold, so the case cannot be closed ([replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html): no birth date on record, so "need more information").
 - A model call fails: the step retries, then the local Ollama backup answers, else the case is escalated (19 backup answers, 20 escalations, 0 wrong closes in the recorded runs: [recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened)).
 - A cited fact does not match the source, or cannot be checked: code re-reads every cited fact from Zetaris before the critic's model sees it, and a fact that does not hold sends the recommendation back (the [critic's fact re-check](docs/EVALUATION.md#what-changes-when-it-is-off): 147 of 147 false facts caught in a sample-mode test; in the [replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html) a citation of a table that does not exist is sent back).
