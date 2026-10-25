@@ -38,6 +38,7 @@ export const SITE_IMAGES: Record<string, string> = {
       "6-zetaris-access",
     ].map((n) => [`media/diagrams/${n}.svg`, `docs/diagrams/${n}.svg`]),
   ),
+  "media/video-thumbnail.png": "docs/media/video-thumbnail.png",
   "media/charts/heldout-wrong-closes.png": "docs/media/charts/heldout-wrong-closes.png",
   "media/charts/first-recommendation-closes.png": "docs/media/charts/first-recommendation-closes.png",
   "media/charts/critic-mutation.png": "docs/media/charts/critic-mutation.png",

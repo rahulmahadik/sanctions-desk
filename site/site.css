@@ -934,6 +934,11 @@ figure.diagram {
   max-width: 1000px;
   margin-inline: auto;
 }
+/* The video thumbnail is a dark picture of its own: no white mat in dark mode. */
+figure.video img {
+  background: none;
+  padding: 0;
+}
 
 /* ---- page-specific --------------------------------------------------------------------------------------------- */
 
