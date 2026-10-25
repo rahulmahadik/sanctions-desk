@@ -350,8 +350,17 @@ function aloneHeadline(ranges: boolean): string {
     : "";
   return `${full} ${alone}${text}`;
 }
+
+/** The same sentences, one per bullet, for the short headline. */
+function aloneHeadlineParts(): string[] {
+  return aloneHeadline(false)
+    .split(/(?<=\.) (?=Full system:|Nemotron alone)/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
 const aloneSummary = `- **Small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation (written by \`npm run study:repeat\` from the study files; 95% ranges in brackets):** ${aloneHeadline(true)} Every v4 risk is stated only in free text, which the local screener reads. Details: [docs/NEMOTRON.md](${"DOCS"}NEMOTRON.md#what-the-agents-add-over-nemotron-alone).`;
-const aloneHeadlineBlock = `**Measured against Nemotron alone** (small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation): ${aloneHeadline(false)}`;
+const aloneHeadlineLead =
+  "**Measured against Nemotron alone** (small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation):";
 
 const json = `${JSON.stringify(study, null, 2)}\n`;
 let changed = !existsSync(outFile) || readFileSync(outFile, "utf8") !== json;
@@ -368,11 +377,14 @@ for (const path of ["README.md", "docs/NEMOTRON.md", "docs/SPONSORS.md"]) {
   const doc = readFileSync(target, "utf8");
   const reHeadline = /<!-- alone-headline:start -->[\s\S]*?<!-- alone-headline:end -->/;
   if (!reHeadline.test(doc)) continue;
-  const lead = path === "README.md" ? "- " : "";
-  const next = doc.replace(
-    reHeadline,
-    () => `<!-- alone-headline:start -->\n${lead}${aloneHeadlineBlock}\n<!-- alone-headline:end -->`,
-  );
+  // In the README it is one item of a list, its sentences nested under it; elsewhere a lead line and a list.
+  const nested = path === "README.md";
+  const block = [
+    `${nested ? "- " : ""}${aloneHeadlineLead}`,
+    ...(nested ? [] : [""]),
+    ...aloneHeadlineParts().map((p) => `${nested ? "  " : ""}- ${p}`),
+  ].join("\n");
+  const next = doc.replace(reHeadline, () => `<!-- alone-headline:start -->\n${block}\n<!-- alone-headline:end -->`);
   if (next !== doc) {
     changed = true;
     if (!check) writeFileSync(target, next);

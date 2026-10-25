@@ -1251,7 +1251,15 @@ const examCloses = get("rules")
 if (head && full && readme.includes(START) && readme.includes(END)) {
   const block = [
     START,
-    `**Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails, the case is escalated or held for more information instead of closed. On the 70-case exam (the cases the rules were written for) the full system wrongly closed ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases, against ${get("fuzzy")?.metrics.false_closes ?? "not run"} for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: ${heldoutWrong.join("; ")}. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** ${examCloses}, and on the blind held-out rounds it cleared ${heldoutClears === 0 ? `none of the ${heldoutClearCases} alerts that should have been cleared (0 of ${heldoutClearCases}) and sent them` : `${heldoutClears} of the ${heldoutClearCases} alerts that should have been cleared and sent the rest`} to a person instead. It wrongly closed ${heldoutFullWrong} of ${heldoutRiskCases} risk cases${heldoutFullSplit ? ` (${heldoutFullSplit}, each by an earlier version of the system)` : ""}, against ${heldoutRulesWrong} of ${heldoutRiskCases} for the deterministic rules, which also cleared ${heldoutRulesClears} of ${heldoutClearCases}.${v2Caveat} This is the cost of failing closed. Every figure is one run. ${howSure} Details: [eval/REPORT.md](eval/REPORT.md).`,
+    [
+      "> **Safe triage that fails closed.** The desk recommends and a person decides. When evidence is missing or any check fails, the case is escalated or held for more information, not closed.",
+      "",
+      `- **70-case exam** (the cases the rules were written for): the full system wrongly closed ${full.metrics.false_closes} of ${full.metrics.risk_cases} risk cases, against ${get("fuzzy")?.metrics.false_closes ?? "not run"} for plain name matching.`,
+      `- **Blind held-out rounds:** risk cases wrongly closed: ${heldoutWrong.join("; ")}. What each round found and what changed after it: [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds).`,
+      `- **No claim of clearing alerts beyond the rules:** ${examCloses}. On the blind held-out rounds it cleared ${heldoutClears === 0 ? `none of the ${heldoutClearCases} alerts that should have been cleared (0 of ${heldoutClearCases}) and sent them` : `${heldoutClears} of the ${heldoutClearCases} alerts that should have been cleared and sent the rest`} to a person instead.`,
+      `- **Held-out totals:** it wrongly closed ${heldoutFullWrong} of ${heldoutRiskCases} risk cases${heldoutFullSplit ? ` (${heldoutFullSplit}, each by an earlier version of the system)` : ""}, against ${heldoutRulesWrong} of ${heldoutRiskCases} for the deterministic rules, which also cleared ${heldoutRulesClears} of ${heldoutClearCases}.${v2Caveat}`,
+      `- **The cost of failing closed** is fewer clears. Every figure is one run. ${howSure} Details: [eval/REPORT.md](eval/REPORT.md).`,
+    ].join("\n"),
     END,
   ].join("\n");
   writeFileSync(readmePath, readme.replace(new RegExp(`${START}[\\s\\S]*?${END}`), block));

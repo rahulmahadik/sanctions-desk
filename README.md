@@ -1,28 +1,10 @@
 # Sanctions Desk
 
-- **Who it is for:** sanctions screening analysts and their senior reviewers at a bank.
-- **What goes wrong:** name screening raises far more alerts than there are real matches; each one is worked by hand, field by field, and the costly mistake is closing the one that is real.
-- **What it gives them:** for every alert, the evidence gathered through one data layer, every cited fact re-checked, risk signals from notes shown with the exact text they rest on, and a recommendation with its reasons.
-- **How it stays safe:** it fails closed (when evidence is missing or a check fails, the case is escalated or held for more information, never closed), and a person makes the final call (automatic closing is off by default and was off in every recorded run).
-- **Privacy and proof:** raw notes are read by a model on the analyst's machine, and the desk only accepts local answers for raw text: a safety-guard or screener answer that comes from a cloud route is not accepted and the case is held (in runs made before cloud answers were refused, 7 safety-guard calls were answered by Nemotron 3 Ultra in the cloud because Nightshift's router chose it); they are kept out of the cloud prompts the desk builds, which hold the structured fields and risk signals (Nightshift's own answer memory was on during the recorded runs, so this cannot be checked for them; the desk's configuration keeps it off). In four early runs, made before the screener existed (the headline 70-case run, single, no_memory and held-out v1), the cloud decision prompt held payment references and list remarks; customer notes were never in it. In every run with the screener, a check keeps all free text out of cloud prompts. Every answer from Nightshift has a signed receipt. Where each kind of data goes: [docs/PRIVACY.md](docs/PRIVACY.md); oversight, guardrails and fairness: [docs/RESPONSIBLE_AI.md](docs/RESPONSIBLE_AI.md).
-<!-- alone-headline:start -->
-- **Measured against Nemotron alone** (small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation): Full system: a recommendation on every case (escalated to a person where no model answer was usable), free text kept out of the desk's cloud prompts, 0 of 6 risk cases wrongly closed in each of 3 runs; in 1 of 3 runs, 1 case had no usable model answer and was escalated to a person. Nemotron alone without the free text: 3, 6 and 4 wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases. Nemotron alone with the free text sent to the cloud: 0, 1 and 1 wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases. Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it), against 1 in each run for the full system.
-<!-- alone-headline:end -->
-- **How it fits Track 03:** data (the Zetaris semantic layer) + knowledge (the public sanctions lists and the versioned policy) + memory (H-MEM for earlier decisions, the World Model for ownership) + reasoning (decision, critic, challenger) → reliable decisions (it fails closed, and a person makes the final call) and actions (hold, escalate, a sealed record).
-
 <!-- badges:start -->
 [![CI](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rahulmahadik/sanctions-desk/actions/workflows/ci.yml) [![TypeScript 7](https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white)](package.json) [![Node >=24](https://img.shields.io/badge/node-%3E%3D24-339933?logo=nodedotjs&logoColor=white)](package.json) [![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 <!-- badges:end -->
 
-![Architecture: the desk agents read only through Zetaris; the safety guard and screener read the raw text on local Nemotron 3.5 Lightning; the decision and critic send only structured facts to the cloud, where Nightshift's router mostly chooses Nemotron 3 Ultra; a raise-only policy guard and a person who decides; flags, missing answers and cloud-served answers for raw text hold the case](docs/diagrams/1-architecture.svg)
-
-*Five more diagrams (one live review step by step, the fail-closed paths, the life of an alert, where customer data goes, who may read what in Zetaris): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#diagrams) and the [architecture page](https://rahulmahadik.github.io/sanctions-desk/architecture.html).*
-
-![A review of alert ALR-0073 in sample mode: the steps light up, the Tehran signal in the payment reference, and the checks that keep the case open](docs/media/gifs/case-review.gif)
-
-*A review in sample mode (saved real data, a labelled rules stand-in for the models). More: [screenshots and clips](docs/media/README.md), live views with Nemotron receipts in [docs/NEMOTRON.md](docs/NEMOTRON.md).*
-
-An AI review desk for bank sanctions-screening alerts. For every alert it reads the evidence from the bank's data, compares the customer (or payment party, or owner) with the listed party under approved definitions, asks Nemotron models for a recommendation, has a second step re-read every cited fact, applies a written policy, and hands a **recommendation with its evidence** to a person. **Automatic closing is off by default and was off in every recorded run; a person makes the final call**: the desk never blocks, never writes to a source system and never messages a customer.
+An AI review desk for bank sanctions-screening alerts. For every alert, it reads the evidence from the bank's data. It compares the customer (or payment party, or owner) with the listed party under approved definitions. It asks Nemotron models for a recommendation, has a second step re-read every cited fact, and applies a written policy. Then it hands a **recommendation with its evidence** to a person. **Automatic closing is off by default and was off in every recorded run; a person makes the final call.** The desk never blocks, never writes to a source system and never messages a customer.
 
 Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
@@ -41,36 +23,123 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 | Challenger (argues against a close) | Nemotron 3 Ultra 550B in most calls (the router chooses) | cloud | the proposed close and its evidence | Ultra 49, Lightning 3, Ollama backup 3 of 55 |
 | Backup, only when Nightshift cannot answer | Nemotron 3.5 Lightning 30B in the local Ollama (`nemotron-3.5-lightning:30b`) | the analyst's laptop | the same request the step sent | 28 answers in the recorded runs (22 decision, 3 critic, 3 challenger); no receipt, because the call does not go through Nightshift; labelled `ollama` in the trace; none of those cases ended in a wrong close |
 
-Every one of these calls, with the mode asked for, the model that served it and its signed receipt (each signature checked when the site is built): **[receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/)**. Why each model, the privacy design and the studies of model choice: [docs/NEMOTRON.md](docs/NEMOTRON.md). Nightshift's router chooses inside the lane each step is bound to, so the split is a measurement, not a guarantee. What the desk pins is the mode it asks for, not the model that serves it. <!--fact:decision_models_line-->The decision step asks for the deep lane (`meterless/deep`): the mode is pinned, the serving model is not, because Nightshift's router chooses it. Ultra answered 87 of the 89 decision calls Nightshift served in the first system's run and 83 of 96 in the run of the current system before the block fix.<!--/fact--> <!--fact:decision_lightning_note-->Of the 13 decision calls Lightning answered in the run of the current system before the block fix, 10 were the desk's fast-lane retry after an unusable or failed first answer (a deliberate fallback: the retry asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane, so Lightning answers) and 3 were deep-lane calls where Nightshift's learned router predicted Ultra but Lightning won a hedged race; 7 more decision answers came from the Ollama backup (no receipt).<!--/fact--> A decision answered by that retry still goes through the critic and the policy guard ([docs/MODELS.md](docs/MODELS.md#how-a-call-is-routed)).
+> **Every one of these calls has its signed receipt in the [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/).** It shows the mode asked for and the model that served it; each signature is checked when the site is built.
+
+- **The desk pins the mode, not the model.** Nightshift's router chooses inside the lane each step is bound to, so the split is a measurement, not a guarantee.
+- <!--fact:decision_models_line-->The decision step asks for the deep lane (`meterless/deep`): the mode is pinned, the serving model is not, because Nightshift's router chooses it. Ultra answered 87 of the 89 decision calls Nightshift served in the first system's run and 83 of 96 in the run of the current system before the block fix.<!--/fact-->
+- <!--fact:decision_lightning_note-->Of the 13 decision calls Lightning answered in the run of the current system before the block fix, 10 were the desk's fast-lane retry after an unusable or failed first answer (a deliberate fallback: the retry asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane, so Lightning answers) and 3 were deep-lane calls where Nightshift's learned router predicted Ultra but Lightning won a hedged race; 7 more decision answers came from the Ollama backup (no receipt).<!--/fact-->
+- A decision answered by that retry still goes through the critic and the policy guard ([docs/MODELS.md](docs/MODELS.md#how-a-call-is-routed)).
+- Why each model, the privacy design and the studies of model choice: [docs/NEMOTRON.md](docs/NEMOTRON.md).
+
+## At a glance
+
+- **Who it is for:** sanctions screening analysts and their senior reviewers at a bank.
+- **What goes wrong:** name screening raises far more alerts than there are real matches. Each one is worked by hand, field by field. The costly mistake is closing the one that is real.
+- **What it gives them**, for every alert:
+  - the evidence, gathered through one data layer;
+  - every cited fact, re-checked;
+  - risk signals from notes, shown with the exact text they rest on;
+  - a recommendation with its reasons.
+- **How it stays safe:** it fails closed. When evidence is missing or a check fails, the case is escalated or held for more information, never closed. A person makes the final call: automatic closing is off by default and was off in every recorded run.
+- **Privacy and proof:** raw notes are read by a model on the analyst's machine.
+  - The desk only accepts local answers for raw text. A safety-guard or screener answer that comes from a cloud route is not accepted, and the case is held.
+  - Raw notes are kept out of the cloud prompts the desk builds. Those prompts hold the structured fields and risk signals.
+  - In every run with the screener, a check keeps all free text out of cloud prompts.
+  - Every answer from Nightshift has a signed receipt.
+  - **Limits:** in runs made before cloud answers were refused, 7 safety-guard calls were answered by Nemotron 3 Ultra in the cloud, because Nightshift's router chose it. Nightshift's own answer memory was on during the recorded runs, so the claim about cloud prompts cannot be checked for them; the desk's configuration keeps it off.
+  - **Limits:** in four early runs, made before the screener existed (the headline 70-case run, single, no_memory and held-out v1), the cloud decision prompt held payment references and list remarks. Customer notes were never in it.
+  - Where each kind of data goes: [docs/PRIVACY.md](docs/PRIVACY.md). Oversight, guardrails and fairness: [docs/RESPONSIBLE_AI.md](docs/RESPONSIBLE_AI.md).
+- **How it fits Track 03:** data + knowledge + memory + reasoning → reliable decisions and actions.
+  - Data: the Zetaris semantic layer.
+  - Knowledge: the public sanctions lists and the versioned policy.
+  - Memory: H-MEM for earlier decisions, the World Model for ownership.
+  - Reasoning: decision, critic, challenger.
+  - Reliable decisions: it fails closed, and a person makes the final call.
+  - Actions: hold, escalate, a sealed record.
+
+![Architecture: the desk agents read only through Zetaris; the safety guard and screener read the raw text on local Nemotron 3.5 Lightning; the decision and critic send only structured facts to the cloud, where Nightshift's router mostly chooses Nemotron 3 Ultra; a raise-only policy guard and a person who decides; flags, missing answers and cloud-served answers for raw text hold the case](docs/diagrams/1-architecture.svg)
+
+*Five more diagrams (one live review step by step, the fail-closed paths, the life of an alert, where customer data goes, who may read what in Zetaris): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#diagrams) and the [architecture page](https://rahulmahadik.github.io/sanctions-desk/architecture.html).*
+
+![A review of alert ALR-0073 in sample mode: the steps light up, the Tehran signal in the payment reference, and the checks that keep the case open](docs/media/gifs/case-review.gif)
+
+*A review in sample mode (saved real data, a labelled rules stand-in for the models). More: [screenshots and clips](docs/media/README.md), live views with Nemotron receipts in [docs/NEMOTRON.md](docs/NEMOTRON.md).*
+
+## Results in brief
 
 <!-- headline:start -->
-**Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails, the case is escalated or held for more information instead of closed. On the 70-case exam (the cases the rules were written for) the full system wrongly closed 0 of 43 risk cases, against 10 for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: 2 in held-out v1; 0 in held-out v2 (the screener had failed, so nothing was closed); 2 in held-out v3; 0 in held-out v4. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** on the exam every close it makes is one the deterministic rules also make, and on the blind held-out rounds it cleared none of the 25 alerts that should have been cleared (0 of 25) and sent them to a person instead. It wrongly closed 4 of 48 risk cases (2 in v1, 2 in v3, each by an earlier version of the system), against 13 of 48 for the deterministic rules, which also cleared 8 of 25. These totals include v2, where the screener failed and nothing could be closed; without v2: 4 of 34 risk cases wrongly closed and 0 of 20 cleared (deterministic rules: 10 of 34 and 3 of 20). This is the cost of failing closed. Every figure is one run. How sure we can be (95% range, small sets so the ranges are wide): exam, 0 of 43 risk cases wrongly closed (true rate 0–8%); held-out rounds, 4 of 48 (3–20%), or 4 of 34 without v2, where the screener failed (5–27%). Details: [eval/REPORT.md](eval/REPORT.md).
+> **Safe triage that fails closed.** The desk recommends and a person decides. When evidence is missing or any check fails, the case is escalated or held for more information, not closed.
+
+- **70-case exam** (the cases the rules were written for): the full system wrongly closed 0 of 43 risk cases, against 10 for plain name matching.
+- **Blind held-out rounds:** risk cases wrongly closed: 2 in held-out v1; 0 in held-out v2 (the screener had failed, so nothing was closed); 2 in held-out v3; 0 in held-out v4. What each round found and what changed after it: [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds).
+- **No claim of clearing alerts beyond the rules:** on the exam every close it makes is one the deterministic rules also make. On the blind held-out rounds it cleared none of the 25 alerts that should have been cleared (0 of 25) and sent them to a person instead.
+- **Held-out totals:** it wrongly closed 4 of 48 risk cases (2 in v1, 2 in v3, each by an earlier version of the system), against 13 of 48 for the deterministic rules, which also cleared 8 of 25. These totals include v2, where the screener failed and nothing could be closed; without v2: 4 of 34 risk cases wrongly closed and 0 of 20 cleared (deterministic rules: 10 of 34 and 3 of 20).
+- **The cost of failing closed** is fewer clears. Every figure is one run. How sure we can be (95% range, small sets so the ranges are wide): exam, 0 of 43 risk cases wrongly closed (true rate 0–8%); held-out rounds, 4 of 48 (3–20%), or 4 of 34 without v2, where the screener failed (5–27%). Details: [eval/REPORT.md](eval/REPORT.md).
 <!-- headline:end -->
 
-**What changes for the analyst** (measured on this machine, recorded 70-case run):
-- The desk prepares each alert in a median of 130 seconds (p95 306 s; over the 68 alerts, while the per-case tables give 123.79 s over all 70 cases, which include the draft checks), at about 0.0085 USD of model cost under the illustrative unit costs in `config/default.json` (Nightshift's receipts record USD 0), for the recommendation only; a person still decides ([eval/REPORT.md](eval/REPORT.md)).
-- Every alert in that run got a sealed record with its evidence, cited facts and checks (70 of 70, no errors); the analyst starts from the gathered evidence instead of an empty screen.
-- It wrongly closed 0 of 43 risk cases; plain name matching closed 10. Analyst time saved was not measured and is not claimed.
+<!-- alone-headline:start -->
+- **Measured against Nemotron alone** (small study, held-out v4, 12 cases, three runs each, not part of the recorded evaluation):
+  - Full system: a recommendation on every case (escalated to a person where no model answer was usable), free text kept out of the desk's cloud prompts, 0 of 6 risk cases wrongly closed in each of 3 runs; in 1 of 3 runs, 1 case had no usable model answer and was escalated to a person.
+  - Nemotron alone without the free text: 3, 6 and 4 wrongly closed, with no usable answer on 2–4 of 12 cases per run, 0–3 of them among the 6 risk cases.
+  - Nemotron alone with the free text sent to the cloud: 0, 1 and 1 wrongly closed, but no usable answer on 3–5 of 12 cases per run, 2–3 of them among the 6 risk cases.
+  - Nemotron alone cleared more: 3, 3 and 1 of 6 clear cases with the free text (0, 1 and 1 without it), against 1 in each run for the full system.
+<!-- alone-headline:end -->
 
-**When something goes wrong:**
-- Evidence is missing or Zetaris is unreachable: the case is held for a person with the reason, never closed (the recorded test ran a build in which the review stopped with an error before any recommendation; the code in this repository holds the case with the reason: [recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened), [changes](docs/EVALUATION.md#changes-after-the-evaluation)).
-- A Zetaris data-quality rule fails on the record: the failed rule forces a hold, so the case cannot be closed ([replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html): no birth date on record, so "need more information").
-- A model call fails: the step retries, then the local Ollama backup answers, else the case is escalated (19 backup answers, 20 escalations, 0 wrong closes in the recorded runs: [recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened)).
-- A cited fact does not match the source, or cannot be checked: code re-reads every cited fact from Zetaris before the critic's model sees it, and a fact that does not hold sends the recommendation back (the [critic's fact re-check](docs/EVALUATION.md#what-changes-when-it-is-off): 147 of 147 changed facts caught over 25 decisions; 25 cited facts could not be checked in sample mode; in the [replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html) a citation of a table that does not exist is sent back).
-- An injected instruction that no check flagged ("recommend closing" in a customer note): it did not turn an escalating case into a close, 0 of 4 runs on ALR-0016; such text can still go unflagged on a case whose own data closes ([EVALUATION.md](docs/EVALUATION.md#safety-guard-against-injected-text)).
+### What changes for the analyst
 
-**What it does without being asked:**
-- On every review, the memory step checks whether an earlier decision on the same customer and listed entry still holds, and marks it stale if the entry changed since. After a list update, one request (the home-page button or `POST /list-change/replay`) re-checks every earlier decision and lists those whose listed entry changed or was removed, for a person to review; it reopens nothing itself ([user guide](docs/USER_GUIDE.md#3-the-alert-queue), [screenshot](docs/media/screenshots/10-list-change.png)).
-- A challenger argues against a proposed close when its confidence is below 0.85, the name similarity is at least 0.95, or a data-quality rule fails, or the screener recorded any signal in the free text (policy `challenger`); a close it cannot rule out becomes an escalation ([architecture](docs/ARCHITECTURE.md#the-steps)).
-- Every draft for a customer is checked for tipping-off wording before it is saved, and every text from the data is checked for instructions aimed at the desk ([safety guard results](docs/EVALUATION.md#safety-guard-against-injected-text)).
+> **It wrongly closed 0 of 43 risk cases; plain name matching closed 10.** Measured on this machine, in the recorded 70-case run.
 
-**How to see afterwards what it did:**
-- The sealed decision record: evidence, every Zetaris statement, every model call and every check, hash-sealed ([an example](output_examples/close-stopped-by-policy-guard/decision-record.json)).
-- The signed receipts: which model answered each call, checked with `npm run evidence:verify` or in the [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/).
-- The replay: every step in order, in the desk's Replay view or in the [recorded runs](https://rahulmahadik.github.io/sanctions-desk/runs/).
-- On screen, from a live review: [the model and receipt check of every step](docs/media/screenshots/16-live-model-per-step.png) and [the person's decision](docs/media/screenshots/17-live-decision-panel.png).
+- The desk prepares each alert in a median of 130 seconds (p95 306 s; over the 68 alerts).
+- The per-case tables give 123.79 s over all 70 cases, which include the draft checks.
+- Model cost is about 0.0085 USD per alert, for the recommendation only, under the illustrative unit costs in `config/default.json`. Nightshift's receipts record USD 0. A person still decides ([eval/REPORT.md](eval/REPORT.md)).
+- Every alert in that run got a sealed record with its evidence, cited facts and checks (70 of 70, no errors).
+- The analyst starts from the gathered evidence instead of an empty screen.
+- **Limits:** analyst time saved was not measured and is not claimed.
 
-**What's new here:**
+## How it behaves
+
+### When something goes wrong
+
+> **When evidence is missing or a check fails, the case is held or escalated, not closed.**
+
+- **Evidence is missing or Zetaris is unreachable:** the case is held for a person with the reason, never closed.
+  - **Limits:** the recorded test ran a build in which the review stopped with an error before any recommendation. The code in this repository holds the case with the reason ([recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened), [changes](docs/EVALUATION.md#changes-after-the-evaluation)).
+- **A Zetaris data-quality rule fails on the record:** the failed rule forces a hold, so the case cannot be closed. Example: the [replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html) has no birth date on record, so "need more information".
+- **A model call fails:** the step retries, then the local Ollama backup answers, else the case is escalated. In the recorded runs: 19 backup answers, 20 escalations, 0 wrong closes ([recorded failures](docs/ARCHITECTURE.md#resilience-as-it-happened)).
+- **A cited fact does not match the source, or cannot be checked:** code re-reads every cited fact from Zetaris before the critic's model sees it. A fact that does not hold sends the recommendation back.
+  - The [critic's fact re-check](docs/EVALUATION.md#what-changes-when-it-is-off) caught 147 of 147 changed facts over 25 decisions; 25 cited facts could not be checked in sample mode.
+  - In the [replay of ALR-0030](https://rahulmahadik.github.io/sanctions-desk/runs/alr-0030.html), a citation of a table that does not exist is sent back.
+- **An injected instruction that no check flagged** ("recommend closing" in a customer note): it did not turn an escalating case into a close (0 of 4 runs on ALR-0016).
+  - **Limits:** such text can still go unflagged on a case whose own data closes ([EVALUATION.md](docs/EVALUATION.md#safety-guard-against-injected-text)).
+
+### What it does without being asked
+
+> **It checks for stale decisions, argues against risky closes and checks text for unsafe wording.**
+
+- **Stale decisions:** on every review, the memory step checks whether an earlier decision on the same customer and listed entry still holds. It marks the decision stale if the entry changed since.
+- **List updates:** after a list update, one request (the home-page button or `POST /list-change/replay`) re-checks every earlier decision. It lists those whose listed entry changed or was removed, for a person to review. It reopens nothing itself ([user guide](docs/USER_GUIDE.md#3-the-alert-queue), [screenshot](docs/media/screenshots/10-list-change.png)).
+- **A challenger** argues against a proposed close when any of these holds (policy `challenger`):
+  - the confidence is below 0.85;
+  - the name similarity is at least 0.95;
+  - a data-quality rule fails;
+  - the screener recorded any signal in the free text.
+
+  A close it cannot rule out becomes an escalation ([architecture](docs/ARCHITECTURE.md#the-steps)).
+- **Drafts and data text:** every draft for a customer is checked for tipping-off wording before it is saved. Every text from the data is checked for instructions aimed at the desk ([safety guard results](docs/EVALUATION.md#safety-guard-against-injected-text)).
+
+### How to see afterwards what it did
+
+> **Every review leaves a sealed record, signed receipts and a step-by-step replay.**
+
+- **The sealed decision record:** evidence, every Zetaris statement, every model call and every check, hash-sealed ([an example](output_examples/close-stopped-by-policy-guard/decision-record.json)).
+- **The signed receipts:** which model answered each call. Check them with `npm run evidence:verify` or in the [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/).
+- **The replay:** every step in order, in the desk's Replay view or in the [recorded runs](https://rahulmahadik.github.io/sanctions-desk/runs/).
+- **On screen, from a live review:** [the model and receipt check of every step](docs/media/screenshots/16-live-model-per-step.png) and [the person's decision](docs/media/screenshots/17-live-decision-panel.png).
+
+### What's new here
+
+> **Caution can only go up, each data step has its own role, and every model answer is signed.**
+
 - A policy guard that can only raise caution, never lower it.
 - One read-only Zetaris role per data-reading step, checked by Zetaris's own refusals (85 of 85).
 - A signed receipt on every Nightshift answer, cloud and local, re-checked by one command.
@@ -107,7 +176,7 @@ SAMPLE_MODE=true docker compose up --build        # the API on http://localhost:
 
 Open http://localhost:3001 for the review desk: pick an alert, press **Review this alert** and watch the steps light up as the real events arrive. More sample-mode requests: [docs/SETUP.md](docs/SETUP.md#try-it-in-two-minutes); running it live: [docs/SETUP.md](docs/SETUP.md#run-it-live).
 
-**Upgrading an existing live setup:** when upgrading from a version that issued tokens in another form, a users file that still holds such a token stops a live start with sign-in on until each of those users is rotated: `npm run users:rotate -- --file <users file> --id <name> --by <your name>` (sample mode needs no users file and no sign-in).
+**Upgrading an existing live setup:** a users file that still holds a token issued by an older version, in another form, stops a live start with sign-in on. Rotate each of those users first: `npm run users:rotate -- --file <users file> --id <name> --by <your name>`. Sample mode needs no users file and no sign-in.
 
 One review from the command line, without the interface or a server. The request file holds the same body as `POST /run`; with `SAMPLE_MODE=true` no service or key is needed.
 
@@ -118,7 +187,13 @@ SAMPLE_MODE=true npm run -s case -- input_examples/run-ALR-0004.json
 
 The request files are in [input_examples/README.md](input_examples/README.md); the answer's shape is in [docs/API.md](docs/API.md#run-one-case).
 
-**Check the claims without Docker.** With Node 24 or newer (CI runs 24 and 26; `.node-version` says 26) and a full clone (not `--depth 1`: the preregistration check looks for the freeze commits in the history), `npm ci && npm run prove` runs seven checks in a few seconds once installed and prints one PASS or FAIL line each, then a summary; it exits with 1 if any check fails. It needs no credentials and no services, forces sample mode and never reads `.env`. What each check does: [docs/EVALUATION.md](docs/EVALUATION.md#one-command-proof).
+**Check the claims without Docker:** `npm ci && npm run prove`.
+
+- It needs Node 24 or newer (CI runs 24 and 26; `.node-version` says 26).
+- It needs a full clone, not `--depth 1`: the preregistration check looks for the freeze commits in the history.
+- Once installed, it runs seven checks in a few seconds and prints one PASS or FAIL line each, then a summary. It exits with 1 if any check fails.
+- It needs no credentials and no services, forces sample mode and never reads `.env`.
+- What each check does: [docs/EVALUATION.md](docs/EVALUATION.md#one-command-proof).
 
 <!-- prove:start -->
 **One-command proof** (`npm run prove`, no credentials or services; the machine, time and commit of the last run are in [eval/PROVE.md](eval/PROVE.md)):
@@ -158,11 +233,24 @@ Ranges use the Wilson score method.
 95% intervals (Wilson score) for the share of risk cases wrongly closed, full system and deterministic rules: Held-out v1 (blind): full system 2 of 22 (3% to 28%), rules 6 of 22 (13% to 48%); Held-out v2 (blind): full system 0 of 14 (0% to 22%), rules 3 of 14 (8% to 48%); Held-out v2 (re-run, not blind): full system 0 of 14 (0% to 22%), rules 3 of 14 (8% to 48%); Held-out v3 (blind): full system 2 of 6 (10% to 70%), rules 1 of 6 (3% to 56%); Held-out v4 (blind): full system 0 of 6 (0% to 39%), rules 3 of 6 (19% to 81%). The sets are small, so the intervals are wide.
 <!-- rounds:end -->
 
-Held-out v2, v3 and v4 were each written by a separate AI agent session that saw no results, traces or fixes, and no review code except the evidence-standard rule its labels apply; labels fixed before the run; each session's instructions came from the build session and named the case families to test. Held-out v1 was written in this project, by the build session, before any run on it. What each round found and what was changed after it: [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds).
+**How the held-out rounds were written:**
+
+- Held-out v2, v3 and v4 were each written by a separate AI agent session.
+- That session saw no results, traces or fixes, and no review code except the evidence-standard rule its labels apply.
+- Labels were fixed before the run.
+- Each session's instructions came from the build session and named the case families to test.
+- Held-out v1 was written in this project, by the build session, before any run on it.
+- What each round found and what was changed after it: [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds).
 
 ![Held-out rounds: risk cases wrongly closed by the full system and by the baselines, per round](docs/media/charts/heldout-wrong-closes.png)
 
-Rules settle what structured data can. On the cases the rules were written for, the deterministic pipeline is exact by design; on every held-out round it also closed risk cases (the table above), which is why the desk never closes on rules alone. The full system did not always do better: it wrongly closed 2 risk cases on held-out v1 (both also closed by the rules) and 2 on v3 (which the rules did not close); on v2 and v4 it closed none, where the rules closed 3 each. It made no clears the rules miss.
+> **Rules settle what structured data can.**
+
+- On the cases the rules were written for, the deterministic pipeline is exact by design.
+- On every held-out round it also closed risk cases (the table above). That is why the desk never closes on rules alone.
+- The full system did not always do better. It wrongly closed 2 risk cases on held-out v1 (both also closed by the rules) and 2 on v3 (which the rules did not close).
+- On v2 and v4 it closed none, where the rules closed 3 each.
+- It made no clears the rules miss.
 
 Counts in this README (<!--fact:exam_cases-->70<!--/fact--> exam cases in <!--fact:exam_groups-->12<!--/fact--> groups, <!--fact:heldout_cases-->30<!--/fact--> cases in the first held-out set (73 across the four held-out sets), <!--fact:edge_cases-->43<!--/fact--> edge cases) are written by `npm run readme:refresh` from the committed data.
 
@@ -173,7 +261,16 @@ Counts in this README (<!--fact:exam_cases-->70<!--/fact--> exam cases in <!--fa
 - **Safety guard against injected text (one run, policy 7, guard asked once):** Lightning flagged 70 of 70 injected instructions, against 24 for the fixed patterns alone, and 12 of 12 tipping-off drafts (patterns: 1); it wrongly flagged 1 of 23 harmless texts. It tests the safety guard only, not a full review. Through full reviews with the guard asked once: 66 of 70 injected texts caught; 2 that no check flagged ended in a close where the case's own data supported a close. With the current guard (asked twice, plus a narrow check), a fresh set written separately: 27 of 28 reviews of injected text caught; false alarms on harmless text 7 of 16. Details: [docs/EVALUATION.md](docs/EVALUATION.md#safety-guard-against-injected-text).
 <!-- adversarial:end -->
 
-**Changes after the evaluation.** After every recorded run, the ownership rule was made a cascade (OFAC's 50 percent rule), exam case EX-043 was relabelled, request-for-information drafts got fixed wording and a tipping-off check, every jurisdiction action escalates, the SQL guard refuses `SELECT *`, and Nightshift's own answer memory was switched off. What, why, commit and effect: [docs/EVALUATION.md](docs/EVALUATION.md#changes-after-the-evaluation). The recorded results are unchanged; the report scores them against the current labels.
+**Changes after the evaluation.** After every recorded run:
+
+- the ownership rule was made a cascade (OFAC's 50 percent rule);
+- exam case EX-043 was relabelled;
+- request-for-information drafts got fixed wording and a tipping-off check;
+- every jurisdiction action escalates;
+- the SQL guard refuses `SELECT *`;
+- Nightshift's own answer memory was switched off.
+
+The recorded results are unchanged; the report measures them against the current labels. What, why, commit and effect: [docs/EVALUATION.md](docs/EVALUATION.md#changes-after-the-evaluation).
 
 ## How it works
 
@@ -205,38 +302,128 @@ The step-by-step model table and the receipt log are at the [top of this page](#
 ## How sponsor technology is used
 
 <!-- sponsors:start -->
-**Zetaris: the only data path.** **<!--fact:harness_agent_files-->0 of 73 agent files name any source, table or driver<!--/fact-->**: switching a source is a semantic-layer change, and no agent code changes ([count](docs/ZETARIS.md)). Zetaris is the desk's data harness: the agents query the data where it lives, through one governed semantic layer holding business rules and data-quality rules. Three sources stay where they are and meet in that Unified Semantic Layer of 14 tables: list files in the Zetaris file store, a Postgres bank database over JDBC with a read-only login, and a payments service read as a REST table (the Zetaris home page shows 6 sources and 62 tables because it also lists a file copy of the bank, kept as a fallback that a rebuild switches to, not exercised with the database down, and Zetaris's own two sample databases, which the desk does not use; [details](docs/ZETARIS.md#zetaris-at-a-glance)). Each step reads only its own tables and columns, one read-only statement at a time, under one non-admin Zetaris role per review step that reads data (evidence, ownership, critic, memory, the document-on-record check and the list-change re-check), each granted only that step's tables (the critic gets no identifier table at all), with the application's own table and column allow-lists as a second layer; Zetaris refuses each step a table it was not granted (`npm run check:step-roles`: every table not granted, and write statements, 85 of 85); identifier numbers are masked. A customer record that fails a data-quality rule cannot support a close (one documented exception: a missing date of birth supplied by a verified note); the agents take the rules from the layer and re-implement none. The approved definitions (true match, false positive, ...) are read from the semantic layer at run time, once per review, by the evidence step (`gatherEvidence` in `packages/agents/src/evidence.ts`), and every later step uses that one read, so every step uses one definition; the tests themselves are code, pinned to a version, and each place is listed with the per-source line counts in [docs/ZETARIS.md](docs/ZETARIS.md#the-data-harness-counted-from-the-code) (`npm run zetaris:harness`). Before a note counts as evidence, the document number it cites is counted against the customer's identifiers inside Zetaris, so the number never reaches a model. *Check it:* `zetaris/sql/` (sources and semantic layer), `npm run check:roles` and `npm run check:isolation` (live), `packages/zetaris/test/guard.test.ts` (access and masking), `packages/agents/test/policy-guard.test.ts` (data quality), `packages/agents/src/note-document.ts` (document on record), [docs/ZETARIS.md](docs/ZETARIS.md).
+### Zetaris — the only data path
 
-**Meterless engines: three, each in a working feature.** H-MEM keeps earlier decisions as pointers (table, key, content hash) that go stale when the listed entry changes; the memory step recalls them for each review. The World Model holds each company's ownership register, written row by row with provenance and a validity date; the ownership step evaluates the 50 percent rule (counted as a cascade) on what it reads back. Markovian re-screens every earlier decision after a list change in bounded batches with a carried cursor; the list-change check uses it. *Check it:* `npm run test:engines` (H-MEM 13/13, World Model 8/8, Markovian 8/8 on the official conformance suites), `packages/engines/src/`, `output_examples/close-previously-cleared/` (memory), `POST /list-change/replay` and `apps/api/test/review.test.ts` (list change). **Scout Intent, optional and off by default (`actions.scoutIntent`), on the action step, not the review decision:** after a person decides, Scout Intent reads each next-action record (closure note, ticket, request for information, hold instruction, block recommendation), names the action it is, signs an execution contract for it, and refuses a record whose text or kind does not match the person's decision; a refused record is not written and the refusal is audited. *Check it:* `npm run test:engines` also runs Scout Intent's official eval harness (gate passed on its 32 examples), and `packages/agents/test/action-intent.test.ts` checks every approved sample decision and the refusals.
+> **<!--fact:harness_agent_files-->0 of 73 agent files name any source, table or driver<!--/fact-->.** Switching a source is a semantic-layer change; no agent code changes ([count](docs/ZETARIS.md)).
 
-**Meterless Nightshift: every model call.** The desk talks to Nightshift's OpenAI-compatible API through one injected generator, under two app identities: `sanctions-desk-guard`, bound to the local lane, and `sanctions-desk-reasoning`, bound to the deep lane (binds set in the Nightshift cockpit). Ollama is a backup only. Every call returns an Ed25519-signed receipt naming the model that served it; the trace keeps the requested model, the routed model and the receipt id side by side. *Check it:* `config/default.json` (`nightshift`), `packages/shared/src/generator.ts`, `npm run receipts:check` (<!--fact:receipts_line-->2,802 signed receipts: 1,923 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->; tamper test: `npm run receipts:tamper-test`), the **Verify receipt** button in the case view.
+- **It is the desk's data harness.** The agents query the data where it lives, through one governed semantic layer. That layer holds the business rules and data-quality rules.
+- **Three sources stay where they are** and meet in that Unified Semantic Layer of 14 tables:
+  - list files in the Zetaris file store;
+  - a Postgres bank database over JDBC, with a read-only login;
+  - a payments service, read as a REST table.
+- **Each step reads only its own tables and columns**, one read-only statement at a time.
+  - Each review step that reads data has its own non-admin Zetaris role: evidence, ownership, critic, memory, the document-on-record check and the list-change re-check.
+  - Each role is granted only that step's tables. The critic gets no identifier table at all.
+  - The application's own table and column allow-lists are a second layer.
+  - Zetaris refuses each step a table it was not granted (`npm run check:step-roles`: every table not granted, and write statements, 85 of 85). Identifier numbers are masked.
+- **Data-quality rules decide.** A customer record that fails a data-quality rule cannot support a close. The agents take the rules from the layer and re-implement none.
+- **One read of the approved definitions** (true match, false positive, ...). The evidence step reads them from the semantic layer at run time, once per review (`gatherEvidence` in `packages/agents/src/evidence.ts`). Every later step uses that one read, so every step uses one definition.
+- **Document numbers never reach a model.** Before a note counts as evidence, the document number it cites is counted against the customer's identifiers inside Zetaris.
+- **Limits:**
+  - The Zetaris home page shows 6 sources and 62 tables. It also lists a file copy of the bank, kept as a fallback that a rebuild switches to (not exercised with the database down), and Zetaris's own two sample databases, which the desk does not use ([details](docs/ZETARIS.md#zetaris-at-a-glance)).
+  - One documented exception to the data-quality rule: a missing date of birth supplied by a verified note.
+  - The tests on the definitions are code, pinned to a version. Each place is listed with the per-source line counts in [docs/ZETARIS.md](docs/ZETARIS.md#the-data-harness-counted-from-the-code) (`npm run zetaris:harness`).
 
-**NVIDIA Nemotron: local where the text is, cloud where the reasoning is.** Nemotron 3.5 Lightning 30B runs on the analyst's laptop for the safety guard and the free-text screener, so the desk does not put raw notes or payment references in a cloud prompt. A check keeps all free text out of cloud prompts. Four recorded runs were made before the screener existed (the headline 70-case run, single, no_memory and held-out v1): in those, the cloud decision prompt held payment references and list remarks; customer notes were never in it. The desk accepts only local answers for raw text: a cloud-served guard or screener answer holds the case (in runs made before this rule, the router sent 7 guard calls to Ultra in the cloud). Nightshift's own answer memory can add earlier answers, local ones included, to a cloud request; it was on during the recorded runs, so whether text read on the laptop reached the cloud that way cannot be checked for them, and it is switched off (30 receipts checked, none with an added memory, and <!--fact:receipts_studies_memory-->0<!--/fact--> of the <!--fact:receipts_studies-->879<!--/fact--> committed receipts of the small studies in [eval/studies](eval/studies/README.md) carry one; see docs/MODELS.md). The decision, the critic and the challenger ask for cloud lanes and receive structured facts only; the desk pins the lane, and Nightshift's router chooses the model within it, mostly Nemotron 3 Ultra 550B. Every receipt records the model: in the headline run the safety guard was answered by Lightning in 70 of 70 calls and the decision by Ultra in <!--fact:decision_ultra_first-->87 of 89<!--/fact--> of the decision calls Nightshift served (<!--fact:decision_ultra_current-->83 of 96<!--/fact--> in <!--fact:current_run_label-->the run of the current system before the block fix<!--/fact-->). *Check it:* `npm run evidence:verify -- eval/runs/routed-20261023T133311Z`, [docs/MODELS.md](docs/MODELS.md).
+**Check it:** `zetaris/sql/` (sources and semantic layer) · `npm run check:roles` and `npm run check:isolation` (live) · `packages/zetaris/test/guard.test.ts` (access and masking) · `packages/agents/test/policy-guard.test.ts` (data quality) · `packages/agents/src/note-document.ts` (document on record) · [docs/ZETARIS.md](docs/ZETARIS.md)
 
-**Cursor: not used.** Built with Claude Code ([AI and Model Usage](#ai-and-model-usage)).
+### Meterless engines
 
-**What was unique**
-1. The critic does not trust the decision: code re-reads every cited fact from Zetaris before the critic's model sees it, and a fact that does not hold is never approved.
-2. Raw text stays out of the desk's cloud prompts (except four early runs, [disclosed here](docs/PRIVACY.md#earlier-runs)): the local model turns it into risk signals with exact spans, and a signal at or above its threshold blocks a close whether or not its span is grounded.
-3. Every held-out round is published as run, wrong closes included, and every Nightshift answer has a signed receipt that one command re-checks.
+> **Three engines, each in a working feature: H-MEM, the World Model and Markovian.** A fourth, Scout Intent, is optional and works after a person decides.
 
-**Limitation:** By default the cloud decision model receives structured personal fields from the case (name, date of birth, nationality); the desk does not put free text in a cloud prompt (except four early runs: [docs/PRIVACY.md](docs/PRIVACY.md#earlier-runs)). The optional privacy mode sends tokens instead, and has been tested only on a small live sample. **Future work:** For deployments that require it, make privacy mode the default once a full evaluation run confirms it, or keep the decision step local.
+- **H-MEM** keeps earlier decisions as pointers (table, key, content hash). They go stale when the listed entry changes. The memory step recalls them for each review.
+- **The World Model** holds each company's ownership register, written row by row with provenance and a validity date. The ownership step evaluates the 50 percent rule (counted as a cascade) on what it reads back.
+- **Markovian** re-screens every earlier decision after a list change, in bounded batches with a carried cursor. The list-change check uses it.
+- **Scout Intent** runs on the action step, not on the review decision. After a person decides, it reads each next-action record (closure note, ticket, request for information, hold instruction, block recommendation). It names the action the record is and signs an execution contract for it. It refuses a record whose text or kind does not match the person's decision. A refused record is not written, and the refusal is audited.
+- **Limits:** Scout Intent is optional and off by default (`actions.scoutIntent`).
+
+**Check it:**
+
+- Engines: `npm run test:engines` (H-MEM 13/13, World Model 8/8, Markovian 8/8 on the official conformance suites) and `packages/engines/src/`.
+- Memory: `output_examples/close-previously-cleared/`.
+- List change: `POST /list-change/replay` and `apps/api/test/review.test.ts`.
+- Scout Intent: `npm run test:engines` also runs its official eval harness (gate passed on its 32 examples). `packages/agents/test/action-intent.test.ts` checks every approved sample decision and the refusals.
+
+### Meterless Nightshift
+
+> **<!--fact:receipts_line-->2,802 signed receipts: 1,923 from exported runs, 879 from studies, all verified against the pinned key<!--/fact-->.** Nightshift serves every model call; Ollama is a backup only.
+
+- The desk talks to Nightshift's OpenAI-compatible API through one injected generator.
+- It uses two app identities, with binds set in the Nightshift cockpit:
+  - `sanctions-desk-guard`, bound to the local lane;
+  - `sanctions-desk-reasoning`, bound to the deep lane.
+- Every call returns an Ed25519-signed receipt naming the model that served it.
+- The trace keeps the requested model, the routed model and the receipt id side by side.
+
+**Check it:** `config/default.json` (`nightshift`) · `packages/shared/src/generator.ts` · `npm run receipts:check` · tamper test: `npm run receipts:tamper-test` · the **Verify receipt** button in the case view
+
+### NVIDIA Nemotron
+
+> **Local where the text is, cloud where the reasoning is.** The raw text is read on the analyst's laptop; the cloud steps receive structured facts only.
+
+- **On the laptop:** Nemotron 3.5 Lightning 30B runs the safety guard and the free-text screener. So the desk does not put raw notes or payment references in a cloud prompt.
+- **Only local answers for raw text:** a cloud-served guard or screener answer holds the case. A check keeps all free text out of cloud prompts.
+- **In the cloud:** the decision, the critic and the challenger ask for cloud lanes and receive structured facts only. The desk pins the lane; Nightshift's router chooses the model within it, mostly Nemotron 3 Ultra 550B.
+- **Every receipt records the model.** In the headline run, the safety guard was answered by Lightning in 70 of 70 calls. The decision was answered by Ultra in <!--fact:decision_ultra_first-->87 of 89<!--/fact--> of the decision calls Nightshift served (<!--fact:decision_ultra_current-->83 of 96<!--/fact--> in <!--fact:current_run_label-->the run of the current system before the block fix<!--/fact-->).
+- **Limits:**
+  - Four recorded runs were made before the screener existed (the headline 70-case run, single, no_memory and held-out v1). In those, the cloud decision prompt held payment references and list remarks; customer notes were never in it.
+  - In runs made before the local-only rule, the router sent 7 guard calls to Ultra in the cloud.
+  - Nightshift's own answer memory can add earlier answers, local ones included, to a cloud request. It was on during the recorded runs, so whether text read on the laptop reached the cloud that way cannot be checked for them.
+  - That memory is switched off: 30 receipts checked, none with an added memory, and <!--fact:receipts_studies_memory-->0<!--/fact--> of the <!--fact:receipts_studies-->879<!--/fact--> committed receipts of the small studies in [eval/studies](eval/studies/README.md) carry one (see docs/MODELS.md).
+
+**Check it:** `npm run evidence:verify -- eval/runs/routed-20261023T133311Z` · [docs/MODELS.md](docs/MODELS.md)
+
+### Cursor
+
+> **Not used.** Built with Claude Code ([AI and Model Usage](#ai-and-model-usage)).
+
+### What was unique
+
+1. **The critic does not trust the decision.** Code re-reads every cited fact from Zetaris before the critic's model sees it. A fact that does not hold is never approved.
+2. **Raw text stays out of the desk's cloud prompts** (except four early runs, [disclosed here](docs/PRIVACY.md#earlier-runs)). The local model turns it into risk signals with exact spans. A signal at or above its threshold blocks a close, whether or not its span is grounded.
+3. **Every held-out round is published as run**, wrong closes included. Every Nightshift answer has a signed receipt that one command re-checks.
+
+### Limits and future work
+
+- **Limitation:** By default, the cloud decision model receives structured personal fields from the case (name, date of birth, nationality).
+- The desk does not put free text in a cloud prompt (except four early runs: [docs/PRIVACY.md](docs/PRIVACY.md#earlier-runs)).
+- The optional privacy mode sends tokens instead, and has been tested only on a small live sample.
+- **Future work:** For deployments that require it, make privacy mode the default once a full evaluation run confirms it, or keep the decision step local.
 <!-- sponsors:end -->
 
 Details: [docs/SPONSORS.md](docs/SPONSORS.md), [docs/ZETARIS.md](docs/ZETARIS.md), [docs/MODELS.md](docs/MODELS.md) and [docs/MEMORY.md](docs/MEMORY.md).
 
 ## Privacy mode
 
-Optional and off by default: set `PRIVACY_MODE=pseudonymise`. Before every cloud call the case's names, aliases, identifiers, dates of birth, addresses and country values are replaced by stable per-case tokens (`PARTY_A`, `LISTED_1`, `DOC_1`, `DOB_1`, `COUNTRY_1`); the cloud model sees the tokens, the comparison worked out on this machine (name score, date of birth and nationality agreement, definitions met) and whether each country token is a watched jurisdiction. The token map stays on this machine and in the sealed record, the answer is mapped back locally, and a prompt that still holds a raw name, identifier or date of birth is not sent. Small test of an optional mode, not part of the recorded evaluation (held-out v4 and 8 of the 70 exam cases, one live run in each mode, Nightshift warmed up and not restarted; [run files](eval/studies/privacy-mode)): 0 wrong closes in both modes; 14 of 20 outcomes identical; all 65 cloud prompts passed the raw-value check; its 104 receipts verify, none with an added memory. With one run each on a small sample, the other differences are within the variation between runs and are not read as better or worse. Details: [docs/MODELS.md](docs/MODELS.md#privacy-mode).
+> **Optional and off by default: set `PRIVACY_MODE=pseudonymise`.** The cloud model then sees tokens instead of names, identifiers and dates.
+
+- Before every cloud call, the case's names, aliases, identifiers, dates of birth, addresses and country values are replaced by stable per-case tokens (`PARTY_A`, `LISTED_1`, `DOC_1`, `DOB_1`, `COUNTRY_1`).
+- The cloud model sees the tokens and the comparison worked out on this machine (name score, date of birth and nationality agreement, definitions met). It also sees whether each country token is a watched jurisdiction.
+- The token map stays on this machine and in the sealed record. The answer is mapped back locally.
+- A prompt that still holds a raw name, identifier or date of birth is not sent.
+- **Small test of an optional mode, not part of the recorded evaluation:** held-out v4 and 8 of the 70 exam cases, one live run in each mode, Nightshift warmed up and not restarted ([run files](eval/studies/privacy-mode)).
+  - 0 wrong closes in both modes; 14 of 20 outcomes identical.
+  - All 65 cloud prompts passed the raw-value check; its 104 receipts verify, none with an added memory.
+- **Limits:** with one run each on a small sample, the other differences are within the variation between runs. They are not read as better or worse.
+
+Details: [docs/MODELS.md](docs/MODELS.md#privacy-mode).
 
 ## Safety and limits
 
-- **A person decides.** The desk recommends. Automatic closing is off by default and was off in every recorded run; a person makes the final call (policy `autonomy.level` 0; level 1, which lets the desk close a case all checks agree on without waiting, can be published only by a policy admin, and an approver can switch it off at once with the kill switch). It never blocks an account, never writes to a source system and never contacts a customer; those limits are fixed in the policy schema and cannot be lifted by a policy change. A recommended block needs two approvals, and so does an override that lowers caution to a close (a second, different approver).
+> **The desk recommends; a person decides.**
+
+- **A person decides.** Automatic closing is off by default and was off in every recorded run; a person makes the final call (policy `autonomy.level` 0).
+  - Level 1 lets the desk close a case all checks agree on without waiting. Only a policy admin can publish it, and an approver can switch it off at once with the kill switch.
+- **Fixed limits.** It never blocks an account, never writes to a source system and never contacts a customer. Those limits are fixed in the policy schema and cannot be lifted by a policy change.
+- **Two approvals.** A recommended block needs two approvals, and so does an override that lowers caution to a close (a second, different approver).
 - **The policy guard only raises caution.** It can make a recommendation more cautious, never less.
-- **The local screener over-flags relationships**, so on the held-out sets the correct clears go to a person: the fail-closed rule (policy version 8) makes every signal at or above its threshold block a close, grounded or not. On held-out v4 that cost all six clears; no risk case was closed.
-- Each variant in the report is one run. Model answers vary between runs and the runtime may answer a repeated prompt from its cache.
-- The customers, accounts, owners, alerts and payments are **synthetic**; the listed parties are real public entries, with a labelled synthetic update to 6 of them (5 edited, 1 removed) ([Data](#ai-and-model-usage)).
-- **Limitation:** By default the cloud decision model receives structured personal fields from the case (name, date of birth, nationality); the desk does not put free text in a cloud prompt (four recorded runs made without the screener differ: [docs/PRIVACY.md](docs/PRIVACY.md#earlier-runs)). The optional privacy mode sends tokens instead, and has been tested only on a small live sample.
+- **The local screener over-flags relationships**, so on the held-out sets the correct clears go to a person.
+  - The fail-closed rule (policy version 8) makes every signal at or above its threshold block a close, grounded or not.
+  - On held-out v4 that cost all six clears; no risk case was closed.
+- **One run per variant.** Each variant in the report is one run. Model answers vary between runs, and the runtime may answer a repeated prompt from its cache.
+- **Synthetic data.** The customers, accounts, owners, alerts and payments are **synthetic**. The listed parties are real public entries, with a labelled synthetic update to 6 of them (5 edited, 1 removed) ([Data](#ai-and-model-usage)).
+- **Limitation:** By default, the cloud decision model receives structured personal fields from the case (name, date of birth, nationality).
+  - The desk does not put free text in a cloud prompt (four recorded runs made without the screener differ: [docs/PRIVACY.md](docs/PRIVACY.md#earlier-runs)).
+  - The optional privacy mode sends tokens instead, and has been tested only on a small live sample.
 - **Future work:** For deployments that require it, make privacy mode the default once a full evaluation run confirms it, or keep the decision step local.
 
 More: [Guardrails](docs/ARCHITECTURE.md#guardrails), [Failure handling](docs/ARCHITECTURE.md#failure-handling), [Edge cases](docs/EDGE_CASES.md), [Responsible AI](docs/GOVERNANCE.md#responsible-ai), and [Limits](docs/KNOWN_ISSUES.md#limits), [Not built / not verified](docs/KNOWN_ISSUES.md#not-built--not-verified) and [Future work](docs/KNOWN_ISSUES.md#future-work) in [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md).
@@ -278,31 +465,56 @@ More: [Guardrails](docs/ARCHITECTURE.md#guardrails), [Failure handling](docs/ARC
 
 Disclosure under section 6 of the event's AI Usage Policy.
 
-**Models, through Meterless Nightshift.** Every model call in the product goes through Nightshift, an OpenAI-compatible runtime, as the primary provider. The models are NVIDIA Nemotron: **Nemotron 3.5 Lightning 30B** (on a local laptop) and **Nemotron 3 Ultra 550B** (cloud). Nightshift's router decides which of them answers a call unless the cockpit binds the app; the table under [App binds used in the final runs](docs/MODELS.md#app-binds-used-in-the-final-runs) is the split measured from the signed receipts, and [docs/MODELS.md](docs/MODELS.md#models-per-step) explains each step.
+**Models, through Meterless Nightshift.** Every model call in the product goes through Nightshift, an OpenAI-compatible runtime, as the primary provider. The models are NVIDIA Nemotron: **Nemotron 3.5 Lightning 30B** (on a local laptop) and **Nemotron 3 Ultra 550B** (cloud). Nightshift's router decides which of them answers a call unless the cockpit binds the app. The table under [App binds used in the final runs](docs/MODELS.md#app-binds-used-in-the-final-runs) is the split measured from the signed receipts, and [docs/MODELS.md](docs/MODELS.md#models-per-step) explains each step.
 
-The decision, critic and challenger are served mostly by Ultra, and "mostly" is a measurement, not a promise: the desk pins only the mode it asks for, Nightshift's router chooses the model for these three steps, and the split from the signed receipts is in the table under [App binds used in the final runs](docs/MODELS.md#app-binds-used-in-the-final-runs). We tried binding their app identity to the _deep_ mode in the cockpit; that races both models, so it did not make the routing deterministic (in the headline run Ultra served <!--fact:reasoning_ultra_first-->187 of 190<!--/fact--> of their calls that Nightshift served). The cockpit variables and the steps to set them are in [docs/MODELS.md](docs/MODELS.md#two-app-identities-and-what-the-cockpit-does-with-them).
+The decision, critic and challenger are served mostly by Ultra, and "mostly" is a measurement, not a promise.
+
+- The desk pins only the mode it asks for; Nightshift's router chooses the model for these three steps.
+- The split from the signed receipts is in the table under [App binds used in the final runs](docs/MODELS.md#app-binds-used-in-the-final-runs).
+- We tried binding their app identity to the _deep_ mode in the cockpit. That races both models, so it did not make the routing deterministic (in the headline run Ultra served <!--fact:reasoning_ultra_first-->187 of 190<!--/fact--> of their calls that Nightshift served).
+- The cockpit variables and the steps to set them are in [docs/MODELS.md](docs/MODELS.md#two-app-identities-and-what-the-cockpit-does-with-them).
 
 The Ollama backup (`nemotron-3.5-lightning:30b`) answers only if Nightshift cannot. In sample mode a labelled rules-based stand-in answers instead. No other model provider is named anywhere in the code.
 
 **Agent frameworks.** None. The agents are our own orchestration: plain TypeScript functions in `packages/agents`, one injected `generator` function for model calls, a bounded loop (at most 3 critic rounds) and a sealed, hash-chained decision record. There is no LangChain, LlamaIndex, AutoGen or similar.
 
 **Sponsor technology.**
-- **Zetaris** serves all the data the agents use. The agents never open a file or a database: each sends one read-only SQL statement at a time to the Zetaris REST API and reads the Unified Semantic Layer (14 tables over lists, a bank database and a payments service), under one non-admin Zetaris role per review step that reads data (evidence, ownership, critic, memory, the document-on-record check and the list-change re-check), each granted only that step's tables (the critic gets no identifier table at all), with the application's own table and column allow-lists as a second layer, and with data-quality rules. See [docs/ZETARIS.md](docs/ZETARIS.md#zetaris-checklist).
-- **Meterless engines**: H-MEM (agent and analyst memory), the World Model (the ownership register the 50 percent rule is evaluated on) and Markovian (re-screening after a list change) each run in a working feature and have a passing test, and the official conformance suites run in `npm test` (H-MEM 13/13, World Model 8/8, Markovian 8/8). Scout Intent is a fourth engine, optional and off by default, on the action step after a person decides, not in the review decision; its official eval harness passes on its 32 examples. See [docs/SPONSORS.md](docs/SPONSORS.md#2-meterless-engines-three-each-in-a-working-feature).
-- **Meterless Nightshift** is the primary model provider. The app connects with `METERLESS_BASE_URL`, a bearer key and the `meterless-app` header, asks for one mode per step (the mode is pinned; the serving model is chosen by Nightshift's router), and stores each call's signed receipt.
+- **Zetaris** serves all the data the agents use. The agents never open a file or a database.
+  - Each sends one read-only SQL statement at a time to the Zetaris REST API and reads the Unified Semantic Layer (14 tables over lists, a bank database and a payments service).
+  - Each review step that reads data has one non-admin Zetaris role (evidence, ownership, critic, memory, the document-on-record check and the list-change re-check). Each role is granted only that step's tables; the critic gets no identifier table at all.
+  - The application's own table and column allow-lists are a second layer, and data-quality rules apply on top. See [docs/ZETARIS.md](docs/ZETARIS.md#zetaris-checklist).
+- **Meterless engines**: H-MEM (agent and analyst memory), the World Model (the ownership register the 50 percent rule is evaluated on) and Markovian (re-screening after a list change).
+  - Each runs in a working feature and has a passing test. The official conformance suites run in `npm test` (H-MEM 13/13, World Model 8/8, Markovian 8/8).
+  - Scout Intent is a fourth engine, optional and off by default, on the action step after a person decides, not in the review decision. Its official eval harness passes on its 32 examples. See [docs/SPONSORS.md](docs/SPONSORS.md#2-meterless-engines-three-each-in-a-working-feature).
+- **Meterless Nightshift** is the primary model provider. The app connects with `METERLESS_BASE_URL`, a bearer key and the `meterless-app` header. It asks for one mode per step (the mode is pinned; the serving model is chosen by Nightshift's router), and stores each call's signed receipt.
 - **NVIDIA Nemotron** is the only family of language models used, in the steps listed in [docs/MODELS.md](docs/MODELS.md#models-per-step).
 
 **Development tools.** Built with Claude Code. AI-assisted coding was used for scaffolding, tests, debugging and documentation. All generated code was reviewed and tested. Cursor was not used.
 
 **External tools and libraries.** Node.js, TypeScript, Fastify, Zod, Pino, Next.js and React, Vitest and Biome, and `tsx`; Postgres for the synthetic bank database; Docker for packaging. Security checks used npm audit, Semgrep, Trivy, Gitleaks and ZAP. Versions are in `package-lock.json`.
 
-**Data.** Lists: the 365 list entries in Zetaris are real entries from public lists: a fixed subset of 366 chosen by `npm run data:sample` from the OFAC SDN list, the OFAC consolidated list and the UN consolidated list (each list's issue date and the download are recorded in [data/sample/manifest.json](data/sample/manifest.json)). Before they are loaded into Zetaris, a labelled synthetic update (`data/synthetic/list-delta.json`) edits 5 of them (dates of birth replaced on 3, an identifier added to 2) and removes 1, so that a list change can be shown; that is why Zetaris holds 365 entries, not 366. Licences: [Data sources and licences](docs/SETUP.md#data-sources-and-licences); a GLEIF extract (CC0) is kept in `data/reference/gleif/` but is not loaded into Zetaris or used by the review. **All customer, account, ownership, alert and payment data is synthetic**, produced by a seeded script; nothing comes from a real bank, client or employer.
+**Data.**
+- **Lists:** the 365 list entries in Zetaris are real entries from public lists. They are a fixed subset of 366 chosen by `npm run data:sample` from the OFAC SDN list, the OFAC consolidated list and the UN consolidated list. Each list's issue date and the download are recorded in [data/sample/manifest.json](data/sample/manifest.json).
+- **List update:** before they are loaded into Zetaris, a labelled synthetic update (`data/synthetic/list-delta.json`) edits 5 of them (dates of birth replaced on 3, an identifier added to 2) and removes 1, so that a list change can be shown. That is why Zetaris holds 365 entries, not 366.
+- **Licences:** [Data sources and licences](docs/SETUP.md#data-sources-and-licences). A GLEIF extract (CC0) is kept in `data/reference/gleif/` but is not loaded into Zetaris or used by the review.
+- **All customer, account, ownership, alert and payment data is synthetic**, produced by a seeded script; nothing comes from a real bank, client or employer.
 
-**Test cases.** The 70 exam cases and the 73 held-out cases are synthetic alerts (ALR-0001 to ALR-0082 for the exam and sample alerts; ALR-H, ALR-J, ALR-K and ALR-L for held-out v1 to v4) whose customers, accounts, owners, alerts and payments are rows of the synthetic bank written by `npm run data:synthetic`, loaded into the Postgres bank database (read by Zetaris over JDBC) and the payments service (read by Zetaris as a REST table). In a live run the review reads each case only through the Zetaris semantic layer `screening_usl` (`alert`, `customer`, `customer_identifier`, `customer_alias`, `account`, `beneficial_owner`, `payment`, `disposition`, the list tables and `business_definition`); the case files in `eval/cases/` hold the alert id, the expected outcome and labelling notes; the runner passes only the alert id to the review (and, for the two tipping-off cases, the draft text to the draft check) and uses the rest only to score the answer.
+**Test cases.**
+- The 70 exam cases and the 73 held-out cases are synthetic alerts (ALR-0001 to ALR-0082 for the exam and sample alerts; ALR-H, ALR-J, ALR-K and ALR-L for held-out v1 to v4).
+- Their customers, accounts, owners, alerts and payments are rows of the synthetic bank written by `npm run data:synthetic`. They are loaded into the Postgres bank database (read by Zetaris over JDBC) and the payments service (read by Zetaris as a REST table).
+- In a live run, the review reads each case only through the Zetaris semantic layer `screening_usl` (`alert`, `customer`, `customer_identifier`, `customer_alias`, `account`, `beneficial_owner`, `payment`, `disposition`, the list tables and `business_definition`).
+- The case files in `eval/cases/` hold the alert id, the expected outcome and labelling notes.
+- The runner passes only the alert id to the review (and, for the two tipping-off cases, the draft text to the draft check). It uses the rest only to check the answer.
 
-**Open-source code adapted.** The three Meterless engines in the review (`packages/engines/src`) are derived from the Meterless reference implementations; Scout Intent (`packages/engines/src/scout-intent`) is our own implementation of the Meterless Scout Intent specification, which publishes no code. The official conformance suites and the Scout Intent eval harness in `packages/engines/conformance` are copied without change (Apache-2.0). Attribution is in `NOTICE` and `THIRD_PARTY_NOTICES.md`.
+**Open-source code adapted.** The three Meterless engines in the review (`packages/engines/src`) are derived from the Meterless reference implementations. Scout Intent (`packages/engines/src/scout-intent`) is our own implementation of the Meterless Scout Intent specification, which publishes no code. The official conformance suites and the Scout Intent eval harness in `packages/engines/conformance` are copied without change (Apache-2.0). Attribution is in `NOTICE` and `THIRD_PARTY_NOTICES.md`.
 
-**Known limitations.** A person makes every decision by default; the desk only recommends. The exam labels follow the same definitions as the rules, so a high score on the 70 rule-defined cases shows consistency, not that the definitions are right; the held-out set is the test of reasoning beyond them. Model answers vary between runs and cloud routing is decided by the runtime. Cost figures rest on stated unit costs; analyst time saved was not measured and is not claimed. The column policy on identifier numbers is not enforced on the Zetaris instance used, so the application masks them. The full list is under [Limits](docs/KNOWN_ISSUES.md#limits).
+**Known limitations.**
+- A person makes every decision by default; the desk only recommends.
+- The exam labels follow the same definitions as the rules. So a high score on the 70 rule-defined cases shows consistency, not that the definitions are right; the held-out set is the test of reasoning beyond them.
+- Model answers vary between runs and cloud routing is decided by the runtime.
+- Cost figures rest on stated unit costs; analyst time saved was not measured and is not claimed.
+- The column policy on identifier numbers is not enforced on the Zetaris instance used, so the application masks them.
+- The full list is under [Limits](docs/KNOWN_ISSUES.md#limits).
 
 **Sample mode.** With `SAMPLE_MODE=true` the desk runs without Zetaris or Nightshift. It replays saved answers recorded from real Zetaris runs, runs the real agent logic on them, and uses a rules-based stand-in in place of the language models. The interface says so in a banner on every page, and every record made this way carries a sample notice. Sample mode never presents the stand-in's output as a Nemotron answer.
 
