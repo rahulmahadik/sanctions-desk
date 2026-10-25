@@ -6,6 +6,7 @@ import {
   ConfigError,
   describeConfig,
   loadConfig,
+  makeRedactor,
   projectRoot,
   resolveProjectPath,
   secretValues,
@@ -182,5 +183,23 @@ describe("project-relative paths", () => {
   it("finds the project root from the config location", () => {
     expect(existsSync(join(projectRoot(), "config", "default.json"))).toBe(true);
     expect(resolveProjectPath(".env")).toBe(join(projectRoot(), ".env"));
+  });
+});
+
+describe("secretValues and the per-step Zetaris identities", () => {
+  it("lists each step token, so the exact-value redactor masks it in logs, traces and errors", () => {
+    const steps = {
+      ZETARIS_TOKEN_OWNERSHIP: "own-secret-0123456789",
+      ZETARIS_TOKEN_CRITIC: "crit-secret-0123456789",
+      ZETARIS_TOKEN_MEMORY: "mem-secret-0123456789",
+      ZETARIS_TOKEN_DOCUMENT: "doc-secret-0123456789",
+      ZETARIS_TOKEN_RESCREEN: "resc-secret-0123456789",
+    };
+    const cfg = loadConfig({ env: { SAMPLE_MODE: "true", ...steps } });
+    const values = secretValues(cfg);
+    for (const v of Object.values(steps)) expect(values).toContain(v);
+    const redact = makeRedactor(values);
+    const line = redact({ output_summary: `Zetaris said no to crit-secret-0123456789 and own-secret-0123456789` });
+    expect(JSON.stringify(line)).not.toMatch(/secret-0123456789/);
   });
 });

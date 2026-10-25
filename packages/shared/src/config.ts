@@ -362,6 +362,12 @@ export function secretValues(cfg: Config): string[] {
     cfg.zetaris.tokens.evidence,
     cfg.zetaris.tokens.reviewer,
     cfg.zetaris.tokens.eval,
+    // The optional per-step identities: each is a Zetaris credential like the three above.
+    cfg.zetaris.tokens.ownership,
+    cfg.zetaris.tokens.critic,
+    cfg.zetaris.tokens.memory,
+    cfg.zetaris.tokens.document,
+    cfg.zetaris.tokens.rescreen,
     cfg.nightshift.runtimeToken,
   ]
     .filter((s): s is Secret => s !== undefined)

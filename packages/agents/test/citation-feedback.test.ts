@@ -46,3 +46,15 @@ describe("a citation of a table that does not exist", () => {
     );
   });
 });
+
+describe("the critic's allow-list and its Zetaris role", () => {
+  it("lists exactly the tables the critic's Zetaris role is granted, so the desk never asks for what Zetaris refuses", async () => {
+    const { loadPolicyFile } = await import("@sanctions-desk/shared");
+    const { USL_STEP_ROLES } = await import("@sanctions-desk/zetaris");
+    const policy = loadPolicyFile("config/policy.default.json");
+    const role = USL_STEP_ROLES.find((r) => r.role === "role_critic_agent");
+    expect([...policy.agentAccess.critic.tables].sort()).toEqual([...(role?.tables ?? [])].sort());
+    expect(policy.agentAccess.critic.tables).not.toContain("customer_identifier");
+    expect(policy.agentAccess.critic.tables).not.toContain("list_identifier");
+  });
+});

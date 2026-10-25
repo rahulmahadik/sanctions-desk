@@ -24,7 +24,7 @@ async function main(): Promise<void> {
       logger.error(describeAccessFailure(access));
       process.exit(1);
     }
-    if (access.some((r) => r.state === "no_token")) {
+    if (access.some((r) => r.state === "no_token" && !r.optional)) {
       logger.warn("some identities have no token and read with the admin key; run `npm run zetaris:agents -- --apply`");
     }
     logger.info({ roles: access.map((r) => `${r.role}:${r.state}`) }, "role access to the semantic layer verified");

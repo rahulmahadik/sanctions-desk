@@ -348,7 +348,9 @@ describe("citations that cannot be cited", () => {
     expect(citable).toEqual(citableSources(deps.policy, evidence.model));
     expect(citable.customer.columns).toContain("full_name");
     expect(citable.customer.columns).not.toContain("notes");
-    expect(citable.customer_identifier.columns).not.toContain("id_number");
+    // The critic's Zetaris role reads no identifier table, so neither identifier table can be cited.
+    expect(citable.customer_identifier).toBeUndefined();
+    expect(citable.list_identifier).toBeUndefined();
     expect(citable.comparison).toBeUndefined();
     expect(citable.customer_alias).toBeUndefined();
   });

@@ -1,5 +1,6 @@
 /**
- * Check that the three runtime identities can really read the model, and fail loudly when they cannot.
+ * Check that the three runtime identities, and each per-step identity that has a token, can really read the model, and
+ * fail loudly when they cannot (a per-step identity without a token is reported, not failed: the step reads as evidence).
  *
  *   npm run check:roles
  *
@@ -9,7 +10,7 @@
  */
 import { existsSync } from "node:fs";
 import { loadConfig, resolveProjectPath } from "@sanctions-desk/shared";
-import { checkRoleAccess, describeAccessFailure } from "@sanctions-desk/zetaris";
+import { accessFails, checkRoleAccess, describeAccessFailure } from "@sanctions-desk/zetaris";
 
 const envFile = resolveProjectPath(".env");
 if (existsSync(envFile)) process.loadEnvFile(envFile);
@@ -17,9 +18,9 @@ if (existsSync(envFile)) process.loadEnvFile(envFile);
 const results = await checkRoleAccess(loadConfig());
 for (const r of results)
   console.log(
-    `${r.role}: ${r.state === "ok" ? "can read the model" : `${r.state}${r.detail ? ` (${r.detail})` : ""}`}`,
+    `${r.role}: ${r.state === "ok" ? "can read the model" : r.optional && r.state === "no_token" ? "no token (the step reads as evidence)" : `${r.state}${r.detail ? ` (${r.detail})` : ""}`}`,
   );
-if (results.some((r) => r.state !== "ok")) {
+if (results.some(accessFails)) {
   console.error(`\nROLE ACCESS CHECK FAILED\n${describeAccessFailure(results)}`);
   process.exit(1);
 }
