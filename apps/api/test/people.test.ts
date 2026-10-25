@@ -226,6 +226,45 @@ describe("a block", () => {
     const done = (await second(ctx, alertId, "approver_demo", { approve: false })).json();
     expect(done).toMatchObject({ status: "block_declined", final: "ESCALATE_L2" });
   });
+
+  it("lists only the note for the current state: the pending ticket is gone once the second approver acts", async () => {
+    const ctx = await sampleApp();
+    const { alertId, first } = await startBlock(ctx, "analyst_demo");
+    expect(first.next_actions.map((a: { body: { status: string } }) => a.body.status)).toEqual([
+      "block approval pending",
+    ]);
+    await second(ctx, alertId, "approver_demo");
+    const now = await human(ctx, alertId);
+    expect(now.status).toBe("block_approved");
+    const notes = now.next_actions as Array<{ body: { kind: string; status: string; record_hash: string } }>;
+    expect(notes.map((a) => a.body.kind)).toContain("block_recommendation");
+    expect(notes.map((a) => a.body.status)).not.toContain("block approval pending");
+    expect(notes.every((a) => a.body.record_hash === now.record_hash)).toBe(true);
+    // The earlier ticket stays in the outbox; it is only no longer what happens next.
+    const all = (await ctx.app.inject({ method: "GET", url: `/cases/${alertId}/actions` })).json();
+    expect(all.actions.map((a: { body: { status: string } }) => a.body.status)).toContain("block approval pending");
+    const file = (await ctx.app.inject({ method: "GET", url: `/cases/${alertId}/file?format=md` })).body;
+    expect(file).not.toContain("block approval pending");
+    expect(file).toContain("ready for the sanctions officer");
+  });
+});
+
+describe("a declined override to a close", () => {
+  it("says 'declined the close' in the notes and the case file, never 'the block'", async () => {
+    const ctx = await sampleApp();
+    const alertId = alertOf("tm_exact_0");
+    expect((await review(ctx, alertId)).json().decision).toBe("ESCALATE_L2");
+    const first = await decide(ctx, alertId, "approver_demo", { action: "override", outcome: "CLOSE_FALSE_POSITIVE" });
+    expect(first.json().status).toBe("override_pending");
+    const done = (await second(ctx, alertId, "approver2_demo", { approve: false })).json();
+    expect(done).toMatchObject({ status: "override_declined", final: "ESCALATE_L2" });
+    const ticket = done.next_actions[0].body;
+    expect(ticket.status).toBe("escalated after the close was declined");
+    expect(ticket.content).toContain("declined the close");
+    const file = (await ctx.app.inject({ method: "GET", url: `/cases/${alertId}/file?format=md` })).body;
+    expect(file).toContain("| approver2_demo | approver | declined the close |");
+    expect(file).not.toMatch(/declined the block|the block was declined/);
+  });
 });
 
 describe("every action is logged under the person's id", () => {

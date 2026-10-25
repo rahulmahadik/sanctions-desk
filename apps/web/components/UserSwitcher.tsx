@@ -78,7 +78,15 @@ export function UserSwitcher() {
   return (
     <div className="user-switcher">
       Signed in as <strong>{me.user.id}</strong> <span className="muted">({roleLabel(me.user.role)})</span>{" "}
-      <button type="button" className="secondary" onClick={() => setToken(null)}>
+      <button
+        type="button"
+        className="secondary"
+        onClick={() => {
+          // The token box keeps what was typed; clear it so the next person does not find the last token there.
+          setTokenText("");
+          setToken(null);
+        }}
+      >
         Sign out
       </button>
     </div>

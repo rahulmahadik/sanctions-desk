@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DecisionPanel } from "../components/DecisionPanel";
+import { actionText, DecisionPanel, STATUS_LABEL } from "../components/DecisionPanel";
 import { EvidenceCards } from "../components/Evidence";
 import { ExamDashboard } from "../components/ExamDashboard";
 import { Governance } from "../components/Governance";
@@ -16,7 +16,7 @@ import { RunGraph, stoppedSteps } from "../components/RunGraph";
 import { parseSpan, SignalsPanel, signalStatus } from "../components/Signals";
 import { UserSwitcher } from "../components/UserSwitcher";
 import { graphAt } from "../lib/graph";
-import type { ExamAnswer, QueueAlert, TraceView } from "../lib/types";
+import type { ExamAnswer, HumanView, QueueAlert, TraceView } from "../lib/types";
 import {
   ANSWER,
   EVENTS,
@@ -434,6 +434,49 @@ describe("SignalsPanel", () => {
 });
 
 describe("Outcome", () => {
+  const flagged = {
+    ...ANSWER,
+    decision: "ESCALATE_L2" as const,
+    guards: [
+      { guard: "screener_grounding", verdict: "flag" as const, detail: "1 signal(s) not grounded" },
+      { guard: "jurisdiction", verdict: "flag" as const, detail: "watched jurisdiction IR; not closing" },
+    ],
+  };
+  const checkLine = (name: string) =>
+    screen.getByText((_t, el) => el?.tagName === "LI" && el.textContent?.startsWith(name) === true);
+
+  it("says a flag on a check that stopped a close stopped it, and keeps the note wording for the others", () => {
+    render(
+      <Outcome
+        answer={flagged}
+        closeStop={{ stopped: true, by: ["screener"], reasons: ["screener: a signal on a close"] }}
+      />,
+    );
+    expect(checkLine("screener signals found in the text").textContent).toContain("flagged — stopped a close");
+    expect(checkLine("screener signals found in the text").textContent).not.toContain("did not change the outcome");
+    // A policy-guard rule that the close stop does not name keeps the note wording.
+    expect(checkLine("watched jurisdiction").textContent).toContain("flagged (noted; it did not change the outcome)");
+  });
+
+  it("keeps 'it did not change the outcome' for a flag when no close was stopped", () => {
+    render(<Outcome answer={flagged} closeStop={{ stopped: false, by: [], reasons: [] }} />);
+    expect(checkLine("screener signals found in the text").textContent).toContain(
+      "flagged (noted; it did not change the outcome)",
+    );
+    expect(screen.queryByText(/stopped a close/)).toBeNull();
+  });
+
+  it("names a policy-guard flag as stopping a close only when the close stop names it", () => {
+    render(
+      <Outcome
+        answer={flagged}
+        closeStop={{ stopped: true, by: ["policy guard"], reasons: ["jurisdiction: watched jurisdiction IR"] }}
+      />,
+    );
+    expect(checkLine("watched jurisdiction").textContent).toContain("flagged — stopped a close");
+    expect(checkLine("screener signals found in the text").textContent).toContain("did not change the outcome");
+  });
+
   it("shows the recommendation, what would change it and that a person decides", () => {
     render(<Outcome answer={ANSWER} />);
     expect(screen.getByTestId("verdict").textContent).toBe("✓ Close as false positive");
@@ -995,6 +1038,23 @@ describe("UserSwitcher", () => {
     expect(screen.queryByLabelText("Demo user (sample mode only)")).toBeNull();
     expect(screen.getByRole("button", { name: "Sign out" })).toBeTruthy();
   });
+
+  it("clears the token box on sign out, so the next person does not find the last token there", async () => {
+    window.localStorage.removeItem("desk.token");
+    // Signed in only while a token is stored, as the API answers with sign-in on.
+    vi.mocked(api.fetchMe).mockImplementation(async () => {
+      if (window.localStorage.getItem("desk.token") === null) throw new Error("sign in first");
+      return { ...ME_ANALYST, auth: "on", demo_users: [], user: { id: "ann", role: "analyst", demo: false } };
+    });
+    render(<UserSwitcher />);
+    const box = (await screen.findByLabelText(/Sign in with your token/)) as HTMLInputElement;
+    fireEvent.change(box, { target: { value: "typed-token-value" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Sign out" }));
+    const again = (await screen.findByLabelText(/Sign in with your token/)) as HTMLInputElement;
+    expect(again.value).toBe("");
+    expect(window.localStorage.getItem("desk.token")).toBeNull();
+  });
 });
 
 describe("DecisionPanel", () => {
@@ -1096,6 +1156,59 @@ describe("DecisionPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Give the second approval" }));
     await waitFor(() => expect(api.postSecondApproval).toHaveBeenCalled());
     expect(await screen.findByText("Block recommendation for the sanctions officer")).toBeTruthy();
+  });
+
+  it.each([
+    ["approve", "decided", "approved"],
+    ["override", "decided", "overrode to"],
+    ["override", "override_pending", "overrode to"],
+    ["second_approval", "override_approved", "gave the second approval for"],
+    ["reject", "override_declined", "declined the close, so"],
+    ["second_approval", "block_approved", "gave the second approval for"],
+    ["reject", "block_declined", "declined the block, so"],
+    ["reopen", "awaiting", "reopened the automatic close"],
+  ] as const)("says %s (status %s) as %j in the history", (action, status, words) => {
+    expect(actionText(action, status)).toBe(words);
+  });
+
+  it.each([
+    ["awaiting", "Waiting for a person to decide"],
+    ["auto_closed", "Closed automatically"],
+    ["decided", "Decided by a person"],
+    ["block_pending", "Block approval pending"],
+    ["block_approved", "Block recommendation approved by two people"],
+    ["block_declined", "Block declined by the second approver"],
+    ["override_pending", "Override to a close pending"],
+    ["override_approved", "Override to a close approved by two people"],
+    ["override_declined", "Override to a close declined by the second approver"],
+  ] as const)("labels status %s as %j", (status, words) => {
+    expect(STATUS_LABEL[status].startsWith(words)).toBe(true);
+    // A close is never called a block, and a block never a close.
+    if (status.startsWith("override")) expect(STATUS_LABEL[status]).not.toMatch(/block/i);
+    if (status.startsWith("block")) expect(STATUS_LABEL[status]).not.toMatch(/close/i);
+  });
+
+  it("says a declined override to a close declined the close, never the block", async () => {
+    vi.mocked(api.fetchHuman).mockResolvedValue({
+      ...HUMAN.awaiting,
+      recommendation: { decision: "ESCALATE_L2", confidence: 0.8, rationale: "x" },
+      status: "override_declined",
+      final: "ESCALATE_L2",
+      actions_taken: [
+        { ...HUMAN.decided.actions_taken[0], actor: "approver_demo", action: "override" },
+        {
+          ...HUMAN.decided.actions_taken[0],
+          actor: "approver2_demo",
+          action: "reject",
+          outcome: "ESCALATE_L2",
+          at: "2026-10-23T11:00:00.000Z",
+        },
+      ],
+    } as HumanView);
+    render(<DecisionPanel alertId="ALR-0001" />);
+    const history = await screen.findByRole("list", { name: "What people did" });
+    expect(history.textContent).toContain("declined the close, so Escalate to level 2");
+    expect(history.textContent).not.toContain("the block");
   });
 
   it("shows the API's refusal as an alert and keeps the form", async () => {

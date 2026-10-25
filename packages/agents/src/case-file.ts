@@ -159,19 +159,31 @@ function autonomySection({ record }: CaseFileInput): string[] {
   return record.autonomy ? ["## Autonomy", "", autonomyText(record.autonomy), ""] : [];
 }
 
+const ACTION_TEXT: Record<string, string> = {
+  approve: "approved",
+  override: "overrode",
+  second_approval: "gave the second approval",
+  reopen: "reopened the automatic close",
+};
+
+/**
+ * One person's action in words. A decline is stored as "reject" for both a block and an override to a close, so the
+ * case's status says which one was declined.
+ */
+export function humanActionText(action: string, status: string): string {
+  if (action === "reject") return status === "override_declined" ? "declined the close" : "declined the block";
+  return ACTION_TEXT[action] ?? word(action);
+}
+
 function peopleSection({ record }: CaseFileInput): string[] {
-  const lines = [
-    "## What people did",
-    "",
-    `Status: ${STATUS_TEXT[humanState(record).status] ?? humanState(record).status}.`,
-    "",
-  ];
+  const status = humanState(record).status;
+  const lines = ["## What people did", "", `Status: ${STATUS_TEXT[status] ?? status}.`, ""];
   if (record.human.length === 0) return [...lines, "No person has acted on this recommendation yet.", ""];
   lines.push("| Who | Role | Action | Outcome | When | Reason |", "|---|---|---|---|---|---|");
   for (const h of record.human) {
     const outcome = h.outcome ? (DECISION_TEXT[h.outcome] ?? h.outcome) : "";
     lines.push(
-      `| ${cell(h.actor)} | ${word(h.role ?? "")} | ${word(h.action)} | ${outcome} | ${h.at} | ${cell(h.reason ?? "")} |`,
+      `| ${cell(h.actor)} | ${word(h.role ?? "")} | ${humanActionText(h.action, status)} | ${outcome} | ${h.at} | ${cell(h.reason ?? "")} |`,
     );
   }
   return [...lines, ""];

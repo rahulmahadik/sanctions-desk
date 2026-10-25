@@ -85,17 +85,33 @@ export function examLabels(exam: { cases: readonly Labels[] }): Map<string, Labe
   return new Map(exam.cases.map((c) => [c.case_id, c]));
 }
 
-/** Calls per serving model and route over a set of records, most used first. */
-function modelsUsed(records: readonly DecisionRecord[]): Array<{ model: string; route: string; calls: number }> {
-  const counts = new Map<string, { model: string; route: string; calls: number }>();
+export interface ModelsUsed {
+  /** Live model calls per serving model, route and provider, most used first. */
+  live: Array<{ model: string; route: string; provider: string; calls: number }>;
+  /** Answers from the sample-mode rules stand-in: not a model, so never counted as a live call. */
+  standIn: number;
+}
+
+/**
+ * Calls per serving model, route and provider over a set of records. The provider is part of the key, so the Ollama
+ * backup is its own row and not a second row with the same model name; the sample stand-in is counted apart.
+ */
+export function modelsUsed(records: readonly DecisionRecord[]): ModelsUsed {
+  const counts = new Map<string, ModelsUsed["live"][number]>();
+  let standIn = 0;
   for (const r of records)
     for (const m of r.models) {
-      const key = `${m.model_routed}|${m.route_kind ?? "local"}`;
-      const c = counts.get(key) ?? { model: m.model_routed, route: m.route_kind ?? "local", calls: 0 };
+      if (m.provider === "fallback-rules" || m.model_routed === "fallback-rules") {
+        standIn += 1;
+        continue;
+      }
+      const route = m.route_kind ?? "local";
+      const key = `${m.model_routed}|${route}|${m.provider}`;
+      const c = counts.get(key) ?? { model: m.model_routed, route, provider: m.provider, calls: 0 };
       c.calls += 1;
       counts.set(key, c);
     }
-  return [...counts.values()].sort((a, b) => b.calls - a.calls);
+  return { live: [...counts.values()].sort((a, b) => b.calls - a.calls), standIn };
 }
 
 /** What the review desk interface reads: the queue, a live stream of one run, the sealed record, the exam. */
@@ -107,6 +123,7 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
     for (const r of readDecisionRecords(config.logging.dir))
       if (!recorded.has(r.alert_ref)) recorded.set(r.alert_ref, r);
     const nameThreshold = policies.active().matching.nameSimilarityThreshold;
+    const used = modelsUsed([...recorded.values()]);
     return {
       alerts: queue.map((a) => ({
         ...a,
@@ -126,8 +143,10 @@ export const deskRoutes: FastifyPluginAsync<DeskOptions> = async (app, { config,
           : [],
       })),
       name_threshold: nameThreshold,
-      // The models that served the latest recommendation of each alert, counted from the sealed records.
-      models_used: modelsUsed([...recorded.values()]),
+      // The live models that served the latest recommendation of each alert, counted from the sealed records, and the
+      // sample stand-in's answers apart from them.
+      models_used: used.live,
+      stand_in_answers: used.standIn,
       sample_mode: config.sampleMode,
     };
   });

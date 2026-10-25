@@ -20,13 +20,26 @@ export function bySeverity(a: QueueAlert, b: QueueAlert): number {
   return d !== 0 ? d : a.alert_id.localeCompare(b.alert_id);
 }
 
-type ModelUse = { model: string; route: string; calls: number };
+type ModelUse = { model: string; route: string; provider?: string; calls: number };
+
+/** One live model's line: the Ollama backup is named as the backup, never as a second row of the same local model. */
+export const modelUseText = (m: ModelUse): string =>
+  `${modelName(m.model)} (${m.provider === "ollama" ? "Ollama backup" : m.route}) ${m.calls}`;
 
 /**
  * Four counts across the top of the queue, every one counted from the alerts and records the API returned. "Open" is
  * the alert's own status in the screening system (the bank's alert table), not whether the desk has reviewed it.
  */
-export function SummaryStrip({ alerts, models }: { alerts: readonly QueueAlert[]; models: readonly ModelUse[] }) {
+export function SummaryStrip({
+  alerts,
+  models,
+  standIn = 0,
+}: {
+  alerts: readonly QueueAlert[];
+  /** Live model calls only; the API counts the sample stand-in's answers apart. */
+  models: readonly ModelUse[];
+  standIn?: number;
+}) {
   const open = alerts.filter((a) => a.status === "open").length;
   const others = Object.entries(
     alerts
@@ -61,9 +74,10 @@ export function SummaryStrip({ alerts, models }: { alerts: readonly QueueAlert[]
       </div>
       <div className="stat">
         <strong>{models.length === 0 ? "none yet" : `${calls} calls`}</strong>
-        {models.length === 0
-          ? "no model has served a recommendation"
-          : models.map((m) => `${modelName(m.model)} (${m.route}) ${m.calls}`).join(" · ")}
+        {models.length === 0 ? "no model has served a recommendation" : models.map(modelUseText).join(" · ")}
+        {standIn > 0
+          ? `${models.length === 0 ? "; " : " · "}${standIn} stand-in answer${standIn === 1 ? "" : "s"} (sample mode, no model; not counted)`
+          : ""}
       </div>
     </section>
   );
@@ -102,6 +116,7 @@ export function Queue() {
   const [alerts, setAlerts] = useState<QueueAlert[]>();
   const [sampleMode, setSampleMode] = useState(false);
   const [models, setModels] = useState<ModelUse[]>([]);
+  const [standIn, setStandIn] = useState(0);
   const [threshold, setThreshold] = useState<number>();
   const [problem, setProblem] = useState<ReadProblem>();
   const [filter, setFilter] = useState<Filter>("all");
@@ -114,6 +129,7 @@ export function Queue() {
           setAlerts(q.alerts);
           setSampleMode(q.sample_mode);
           setModels(q.models_used ?? []);
+          setStandIn(q.stand_in_answers ?? 0);
           setThreshold(q.name_threshold);
           setProblem(undefined);
         })
@@ -142,7 +158,7 @@ export function Queue() {
   return (
     <>
       <HumanBanner sampleMode={sampleMode} />
-      <SummaryStrip alerts={alerts} models={models} />
+      <SummaryStrip alerts={alerts} models={models} standIn={standIn} />
       <ListChangePanel />
       <div className="panel">
         <label>

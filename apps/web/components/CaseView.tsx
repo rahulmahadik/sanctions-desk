@@ -140,7 +140,7 @@ export function CaseView({ alertId }: { alertId: string }) {
       </p>
       {facts === "reading" && !problem ? <p className="muted">Reading the case facts…</p> : null}
       {problem ? <ProblemNote problem={problem} /> : null}
-      {answer ? <Outcome answer={answer} alertType={alertType} /> : null}
+      {answer ? <Outcome answer={answer} alertType={alertType} closeStop={trace?.close_stop} /> : null}
       <DecisionPanel alertId={alertId} refreshKey={answer?.run_id ?? record?.record_hash} />
       {phase !== "ready" ? <RunGraph view={view} stopped={stoppedSteps(trace?.close_stop)} /> : null}
       {trace ? <FourQuestions trace={trace} /> : null}

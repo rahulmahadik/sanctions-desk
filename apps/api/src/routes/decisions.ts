@@ -100,6 +100,14 @@ export const decisionRoutes: FastifyPluginAsync<DecisionOptions> = async (
 
   const withCheck = (a: ActionRecord) => ({ ...a, check: verifyAction(a, config.actions.publicKey) });
 
+  /**
+   * The prepared records for the case as it stands now: only those resting on the current sealed record. A record
+   * prepared for an earlier state (a block approval pending, before the second approver acted) stays in the outbox,
+   * but it is no longer what happens next.
+   */
+  const current = (record: DecisionRecord, actions: readonly ActionRecord[]) =>
+    actions.filter((a) => a.body.record_hash === record.record_hash);
+
   const view = (alertId: string, record: DecisionRecord, actions: ActionRecord[]) => {
     const state = humanState(record);
     return {
@@ -119,7 +127,7 @@ export const decisionRoutes: FastifyPluginAsync<DecisionOptions> = async (
       final: state.final ?? null,
       actions_taken: record.human,
       records_sealed_with: signer ? "ed25519" : "hash-sealed",
-      next_actions: actions.map(withCheck),
+      next_actions: current(record, actions).map(withCheck),
     };
   };
 
@@ -298,7 +306,7 @@ export const decisionRoutes: FastifyPluginAsync<DecisionOptions> = async (
           trace: `GET /cases/${alertId}/trace`,
           events: `GET /runs/${record.run_id}/events`,
         },
-        actions: readActions(stores.outboxDir, alertId).map(withCheck),
+        actions: current(record, readActions(stores.outboxDir, alertId)).map(withCheck),
         facts,
       });
       reply.header("content-disposition", `attachment; filename="case-file-${alertId}.${format}"`);

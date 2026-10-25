@@ -57,7 +57,8 @@ export const fetchQueue = () =>
     alerts: QueueAlert[];
     sample_mode: boolean;
     name_threshold?: number;
-    models_used?: Array<{ model: string; route: string; calls: number }>;
+    models_used?: Array<{ model: string; route: string; provider?: string; calls: number }>;
+    stand_in_answers?: number;
   }>("/alerts");
 export const fetchEvidence = (alertId: string) =>
   getJson<EvidenceView>(`/cases/${encodeURIComponent(alertId)}/evidence`);

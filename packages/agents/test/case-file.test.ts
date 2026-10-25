@@ -1,12 +1,19 @@
 import {
   type DecisionRecord,
+  type HumanAction,
   loadConfig,
   sealDecisionRecord,
   sha256Hex,
   type TraceEvent,
 } from "@sanctions-desk/shared";
 import { describe, expect, it } from "vitest";
-import { buildTraceContract, type ListChangeReport, renderCaseFile, renderReplayFile } from "../src/index.js";
+import {
+  buildTraceContract,
+  humanActionText,
+  type ListChangeReport,
+  renderCaseFile,
+  renderReplayFile,
+} from "../src/index.js";
 
 const sha = (c: string) => c.repeat(64);
 const costs = loadConfig({ env: {} }).costs;
@@ -239,13 +246,66 @@ describe("renderCaseFile after people have acted", () => {
     expect(text).toContain("## What people did");
     expect(text).toContain("Status: decided by a person.");
     expect(text).toContain(
-      "| ana | analyst | approve | Need more information | 2026-10-23T10:00:00.000Z | Dates differ / by years |",
+      "| ana | analyst | approved | Need more information | 2026-10-23T10:00:00.000Z | Dates differ / by years |",
     );
     expect(text).toContain("## What was prepared next");
     expect(text).toContain("Nothing here was sent or executed.");
     expect(text).toContain(
       "rfi draft | draft, not sent | hash-sealed (no signing key configured) | Please send a recent proof of address.",
     );
+  });
+
+  const at = "2026-10-23T10:00:00.000Z";
+  const act = (action: HumanAction["action"], actor: string, outcome?: HumanAction["outcome"]): HumanAction => ({
+    action,
+    actor,
+    role: "approver",
+    at,
+    reason: `${actor} gave a reason`,
+    ...(outcome ? { outcome } : {}),
+  });
+  it.each([
+    {
+      name: "a declined override to a close",
+      decision: "ESCALATE_L2" as const,
+      human: [act("override", "ana", "CLOSE_FALSE_POSITIVE"), act("reject", "bob", "ESCALATE_L2")],
+      status: "the override to a close was declined by the second approver; escalated",
+      row: "| bob | approver | declined the close | Escalate to level 2 |",
+      never: "declined the block",
+    },
+    {
+      name: "a declined block",
+      decision: "RECOMMEND_BLOCK" as const,
+      human: [act("approve", "ana", "RECOMMEND_BLOCK"), act("reject", "bob", "ESCALATE_L2")],
+      status: "the block was declined by the second approver; escalated",
+      row: "| bob | approver | declined the block | Escalate to level 2 |",
+      never: "declined the close",
+    },
+    {
+      name: "a second approval of a close",
+      decision: "ESCALATE_L2" as const,
+      human: [act("override", "ana", "CLOSE_FALSE_POSITIVE"), act("second_approval", "bob", "CLOSE_FALSE_POSITIVE")],
+      status: "an override to a close, approved by two people",
+      row: "| bob | approver | gave the second approval | Close as a false positive |",
+      never: "declined",
+    },
+  ])("names $name in the people table in plain words", ({ decision, human, status, row, never }) => {
+    const text = render(record({ decision, human }));
+    expect(text).toContain(`Status: ${status}.`);
+    expect(text).toContain(row);
+    expect(text).not.toContain(never);
+    expect(text).not.toContain("| reject |");
+  });
+
+  it.each([
+    ["approve", "decided", "approved"],
+    ["override", "decided", "overrode"],
+    ["second_approval", "block_approved", "gave the second approval"],
+    ["reject", "block_declined", "declined the block"],
+    ["reject", "override_declined", "declined the close"],
+    ["reopen", "awaiting", "reopened the automatic close"],
+  ])("says %s (status %s) as %j", (action, status, words) => {
+    expect(humanActionText(action, status)).toBe(words);
   });
 
   it("says that nobody has acted yet, and leaves out the prepared records", () => {

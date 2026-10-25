@@ -112,6 +112,33 @@ describe("queue summary and order", () => {
     expect(strip).toContain("Nemotron 3 Ultra 550B (cloud) 3");
   });
 
+  it("names the Ollama backup as the backup, and keeps stand-in answers out of the live count", () => {
+    render(
+      <SummaryStrip
+        alerts={[]}
+        models={[
+          { model: "local-runtime/nemotron-3.5-lightning-30b-a3b", route: "local", provider: "nightshift", calls: 4 },
+          { model: "nemotron-3.5-lightning:30b", route: "local", provider: "ollama", calls: 1 },
+        ]}
+        standIn={6}
+      />,
+    );
+    const strip = screen.getByTestId("summary-strip").textContent ?? "";
+    expect(strip).toContain("5 calls");
+    expect(strip).toContain("Nemotron 3.5 Lightning 30B (local) 4 · Nemotron 3.5 Lightning 30B (Ollama backup) 1");
+    expect(strip.match(/\(local\)/g)).toHaveLength(1);
+    expect(strip).toContain("6 stand-in answers (sample mode, no model; not counted)");
+  });
+
+  it("says no model served when only the sample stand-in answered", () => {
+    render(<SummaryStrip alerts={[]} models={[]} standIn={1} />);
+    const strip = screen.getByTestId("summary-strip").textContent ?? "";
+    expect(strip).toContain("none yet");
+    expect(strip).toContain(
+      "no model has served a recommendation; 1 stand-in answer (sample mode, no model; not counted)",
+    );
+  });
+
   it("puts the most severe first and keeps the id order within a severity", () => {
     const sorted = [
       alert({ alert_id: "ALR-0003", severity: "low" }),

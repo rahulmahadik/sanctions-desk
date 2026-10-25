@@ -1,4 +1,4 @@
-import type { Decision, Row } from "./types";
+import type { CloseStopView, Decision, Row, StoppedBy } from "./types";
 
 export const DECISION_LABEL: Record<Decision, string> = {
   CLOSE_FALSE_POSITIVE: "Close as false positive",
@@ -132,6 +132,36 @@ export const GUARD_WORDS: Record<string, string> = {
 const wordsFor = (map: Record<string, string>, code: string): string => map[code] ?? label(code);
 export const verdictWords = (code: string): string => wordsFor(VERDICT_WORDS, code);
 export const guardWords = (code: string): string => wordsFor(GUARD_WORDS, code);
+
+/** Which kind of check a guard belongs to, as the API's close-stop reading groups them (close-stop.ts). */
+export function guardStoppedBy(guard: string): StoppedBy {
+  if (guard.startsWith("screener")) return "screener";
+  if (guard === "data_quality" || guard === "missing_data") return "data quality";
+  if (guard === "critic_unresolved") return "critic";
+  return "policy guard";
+}
+
+/**
+ * Whether this check stopped a close the decision step proposed, from the run's close-stop reading: the check is
+ * named in its reasons, or it is a screener, data-quality or critic check and that kind of check stopped the close.
+ * The policy guard holds many unrelated rules, so one of them is only counted when it is named.
+ */
+export function checkStoppedClose(guard: string, stop: CloseStopView | null | undefined): boolean {
+  if (!stop?.stopped) return false;
+  const named = `${guard.replaceAll("_", " ")}:`;
+  if (stop.reasons.some((r) => r.startsWith(named))) return true;
+  const kind = guardStoppedBy(guard);
+  return kind !== "policy guard" && stop.by.includes(kind);
+}
+
+/**
+ * A check's verdict in words. A flag is normally a note that did not change the outcome; a flag on a check that
+ * stopped a close says so instead, so the list agrees with the run graph.
+ */
+export function checkVerdictWords(guard: string, verdict: string, stop?: CloseStopView | null): string {
+  if (verdict === "flag" && checkStoppedClose(guard, stop)) return "flagged — stopped a close";
+  return verdictWords(verdict);
+}
 
 /**
  * A comparison reason or a rationale, with its codes in plain words and the compared name labelled: on a payment

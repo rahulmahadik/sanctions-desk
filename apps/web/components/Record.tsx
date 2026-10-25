@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  checkVerdictWords,
   DECISION_ICON,
   DECISION_LABEL,
   DECISION_TONE,
@@ -13,7 +14,7 @@ import {
   verdictWords,
 } from "../lib/format";
 import { agentLabel, graphAt, stepOf } from "../lib/graph";
-import type { RecordView, ReviewAnswer, RunEvent, TraceView } from "../lib/types";
+import type { CloseStopView, RecordView, ReviewAnswer, RunEvent, TraceView } from "../lib/types";
 import { RunGraph } from "./RunGraph";
 
 function PathLine({ answer }: { answer: ReviewAnswer }) {
@@ -68,7 +69,15 @@ function ConfidenceLine({ answer }: { answer: ReviewAnswer }) {
  * The checks: every guard verdict (the screener's grounded and not-grounded signals, the documentary standard and the
  * rest), the critic's verdict, and any citation the critic set aside as not citable.
  */
-function Checks({ answer, alertType }: { answer: ReviewAnswer; alertType?: string | null }) {
+function Checks({
+  answer,
+  alertType,
+  closeStop,
+}: {
+  answer: ReviewAnswer;
+  alertType?: string | null;
+  closeStop?: CloseStopView | null;
+}) {
   const rounds = answer.critic?.rounds;
   return (
     <>
@@ -76,7 +85,7 @@ function Checks({ answer, alertType }: { answer: ReviewAnswer; alertType?: strin
       <ul>
         {(answer.guards ?? []).map((g) => (
           <li key={`${g.guard}-${g.detail ?? ""}`} className={g.verdict === "pass" ? undefined : "tone-alert"}>
-            {guardWords(g.guard)}: {verdictWords(g.verdict)}
+            {guardWords(g.guard)}: {checkVerdictWords(g.guard, g.verdict, closeStop)}
             {g.detail ? ` — ${plainReason(g.detail, alertType)}` : ""}
           </li>
         ))}
@@ -111,7 +120,16 @@ const BulletList = ({ title, items, testId }: { title: string; items: readonly s
  * The recommendation, why, and what would change it. A person acts on it. The alert type says whose name the
  * comparison is about: the payment counterparty's on a payment alert, the customer's otherwise.
  */
-export function Outcome({ answer, alertType }: { answer: ReviewAnswer; alertType?: string | null }) {
+export function Outcome({
+  answer,
+  alertType,
+  closeStop,
+}: {
+  answer: ReviewAnswer;
+  alertType?: string | null;
+  /** The run's close-stop reading, so a flag that stopped a close is not called a note that changed nothing. */
+  closeStop?: CloseStopView | null;
+}) {
   const plain = (lines: readonly string[] | undefined) => (lines ?? []).map((l) => plainReason(l, alertType));
   if (answer.status === "error" || !answer.decision) {
     return (
@@ -135,7 +153,7 @@ export function Outcome({ answer, alertType }: { answer: ReviewAnswer; alertType
       <BulletList title="What decided it" items={plain(answer.key_evidence)} testId="key-evidence" />
       <p data-testid="rationale">{plainReason(answer.rationale ?? "", alertType)}</p>
       <BulletList title="What would change this" items={plain(answer.what_would_change)} />
-      <Checks answer={answer} alertType={alertType} />
+      <Checks answer={answer} alertType={alertType} closeStop={closeStop} />
     </section>
   );
 }

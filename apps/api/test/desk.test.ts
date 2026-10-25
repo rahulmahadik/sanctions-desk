@@ -1,9 +1,15 @@
 import { readFileSync } from "node:fs";
 import { sampleRules } from "@sanctions-desk/agents";
 import { examCase, loadExam } from "@sanctions-desk/data";
-import { createFallbackRulesGenerator, loadConfig, resolveProjectPath } from "@sanctions-desk/shared";
+import {
+  createFallbackRulesGenerator,
+  type DecisionRecord,
+  loadConfig,
+  resolveProjectPath,
+} from "@sanctions-desk/shared";
 import { createZetarisClient, loadQueryCache, replayFetch } from "@sanctions-desk/zetaris";
 import { describe, expect, it } from "vitest";
+import { modelsUsed } from "../src/routes/desk.js";
 import { makeApp } from "./helpers.js";
 
 const exam = loadExam();
@@ -53,13 +59,16 @@ describe("the review desk routes", () => {
       alerts: Array<{ alert_id: string; match_score: number; severity: string; blocked_by: string[] }>;
       name_threshold: number;
       models_used: Array<{ model: string; route: string; calls: number }>;
+      stand_in_answers: number;
     };
     expect(body.name_threshold).toBe(0.85);
     for (const a of body.alerts)
       expect(a.severity).toBe(a.match_score >= 0.95 ? "high" : a.match_score >= 0.85 ? "medium" : "low");
     // The sample stand-in closed this one directly: nothing was stopped.
     expect(body.alerts.find((a) => a.alert_id === alertId)?.blocked_by).toEqual([]);
-    expect(body.models_used.reduce((n, m) => n + m.calls, 0)).toBeGreaterThan(0);
+    // In sample mode every answer came from the rules stand-in: counted apart, never as a live model call.
+    expect(body.models_used).toEqual([]);
+    expect(body.stand_in_answers).toBeGreaterThan(0);
     const trace = (await app.inject({ method: "GET", url: `/cases/${alertId}/trace` })).json() as {
       close_stop: { stopped: boolean } | null;
     };
@@ -266,5 +275,32 @@ describe("the review desk routes", () => {
     });
     expect(preflight.statusCode).toBe(204);
     expect(preflight.headers["access-control-allow-methods"]).toContain("POST");
+  });
+});
+
+describe("the model summary on the alert list", () => {
+  const use = (model_routed: string, provider: string, route_kind: "local" | "cloud" | null = "local") => ({
+    agent: "decision",
+    model_requested: "meterless/fast",
+    model_routed,
+    provider,
+    route_kind,
+  });
+  const rec = (...models: ReturnType<typeof use>[]) => ({ models }) as unknown as DecisionRecord;
+
+  it("keeps the Ollama backup apart from the primary, and counts stand-in answers apart from live calls", () => {
+    const used = modelsUsed([
+      rec(use("local-runtime/nemotron-3.5-lightning-30b-a3b", "nightshift"), use("fallback-rules", "fallback-rules")),
+      rec(
+        use("local-runtime/nemotron-3.5-lightning-30b-a3b", "nightshift"),
+        use("nemotron-3.5-lightning:30b", "ollama"),
+      ),
+      rec(use("fallback-rules", "fallback-rules", null)),
+    ]);
+    expect(used.live).toEqual([
+      { model: "local-runtime/nemotron-3.5-lightning-30b-a3b", route: "local", provider: "nightshift", calls: 2 },
+      { model: "nemotron-3.5-lightning:30b", route: "local", provider: "ollama", calls: 1 },
+    ]);
+    expect(used.standIn).toBe(2);
   });
 });

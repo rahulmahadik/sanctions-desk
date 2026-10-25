@@ -45,7 +45,7 @@ const CHECK_LABEL: Record<ActionCheck, string> = {
   hash_sealed: "hash-sealed (no signing key configured)",
   invalid: "does not verify",
 };
-const STATUS_LABEL: Record<HumanView["status"], string> = {
+export const STATUS_LABEL: Record<HumanView["status"], string> = {
   awaiting: "Waiting for a person to decide",
   auto_closed: "Closed automatically under the autonomy setting; a person can reopen it",
   decided: "Decided by a person",
@@ -57,13 +57,21 @@ const STATUS_LABEL: Record<HumanView["status"], string> = {
   override_declined: "Override to a close declined by the second approver; escalated",
 };
 
-const ACTION_TEXT: Record<HumanActionView["action"], string> = {
+const ACTION_TEXT: Record<Exclude<HumanActionView["action"], "reject">, string> = {
   approve: "approved",
   override: "overrode to",
   second_approval: "gave the second approval for",
   reopen: "reopened the automatic close",
-  reject: "declined the block, so",
 };
+
+/**
+ * What one person did, in words. A decline is stored as "reject" for both a block and an override to a close, so the
+ * case's status says which one was declined.
+ */
+export function actionText(action: HumanActionView["action"], status: HumanView["status"]): string {
+  if (action !== "reject") return ACTION_TEXT[action];
+  return status === "override_declined" ? "declined the close, so" : "declined the block, so";
+}
 
 const needsReason = `Give a reason of at least ${MIN_REASON} characters.`;
 
@@ -158,7 +166,7 @@ function ActionsTaken({ view }: { view: HumanView }) {
       {view.actions_taken.map((a) => (
         <li key={`${a.actor}-${a.at}`}>
           <strong>{a.actor}</strong> {a.role ? <span className="badge tone-wait">{roleLabel(a.role)}</span> : null}{" "}
-          {ACTION_TEXT[a.action]} {a.outcome ? DECISION_LABEL[a.outcome] : ""}: <em>{a.reason}</em>{" "}
+          {actionText(a.action, view.status)} {a.outcome ? DECISION_LABEL[a.outcome] : ""}: <em>{a.reason}</em>{" "}
           <span className="muted">{new Date(a.at).toLocaleString()}</span>
         </li>
       ))}
