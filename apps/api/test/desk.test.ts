@@ -185,6 +185,19 @@ describe("the review desk routes", () => {
     expect(body.headline_sentence).not.toContain("seconds");
   });
 
+  it("gives the headline run's time per alert exactly as the README states it (the one median the interface shows)", async () => {
+    const { app } = await sampleApp();
+    const body = (await app.inject({ method: "GET", url: "/exam" })).json() as {
+      headline: { per_alert: { alerts: number; median_seconds: number } } | null;
+    };
+    if (body.headline === null) return;
+    const readme = readFileSync(resolveProjectPath("README.md"), "utf8");
+    const said = /a median of (\d+) seconds \(p95 \d+ s; over the (\d+) alerts/.exec(readme);
+    expect(said).not.toBeNull();
+    expect(body.headline.per_alert.median_seconds.toFixed(0)).toBe(said?.[1]);
+    expect(String(body.headline.per_alert.alerts)).toBe(said?.[2]);
+  });
+
   it("gives every held-out round with its baselines, in the same words as the README table", async () => {
     const { app } = await sampleApp();
     const body = (await app.inject({ method: "GET", url: "/exam" })).json() as {

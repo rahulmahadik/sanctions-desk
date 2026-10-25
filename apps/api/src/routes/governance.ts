@@ -84,7 +84,7 @@ export const governanceRoutes: FastifyPluginAsync<GovernanceOptions> = async (ap
             dimension: "reliance",
             rating: "medium",
             basis:
-              "A person decides every case, but a clear recommendation with cited evidence can be accepted without independent analysis (automation bias).",
+              "A person makes the final call (automatic closing is off by default), but a clear recommendation with cited evidence can be accepted without independent analysis (automation bias).",
           },
         ],
         conclusion: "Treated as material: the controls below apply to every recommendation.",

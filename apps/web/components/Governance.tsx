@@ -2,28 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { fetchGovernance } from "../lib/api";
-import { label, percent } from "../lib/format";
+import { label, percent, type ReadProblem, readProblem } from "../lib/format";
 import type { GovernanceView } from "../lib/types";
+import { ProblemNote } from "./Banner";
 import { SplitTable } from "./Routing";
 
 /** The governance page: what the desk is, how risky it is, how it is overseen, tested, watched and changed. */
 export function Governance() {
   const [view, setView] = useState<GovernanceView>();
-  const [problem, setProblem] = useState<string>();
+  const [problem, setProblem] = useState<ReadProblem>();
 
   useEffect(() => {
     fetchGovernance()
       .then(setView)
-      .catch((err: unknown) => setProblem(err instanceof Error ? err.message : String(err)));
+      .catch((err: unknown) => setProblem(readProblem(err, "the governance page")));
   }, []);
 
-  if (problem) {
-    return (
-      <p className="panel tone-stop" role="alert">
-        The governance page could not be read: {problem}
-      </p>
-    );
-  }
+  if (problem) return <ProblemNote problem={problem} lead="The governance page could not be read" />;
   if (!view) return <p role="status">Reading the governance view…</p>;
   const {
     inventory,

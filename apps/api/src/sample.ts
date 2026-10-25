@@ -4,7 +4,7 @@ import { createZetarisClient, loadQueryCache, replayFetch, type ZetarisClient } 
 
 /** Shown on every answer when the review ran on saved data and the rules-based model. */
 export const SAMPLE_NOTICE =
-  "Sample mode: Zetaris answers are replayed from saved real queries and the model is a labelled rules-based fallback.";
+  "Sample mode: Zetaris answers are replayed from saved real queries and the model is a labelled rules-based stand-in.";
 
 /** The labelled rules-based stand-in for the language model. */
 export const sampleGenerator = (): Generator => createFallbackRulesGenerator(sampleRules);

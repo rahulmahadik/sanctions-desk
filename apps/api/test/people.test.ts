@@ -69,7 +69,12 @@ describe("sample mode: the demo users", () => {
     expect((await review(ctx, alertOf("fp_dob_exact_name_0"))).statusCode).toBe(200);
     const me = (await ctx.app.inject({ method: "GET", url: "/me" })).json();
     expect(me).toMatchObject({ user: { id: "anonymous", role: "viewer" }, auth: "demo" });
-    expect(me.demo_users.map((u: { id: string }) => u.id)).toEqual(["analyst_demo", "approver_demo", "admin_demo"]);
+    expect(me.demo_users.map((u: { id: string }) => u.id)).toEqual([
+      "analyst_demo",
+      "approver_demo",
+      "approver2_demo",
+      "admin_demo",
+    ]);
     const analyst = (await ctx.app.inject({ method: "GET", url: "/me", headers: as("analyst_demo") })).json();
     expect(analyst.permissions).toMatchObject({ decide: true, approve_block: false, publish_policy: false });
   });
@@ -552,5 +557,48 @@ describe("the evidence view", () => {
       "strong_identifier",
       "true_match",
     ]);
+  });
+});
+
+describe("four-eyes with the two demo approvers", () => {
+  it("lets approver2_demo give the second approval of a block approver_demo started, but not approver_demo itself", async () => {
+    const ctx = await sampleApp();
+    const alertId = alertOf("tm_exact_0");
+    await review(ctx, alertId);
+    const first = await decide(ctx, alertId, "approver_demo", { action: "override", outcome: "RECOMMEND_BLOCK" });
+    expect(first.json().status).toBe("block_pending");
+    const self = await second(ctx, alertId, "approver_demo");
+    expect(self.statusCode).toBe(403);
+    expect(self.json().error.message).toContain("different person");
+    const done = await second(ctx, alertId, "approver2_demo");
+    expect(done.statusCode).toBe(201);
+    expect(done.json()).toMatchObject({ status: "block_approved", final: "RECOMMEND_BLOCK" });
+    expect(done.json().actions_taken.map((a: { actor: string }) => a.actor)).toEqual([
+      "approver_demo",
+      "approver2_demo",
+    ]);
+  });
+
+  it("lets approver2_demo give the second approval of an override to a close, but not approver_demo itself", async () => {
+    const ctx = await sampleApp();
+    const alertId = alertOf("tm_identifier");
+    await review(ctx, alertId);
+    const first = await decide(ctx, alertId, "approver_demo", { action: "override", outcome: "CLOSE_FALSE_POSITIVE" });
+    expect(first.json().status).toBe("override_pending");
+    expect((await second(ctx, alertId, "approver_demo")).statusCode).toBe(403);
+    const done = await second(ctx, alertId, "approver2_demo");
+    expect(done.statusCode).toBe(201);
+    expect(done.json()).toMatchObject({ status: "override_approved", final: "CLOSE_FALSE_POSITIVE" });
+  });
+
+  it("names the record each decision re-sealed: the new record's previous_record_hash is the one before", async () => {
+    const ctx = await sampleApp();
+    const alertId = alertOf("fp_dob_exact_name_0");
+    await review(ctx, alertId);
+    const before = await human(ctx, alertId);
+    expect(before.previous_record_hash).toBeNull();
+    const after = (await decide(ctx, alertId, "analyst_demo")).json();
+    expect(after.record_hash).not.toBe(before.record_hash);
+    expect(after.previous_record_hash).toBe(before.record_hash);
   });
 });

@@ -39,7 +39,7 @@ curl -s https://desk.example.com/run -H "Authorization: Bearer $DESK_TOKEN" -H '
 | `policy_admin` | read everything; start a review, replay a list change, check a draft for a customer, compare a policy draft; propose, reload or roll back a policy draft; publish a policy draft; stop automatic closing; switch automatic closing back on |
 | `viewer` | read everything (read only) |
 
-**Four-eyes.** A block, and an override that lowers caution (a block or an escalation changed to a close), wait for a second, different approver. A policy draft must be published by a different person from the one who proposed it.
+**Four-eyes.** A block (an approved block recommendation, or an override to a block), and an override to a close from any other recommendation, wait for a second, different approver. In sample mode `approver_demo` and `approver2_demo` can be the two approvers. A policy draft must be published by a different person from the one who proposed it.
 
 **Rate limits.** Per caller (the signed-in user; without sign-in, the address), in a fixed window: by default 60 changes a minute, 10 reviews a minute, and 4 reviews running at once across all callers; above a limit the answer is `429` with `Retry-After`, and nothing is queued. Reads and `/health` are not limited. The counts are kept in the memory of one server process: they reset when it restarts and are not shared between processes. Set them in `config` (`server.rateLimit`) or with `RATE_LIMIT_WRITES`, `RATE_LIMIT_REVIEWS`, `RATE_LIMIT_REVIEWS_IN_FLIGHT` and `RATE_LIMIT_WINDOW_MS`. For limits shared across several processes or machines, put a gateway or proxy with its own limits in front (for example nginx `limit_req` or an API gateway).
 
@@ -51,7 +51,7 @@ desk.example.com {
 }
 ```
 
-**Sample mode.** With `SAMPLE_MODE=true` and sign-in not on, the built-in demo users (`analyst_demo`, `approver_demo`, `admin_demo`) can be chosen with the `X-Demo-User` header, and reading and running a review need no token. The demo users are ignored when sign-in is on and never work in live mode.
+**Sample mode.** With `SAMPLE_MODE=true` and sign-in not on, the built-in demo users (`analyst_demo`, `approver_demo`, `approver2_demo`, `admin_demo`) can be chosen with the `X-Demo-User` header, and reading and running a review need no token. The demo users are ignored when sign-in is on and never work in live mode.
 <!-- auth-guide:end -->
 
 ## Errors and request ids
@@ -66,7 +66,7 @@ The `request_id` is also returned in the `x-request-id` header; send your own `x
 
 ## People and decisions
 
-Once sign-in is on, every route except `/health` needs `Authorization: Bearer <token>`. In sample mode a demo user can be chosen with the header `X-Demo-User` (`analyst_demo`, `approver_demo`, `admin_demo`).
+Once sign-in is on, every route except `/health` needs `Authorization: Bearer <token>`. In sample mode a demo user can be chosen with the header `X-Demo-User` (`analyst_demo`, `approver_demo`, `approver2_demo`, `admin_demo`).
 
 | Route                                                             | What it does                                                                                                                                 |
 | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |

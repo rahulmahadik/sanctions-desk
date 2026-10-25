@@ -105,6 +105,8 @@ export const decisionRoutes: FastifyPluginAsync<DecisionOptions> = async (
     return {
       alert_id: alertId,
       record_hash: record.record_hash,
+      // A person's action re-seals the record with the action added; this names the record it was added to.
+      previous_record_hash: record.previous_record_hash ?? null,
       recommendation: { decision: record.decision, confidence: record.confidence, rationale: record.rationale },
       autonomy: record.autonomy
         ? {

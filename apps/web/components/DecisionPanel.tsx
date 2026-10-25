@@ -76,6 +76,16 @@ export function decideBlocker(
   return reasonOk ? undefined : needsReason;
 }
 
+/**
+ * The record the panel is about. Each decision re-seals the record with the decision added (a new record whose
+ * previous_record_hash is the one before), so the hash changes; the panel says so instead of showing a new hash bare.
+ */
+export function recordLine(view: Pick<HumanView, "record_hash" | "previous_record_hash">): string {
+  return view.previous_record_hash
+    ? `(record ${shortHash(view.record_hash)}, which adds the decision to ${shortHash(view.previous_record_hash)})`
+    : `(record ${shortHash(view.record_hash)})`;
+}
+
 export function secondBlocker(me: MeView | undefined, firstActor: string | undefined, reasonOk: boolean) {
   if (!me) return "Choose a demo user.";
   if (!me.permissions.approve_block) return "The second approval must come from an approver.";
@@ -339,7 +349,10 @@ export function DecisionPanel({ alertId, refreshKey }: { alertId: string; refres
           </span>
           {DECISION_LABEL[rec]}
         </span>{" "}
-        <span className="muted">(record {shortHash(view.record_hash)})</span>. {STATUS_LABEL[view.status]}.
+        <span className="muted" data-testid="record-line">
+          {recordLine(view)}
+        </span>
+        . {STATUS_LABEL[view.status]}.
       </p>
       {problem ? (
         <p role="alert" className="tone-stop">

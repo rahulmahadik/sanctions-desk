@@ -106,7 +106,7 @@ describe("queue summary and order", () => {
       />,
     );
     const strip = screen.getByTestId("summary-strip").textContent ?? "";
-    expect(strip).toContain("2open alerts");
+    expect(strip).toContain("2 of 3alerts open in the screening system (1 closed there)");
     expect(strip).toContain("1recommendations waiting for a person");
     expect(strip).toContain("1closes stopped by a check");
     expect(strip).toContain("Nemotron 3 Ultra 550B (cloud) 3");

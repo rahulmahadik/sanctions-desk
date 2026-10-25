@@ -1,3 +1,4 @@
+import { plainReason } from "../lib/format";
 import type { CloseStopView, Decision } from "../lib/types";
 import { BlockedByChips, OutcomeBadge, outcomeTone } from "./Badges";
 
@@ -17,10 +18,13 @@ export function CaseBanner({
   decision,
   rationale,
   closeStop,
+  alertType,
 }: {
   decision: Decision | undefined;
   rationale?: string;
   closeStop?: CloseStopView | null;
+  /** Whose name the comparison is about: the payment counterparty's on a payment alert. */
+  alertType?: string | null;
 }) {
   if (!decision) return null;
   return (
@@ -32,12 +36,14 @@ export function CaseBanner({
     >
       <OutcomeBadge decision={decision} /> <span className="muted">Recommendation; a person decides.</span>
       <p className="reason" data-testid="case-reason">
-        {oneLine(rationale) || "No reason was recorded."}
+        {plainReason(oneLine(rationale), alertType) || "No reason was recorded."}
       </p>
       {closeStop?.stopped ? (
         <p className="reason" data-testid="case-stopped">
           The decision step proposed a close; it was stopped. <BlockedByChips by={closeStop.by} />
-          {closeStop.reasons.length > 0 ? <span className="muted"> {closeStop.reasons.join("; ")}</span> : null}
+          {closeStop.reasons.length > 0 ? (
+            <span className="muted"> {closeStop.reasons.map((r) => plainReason(r, alertType)).join("; ")}</span>
+          ) : null}
         </p>
       ) : closeStop ? (
         <p className="reason muted" data-testid="case-stopped">

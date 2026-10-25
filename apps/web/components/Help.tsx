@@ -43,9 +43,10 @@ export function Help() {
       <Section id="help-user">
         <p>
           In the top bar, under <strong>Demo user</strong>, choose <strong>analyst_demo</strong> to approve or override,{" "}
-          <strong>approver_demo</strong> to give a second approval or stop autonomy, or <strong>admin_demo</strong> to
-          publish a policy change. <strong>Visitor</strong> can read and run a review. Demo users exist only in sample
-          mode; a live deployment asks for a sign-in token.
+          <strong>approver_demo</strong> or <strong>approver2_demo</strong> to give a second approval or stop autonomy,
+          or <strong>admin_demo</strong> to publish a policy change. There are two approvers so a second approval can
+          come from a different person. <strong>Visitor</strong> can read and run a review. Demo users exist only in
+          sample mode; a live deployment asks for a sign-in token.
         </p>
       </Section>
 
@@ -94,16 +95,22 @@ export function Help() {
           </li>
           <li>Write a reason of at least {REASON_LENGTH.min} characters.</li>
           <li>
-            Press <strong>Approve</strong> or <strong>Override</strong>.
+            Press the button. It reads <strong>Decide</strong> until you choose, then <strong>Approve</strong> or{" "}
+            <strong>Override</strong>.
           </li>
         </ol>
         <ul>
           <li>Only an analyst or an approver can decide.</li>
-          <li>An override towards a less cautious outcome needs an approver.</li>
           <li>
-            A <strong>block</strong> is marked block approval pending after the first approval. A second, different
-            approver must press <strong>Give the second approval</strong> or <strong>Decline the block</strong>. It is
-            still only a recommendation for the sanctions officer.
+            An analyst can approve any recommendation, and can override only towards more caution (for example from a
+            close to an escalation). An override towards a less cautious outcome needs an approver.
+          </li>
+          <li>
+            Two cases need a second, different approver: a <strong>block</strong> (approved or chosen in an override),
+            marked block approval pending, and an <strong>override to a close</strong> from any other recommendation,
+            marked override to a close pending. The second approver presses <strong>Give the second approval</strong>,
+            or <strong>Decline the block</strong> or <strong>Decline the close</strong> (declining escalates the case).
+            A block is still only a recommendation for the sanctions officer.
           </li>
         </ul>
       </Section>

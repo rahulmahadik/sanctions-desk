@@ -1,7 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { DECISION_ICON, DECISION_LABEL, DECISION_TONE, label, percent, shortHash } from "../lib/format";
+import {
+  DECISION_ICON,
+  DECISION_LABEL,
+  DECISION_TONE,
+  guardWords,
+  label,
+  percent,
+  plainReason,
+  shortHash,
+  verdictWords,
+} from "../lib/format";
 import { agentLabel, graphAt, stepOf } from "../lib/graph";
 import type { RecordView, ReviewAnswer, RunEvent, TraceView } from "../lib/types";
 import { RunGraph } from "./RunGraph";
@@ -58,7 +68,7 @@ function ConfidenceLine({ answer }: { answer: ReviewAnswer }) {
  * The checks: every guard verdict (the screener's grounded and not-grounded signals, the documentary standard and the
  * rest), the critic's verdict, and any citation the critic set aside as not citable.
  */
-function Checks({ answer }: { answer: ReviewAnswer }) {
+function Checks({ answer, alertType }: { answer: ReviewAnswer; alertType?: string | null }) {
   const rounds = answer.critic?.rounds;
   return (
     <>
@@ -66,13 +76,13 @@ function Checks({ answer }: { answer: ReviewAnswer }) {
       <ul>
         {(answer.guards ?? []).map((g) => (
           <li key={`${g.guard}-${g.detail ?? ""}`} className={g.verdict === "pass" ? undefined : "tone-alert"}>
-            {label(g.guard)}: {g.verdict}
-            {g.detail ? ` — ${g.detail}` : ""}
+            {guardWords(g.guard)}: {verdictWords(g.verdict)}
+            {g.detail ? ` — ${plainReason(g.detail, alertType)}` : ""}
           </li>
         ))}
         {answer.critic ? (
           <li>
-            critic: {answer.critic.final_verdict} after {rounds} round{rounds === 1 ? "" : "s"}
+            critic: {verdictWords(answer.critic.final_verdict)} after {rounds} round{rounds === 1 ? "" : "s"}
           </li>
         ) : null}
         {(answer.critic?.not_citable ?? []).map((n) => (
@@ -97,8 +107,12 @@ const BulletList = ({ title, items, testId }: { title: string; items: readonly s
     </>
   );
 
-/** The recommendation, why, and what would change it. A person acts on it. */
-export function Outcome({ answer }: { answer: ReviewAnswer }) {
+/**
+ * The recommendation, why, and what would change it. A person acts on it. The alert type says whose name the
+ * comparison is about: the payment counterparty's on a payment alert, the customer's otherwise.
+ */
+export function Outcome({ answer, alertType }: { answer: ReviewAnswer; alertType?: string | null }) {
+  const plain = (lines: readonly string[] | undefined) => (lines ?? []).map((l) => plainReason(l, alertType));
   if (answer.status === "error" || !answer.decision) {
     return (
       <section className="panel" aria-labelledby="outcome-title" role="alert">
@@ -118,12 +132,20 @@ export function Outcome({ answer }: { answer: ReviewAnswer }) {
       <PathLine answer={answer} />
       <AutonomyNote answer={answer} />
       <ConfidenceLine answer={answer} />
-      <BulletList title="What decided it" items={answer.key_evidence ?? []} testId="key-evidence" />
-      <p>{answer.rationale}</p>
-      <BulletList title="What would change this" items={answer.what_would_change} />
-      <Checks answer={answer} />
+      <BulletList title="What decided it" items={plain(answer.key_evidence)} testId="key-evidence" />
+      <p data-testid="rationale">{plainReason(answer.rationale ?? "", alertType)}</p>
+      <BulletList title="What would change this" items={plain(answer.what_would_change)} />
+      <Checks answer={answer} alertType={alertType} />
     </section>
   );
+}
+
+/** In sample mode every answer comes from the labelled rules stand-in, which is not a model. */
+export function modelCallsText(trace: TraceView): string {
+  const n = trace.cost.totals.local_calls + trace.cost.totals.cloud_calls;
+  const models = trace.cost.models;
+  const standIn = models.length > 0 && models.every((m) => m.model_routed === "fallback-rules");
+  return standIn ? `${n} stand-in answer${n === 1 ? "" : "s"} (sample mode, no model)` : `${n} model calls`;
 }
 
 /** The four questions a reviewer or auditor asks, answered from the sealed record. */
@@ -154,8 +176,7 @@ export function FourQuestions({ trace }: { trace: TraceView }) {
         </dd>
         <dt>What did it cost to produce?</dt>
         <dd>
-          {trace.cost.totals.local_calls + trace.cost.totals.cloud_calls} model calls, {trace.cost.data_queries.count}{" "}
-          data queries
+          {modelCallsText(trace)}, {trace.cost.data_queries.count} data queries
         </dd>
         <dt>Record</dt>
         <dd>
@@ -175,6 +196,13 @@ export function Replay({ events, record }: { events: RunEvent[]; record?: Record
   const [at, setAt] = useState(events.length);
   const upTo = Math.min(at, events.length);
   const current = events[upTo - 1];
+  const stepOfEvent = events.map((e) => stepOf(e.agent, e.action));
+  const withEvents = new Set(stepOfEvent);
+  /** A step's box moves the slider to that step's last recorded event. */
+  const jumpToStep = (stepId: string) => {
+    const last = stepOfEvent.lastIndexOf(stepId);
+    if (last >= 0) setAt(last + 1);
+  };
   return (
     <section aria-labelledby="replay-title">
       <h2 id="replay-title">Replay</h2>
@@ -195,7 +223,8 @@ export function Replay({ events, record }: { events: RunEvent[]; record?: Record
         value={upTo}
         onChange={(e) => setAt(Number(e.target.value))}
       />
-      <RunGraph view={graphAt(events, upTo)} />
+      <p className="muted">Click a step or an event to jump to it.</p>
+      <RunGraph view={graphAt(events, upTo)} onSelect={jumpToStep} selectable={withEvents} />
       <p aria-live="polite" data-testid="replay-current">
         {current
           ? `${agentLabel(current.agent, current.action)} · ${label(current.action)} · ${current.output_summary ?? current.status}`
@@ -204,8 +233,10 @@ export function Replay({ events, record }: { events: RunEvent[]; record?: Record
       <ol className="events" aria-label="Recorded events">
         {events.map((e, i) => (
           <li key={e.seq} aria-current={i === upTo - 1 ? "true" : undefined}>
-            {String(e.seq).padStart(2, "0")} {stepOf(e.agent, e.action)}/{e.action} [{e.status}]{" "}
-            {e.output_summary ?? ""}
+            <button type="button" className="event-jump" onClick={() => setAt(i + 1)}>
+              {String(e.seq).padStart(2, "0")} {stepOf(e.agent, e.action)}/{e.action} [{e.status}]{" "}
+              {e.output_summary ?? ""}
+            </button>
           </li>
         ))}
       </ol>

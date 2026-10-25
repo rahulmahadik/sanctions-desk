@@ -2,20 +2,39 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { fetchMe } from "../lib/api";
 
 const KEY = "desk.tourSeen";
 
-/** A one-time pointer for a first visit, remembered in this browser; works without storage. */
+/** How a first visitor starts: pick a demo user (sample mode), sign in (live, signed out), or nothing to pick. */
+type Start = "demo" | "sign-in" | "signed-in";
+
+const STEPS: Record<Start, string> = {
+  demo: "choose a demo user, review an alert, read the result, decide, and verify the receipts.",
+  "sign-in": "review an alert, read the result, decide, and verify the receipts.",
+  "signed-in": "review an alert, read the result, decide, and verify the receipts.",
+};
+
+/**
+ * A one-time pointer for a first visit, remembered in this browser; works without storage. Demo users exist only in
+ * sample mode, so a live desk asks for the token instead.
+ */
 export function FirstRun() {
   const [show, setShow] = useState(false);
+  const [start, setStart] = useState<Start>();
   useEffect(() => {
     try {
       setShow(window.localStorage.getItem(KEY) !== "yes");
     } catch {
       setShow(true);
     }
+    fetchMe()
+      .then((me) => setStart(me.demo_users.length > 0 ? "demo" : "signed-in"))
+      .catch((err: unknown) =>
+        setStart((err as { status?: unknown } | null)?.status === 401 ? "sign-in" : "signed-in"),
+      );
   }, []);
-  if (!show) return null;
+  if (!show || start === undefined) return null;
   const dismiss = () => {
     try {
       window.localStorage.setItem(KEY, "yes");
@@ -26,8 +45,8 @@ export function FirstRun() {
   };
   return (
     <p className="banner" role="note" data-testid="first-run">
-      New here? The <Link href="/help">help page</Link> walks through the flow in order: choose a demo user, review an
-      alert, read the result, decide, and verify the receipts.{" "}
+      {start === "sign-in" ? "Sign in with your token to start. " : ""}
+      New here? The <Link href="/help">help page</Link> walks through the flow in order: {STEPS[start]}{" "}
       <button type="button" className="secondary" onClick={dismiss}>
         Dismiss
       </button>

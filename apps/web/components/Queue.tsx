@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { fetchQueue } from "../lib/api";
-import { DECISION_LABEL, modelName, shortHash } from "../lib/format";
+import { DECISION_LABEL, modelName, type ReadProblem, readProblem, shortHash } from "../lib/format";
+import { SESSION_EVENT } from "../lib/session";
 import type { QueueAlert, Severity } from "../lib/types";
 import { BlockedByChips, OutcomeBadge, SeverityBadge } from "./Badges";
-import { HumanBanner } from "./Banner";
+import { HumanBanner, ProblemNote } from "./Banner";
 import { ListChangePanel } from "./ListChange";
 
 type Filter = "all" | "open" | "reviewed";
@@ -21,9 +22,22 @@ export function bySeverity(a: QueueAlert, b: QueueAlert): number {
 
 type ModelUse = { model: string; route: string; calls: number };
 
-/** Four counts across the top of the queue, every one counted from the alerts and records the API returned. */
+/**
+ * Four counts across the top of the queue, every one counted from the alerts and records the API returned. "Open" is
+ * the alert's own status in the screening system (the bank's alert table), not whether the desk has reviewed it.
+ */
 export function SummaryStrip({ alerts, models }: { alerts: readonly QueueAlert[]; models: readonly ModelUse[] }) {
   const open = alerts.filter((a) => a.status === "open").length;
+  const others = Object.entries(
+    alerts
+      .filter((a) => a.status !== "open")
+      .reduce<Record<string, number>>((m, a) => {
+        m[a.status] = (m[a.status] ?? 0) + 1;
+        return m;
+      }, {}),
+  )
+    .map(([status, n]) => `${n} ${status.replaceAll("_", " ")}`)
+    .join(", ");
   const waiting = alerts.filter(
     (a) =>
       a.recommendation &&
@@ -34,7 +48,10 @@ export function SummaryStrip({ alerts, models }: { alerts: readonly QueueAlert[]
   return (
     <section className="summary-strip" aria-label="Queue summary" data-testid="summary-strip">
       <div className="stat">
-        <strong>{open}</strong>open alerts
+        <strong>
+          {open} of {alerts.length}
+        </strong>
+        alerts open in the screening system{others ? ` (${others} there)` : ""}
       </div>
       <div className="stat">
         <strong>{waiting}</strong>recommendations waiting for a person
@@ -86,19 +103,25 @@ export function Queue() {
   const [sampleMode, setSampleMode] = useState(false);
   const [models, setModels] = useState<ModelUse[]>([]);
   const [threshold, setThreshold] = useState<number>();
-  const [problem, setProblem] = useState<string>();
+  const [problem, setProblem] = useState<ReadProblem>();
   const [filter, setFilter] = useState<Filter>("all");
   const [type, setType] = useState("all");
 
   useEffect(() => {
-    fetchQueue()
-      .then((q) => {
-        setAlerts(q.alerts);
-        setSampleMode(q.sample_mode);
-        setModels(q.models_used ?? []);
-        setThreshold(q.name_threshold);
-      })
-      .catch((err: unknown) => setProblem(err instanceof Error ? err.message : String(err)));
+    const load = () =>
+      fetchQueue()
+        .then((q) => {
+          setAlerts(q.alerts);
+          setSampleMode(q.sample_mode);
+          setModels(q.models_used ?? []);
+          setThreshold(q.name_threshold);
+          setProblem(undefined);
+        })
+        .catch((err: unknown) => setProblem(readProblem(err, "the alert queue")));
+    void load();
+    // Signing in (or out) reads the queue again.
+    window.addEventListener(SESSION_EVENT, load);
+    return () => window.removeEventListener(SESSION_EVENT, load);
   }, []);
 
   const shown = useMemo(
@@ -113,13 +136,7 @@ export function Queue() {
     [alerts, filter, type],
   );
 
-  if (problem) {
-    return (
-      <p className="panel tone-stop" role="alert">
-        The queue could not be read: {problem}
-      </p>
-    );
-  }
+  if (problem) return <ProblemNote problem={problem} lead="The queue could not be read" />;
   if (!alerts) return <p role="status">Reading the alert queue…</p>;
 
   return (
@@ -156,7 +173,9 @@ export function Queue() {
                 <th>Severity</th>
                 <th>Type</th>
                 <th>Matched name</th>
-                <th>Score</th>
+                <th title="The name score the screening system gave when it raised the alert; the review compares the names again">
+                  Alert score
+                </th>
                 <th>Recommendation</th>
                 <th>Person</th>
                 <th>Record</th>

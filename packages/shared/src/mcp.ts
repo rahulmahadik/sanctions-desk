@@ -234,7 +234,7 @@ export function createMcpHandler(options: McpOptions) {
           capabilities: { tools: {} },
           serverInfo: { name: "sanctions-desk", version: "0.1.0" },
           instructions:
-            "A sanctions-screening review desk. You can read the queue, ask for a recommendation, read a case and check a receipt. A person makes every decision; no tool here can approve, override, block or change policy.",
+            "A sanctions-screening review desk. You can read the queue, ask for a recommendation, read a case and check a receipt. A person makes the final call; automatic closing is off by default, and no tool here can approve, override, block or change policy.",
         });
       case "ping":
         return reply({});

@@ -195,6 +195,7 @@ th {
 
 .table-wrap {
   overflow-x: auto;
+  max-width: 100%;
 }
 
 .badge {
@@ -203,7 +204,10 @@ th {
   padding: 1px 10px;
   font-size: 12px;
   border: 1px solid currentColor;
-  white-space: nowrap;
+  /* A long badge (a model name) wraps instead of widening the page. */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
 
 .tone-calm {
@@ -421,7 +425,11 @@ textarea {
   padding: 1px 9px;
   font-size: 12.5px;
   font-weight: 600;
-  white-space: nowrap;
+  /* A long pill (an outcome with its approval note) wraps instead of widening the page. */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  flex-wrap: wrap;
   border: 1px solid currentColor;
   line-height: 1.6;
 }
@@ -537,8 +545,34 @@ code,
   overflow-wrap: anywhere;
 }
 
+/* Grid and flex children may shrink below their content's width, so a wide child scrolls in its own box. */
+.grid > *,
+.flow > * {
+  min-width: 0;
+}
+
 @media (max-width: 480px) {
   dl.facts {
     grid-template-columns: 1fr;
   }
+}
+
+/* In the replay, a step box and an event row are buttons that move the slider; they keep the look of the text. */
+.node-jump,
+.event-jump {
+  all: unset;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+.node-jump:focus-visible,
+.event-jump:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.event-jump:hover,
+.node-jump:hover {
+  text-decoration: underline;
 }

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { fetchExam } from "../lib/api";
-import { money, percent } from "../lib/format";
+import { money, percent, type ReadProblem, readProblem } from "../lib/format";
 import type { ExamAnswer, ExamResult, HeldoutRoundView } from "../lib/types";
+import { ProblemNote } from "./Banner";
 
 const VARIANT_NOTE: Record<string, string> = {
   routed: "Full system: local and cloud Nemotron through Nightshift, critic and memory",
@@ -81,21 +82,15 @@ function HeldoutRounds({ rounds }: { rounds: readonly HeldoutRoundView[] }) {
 /** Results of the exam, straight from the files the exam runner saved. Nothing is typed in by hand. */
 export function ExamDashboard() {
   const [exam, setExam] = useState<ExamAnswer>();
-  const [problem, setProblem] = useState<string>();
+  const [problem, setProblem] = useState<ReadProblem>();
 
   useEffect(() => {
     fetchExam()
       .then(setExam)
-      .catch((err: unknown) => setProblem(err instanceof Error ? err.message : String(err)));
+      .catch((err: unknown) => setProblem(readProblem(err, "the exam results")));
   }, []);
 
-  if (problem) {
-    return (
-      <p className="panel tone-stop" role="alert">
-        The exam results could not be read: {problem}
-      </p>
-    );
-  }
+  if (problem) return <ProblemNote problem={problem} lead="The exam results could not be read" />;
   if (!exam) return <p role="status">Reading the exam results…</p>;
   const rows = latest(exam.results);
   const groups = rows[0] ? Object.keys(rows[0].metrics.by_group) : [];

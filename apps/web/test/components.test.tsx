@@ -486,7 +486,7 @@ describe("Outcome", () => {
         }}
       />,
     );
-    expect(screen.getByText(/guard locality: block — guard ran in the cloud/)).toBeTruthy();
+    expect(screen.getByText(/safety guard ran on this machine: stopped it — guard ran in the cloud/)).toBeTruthy();
   });
 
   it("puts the deciding evidence and any confidence cap with its reason right under the recommendation", () => {
@@ -812,9 +812,20 @@ describe("HeadlineStrip", () => {
     expect(screen.getByTestId("headline-strip").textContent).toContain("0 of 42 risk cases wrongly closed");
   });
 
-  it("names the current system's run and its time per alert", async () => {
+  it("shows the headline run's time per alert as the README does, and no other run's median", async () => {
+    const perAlert = {
+      alerts: 68,
+      median_seconds: 129.67,
+      mean_seconds: 140,
+      p95_seconds: 306,
+      mean_cost: 0.0085,
+      manual_seconds: null,
+      times_faster: null,
+      note: "",
+    };
     vi.mocked(api.fetchExam).mockResolvedValue({
       ...exam,
+      headline: { ...exam.headline, per_alert: perAlert } as ExamAnswer["headline"],
       current_run: {
         name: "heldout4-sys4-routed",
         system: "sys4",
@@ -825,8 +836,12 @@ describe("HeadlineStrip", () => {
       },
     });
     render(<HeadlineStrip />);
-    expect((await screen.findByTestId("headline-strip")).textContent).toContain(
-      "Current system: a median of 45 seconds per alert (measured) in run heldout4-sys4-routed of 2026-10-24, 12 alerts.",
+    const text = (await screen.findByTestId("headline-strip")).textContent ?? "";
+    expect(text).toContain("a median of 130 seconds per alert over the 68 alerts of the recorded 70-case run");
+    expect(text).not.toContain("45 seconds");
+    expect(text.match(/median/g)).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "All results" }).getAttribute("href")).toBe(
+      "https://rahulmahadik.github.io/sanctions-desk/results.html",
     );
   });
 
@@ -961,6 +976,7 @@ describe("UserSwitcher", () => {
       "Visitor (read only)",
       "analyst_demo — Analyst (L1)",
       "approver_demo — Approver (L2 senior reviewer)",
+      "approver2_demo — Approver (L2 senior reviewer)",
       "admin_demo — Policy admin",
     ]);
     expect(screen.getByText("Demo user")).toBeTruthy();
@@ -1243,6 +1259,7 @@ describe("help and the first-run pointer", () => {
     for (const word of [
       "analyst_demo",
       "approver_demo",
+      "approver2_demo",
       "admin_demo",
       "Review this alert",
       "Verify receipt",

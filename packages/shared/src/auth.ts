@@ -31,6 +31,8 @@ export interface Actor {
 export const DEMO_USERS: readonly Actor[] = [
   { id: "analyst_demo", role: "analyst", demo: true },
   { id: "approver_demo", role: "approver", demo: true },
+  // A second approver, so the four-eyes step (a block, or an override to a close) can be finished in sample mode.
+  { id: "approver2_demo", role: "approver", demo: true },
   { id: "admin_demo", role: "policy_admin", demo: true },
 ];
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { fetchReceiptCheck } from "../lib/api";
 import { label, modelName, money, seconds, shortHash } from "../lib/format";
 import { agentLabel } from "../lib/graph";
@@ -124,6 +124,19 @@ function VerifyAll({ receiptIds }: { receiptIds: readonly string[] }) {
 }
 
 /**
+ * A wide table in its own sideways-scrolling box, so a phone-width page never scrolls sideways. The box can take
+ * keyboard focus (arrow keys scroll it) and is named for screen readers.
+ */
+export function TableScroll({ name, children }: { name: string; children: ReactNode }) {
+  return (
+    // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrolling region must be reachable by keyboard to be scrolled
+    <section className="table-wrap" tabIndex={0} aria-label={name} data-testid="table-scroll">
+      {children}
+    </section>
+  );
+}
+
+/**
  * The measured split: for each step, the share of its calls each model served, read from the signed receipts of the
  * latest full exam. We ask Nightshift for a pinned mode; its learned router decides which model serves it.
  */
@@ -133,7 +146,7 @@ export function SplitTable({ split }: { split: RoutingSplit }) {
   return (
     <>
       <h3>Where the calls were answered (latest full exam)</h3>
-      <div className="table-wrap">
+      <TableScroll name="Share of each step's calls by model (scrolls sideways)">
         <table data-testid="routing-split">
           <caption className="sr-only">Share of each step's calls served by each model</caption>
           <thead>
@@ -160,7 +173,7 @@ export function SplitTable({ split }: { split: RoutingSplit }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableScroll>
       <p className="muted">
         We ask for a pinned mode and record the model that answered. Which model serves a mode is Nightshift's learned
         router's choice, inside the mode each app identity is bound to in the cockpit: in{" "}
@@ -178,7 +191,7 @@ export function RoutingPanel({ trace, split }: { trace: TraceView; split?: Routi
   return (
     <section aria-labelledby="routing-title" className="panel">
       <h2 id="routing-title">Model routing and cost</h2>
-      <div className="table-wrap">
+      <TableScroll name="Models used by step (scrolls sideways)">
         <table>
           <caption className="sr-only">Models used by step</caption>
           <thead>
@@ -238,7 +251,7 @@ export function RoutingPanel({ trace, split }: { trace: TraceView; split?: Routi
             ) : null}
           </tbody>
         </table>
-      </div>
+      </TableScroll>
       <p className="muted">
         For every call: the mode we asked for, the model that served it (as Nightshift reported it) and the id of its
         signed receipt, side by side. They are never merged: when the routed model is not the one asked for, both are

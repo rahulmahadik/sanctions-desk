@@ -190,6 +190,7 @@ const PERMS_NONE = {
 const DEMO = [
   { id: "analyst_demo", role: "analyst" },
   { id: "approver_demo", role: "approver" },
+  { id: "approver2_demo", role: "approver" },
   { id: "admin_demo", role: "policy_admin" },
 ];
 export const ME_VIEWER: MeView = {

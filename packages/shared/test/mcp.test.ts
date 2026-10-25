@@ -33,7 +33,7 @@ describe("the MCP server", () => {
     };
     expect(r.result.protocolVersion).toBe("2024-11-05");
     expect(r.result.serverInfo.name).toBe("sanctions-desk");
-    expect(r.result.instructions).toContain("A person makes every decision");
+    expect(r.result.instructions).toContain("A person makes the final call; automatic closing is off by default");
   });
 
   it("lists read and review tools only: nothing that approves, overrides, reopens, blocks or changes policy", async () => {

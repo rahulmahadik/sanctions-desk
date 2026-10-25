@@ -39,12 +39,13 @@ To run it live against Zetaris and Nightshift, follow [Run it live](SETUP.md#run
 
 In the top bar, under **Demo user**, choose who you are. Demo users exist only in sample mode.
 
-| User            | Role                         | Can do                                                                                                                                                                       |
-| --------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _Visitor_       | viewer                       | read everything, run a review                                                                                                                                                |
-| `analyst_demo`  | analyst                      | approve or override a recommendation with a reason; reopen an automatic close                                                                                                |
-| `approver_demo` | approver (sanctions officer) | everything an analyst can; give the second approval of a block or of an override to a close; override towards a less cautious outcome; propose policy changes; stop autonomy |
-| `admin_demo`    | policy admin                 | publish a policy change written by someone else; switch autonomy back on                                                                                                     |
+| User             | Role                         | Can do                                                                                                                                                                       |
+| ---------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _Visitor_        | viewer                       | read everything, run a review                                                                                                                                                |
+| `analyst_demo`   | analyst                      | approve or override a recommendation with a reason; reopen an automatic close                                                                                                |
+| `approver_demo`  | approver (sanctions officer) | everything an analyst can; give the second approval of a block or of an override to a close; override towards a less cautious outcome; propose policy changes; stop autonomy |
+| `approver2_demo` | approver (sanctions officer) | the same as `approver_demo`: a second, different approver, so a block or an override to a close can get its second approval in sample mode                                   |
+| `admin_demo`     | policy admin                 | publish a policy change written by someone else; switch autonomy back on                                                                                                     |
 
 A live deployment has no demo users. Each person has a token, and the desk asks for it when you open it. See [People, roles and the decision step](GOVERNANCE.md#people-roles-and-the-decision-step) in GOVERNANCE.md.
 
@@ -94,7 +95,7 @@ The rules, each enforced by the desk:
 - Only an analyst or an approver can decide.
 - An override must choose a different outcome. An override towards a less cautious outcome, for example from escalation to a close, needs an approver.
 - A **block** is not final on one decision. After the first approval it is marked **block approval pending**. A second, different approver must press **Give the second approval** or **Decline the block**. Even then it is only a recommendation for the sanctions officer.
-- An **override to a close** from a more cautious recommendation (an escalation, a block or a request for more information) is not final on one decision either. It is marked **override to a close pending**, nothing is prepared, and a second, different approver must press **Give the second approval** or **Decline the close** (declining escalates the case). Overrides towards more caution need only one person.
+- An **override to a close** from a more cautious recommendation (an escalation, a block or a request for more information) is not final on one decision either. It is marked **override to a close pending**, nothing is prepared, and a second, different approver must press **Give the second approval** or **Decline the close** (declining escalates the case). Overrides towards more caution need only one person. In sample mode, choose `approver2_demo` for the second approval when `approver_demo` made the first decision (or the other way round).
 - A case that was decided cannot be decided again. If the recommendation changed since you looked, reload the case and decide again.
 
 Your decision is remembered. The next review of the same customer and listed party sees it as an earlier decision, with who made it and why.

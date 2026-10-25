@@ -12,9 +12,10 @@ import {
   followRun,
   startReview,
 } from "../lib/api";
+import { type ReadProblem, readProblem } from "../lib/format";
 import { graphAt } from "../lib/graph";
 import type { EvidenceView, RecordView, ReviewAnswer, RoutingSplit, RunEvent, TraceView } from "../lib/types";
-import { HumanBanner } from "./Banner";
+import { HumanBanner, ProblemNote } from "./Banner";
 import { CaseBanner } from "./CaseBanner";
 import { DecisionPanel } from "./DecisionPanel";
 import { EvidenceCards } from "./Evidence";
@@ -46,7 +47,7 @@ export function CaseView({ alertId }: { alertId: string }) {
   const [record, setRecord] = useState<RecordView>();
   const [split, setSplit] = useState<RoutingSplit | null>();
   const [thresholds, setThresholds] = useState<SignalThresholds>();
-  const [problem, setProblem] = useState<string>();
+  const [problem, setProblem] = useState<ReadProblem>();
   const [facts, setFacts] = useState<"reading" | "read">("reading");
   const stop = useRef<() => void>(() => undefined);
 
@@ -59,9 +60,15 @@ export function CaseView({ alertId }: { alertId: string }) {
     const expected = (x: PromiseSettledResult<unknown>) =>
       x.status === "rejected" && x.reason instanceof ApiError && x.reason.status === 404;
     const problems = [e, ...[t, r].filter((x) => !expected(x))].flatMap((x) =>
-      x.status === "rejected" ? [x.reason instanceof Error ? x.reason.message : String(x.reason)] : [],
+      x.status === "rejected" ? [readProblem(x.reason, "this case")] : [],
     );
-    if (problems.length > 0) setProblem([...new Set(problems)].join("; "));
+    // Signed out, every read is refused the same way: one neutral line says what to do.
+    if (problems.length > 0)
+      setProblem(
+        problems.every((p) => p.signIn)
+          ? (problems[0] as ReadProblem)
+          : { text: [...new Set(problems.filter((p) => !p.signIn).map((p) => p.text))].join("; "), signIn: false },
+      );
     setFacts("read");
   }, [alertId]);
 
@@ -96,7 +103,7 @@ export function CaseView({ alertId }: { alertId: string }) {
       if (history) setEvents(history.events);
       await loadDetails();
     } catch (err) {
-      setProblem(err instanceof Error ? err.message : String(err));
+      setProblem(readProblem(err, "this case"));
     } finally {
       stop.current();
       setPhase("finished");
@@ -104,6 +111,7 @@ export function CaseView({ alertId }: { alertId: string }) {
   };
 
   const view = graphAt(events);
+  const alertType = evidence?.alert?.alert_type;
   return (
     <>
       <HumanBanner sampleMode={answer?.sample_mode} notice={answer?.sample_notice} />
@@ -111,6 +119,7 @@ export function CaseView({ alertId }: { alertId: string }) {
         decision={answer?.decision ?? record?.decision}
         rationale={answer?.rationale ?? record?.rationale}
         closeStop={trace?.close_stop}
+        alertType={alertType}
       />
       <p>
         <button type="button" onClick={review} disabled={phase === "running"}>
@@ -122,12 +131,8 @@ export function CaseView({ alertId }: { alertId: string }) {
         {STATUS[phase]}
       </p>
       {facts === "reading" && !problem ? <p className="muted">Reading the case facts…</p> : null}
-      {problem ? (
-        <p className="panel tone-stop" role="alert">
-          {problem}
-        </p>
-      ) : null}
-      {answer ? <Outcome answer={answer} /> : null}
+      {problem ? <ProblemNote problem={problem} /> : null}
+      {answer ? <Outcome answer={answer} alertType={alertType} /> : null}
       <DecisionPanel alertId={alertId} refreshKey={answer?.run_id ?? record?.record_hash} />
       {phase !== "ready" ? <RunGraph view={view} stopped={stoppedSteps(trace?.close_stop)} /> : null}
       {trace ? <FourQuestions trace={trace} /> : null}

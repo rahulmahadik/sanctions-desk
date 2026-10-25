@@ -318,7 +318,7 @@ export function headlineFromRuns(
   const split = run.started_at ? routingSplit(resolve(config.logging.dir), "routed", run.started_at) : null;
   return {
     headline,
-    // The time per alert is the current system's (see currentRun), not this first-system run's.
+    // The sentence carries no time; the interface shows this run's own time per alert (headline.per_alert), as the README does.
     headline_sentence: safetySentence(headline),
     headline_run: run.started_at ?? run.file,
     routing_split: split && split.rows.length > 0 ? split : null,

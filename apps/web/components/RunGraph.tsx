@@ -55,6 +55,8 @@ function ModelChips({ step }: { step: StepView }) {
             target="_blank"
             rel="noreferrer"
             data-testid={`receipt-link-${step.id}`}
+            // Opening the receipt is not a jump in the replay.
+            onClick={(e) => e.stopPropagation()}
           >
             receipt {step.receiptId}
           </a>
@@ -82,17 +84,21 @@ function noReceiptWords(provider?: string): string {
   return "no receipt";
 }
 
-function StepNode({ step, reason, finished }: { step: StepView; reason?: string; finished: boolean }) {
+function StepNode({
+  step,
+  reason,
+  finished,
+  onSelect,
+}: {
+  step: StepView;
+  reason?: string;
+  finished: boolean;
+  /** Only in the replay, and only for a step with recorded events: jump to its last event. */
+  onSelect?: () => void;
+}) {
   const model = STEPS.find((s) => s.id === step.id)?.model;
-  return (
-    <li
-      className="node"
-      data-state={step.state}
-      data-blocked={reason ? "true" : undefined}
-      title={reason ? `Stopped a close: ${reason}` : step.lastSummary}
-      aria-current={step.state === "running" ? "step" : undefined}
-      data-testid={`node-${step.id}`}
-    >
+  const head = (
+    <>
       <strong>{step.label}</strong>
       <div className="state">
         {reason
@@ -102,6 +108,30 @@ function StepNode({ step, reason, finished }: { step: StepView; reason?: string;
             : STATE_TEXT[step.state]}
         {step.retries > 0 ? ` · ${step.retries} ${step.retries === 1 ? "retry" : "retries"}` : ""}
       </div>
+    </>
+  );
+  return (
+    <li
+      className="node"
+      data-state={step.state}
+      data-blocked={reason ? "true" : undefined}
+      title={reason ? `Stopped a close: ${reason}` : step.lastSummary}
+      aria-current={step.state === "running" ? "step" : undefined}
+      data-testid={`node-${step.id}`}
+    >
+      {onSelect ? (
+        <button
+          type="button"
+          className="node-jump"
+          aria-label={`Jump to the last event of ${step.label}`}
+          onClick={onSelect}
+          data-testid={`jump-${step.id}`}
+        >
+          {head}
+        </button>
+      ) : (
+        head
+      )}
       {reason ? <span className="sr-only">Reason: {reason}</span> : null}
       {model ? <ModelChips step={step} /> : null}
     </li>
@@ -112,13 +142,31 @@ function StepNode({ step, reason, finished }: { step: StepView; reason?: string;
  * One node per review step. The light on each node comes from recorded events, never from a timer; the step working
  * now is outlined, and a step that stopped a proposed close is red with its reason on hover.
  */
-export function RunGraph({ view, stopped = {} }: { view: GraphView; stopped?: Record<string, string> }) {
+export function RunGraph({
+  view,
+  stopped = {},
+  onSelect,
+  selectable,
+}: {
+  view: GraphView;
+  stopped?: Record<string, string>;
+  /** In the replay: called with a step's id when the person clicks its box. Without it the boxes are not buttons. */
+  onSelect?: (stepId: string) => void;
+  /** The steps that have recorded events; only those can be clicked. */
+  selectable?: ReadonlySet<string>;
+}) {
   return (
     <section aria-labelledby="graph-title" className="panel">
       <h2 id="graph-title">Review steps</h2>
       <ol className="flow">
         {view.steps.map((step) => (
-          <StepNode key={step.id} step={step} reason={stopped[step.id]} finished={view.finished} />
+          <StepNode
+            key={step.id}
+            step={step}
+            reason={stopped[step.id]}
+            finished={view.finished}
+            onSelect={onSelect && (selectable?.has(step.id) ?? true) ? () => onSelect(step.id) : undefined}
+          />
         ))}
       </ol>
       <p className="muted" data-testid="critic-rounds">

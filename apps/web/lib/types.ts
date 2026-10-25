@@ -448,6 +448,8 @@ export interface ActionRecordView {
 export interface HumanView {
   alert_id: string;
   record_hash: string;
+  /** Set once a person has acted: the record this one re-seals with the action added. */
+  previous_record_hash?: string | null;
   recommendation: { decision: Decision; confidence: number; rationale: string };
   autonomy: { outcome: AutonomyOutcome; statement: string | null; level_in_force: 0 | 1 } | null;
   status: HumanStatus;
