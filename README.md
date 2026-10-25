@@ -28,12 +28,27 @@ Built for the Open Agent Hackathon 2026, Track 03 (Reasoning Architecture).
 
 **Review without installing:** [recorded runs, step by step with each model's receipt](https://rahulmahadik.github.io/sanctions-desk/runs/) · [receipt log of every model call](https://rahulmahadik.github.io/sanctions-desk/receipts/) · [the last one-command proof](eval/PROVE.md) · [API docs](https://rahulmahadik.github.io/sanctions-desk/api.html) · **[How NVIDIA Nemotron is used](docs/NEMOTRON.md)**
 
+**Run it without keys:** `SAMPLE_MODE=true docker compose up --build`, then open http://localhost:3001. Sample mode runs without keys: real agent logic on saved Zetaris answers, with a labelled rules stand-in for the models ([Quick start](#quick-start)).
+
+### Which Nemotron model does each step
+
+| Step | Model | Where it runs | What it receives | Who answered, from the signed receipts of the 28 recorded runs |
+| --- | --- | --- | --- | --- |
+| Safety guard (inbound text and outbound drafts) | Nemotron 3.5 Lightning 30B | the analyst's laptop | the raw free text; only a local answer is accepted | Lightning 386 of 386 |
+| Free-text screener | Nemotron 3.5 Lightning 30B | the analyst's laptop | customer notes, payment references and list remarks; it returns risk signals with the exact text span | Lightning 122 of 122 |
+| Decision | Nemotron 3 Ultra 550B | cloud | structured fields and risk signals, no free text (four recorded runs made without the screener differ: [docs/PRIVACY.md](docs/PRIVACY.md#earlier-runs)) | Ultra 504, Lightning 16, Ollama backup 15 (no receipt) of 535 |
+| Critic (after code re-reads every cited fact) | Nemotron 3 Ultra 550B | cloud | the recommendation and the re-checked evidence | Ultra 418, Lightning 8, Ollama backup 2 of 428 |
+| Challenger (argues against a close) | Nemotron 3 Ultra 550B | cloud | the proposed close and its evidence | Ultra 38, Ollama backup 2 of 40 |
+| Backup, only when Nightshift cannot answer | Nemotron 3.5 Lightning 30B in the local Ollama (`nemotron-3.5-lightning:30b`) | the analyst's laptop | the same request the step sent | 19 answers in the recorded runs (15 decision, 2 critic, 2 challenger); no receipt, because the call does not go through Nightshift; labelled `ollama` in the trace; none of those cases ended in a wrong close |
+
+Every one of these calls, with the mode asked for, the model that served it and its signed receipt (each signature checked when the site is built): **[receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/)**. Why each model, the privacy design and the studies of model choice: [docs/NEMOTRON.md](docs/NEMOTRON.md). Nightshift's router chooses inside the lane each step is bound to, so the split is a measurement, not a guarantee.
+
 <!-- headline:start -->
 **Safe triage that fails closed.** The desk recommends and a person decides; when evidence is missing or any check fails, the case is escalated or held for more information instead of closed. On the 70-case exam (the cases the rules were written for) the full system wrongly closed 0 of 43 risk cases, against 10 for plain name matching. On the blind held-out rounds, the risk cases it wrongly closed were: 2 in held-out v1; 0 in held-out v2 (the screener had failed, so nothing was closed); 2 in held-out v3; 0 in held-out v4. Each round, what it found and what was changed after it are in [docs/EVALUATION.md](docs/EVALUATION.md#held-out-rounds). **No claim of clearing alerts beyond the rules:** on the exam every close it makes is one the deterministic rules also make, and on the blind held-out rounds it cleared none of the 25 alerts that should have been cleared (0 of 25) and sent them to a person instead. It wrongly closed 4 of 48 risk cases (2 in v1, 2 in v3, each by an earlier version of the system), against 13 of 48 for the deterministic rules, which also cleared 8 of 25. These totals include v2, where the screener failed and nothing could be closed; without v2: 4 of 34 risk cases wrongly closed and 0 of 20 cleared (deterministic rules: 10 of 34 and 3 of 20). This is the cost of failing closed. Every figure is one run. How sure we can be (95% range, small sets so the ranges are wide): exam, 0 of 43 risk cases wrongly closed (true rate 0–8%); held-out rounds, 4 of 48 (3–20%), or 4 of 34 without v2, where the screener failed (5–27%). Details: [eval/REPORT.md](eval/REPORT.md).
 <!-- headline:end -->
 
 **What changes for the analyst** (measured on this machine, recorded 70-case run):
-- The desk prepares each alert in a median of 130 seconds (p95 306 s; over the 68 alerts, while the per-case tables give 123.79 s over all 70 cases, which include the draft checks), at about 0.0085 USD of model cost, for the recommendation only; a person still decides ([eval/REPORT.md](eval/REPORT.md)).
+- The desk prepares each alert in a median of 130 seconds (p95 306 s; over the 68 alerts, while the per-case tables give 123.79 s over all 70 cases, which include the draft checks), at about 0.0085 USD of model cost under the illustrative unit costs in `config/default.json` (Nightshift's receipts record USD 0), for the recommendation only; a person still decides ([eval/REPORT.md](eval/REPORT.md)).
 - Every alert in that run got a sealed record with its evidence, cited facts and checks (70 of 70, no errors); the analyst starts from the gathered evidence instead of an empty screen.
 - It wrongly closed 0 of 43 risk cases; plain name matching closed 10. Analyst time saved was not measured and is not claimed.
 
@@ -185,18 +200,7 @@ The outcomes are `CLOSE_FALSE_POSITIVE`, `ESCALATE_L2`, `RECOMMEND_BLOCK` (needs
 
 Each step, what it may and may not do, the guardrails and the failure handling: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Memory, reasoning and tools: [docs/MEMORY.md](docs/MEMORY.md).
 
-### Which Nemotron model does each step
-
-| Step | Model | Where it runs | What it receives | Who answered, from the signed receipts of the 28 recorded runs |
-| --- | --- | --- | --- | --- |
-| Safety guard (inbound text and outbound drafts) | Nemotron 3.5 Lightning 30B | the analyst's laptop | the raw free text; only a local answer is accepted | Lightning 386 of 386 |
-| Free-text screener | Nemotron 3.5 Lightning 30B | the analyst's laptop | customer notes, payment references and list remarks; it returns risk signals with the exact text span | Lightning 122 of 122 |
-| Decision | Nemotron 3 Ultra 550B | cloud | structured fields and risk signals, no free text (four recorded runs made without the screener differ: [docs/PRIVACY.md](docs/PRIVACY.md#earlier-runs)) | Ultra 504, Lightning 16, Ollama backup 15 (no receipt) of 535 |
-| Critic (after code re-reads every cited fact) | Nemotron 3 Ultra 550B | cloud | the recommendation and the re-checked evidence | Ultra 418, Lightning 8, Ollama backup 2 of 428 |
-| Challenger (argues against a close) | Nemotron 3 Ultra 550B | cloud | the proposed close and its evidence | Ultra 38, Ollama backup 2 of 40 |
-| Backup, only when Nightshift cannot answer | Nemotron 3.5 Lightning 30B in the local Ollama (`nemotron-3.5-lightning:30b`) | the analyst's laptop | the same request the step sent | 19 answers in the recorded runs (15 decision, 2 critic, 2 challenger); no receipt, because the call does not go through Nightshift; labelled `ollama` in the trace; none of those cases ended in a wrong close |
-
-Every one of these calls, with the mode asked for, the model that served it and its signed receipt (each signature checked when the site is built): **[receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/)**. Why each model, the privacy design and the studies of model choice: [docs/NEMOTRON.md](docs/NEMOTRON.md). Nightshift's router chooses inside the lane each step is bound to, so the split is a measurement, not a guarantee.
+The step-by-step model table and the receipt log are at the [top of this page](#which-nemotron-model-does-each-step).
 
 ## How sponsor technology is used
 

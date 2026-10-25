@@ -76,6 +76,15 @@ export function chooseDecision(e: Evidence): Choice {
 function structuralChoice(e: Evidence): Choice {
   const c = e.comparison ?? {};
   const met = c.definitions_met ?? {};
+  // A met true match comes first, so nothing else can turn it into a close; the block still needs two approvers.
+  if (met.true_match) {
+    return {
+      decision: "RECOMMEND_BLOCK",
+      confidence: 0.85,
+      why: "the approved true-match definition is met",
+      settled: true,
+    };
+  }
   if (met.ownership === "met" || met.ownership === "limit") {
     return {
       decision: "ESCALATE_L2",
@@ -100,7 +109,7 @@ function structuralChoice(e: Evidence): Choice {
       settled: true,
     };
   }
-  if (met.true_match || met.counterparty_match || c.identifiers === "match" || c.assessment === "strong") {
+  if (met.counterparty_match || c.identifiers === "match" || c.assessment === "strong") {
     return {
       decision: "ESCALATE_L2",
       confidence: 0.85,

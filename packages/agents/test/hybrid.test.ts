@@ -19,7 +19,7 @@ async function reviewed(kind: string) {
 describe("the path a review takes", () => {
   it.each([
     ["fp_dob_exact_name_0", "confirm", "CLOSE_FALSE_POSITIVE"],
-    ["tm_exact_0", "confirm", "ESCALATE_L2"],
+    ["tm_exact_0", "confirm", "RECOMMEND_BLOCK"],
     ["ob_49_9", "confirm", "CLOSE_FALSE_POSITIVE"],
     ["md_no_dob_0", "confirm", "NEED_MORE_INFO"],
   ])("confirms %s when the structured evidence settles it", async (kind, path, finding) => {

@@ -6,6 +6,7 @@
  *
  *   npm run evidence:export                   the newest complete run of every variant, and the held-out run
  *   npm run evidence:export -- --only routed,single
+ *   npm run evidence:export -- --system sys5      only the runs of that system version (leaves the other exports as they are)
  *
  * It fails when anything it wrote still matches a redaction pattern, and reports the size.
  */
@@ -27,6 +28,7 @@ const flag = (n: string) => (args.includes(n) ? (args[args.indexOf(n) + 1] as st
 const logs = resolveProjectPath(flag("--logs-dir") ?? config.logging.dir);
 
 const only = flag("--only")?.split(",");
+const onlySystem = flag("--system");
 const outRoot = resolveProjectPath(flag("--out") ?? "eval/runs");
 
 // Values of secret environment variables must never appear in what is published.
@@ -99,6 +101,7 @@ const summary: Array<{ id: string; bytes: number; receipts: number; events: numb
 
 for (const { file, r } of chosen.values()) {
   if (only && !only.includes(r.variant)) continue;
+  if (onlySystem && r.system !== onlySystem) continue;
   const id = idOf(r);
   const dir = join(outRoot, id);
   rmSync(dir, { recursive: true, force: true });
@@ -197,14 +200,21 @@ const RS = "<!-- receipts:start -->";
 const RE = "<!-- receipts:end -->";
 const intoCommitted = outRoot === resolveProjectPath("eval/runs");
 if (intoCommitted && doc.includes(RS) && doc.includes(RE) && summary.length > 0) {
+  const row = (s: { id: string; receipts: number }) =>
+    `| \`${s.id}\` | ${s.receipts} | [eval/runs/${s.id}/receipts.jsonl.gz](../eval/runs/${s.id}/receipts.jsonl.gz) | \`npm run evidence:verify -- eval/runs/${s.id}\` |`;
+  // Rows are kept by run id: a run exported again replaces its row, a new run is added at the end, and the runs not in
+  // this export (for example with --system) keep theirs.
+  const rows = new Map<string, string>();
+  for (const line of (doc.split(RS)[1] ?? "").split(RE)[0]?.split("\n") ?? []) {
+    const id = /^\| `([^`]+)`\s*\|/.exec(line)?.[1];
+    if (id) rows.set(id, line);
+  }
+  for (const s of summary) rows.set(s.id, row(s));
   const block = [
     RS,
     "| Run | Receipts | Receipt log | Check it |",
     "| --- | ---: | --- | --- |",
-    ...summary.map(
-      (s) =>
-        `| \`${s.id}\` | ${s.receipts} | [eval/runs/${s.id}/receipts.jsonl.gz](../eval/runs/${s.id}/receipts.jsonl.gz) | \`npm run evidence:verify -- eval/runs/${s.id}\` |`,
-    ),
+    ...rows.values(),
     "",
     "`npm run evidence:verify` with no argument checks every run: each signature, that every model call has a receipt, and that the model in the trace equals the model in the receipt.",
     RE,

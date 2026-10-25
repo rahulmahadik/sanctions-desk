@@ -263,6 +263,7 @@ Which agent runs on which Nemotron model, and what it does:
 | `heldout4-escalate_all-20261024T030324Z`         |        0 | [eval/runs/heldout4-escalate_all-20261024T030324Z/receipts.jsonl.gz](../eval/runs/heldout4-escalate_all-20261024T030324Z/receipts.jsonl.gz)                 | `npm run evidence:verify -- eval/runs/heldout4-escalate_all-20261024T030324Z`         |
 | `heldout3-fuzzy-20261024T033840Z`                |        0 | [eval/runs/heldout3-fuzzy-20261024T033840Z/receipts.jsonl.gz](../eval/runs/heldout3-fuzzy-20261024T033840Z/receipts.jsonl.gz)                               | `npm run evidence:verify -- eval/runs/heldout3-fuzzy-20261024T033840Z`                |
 | `heldout4-fuzzy-20261024T033840Z`                |        0 | [eval/runs/heldout4-fuzzy-20261024T033840Z/receipts.jsonl.gz](../eval/runs/heldout4-fuzzy-20261024T033840Z/receipts.jsonl.gz)                               | `npm run evidence:verify -- eval/runs/heldout4-fuzzy-20261024T033840Z`                |
+| `sys5-routed-20261025T074505Z`                   |      431 | [eval/runs/sys5-routed-20261025T074505Z/receipts.jsonl.gz](../eval/runs/sys5-routed-20261025T074505Z/receipts.jsonl.gz)                                     | `npm run evidence:verify -- eval/runs/sys5-routed-20261025T074505Z`                   |
 
 `npm run evidence:verify` with no argument checks every run: each signature, that every model call has a receipt, and that the model in the trace equals the model in the receipt.
 <!-- receipts:end -->

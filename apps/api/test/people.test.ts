@@ -180,11 +180,11 @@ describe("approving and overriding a recommendation", () => {
 });
 
 describe("a block", () => {
-  /** The sample stand-in model never recommends a block, so a person chooses one by overriding an escalation. */
+  /** A met true match is recommended for a block; a person's approval starts the four-eyes step. */
   async function startBlock(ctx: Ctx, user: string) {
     const alertId = alertOf("tm_exact_0");
-    expect((await review(ctx, alertId)).json().decision).toBe("ESCALATE_L2");
-    const res = await decide(ctx, alertId, user, { action: "override", outcome: "RECOMMEND_BLOCK" });
+    expect((await review(ctx, alertId)).json().decision).toBe("RECOMMEND_BLOCK");
+    const res = await decide(ctx, alertId, user, { action: "approve" });
     expect(res.statusCode).toBe(201);
     return { alertId, first: res.json() };
   }
@@ -253,7 +253,7 @@ describe("a declined override to a close", () => {
   it("says 'declined the close' in the notes and the case file, never 'the block'", async () => {
     const ctx = await sampleApp();
     const alertId = alertOf("tm_exact_0");
-    expect((await review(ctx, alertId)).json().decision).toBe("ESCALATE_L2");
+    expect((await review(ctx, alertId)).json().decision).toBe("RECOMMEND_BLOCK");
     const first = await decide(ctx, alertId, "approver_demo", { action: "override", outcome: "CLOSE_FALSE_POSITIVE" });
     expect(first.json().status).toBe("override_pending");
     const done = (await second(ctx, alertId, "approver2_demo", { approve: false })).json();
@@ -630,7 +630,7 @@ describe("four-eyes with the two demo approvers", () => {
     const ctx = await sampleApp();
     const alertId = alertOf("tm_exact_0");
     await review(ctx, alertId);
-    const first = await decide(ctx, alertId, "approver_demo", { action: "override", outcome: "RECOMMEND_BLOCK" });
+    const first = await decide(ctx, alertId, "approver_demo", { action: "approve" });
     expect(first.json().status).toBe("block_pending");
     const self = await second(ctx, alertId, "approver_demo");
     expect(self.statusCode).toBe(403);

@@ -421,7 +421,7 @@ if (head && full) {
     `- **Closed with cited evidence:** ${head.closed_with_evidence} of ${head.alerts} alerts (${pct0(head.closed_share)}); ${head.closed_correctly} of them rightly. A person still confirms each close, from the evidence the desk cites.`,
     `- **Escalated:** ${head.escalated} of ${head.alerts} alerts (${pct0(head.escalated_share)}), including ${head.decision_unavailable} escalated only because no model decision was usable.`,
     `- **False closes on cases that carry real risk:** ${head.false_closes} of ${head.risk_cases} (${pct(head.false_close_rate)}); on the ${head.true_match_cases} true matches: ${head.true_match_false_closes}. The target is 0.`,
-    `- **Time and cost per alert:** the desk took a median of ${head.per_alert.median_seconds.toFixed(0)} seconds (p95 ${head.per_alert.p95_seconds.toFixed(0)} s) over the ${head.per_alert.alerts} alerts (the tables below give ${full.metrics.latency_s.p50} s over all ${full.cases.length} cases, which include the draft checks; every median here is the middle measured value, the lower one for an even count) and ${head.per_alert.mean_cost.toFixed(4)} ${config.costs.currency} in model cost per alert, measured on this machine, for the recommendation only; a person still decides.`,
+    `- **Time and cost per alert:** the desk took a median of ${head.per_alert.median_seconds.toFixed(0)} seconds (p95 ${head.per_alert.p95_seconds.toFixed(0)} s) over the ${head.per_alert.alerts} alerts (the tables below give ${full.metrics.latency_s.p50} s over all ${full.cases.length} cases, which include the draft checks; every median here is the middle measured value, the lower one for an even count) and ${head.per_alert.mean_cost.toFixed(4)} ${config.costs.currency} in model cost per alert under the illustrative unit costs in \`config/default.json\` (Nightshift's receipts record USD 0), for the recommendation only; a person still decides.`,
     "- **Analyst time saved: not measured, and not claimed.** What the desk removes is the gathering and cross-checking of the evidence; how many minutes that saves a team was not measured.",
     "",
   );
@@ -468,6 +468,50 @@ lines.push(
   mainRow("Every alert goes to a person", get("escalate_all")),
   "",
 );
+
+// ---- the 70 cases, five ways --------------------------------------------------------------------------------------
+// Nemotron alone runs carry a run label and are kept apart by whether the free text was in the prompt.
+const aloneRuns = new Map<boolean, Result & { file: string }>();
+for (const f of files) {
+  const r = JSON.parse(readFileSync(join(dir, f), "utf8")) as Result & {
+    run?: string;
+    features?: { with_free_text?: boolean };
+  };
+  if (r.variant === "nemotron_alone" && r.exam === undefined && !r.selection?.limit)
+    aloneRuns.set(r.features?.with_free_text === true, { ...r, metrics: summarise(r.cases), file: f });
+}
+const currentSystem = laterRuns.get("sys5|exam|routed");
+if (currentSystem || aloneRuns.size > 0) {
+  const noAnswer = (c: ScoredCase) => c.got === "ERROR" || c.decision_unavailable !== undefined;
+  const range = (k: number, n: number) => {
+    const { low, high } = wilsonInterval(k, n);
+    return `${low}–${high}%`;
+  };
+  const fiveRow = (label: string, r: (Result & { file: string }) | undefined) => {
+    if (!r) return `| ${label} | not run | | | | |`;
+    const risk = riskOf(r.cases);
+    const clears = r.cases.filter((c) => c.expected === "CLOSE_FALSE_POSITIVE");
+    const wrong = risk.filter(closed).length;
+    const made = clears.filter(closed).length;
+    const escalated = r.cases.filter((c) => c.got === "ESCALATE_L2").length;
+    return `| ${label} | ${wrong} of ${risk.length} (${range(wrong, risk.length)}) | ${made} of ${clears.length} (${range(made, clears.length)}) | ${escalated} of ${r.cases.length} | ${r.cases.filter(noAnswer).length} | [result](results/${r.file}) |`;
+  };
+  lines.push(
+    "### (a2) The 70 cases, five ways",
+    "",
+    "The same 70 cases through the full system (the first system's run and a run of the current system), the deterministic rules, plain name matching, and Nemotron alone: one Ultra call per case on the structured case facts, once without and once with the free text the screener reads. The arm with the free text sends that (synthetic) text to the cloud model, which the desk itself never does; it is a study arm only. An unusable answer is a case where no model answer could be used (the full system then escalates it to a person; for Nemotron alone it is left without an outcome). Ranges are 95% Wilson score intervals.",
+    "",
+    "| System | Risk cases wrongly closed | Clear cases closed | Escalated | Unusable answers | File |",
+    "|---|---:|---:|---:|---:|---|",
+    fiveRow("Full system, first system", full),
+    fiveRow("Full system, current system", currentSystem),
+    fiveRow("Deterministic rules", get("rules")),
+    fiveRow(`${NAME_MATCH}`, get("fuzzy")),
+    fiveRow("Nemotron alone, without the free text", aloneRuns.get(false)),
+    fiveRow("Nemotron alone, with the free text (sent to the cloud)", aloneRuns.get(true)),
+    "",
+  );
+}
 
 const hoFull = heldoutNewest.get("routed");
 if (heldoutNewest.size > 0) {
