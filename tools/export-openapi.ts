@@ -18,6 +18,8 @@ const file = writeOpenApi(arg("--out") ?? resolveProjectPath("site/openapi.json"
 console.log(`wrote ${relative(resolveProjectPath("."), file)}`);
 
 // The authentication section of docs/API.md is the same text the API description carries.
+// docs/API.md is left out of Biome's checks (biome.json): Biome 2.6.2 rewrites its long route table differently
+// on each run and never settles, so this formatting step is the one that applies.
 const apiDoc = resolveProjectPath("docs/API.md");
 const re = /<!-- auth-guide:start -->[\s\S]*?<!-- auth-guide:end -->/;
 const doc = readFileSync(apiDoc, "utf8");
