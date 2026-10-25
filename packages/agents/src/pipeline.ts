@@ -57,6 +57,8 @@ const CHALLENGER_AT = AGENT_ORDER.indexOf("policy_guard");
 /** Everything read and worked out before a recommendation is asked for. */
 async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest["options"]) {
   const evidence = await gatherEvidence(deps, alertId);
+  // The plan names the alert's type as the data gives it (the same value the sealed record keeps).
+  triage(deps, evidence.alert.alert_type === "payment" ? "payment" : "customer", alertId);
   // Text that came out of the data is read as data. Anything that tries to instruct the reviewer is flagged first.
   const inbound = await screenInbound(deps, evidence.freeText);
   evidence.safety = inbound;
@@ -459,7 +461,6 @@ function heldForDataService(deps: AgentDeps, request: ReviewRequest, started: nu
 export async function runReview(deps: AgentDeps, request: ReviewRequest): Promise<ReviewResponse> {
   const started = performance.now();
   const { trace, policy } = deps;
-  triage(deps, "customer", request.alertId);
 
   let prepared: Awaited<ReturnType<typeof prepare>>;
   try {

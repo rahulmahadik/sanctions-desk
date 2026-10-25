@@ -19,3 +19,17 @@ describe("the trace holds no raw free text", () => {
     expect(trace).not.toContain(deps.logDir);
   });
 });
+
+describe("the trace names the alert's type as the data gives it", () => {
+  it("says payment for a payment alert, as the sealed record does", async () => {
+    const deps = sampleDepsWithText({});
+    await runReview(deps, { runId: "type-1", alertId: "ALR-0073", sampleMode: true });
+    const trace = readdirSync(deps.logDir)
+      .filter((f) => f.startsWith("trace-"))
+      .map((f) => readFileSync(join(deps.logDir, f), "utf8"))
+      .join("\n");
+    const plan = trace.split("\n").find((l) => l.includes('"action":"plan"'));
+    expect(plan).toContain("payment alert ALR-0073");
+    expect(trace).not.toContain("customer alert ALR-0073");
+  });
+});

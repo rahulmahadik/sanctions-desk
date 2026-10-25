@@ -171,7 +171,8 @@ export const runRoutes: FastifyPluginAsync<RunOptions> = async (
       agent: "system",
       action: "run_started",
       status: "ok",
-      input_summary: `${request.alert_type} alert ${alertId}`,
+      // The type is read from the data during the review (the triage line and the sealed record); not echoed here.
+      input_summary: `alert ${alertId}`,
       detail: { sample_mode: config.sampleMode },
     });
     try {
