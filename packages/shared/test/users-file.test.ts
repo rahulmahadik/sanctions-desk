@@ -50,6 +50,20 @@ describe("the users file: add, rotate, revoke", () => {
     expect(() => expiryOf("soon", now)).toThrow(/--expires/);
   });
 
+  it("refuses a bad id or role before writing, so the file stays readable", () => {
+    const file = join(dir, "guarded.json");
+    changeUsers(file, { action: "add", id: "ann", role: "analyst", by: "rahul" });
+    const before = readFileSync(file, "utf8");
+    expect(() => changeUsers(file, { action: "add", id: "two words", role: "analyst", by: "rahul" })).toThrow(
+      /not saved/,
+    );
+    expect(() => changeUsers(file, { action: "add", id: "bob", role: "/some/path" as never, by: "rahul" })).toThrow(
+      /not saved/,
+    );
+    expect(readFileSync(file, "utf8")).toBe(before);
+    expect(loadUsersFile(file).users.map((u) => u.id)).toEqual(["ann"]);
+  });
+
   it("needs to know who makes the change, and the user to exist for rotate and revoke", () => {
     const file = join(dir, "strict.json");
     expect(() => changeUsers(file, { action: "add", id: "x1", role: "viewer", by: "" })).toThrow(/--by/);

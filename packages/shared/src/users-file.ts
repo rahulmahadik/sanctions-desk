@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { appendFileSync, chmodSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { hashToken, loadUsersFile, type Role, TOKEN_FORMAT_NAME, type UsersFile } from "./auth.js";
+import { hashToken, loadUsersFile, type Role, TOKEN_FORMAT_NAME, type UsersFile, UsersFileSchema } from "./auth.js";
 
 /**
  * Changes to the users file: add a person, rotate their token, revoke it. Each change writes the file (mode 0600)
@@ -24,6 +24,19 @@ export function expiryOf(value: string | undefined, now: Date): string | undefin
   return new Date(at).toISOString();
 }
 
+/**
+ * Write only a file that the server would accept: a bad id or role (or anything else the schema refuses) stops the
+ * change before the file is touched, so a running server never reads a broken file and refuses everyone.
+ */
+function checked(users: UsersFile): UsersFile {
+  const parsed = UsersFileSchema.safeParse(users);
+  if (!parsed.success)
+    throw new Error(
+      `the change was not saved: ${parsed.error.issues.map((i) => `${i.path.join(".")} ${i.message}`).join("; ")}`,
+    );
+  return parsed.data;
+}
+
 function save(
   path: string,
   users: UsersFile,
@@ -31,7 +44,7 @@ function save(
   now: Date,
 ) {
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, `${JSON.stringify(users, null, 2)}\n`, { mode: 0o600 });
+  writeFileSync(path, `${JSON.stringify(checked(users), null, 2)}\n`, { mode: 0o600 });
   chmodSync(path, 0o600);
   appendFileSync(join(dirname(path), "users-audit.jsonl"), `${JSON.stringify({ ts: now.toISOString(), ...entry })}\n`, {
     mode: 0o600,
