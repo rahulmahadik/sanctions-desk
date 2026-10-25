@@ -20,7 +20,7 @@
 >
 > | Year | Firm | Authority and outcome | What the official release describes | Source |
 > | --- | --- | --- | --- | --- |
-> | 2016 | Barclays Bank Plc | OFAC: $2,485,890 settlement | 159 transactions (July 2008 to September 2013) for corporate customers of its Zimbabwe subsidiary that were owned 50 percent or more by a person on the SDN List; the owners were not in the electronic customer records used for screening | [OFAC release, 8 Feb 2016](https://ofac.treasury.gov/media/11661/download) |
+> | 2016 | Barclays Bank Plc | OFAC: $2,485,890 settlement | 159 transactions (July 2008 to September 2013) for corporate customers of Barclays Bank of Zimbabwe Limited that were owned 50 percent or more by a person on the SDN List; the owners were not in the electronic customer records used for screening | [OFAC release, 8 Feb 2016](https://ofac.treasury.gov/media/11661/download) |
 > | 2021 | Payoneer Inc. | OFAC: $1,385,901.40 settlement | 2,220 apparent violations (2013 to 2018); among the control breakdowns, weak algorithms that let close matches to SDN List entries pass its filter without a flag | [OFAC release, 23 Jul 2021](https://ofac.treasury.gov/media/911571/download) |
 > | 2021 | Mashreqbank | NYDFS: $100 million penalty | Payments related to Sudan processed through financial institutions in New York State, including its own New York branch, between 2005 and 2014; employees were told to avoid populating certain fields in the payment messages sent between banks, bypassing other banks' sanction filters; prohibited payments of over $4 billion between 2005 and 2009 | [NYDFS press release, 9 Nov 2021](https://www.dfs.ny.gov/reports_and_publications/press_releases/pr202111091) |
 > | 2022 | MidFirst Bank | OFAC: Finding of Violation, in place of a civil monetary penalty | Kept accounts for two newly listed persons and processed 34 payments for them for 14 days after their designation: its vendor screened the whole existing customer base against the SDN List only once a month | [OFAC release, 21 Jul 2022](https://ofac.treasury.gov/media/924506/download) |
@@ -64,7 +64,7 @@ Alert **ALR-0073** (exam case EX-064): a payment whose counterparty name equals 
 | --- | --- | --- |
 | Sanctions-screening analyst | `analyst` | A checked evidence pack and a recommendation for every alert; approves or overrides it towards more caution, always with a reason |
 | Senior reviewer or sanctions officer | `approver` | Everything the analyst has, plus the second approval of a block and the right to override towards a less cautious outcome (an override to a close needs a second, different approver) |
-| Auditor or second line | `viewer` (read-only) | The sealed record of every review, the step-by-step replay and the signed receipt of every model call; cannot decide |
+| Auditor or second line | `viewer` (read-only) | The sealed record of every review, the step-by-step replay and the signed receipt of every Nightshift answer (local backup answers are labelled); cannot decide |
 
 A `policy_admin` role publishes policy changes; a change needs a second, different person. Roles and the four-eyes rules: [docs/GOVERNANCE.md](docs/GOVERNANCE.md#people-roles-and-the-decision-step).
 
@@ -107,7 +107,7 @@ Open issues, measurement limits and next steps: [docs/KNOWN_ISSUES.md](docs/KNOW
 
 ## How it fits a bank
 
-**Pilot-stage, audit-ready by design.** It is a prototype on synthetic data, not in production.
+**A prototype, audit-ready by design.** It runs on synthetic data and is not in production.
 
 - **Read-only.** Data access is read-only, fixed in the policy schema; a policy change cannot lift it.
 - **One governed data layer.** Every fact comes through one Zetaris semantic layer, with one read-only role per data-reading step.
