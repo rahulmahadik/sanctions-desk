@@ -1,7 +1,7 @@
 {
   "theme": "base",
   "themeVariables": {
-    "fontFamily": "Inter, Segoe UI, Helvetica, Arial, sans-serif",
+    "fontFamily": "Verdana, DejaVu Sans, Geneva, sans-serif",
     "fontSize": "18px",
     "primaryColor": "#0b1f3a",
     "primaryTextColor": "#ffffff",
@@ -35,12 +35,21 @@
     "transitionColor": "#7c8ba1",
     "transitionLabelColor": "#ffffff"
   },
-  "flowchart": { "htmlLabels": true, "curve": "basis", "nodeSpacing": 40, "rankSpacing": 55 },
+  "flowchart": {
+    "htmlLabels": true,
+    "curve": "basis",
+    "nodeSpacing": 40,
+    "rankSpacing": 55
+  },
   "sequence": {
     "mirrorActors": false,
     "showSequenceNumbers": true,
     "actorMargin": 40,
     "messageFontSize": 16,
-    "noteFontSize": 15
+    "noteFontSize": 15,
+    "actorFontFamily": "Verdana, DejaVu Sans, Geneva, sans-serif",
+    "messageFontFamily": "Verdana, DejaVu Sans, Geneva, sans-serif",
+    "noteFontFamily": "Verdana, DejaVu Sans, Geneva, sans-serif",
+    "wrap": true
   }
 }

@@ -1,7 +1,8 @@
 /**
  * Draw the evidence charts from the committed files only, as SVG (1920x1080, light background, large text), and a
  * PNG of each through headless Chrome. Nothing is typed in: every number is read from eval/results, eval/runs and
- * eval/critic-mutation.json, and the receipts are verified with the same code as `npm run evidence:verify`.
+ * eval/critic-mutation.json, and the receipt totals from eval/receipts-check.json, checked against the run exports
+ * with the same code as `npm run evidence:verify`.
  *
  *   npm run charts                     # writes docs/media/charts/*.svg and *.png
  */
@@ -10,8 +11,10 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
 import { heldoutRounds, type SavedResult } from "@sanctions-desk/agents";
+import { loadExam } from "@sanctions-desk/data";
 import { loadConfig, resolveProjectPath } from "@sanctions-desk/shared";
 import { verifyExportedRun } from "./lib/evidence.js";
+import type { LabelSet } from "./lib/exam-figures.js";
 
 const W = 1920;
 const H = 1080;
@@ -149,22 +152,31 @@ const SERIES = [
 
 const runsDir = resolveProjectPath("eval/runs");
 const gz = (p: string) => gunzipSync(readFileSync(p)).toString("utf8").split("\n").filter(Boolean);
+/** The 70-case full-system run folders (routed-..., sys2b-routed-..., sys6-routed-...), oldest first. */
+const fullRuns = readdirSync(runsDir)
+  .filter((d) => /^(?:sys\w+-)?routed-\d{8}T\d{6}Z$/.test(d) && existsSync(join(runsDir, d, "results.json")))
+  .sort((a, b) => (a.slice(-16) < b.slice(-16) ? -1 : 1));
+const newestFullRun = fullRuns.at(-1);
+if (!newestFullRun) throw new Error("eval/runs has no 70-case full-system run");
 const FIRST_RUNS: Array<[string, string]> = [
   ["routed-20261023T133311Z", "70 cases, first system"],
   ["sys2b-routed-20261023T195504Z", "70 cases, changed system"],
+  ...(newestFullRun !== "sys2b-routed-20261023T195504Z"
+    ? [[newestFullRun, "70 cases, current system"] as [string, string]]
+    : []),
   ["heldout-routed-20261023T121140Z", "Held-out v1"],
   ["heldout2-sys2-routed-20261023T180732Z", "Held-out v2 (blind)"],
   ["heldout2-sys2b-routed-20261023T193436Z", "Held-out v2 (re-run)"],
   ["heldout3-sys3-routed-20261023T231901Z", "Held-out v3"],
   ["heldout4-sys4-routed-20261024T024523Z", "Held-out v4"],
 ];
-const firstRecs = FIRST_RUNS.map(([run, label]) => {
-  const res = JSON.parse(readFileSync(join(runsDir, run, "results.json"), "utf8")) as {
-    cases: Array<{ case_id: string; must_not: string[]; got: string }>;
-  };
-  const risky = new Map(
-    res.cases.filter((c) => c.must_not.includes("CLOSE_FALSE_POSITIVE")).map((c) => [c.case_id, c]),
-  );
+/** The committed exam's labels: a 70-case label changed after a run (eval/label-changes.json) applies to every run. */
+const examLabels = new Map<string, LabelSet>(loadExam().cases.map((c) => [c.case_id, c]));
+type RunCase = { case_id: string; must_not: string[]; got: string };
+function firstCloses(run: string, labels?: ReadonlyMap<string, LabelSet>) {
+  const res = JSON.parse(readFileSync(join(runsDir, run, "results.json"), "utf8")) as { cases: RunCase[] };
+  const cases = res.cases.map((c) => ({ ...c, must_not: labels?.get(c.case_id)?.must_not ?? c.must_not }));
+  const risky = new Map(cases.filter((c) => c.must_not.includes("CLOSE_FALSE_POSITIVE")).map((c) => [c.case_id, c]));
   const first = new Map<string, string>();
   for (const l of gz(join(runsDir, run, "trace.jsonl.gz"))) {
     const e = JSON.parse(l) as { case_id?: string; agent: string; action: string; output_summary?: string };
@@ -173,11 +185,17 @@ const firstRecs = FIRST_RUNS.map(([run, label]) => {
   }
   const proposed = [...risky.keys()].filter((id) => first.get(id)?.startsWith("CLOSE_FALSE_POSITIVE"));
   const stopped = proposed.filter((id) => risky.get(id)?.got !== "CLOSE_FALSE_POSITIVE");
-  return { label, proposed: proposed.length, stopped: stopped.length };
+  return { proposed, stopped: stopped.length };
+}
+const firstRecs = FIRST_RUNS.map(([run, label]) => {
+  const now = firstCloses(run, examLabels);
+  const asRun = firstCloses(run);
+  const relabelled = now.proposed.filter((id) => !asRun.proposed.includes(id));
+  return { label, proposed: now.proposed.length, stopped: now.stopped, asRun, relabelled };
 });
 {
   const top = 270;
-  const rowH = 92;
+  const rowH = 76;
   const left = 560;
   const right = W - 520;
   const maxV = Math.max(...firstRecs.map((r) => r.proposed), 1);
@@ -187,32 +205,37 @@ const firstRecs = FIRST_RUNS.map(([run, label]) => {
     ["Stopped by the checks", C.stopped],
   ]);
   firstRecs.forEach((r, i) => {
-    const yy = top + 40 + i * rowH;
-    body += text(left - 30, yy + 34, r.label, 34, { anchor: "end", weight: 600 });
-    body += `<rect x="${left}" y="${yy}" width="${Math.max(x(r.proposed) - left, 3)}" height="28" fill="${C.proposed}" rx="3"/>`;
-    body += `<rect x="${left}" y="${yy + 34}" width="${Math.max(x(r.stopped) - left, 3)}" height="28" fill="${C.stopped}" rx="3"/>`;
+    const yy = top + 34 + i * rowH;
+    body += text(left - 30, yy + 34, r.label, 32, { anchor: "end", weight: 600 });
+    body += `<rect x="${left}" y="${yy}" width="${Math.max(x(r.proposed) - left, 3)}" height="26" fill="${C.proposed}" rx="3"/>`;
+    body += `<rect x="${left}" y="${yy + 31}" width="${Math.max(x(r.stopped) - left, 3)}" height="26" fill="${C.stopped}" rx="3"/>`;
     body += text(
       Math.max(x(r.proposed), left) + 24,
-      yy + 46,
+      yy + 42,
       r.proposed === 0 ? "none proposed" : `${r.stopped} of ${r.proposed} stopped`,
-      32,
+      30,
       { weight: 700 },
     );
   });
-  body += text(
-    90,
-    H - 95,
+  const notes = firstRecs
+    .filter((r) => r.relabelled.length > 0)
+    .map(
+      (r) =>
+        `${r.label}: ${r.stopped} of ${r.proposed} with the current labels (${r.asRun.stopped} of ${r.asRun.proposed.length} as run; ${r.relabelled.join(", ")} relabelled must-not-close after the run).`,
+    );
+  notes.push(
     "Held-out v3: no first recommendation was a close; its two wrong closes came after the critic sent an escalation back.",
-    28,
-    { fill: C.muted },
   );
+  notes.forEach((n, i) => {
+    body += text(90, H - 140 + i * 40 - (notes.length - 2) * 40, n, 25, { fill: C.muted });
+  });
   save(
     "first-recommendation-closes",
     page(
       "Proposed closes on risk cases, and how many were stopped",
       "From the traces: the decision step's first recommendation on each case that must not be closed, against the final outcome.",
       body,
-      "eval/runs/*/trace.jsonl.gz and results.json",
+      "eval/runs/*/trace.jsonl.gz and results.json, scored with the labels in eval/cases/exam.json",
     ),
   );
 }
@@ -247,11 +270,19 @@ const firstRecs = FIRST_RUNS.map(([run, label]) => {
   });
   body += text(
     left,
-    930,
-    `${s.decisions} recorded decisions; each cited fact changed to a false value, one at a time, then re-checked by the critic's code.${s.untestable_citations ? ` ${s.untestable_citations} cited facts could not be checked in sample mode and are not counted.` : ""}`,
+    900,
+    `${s.decisions} recorded decisions; each cited fact changed to a false value, one at a time, then re-checked by the critic's code.`,
     30,
     { fill: C.muted },
   );
+  if (s.untestable_citations)
+    body += text(
+      left,
+      945,
+      `${s.untestable_citations} cited facts could not be checked in sample mode and are not counted.`,
+      30,
+      { fill: C.muted },
+    );
   save(
     "critic-mutation",
     page(
@@ -267,59 +298,85 @@ const firstRecs = FIRST_RUNS.map(([run, label]) => {
 
 {
   const trusted = [...loadConfig().nightshift.receiptPublicKeys];
+  // The totals are the ones npm run receipts:check wrote (eval/receipts-check.json); the run exports are verified
+  // again here, and the chart is not drawn if the two disagree.
+  const check = JSON.parse(readFileSync(resolveProjectPath("eval/receipts-check.json"), "utf8")) as {
+    receipts: number;
+    valid_pinned: number;
+    groups: { runs: { receipts: number; folders: number } };
+  };
   const runs = readdirSync(runsDir).filter((d) => existsSync(join(runsDir, d, "receipts.jsonl.gz")));
   let receipts = 0;
   let valid = 0;
   for (const d of runs) {
     const v = verifyExportedRun(join(runsDir, d), trusted);
     receipts += v.receipts;
-    valid += v.status.valid_pinned + v.status.valid_unpinned;
+    valid += v.status.valid_pinned;
   }
-  const headline = verifyExportedRun(join(runsDir, "routed-20261023T133311Z"), trusted);
+  const g = check.groups.runs;
+  if (
+    receipts !== g.receipts ||
+    runs.length !== g.folders ||
+    valid !== receipts ||
+    check.valid_pinned !== check.receipts
+  )
+    throw new Error(
+      `eval/runs has ${receipts} receipts (${valid} verify against the pinned key) in ${runs.length} runs, eval/receipts-check.json says ${g.receipts} in ${g.folders}: run npm run receipts:check`,
+    );
+  const headline = verifyExportedRun(join(runsDir, newestFullRun), trusted);
   const STEPS: Array<[string, string]> = [
     ["policy_guard", "Safety guard"],
+    ["screener", "Free-text screener"],
     ["decision", "Decision"],
     ["critic", "Critic"],
     ["challenger", "Challenger"],
   ];
-  const rows = STEPS.map(([step, label]) => {
+  const rows = STEPS.filter(([step]) => headline.split.has(step)).map(([step, label]) => {
     const m = headline.split.get(step) ?? new Map<string, number>();
     const local = [...m].filter(([model]) => /lightning/i.test(model)).reduce((n, [, c]) => n + c, 0);
     const cloud = [...m].filter(([model]) => /ultra/i.test(model)).reduce((n, [, c]) => n + c, 0);
     return { label, local, cloud };
   });
   const maxV = Math.max(...rows.map((r) => r.local + r.cloud));
-  const left = 420;
+  const left = 460;
   const right = W - 480;
   const x = (v: number) => (v / maxV) * (right - left);
+  const rowH = Math.min(140, 560 / rows.length);
   let body = legend(left, 250, [
     ["Nemotron 3.5 Lightning 30B (local)", C.local],
     ["Nemotron 3 Ultra 550B (cloud)", C.cloud],
   ]);
   rows.forEach((r, i) => {
-    const yy = 320 + i * 140;
-    body += text(left - 30, yy + 52, r.label, 38, { anchor: "end", weight: 600 });
-    body += `<rect x="${left}" y="${yy}" width="${x(r.local)}" height="80" fill="${C.local}"/>`;
-    body += `<rect x="${left + x(r.local)}" y="${yy}" width="${x(r.cloud)}" height="80" fill="${C.cloud}"/>`;
-    body += text(left + x(r.local + r.cloud) + 24, yy + 54, `${r.local} local · ${r.cloud} cloud`, 34, { weight: 700 });
+    const yy = 300 + i * rowH;
+    const h = rowH - 40;
+    body += text(left - 30, yy + h / 2 + 13, r.label, 36, { anchor: "end", weight: 600 });
+    body += `<rect x="${left}" y="${yy}" width="${x(r.local)}" height="${h}" fill="${C.local}"/>`;
+    body += `<rect x="${left + x(r.local)}" y="${yy}" width="${x(r.cloud)}" height="${h}" fill="${C.cloud}"/>`;
+    body += text(left + x(r.local + r.cloud) + 24, yy + h / 2 + 12, `${r.local} local · ${r.cloud} cloud`, 32, {
+      weight: 700,
+    });
   });
   body += text(
     90,
     905,
-    `Signed receipts: ${valid.toLocaleString("en-US")} of ${receipts.toLocaleString("en-US")} verify across ${runs.length} exported runs (npm run evidence:verify).`,
-    34,
+    `Signed receipts: ${g.receipts.toLocaleString("en-US")} across ${g.folders} recorded runs, all verified against the pinned key (npm run receipts:check).`,
+    32,
     { weight: 600 },
   );
-  body += text(90, 955, "Nightshift's router chooses the model within each bound lane; every receipt records it.", 30, {
-    fill: C.muted,
-  });
+  body += text(
+    90,
+    955,
+    "Nightshift's router chooses the model within each pinned mode, so the Ultra share is the router's choice; every receipt records it.",
+    28,
+    { fill: C.muted },
+  );
   save(
     "model-calls",
     page(
       "Which model served each call",
-      "Headline run of the 70-case exam (first system), from the signed receipts.",
+      "The current system's newest run of the 70-case exam, counted from its signed receipts.",
       body,
-      "eval/runs/routed-20261023T133311Z/receipts.jsonl.gz, all eval/runs/*/receipts.jsonl.gz",
+      `eval/runs/${newestFullRun}/receipts.jsonl.gz; totals from eval/receipts-check.json`,
     ),
   );
 }
