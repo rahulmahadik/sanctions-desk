@@ -2,9 +2,10 @@ import type { GenerateRequest } from "@sanctions-desk/shared";
 import { INJECTION, screenerAnswer } from "./sample-screener.js";
 
 /**
- * The labelled fallback "model" used by sample mode. It answers the Decision and Critic prompts with plain
- * rules over the evidence in the prompt, so a review can run with no model service at all. The agents,
- * the semantic-layer reads, the fact checks and the policy guard around it are the real ones.
+ * The labelled fallback "model" used by sample mode. It answers every model prompt (safety guard, screener,
+ * decision, critic and challenger) with plain rules over the evidence in the prompt, so a review can run with
+ * no model service at all. The agents, the semantic-layer reads, the fact checks and the policy guard around
+ * it are the real ones.
  */
 
 export interface Evidence {

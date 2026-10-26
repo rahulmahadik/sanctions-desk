@@ -101,7 +101,7 @@ async function prepare(deps: AgentDeps, alertId: string, options: ReviewRequest[
   judgeDifficulty(deps, match);
 
   const toolOptions = { role: "evidence", defaultLimit: deps.config.zetaris.maxRows, maskSensitive: true } as const;
-  // Memory reads earlier decisions under the evidence step's access; the critic has its own, narrower one.
+  // The evidence step's reads, under its own access; the critic has its own, narrower one.
   const tools = buildEvidenceTools(evidence.model, clientFor(deps, "evidence"), toolOptions);
   // The critic's reads leave out the columns it may not name, so the other columns of such a table can be checked.
   const criticTools = buildEvidenceTools(evidence.model, clientFor(deps, "critic"), {

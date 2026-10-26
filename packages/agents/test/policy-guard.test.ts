@@ -11,7 +11,7 @@ function evidence(over: Partial<EvidenceBundle> = {}): EvidenceBundle {
     countries: [],
     dq: [],
     freeText: ["Jane Doe"],
-    // The pipeline always sets the screener's result; a review with none is never closed (see screener.test.ts).
+    // The pipeline always sets the screener's result; a review with none is never closed (see screener-rules.test.ts).
     screener: {
       status: "nothing_to_read",
       fieldsRead: [],
