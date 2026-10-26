@@ -129,6 +129,12 @@
       "source": "eval/studies/heldout3-rerun"
     },
     {
+      "arm": "Full system (held-out v4, 12 cases x 3 runs)",
+      "cases_with_confidence": 36,
+      "brier": 0.322,
+      "source": "eval/studies/local-mode"
+    },
+    {
       "arm": "Full system (sys5) (exam, 70 cases, one run)",
       "cases_with_confidence": 68,
       "brier": 0.102,
@@ -151,6 +157,12 @@
       "cases_with_confidence": 64,
       "brier": 0.107,
       "source": "eval/results/2026-10-25T10-41-35-156Z-notext70-nemotron_alone.json"
+    },
+    {
+      "arm": "Reasoning on Lightning (held-out v4, 12 cases x 3 runs)",
+      "cases_with_confidence": 33,
+      "brier": 0.293,
+      "source": "eval/studies/local-mode"
     },
     {
       "arm": "Nemotron alone, with the free text (exam, 70 cases, one run text70)",
