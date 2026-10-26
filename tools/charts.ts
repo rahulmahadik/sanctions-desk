@@ -359,7 +359,7 @@ const firstRecs = FIRST_RUNS.map(([run, label]) => {
   body += text(
     90,
     905,
-    `Signed receipts: ${g.receipts.toLocaleString("en-US")} across ${g.folders} recorded runs, all verified against the pinned key (npm run receipts:check).`,
+    `Signed receipts: ${g.receipts.toLocaleString("en-US")} across the ${g.folders} exported runs, all verified against the pinned key (npm run receipts:check).`,
     32,
     { weight: 600 },
   );

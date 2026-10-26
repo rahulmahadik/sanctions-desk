@@ -44,7 +44,7 @@
   "sequence": {
     "mirrorActors": false,
     "showSequenceNumbers": true,
-    "actorMargin": 40,
+    "actorMargin": 150,
     "messageFontSize": 16,
     "noteFontSize": 15,
     "actorFontFamily": "Verdana, DejaVu Sans, Geneva, sans-serif",
