@@ -1,6 +1,6 @@
 {
   "name": "@sanctions-desk/agents",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "type": "module",
   "license": "Apache-2.0",
@@ -8,10 +8,10 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@sanctions-desk/data": "^1.2.0",
-    "@sanctions-desk/shared": "^1.2.0",
-    "@sanctions-desk/zetaris": "^1.2.0",
+    "@sanctions-desk/data": "^1.3.0",
+    "@sanctions-desk/shared": "^1.3.0",
+    "@sanctions-desk/zetaris": "^1.3.0",
     "zod": "^4.6.7",
-    "@sanctions-desk/engines": "^1.2.0"
+    "@sanctions-desk/engines": "^1.3.0"
   }
 }
