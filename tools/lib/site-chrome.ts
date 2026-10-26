@@ -14,14 +14,21 @@ export const esc = (s: unknown) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
-/** The site's sections, in the order the top bar shows them; paths are relative to the site root. */
+/**
+ * The site's sections, in the order the top bar shows them; paths are relative to the site root. Five, so the bar
+ * stays one row on a 375-pixel phone; the API reference and the repository are in the footer (FOOTER_LINKS).
+ */
 export const NAV_LINKS: ReadonlyArray<{ label: string; path: string }> = [
   { label: "Home", path: "index.html" },
   { label: "Results", path: "results.html" },
   { label: "Architecture", path: "architecture.html" },
   { label: "Replays", path: "runs/index.html" },
   { label: "Receipts", path: "receipts/index.html" },
-  { label: "API", path: "api.html" },
+];
+
+/** The pages every footer links to besides the repository; paths are relative to the site root. */
+export const FOOTER_LINKS: ReadonlyArray<{ label: string; path: string }> = [
+  { label: "API reference", path: "api.html" },
 ];
 
 /**
@@ -70,7 +77,6 @@ export function topbarOf(o: Pick<PageOptions, "depth" | "current">): string {
   const items = NAV_LINKS.map(
     (l) => `<li><a href="${p}${l.path}"${l.path === o.current ? ' aria-current="page"' : ""}>${esc(l.label)}</a></li>`,
   );
-  items.push(`<li><a class="external" href="${REPO_URL}" rel="noopener">GitHub</a></li>`);
   return `    <a class="skip-link" href="#main">Skip to content</a>
     <header class="topbar">
       <div class="container">
@@ -84,11 +90,20 @@ export function topbarOf(o: Pick<PageOptions, "depth" | "current">): string {
     </header>`;
 }
 
-export function footerOf(): string {
+/** The footer's links: the API reference and the repository on GitHub, with the licence. */
+export function footerLinksOf(o: Pick<PageOptions, "depth" | "current">): string {
+  const p = prefixFor(o.depth);
+  const pages = FOOTER_LINKS.map(
+    (l) => `<a href="${p}${l.path}"${l.path === o.current ? ' aria-current="page"' : ""}>${esc(l.label)}</a>`,
+  );
+  return `<p class="footer-links">${pages.join(" · ")} · Source and licence: <a class="external" href="${REPO_URL}" rel="noopener">github.com/rahulmahadik/sanctions-desk</a> (Apache-2.0)</p>`;
+}
+
+export function footerOf(o: Pick<PageOptions, "depth" | "current"> = { depth: 0 }): string {
   return `    <footer class="site-footer">
       <div class="container">
         <p>Sanctions Desk. The desk recommends; a person decides.</p>
-        <p>Source and licence: <a href="${REPO_URL}">github.com/rahulmahadik/sanctions-desk</a> (Apache-2.0).</p>
+        ${footerLinksOf(o)}
       </div>
     </footer>`;
 }
@@ -103,7 +118,7 @@ ${topbarOf(o)}
     <main id="main" class="container">
 ${body}
     </main>
-${footerOf()}
+${footerOf(o)}
   </body>
 </html>
 `;

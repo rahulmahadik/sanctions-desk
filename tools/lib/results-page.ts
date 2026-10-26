@@ -3,12 +3,16 @@
  * and <!-- name:end --> markers) out of README.md, docs/EVALUATION.md and docs/NEMOTRON.md, so the page and the docs
  * can never disagree. Nothing on the page is typed in by hand.
  *
+ * The five-line headline at the top is written from the home page's generated facts (site-facts.ts), so the two pages
+ * quote the same figures.
+ *
  * The build stops (throws ResultsPageError) when a document or one of its blocks is missing.
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, posix } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
 import { esc, pageOf, REPO_URL } from "./site-chrome.js";
+import { siteFacts } from "./site-facts.js";
 
 export class ResultsPageError extends Error {}
 
@@ -17,7 +21,7 @@ export interface ResultsSection {
   title: string;
   lead: string;
   blocks: Array<{ doc: string; marker: string }>;
-  image?: { src: string; alt: string };
+  images?: Array<{ src: string; alt: string }>;
 }
 
 export const RESULTS_SECTIONS: readonly ResultsSection[] = [
@@ -36,15 +40,38 @@ export const RESULTS_SECTIONS: readonly ResultsSection[] = [
       { doc: "README.md", marker: "rounds" },
       { doc: "docs/EVALUATION.md", marker: "round-story" },
     ],
-    image: {
-      src: "media/charts/heldout-wrong-closes.png",
-      alt: "Bar chart: risk cases wrongly closed in each held-out round, for the full system and three simpler baselines.",
-    },
+    images: [
+      {
+        src: "media/charts/heldout-wrong-closes.png",
+        alt: "Bar chart: risk cases wrongly closed in each held-out round, for the full system and three simpler baselines.",
+      },
+    ],
+  },
+  {
+    title: "What the critic and challenger did",
+    lead: "From the traces of the recorded runs and the mutation test: the closes the checks stopped, and where the critic hurt.",
+    blocks: [{ doc: "docs/EVALUATION.md", marker: "critic-value" }],
+    images: [
+      {
+        src: "media/charts/first-recommendation-closes.png",
+        alt: "Chart: per run, how often the decision step first proposed closing a risk case, and how many of those the checks stopped.",
+      },
+      {
+        src: "media/charts/critic-mutation.png",
+        alt: "Chart: the critic's fact re-check, changed facts caught and unchanged decisions approved.",
+      },
+    ],
   },
   {
     title: "Nemotron scorecard",
     lead: "Which model does each step and where, what each model did in the recorded runs, calibration and the safety guard.",
     blocks: [{ doc: "docs/NEMOTRON.md", marker: "nemotron-scorecard" }],
+    images: [
+      {
+        src: "media/charts/model-calls.png",
+        alt: "Chart: which Nemotron model served each review step in the current system's newest 70-case run, and the signed receipts verified.",
+      },
+    ],
   },
   {
     title: "What the agents add over Nemotron alone",
@@ -55,15 +82,23 @@ export const RESULTS_SECTIONS: readonly ResultsSection[] = [
       { doc: "docs/NEMOTRON.md", marker: "alone-sets" },
       { doc: "docs/NEMOTRON.md", marker: "v3-today" },
     ],
+    images: [
+      {
+        src: "media/charts/repeat-study.png",
+        alt: "Chart: held-out v4, three runs each, the full system and Nemotron alone without and with the free text.",
+      },
+    ],
   },
   {
     title: "Why two Nemotron models",
     lead: "The same cases with the reasoning steps on Ultra in the cloud or on Lightning on the laptop.",
     blocks: [{ doc: "docs/NEMOTRON.md", marker: "model-choice" }],
-    image: {
-      src: "media/charts/model-choice.png",
-      alt: "Chart: reasoning steps on Ultra in the cloud or Lightning locally.",
-    },
+    images: [
+      {
+        src: "media/charts/model-choice.png",
+        alt: "Chart: reasoning steps on Ultra in the cloud or Lightning locally.",
+      },
+    ],
   },
   {
     title: "Safety guard against injected text",
@@ -78,7 +113,7 @@ export const RESULTS_SECTIONS: readonly ResultsSection[] = [
     title: "Receipt statistics",
     lead: "Every model call per step and per model that served it, from the traces and the signed receipts.",
     blocks: [{ doc: "docs/NEMOTRON.md", marker: "receipt-stats" }],
-    image: { src: "media/charts/model-latency.png", alt: "Chart: time per model call, by step and model." },
+    images: [{ src: "media/charts/model-latency.png", alt: "Chart: time per model call, by step and model." }],
   },
 ];
 
@@ -172,14 +207,30 @@ export function renderBlock(doc: string, md: string): string {
 /** The id of a section's heading, from its title. */
 export const sectionId = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
+/** The five lines at the top of the page, from the same generated facts as the home page. */
+export function headlineLines(root = resolveProjectPath(".")): string[] {
+  const f = siteFacts(root);
+  return [
+    `<strong>${esc(f.full_wrong)}</strong> risk cases wrongly closed by the full system on the 70-case exam, newest run.`,
+    `<strong>${esc(f.alone_wrong)}</strong> wrongly closed by Nemotron alone with the free text, on the same cases.`,
+    `<strong>ALR-0073</strong> (exam case EX-064): Nemotron alone closed it at ${esc(f.story_alone_conf)} confidence; the desk held it for a person in ${esc(f.story_desk_runs)} full-system runs.`,
+    `<strong>${esc(f.receipts)}</strong> signed receipts, all verified against the pinned key: one for every Nightshift answer.`,
+    `<strong>${esc(f.step_roles)}</strong> read-only Zetaris roles, one per review step that reads data.`,
+  ];
+}
+
 export function renderResultsPage(root = resolveProjectPath(".")): string {
   const sections = RESULTS_SECTIONS.map((s) => {
     const blocks = s.blocks.map((b) => renderBlock(b.doc, blockOf(root, b.doc, b.marker))).join("\n");
-    const img = s.image
-      ? `<figure><img src="${esc(s.image.src)}" alt="${esc(s.image.alt)}" loading="lazy" /></figure>`
-      : "";
+    const img = (s.images ?? [])
+      .map(
+        (i) =>
+          `<figure><a href="${esc(i.src)}"><img src="${esc(i.src)}" alt="${esc(i.alt)}" width="1920" height="1080" loading="lazy" /></a></figure>`,
+      )
+      .join("\n");
+    const figures = (s.images ?? []).length > 1 ? `<div class="charts">${img}</div>` : img;
     const id = sectionId(s.title);
-    return `<section class="section" aria-labelledby="${id}"><h2 id="${id}">${esc(s.title)}</h2><p class="lead">${esc(s.lead)}</p>\n${blocks}\n${img}</section>`;
+    return `<section class="section" aria-labelledby="${id}"><h2 id="${id}">${esc(s.title)}</h2><p class="lead">${esc(s.lead)}</p>\n${blocks}\n${figures}</section>`;
   });
   const toc = RESULTS_SECTIONS.map((s) => `<li><a href="#${sectionId(s.title)}">${esc(s.title)}</a></li>`).join("");
   const body = `      <p class="banner" role="note"><strong>Results as recorded.</strong> Every table on this page is copied from a block
@@ -192,6 +243,11 @@ export function renderResultsPage(root = resolveProjectPath(".")): string {
       runs step by step: <a href="runs/index.html">recorded runs</a>; every model call and its receipt:
       <a href="receipts/index.html">receipt log</a>.</p>
       </div>
+      <section class="card headline" aria-labelledby="in-five-lines"><h2 id="in-five-lines">In five lines</h2><ul class="headline-lines">${headlineLines(
+        root,
+      )
+        .map((l) => `<li>${l}</li>`)
+        .join("")}</ul></section>
       <nav class="toc" aria-label="On this page"><ul>${toc}</ul></nav>
 ${sections.join("\n")}`;
   return pageOf(

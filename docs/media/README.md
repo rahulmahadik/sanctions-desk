@@ -4,7 +4,7 @@ Screenshots 01 to 12 were taken on 25 October 2026 from the running desk in samp
 
 | File                                               | What it shows                                                                                                                                                                                                                                                 |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `video-thumbnail.png`                              | The demo video's thumbnail (1280×720); the site's home page links it to the video (https://youtu.be/cF4ZXKxjpxs)                                                                                                                                              |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `screenshots/01-alert-queue.png`                   | Home: the summary strip (open alerts, recommendations waiting for a person, closes stopped by a check, models used), the list-change panel, the alert list sorted by severity                                                                                 |
 | `screenshots/02-case-evidence.png`                 | A case (ALR-0073) after a review: the banner, the recommendation and its checks, the decision panel, the review steps, the decision trace, the risk signals and the evidence                                                                                  |
 | `screenshots/03-decision-panel.png`                | The decision panel: approve or override with a reason; nothing is pre-selected, and the button reads Decide until a choice is made                                                                                                                            |
@@ -22,12 +22,17 @@ Screenshots 01 to 12 were taken on 25 October 2026 from the running desk in samp
 | `screenshots/15-live-routing-and-receipts.png`     | The same live review's routing panel: requested model, routed model, receipt id and receipt check (valid, key pinned) for each of the 10 calls; the two calls answered by the local Ollama backup have no receipt                                             |
 | `screenshots/16-live-model-per-step.png`           | The same live review (the same crop as 13): every model step with the model that answered (local Lightning or cloud Ultra), its receipt id and the receipt check (signature valid, key pinned)                                                                |
 | `screenshots/17-live-decision-panel.png`           | The decision panel on the sealed record of the live ALR-0073 review, shown by the current build: approve or override with a reason; nothing is sent or executed                                                                                               |
+| `screenshots/09-risk-signals-detail.png`           | A 900-pixel crop of 09 (the signal line, the highlighted span and the grounding note), for the home page's analyst card                                                                                                                                       |
+| `screenshots/16-model-per-step-detail.png`         | A 900-pixel crop of 16 (safety guard to decision, each with its model and receipt check), for the home page's auditor card                                                                                                                                    |
+| `screenshots/17-decision-panel-detail.png`         | A 900-pixel crop of 17 (the recommendation and the approve-or-override choice), for the home page's senior reviewer card                                                                                                                                      |
 
 Re-take them with the desk running in sample mode (`SAMPLE_MODE=true docker compose up --build`, then review ALR-0004, ALR-0073 and ALR-0058 once):
 
 ```bash
 npm run screenshots -- --alert ALR-0073 --out docs/media/screenshots
 ```
+
+The three `-detail` crops are cut from 09, 16 and 17 and scaled to 900 pixels wide; nothing in them is retouched. Crop them again after re-taking those three.
 
 ## Animated clips
 

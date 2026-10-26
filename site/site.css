@@ -354,6 +354,26 @@ main.container {
   font-size: 0.8em;
   color: var(--ink-muted);
 }
+/* On a phone the brand takes the first row and the five sections share the second; the brand is the way home. */
+@media (max-width: 560px) {
+  .topbar nav {
+    width: 100%;
+  }
+  .topbar nav ul {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0;
+  }
+  .topbar nav a {
+    padding: 6px 6px;
+    font-size: 0.9rem;
+  }
+}
+@media (max-width: 400px) {
+  .topbar nav li:first-child {
+    display: none;
+  }
+}
 
 .site-footer {
   border-top: 1px solid var(--line);
@@ -366,6 +386,10 @@ main.container {
   justify-content: space-between;
   gap: 8px 24px;
   padding-block: 20px 32px;
+}
+.site-footer .external::after {
+  content: " ↗";
+  font-size: 0.8em;
 }
 .site-footer p {
   margin: 0;
@@ -478,7 +502,38 @@ main.container {
 .hero .sub {
   color: var(--ink-muted);
   max-width: 60ch;
-  margin: 0 0 1.6rem;
+  margin: 0 0 0.9rem;
+}
+/* What the desk is today, in one line under the subtitle. */
+.hero .status {
+  display: inline-block;
+  max-width: 60ch;
+  margin: 0 0 1.5rem;
+  padding: 6px 12px;
+  border-left: 3px solid var(--amber);
+  background: rgba(245, 165, 36, 0.1);
+  border-radius: 0 8px 8px 0;
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+/* The hero's quieter links, one row under the two buttons. */
+.more-links {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  font-size: 0.95rem;
+}
+.more-links a {
+  color: var(--ink);
+  text-decoration-color: rgba(232, 238, 247, 0.4);
+  text-underline-offset: 3px;
+}
+.more-links a:hover {
+  text-decoration-color: var(--green);
 }
 .hero .actions {
   display: flex;
@@ -501,7 +556,7 @@ main.container {
   .hero-text > :nth-child(4) {
     animation-delay: 180ms;
   }
-  .hero-text > :nth-child(5),
+  .hero-text > :nth-child(n + 5),
   .hero figure.video {
     animation-delay: 240ms;
   }
@@ -556,8 +611,9 @@ main.container {
 }
 @media (max-width: 480px) {
   .hero .actions .btn {
-    padding: 9px 14px;
-    font-size: 0.95rem;
+    flex: 1 1 100%;
+    justify-content: center;
+    padding: 11px 14px;
   }
 }
 .btn-primary {
@@ -566,6 +622,14 @@ main.container {
 }
 .btn-primary:hover {
   filter: brightness(1.06);
+}
+/* A small play triangle in the "Watch the demo" button. */
+.btn-play {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6px 0 6px 10px;
+  border-color: transparent transparent transparent currentColor;
 }
 .btn-ghost {
   color: var(--ink);
@@ -1060,12 +1124,19 @@ ol.flow > li {
   padding: 18px 20px;
   box-shadow: var(--shadow);
 }
+ol.flow > li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+}
 .flow h3 {
-  margin: 10px 0 4px;
+  margin: 0;
 }
 .flow p {
+  grid-column: 1 / -1;
   color: var(--muted);
-  margin: 0;
+  margin: 10px 0 0;
 }
 .flow-step {
   display: inline-grid;
@@ -1106,16 +1177,18 @@ ol.flow > li:nth-child(3) .flow-step {
 .role-shot {
   position: relative;
   display: block;
-  aspect-ratio: 2368 / 1142;
+  aspect-ratio: 900 / 480;
   background: #ffffff;
   border-bottom: 1px solid var(--line);
   margin-bottom: 16px;
 }
+/* The picture sits above a strip that holds the "Open full size" hint, so the hint never covers it. */
 a.role-shot img {
   position: absolute;
-  inset: 8px;
+  top: 8px;
+  left: 8px;
   width: calc(100% - 16px);
-  height: calc(100% - 16px);
+  height: calc(100% - 48px);
   object-fit: contain;
 }
 .role-shot:focus-visible {
@@ -1221,6 +1294,136 @@ a.role-shot img {
 }
 .steps-note {
   margin-top: 12px;
+}
+
+/* One alert, start to finish: the two verdicts of the video thumbnail, side by side. */
+.verdicts {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  margin-top: 8px;
+}
+.verdict {
+  border-top: 4px solid var(--line-strong);
+}
+.verdict p {
+  margin: 0;
+}
+.verdict-who {
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.verdict .verdict-what {
+  font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.7rem);
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  margin: 4px 0 6px;
+}
+.verdict-why {
+  color: var(--muted);
+}
+.verdict-clear {
+  border-top-color: var(--red);
+}
+.verdict-clear .verdict-what {
+  color: var(--error-fg);
+}
+.verdict-hold {
+  border-top-color: var(--amber);
+  background: linear-gradient(var(--warn-bg), var(--warn-bg)), var(--card);
+}
+.verdict-hold .verdict-what {
+  color: var(--warn-fg);
+}
+.story-links {
+  margin: 16px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+}
+.story-replay {
+  font-weight: 650;
+}
+
+/* How it is built: three short cards, then the step-to-model card beside a small architecture preview. */
+.built {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  margin-top: 12px;
+}
+.built-card {
+  display: flex;
+  flex-direction: column;
+  border-top: 4px solid var(--line-strong);
+}
+.built-card h3 {
+  margin: 0 0 6px;
+}
+.built-card p {
+  color: var(--muted);
+  margin: 0 0 12px;
+  flex: 1;
+}
+.built-doc {
+  font-weight: 600;
+}
+.built-doc::after {
+  content: " ↗";
+  font-size: 0.8em;
+}
+.built-zetaris {
+  border-top-color: var(--blue);
+}
+.built-nemotron {
+  border-top-color: var(--green);
+}
+.built-engines {
+  border-top-color: var(--amber);
+}
+.built-more {
+  margin-top: 18px;
+}
+figure.diagram-preview {
+  margin: 0;
+  max-width: none;
+}
+figure.diagram-preview a {
+  display: block;
+  max-height: 520px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(#000 80%, transparent);
+  mask-image: linear-gradient(#000 80%, transparent);
+}
+/* The results page's five-line headline. */
+.headline {
+  margin: 0 0 20px;
+  border-left: 4px solid var(--green);
+}
+.headline h2 {
+  font-size: 1.05rem;
+  margin: 0 0 8px;
+}
+.headline-lines {
+  margin: 0;
+  padding-left: 1.2em;
+}
+.headline-lines li {
+  margin-bottom: 4px;
+}
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 24px;
+}
+.section-head h2 {
+  margin-bottom: 0.35rem;
 }
 .links-gap {
   margin-top: 18px;

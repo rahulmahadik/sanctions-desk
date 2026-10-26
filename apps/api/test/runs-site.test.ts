@@ -22,11 +22,16 @@ import {
   WINDOW_WORDS,
   wordWindows,
 } from "../../../tools/lib/runs-site.js";
-import { FONT_FILES, NAV_LINKS } from "../../../tools/lib/site-chrome.js";
+import { FONT_FILES, FOOTER_LINKS, NAV_LINKS } from "../../../tools/lib/site-chrome.js";
 
 const REPO_BLOB = `${REPO_URL}/blob/main/`;
 /** What a page under site/runs/ may point at one level up: the stylesheet and the site's sections. */
-const SITE_ROOT_FILES = new Set(["site.css", ...FONT_FILES, ...NAV_LINKS.map((l) => l.path)]);
+const SITE_ROOT_FILES = new Set([
+  "site.css",
+  ...FONT_FILES,
+  ...NAV_LINKS.map((l) => l.path),
+  ...FOOTER_LINKS.map((l) => l.path),
+]);
 const out = mkdtempSync(join(tmpdir(), "desk-runs-"));
 const scratch = mkdtempSync(join(tmpdir(), "desk-runs-tamper-"));
 afterAll(() => {

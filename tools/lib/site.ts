@@ -13,7 +13,7 @@ import { buildReceiptLog } from "./receipt-log.js";
 import { buildResultsPage } from "./results-page.js";
 import { buildRunPages } from "./runs-site.js";
 import { FONT_FILES } from "./site-chrome.js";
-import { fillIndex, siteFacts } from "./site-facts.js";
+import { fillIndex, siteFacts, storyLinksHtml } from "./site-facts.js";
 
 /** The committed pages of the site, copied when the site is built somewhere other than site/. */
 export const SITE_PAGES = ["index.html", "api.html", "architecture.html"] as const;
@@ -41,10 +41,15 @@ export const SITE_IMAGES: Record<string, string> = {
   ),
   "media/video-thumbnail.png": "docs/media/video-thumbnail.png",
   ...Object.fromEntries(
-    ["09-risk-signals", "16-live-model-per-step", "17-live-decision-panel"].map((n) => [
-      `media/screenshots/${n}.png`,
-      `docs/media/screenshots/${n}.png`,
-    ]),
+    [
+      "09-risk-signals",
+      "16-live-model-per-step",
+      "17-live-decision-panel",
+      // The cropped details the role cards show; "Open full size" links to the whole screenshot above.
+      "09-risk-signals-detail",
+      "16-model-per-step-detail",
+      "17-decision-panel-detail",
+    ].map((n) => [`media/screenshots/${n}.png`, `docs/media/screenshots/${n}.png`]),
   ),
   "media/sanctions-desk-deck.pdf": "docs/sanctions-desk-deck.pdf",
   "media/charts/heldout-wrong-closes.png": "docs/media/charts/heldout-wrong-closes.png",
@@ -75,7 +80,7 @@ export function writeOpenApi(file: string): string {
 
 /** The landing page with its figures filled in from the committed data under `root`. */
 export function renderIndex(root = resolveProjectPath(".")): string {
-  return fillIndex(readFileSync(join(root, "site", "index.html"), "utf8"), siteFacts(root));
+  return fillIndex(readFileSync(join(root, "site", "index.html"), "utf8"), siteFacts(root), storyLinksHtml(root));
 }
 
 /**

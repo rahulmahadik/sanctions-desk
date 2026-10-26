@@ -13,8 +13,8 @@ import {
   SITE_IMAGES,
   SITE_PAGES,
 } from "../../../tools/lib/site.js";
-import { FONT_FILES, NAV_LINKS } from "../../../tools/lib/site-chrome.js";
-import { fillIndex, SiteFactsError, siteFacts } from "../../../tools/lib/site-facts.js";
+import { FONT_FILES, FOOTER_LINKS, NAV_LINKS } from "../../../tools/lib/site-chrome.js";
+import { fillIndex, SiteFactsError, siteFacts, storyLinksHtml } from "../../../tools/lib/site-facts.js";
 import { ROUTES } from "../src/openapi.js";
 
 const REPO_URL = "https://github.com/rahulmahadik/sanctions-desk";
@@ -113,9 +113,24 @@ describe("the documentation site", () => {
       expect(written).toContain(f);
       expect(existsSync(join(out, f)), f).toBe(true);
     }
-    for (const l of NAV_LINKS) expect(existsSync(join(out, l.path)), l.path).toBe(true);
+    for (const l of [...NAV_LINKS, ...FOOTER_LINKS]) expect(existsSync(join(out, l.path)), l.path).toBe(true);
     expect(JSON.parse(readFileSync(join(out, "openapi.json"), "utf8"))).toEqual(doc);
     expect(pages.length).toBeGreaterThan(10);
+  });
+
+  it("keeps the top bar to five sections, so it fits one row on a phone; the API and GitHub links are in the footer", () => {
+    expect(NAV_LINKS.length).toBeLessThanOrEqual(5);
+    expect(NAV_LINKS.map((l) => l.path)).not.toContain("api.html");
+    for (const page of pages) {
+      const text = html(page);
+      const up = page.includes("/") ? "../" : "";
+      const bar = /<header class="topbar"[\s\S]*?<\/header>/.exec(text)?.[0] ?? "";
+      const foot = /<footer class="site-footer">[\s\S]*?<\/footer>/.exec(text)?.[0] ?? "";
+      expect(bar, page).not.toContain(REPO_URL);
+      expect(bar.match(/<li>/g)?.length, page).toBe(NAV_LINKS.length);
+      for (const l of FOOTER_LINKS) expect(foot, `${page}: ${l.label}`).toContain(`href="${up}${l.path}"`);
+      expect(foot, page).toContain(`href="${REPO_URL}"`);
+    }
   });
 
   it("gives every page the one stylesheet, the top bar with every section, the footer and the theme colour", () => {
@@ -208,10 +223,52 @@ describe("the documentation site", () => {
       /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|import\(|\beval\(|innerHTML|document\.write|localStorage/,
     );
     expect(js).toContain('createElement("iframe")');
-    // Without the script the thumbnail is a plain link to the video, opening in a new tab.
+    // Without the script the thumbnail and the hero's button are plain links to the video, opening in a new tab.
     expect(html("index.html")).toMatch(
       /<a\s+class="video-link"\s+href="https:\/\/youtu\.be\/cF4ZXKxjpxs"\s+target="_blank"\s+rel="noopener noreferrer"/,
     );
+    expect(html("index.html")).toMatch(
+      /<a class="btn btn-primary" href="https:\/\/youtu\.be\/cF4ZXKxjpxs" target="_blank" rel="noopener noreferrer" data-play="cF4ZXKxjpxs">/,
+    );
+    // With it, both play the video in place: the button plays the thumbnail's video.
+    expect(js).toContain('a[data-play="${id}"]');
+  });
+
+  it("gives the hero two buttons, with the other ways in as a row of text links", () => {
+    const hero = /<section class="hero"[\s\S]*?<\/section>/.exec(html("index.html"))?.[0] ?? "";
+    expect(hero.match(/class="btn /g)).toHaveLength(2);
+    expect(hero).toContain("Watch the demo (3:51)");
+    expect(hero).toContain('href="results.html">See the results</a>');
+    for (const href of ["runs/index.html", "receipts/index.html", "media/sanctions-desk-deck.pdf"])
+      expect(hero, href).toMatch(new RegExp(`<ul class="more-links">[\\s\\S]*href="${href}"`));
+    expect(hero).toContain(
+      "A prototype, audit-ready by design: synthetic customers and payments, public list entries, not in production.",
+    );
+    // The note about youtube-nocookie.com is said once on the page.
+    expect(html("index.html").match(/youtube-nocookie\.com/g)).toHaveLength(2); // the content policy and the caption
+  });
+
+  it("shows the role cards' cropped details, each opening the full screenshot", () => {
+    const home = html("index.html");
+    for (const [full, detail] of [
+      ["09-risk-signals", "09-risk-signals-detail"],
+      ["17-live-decision-panel", "17-decision-panel-detail"],
+      ["16-live-model-per-step", "16-model-per-step-detail"],
+    ]) {
+      expect(home).toMatch(
+        new RegExp(
+          `<a class="role-shot" href="media/screenshots/${full}\\.png"[^>]*>\\s*<img\\s+src="media/screenshots/${detail}\\.png"`,
+        ),
+      );
+      expect(SITE_IMAGES[`media/screenshots/${detail}.png`]).toBe(`docs/media/screenshots/${detail}.png`);
+    }
+  });
+
+  it("shows two charts on the home page and leaves the rest to the results page", () => {
+    const home = html("index.html");
+    const charts = [...home.matchAll(/<img\s+src="media\/charts\/([\w-]+)\.png"/g)].map((m) => m[1]);
+    expect(charts).toEqual(["heldout-wrong-closes", "model-calls"]);
+    expect(home).toContain('<a href="results.html">Every chart and table on the results page</a>');
   });
 
   it("fills the landing page's figures from the committed data, and the committed page carries them", () => {
@@ -234,5 +291,15 @@ describe("the documentation site", () => {
       SiteFactsError,
     );
     expect(() => fillIndex("<!-- steps:start --><!-- steps:end -->", facts)).toThrow(/no <!--fact/);
+    // The story card links to the result files behind its figures: both Nemotron-alone runs and the newest desk run.
+    const links = storyLinksHtml(resolveProjectPath("."));
+    expect(built).toContain(links);
+    const files = [...links.matchAll(/href="([^"]+)"/g)].map((m) => (m[1] as string).slice(REPO_BLOB.length));
+    expect(files).toHaveLength(3);
+    expect(files.filter((f) => /nemotron_alone\.json$/.test(f))).toHaveLength(2);
+    for (const f of files) expect(tracked.has(f), f).toBe(true);
+    expect(built).toContain('href="runs/alr-0073.html"');
+    expect(facts.story_alone_conf).toMatch(/^0\.\d\d$/);
+    expect(facts.story_desk_runs).toMatch(/^(\d+) of \1$/);
   });
 });

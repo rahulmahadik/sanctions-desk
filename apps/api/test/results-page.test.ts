@@ -5,6 +5,7 @@ import { resolveProjectPath } from "@sanctions-desk/shared";
 import { afterAll, describe, expect, it } from "vitest";
 import {
   blockOf,
+  headlineLines,
   inline,
   RESULTS_SECTIONS,
   ResultsPageError,
@@ -12,6 +13,7 @@ import {
   renderResultsPage,
 } from "../../../tools/lib/results-page.js";
 import { REPO_URL } from "../../../tools/lib/runs-site.js";
+import { siteFacts } from "../../../tools/lib/site-facts.js";
 
 const scratch = mkdtempSync(join(tmpdir(), "desk-results-"));
 afterAll(() => rmSync(scratch, { recursive: true, force: true }));
@@ -39,6 +41,29 @@ describe("the results page", () => {
         for (const n of new Set(block.match(/\b\d+(?:\.\d+)? of \d+\b/g) ?? [])) expect(text(html)).toContain(n);
       }
     }
+  });
+
+  it("opens with five lines whose figures are the home page's generated facts, and shows every chart", () => {
+    const lines = headlineLines();
+    expect(lines).toHaveLength(5);
+    const f = siteFacts(resolveProjectPath("."));
+    for (const name of ["full_wrong", "alone_wrong", "story_alone_conf", "story_desk_runs", "receipts", "step_roles"])
+      expect(lines.join(" "), name).toContain(f[name] as string);
+    expect(html).toContain('id="in-five-lines"');
+    for (const l of lines) expect(html).toContain(`<li>${l}</li>`);
+    // Every chart the build copies is on this page, each linking to its full-size image.
+    const charts = RESULTS_SECTIONS.flatMap((s) => s.images ?? []).map((i) => i.src);
+    for (const c of [
+      "heldout-wrong-closes",
+      "first-recommendation-closes",
+      "critic-mutation",
+      "model-calls",
+      "model-latency",
+      "model-choice",
+      "repeat-study",
+    ])
+      expect(charts, c).toContain(`media/charts/${c}.png`);
+    for (const c of charts) expect(html).toContain(`<a href="${c}"><img src="${c}"`);
   });
 
   it("links relative paths to the files on GitHub", () => {
