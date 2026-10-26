@@ -690,6 +690,10 @@ main.container {
 .stat .label a {
   color: var(--ink);
 }
+.stat .label-note {
+  margin-top: 4px;
+  font-size: 0.8rem;
+}
 .stat-good {
   border-top: 3px solid var(--green);
 }

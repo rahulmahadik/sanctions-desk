@@ -5,7 +5,8 @@
  * - risk cases wrongly closed by the full system, newest 70-case run, from eval/nemotron-scorecard.json (the arms the
  *   scorecard scores with tools/lib/exam-figures.ts; CI checks the file against the result files);
  * - the same for Nemotron alone with the free text, from the same file;
- * - signed receipts, all verified, from eval/receipts-check.json (npm run receipts:check);
+ * - signed receipts, all verified, from eval/receipts-check.json (npm run receipts:check): the headline, and the fully
+ *   local study's receipts on their own line;
  * - the per-step read roles in Zetaris, from the code (USL_STEP_ROLES, the roles fact of the README);
  * - the story of one alert (STORY_CASE, the case in the demo video): Nemotron alone's confidence in its close, the same
  *   in both Nemotron-alone runs, and how many full-system runs held it for a person, from the result files the
@@ -18,6 +19,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { USL_STEP_ROLES } from "@sanctions-desk/zetaris";
 import { type ExamArmRow, STEPS } from "./nemotron-scorecard.js";
+import { localModeLine } from "./receipts-scan.js";
 import { esc, REPO_URL } from "./site-chrome.js";
 
 export class SiteFactsError extends Error {}
@@ -107,9 +109,19 @@ export function storyLinksHtml(root: string): string {
 /** The values for the markers in site/index.html. */
 export function siteFacts(root: string): Record<string, string> {
   const card = read<{ exam_arms: ExamArmRow[] }>(root, "eval/nemotron-scorecard.json");
-  const check = read<{ receipts: number; valid_pinned: number }>(root, "eval/receipts-check.json");
+  const check = read<{
+    receipts: number;
+    headline: number;
+    from_local_mode: number;
+    valid_pinned: number;
+    groups: { local_mode: { valid_pinned: number } };
+  }>(root, "eval/receipts-check.json");
   if (check.valid_pinned !== check.receipts)
     throw new SiteFactsError("eval/receipts-check.json has receipts that do not verify against the pinned key");
+  if (check.headline + check.from_local_mode !== check.receipts)
+    throw new SiteFactsError(
+      "eval/receipts-check.json: the headline and the fully local study's receipts do not add up",
+    );
   const full = newestArm(card.exam_arms, "Full system");
   const alone = newestArm(card.exam_arms, "Nemotron alone, with the free text");
   if (full.figures.risk !== alone.figures.risk)
@@ -117,7 +129,8 @@ export function siteFacts(root: string): Record<string, string> {
   return {
     full_wrong: ofN(full.figures.wrong, full.figures.risk),
     alone_wrong: ofN(alone.figures.wrong, alone.figures.risk),
-    receipts: check.receipts.toLocaleString("en-US"),
+    receipts: check.headline.toLocaleString("en-US"),
+    receipts_local_mode_line: localModeLine(check),
     step_roles: String(USL_STEP_ROLES.length),
     ...storyFacts(root, card.exam_arms),
   };

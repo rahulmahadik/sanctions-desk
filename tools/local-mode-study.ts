@@ -10,7 +10,7 @@
  *
  *   npm run study:local-mode              # exports the runs (studies:export --study local-mode) once all six result
  *                                         # files are in logs/a3, then writes eval/local-mode.json, the block in
- *                                         # docs/NEMOTRON.md and the line in README.md
+ *                                         # docs/NEMOTRON.md, the line in README.md and the item in docs/KNOWN_ISSUES.md
  *   npm run study:local-mode -- --check   # exits 1 if any of them would change (CI)
  *   npm run study:local-mode -- --docs    # rewrites only the doc blocks, from the committed eval/local-mode.json
  *
@@ -34,6 +34,7 @@ import {
   RUNS_PER_ARM,
   type RunFigures,
   renderDocBlock,
+  renderKnownIssuesItem,
   renderReadmeLine,
   runFigures,
   type StudyResult,
@@ -123,6 +124,7 @@ if (!existsSync(outFile) || readFileSync(outFile, "utf8") !== json) {
 for (const [path, body] of [
   ["docs/NEMOTRON.md", renderDocBlock(study, choice)],
   ["README.md", renderReadmeLine(study, choice)],
+  ["docs/KNOWN_ISSUES.md", renderKnownIssuesItem(study)],
 ] as const) {
   const target = resolveProjectPath(path);
   const doc = readFileSync(target, "utf8");

@@ -16,7 +16,7 @@ import { join } from "node:path";
 import { resolveProjectPath } from "@sanctions-desk/shared";
 import { USL_ROLES, USL_STEP_ROLES, ZETARIS_ROLES } from "@sanctions-desk/zetaris";
 import { receiptFigure, receiptSentence } from "./lib/receipt-figure.js";
-import { receiptsLine } from "./lib/receipts-scan.js";
+import { localModeLine, type ReceiptGroup, receiptsLine } from "./lib/receipts-scan.js";
 
 const read = (p: string) => JSON.parse(readFileSync(resolveProjectPath(p), "utf8"));
 const exam = read("eval/cases/exam.json") as { cases: { group: string; kind?: string }[] };
@@ -46,22 +46,21 @@ if (process.argv.includes("--count-tests")) {
   writeFileSync(factsFile, `${JSON.stringify(saved, null, 2)}\n`);
 }
 
-interface ReceiptGroup {
-  receipts: number;
-  folders: number;
-  with_added_memory: number;
-  cross_check: Record<string, number>;
-  cross_check_warnings: Record<string, number>;
-}
+// Every receipt is verified; the headline the docs quote leaves out the fully local study's receipts, which the docs
+// report on their own line (tools/lib/receipts-scan.ts).
 const receipts = read("eval/receipts-check.json") as {
   receipts: number;
+  headline: number;
   from_runs: number;
   from_studies: number;
+  from_local_mode: number;
   valid_pinned: number;
-  groups: { runs: ReceiptGroup; studies: ReceiptGroup };
+  groups: { runs: ReceiptGroup; studies: ReceiptGroup; local_mode: ReceiptGroup };
 };
 if (receipts.valid_pinned !== receipts.receipts)
   throw new Error("eval/receipts-check.json has receipts that do not verify");
+if (receipts.headline + receipts.from_local_mode !== receipts.receipts)
+  throw new Error("eval/receipts-check.json: the headline and the fully local study's receipts do not add up");
 const n = (x: number) => x.toLocaleString("en-US");
 
 // Who answered each step in the recorded evaluation runs (the "recorded" group of npm run receipt:stats; the
@@ -131,9 +130,11 @@ const facts: Record<string, string> = {
   heldout_clears: String(heldout.cases.filter((c) => c.expected === "CLOSE_FALSE_POSITIVE").length),
   heldout_risks: String(heldout.cases.filter((c) => c.expected !== "CLOSE_FALSE_POSITIVE").length),
   edge_cases: String(edge.edge_cases.length),
-  receipts: n(receipts.receipts),
+  receipts: n(receipts.headline),
   receipts_runs: n(receipts.from_runs),
   receipts_studies: n(receipts.from_studies),
+  receipts_local_mode: n(receipts.from_local_mode),
+  receipts_local_mode_line: localModeLine(receipts),
   runs_exported: String(receipts.groups.runs.folders),
   receipts_runs_memory: n(receipts.groups.runs.with_added_memory),
   receipts_studies_memory: n(receipts.groups.studies.with_added_memory),

@@ -66,7 +66,7 @@ The full system's row is its newest run on the 70 cases. Its earlier runs, and t
 
 Answered on the laptop: 551 of 1,511 model calls (37%), Lightning through Nightshift and the Ollama backup together. The per-case `cost` in the result files is worked out from the illustrative unit costs in `config/default.json`, not recorded, so it is not shown.
 
-**Receipts.** In the 32 exported runs the desk made 2,788 model calls. 2,532 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 51 came from the local Ollama backup, which has no receipt by design. The other 205 failed and returned no answer. The small studies add 879 more signed receipts, all verified.
+**Receipts.** In the 32 exported runs the desk made 2,788 model calls. 2,532 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 51 came from the local Ollama backup, which has no receipt by design. The other 205 failed and returned no answer. The small studies add 879 more signed receipts, all verified. Fully local study (A3): 536 signed receipts, all verified against the pinned key.
 
 **Safety guard** (95% Wilson ranges in brackets):
 
@@ -161,7 +161,31 @@ Read plainly: neither arm closed a risk case. With Lightning doing the reasoning
 ## Fully local mode: every step on the laptop
 
 <!-- local-mode:start -->
-**Fully local mode.** Every model step (safety guard, screener, decision, critic and challenger) on Nemotron 3.5 Lightning on the laptop: the decision, critic and challenger are sent under the guard identity, which the cockpit binds to the local lane, and the Ollama backup is the same model on the same machine, so all data and models stay on the machine. How to run it: [MODELS.md](MODELS.md#fully-local-mode). Not run yet: a held-out v4 study and a 70-case run in fully local mode. The only measurement so far of Lightning doing the reasoning is the model-choice study above: a median of 385 s per case against 110 s, 1 of 10 clears made against 3 of 10, 0 of 10 risk cases wrongly closed in both arms.
+**Small study of the fully local mode, held-out v4, three runs per arm, not part of the recorded evaluation.** Fully local mode (held-out v4, 3 runs, 36 cases): 0 of 18 risk cases wrongly closed and 0 of 316 model calls sent to the cloud; but 0 of 18 clears, 17 of 36 cases without a usable model answer (each held for a person) and a median of 292 s per case. With Ultra in the cloud on the same cases: 0 of 18 wrongly closed, 3 of 18 clears, every case answered, median 35 s. Fully local mode is safe but not yet practical on this laptop, which is why reasoning runs on Ultra by default. Not run: a 70-case run in fully local mode.
+
+Every model step (safety guard, screener, decision, critic and challenger) on Nemotron 3.5 Lightning on the laptop: the decision, critic and challenger are sent under the guard identity, which the cockpit binds to the local lane, and the Ollama backup is the same model on the same machine, so all data and models stay on the machine. How to run it: [MODELS.md](MODELS.md#fully-local-mode). Each arm is held-out v4 (12 cases: 6 risk cases, 6 clears) run three times, Nightshift warmed up and not restarted; the counts are pooled over the three runs, with 95% Wilson ranges in brackets. An unsupported block is a block recommendation on a case whose labels do not accept a block. Result file: [eval/local-mode.json](../eval/local-mode.json); runs, traces and receipts: `eval/studies/local-mode` ([eval/studies](../eval/studies/README.md)).
+
+| Arm                                                             | Risk cases wrongly closed |     Clears made | Unsupported blocks |  Unusable answers | Median s per case | p95 s per case | Model calls, by the model that served them                                                         |
+| --------------------------------------------------------------- | ------------------------: | --------------: | -----------------: | ----------------: | ----------------: | -------------: | -------------------------------------------------------------------------------------------------- |
+| Fully local mode: every step on Nemotron 3.5 Lightning (laptop) |           0 of 18 (0–18%) | 0 of 18 (0–18%) |    0 of 36 (0–10%) | 17 of 36 (32–63%) |             292.2 |          394.9 | Nemotron 3.5 Lightning 30B 272, Ollama backup (Lightning, no receipt) 44                           |
+| Default mode: decision, critic and challenger on the cloud lane |           0 of 18 (0–18%) | 3 of 18 (6–39%) |    0 of 36 (0–10%) |   0 of 36 (0–10%) |              34.6 |          199.3 | Nemotron 3.5 Lightning 30B 155, Nemotron 3 Ultra 550B 109, Ollama backup (Lightning, no receipt) 3 |
+
+Each run:
+
+| Arm                                                             | Run           | Risk cases wrongly closed | Clears made | Unsupported blocks | Unusable answers | Median s per case |
+| --------------------------------------------------------------- | ------------- | ------------------------: | ----------: | -----------------: | ---------------: | ----------------: |
+| Fully local mode: every step on Nemotron 3.5 Lightning (laptop) | a3-local-r1   |                    0 of 6 |      0 of 6 |            0 of 12 |                7 |               234 |
+| Fully local mode: every step on Nemotron 3.5 Lightning (laptop) | a3-local-r2   |                    0 of 6 |      0 of 6 |            0 of 12 |                5 |             311.5 |
+| Fully local mode: every step on Nemotron 3.5 Lightning (laptop) | a3-local-r3   |                    0 of 6 |      0 of 6 |            0 of 12 |                5 |             292.1 |
+| Default mode: decision, critic and challenger on the cloud lane | a3-default-r1 |                    0 of 6 |      1 of 6 |            0 of 12 |                0 |              34.6 |
+| Default mode: decision, critic and challenger on the cloud lane | a3-default-r2 |                    0 of 6 |      1 of 6 |            0 of 12 |                0 |              24.2 |
+| Default mode: decision, critic and challenger on the cloud lane | a3-default-r3 |                    0 of 6 |      1 of 6 |            0 of 12 |                0 |              41.7 |
+
+Model calls answered in the cloud in the fully local arm: 0 of 316, from the trace and the signed receipts. A case that timed out has no time and is left out of the times (local: 3, default: 0).
+
+Where the fully local arm's 17 unusable answers came from: 3 cases timed out (HO4-009 after 600 s in 3 of 3 runs) and 14 answers no decision could be read from. Behind them, 110 model calls failed on both providers and were retried: Nightshift answered HTTP 502 `empty_response` (an empty answer) 102 times and timed out 8 times; the Ollama backup then answered nothing, cut off by its token limit, 110 times. In the default arm 4 model calls failed on both providers (Nightshift answered HTTP 502 `provider_deadline` 4 times; the Ollama backup then answered nothing, cut off by its token limit, 4 times); each was recovered by a retry.
+
+Cost, per arm over its three runs: Fully local mode: every step on Nemotron 3.5 Lightning (laptop): USD 0 recorded on 272 receipts (`cost.actual_usd`); USD 0 illustrative, worked out from the unit costs in `config/default.json` (cloud 0.5 in and 1.5 out per million tokens, local 0), not a price; Default mode: decision, critic and challenger on the cloud lane: USD 0 recorded on 264 receipts (`cost.actual_usd`); USD 0.248458 illustrative, worked out from the unit costs in `config/default.json` (cloud 0.5 in and 1.5 out per million tokens, local 0), not a price.
 <!-- local-mode:end -->
 
 ## What the agents add over Nemotron alone
@@ -264,7 +288,7 @@ We only claim a model when a verified receipt shows it answered.
 
 <!--fact:receipt_gate-->By design, the desk never uses a Nightshift answer without a valid signature from the pinned key: it retries, then holds the case. Local backup answers carry no receipt and are labelled 'Ollama backup, no receipt'.<!--/fact--> The Ollama backup has no receipt by design and is labelled "Ollama backup (no receipt)" in the trace and on screen; a rejected answer shows "answer not used: receipt …" on its step and `receipt_rejected` in the trace and the record (`receiptProblem` in [model-call.ts](../packages/agents/src/model-call.ts)).
 
-<!--fact:receipt_figure-->In the 32 exported runs the desk made 2,788 model calls. 2,532 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 51 came from the local Ollama backup, which has no receipt by design. The other 205 failed and returned no answer. The small studies add 879 more signed receipts, all verified<!--/fact-->. Two commands, no services needed:
+<!--fact:receipt_figure-->In the 32 exported runs the desk made 2,788 model calls. 2,532 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 51 came from the local Ollama backup, which has no receipt by design. The other 205 failed and returned no answer. The small studies add 879 more signed receipts, all verified<!--/fact-->. <!--fact:receipts_local_mode_line-->Fully local study (A3): 536 signed receipts, all verified against the pinned key.<!--/fact--> Two commands, no services needed:
 
 ```bash
 npm run receipts:check        # verify every committed receipt against the pinned key; writes eval/receipts-check.json
@@ -280,7 +304,7 @@ Every model call in the exported runs and in the labelled small runs (the privac
 ![Time per model call, by step and model](media/charts/model-latency.png)
 
 <!-- receipt-stats:start -->
-**In the 32 exported runs the desk made 2,788 model calls. 2,532 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 51 came from the local Ollama backup, which has no receipt by design. The other 205 failed and returned no answer. The small studies add 879 more signed receipts, all verified.**
+**In the 32 exported runs the desk made 2,788 model calls. 2,532 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 51 came from the local Ollama backup, which has no receipt by design. The other 205 failed and returned no answer. The small studies add 879 more signed receipts, all verified.** Fully local study (A3): 536 signed receipts, all verified against the pinned key.
 
 **Recorded evaluation runs (28 exported runs in eval/runs: the first system's runs, the baselines and the held-out rounds, systems up to sys4)**
 

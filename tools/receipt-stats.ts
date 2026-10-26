@@ -18,6 +18,7 @@ import { gunzipSync } from "node:zlib";
 import { loadConfig, median, percentile, projectRoot, resolveProjectPath, verifyReceipt } from "@sanctions-desk/shared";
 import { formatMarkdown } from "./lib/format-markdown.js";
 import { failedModelCalls, type ReceiptCheck, receiptFigureFrom, receiptSentence } from "./lib/receipt-figure.js";
+import { localModeLine } from "./lib/receipts-scan.js";
 import { RUN_GROUP_ORDER, type RunGroupId, runGroup, runGroupLabel } from "./lib/run-groups.js";
 
 interface Event {
@@ -258,12 +259,10 @@ const table = (g: Group): string =>
     }.`,
   ].join("\n");
 // The one receipt figure (tools/lib/receipt-figure.ts) leads the block, from these groups and eval/receipts-check.json.
-const figure = receiptFigureFrom(
-  JSON.parse(readFileSync(resolveProjectPath("eval/receipts-check.json"), "utf8")) as ReceiptCheck,
-  groups,
-  failedModelCalls(projectRoot()),
-);
-const block = [`**${receiptSentence(figure)}.**`, ...groups.map(table)].join("\n\n");
+const receiptCheck = JSON.parse(readFileSync(resolveProjectPath("eval/receipts-check.json"), "utf8")) as ReceiptCheck;
+const figure = receiptFigureFrom(receiptCheck, groups, failedModelCalls(projectRoot()));
+// The fully local study's receipts are not in the figure; they get their own line, as everywhere the figure is quoted.
+const block = [`**${receiptSentence(figure)}.** ${localModeLine(receiptCheck)}`, ...groups.map(table)].join("\n\n");
 const docFile = resolveProjectPath("docs/NEMOTRON.md");
 let changed = false;
 if (!existsSync(outFile) || readFileSync(outFile, "utf8") !== json) {

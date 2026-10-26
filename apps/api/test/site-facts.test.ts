@@ -46,9 +46,26 @@ const arm = (label: string, source: string, wrong: number, risk = 43): ExamArmRo
 type StoryCase = { case_id: string; got: string; confidence?: number };
 const story = (got: string, confidence = 0.85): StoryCase[] => [{ case_id: STORY_CASE, got, confidence }];
 
+type FakeCheck = {
+  receipts: number;
+  headline: number;
+  from_local_mode: number;
+  valid_pinned: number;
+  groups: { local_mode: { valid_pinned: number } };
+};
+/** The receipt check as npm run receipts:check writes it: every receipt verified, the fully local study's set apart. */
+const check = (over: Partial<FakeCheck> = {}): FakeCheck => ({
+  receipts: 3947,
+  headline: 3411,
+  from_local_mode: 536,
+  valid_pinned: 3947,
+  groups: { local_mode: { valid_pinned: 536 } },
+  ...over,
+});
+
 interface FakeRoot {
   arms?: ExamArmRow[];
-  receipts?: { receipts: number; valid_pinned: number };
+  receipts?: FakeCheck;
   results?: Record<string, StoryCase[]>;
 }
 
@@ -67,7 +84,7 @@ function fakeRoot(over: FakeRoot = {}): string {
     arm("Nemotron alone, with the free text (sent to the cloud)", "eval/results/alone-text.json", 4),
   ];
   write("eval/nemotron-scorecard.json", { exam_arms: arms });
-  write("eval/receipts-check.json", over.receipts ?? { receipts: 3411, valid_pinned: 3411 });
+  write("eval/receipts-check.json", over.receipts ?? check());
   const results = over.results ?? {
     "eval/results/full1.json": story("ESCALATE_L2", 0.7),
     "eval/results/full2.json": story("NEED_MORE_INFO", 0.6),
@@ -85,6 +102,7 @@ describe("the home page's figures", () => {
       full_wrong: "0 of 43",
       alone_wrong: "4 of 43",
       receipts: "3,411",
+      receipts_local_mode_line: "Fully local study (A3): 536 signed receipts, all verified against the pinned key.",
       step_roles: String(USL_STEP_ROLES.length),
       story_alone_conf: "0.85",
       story_desk_runs: "2 of 2",
@@ -92,10 +110,26 @@ describe("the home page's figures", () => {
     });
   });
 
-  it("stop the build when a receipt does not verify against the pinned key", () => {
-    expect(() => siteFacts(fakeRoot({ receipts: { receipts: 3411, valid_pinned: 3410 } }))).toThrow(
+  it("quote the headline without the fully local study's receipts, and say when that study has none yet", () => {
+    const none = fakeRoot({
+      receipts: check({
+        receipts: 3411,
+        from_local_mode: 0,
+        valid_pinned: 3411,
+        groups: { local_mode: { valid_pinned: 0 } },
+      }),
+    });
+    expect(siteFacts(none)).toMatchObject({
+      receipts: "3,411",
+      receipts_local_mode_line: "Fully local study (A3): no receipts exported yet.",
+    });
+  });
+
+  it("stop the build when a receipt does not verify against the pinned key, or the two counts do not add up", () => {
+    expect(() => siteFacts(fakeRoot({ receipts: check({ valid_pinned: 3946 }) }))).toThrow(
       /do not verify against the pinned key/,
     );
+    expect(() => siteFacts(fakeRoot({ receipts: check({ headline: 3410 }) }))).toThrow(/do not add up/);
   });
 
   it("stop the build when the two arms score different numbers of risk cases", () => {

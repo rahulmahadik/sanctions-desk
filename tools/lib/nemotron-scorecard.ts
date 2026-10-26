@@ -28,7 +28,8 @@ import {
   range95,
   rulesFraming,
 } from "./exam-figures.js";
-import { receiptFigure, receiptSentence } from "./receipt-figure.js";
+import { type ReceiptCheck, receiptFigure, receiptSentence } from "./receipt-figure.js";
+import { localModeLine } from "./receipts-scan.js";
 import { RUN_GROUP_ORDER, type RunGroupId, runGroup } from "./run-groups.js";
 
 // ---- the steps (the why text is the start of the "Why this model" cell in docs/NEMOTRON.md; checked on build) ----
@@ -687,6 +688,8 @@ export interface Scorecard {
   rules_framing: string;
   /** The one receipt figure (tools/lib/receipt-figure.ts), as the README and the site quote it. */
   receipt_figure: string;
+  /** The fully local study's receipts, which the figure leaves out, on their own line (tools/lib/receipts-scan.ts). */
+  receipts_local_mode_line: string;
   /** Whether the arms of the held-out v4 study score worse than a constant 0.5 guess (Brier 0.25), in words. */
   brier_note: string;
   not_used: string;
@@ -752,6 +755,7 @@ export function buildScorecard(root: string): Scorecard {
     heldout_totals: heldoutSummary(exam.heldout),
     rules_framing: exam.framing,
     receipt_figure: receiptSentence(receiptFigure(root)),
+    receipts_local_mode_line: localModeLine(readJson<ReceiptCheck>(root, "eval/receipts-check.json")),
     brier_note: brierNote(cal.rows),
     not_used: NOT_USED_LINK,
   };
@@ -821,7 +825,7 @@ export function renderScorecard(s: Scorecard): string {
     "",
     `Answered on the laptop: ${n(s.local_share.local_calls)} of ${n(s.local_share.all_calls)} model calls (${pct}%), Lightning through Nightshift and the Ollama backup together. The per-case \`cost\` in the result files is worked out from the illustrative unit costs in \`config/default.json\`, not recorded, so it is not shown.`,
     "",
-    `**Receipts.** ${s.receipt_figure}.`,
+    `**Receipts.** ${s.receipt_figure}. ${s.receipts_local_mode_line}`,
     "",
     "**Safety guard** (95% Wilson ranges in brackets):",
     "",

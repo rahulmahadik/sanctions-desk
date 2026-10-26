@@ -124,7 +124,8 @@ describe("the local-mode study", () => {
     expect(full.status).toBe("complete");
     expect(full.arms.map((a) => a.pooled?.runs)).toEqual([3, 3]);
     expect(full.arms[0]?.runs[0]).not.toHaveProperty("case_seconds");
-    expect(renderReadmeLine(full, {})).toContain("the median per case of the local-mode runs");
+    expect(renderReadmeLine(full, {})).toContain("- **Fully local mode** (held-out v4, 3 runs, 18 cases): ");
+    expect(renderReadmeLine(full, {})).not.toContain(NOT_RUN);
   });
 
   it("names the model that served each call, the Ollama backup apart", () => {

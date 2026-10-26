@@ -172,11 +172,11 @@ The request files are in [input_examples/README.md](input_examples/README.md); t
 **One-command proof** (`npm run prove`, no credentials or services; the machine, time and commit of the last run are in [eval/PROVE.md](eval/PROVE.md)):
 
 ```text
-PASS  Sample-mode review: POST /run ALR-0004 -> CLOSE_FALSE_POSITIVE, sealed record 9d750e88d8d0… verifies, sample notice shown, human review required (0.1 s)
+PASS  Sample-mode review: POST /run ALR-0004 -> CLOSE_FALSE_POSITIVE, sealed record 5f64d17932a3… verifies, sample notice shown, human review required (0.1 s)
 PASS  Engine conformance: H-MEM 13/13, World Model 8/8, Markovian 8/8 (1.0 s)
 PASS  Critic mutation test: 147 of 147 changed facts caught over 25 decisions; 25 cited facts could not be checked in sample mode; 25/25 unchanged decisions approved (no false alarm); evidence standard: 5 of 5 pass; grounding and document-on-record: 3 of 3 pass (0.4 s)
-PASS  Signed evidence: 3,411 signed receipts: 2,532 from exported runs, 879 from studies, all verified against the pinned key. In the 32 exported runs: 2532/2532 receipts verified (signing key pinned); 2532/2532 receipts named in the traces are present (answers from the Ollama backup and failed calls carry none); 0 trace/receipt model mismatches; run files: 28 verified, commit field remapped (documented), 0 other differences (0.6 s)
-PASS  Roles and four-eyes: 88/88 tests passed (pentest-access 56/56, people 32/32), 0 failed (1.1 s)
+PASS  Signed evidence: 3,411 signed receipts: 2,532 from exported runs, 879 from studies, all verified against the pinned key. Fully local study (A3): 536 signed receipts, all verified against the pinned key. In the 32 exported runs: 2532/2532 receipts verified (signing key pinned); 2532/2532 receipts named in the traces are present (answers from the Ollama backup and failed calls carry none); 0 trace/receipt model mismatches; run files: 28 verified, commit field remapped (documented), 0 other differences (0.7 s)
+PASS  Roles and four-eyes: 88/88 tests passed (pentest-access 56/56, people 32/32), 0 failed (1.2 s)
 PASS  Preregistration: heldout.json cases 1-18 match; heldout.json cases 1-22 match; heldout2.json file hash matches; held-out v2 freeze commit 8f6976c is in the history; heldout3.json file hash matches; held-out v3 frozen in commit 02d0a2e, the same file; heldout4.json file hash matches; held-out v4 frozen in commit fc64537, the same file (0.0 s)
 PASS  No secrets in the tree: 726 tracked text files scanned: 0 credential-bearing URLs, private keys or tokens; no .env file tracked (0.1 s)
 PASS: 7 of 7 checks passed
@@ -222,6 +222,8 @@ An AI review desk that gathers and re-checks the evidence for each bank sanction
 **Runs counted:** <!--fact:exported_split-->28 recorded evaluation runs, plus 2 current-system runs and 2 Nemotron-alone study runs, make the 32 exported runs<!--/fact-->. The table counts the recorded evaluation runs; the receipt figure below counts every exported run.
 
 > **<!--fact:receipt_figure-->In the 32 exported runs the desk made 2,788 model calls. 2,532 were Nightshift answers, each with a signed receipt verified against the pinned key. Another 51 came from the local Ollama backup, which has no receipt by design. The other 205 failed and returned no answer. The small studies add 879 more signed receipts, all verified<!--/fact-->.** The [receipt log](https://rahulmahadik.github.io/sanctions-desk/receipts/) shows each call with the mode asked for and the model that served it. Each signature is checked when the site is built.
+>
+> <!--fact:receipts_local_mode_line-->Fully local study (A3): 536 signed receipts, all verified against the pinned key.<!--/fact--> Those receipts are counted with that study, not in the figure above ([docs/NEMOTRON.md](docs/NEMOTRON.md#fully-local-mode-every-step-on-the-laptop)).
 
 - **The model shown is the one that answered.** The model shown for each step is the one that answered, as named in its signed receipt (the routed model), not the mode the desk asked for; the trace records both, and `npm run evidence:verify` checks that they match. A backup answer from Ollama has no receipt and is shown as "Ollama backup, no receipt".
 - **The desk pins the mode, not the model.** Nightshift's router chooses inside the lane each step is bound to. So the split is a measurement, not a guarantee.
@@ -229,7 +231,7 @@ An AI review desk that gathers and re-checks the evidence for each bank sanction
 - <!--fact:decision_lightning_note-->Lightning answered 9 decision calls in the run of the current system. 8 were the desk's fast-lane retry after an unusable or failed first answer. That retry is a deliberate fallback: it asks for `meterless/fast` under the guard identity, which the cockpit binds to the local lane. 1 was a deep-lane call where Nightshift's router predicted Ultra but Lightning won a hedged race. 7 more decision answers came from the Ollama backup (no receipt).<!--/fact-->
 - A decision answered by that retry still goes through the critic and the policy guard ([docs/MODELS.md](docs/MODELS.md#how-a-call-is-routed)).
 <!-- local-mode:start -->
-- **Fully local mode:** every step runs on Nemotron 3.5 Lightning on the laptop, so all data and models stay on the machine. It is an option with a trade-off. In the model-choice study (20 cases, one run per arm), Lightning doing the reasoning made 1 of 10 clears against 3 of 10. It took a median of 385 s per case against 110 s. Not run yet: a held-out v4 study and a 70-case run in fully local mode. How to run it: [docs/MODELS.md](docs/MODELS.md#fully-local-mode).
+- **Fully local mode** (held-out v4, 3 runs, 36 cases): 0 of 18 risk cases wrongly closed and 0 of 316 model calls sent to the cloud; but 0 of 18 clears, 17 of 36 cases without a usable model answer (each held for a person) and a median of 292 s per case. With Ultra in the cloud on the same cases: 0 of 18 wrongly closed, 3 of 18 clears, every case answered, median 35 s. Fully local mode is safe but not yet practical on this laptop, which is why reasoning runs on Ultra by default. Not run: a 70-case run in fully local mode. Details: [docs/NEMOTRON.md](docs/NEMOTRON.md#fully-local-mode-every-step-on-the-laptop). How to run it: [docs/MODELS.md](docs/MODELS.md#fully-local-mode).
 <!-- local-mode:end -->
 - Why each model, the privacy design and the studies of model choice: [docs/NEMOTRON.md](docs/NEMOTRON.md).
 

@@ -101,6 +101,11 @@ export const RESULTS_SECTIONS: readonly ResultsSection[] = [
     ],
   },
   {
+    title: "Fully local mode",
+    lead: "Every model step on Nemotron 3.5 Lightning on the laptop, held-out v4 three times, against the default mode on the same cases. A small study, kept apart from the recorded evaluation.",
+    blocks: [{ doc: "docs/NEMOTRON.md", marker: "local-mode" }],
+  },
+  {
     title: "Safety guard against injected text",
     lead: "The local guard model and the fixed patterns on texts written to attack the reviewer, in three labelled runs: the guard-only run (asked once), the 105-text full-review run (guard asked once) and the fresh-set run (current guard: asked twice, plus a narrow check). Every text is screened; the guard is not perfect, and misses are listed.",
     blocks: [
@@ -214,7 +219,7 @@ export function headlineLines(root = resolveProjectPath(".")): string[] {
     `<strong>${esc(f.full_wrong)}</strong> risk cases wrongly closed by the full system on the 70-case exam, newest run.`,
     `<strong>${esc(f.alone_wrong)}</strong> wrongly closed by Nemotron alone with the free text, on the same cases.`,
     `<strong>ALR-0073</strong> (exam case EX-064): Nemotron alone closed it at ${esc(f.story_alone_conf)} confidence; the desk held it for a person in ${esc(f.story_desk_runs)} full-system runs.`,
-    `<strong>${esc(f.receipts)}</strong> signed receipts, all verified against the pinned key: one for every Nightshift answer.`,
+    `<strong>${esc(f.receipts)}</strong> signed receipts, all verified against the pinned key: one for every Nightshift answer. ${esc(f.receipts_local_mode_line)}`,
     `<strong>${esc(f.step_roles)}</strong> read-only Zetaris roles, one per review step that reads data.`,
   ];
 }

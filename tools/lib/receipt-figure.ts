@@ -13,11 +13,16 @@ import { gunzipSync } from "node:zlib";
 import { RUN_GROUP_ORDER } from "./run-groups.js";
 
 export interface ReceiptCheck {
+  /** Every receipt under eval/; the verification counts cover them all. */
   receipts: number;
+  /** Every receipt but the fully local study's, which the docs report on their own line (tools/lib/receipts-scan.ts). */
+  headline: number;
   from_runs: number;
+  /** The small studies in eval/studies, the fully local study left out. */
   from_studies: number;
+  from_local_mode: number;
   valid_pinned: number;
-  groups: { runs: { folders: number } };
+  groups: { runs: { folders: number }; local_mode: { valid_pinned: number } };
 }
 export interface StatsGroup {
   id: string;
