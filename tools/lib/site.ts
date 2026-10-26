@@ -13,7 +13,7 @@ import { buildReceiptLog } from "./receipt-log.js";
 import { buildResultsPage } from "./results-page.js";
 import { buildRunPages } from "./runs-site.js";
 import { FONT_FILES } from "./site-chrome.js";
-import { fillIndex, siteFacts, storyLinksHtml } from "./site-facts.js";
+import { casesHtml, enforcementCases, fillIndex, siteFacts, storyLinksHtml } from "./site-facts.js";
 
 /** The committed pages of the site, copied when the site is built somewhere other than site/. */
 export const SITE_PAGES = ["index.html", "api.html", "architecture.html"] as const;
@@ -80,7 +80,12 @@ export function writeOpenApi(file: string): string {
 
 /** The landing page with its figures filled in from the committed data under `root`. */
 export function renderIndex(root = resolveProjectPath(".")): string {
-  return fillIndex(readFileSync(join(root, "site", "index.html"), "utf8"), siteFacts(root), storyLinksHtml(root));
+  return fillIndex(
+    readFileSync(join(root, "site", "index.html"), "utf8"),
+    siteFacts(root),
+    storyLinksHtml(root),
+    casesHtml(enforcementCases(root)),
+  );
 }
 
 /**

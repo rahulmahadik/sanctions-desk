@@ -108,7 +108,17 @@ export function footerOf(o: Pick<PageOptions, "depth" | "current"> = { depth: 0 
     </footer>`;
 }
 
-/** A whole page: head, top bar, the body inside <main class="container">, footer. */
+/** One line that says what the desk is, for a reader who lands on a page other than the home page. */
+export const ORIENTATION =
+  "Sanctions Desk gathers and checks the evidence for every sanctions-screening alert and recommends an outcome; a person with the right entitlement approves it.";
+
+/** The orientation line with the way to the home page's story and problem statement (site/architecture.html carries the same by hand). */
+export function orientationOf(o: Pick<PageOptions, "depth">): string {
+  const p = prefixFor(o.depth);
+  return `      <p class="orientation">${ORIENTATION} <a href="${p}index.html#story">One alert, start to finish</a> · <a href="${p}index.html#problem">The problem it works on</a></p>`;
+}
+
+/** A whole page: head, top bar, the orientation line and the body inside <main class="container">, footer. */
 export function pageOf(o: PageOptions, body: string): string {
   return `<!doctype html>
 <html lang="en">
@@ -116,6 +126,7 @@ ${headOf(o)}
   <body${o.bodyClass ? ` class="${esc(o.bodyClass)}"` : ""}>
 ${topbarOf(o)}
     <main id="main" class="container">
+${orientationOf(o)}
 ${body}
     </main>
 ${footerOf(o)}

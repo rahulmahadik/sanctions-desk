@@ -369,7 +369,14 @@ main.container {
     font-size: 0.9rem;
   }
 }
+/* Down to 360 px the five sections still fit one row in a smaller type; below that the brand alone is the way home. */
 @media (max-width: 400px) {
+  .topbar nav a {
+    padding: 6px 4px;
+    font-size: 0.85rem;
+  }
+}
+@media (max-width: 350px) {
   .topbar nav li:first-child {
     display: none;
   }
@@ -388,7 +395,7 @@ main.container {
   padding-block: 20px 32px;
 }
 .site-footer .external::after {
-  content: " ↗";
+  content: "\00a0↗";
   font-size: 0.8em;
 }
 .site-footer p {
@@ -1296,6 +1303,116 @@ a.role-shot img {
   margin-top: 12px;
 }
 
+/* The problem in a bank's words: three points, then the public enforcement cases as a row of cards. */
+.points {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+.points > li {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--amber);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+.points h3 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+.points p {
+  margin: 0;
+  color: var(--muted);
+}
+.cases-block {
+  margin-top: 36px;
+}
+.cases-block h3 {
+  margin: 0 0 6px;
+}
+.cases-note {
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+.cases {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+.case {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+.case-when {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.case-authority {
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--card-2);
+}
+.case-firm {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.case-gap {
+  margin: 0;
+  color: var(--muted);
+  flex: 1;
+}
+.case-gap::first-letter {
+  text-transform: uppercase;
+}
+.case-outcome {
+  margin: 0;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--warn-fg);
+}
+.case-source {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.case-source::after {
+  content: "\00a0↗";
+  font-size: 0.8em;
+}
+
+/* One line for a reader who lands on a page other than the home page: what the desk is, and the way to its story. */
+.orientation {
+  margin: 0 0 20px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 /* One alert, start to finish: the two verdicts of the video thumbnail, side by side. */
 .verdicts {
   display: grid;
@@ -1373,7 +1490,7 @@ a.role-shot img {
   font-weight: 600;
 }
 .built-doc::after {
-  content: " ↗";
+  content: "\00a0↗";
   font-size: 0.8em;
 }
 .built-zetaris {
@@ -1392,7 +1509,7 @@ figure.diagram-preview {
   margin: 0;
   max-width: none;
 }
-figure.diagram-preview a {
+figure.diagram-preview > a {
   display: block;
   max-height: 520px;
   overflow: hidden;

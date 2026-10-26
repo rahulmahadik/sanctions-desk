@@ -13,14 +13,30 @@ import {
   SITE_IMAGES,
   SITE_PAGES,
 } from "../../../tools/lib/site.js";
-import { FONT_FILES, FOOTER_LINKS, NAV_LINKS } from "../../../tools/lib/site-chrome.js";
-import { fillIndex, SiteFactsError, siteFacts, storyLinksHtml } from "../../../tools/lib/site-facts.js";
+import { esc, FONT_FILES, FOOTER_LINKS, NAV_LINKS, ORIENTATION } from "../../../tools/lib/site-chrome.js";
+import {
+  enforcementCases,
+  fillIndex,
+  SiteFactsError,
+  siteFacts,
+  storyLinksHtml,
+} from "../../../tools/lib/site-facts.js";
 import { ROUTES } from "../src/openapi.js";
 
 const REPO_URL = "https://github.com/rahulmahadik/sanctions-desk";
 const REPO_BLOB = `${REPO_URL}/blob/main/`;
-/** Outside links a page may carry besides the repository: the demo video (a link only; nothing is loaded from it). */
-const EXTERNAL_OK: string[] = ["https://youtu.be/cF4ZXKxjpxs"];
+/**
+ * Outside links a page may carry besides the repository, links only (nothing is loaded from them): the demo video, and
+ * the official releases of the five public enforcement cases the home page lists from the README.
+ */
+const EXTERNAL_OK: string[] = [
+  "https://youtu.be/cF4ZXKxjpxs",
+  "https://ofac.treasury.gov/media/11661/download",
+  "https://ofac.treasury.gov/media/911571/download",
+  "https://www.dfs.ny.gov/reports_and_publications/press_releases/pr202111091",
+  "https://ofac.treasury.gov/media/924506/download",
+  "https://ofac.treasury.gov/media/932766/download",
+];
 const out = mkdtempSync(join(tmpdir(), "desk-site-"));
 afterAll(() => rmSync(out, { recursive: true, force: true }));
 
@@ -246,6 +262,51 @@ describe("the documentation site", () => {
     );
     // The note about youtube-nocookie.com is said once on the page.
     expect(html("index.html").match(/youtube-nocookie\.com/g)).toHaveLength(2); // the content policy and the caption
+  });
+
+  it("lists the public enforcement cases from the README, each with its figures and a link to the official release", () => {
+    const cases = enforcementCases(resolveProjectPath("."));
+    expect(cases).toHaveLength(5);
+    const home = html("index.html");
+    expect(home.match(/<li class="case">/g)).toHaveLength(5);
+    for (const c of cases) {
+      expect(c.outcome).toMatch(/settlement|penalty|Finding of Violation/);
+      expect(home).toContain(`<h4 class="case-firm">${esc(c.firm)}</h4>`);
+      expect(home).toContain(`<p class="case-gap">${esc(c.gap)}</p>`);
+      expect(home).toContain(`<p class="case-outcome">${esc(c.outcome)}</p>`);
+      // The official release is a link only, opening in a new tab; it is on the list of allowed outside links.
+      expect(home).toContain(
+        `<a class="case-source" href="${c.sourceUrl}" target="_blank" rel="noopener noreferrer">${esc(c.sourceLabel)}</a>`,
+      );
+      expect(EXTERNAL_OK).toContain(c.sourceUrl);
+    }
+    // The README's disclaimer, word for word (the page wraps its lines).
+    const readme = readFileSync(resolveProjectPath("README.md"), "utf8");
+    const unwrapped = home.replace(/\s+/g, " ");
+    for (const sentence of [
+      "These are public facts from official enforcement releases.",
+      "They show the kinds of gaps that have cost banks; they do not show that this desk would have prevented any of them.",
+    ]) {
+      expect(unwrapped).toContain(sentence);
+      expect(readme).toContain(sentence);
+    }
+    expect(unwrapped).toContain("They are <strong>not results of this project</strong>.");
+    expect(readme).toContain("They are **not results of this project**.");
+    // The problem in the README's three points.
+    for (const point of ["Too many alerts", "One mistake is costly", "The work is evidence work"])
+      expect(home).toContain(`<h3>${point}</h3>`);
+  });
+
+  it("tells a reader who lands on any other page what the desk is, with the way to the home page's story", () => {
+    const home = html("index.html");
+    expect(home).toContain('id="story"');
+    expect(home).toContain('id="problem"');
+    for (const page of pages.filter((p) => p !== "index.html" && p !== "api.html")) {
+      const text = html(page);
+      const up = page.includes("/") ? "../" : "";
+      expect(text, page).toContain(`<p class="orientation">${ORIENTATION} <a href="${up}index.html#story">`);
+      expect(text, page).toContain(`href="${up}index.html#problem"`);
+    }
   });
 
   it("shows the role cards' cropped details, each opening the full screenshot", () => {

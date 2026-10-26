@@ -224,7 +224,7 @@ describe("the recorded-run pages", () => {
           expect(tracked.has(link.slice(REPO_BLOB.length).split("#")[0] as string), `${f}: ${link}`).toBe(true);
         } else if (link === REPO_URL) {
         } else if (link.startsWith("../")) {
-          expect(SITE_ROOT_FILES.has(link.slice(3)), `${f}: ${link}`).toBe(true);
+          expect(SITE_ROOT_FILES.has(link.slice(3).split("#")[0] as string), `${f}: ${link}`).toBe(true);
         } else if (link.startsWith("#")) {
           expect(page, `${f}: ${link}`).toContain(`id="${link.slice(1)}"`);
         } else {

@@ -138,15 +138,87 @@ export function stepRowsHtml(): string {
   }).join("\n");
 }
 
+/** A public enforcement case as the README states it: its short line under "The problem" and its table row. */
+export interface EnforcementCase {
+  year: string;
+  /** The firm as the table names it (the short line may shorten it). */
+  firm: string;
+  authority: string;
+  /** The table's "Authority and outcome" cell after the authority, for example "$2,485,890 settlement". */
+  outcome: string;
+  /** The one-phrase gap from the short line. */
+  gap: string;
+  sourceLabel: string;
+  sourceUrl: string;
+}
+
+const CASE_LINE = /^- \*\*(.+?)\*\* \((OFAC|NYDFS), (\d{4})\): (.+)$/;
+const CASE_ROW = /^\| (\d{4}) \| (.+?) \| (OFAC|NYDFS): (.+?) \| .+? \| \[(.+?)\]\((https?:\/\/[^\s)]+)\) \|$/;
+
+/**
+ * The public enforcement cases, read from README.md so the home page cannot drift from it: each short line under
+ * "The problem" is matched to its table row by year, authority and firm. The build stops when a line has no row.
+ */
+export function enforcementCases(root: string): EnforcementCase[] {
+  let readme: string;
+  try {
+    readme = readFileSync(join(root, "README.md"), "utf8");
+  } catch (err) {
+    throw new SiteFactsError(`README.md cannot be read: ${(err as Error).message}`);
+  }
+  const lines = readme.split("\n");
+  const shorts = lines.map((l) => CASE_LINE.exec(l)).filter((m) => m !== null);
+  const rows = lines.map((l) => CASE_ROW.exec(l)).filter((m) => m !== null);
+  if (shorts.length === 0 || shorts.length !== rows.length)
+    throw new SiteFactsError(
+      `README.md lists ${shorts.length} enforcement cases but its table has ${rows.length} rows`,
+    );
+  return shorts.map((s) => {
+    const [firm, authority, year, gap] = [s[1] ?? "", s[2] ?? "", s[3] ?? "", s[4] ?? ""];
+    const row = rows.find((r) => r[1] === year && r[3] === authority && (r[2] ?? "").startsWith(firm));
+    if (!row) throw new SiteFactsError(`README.md has no table row for the ${year} ${firm} case`);
+    return {
+      year,
+      firm: row[2] ?? "",
+      authority,
+      outcome: row[4] ?? "",
+      gap,
+      sourceLabel: row[5] ?? "",
+      sourceUrl: row[6] ?? "",
+    };
+  });
+}
+
+/** The cards of the home page's enforcement-cases block; each links to the official release, in a new tab. */
+export function casesHtml(cases: readonly EnforcementCase[]): string {
+  return cases
+    .map(
+      (c) => `            <li class="case">
+              <p class="case-when"><span class="case-year">${esc(c.year)}</span><span class="case-authority">${esc(c.authority)}</span></p>
+              <h4 class="case-firm">${esc(c.firm)}</h4>
+              <p class="case-gap">${esc(c.gap)}</p>
+              <p class="case-outcome">${esc(c.outcome)}</p>
+              <a class="case-source" href="${esc(c.sourceUrl)}" target="_blank" rel="noopener noreferrer">${esc(c.sourceLabel)}</a>
+            </li>`,
+    )
+    .join("\n");
+}
+
 const FACT = /<!--fact:(\w+)-->([\s\S]*?)<!--\/fact-->/g;
 const STEPS_BLOCK = /(<!-- steps:start -->)[\s\S]*?(<!-- steps:end -->)/;
 const STORY_LINKS_BLOCK = /(<!-- story-links:start -->)[\s\S]*?(<!-- story-links:end -->)/;
+const CASES_BLOCK = /(<!-- cases:start -->)[\s\S]*?(<!-- cases:end -->)/;
 
 /**
  * The home page with its markers filled; the markers stay, so the page can be filled again. `storyLinks` fills the
- * <!-- story-links:start --> block when the page has one.
+ * <!-- story-links:start --> block and `cases` the <!-- cases:start --> block, each when the page has one.
  */
-export function fillIndex(template: string, facts: Record<string, string>, storyLinks?: string): string {
+export function fillIndex(
+  template: string,
+  facts: Record<string, string>,
+  storyLinks?: string,
+  cases?: string,
+): string {
   if (!STEPS_BLOCK.test(template)) throw new SiteFactsError("site/index.html has no <!-- steps:start --> block");
   let seen = 0;
   const out = template
@@ -159,6 +231,9 @@ export function fillIndex(template: string, facts: Record<string, string>, story
     .replace(STEPS_BLOCK, (_whole, open: string, close: string) => `${open}\n${stepRowsHtml()}\n            ${close}`)
     .replace(STORY_LINKS_BLOCK, (whole, open: string, close: string) =>
       storyLinks === undefined ? whole : `${open}\n${storyLinks}\n          ${close}`,
+    )
+    .replace(CASES_BLOCK, (whole, open: string, close: string) =>
+      cases === undefined ? whole : `${open}\n${cases}\n            ${close}`,
     );
   if (seen === 0) throw new SiteFactsError("site/index.html has no <!--fact:...--> markers");
   return out;
