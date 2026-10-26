@@ -232,7 +232,7 @@ export function createMcpHandler(options: McpOptions) {
         return reply({
           protocolVersion: PROTOCOL,
           capabilities: { tools: {} },
-          serverInfo: { name: "sanctions-desk", version: "1.3.0" },
+          serverInfo: { name: "sanctions-desk", version: "1.4.0" },
           instructions:
             "A sanctions-screening review desk. You can read the queue, ask for a recommendation, read a case and check a receipt. A person makes the final call; automatic closing is off by default, and no tool here can approve, override, block or change policy.",
         });
