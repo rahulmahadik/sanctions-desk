@@ -22,7 +22,7 @@ Built on Zetaris for data and NVIDIA Nemotron through Meterless Nightshift. A pr
 
 - **Barclays** (OFAC, 2016): owners at 50 percent or more missing from the screening records
 - **Payoneer** (OFAC, 2021): close matches to listed names passed the filter
-- **Mashreqbank** (NYDFS, 2021): fields left out of payment messages between banks
+- **Mashreqbank** (NYDFS, 2021): fields left out of interbank payment messages, bypassing other banks' sanctions filters
 - **MidFirst Bank** (OFAC, 2022): existing customers re-screened only once a month
 - **EFG International** (OFAC, 2024): sanctioned clients behind omnibus accounts
 
@@ -75,7 +75,7 @@ A `policy_admin` role publishes policy changes; a change needs a second, differe
 Alert **ALR-0073** (exam case EX-064): a payment whose counterparty name equals a listed bank's, with the onward city named only in the payment reference, "Machine parts, onward delivery to Tehran". Closing it is a must-not.
 
 - **Nemotron alone** (one model call, no agents) recommended closing it as a false positive, at confidence 0.85, both with and without the free text (one run each: [with](eval/results/2026-10-25T09-30-17-773Z-text70-nemotron_alone.json), [without](eval/results/2026-10-25T10-41-35-156Z-notext70-nemotron_alone.json)).
-- **The desk did not close it.** In the first system's run the decision step first proposed a close at 0.95 and the critic approved it; the policy guard stopped the close on "Tehran" in the payment reference and escalated it ([the trace](docs/EVALUATION.md#one-real-trace)). In the run of the current system, the local screener flagged the reference and the desk asked for more information ([result](eval/results/2026-10-25T11-52-00-415Z-sys6-routed.json)): this time the decision step, given that flag, asked for more information in its first answer, so there was no close for the policy guard to escalate.
+- **The desk did not close it.** In the first system's run the decision step first proposed a close at 0.95 and the critic approved it; the policy guard stopped the close on "Tehran" in the payment reference and escalated it ([the trace](docs/EVALUATION.md#one-real-trace)). In the [current system's run](eval/results/2026-10-25T11-52-00-415Z-sys6-routed.json), the local screener flagged the reference first, so the decision step asked for more information straight away, and there was no close to stop.
 
 ![A review of alert ALR-0073 in sample mode: the steps light up, the Tehran signal in the payment reference, and the checks that keep the case open](docs/media/gifs/case-review.gif)
 

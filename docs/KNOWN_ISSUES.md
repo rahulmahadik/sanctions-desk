@@ -80,3 +80,4 @@ The same list as the README's [scope table](../README.md#scope-today-and-not-yet
 - **Keep all raw text on the machine.** The local safety guard and screener read notes and payment references, and the cloud steps get structured signals; a cloud-served answer is not accepted and the case cannot close, but by then the text has left the machine. The next step is a route that can only run locally.
 - **A pinned-model run** (exact model per step) once Nightshift 1.2.3 is installed, and repeated held-out runs to show the spread between runs.
 - **One local model copy.** Keep one local copy loaded (point the backup at the resident lane, or unload Ollama's copy), record the provider error type in the trace, and avoid other heavy work during runs.
+- **Single sign-on.** Connect to the bank's single sign-on and entitlement system, so desk roles come from the bank's own access management.
