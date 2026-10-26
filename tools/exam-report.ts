@@ -1246,11 +1246,24 @@ const ROUND_STORY: Record<string, { found: string; changed: string }> = {
     changed: "nothing; this was the last held-out round",
   },
 };
+/** A held-out cell as counts only; the ids of the wrongly closed cases go in a footnote line per round. */
+const countText = (cell: RoundCell) =>
+  `${cell.wrong_closes} of ${cell.risk} risks closed; ${cell.clears_made} of ${cell.clears} clears`;
 const bold = (cell: RoundCell | null) =>
-  cell && cell.wrong_closes > 0 ? `**${cell.text}**` : (cell?.text ?? "not part of this round");
+  cell ? (cell.wrong_closes > 0 ? `**${countText(cell)}**` : countText(cell)) : "not part of this round";
 const roundRows = rounds.map(
   (r) => `| ${r.label}${r.blind ? "" : " (not blind)"} | ${ROUND_COLUMNS.map((c) => bold(r.cells[c])).join(" | ")} |`,
 );
+/** One footnote line per round: which risk cases each column wrongly closed. */
+const roundIdLines = rounds.map((r) => {
+  const parts = ROUND_COLUMNS.flatMap((c) => {
+    const cell = r.cells[c];
+    return cell && cell.wrong_closes > 0
+      ? [`${ROUND_COLUMN_LABEL[c].split(" (")[0]?.toLowerCase()} ${cell.wrong_close_ids.join(", ")}`]
+      : [];
+  });
+  return `- ${r.label}${r.blind ? "" : " (not blind)"}: ${parts.length > 0 ? parts.join("; ") : "none"}.`;
+});
 /** The 95% Wilson score interval for x of n, in whole percent. */
 const wilson95 = (x: number, n: number): string => {
   const { low, high } = wilsonInterval(x, n);
@@ -1352,15 +1365,17 @@ const JS = "<!-- rounds:start -->";
 const JE = "<!-- rounds:end -->";
 const readmeRounds = readFileSync(readmePath, "utf8");
 if (full && readmeRounds.includes(JS) && readmeRounds.includes(JE)) {
-  const fuzzy = get("fuzzy");
   const rows = [
-    `- **Wrongly closed on the ${full.metrics.risk_cases} risk cases of the exam:** full system **${full.metrics.false_closes}**${fuzzy ? `, plain name matching ${fuzzy.metrics.false_closes}` : ""}.`,
     ...(framing ? [`- ${framing}`] : []),
     "- **Every held-out round, as run**, with the baselines on the same frozen cases (cases the rules were not written for; one run each). The same table, from the same result files, is on the review desk's test-scores screen. Wrong closes are in bold and stay in this table:",
     "",
     `| Round | ${ROUND_COLUMNS.map((c) => ROUND_COLUMN_LABEL[c]).join(" | ")} |`,
     `|---|${ROUND_COLUMNS.map(() => "---").join("|")}|`,
     ...roundRows,
+    "",
+    "Risk cases wrongly closed, by case id:",
+    "",
+    ...roundIdLines,
     "",
     "Ranges use the Wilson score method.",
     "",
@@ -1497,14 +1512,31 @@ function resultsBox(): string[] {
   const esc = get("escalate_all") ? examFigures(get("escalate_all") as Result) : undefined;
   const aloneRun = arms.aloneWith;
   const alone = aloneRun ? examFigures(aloneRun) : undefined;
+  const aloneNoText = arms.aloneWithout ? examFigures(arms.aloneWithout) : undefined;
+  const aloneRisk = alone
+    ? `; Nemotron alone ${aloneNoText ? `${of(aloneNoText.wrong, aloneNoText.risk)} without the free text and ` : ""}${of(alone.wrong, alone.risk)} with it`
+    : "";
+  const sameClears = aloneNoText && alone && aloneNoText.made === alone.made && aloneNoText.clears === alone.clears;
+  const aloneClears = alone
+    ? `; Nemotron alone ${sameClears ? `${of(alone.made, alone.clears)} in each arm` : `${aloneNoText ? `${of(aloneNoText.made, aloneNoText.clears)} without the free text and ` : ""}${of(alone.made, alone.clears)} with it`}`
+    : "";
+  const aloneSources = [
+    arms.aloneWithout ? `without the free text ${answerSources(arms.aloneWithout, runDirs)}` : "",
+    aloneRun ? `with it ${answerSources(aloneRun, runDirs)}` : "",
+  ].filter(Boolean);
   const fixLine = currentSystem
     ? `A code change had stopped block recommendations on true matches; fixed and re-measured ([what changed](${EVAL_BLOCK_FIX}), [figures](eval/REPORT.md)).`
     : `A code change stopped block recommendations on true matches; it is fixed, and the re-measurement of the fixed code is in progress ([what changed](${EVAL_BLOCK_FIX}), [figures](eval/REPORT.md)).`;
   return [
     `> **Results in one box.** The 70-case exam unless a line says otherwise; one run each; 95% ranges in brackets. Full system = ${newestFull.label}, its newest run on the 70 cases.`,
     "",
-    `- **Risk cases wrongly closed:** full system ${of(f.wrong, f.risk)}${alone && aloneRun ? `; Nemotron alone with the free text ${of(alone.wrong, alone.risk)} (decision answers used: ${answerSources(aloneRun, runDirs)})` : ""}${fuzzy ? `; name matching ${of(fuzzy.wrong, fuzzy.risk)}` : ""}.`,
-    `- **Clear cases closed:** full system ${of(f.made, f.clears)}${rules ? `; deterministic rules ${of(rules.made, rules.clears)}` : ""}.`,
+    `- **Risk cases wrongly closed:** full system ${of(f.wrong, f.risk)}${aloneRisk}${fuzzy ? `; name matching ${of(fuzzy.wrong, fuzzy.risk)}` : ""}.`,
+    `- **Clear cases closed:** full system ${of(f.made, f.clears)}${aloneClears}${rules ? `; deterministic rules ${of(rules.made, rules.clears)}` : ""}.`,
+    ...(aloneSources.length > 0
+      ? [
+          `- **Caveat on the Nemotron-alone arms:** not every decision there was answered by Ultra. Some came from the Lightning fast-lane retry or the Ollama backup, and some cases had no usable answer. Decision answers used: ${aloneSources.join("; ")}.`,
+        ]
+      : []),
     ...(esc
       ? [
           `- **Escalate everything:** ${esc.wrong} of ${esc.risk} wrongly closed and ${esc.made} of ${esc.clears} clears. So the desk's value is the clears it makes at zero wrong closes, plus the evidence pack behind every recommendation.`,
@@ -1515,7 +1547,7 @@ function resultsBox(): string[] {
     `- **Time per alert:** ${timeHeadline()}.`,
     `- **Blocks recommended on the 70 cases:** ${f.blocks} in the run of ${newestFull.label}. ${fixLine}`,
     "",
-    "The rules are exact on the exam by design; the desk's job is the free-text risk the rules cannot see — see [held-out](#key-results).",
+    "The rules are exact on the exam by design; the desk's job is the free-text risk the rules cannot see — see [the held-out rounds](#held-out-rounds).",
   ];
 }
 

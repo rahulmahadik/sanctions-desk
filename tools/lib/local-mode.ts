@@ -285,6 +285,9 @@ export interface ModelChoiceArm {
 
 const minutes = (s: number) => Math.max(1, Math.round(s / 60));
 
+/** The limit stated while the study has not been run: no measurement of this mode on held-out v4 or the 70 cases. */
+export const NOT_RUN = "Not run yet: a held-out v4 study and a 70-case run in fully local mode.";
+
 /** The block between the local-mode markers in docs/NEMOTRON.md. */
 export function renderDocBlock(
   s: LocalModeStudy,
@@ -295,9 +298,9 @@ export function renderDocBlock(
   if (s.status !== "complete") {
     const earlier =
       choice.ultra && choice.lightning
-        ? ` Until it is measured, the only measurement of Lightning doing the reasoning is the model-choice study above: a median of ${choice.lightning.median_case_s} s per case against ${choice.ultra.median_case_s} s, ${choice.lightning.clears_made} of ${choice.lightning.clear_cases} clears made against ${choice.ultra.clears_made} of ${choice.ultra.clear_cases}, ${choice.lightning.wrong_closes} of ${choice.lightning.risk_cases} risk cases wrongly closed in both arms${choice.ultra.wrong_closes === choice.lightning.wrong_closes ? "" : ` (default: ${choice.ultra.wrong_closes} of ${choice.ultra.risk_cases})`}.`
+        ? ` The only measurement so far of Lightning doing the reasoning is the model-choice study above: a median of ${choice.lightning.median_case_s} s per case against ${choice.ultra.median_case_s} s, ${choice.lightning.clears_made} of ${choice.lightning.clear_cases} clears made against ${choice.ultra.clears_made} of ${choice.ultra.clear_cases}, ${choice.lightning.wrong_closes} of ${choice.lightning.risk_cases} risk cases wrongly closed in both arms${choice.ultra.wrong_closes === choice.lightning.wrong_closes ? "" : ` (default: ${choice.ultra.wrong_closes} of ${choice.ultra.risk_cases})`}.`
         : "";
-    return `**${s.label}: not measured yet.** ${lead} The planned study runs held-out v4 (12 cases) three times in this mode and three times in the default mode; this block is written from their result files, traces and receipts by \`npm run study:local-mode\` once all ${s.runs_expected} runs are exported.${earlier}`;
+    return `**Fully local mode.** ${lead} ${NOT_RUN}${earlier}`;
   }
   const rows = s.arms.flatMap((a) => (a.pooled ? [{ a, p: a.pooled }] : []));
   const local = s.arms.find((a) => a.id === "local")?.pooled;
@@ -349,8 +352,5 @@ export function renderReadmeLine(
     L && U
       ? `. In the model-choice study (20 cases, one run per arm), Lightning doing the reasoning made ${L.clears_made} of ${L.clear_cases} clears against ${U.clears_made} of ${U.clear_cases}. It took a median of ${L.median_case_s} s per case against ${U.median_case_s} s`
       : "";
-  const perAlert = L
-    ? ` (about ${minutes(L.median_case_s)} minutes per alert locally, the median per case of the model-choice study's Lightning arm)`
-    : "";
-  return `- ${head}${tradeOff}. A held-out v4 study of this mode (three runs per mode): not measured yet. 70-case local run: not measured${perAlert}. ${how}`;
+  return `- ${head}${tradeOff}. ${NOT_RUN} ${how}`;
 }

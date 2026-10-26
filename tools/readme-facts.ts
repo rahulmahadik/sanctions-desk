@@ -71,10 +71,19 @@ interface StatsRow {
   model: string;
   calls: number;
 }
-const recordedStats = (
+const statsGroups = (
   read("eval/receipt-stats.json") as { groups: Array<{ id: string; runs: number; rows: StatsRow[] }> }
-).groups.find((g) => g.id === "recorded");
+).groups;
+const recordedStats = statsGroups.find((g) => g.id === "recorded");
 if (!recordedStats) throw new Error("eval/receipt-stats.json has no recorded group: run npm run receipt:stats");
+// The exported runs in eval/runs, split into the recorded evaluation runs and the runs kept apart from them.
+const runsOf = (id: string) => statsGroups.find((g) => g.id === id)?.runs ?? 0;
+const split = { recorded: recordedStats.runs, current: runsOf("current-system"), alone: runsOf("nemotron-alone") };
+if (split.recorded + split.current + split.alone !== receipts.groups.runs.folders)
+  throw new Error(
+    "the run groups of eval/receipt-stats.json do not add up to the exported runs of eval/receipts-check.json",
+  );
+const exportedSplit = `${split.recorded} recorded evaluation runs, plus ${split.current} current-system runs and ${split.alone} Nemotron-alone study runs, make the ${receipts.groups.runs.folders} exported runs`;
 const SHORT: Array<[RegExp, string]> = [
   [/Ultra/, "Ultra"],
   [/Ollama/, "Ollama backup"],
@@ -138,6 +147,7 @@ const facts: Record<string, string> = {
   // The one receipt figure (tools/lib/receipt-figure.ts): runs, answers, Nightshift answers verified, Ollama backup answers.
   receipt_figure: receiptSentence(receiptFigure(resolveProjectPath("."))),
   recorded_runs: String(recordedStats.runs),
+  exported_split: exportedSplit,
   who_guard: whoAnswered("Safety guard", false),
   who_screener: whoAnswered("Screener", false),
   who_decision: whoAnswered("Decision", true),

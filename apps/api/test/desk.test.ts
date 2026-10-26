@@ -210,10 +210,11 @@ describe("the review desk routes", () => {
     expect(String(body.headline.per_alert.alerts)).toBe(said?.[2]);
   });
 
-  it("gives every held-out round with its baselines, in the same words as the README table", async () => {
+  it("gives every held-out round with its baselines, with the same counts and case ids as the README table", async () => {
     const { app } = await sampleApp();
+    type Cell = { wrong_closes: number; risk: number; clears_made: number; clears: number; wrong_close_ids: string[] };
     const body = (await app.inject({ method: "GET", url: "/exam" })).json() as {
-      heldout_rounds: Array<{ label: string; cells: Record<string, { text: string } | null> }>;
+      heldout_rounds: Array<{ label: string; cells: Record<string, Cell | null> }>;
     };
     expect(body.heldout_rounds.map((r) => r.label)).toEqual([
       "Held-out v1 (30 cases)",
@@ -231,11 +232,19 @@ describe("the review desk routes", () => {
         .split(" | ")
         .slice(1)
         .map((c) => c.replaceAll("**", "").replace(/ \|$/, ""));
+      const keys = ["routed", "single", "rules", "fuzzy", "escalate_all"];
       expect(cells, round.label).toEqual(
-        ["routed", "single", "rules", "fuzzy", "escalate_all"].map(
-          (k) => round.cells[k]?.text ?? "not part of this round",
-        ),
+        keys.map((k) => {
+          const c = round.cells[k];
+          return c
+            ? `${c.wrong_closes} of ${c.risk} risks closed; ${c.clears_made} of ${c.clears} clears`
+            : "not part of this round";
+        }),
       );
+      // The ids of the wrongly closed cases are in the footnote line of the round, under the table.
+      const ids = keys.flatMap((k) => round.cells[k]?.wrong_close_ids ?? []);
+      const note = table.split("\n").find((l) => l.startsWith(`- ${round.label}`)) ?? "";
+      for (const id of ids) expect(note, round.label).toContain(id);
     }
   });
 

@@ -7,6 +7,7 @@ import {
   callsByModel,
   costLabel,
   LIGHTNING,
+  NOT_RUN,
   OLLAMA,
   poolRuns,
   type RunFigures,
@@ -117,8 +118,8 @@ describe("the local-mode study", () => {
     const partial = buildStudy(some, units);
     expect(partial.status).toBe("in_progress");
     expect(partial.arms.every((a) => a.pooled === null)).toBe(true);
-    expect(renderDocBlock(partial, {})).toContain("not measured yet");
-    expect(renderReadmeLine(partial, {})).toContain("not measured yet");
+    expect(renderDocBlock(partial, {})).toContain(NOT_RUN);
+    expect(renderReadmeLine(partial, {})).toContain(NOT_RUN);
     const full = buildStudy([...some, one("a3-default-r2"), one("a3-default-r3")], units);
     expect(full.status).toBe("complete");
     expect(full.arms.map((a) => a.pooled?.runs)).toEqual([3, 3]);
@@ -170,8 +171,9 @@ describe("the local-mode study", () => {
       },
     };
     const line = renderReadmeLine(s, choice);
-    expect(line).toContain("about 6 minutes per alert locally, the median per case of the model-choice study");
-    expect(line).toContain("70-case local run: not measured");
+    expect(line).toContain("Not run yet: a held-out v4 study and a 70-case run in fully local mode.");
+    expect(line).toContain("a median of 385 s per case against 110 s");
+    expect(line).not.toContain("not measured");
     expect(renderDocBlock(s, choice)).toContain("a median of 385 s per case against 110 s");
   });
 });
