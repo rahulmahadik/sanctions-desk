@@ -1,6 +1,6 @@
 # Small studies
 
-These are small live studies run on 24 and 25 Oct 2026. They are **not part of the recorded evaluation** (that is in [eval/runs](../runs) and [eval/results](../results)). Each one is a few runs on a small set of cases, so it shows the shape of a result, not a measured difference.
+These are small live studies run from 24 to 26 Oct 2026. They are **not part of the recorded evaluation** (that is in [eval/runs](../runs) and [eval/results](../results)). Each one is a few runs on a small set of cases, so it shows the shape of a result, not a measured difference.
 
 Each run folder has the same files as an exported evaluation run:
 
@@ -33,7 +33,7 @@ For each run this checks every receipt's signature against the pinned Nightshift
 | [heldout3-rerun](heldout3-rerun) | Held-out v3 (12 cases): today's system three times (`todayt1` to `todayt3`) | Held-out v3 re-run after the fail-closed fix. Not blind: the cases were known. The recorded v3 result stays the headline | [docs/EVALUATION.md](../../docs/EVALUATION.md) and [docs/NEMOTRON.md](../../docs/NEMOTRON.md) (Held-out v3 three ways), [eval/v3-today.json](../v3-today.json) |
 | [model-choice](model-choice) | Decision, critic and challenger on Nemotron 3.5 Lightning (local): held-out v4 (12 cases) and 8 of the 70 exam cases | The Lightning arm of the model-choice study. The default (Ultra) arm is the privacy-mode-off pair in `privacy-mode`. [STUDY.md](model-choice/STUDY.md) is the table written at the time | [docs/NEMOTRON.md](../../docs/NEMOTRON.md) (Why two models), [eval/model-choice.json](../model-choice.json) |
 | [privacy-mode](privacy-mode) | The full system with privacy mode off (`privoff`) and on (`privon`), each on held-out v4 (12 cases) and the same 8 exam cases | Which model served each step, and whether pseudonymising the cloud calls changed the outcomes | [docs/NEMOTRON.md](../../docs/NEMOTRON.md) (Small test of an optional mode), [eval/receipt-stats.json](../receipt-stats.json) |
-| `local-mode` (written by `npm run study:local-mode` once its runs are in) | Held-out v4 (12 cases): the current system three times with every model step on Nemotron 3.5 Lightning on the laptop (`a3-local-r1` to `a3-local-r3`) and three times in the default mode (`a3-default-r1` to `a3-default-r3`) | What the fully local mode costs in outcomes, time per case and cloud calls | [docs/NEMOTRON.md](../../docs/NEMOTRON.md) (Fully local mode), [eval/local-mode.json](../local-mode.json) |
+| [local-mode](local-mode) (written by `npm run study:local-mode`) | Held-out v4 (12 cases): the current system three times with every model step on Nemotron 3.5 Lightning on the laptop (`a3-local-r1` to `a3-local-r3`) and three times in the default mode (`a3-default-r1` to `a3-default-r3`) | What the fully local mode costs in outcomes, time per case and cloud calls | [docs/NEMOTRON.md](../../docs/NEMOTRON.md) (Fully local mode), [eval/local-mode.json](../local-mode.json) |
 
 ## The live step-role reviews
 

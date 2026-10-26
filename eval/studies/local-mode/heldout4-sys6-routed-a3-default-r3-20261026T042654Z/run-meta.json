@@ -1,0 +1,90 @@
+{
+  "run_id": "heldout4-sys6-routed-a3-default-r3-20261026T042654Z",
+  "study": "local-mode",
+  "source": "logs/a3/2026-10-26T04-26-54-371Z-heldout4-sys6-routed-a3-default-r3.json",
+  "variant": "routed",
+  "exam": "heldout4",
+  "system": "sys6",
+  "started_at": "2026-10-26T04:26:54.371Z",
+  "finished_at": "2026-10-26T04:39:07.893Z",
+  "policy_version": 9,
+  "features": {
+    "commit": "5701901",
+    "commit_read": "at start",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "screener": {
+      "enabled": true,
+      "confidence_threshold": 0.5
+    },
+    "cockpit_binds": {
+      "sanctions-desk-eval": "auto",
+      "sanctions-desk-guard": "local",
+      "sanctions-desk-reasoning": "deep"
+    },
+    "app_identities": {
+      "triage": "default",
+      "evidence": "default",
+      "screener": "guard",
+      "matching": "default",
+      "ownership": "default",
+      "decision": "reasoning",
+      "critic": "reasoning",
+      "challenger": "reasoning",
+      "policy_guard": "guard",
+      "reporter": "default"
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "retry_identities": {
+      "decision": "guard",
+      "critic": "guard",
+      "challenger": "guard"
+    },
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "nightshift_build": {
+    "version": "1.2.1",
+    "source": "the application's About screen, confirmed by the project owner; no separate runtime version is shown",
+    "known_limits": [
+      "an app bind in the cockpit replaces the mode or model id the client asks for (the receipt records both), so explicit model ids are coerced",
+      "the cloud model sometimes answers slowly or not at all: timeouts and HTTP 502 were seen in the runs"
+    ]
+  },
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "screener": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "deep / reasoning 500",
+    "critic": "judge / reasoning 400",
+    "challenger": "deep / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": 12,
+  "events": 510,
+  "receipts": 92,
+  "files": {
+    "results.json": {
+      "bytes": 14526,
+      "sha256": "0f81bd879692ea469ed4a6c889991aebf066173b83e01cb87a28b6cc116a9ee3"
+    },
+    "trace.jsonl.gz": {
+      "bytes": 45383,
+      "sha256": "9a625135dededf8662ce71924b57fadccf572e838f2b5ea67f874d9120b754a0"
+    },
+    "receipts.jsonl.gz": {
+      "bytes": 31914,
+      "sha256": "adc28584bcd2b178968c20c7adacdcac18650156b021ffa13331d4b89c01e235"
+    }
+  },
+  "redacted": "tokens, local paths, hostnames and addresses other than the local machine, usernames, e-mail addresses and secret environment values were removed from results.json and trace.jsonl.gz; receipts.jsonl.gz is untouched",
+  "verify": "npm run evidence:verify -- eval/studies/local-mode/heldout4-sys6-routed-a3-default-r3-20261026T042654Z"
+}

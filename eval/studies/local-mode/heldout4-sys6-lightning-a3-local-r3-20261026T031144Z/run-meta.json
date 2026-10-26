@@ -1,0 +1,89 @@
+{
+  "run_id": "heldout4-sys6-lightning-a3-local-r3-20261026T031144Z",
+  "study": "local-mode",
+  "source": "logs/a3/2026-10-26T03-11-44-944Z-heldout4-sys6-lightning-a3-local-r3.json",
+  "variant": "lightning",
+  "exam": "heldout4",
+  "system": "sys6",
+  "started_at": "2026-10-26T03:11:44.944Z",
+  "finished_at": "2026-10-26T04:05:57.496Z",
+  "policy_version": 9,
+  "features": {
+    "commit": "5701901",
+    "commit_read": "at start",
+    "structured_output": true,
+    "challenger": {
+      "enabled": true,
+      "confidenceBelow": 0.85,
+      "nameScoreAtLeast": 0.95,
+      "onDataQualityIssue": true
+    },
+    "screener": {
+      "enabled": true,
+      "confidence_threshold": 0.5
+    },
+    "cockpit_binds": {
+      "sanctions-desk-eval": "auto",
+      "sanctions-desk-guard": "local"
+    },
+    "app_identities": {
+      "triage": "default",
+      "evidence": "default",
+      "screener": "guard",
+      "matching": "default",
+      "ownership": "default",
+      "decision": "guard",
+      "critic": "guard",
+      "challenger": "guard",
+      "policy_guard": "guard",
+      "reporter": "default"
+    },
+    "tries_per_model_step": "own lane, then fast lane, then Ollama backup; a pause after a provider failure",
+    "retry_identities": {
+      "decision": "guard",
+      "critic": "guard",
+      "challenger": "guard"
+    },
+    "provider_backoff_ms": 1500,
+    "challenger_points": "up to eight, strongest first"
+  },
+  "nightshift_build": {
+    "version": "1.2.1",
+    "source": "the application's About screen, confirmed by the project owner; no separate runtime version is shown",
+    "known_limits": [
+      "an app bind in the cockpit replaces the mode or model id the client asks for (the receipt records both), so explicit model ids are coerced",
+      "the cloud model sometimes answers slowly or not at all: timeouts and HTTP 502 were seen in the runs"
+    ]
+  },
+  "models": {
+    "triage": "fast / off",
+    "evidence": "fast / off",
+    "screener": "fast / off",
+    "matching": "fast / off",
+    "ownership": "deep / reasoning 500",
+    "decision": "fast / reasoning 500",
+    "critic": "fast / reasoning 400",
+    "challenger": "fast / reasoning 500",
+    "policy_guard": "fast / off",
+    "reporter": "fast / off"
+  },
+  "cases": 12,
+  "events": 604,
+  "receipts": 99,
+  "files": {
+    "results.json": {
+      "bytes": 13405,
+      "sha256": "74ebfad7006eac3b216a5ecb473b8aee46ddafff42177f5e7f91be4643077870"
+    },
+    "trace.jsonl.gz": {
+      "bytes": 62061,
+      "sha256": "4cc58459f2476d2b288c3791c00a453cbe51f1a437cc80b1ced5305bbf45fde9"
+    },
+    "receipts.jsonl.gz": {
+      "bytes": 32617,
+      "sha256": "964791a68029981f04fb632b326ebd985857803b21ab145a65b8bf67187f5e85"
+    }
+  },
+  "redacted": "tokens, local paths, hostnames and addresses other than the local machine, usernames, e-mail addresses and secret environment values were removed from results.json and trace.jsonl.gz; receipts.jsonl.gz is untouched",
+  "verify": "npm run evidence:verify -- eval/studies/local-mode/heldout4-sys6-lightning-a3-local-r3-20261026T031144Z"
+}

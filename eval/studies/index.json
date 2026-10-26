@@ -219,6 +219,72 @@
       "events": 374,
       "receipts": 45,
       "bytes": 63312
+    },
+    {
+      "study": "local-mode",
+      "run_id": "heldout4-sys6-lightning-a3-local-r1-20261025T185811Z",
+      "path": "eval/studies/local-mode/heldout4-sys6-lightning-a3-local-r1-20261025T185811Z",
+      "source": "logs/a3/2026-10-25T18-58-11-590Z-heldout4-sys6-lightning-a3-local-r1.json",
+      "started_at": "2026-10-25T18:58:11.590Z",
+      "cases": 12,
+      "events": 501,
+      "receipts": 78,
+      "bytes": 92430
+    },
+    {
+      "study": "local-mode",
+      "run_id": "heldout4-sys6-lightning-a3-local-r2-20261025T195755Z",
+      "path": "eval/studies/local-mode/heldout4-sys6-lightning-a3-local-r2-20261025T195755Z",
+      "source": "logs/a3/2026-10-25T19-57-55-386Z-heldout4-sys6-lightning-a3-local-r2.json",
+      "started_at": "2026-10-25T19:57:55.386Z",
+      "cases": 12,
+      "events": 581,
+      "receipts": 95,
+      "bytes": 107946
+    },
+    {
+      "study": "local-mode",
+      "run_id": "heldout4-sys6-lightning-a3-local-r3-20261026T031144Z",
+      "path": "eval/studies/local-mode/heldout4-sys6-lightning-a3-local-r3-20261026T031144Z",
+      "source": "logs/a3/2026-10-26T03-11-44-944Z-heldout4-sys6-lightning-a3-local-r3.json",
+      "started_at": "2026-10-26T03:11:44.944Z",
+      "cases": 12,
+      "events": 604,
+      "receipts": 99,
+      "bytes": 111157
+    },
+    {
+      "study": "local-mode",
+      "run_id": "heldout4-sys6-routed-a3-default-r1-20261026T040601Z",
+      "path": "eval/studies/local-mode/heldout4-sys6-routed-a3-default-r1-20261026T040601Z",
+      "source": "logs/a3/2026-10-26T04-06-01-211Z-heldout4-sys6-routed-a3-default-r1.json",
+      "started_at": "2026-10-26T04:06:01.211Z",
+      "cases": 12,
+      "events": 492,
+      "receipts": 87,
+      "bytes": 92132
+    },
+    {
+      "study": "local-mode",
+      "run_id": "heldout4-sys6-routed-a3-default-r2-20261026T041734Z",
+      "path": "eval/studies/local-mode/heldout4-sys6-routed-a3-default-r2-20261026T041734Z",
+      "source": "logs/a3/2026-10-26T04-17-34-983Z-heldout4-sys6-routed-a3-default-r2.json",
+      "started_at": "2026-10-26T04:17:34.983Z",
+      "cases": 12,
+      "events": 478,
+      "receipts": 85,
+      "bytes": 88483
+    },
+    {
+      "study": "local-mode",
+      "run_id": "heldout4-sys6-routed-a3-default-r3-20261026T042654Z",
+      "path": "eval/studies/local-mode/heldout4-sys6-routed-a3-default-r3-20261026T042654Z",
+      "source": "logs/a3/2026-10-26T04-26-54-371Z-heldout4-sys6-routed-a3-default-r3.json",
+      "started_at": "2026-10-26T04:26:54.371Z",
+      "cases": 12,
+      "events": 510,
+      "receipts": 92,
+      "bytes": 94946
     }
   ]
 }

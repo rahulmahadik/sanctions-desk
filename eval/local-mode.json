@@ -1,8 +1,8 @@
 {
   "note": "Written by npm run study:local-mode from the exported study runs in eval/studies/local-mode; do not edit by hand.",
   "label": "Small study of the fully local mode, held-out v4, three runs per arm, not part of the recorded evaluation",
-  "status": "in_progress",
-  "runs_found": 0,
+  "status": "complete",
+  "runs_found": 6,
   "runs_expected": 6,
   "unit_costs": {
     "currency": "USD",
@@ -14,14 +14,379 @@
     {
       "id": "local",
       "label": "Fully local mode: every step on Nemotron 3.5 Lightning (laptop)",
-      "runs": [],
-      "pooled": null
+      "runs": [
+        {
+          "run_id": "heldout4-sys6-lightning-a3-local-r1-20261025T185811Z",
+          "arm": "local",
+          "tag": "a3-local-r1",
+          "cases": 12,
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 0,
+          "clear_cases": 6,
+          "unsupported_blocks": 0,
+          "not_block_cases": 12,
+          "unusable": 7,
+          "unusable_by_cause": {
+            "timeout": 1,
+            "parsing": 6,
+            "provider": 0,
+            "withheld": 0,
+            "other": 0
+          },
+          "timed_out": [
+            {
+              "case_id": "HO4-009",
+              "after_s": 600
+            }
+          ],
+          "failed_calls": {
+            "calls": 23,
+            "nightshift_empty_response": 17,
+            "nightshift_timeout": 6,
+            "nightshift_provider_deadline": 0,
+            "nightshift_other": 0,
+            "ollama_token_limit": 23,
+            "ollama_other": 0
+          },
+          "timed_cases": 11,
+          "median_case_s": 234,
+          "p95_case_s": 394.9,
+          "calls_by_model": {
+            "Nemotron 3.5 Lightning 30B": 78,
+            "Ollama backup (Lightning, no receipt)": 15
+          },
+          "recorded_cost": {
+            "receipts": 78,
+            "actual_usd": 0
+          },
+          "illustrative_usd": 0
+        },
+        {
+          "run_id": "heldout4-sys6-lightning-a3-local-r2-20261025T195755Z",
+          "arm": "local",
+          "tag": "a3-local-r2",
+          "cases": 12,
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 0,
+          "clear_cases": 6,
+          "unsupported_blocks": 0,
+          "not_block_cases": 12,
+          "unusable": 5,
+          "unusable_by_cause": {
+            "timeout": 1,
+            "parsing": 4,
+            "provider": 0,
+            "withheld": 0,
+            "other": 0
+          },
+          "timed_out": [
+            {
+              "case_id": "HO4-009",
+              "after_s": 600
+            }
+          ],
+          "failed_calls": {
+            "calls": 43,
+            "nightshift_empty_response": 42,
+            "nightshift_timeout": 1,
+            "nightshift_provider_deadline": 0,
+            "nightshift_other": 0,
+            "ollama_token_limit": 43,
+            "ollama_other": 0
+          },
+          "timed_cases": 11,
+          "median_case_s": 311.5,
+          "p95_case_s": 519.3,
+          "calls_by_model": {
+            "Nemotron 3.5 Lightning 30B": 95,
+            "Ollama backup (Lightning, no receipt)": 13
+          },
+          "recorded_cost": {
+            "receipts": 95,
+            "actual_usd": 0
+          },
+          "illustrative_usd": 0
+        },
+        {
+          "run_id": "heldout4-sys6-lightning-a3-local-r3-20261026T031144Z",
+          "arm": "local",
+          "tag": "a3-local-r3",
+          "cases": 12,
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 0,
+          "clear_cases": 6,
+          "unsupported_blocks": 0,
+          "not_block_cases": 12,
+          "unusable": 5,
+          "unusable_by_cause": {
+            "timeout": 1,
+            "parsing": 4,
+            "provider": 0,
+            "withheld": 0,
+            "other": 0
+          },
+          "timed_out": [
+            {
+              "case_id": "HO4-009",
+              "after_s": 600
+            }
+          ],
+          "failed_calls": {
+            "calls": 44,
+            "nightshift_empty_response": 43,
+            "nightshift_timeout": 1,
+            "nightshift_provider_deadline": 0,
+            "nightshift_other": 0,
+            "ollama_token_limit": 44,
+            "ollama_other": 0
+          },
+          "timed_cases": 11,
+          "median_case_s": 292.1,
+          "p95_case_s": 336.7,
+          "calls_by_model": {
+            "Nemotron 3.5 Lightning 30B": 99,
+            "Ollama backup (Lightning, no receipt)": 16
+          },
+          "recorded_cost": {
+            "receipts": 99,
+            "actual_usd": 0
+          },
+          "illustrative_usd": 0
+        }
+      ],
+      "pooled": {
+        "runs": 3,
+        "cases": 36,
+        "wrong_closes": 0,
+        "risk_cases": 18,
+        "wrong_range": "0–18%",
+        "clears_made": 0,
+        "clear_cases": 18,
+        "clears_range": "0–18%",
+        "unsupported_blocks": 0,
+        "not_block_cases": 36,
+        "unsupported_range": "0–10%",
+        "unusable": 17,
+        "unusable_range": "32–63%",
+        "unusable_by_cause": {
+          "timeout": 3,
+          "parsing": 14,
+          "provider": 0,
+          "withheld": 0,
+          "other": 0
+        },
+        "timed_out": [
+          {
+            "case_id": "HO4-009",
+            "after_s": 600,
+            "runs": 3
+          }
+        ],
+        "failed_calls": {
+          "calls": 110,
+          "nightshift_empty_response": 102,
+          "nightshift_timeout": 8,
+          "nightshift_provider_deadline": 0,
+          "nightshift_other": 0,
+          "ollama_token_limit": 110,
+          "ollama_other": 0
+        },
+        "timed_cases": 33,
+        "median_case_s": 292.2,
+        "p95_case_s": 394.9,
+        "calls_by_model": {
+          "Nemotron 3.5 Lightning 30B": 272,
+          "Ollama backup (Lightning, no receipt)": 44
+        },
+        "recorded_cost": {
+          "receipts": 272,
+          "actual_usd": 0
+        },
+        "illustrative_usd": 0
+      }
     },
     {
       "id": "default",
       "label": "Default mode: decision, critic and challenger on the cloud lane",
-      "runs": [],
-      "pooled": null
+      "runs": [
+        {
+          "run_id": "heldout4-sys6-routed-a3-default-r1-20261026T040601Z",
+          "arm": "default",
+          "tag": "a3-default-r1",
+          "cases": 12,
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 1,
+          "clear_cases": 6,
+          "unsupported_blocks": 0,
+          "not_block_cases": 12,
+          "unusable": 0,
+          "unusable_by_cause": {
+            "timeout": 0,
+            "parsing": 0,
+            "provider": 0,
+            "withheld": 0,
+            "other": 0
+          },
+          "timed_out": [],
+          "failed_calls": {
+            "calls": 1,
+            "nightshift_empty_response": 0,
+            "nightshift_timeout": 0,
+            "nightshift_provider_deadline": 1,
+            "nightshift_other": 0,
+            "ollama_token_limit": 1,
+            "ollama_other": 0
+          },
+          "timed_cases": 12,
+          "median_case_s": 34.6,
+          "p95_case_s": 199.3,
+          "calls_by_model": {
+            "Nemotron 3.5 Lightning 30B": 51,
+            "Nemotron 3 Ultra 550B": 36,
+            "Ollama backup (Lightning, no receipt)": 1
+          },
+          "recorded_cost": {
+            "receipts": 87,
+            "actual_usd": 0
+          },
+          "illustrative_usd": 0.082652
+        },
+        {
+          "run_id": "heldout4-sys6-routed-a3-default-r2-20261026T041734Z",
+          "arm": "default",
+          "tag": "a3-default-r2",
+          "cases": 12,
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 1,
+          "clear_cases": 6,
+          "unsupported_blocks": 0,
+          "not_block_cases": 12,
+          "unusable": 0,
+          "unusable_by_cause": {
+            "timeout": 0,
+            "parsing": 0,
+            "provider": 0,
+            "withheld": 0,
+            "other": 0
+          },
+          "timed_out": [],
+          "failed_calls": {
+            "calls": 1,
+            "nightshift_empty_response": 0,
+            "nightshift_timeout": 0,
+            "nightshift_provider_deadline": 1,
+            "nightshift_other": 0,
+            "ollama_token_limit": 1,
+            "ollama_other": 0
+          },
+          "timed_cases": 12,
+          "median_case_s": 24.2,
+          "p95_case_s": 150.2,
+          "calls_by_model": {
+            "Nemotron 3.5 Lightning 30B": 51,
+            "Nemotron 3 Ultra 550B": 34,
+            "Ollama backup (Lightning, no receipt)": 1
+          },
+          "recorded_cost": {
+            "receipts": 85,
+            "actual_usd": 0
+          },
+          "illustrative_usd": 0.074924
+        },
+        {
+          "run_id": "heldout4-sys6-routed-a3-default-r3-20261026T042654Z",
+          "arm": "default",
+          "tag": "a3-default-r3",
+          "cases": 12,
+          "wrong_closes": 0,
+          "risk_cases": 6,
+          "clears_made": 1,
+          "clear_cases": 6,
+          "unsupported_blocks": 0,
+          "not_block_cases": 12,
+          "unusable": 0,
+          "unusable_by_cause": {
+            "timeout": 0,
+            "parsing": 0,
+            "provider": 0,
+            "withheld": 0,
+            "other": 0
+          },
+          "timed_out": [],
+          "failed_calls": {
+            "calls": 2,
+            "nightshift_empty_response": 0,
+            "nightshift_timeout": 0,
+            "nightshift_provider_deadline": 2,
+            "nightshift_other": 0,
+            "ollama_token_limit": 2,
+            "ollama_other": 0
+          },
+          "timed_cases": 12,
+          "median_case_s": 41.7,
+          "p95_case_s": 218.5,
+          "calls_by_model": {
+            "Nemotron 3.5 Lightning 30B": 53,
+            "Nemotron 3 Ultra 550B": 39,
+            "Ollama backup (Lightning, no receipt)": 1
+          },
+          "recorded_cost": {
+            "receipts": 92,
+            "actual_usd": 0
+          },
+          "illustrative_usd": 0.090882
+        }
+      ],
+      "pooled": {
+        "runs": 3,
+        "cases": 36,
+        "wrong_closes": 0,
+        "risk_cases": 18,
+        "wrong_range": "0–18%",
+        "clears_made": 3,
+        "clear_cases": 18,
+        "clears_range": "6–39%",
+        "unsupported_blocks": 0,
+        "not_block_cases": 36,
+        "unsupported_range": "0–10%",
+        "unusable": 0,
+        "unusable_range": "0–10%",
+        "unusable_by_cause": {
+          "timeout": 0,
+          "parsing": 0,
+          "provider": 0,
+          "withheld": 0,
+          "other": 0
+        },
+        "timed_out": [],
+        "failed_calls": {
+          "calls": 4,
+          "nightshift_empty_response": 0,
+          "nightshift_timeout": 0,
+          "nightshift_provider_deadline": 4,
+          "nightshift_other": 0,
+          "ollama_token_limit": 4,
+          "ollama_other": 0
+        },
+        "timed_cases": 36,
+        "median_case_s": 34.6,
+        "p95_case_s": 199.3,
+        "calls_by_model": {
+          "Nemotron 3.5 Lightning 30B": 155,
+          "Nemotron 3 Ultra 550B": 109,
+          "Ollama backup (Lightning, no receipt)": 3
+        },
+        "recorded_cost": {
+          "receipts": 264,
+          "actual_usd": 0
+        },
+        "illustrative_usd": 0.248458
+      }
     }
   ]
 }

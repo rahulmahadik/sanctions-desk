@@ -2,18 +2,21 @@
   "pinned_keys": [
     "00OsSOXGbDitkESZueIJqDPdf9bXAvyrL+8cYDbY6II="
   ],
-  "files": 55,
-  "receipts": 3411,
+  "files": 61,
+  "receipts": 3947,
+  "headline": 3411,
   "from_runs": 2532,
   "from_studies": 879,
+  "from_local_mode": 536,
   "from_elsewhere": 0,
-  "valid_pinned": 3411,
+  "valid_pinned": 3947,
   "valid_unpinned": 0,
   "invalid": 0,
   "malformed": 0,
   "groups": {
     "runs": {
       "receipts": 2532,
+      "valid_pinned": 2532,
       "folders": 32,
       "with_added_memory": 1483,
       "cross_check": {
@@ -27,6 +30,7 @@
     },
     "studies": {
       "receipts": 879,
+      "valid_pinned": 879,
       "folders": 23,
       "with_added_memory": 0,
       "cross_check": {
@@ -38,8 +42,23 @@
         "citation_consistency": 234
       }
     },
+    "local_mode": {
+      "receipts": 536,
+      "valid_pinned": 536,
+      "folders": 6,
+      "with_added_memory": 0,
+      "cross_check": {
+        "skipped": 458,
+        "warning": 76,
+        "passed": 2
+      },
+      "cross_check_warnings": {
+        "citation_consistency": 76
+      }
+    },
     "elsewhere": {
       "receipts": 0,
+      "valid_pinned": 0,
       "folders": 0,
       "with_added_memory": 0,
       "cross_check": {},
@@ -323,6 +342,54 @@
       "file": "eval/studies/heldout3-rerun/heldout3-todayt3-routed-20261024T191720Z/receipts.jsonl.gz",
       "receipts": 66,
       "valid_pinned": 66,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/local-mode/heldout4-sys6-lightning-a3-local-r1-20261025T185811Z/receipts.jsonl.gz",
+      "receipts": 78,
+      "valid_pinned": 78,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/local-mode/heldout4-sys6-lightning-a3-local-r2-20261025T195755Z/receipts.jsonl.gz",
+      "receipts": 95,
+      "valid_pinned": 95,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/local-mode/heldout4-sys6-lightning-a3-local-r3-20261026T031144Z/receipts.jsonl.gz",
+      "receipts": 99,
+      "valid_pinned": 99,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/local-mode/heldout4-sys6-routed-a3-default-r1-20261026T040601Z/receipts.jsonl.gz",
+      "receipts": 87,
+      "valid_pinned": 87,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/local-mode/heldout4-sys6-routed-a3-default-r2-20261026T041734Z/receipts.jsonl.gz",
+      "receipts": 85,
+      "valid_pinned": 85,
+      "valid_unpinned": 0,
+      "invalid": 0,
+      "malformed": 0
+    },
+    {
+      "file": "eval/studies/local-mode/heldout4-sys6-routed-a3-default-r3-20261026T042654Z/receipts.jsonl.gz",
+      "receipts": 92,
+      "valid_pinned": 92,
       "valid_unpinned": 0,
       "invalid": 0,
       "malformed": 0
